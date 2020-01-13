@@ -1,0 +1,1 @@
+- Do a unittest for the --add-rez-requirements flag
