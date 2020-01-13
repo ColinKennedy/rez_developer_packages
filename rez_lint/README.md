@@ -38,15 +38,16 @@ C110 - not using semantic versioning
 
 ### Danger
 
-Code|Description
-improper-requirements|Adding Requirements to a Rez package that should be re-located
-lower-bounds-missing|Rez requirements should define lower bounds, to keep Rez resolves fast
-missing-requirements|Auto-detected package requirements that aren't in the Rez package's ``requires`` list
-no-rez-test|Define tests for the Rez package. This goes without saying
-not-python-definition|Using anything other than a package.py to define a Rez package
-requirements-not-sorted|Rez requirements need to be in alphabetical order
-too-many-dependencies|When a Rez package has more dependencies that necessary
-url-unreachable|If Rez help refers to a missing website
+|          Code           |                                      Description                                      |
+|-------------------------|---------------------------------------------------------------------------------------|
+| improper-requirements   | Adding Requirements to a Rez package that should be re-located                        |
+| lower-bounds-missing    | Rez requirements should define lower bounds, to keep Rez resolves fast                |
+| missing-requirements    | Auto-detected package requirements that aren't in the Rez package's ``requires`` list |
+| no-rez-test             | Define tests for the Rez package. This goes without saying                            |
+| not-python-definition   | Using anything other than a package.py to define a Rez package                        |
+| requirements-not-sorted | Rez requirements need to be in alphabetical order                                     |
+| too-many-dependencies   | When a Rez package has more dependencies that necessary                               |
+| url-unreachable         | If Rez help refers to a missing website                                               |
 
 
 #### requirements-not-sorted
