@@ -42,17 +42,17 @@ It basically automates what is otherwise a tedious, manual process.
 ### Basic Command
 
 ```sh
-python -m rez_documentation_search fix "touch test_file.txt" AS-1234 4af47dcab34dd15aebf07239ab8e78c8e68689c6
+python -m rez_documentation_search fix "touch test_file.txt" AS-1234 git-token
 ```
 
 ### Advanced Command
 
 ```sh
-python -m rez_documentation_search fix --keep-temporary-files --clone-directory /tmp/repository_clones/attempt_1 --packages rez_documentation_search --base-url https://github-enterprise.com --search-packages-path `rez-config release_packages_path`:$REZ_PACKAGES_PATH "touch test_file.txt" AS-1234 4af47dcab34dd15aebf07239ab8e78c8e68689c6
+python -m rez_documentation_search fix --keep-temporary-files --clone-directory /tmp/repository_clones/attempt_1 --packages rez_documentation_search --base-url https://github-enterprise.com --search-packages-path `rez-config release_packages_path`:$REZ_PACKAGES_PATH "touch test_file.txt" AS-1234 git-token
 ```
 
 ```sh
-python -m rez_documentation_search fix --keep-temporary-files --search-packages-path `rez-config release_packages_path`:$REZ_PACKAGES_PATH "touch test_file.txt" AS-1234 4af47dcab34dd15aebf07239ab8e78c8e68689c6 --temporary-director
+python -m rez_documentation_search fix --keep-temporary-files --search-packages-path `rez-config release_packages_path`:$REZ_PACKAGES_PATH "touch test_file.txt" AS-1234 git-token --temporary-director
 y /tmp/foo/bar
 ```
 
