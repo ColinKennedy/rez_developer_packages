@@ -66,18 +66,18 @@ rez_lint --disable=no-change-log,lower-bounds-missing
 
 |       Code       |                             Description                             |
 |------------------|---------------------------------------------------------------------|
+| needs-comment    | A package requirement needs an explanation                          |
 | no-change-log    | Need a CHANGELOG.md / CHANGELOG.rst / etc for the package           |
 | no-documentation | Missing documentation in a Python package                           |
 | no-read-me       | Package has no summary information. What does it do, its rules, etc |
-| needs-comment    | A package requirement needs an explanation                          |
 
 
 ### Convention
 
 |        Code         |                                     Description                                      |
 |---------------------|--------------------------------------------------------------------------------------|
-| semantic-versioning | Use versioning X.Y.Z (example: "1.0.0") for packaging                                |
 | bad-author          | Author names should either be a valid GitHub user name, full name, or e-mail address |
+| semantic-versioning | Use versioning X.Y.Z (example: "1.0.0") for packaging                                |
 
 
 # Check Details
