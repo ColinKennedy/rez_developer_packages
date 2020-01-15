@@ -5,6 +5,40 @@ catches the issues that Rez doesn't already. The kinds of checks that
 you didn't know you needed.
 
 
+# How To Run
+
+cd into your Rez package and run ``rez_lint``
+
+```sh
+rez-env rez_lint -- rez_lint
+```
+
+The tool will check the package for issues and report them
+
+
+# Features
+
+Run recursively (checking every found Rez package under a folder)
+
+```sh
+rez_lint --recursive
+```
+
+Output the issues a vimgrep-style location list
+
+```sh
+rez_lint --vimgrep
+package.py:6:0:version = "1.0" (semantic-versioning)
+package.py:12:0:requires = [ (lower-bounds-missing)
+```
+
+Disable a check
+
+```sh
+rez_lint --disable=no-change-log,lower-bounds-missing
+```
+
+
 # Checks
 
 ## All Categories
@@ -60,7 +94,7 @@ combination of these, if you want.
 
 ```python
 authors = [
-	"Colin Kennedy (my@mail.com)",
+    "Colin Kennedy (my@mail.com)",
 ]
 ```
 
@@ -71,15 +105,15 @@ package.py that looks like this:
 
 ```python
 requires = [
-	"dependency-1",  # This uses mock-1
+    "dependency-1",  # This uses mock-1
 ]
 
 tests = {
-	"unittest": {
-		"requires": [
-			"mock-2+",
-		],
-	}
+    "unittest": {
+        "requires": [
+            "mock-2+",
+        ],
+    }
 }
 ```
 
@@ -93,11 +127,11 @@ That way, you never end up in a situation like this
 
 ```python
 private_build_requires = [
-	"cmake-3",
+    "cmake-3",
 ]
 
 requires = [
-	"dependency-1",  # This uses cmake-2.8
+    "dependency-1",  # This uses cmake-2.8
 ]
 ```
 
@@ -111,8 +145,8 @@ In short, always specify a minimum version, even if that version is the
 
 ```python
 requires = [
-	"dependency-2",  # Do this
-	"another_dependency",  # Do not do this
+    "dependency-2",  # Do this
+    "another_dependency",  # Do not do this
 ]
 ```
 
@@ -263,6 +297,7 @@ checks to prevent developers from releasing code.
 
 - TODO finish bad-author
 - Add unittests
+- Fix vimgrep sorting. The line / column number should be ascending
 
 
 - rename "verbose" to "details" and make "verbose" show logging statements
