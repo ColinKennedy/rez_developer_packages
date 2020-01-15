@@ -45,8 +45,7 @@ def __report(arguments, _):
     )
     rez_packages = set(arguments.rez_packages)
     latest_packages = inspection.iter_latest_packages(
-        paths=packages_path,
-        packages=rez_packages,
+        paths=packages_path, packages=rez_packages,
     )
     ignored_packages, other_packages = _split_the_ignored_packages(
         latest_packages, ignore_patterns
@@ -87,8 +86,7 @@ def __fix(arguments, command_arguments):
     )
     rez_packages = set(arguments.rez_packages)
     latest_packages = inspection.iter_latest_packages(
-        paths=packages_path,
-        packages=rez_packages,
+        paths=packages_path, packages=rez_packages,
     )
     ignored_packages, other_packages = _split_the_ignored_packages(
         latest_packages, ignore_patterns
@@ -431,6 +429,7 @@ def _add_arguments(parser):
         "--temporary-directory",
         help="A folder on-disk that will be used to clone git repositories.",
     )
+
 
 def _parse_arguments(text):
     """Add commands such as "check" and "fix" which can detect / add documentation.

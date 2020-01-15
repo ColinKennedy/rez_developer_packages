@@ -17,8 +17,7 @@ from . import base
 
 _LOGGER = logging.getLogger(__name__)
 Configuration = collections.namedtuple(
-    "Configuration",
-    "command token pull_request_prefix",
+    "Configuration", "command token pull_request_prefix",
 )
 
 
@@ -174,7 +173,11 @@ class RezShellCommand(base.BaseCommand):
 
         url = rez_git.get_repository_url_from_repository(repository)
         adapter = git_registry.get_remote_adapter(
-            package, url, configuration.token, fallback_reviewers=fallback_reviewers, base_url=base_url,
+            package,
+            url,
+            configuration.token,
+            fallback_reviewers=fallback_reviewers,
+            base_url=base_url,
         )
 
         if not adapter:
@@ -310,9 +313,7 @@ class RezShellCommand(base.BaseCommand):
         cls._create_pull_request(
             package,
             Configuration(
-                arguments.command,
-                arguments.token,
-                arguments.pull_request_prefix,
+                arguments.command, arguments.token, arguments.pull_request_prefix,
             ),
             cached_users=arguments.cached_users,
             fallback_reviewers=arguments.fallback_reviewers,
@@ -337,6 +338,7 @@ def _get_unique_branch(repository, base):
         str: The found unique branch name.
 
     """
+
     def _has_branch(repository, branch):
         for existing in repository.branches:
             if existing.name == branch:

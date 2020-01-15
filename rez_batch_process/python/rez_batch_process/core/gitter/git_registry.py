@@ -40,6 +40,8 @@ def get_remote_adapter(package, url, token, fallback_reviewers=None, base_url=""
 
     for adapter in _ADAPTERS:
         if adapter.is_valid_url(url):
-            return adapter(package, token, fallback_reviewers=fallback_reviewers, base_url=base_url)
+            return adapter(
+                package, token, fallback_reviewers=fallback_reviewers, base_url=base_url
+            )
 
     return None

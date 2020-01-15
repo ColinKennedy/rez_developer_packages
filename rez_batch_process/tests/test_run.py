@@ -321,8 +321,7 @@ class Variations(package_common.Tests):
         packages = self._setup_test(run_command, builder, variants=[["python-2.7"]],)
 
         release_path = _release_packages(
-            packages,
-            search_paths=config.packages_path,  # pylint: disable=no-member
+            packages, search_paths=config.packages_path,  # pylint: disable=no-member
         )
         self.add_item(release_path)
 
