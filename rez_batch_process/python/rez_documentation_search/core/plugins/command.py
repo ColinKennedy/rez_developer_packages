@@ -144,7 +144,7 @@ class RezShellCommand(base.BaseCommand):
                 The path to the cached remote users, if one exists.
                 Basically, querying users in sites like GitHub
                 takes a ton of time, which causes re-running
-                ``rez_documentation_search`` to be very slow. This
+                ``rez_batch_process`` to be very slow. This
                 parameter lets you cache the so user data doesn't need
                 to be queried over and over.
             fallback_reviewers (list[str]):

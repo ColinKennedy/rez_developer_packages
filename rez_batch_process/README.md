@@ -1,15 +1,27 @@
-- do more unittest. Variants class
--  make sure fix / reporting works with source packages that contain variants
- - and built packages
+``rez_batch_process`` has one purpose - to automate the process of changing Rez packages.
 
-- does has_python_package account for source packages + variants? Because it needs to!
- - Also technically source packages need to be built in order to determine if they are a Python package
+Rez is a great tool, but in a mature code-base of hundreds of Rez packages,
+it's hard to make broad changes.
+
+That's where ``rez_batch_process`` comes in.
 
 
-- Do CI stuff
-- Do TODO notes
+# What can rez_batch_process do
 
-``rez-documentation-search`` is a command-line tool that finds Rez
+Any shell command that you need to run on Rez packages, ``rez_batch_process`` can do.
+
+Here's some quick example use-cases
+
+- Add documentation to every Rez python package
+- Bump cmake 2.8 to cmake 3 on every package that uses it
+- Mark packages as deprecated
+- Change the requirements of Rez packages, making it easy and painless to increment a major version
+- Add CI ``rez-test`` related checks onto packages
+- Modify the structure of Rez packages
+- Prank your friends :)
+
+
+``rez-batch-process`` is a command-line tool that finds Rez
 packages that are missing Sphinx documentation. It also has the option
 to auto-add documentation to those packages.
 
@@ -42,17 +54,17 @@ It basically automates what is otherwise a tedious, manual process.
 ### Basic Command
 
 ```sh
-python -m rez_documentation_search fix "touch test_file.txt" AS-1234 git-token
+python -m rez_batch_process fix "touch test_file.txt" AS-1234 git-token
 ```
 
 ### Advanced Command
 
 ```sh
-python -m rez_documentation_search fix --keep-temporary-files --clone-directory /tmp/repository_clones/attempt_1 --packages rez_documentation_search --base-url https://github-enterprise.com --search-packages-path `rez-config release_packages_path`:$REZ_PACKAGES_PATH "touch test_file.txt" AS-1234 git-token
+python -m rez_batch_process fix --keep-temporary-files --clone-directory /tmp/repository_clones/attempt_1 --packages rez_batch_process --base-url https://github-enterprise.com --search-packages-path `rez-config release_packages_path`:$REZ_PACKAGES_PATH "touch test_file.txt" AS-1234 git-token
 ```
 
 ```sh
-python -m rez_documentation_search fix --keep-temporary-files --search-packages-path `rez-config release_packages_path`:$REZ_PACKAGES_PATH "touch test_file.txt" AS-1234 git-token --temporary-director
+python -m rez_batch_process fix --keep-temporary-files --search-packages-path `rez-config release_packages_path`:$REZ_PACKAGES_PATH "touch test_file.txt" AS-1234 git-token --temporary-director
 y /tmp/foo/bar
 ```
 
@@ -61,7 +73,7 @@ Wow - the "advanced" command is huge! Let's break it down to make it more unders
 TODO finish
 
 
-## Extending rez-documentation-search
+## Extending rez-batch-process
 
 TODO explain the plugin stuff
 
@@ -69,7 +81,7 @@ TODO - Check all rez package and their unittests / CI / coverage
 
  - python_compatibility
  - rez_documentation_check
- - rez_documentation_search
+ - rez_batch_process
  - rez_utilities
 
 TODO

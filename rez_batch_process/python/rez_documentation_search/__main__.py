@@ -205,7 +205,7 @@ def _resolve_arguments(patterns, packages_path, search_packages_path):
             # This happens in 2 scenarios
             # 1. The user-given pattern is actually a path on-disk
             # 2. The user does bash process substitution (e.g.
-            #    `rez-documentation-search report --ignore-patterns <(cat patterns.txt)`)
+            #    `rez-batch-process report --ignore-patterns <(cat patterns.txt)`)
             #
             ignore_patterns.update(_read_patterns(item))
         else:

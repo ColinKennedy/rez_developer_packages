@@ -11,7 +11,7 @@ import textwrap
 import git
 from python_compatibility.testing import common
 from rez import packages_
-from rez_documentation_search.core import worker
+from rez_batch_process.core import worker
 from rez_utilities import creator, inspection
 from six.moves import mock
 

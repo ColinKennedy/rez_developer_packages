@@ -15,7 +15,7 @@ import uuid
 
 from python_compatibility.testing import common
 from rez import exceptions
-from rez_documentation_search.core import worker
+from rez_batch_process.core import worker
 from rez_utilities import creator, inspection
 from six.moves import mock
 
@@ -205,7 +205,7 @@ class Add(common.Common):
 def _make_arguments(name):
     """Create fake user CLI input for the tests in this module.
 
-    This CLI input tells rez_documentation_search that the command to
+    This CLI input tells rez_batch_process that the command to
     run is "touch `name`". Assuming `name` doesn't exist as a file in
     the user's Rez package already, it's the perfect way to test whether
     or not the command actually ran. You just check to see if the file
