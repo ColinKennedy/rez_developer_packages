@@ -189,8 +189,8 @@ Things like that help a lot for new starters or people who stumble on the code.
 Unless the Rez package is meant for configuration, chances are
 the package implements some code. Your code should be tested,
 always, when users are involved. Define tests using the package's
-[test](https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#te
-sts) attribute.
+[test](https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#tests)
+attribute.
 
 
 ## not-python-definition
@@ -251,9 +251,8 @@ instead of adding it directly into the Package.
 
 ## url-unreachable
 
-The rez-help command is determined by written [help
-attribute](https://github.com/nerdvegas/rez/wiki/Package-Definition-Guid
-e#help) in the Rez package.py
+The rez-help command is determined by written [help attribute](https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#help)
+in the Rez package.py.
 
 This check simply makes sure that the URL is still good. Also, if the
 Internet is down, the check will simply return "all good" to prevent CI
