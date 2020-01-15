@@ -176,10 +176,16 @@ explaining why that dependency is there.
 ## no-change-log
 
 The Rez package should have a CHANGELOG file at its root to explain what
-was changed. It can be any file format, CHANGELOG.rst, CHANGELOG.md,
-CHANGELOG.txt, anything. If writing a Python package, it's recommended
-to use CHANGELOG.rst though because it can then be added to Sphinx
-documentation automatically.
+was changed. It can be any file format
+
+- CHANGELOG.rst
+- CHANGELOG.md
+- CHANGELOG.txt
+- CHANGELOG.foo
+
+If writing a Python package, it's recommended to use CHANGELOG.rst
+though because it can then be added to Sphinx documentation
+automatically.
 
 Here's an example of the "Sphinx automatic import" feature.
 
