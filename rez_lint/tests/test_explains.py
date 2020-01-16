@@ -11,12 +11,9 @@
 # AttributeError: 'NoneType' object has no attribute 'evaluated_code'
 
 import os
-import tempfile
 import textwrap
 
-from rez import packages_
-from rez_utilities import creator, inspection
-from python_compatibility.testing import common
+from rez_utilities import inspection
 from rez_lint import cli
 from rez_lint.core import message_description
 from rez_lint.plugins.checkers import base_checker
@@ -25,7 +22,7 @@ from six.moves import mock
 from . import packaging
 
 
-class FileChecks(common.Common):
+class FileChecks(packaging.BasePackaging):
     """Check that expected files in the Rez package exist."""
 
     @staticmethod
@@ -59,8 +56,8 @@ class FileChecks(common.Common):
             base_checker.Code(short_name="E", long_name="no-read-me"),
         )
 
-    def _make_package(self):
-        directory = packaging.make_fake_source_package(
+    def _make_generic_installed_package(self):
+        package = self._make_installed_package(
             "some_package",
             textwrap.dedent(
                 """\
@@ -71,17 +68,11 @@ class FileChecks(common.Common):
             ),
         )
 
-        package = packages_.get_developer_package(directory)
-        new_package = creator.build(package, tempfile.mkdtemp())
-
-        self.add_item(os.path.dirname(directory))
-        self.add_item(inspection.get_packages_path_from_package(new_package))
-
-        return inspection.get_package_root(new_package)
+        return inspection.get_package_root(package)
 
     def test_has_changelog(self):
         """Report a missing CHANGELOG file if none exists."""
-        directory = self._make_package()
+        directory = self._make_generic_installed_package()
         open(os.path.join(directory, "CHANGELOG.rst"), "a").close()
 
         results = cli.lint(directory)
@@ -91,7 +82,7 @@ class FileChecks(common.Common):
 
     def test_no_changelog(self):
         """Report a missing CHANGELOG file if none exists."""
-        directory = self._make_package()
+        directory = self._make_generic_installed_package()
 
         results = cli.lint(directory)
         issue = self._get_no_changelog_message(directory)
@@ -100,7 +91,7 @@ class FileChecks(common.Common):
 
     def test_has_documentation(self):
         """Report a missing Sphinx documentation conf.py if none exists."""
-        directory = self._make_package()
+        directory = self._make_generic_installed_package()
         documentation = os.path.join(directory, "documentation", "source")
         os.makedirs(documentation)
         open(os.path.join(documentation, "conf.py"), "a").close()
@@ -112,7 +103,7 @@ class FileChecks(common.Common):
 
     def test_no_documentation(self):
         """Report a missing Sphinx documentation conf.py file if none exists."""
-        directory = self._make_package()
+        directory = self._make_generic_installed_package()
 
         with mock.patch("rez_lint.plugins.checkers.explains._has_context_python_package") as patched:
             patched.return_value = True
@@ -124,7 +115,7 @@ class FileChecks(common.Common):
 
     def test_has_readme(self):
         """Report a missing README file if none exists."""
-        directory = self._make_package()
+        directory = self._make_generic_installed_package()
         open(os.path.join(directory, "README.md"), "a").close()
 
         results = cli.lint(directory)
@@ -134,7 +125,7 @@ class FileChecks(common.Common):
 
     def test_no_readme(self):
         """Report a missing README file if none exists."""
-        directory = self._make_package()
+        directory = self._make_generic_installed_package()
 
         results = cli.lint(directory)
         issue = self._get_no_readme_message(directory)
