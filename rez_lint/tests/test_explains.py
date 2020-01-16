@@ -3,16 +3,26 @@
 
 """Check that everything in explains.py works as expected."""
 
+# TODO : Add unittest for missing commands
+#   File "/home/selecaoone/packages/rez_lint/1.0.0/python/rez_lint/plugins/contexts/packaging.py", line 184, in _get_package_specific_python_paths
+#     package_variables = _get_package_specific_environment(package)
+#   File "/home/selecaoone/packages/rez_lint/1.0.0/python/rez_lint/plugins/contexts/packaging.py", line 158, in _get_package_specific_environment
+#     for line in package.commands.evaluated_code.splitlines():
+# AttributeError: 'NoneType' object has no attribute 'evaluated_code'
+
 import os
 import tempfile
 import textwrap
-import unittest
 
+from rez import packages_
+from rez_utilities import creator, inspection
 from python_compatibility.testing import common
 from rez_lint import cli
 from rez_lint.core import message_description
 from rez_lint.plugins.checkers import base_checker
 from six.moves import mock
+
+from . import packaging
 
 
 class FileChecks(common.Common):
@@ -49,10 +59,29 @@ class FileChecks(common.Common):
             base_checker.Code(short_name="E", long_name="no-read-me"),
         )
 
+    def _make_package(self):
+        directory = packaging.make_fake_source_package(
+            "some_package",
+            textwrap.dedent(
+                """\
+                name = "some_package"
+                version = "1.0.0"
+                build_command = "echo 'foo'"
+                """
+            ),
+        )
+
+        package = packages_.get_developer_package(directory)
+        new_package = creator.build(package, tempfile.mkdtemp())
+
+        self.add_item(os.path.dirname(directory))
+        self.add_item(inspection.get_packages_path_from_package(new_package))
+
+        return inspection.get_package_root(new_package)
+
     def test_has_changelog(self):
         """Report a missing CHANGELOG file if none exists."""
-        directory = _make_fake_source_package()
-        self.add_item(directory)
+        directory = self._make_package()
         open(os.path.join(directory, "CHANGELOG.rst"), "a").close()
 
         results = cli.lint(directory)
@@ -62,8 +91,7 @@ class FileChecks(common.Common):
 
     def test_no_changelog(self):
         """Report a missing CHANGELOG file if none exists."""
-        directory = _make_fake_source_package()
-        self.add_item(directory)
+        directory = self._make_package()
 
         results = cli.lint(directory)
         issue = self._get_no_changelog_message(directory)
@@ -72,8 +100,7 @@ class FileChecks(common.Common):
 
     def test_has_documentation(self):
         """Report a missing Sphinx documentation conf.py if none exists."""
-        directory = _make_fake_source_package()
-        self.add_item(directory)
+        directory = self._make_package()
         documentation = os.path.join(directory, "documentation", "source")
         os.makedirs(documentation)
         open(os.path.join(documentation, "conf.py"), "a").close()
@@ -85,8 +112,7 @@ class FileChecks(common.Common):
 
     def test_no_documentation(self):
         """Report a missing Sphinx documentation conf.py file if none exists."""
-        directory = _make_fake_source_package()
-        self.add_item(directory)
+        directory = self._make_package()
 
         with mock.patch("rez_lint.plugins.checkers.explains._has_context_python_package") as patched:
             patched.return_value = True
@@ -98,8 +124,7 @@ class FileChecks(common.Common):
 
     def test_has_readme(self):
         """Report a missing README file if none exists."""
-        directory = _make_fake_source_package()
-        self.add_item(directory)
+        directory = self._make_package()
         open(os.path.join(directory, "README.md"), "a").close()
 
         results = cli.lint(directory)
@@ -109,28 +134,9 @@ class FileChecks(common.Common):
 
     def test_no_readme(self):
         """Report a missing README file if none exists."""
-        directory = _make_fake_source_package()
-        self.add_item(directory)
+        directory = self._make_package()
 
         results = cli.lint(directory)
         issue = self._get_no_readme_message(directory)
 
         self.assertTrue(issue in results)
-
-
-def _make_fake_source_package():
-    directory = tempfile.mkdtemp("_some_rez_source_package")
-
-    with open(os.path.join(directory, "package.py"), "w") as handler:
-        handler.write(
-            textwrap.dedent(
-                """\
-            name = "some_package"
-
-            version = "1.0.0"
-
-            """
-            )
-        )
-
-    return directory
