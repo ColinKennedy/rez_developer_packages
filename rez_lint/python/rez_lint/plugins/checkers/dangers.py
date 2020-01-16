@@ -394,7 +394,7 @@ class TooManyDependencies(base_checker.BaseChecker):
             list[:class:`.Description`]: If `package` is too large.
 
         """
-        requirements = package.requires
+        requirements = package.requires or []
         current = len(requirements)
 
         if current < cls._maximum_dependencies:
