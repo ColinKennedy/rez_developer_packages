@@ -103,8 +103,7 @@ class NeedsComment(base_checker.BaseChecker):
 
             return []
 
-        # TODO : use global variable
-        dependencies = set(package.name for package in context["dependent_packages"])
+        dependencies = set(package.name for package in context[lint_constant.DEPENDENT_PACKAGES])
 
         try:
             missing = _get_missing_comment_pairs(

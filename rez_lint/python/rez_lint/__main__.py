@@ -83,8 +83,13 @@ def _parse_arguments(text):
     return parser.parse_args(text)
 
 
-# TODO : Add docstring
 def _register_internal_plugins():
+    """Add the plugins that ``rez_lint`` offers by default to the user.
+
+    This function must run before :func:`_register_external_plugins` so
+    that it has a chance to override the plugins created here.
+
+    """
     registry.register_checker(conventions.SemanticVersioning)
     registry.register_checker(dangers.ImproperRequirements)
     registry.register_checker(dangers.MissingRequirements)

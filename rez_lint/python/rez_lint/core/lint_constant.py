@@ -12,5 +12,7 @@ Attributes:
 
 """
 
+DEPENDENT_PACKAGES = "dependent_packages"
 HAS_PYTHON_PACKAGE = "has_python_package"
 PARSO_GRAPH = "parso_graph"
+RESOLVED_SOURCE_CONTEXT = "resolved_rez_package"

@@ -125,8 +125,7 @@ class MissingRequirements(base_checker.BaseChecker):
 
         missing = []
 
-        # TODO : Add global variable here
-        for package_ in context["dependent_packages"]:
+        for package_ in context[lint_constant.DEPENDENT_PACKAGES]:
             if package_.name not in listed_requirements:
                 missing.append(package_)
 
