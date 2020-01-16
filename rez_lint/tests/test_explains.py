@@ -93,7 +93,6 @@ class FileChecks(common.Common):
             results = cli.lint(directory)
 
         issue = self._get_no_documentation_message(directory)
-        print(results)
 
         self.assertTrue(issue in results)
 
