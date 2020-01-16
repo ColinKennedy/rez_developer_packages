@@ -152,7 +152,12 @@ def _get_package_specific_environment(package):
     ]
     variables = collections.defaultdict(list)
 
-    for line in package.commands.evaluated_code.splitlines():
+    commands = package.commands
+
+    if not commands:
+        return dict()
+
+    for line in commands.evaluated_code.splitlines():
         for option, caller in options:
             match = option.match(line)
 
