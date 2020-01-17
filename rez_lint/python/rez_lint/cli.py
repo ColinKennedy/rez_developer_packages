@@ -3,14 +3,29 @@
 
 """The main module that prints lint messages to the user."""
 
+import importlib
+import itertools
+import logging
 import operator
 import os
 
+from python_compatibility import wrapping
 from rez import exceptions as rez_exceptions
 from rez import packages_
 
 from .core import exceptions, registry
 from .plugins import check_context
+from .plugins.checkers import (
+    base_checker,
+    conventions,
+    dangers,
+    explains,
+    explains_comment,
+)
+from .plugins.contexts import base_context, packaging, parsing
+
+
+_LOGGER = logging.getLogger(__name__)
 
 
 def _search_current_folder(directory):
@@ -88,6 +103,67 @@ def _find_rez_packages(directory, recursive=False):
     return packages
 
 
+@wrapping.run_once
+def _register_external_plugins():
+    """Add user plugins to the current ``rez_lint`` environment.
+
+    If any user added their own context or checker plugins, this
+    function will add them here.
+
+    """
+    environment = os.getenv("REZ_LINT_PLUGIN_PATHS")
+
+    if not environment:
+        _LOGGER.debug('No environment paths were "%s" found.')
+
+        return
+
+    _LOGGER.debug('Environment paths "%s" found.', environment)
+
+    paths = []
+
+    for namespace in environment.split(os.pathsep):
+        if namespace not in paths:
+            paths.append(namespace)
+
+    for namespace in paths:
+        _LOGGER.info('Importing module "%s".', namespace)
+        importlib.import_module(namespace)
+
+    registry.register_plugins(
+        itertools.chain(
+            base_checker.BaseChecker.__subclasses__(),
+            base_context.BaseContext.__subclasses__(),
+        )
+    )
+
+
+@wrapping.run_once
+def _register_internal_plugins():
+    """Add the plugins that ``rez_lint`` offers by default to the user.
+
+    This function must run before :func:`_register_external_plugins` so
+    that it has a chance to override the plugins created here.
+
+    """
+    registry.register_checker(conventions.SemanticVersioning)
+    registry.register_checker(dangers.ImproperRequirements)
+    registry.register_checker(dangers.MissingRequirements)
+    registry.register_checker(dangers.NoRezTest)
+    registry.register_checker(dangers.NotPythonDefinition)
+    registry.register_checker(dangers.RequirementLowerBoundsMissing)
+    registry.register_checker(dangers.RequirementsNotSorted)
+    registry.register_checker(dangers.TooManyDependencies)
+    registry.register_checker(dangers.UrlNotReachable)
+    registry.register_checker(explains.NoChangeLog)
+    registry.register_checker(explains.NoDocumentation)
+    registry.register_checker(explains.NoReadMe)
+    registry.register_checker(explains_comment.NeedsComment)
+    registry.register_context(packaging.HasPythonPackage)
+    registry.register_context(packaging.SourceResolvedContext)
+    registry.register_context(parsing.ParsePackageDefinition)
+
+
 def lint(
     directory, disable=frozenset(), vimgrep=False, recursive=False, verbose=False,
 ):
@@ -117,6 +193,9 @@ def lint(
         list[:class:`Description`]: Get the found issues.
 
     """
+    _register_internal_plugins()
+    _register_external_plugins()
+
     packages = _find_rez_packages(directory, recursive=recursive)
     output = set()
     processed_packages = []

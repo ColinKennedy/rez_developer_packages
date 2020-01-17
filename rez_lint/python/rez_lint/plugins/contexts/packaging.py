@@ -18,6 +18,7 @@ from ...core import lint_constant
 from . import base_context
 
 _LOGGER = logging.getLogger(__name__)
+_DEPENDENCY_PATHS_SCRIPT = os.environ["PYTHON_COMPATIBILITY_DEPENDENCY_PATHS_SCRIPT"]
 
 
 class HasPythonPackage(base_context.BaseContext):
@@ -67,8 +68,10 @@ class SourceResolvedContext(base_context.BaseContext):
 
         """
         try:
+            # TODO : Add unittest to try to support source-style Rez packages
             rez_context = _resolve(package)
         except exceptions.RezError:
+            # TODO : raise exception here instead + a nice sys.exit message + unittests
             _LOGGER.exception('Package "%s" could not be resolved.', package)
 
             return
@@ -78,12 +81,11 @@ class SourceResolvedContext(base_context.BaseContext):
             rez_context, python_package_roots
         )
 
-        # TODO : Add global variables for these keys
-        context["resolved_source_context"] = rez_context
+        context[lint_constant.RESOLVED_SOURCE_CONTEXT] = rez_context
 
         packages = _get_root_rez_packages(dependency_paths)
         packages = {package_ for package_ in packages if package_.name != package.name}
-        context["dependent_packages"] = packages
+        context[lint_constant.DEPENDENT_PACKAGES] = packages
 
 
 def _search_for_python_dependencies(context, directories):
@@ -102,9 +104,10 @@ def _search_for_python_dependencies(context, directories):
 
     """
     directories = " ".join(['"{path}"'.format(path=path) for path in directories])
-    # TODO : Replace with environment variable
     process = context.execute_command(
-        "_get-python-dependency-paths {directories}".format(directories=directories),
+        "{_DEPENDENCY_PATHS_SCRIPT} {directories}".format(
+            _DEPENDENCY_PATHS_SCRIPT=_DEPENDENCY_PATHS_SCRIPT, directories=directories
+        ),
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
     )
@@ -151,7 +154,12 @@ def _get_package_specific_environment(package):
     ]
     variables = collections.defaultdict(list)
 
-    for line in package.commands.evaluated_code.splitlines():
+    commands = package.commands
+
+    if not commands:
+        return dict()
+
+    for line in commands.evaluated_code.splitlines():
         for option, caller in options:
             match = option.match(line)
 

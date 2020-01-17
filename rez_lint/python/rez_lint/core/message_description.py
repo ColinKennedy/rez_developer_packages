@@ -72,6 +72,12 @@ class Description(object):
         """bool: If this instance actually refers to a file on-disk."""
         return os.path.exists(self._location.path)
 
+    def get_code(self):
+        return self._code
+
+    def get_full_text(self):
+        return self._full
+
     def get_header(self):
         """str: The group / path that this instance refers to."""
         path = self._location.path
@@ -84,6 +90,9 @@ class Description(object):
             path = os.getcwd()
 
         return path
+
+    def get_location(self):
+        return self._location
 
     def get_location_data(self):
         """str: A "path:row:column:line" syntax that Vim uses load a quickfix buffer."""
@@ -137,9 +146,30 @@ class Description(object):
         """str: The first line of this instance that is used for lint messages."""
         return self._summary
 
+    def __eq__(self, other):
+        """bool: If one instance of this class is equal to the current instance."""
+        return (
+            self.get_summary() == other.get_summary()
+            and self.get_code() == other.get_code()
+            and self.get_location() == other.get_location()
+            and self.get_full_text() == other.get_full_text()
+        )
+
     def __lt__(self, other):
-        """Check if this instance should come before or after another instance."""
+        """bool: Check if this instance should come before or after another instance."""
         return self.get_summary() < other.get_summary()
+
+    def __repr__(self):
+        """str: Get the code needed to copy or re-create this instance."""
+        template = "{self.__class__.__name__}({summary!r}, {location!r}, {code!r}, full={full})"
+
+        return template.format(
+            self=self,
+            summary=self.get_summary(),
+            code=self.get_code(),
+            location=self.get_location(),
+            full=self.get_full_text(),
+        )
 
 
 def get_vimgrep_sort(line):

@@ -17,7 +17,7 @@ import git
 import wurlitzer
 from rez import packages_
 from rez.config import config
-from rez_documentation_search.core import exceptions, worker
+from rez_batch_process.core import exceptions, worker
 from rez_utilities import creator, inspection
 from six.moves import mock
 
@@ -33,7 +33,7 @@ class Fix(package_common.Tests):
         """Check that zero packages does not error."""
         self._test((set(), [], []), [])
 
-    @mock.patch("rez_documentation_search.core.plugins.command.RezShellCommand.run")
+    @mock.patch("rez_batch_process.core.plugins.command.RezShellCommand.run")
     def test_one(self, run_command):
         """Run command on a single Rez package.
 
@@ -70,7 +70,7 @@ class Fix(package_common.Tests):
         self._test((set(), [], []), packages)
         self.assertEqual(1, run_command.call_count)
 
-    @mock.patch("rez_documentation_search.core.plugins.command.RezShellCommand.run")
+    @mock.patch("rez_batch_process.core.plugins.command.RezShellCommand.run")
     def test_two(self, run_command):
         """Run command on two Rez packages from the same repository.
 
@@ -115,7 +115,7 @@ class Fix(package_common.Tests):
         self._test((set(), [], []), packages, paths=[release_path])
         self.assertEqual(2, run_command.call_count)
 
-    @mock.patch("rez_documentation_search.core.plugins.command.RezShellCommand.run")
+    @mock.patch("rez_batch_process.core.plugins.command.RezShellCommand.run")
     def test_mix(self, run_command):
         """Run command on only to the Rez packages that need it.
 
@@ -171,7 +171,7 @@ class Fix(package_common.Tests):
         )
         self.assertEqual(1, run_command.call_count)
 
-    @mock.patch("rez_documentation_search.core.plugins.command.RezShellCommand.run")
+    @mock.patch("rez_batch_process.core.plugins.command.RezShellCommand.run")
     def test_multiple(self, run_command):
         """Run command on Rez packages with more than one repository.
 
@@ -321,8 +321,7 @@ class Variations(package_common.Tests):
         packages = self._setup_test(run_command, builder, variants=[["python-2.7"]],)
 
         release_path = _release_packages(
-            packages,
-            search_paths=config.packages_path,  # pylint: disable=no-member
+            packages, search_paths=config.packages_path,  # pylint: disable=no-member
         )
         self.add_item(release_path)
 
@@ -336,7 +335,7 @@ class Variations(package_common.Tests):
         self._test((set(), [], []), packages)
         self.assertEqual(1, run_command.call_count)
 
-    @mock.patch("rez_documentation_search.core.plugins.command.RezShellCommand.run")
+    @mock.patch("rez_batch_process.core.plugins.command.RezShellCommand.run")
     def test_build(self, run_command):
         """Create a build package and run a command on it.
 
@@ -353,7 +352,7 @@ class Variations(package_common.Tests):
         self._test((set(), [], []), packages)
         self.assertEqual(1, run_command.call_count)
 
-    @mock.patch("rez_documentation_search.core.plugins.command.RezShellCommand.run")
+    @mock.patch("rez_batch_process.core.plugins.command.RezShellCommand.run")
     def test_build_variant(self, run_command):
         """Create a build package that has 1+ Rez package variants and run a command on it.
 
@@ -372,7 +371,7 @@ class Variations(package_common.Tests):
         self._test((set(), [], []), packages)
         self.assertEqual(1, run_command.call_count)
 
-    @mock.patch("rez_documentation_search.core.plugins.command.RezShellCommand.run")
+    @mock.patch("rez_batch_process.core.plugins.command.RezShellCommand.run")
     def test_released(self, run_command):
         """Create a released Rez package and then test that we can run shell commands for it.
 
@@ -385,7 +384,7 @@ class Variations(package_common.Tests):
         """
         self._test_release(run_command, package_common.make_source_python_package)
 
-    @mock.patch("rez_documentation_search.core.plugins.command.RezShellCommand.run")
+    @mock.patch("rez_batch_process.core.plugins.command.RezShellCommand.run")
     def test_released_variant(self, run_command):
         """Create a released Rez package and then test that we can run shell commands for it.
 
@@ -403,7 +402,7 @@ class Variations(package_common.Tests):
             run_command, package_common.make_source_variant_python_package
         )
 
-    @mock.patch("rez_documentation_search.core.plugins.command.RezShellCommand.run")
+    @mock.patch("rez_batch_process.core.plugins.command.RezShellCommand.run")
     def test_source_no_variant(self, run_command):
         """Create a source (non-built) Rez package and run a command on it.
 
@@ -420,7 +419,7 @@ class Variations(package_common.Tests):
         self._test((set(), [], []), packages)
         self.assertEqual(1, run_command.call_count)
 
-    @mock.patch("rez_documentation_search.core.plugins.command.RezShellCommand.run")
+    @mock.patch("rez_batch_process.core.plugins.command.RezShellCommand.run")
     def test_source_variant(self, run_command):
         """Create a source (non-built) Rez package that has 1+ variants and run a command on it.
 
@@ -485,7 +484,7 @@ class Bad(package_common.Tests):
         expected = (set(), invalids, [])
         self._test(expected, [package])
 
-    @mock.patch("rez_documentation_search.core.plugins.command.RezShellCommand.run")
+    @mock.patch("rez_batch_process.core.plugins.command.RezShellCommand.run")
     def test_released_dependency_missing(self, run_command):
         """Fail to resolve a package because "project_a" could not be found.
 

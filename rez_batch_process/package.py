@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-name = "rez_documentation_search"
+name = "rez_batch_process"
 
 version = "0.0.1"
 
@@ -54,7 +54,7 @@ tests = {
         "requires": ["pydocstyle"],
     },
     "pylint": {
-        "command": "pylint --disable=bad-continuation python/rez_documentation_search tests",
+        "command": "pylint --disable=bad-continuation python/rez_batch_process tests",
         "requires": ["pylint-1.9+<2"],
     },
     "unittest": {

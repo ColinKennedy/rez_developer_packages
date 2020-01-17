@@ -136,7 +136,9 @@ class HasDocumentation(base.BaseCondition):
         keep = cls._is_keep_temporary_files_enabled()
         directory = cls._get_temporary_directory()
 
-        remote_file = git_link.has_package_conf(repository, package.name, directory=directory, keep=keep)
+        remote_file = git_link.has_package_conf(
+            repository, package.name, directory=directory, keep=keep
+        )
 
         return bool(remote_file)
 

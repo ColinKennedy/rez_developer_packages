@@ -3,7 +3,6 @@
 
 """The parser module finds Rez package required dependencies."""
 
-# TODO : Need lots of unittests for this logic
 import re
 import textwrap
 

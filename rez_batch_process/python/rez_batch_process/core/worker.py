@@ -236,7 +236,9 @@ def fix(  # pylint: disable=too-many-arguments,too-many-locals
 
     for repository_url, packages in _group_by_repository(packages):
         # TODO : Add thing to make this more quiet, if needed
-        clone_directory = git_link.make_repository_folder(temporary_directory, repository_url)
+        clone_directory = git_link.make_repository_folder(
+            temporary_directory, repository_url
+        )
 
         if not clone_directory:
             clone_directory = tempfile.mkdtemp(

@@ -51,3 +51,4 @@ def commands():
 
     env.PATH.append(os.path.join("{root}", "bin"))
     env.PYTHONPATH.append(os.path.join("{root}", "python"))
+    env.PYTHON_COMPATIBILITY_DEPENDENCY_PATHS_SCRIPT.set("_get-python-dependency-paths")
