@@ -5,6 +5,7 @@
 class CoreException(Exception):
     pass
 
+
 class DirectoryDoesNotExist(CoreException):
     pass
 
