@@ -92,7 +92,7 @@ class Requirements(packaging.BasePackaging):
         self.assertFalse(has_issue)
 
     # TODO : Do these
-    # def test_one_impropers(self):
+    # def test_one_improper(self):
     #     pass
     #
     # def test_multiple_impropers(self):
