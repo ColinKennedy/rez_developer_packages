@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
+
 import argparse
 import shlex
 import sys
 
 from . import cli
-from .core import check_exception
+from .core import check_constant, check_exception
 
 
 def _parse_arguments(text):
@@ -19,6 +21,13 @@ def _parse_arguments(text):
         help="The exact ``sphinx-apidoc`` call that will be used to write API documentation.",
     )
 
+    parser.add_argument(
+        "-n",
+        "--no-strict",
+        help="If this flag is added, old files in the output directory that don't point "
+        "to source Python files are allowed. Otherwise, they must be removed.",
+    )
+
     return parser.parse_args(text)
 
 
@@ -27,9 +36,40 @@ def main(text):
     arguments = _parse_arguments(text)
 
     try:
-        cli.check(shlex.split(arguments.command))
+        to_add, to_skip, to_remove = cli.check(shlex.split(arguments.command))
     except check_exception.CoreException as error:
-        sys.exit(str(error))
+        print(error)
+
+        sys.exit(check_constant.ERROR_ENCOUNTERED)
+
+    if to_add:
+        print("These files must be added:")
+
+        for path in sorted(to_add):
+            print(path)
+
+        print("Please re-run sphinx-apidoc to fix this")
+
+        sys.exit(check_constant.UPDATE_CODE)
+
+    if arguments.strict and to_remove:
+        print("These files must be removed:")
+
+        for path in sorted(to_remove):
+            print(path)
+
+        print("Please re-run sphinx-apidoc to fix this")
+
+        sys.exit(check_constant.UPDATE_CODE)
+
+    print("These files will remain unchanged (no action required):")
+
+    for path in sorted(to_skip):
+        print(path)
+
+    print("Everything looks good. No further action needed")
+
+    sys.exit(0)
 
 
 if __name__ == "__main__":
