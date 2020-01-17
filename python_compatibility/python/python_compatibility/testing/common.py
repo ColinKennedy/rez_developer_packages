@@ -44,3 +44,7 @@ class Common(unittest.TestCase):
     def add_items(self, items):
         """Add every given file/folder to the unittest."""
         self._items.update(items)
+
+
+def make_files(file_structure):
+    pass
