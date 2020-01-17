@@ -10,26 +10,16 @@ from sphinx.ext import apidoc
 from .core import apidoc_patcher, check_exception
 
 
-def check(text, directory=""):
-    if not directory:
-        directory = os.getcwd()
+def _get_apidoc_main_function():
+    return apidoc.main
 
-    if not os.path.isabs(directory):
-        directory = os.path.normcase(os.path.join(os.getcwd(), directory))
 
-    if not os.path.isdir(directory):
-        # TODO : Add unittest for this
-        raise check_exception.DirectoryDoesNotExist(
-            'Path "{directory}" is not a directory. Check your spelling and try again.'.format(
-                directory=directory
-            ),
-        )
-
+def _get_sphinx_apidoc_arguments(text):
     parser = apidoc.get_parser()
 
     try:
         with wrapping.capture_pipes() as output:
-            arguments = parser.parse_args(text)
+            return parser.parse_args(text)
     except SystemExit as error:
         _, stderr = output
 
@@ -49,6 +39,24 @@ def check(text, directory=""):
             )
         )
 
+
+def check(text, directory=""):
+    if not directory:
+        directory = os.getcwd()
+
+    if not os.path.isabs(directory):
+        directory = os.path.normcase(os.path.join(os.getcwd(), directory))
+
+    if not os.path.isdir(directory):
+        # TODO : Add unittest for this
+        raise check_exception.DirectoryDoesNotExist(
+            'Path "{directory}" is not a directory. Check your spelling and try again.'.format(
+                directory=directory
+            ),
+        )
+
+    arguments = _get_sphinx_apidoc_arguments(text)
+
     if not arguments.dryrun:
         raise check_exception.NoDryRun(
             'Command "{text}" must have --dry-run in its arguments'.format(text=text)
@@ -58,7 +66,8 @@ def check(text, directory=""):
         os.chdir(directory)
 
         with wrapping.capture_pipes() as output:
-            apidoc.main(text)
+            function = _get_apidoc_main_function()
+            function(text)
 
         stdout, stderr = output
 

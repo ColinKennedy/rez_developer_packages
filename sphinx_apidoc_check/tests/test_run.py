@@ -167,10 +167,34 @@ class Run(common.Common):
         self.assertEqual((added, set(), {existing_file}), results)
 
     def test_changed_files(self):
-        pass
+        structure = {
+            "some_package": {
+                "__init__.py": dict(),
+            }
+        }
 
-    def test_new_arguments(self):
-        pass
+        root = tempfile.mkdtemp(suffix="_some_test_python_package")
+        self.add_item(root)
+        common.make_files(structure, root)
+        output = os.path.join(root, "documentation", "output")
+        os.makedirs(output)
+        existing_file = os.path.join(output, "some_package.rst")
+        open(existing_file, "a").close()
+
+        results = cli.check(
+            _args(
+                "{root} --output-dir {output} --dry-run".format(
+                    root=root, output=output
+                )
+            ),
+            directory=root,
+        )
+
+        added = {
+            os.path.join(output, "modules.rst"),
+        }
+
+        self.assertEqual((added, {existing_file}, set()), results)
 
 
 def _args(text):
