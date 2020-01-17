@@ -21,8 +21,15 @@ class Run(common.Common):
             cli.check("sphinx-apidoc", directory=root)
 
     def test_empty(self):
-        # This should error
-        pass
+        root = tempfile.mkdtemp(suffix="_some_test_python_package")
+        shutil.rmtree(root)
+        output = os.path.join(root, "documentation", "output")
+
+        with self.assertRaises(check_exception.DirectoryDoesNotExist):
+            cli.check(
+                _args(". --output-dir {output} --dry-run".format(output=output)),
+                directory=root,
+            )
 
     def test_nothing(self):
         root = tempfile.mkdtemp(suffix="_some_test_python_package")
