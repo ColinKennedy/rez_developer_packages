@@ -128,3 +128,19 @@ TODO
    - run the paths through a process (arbitrary user process / function)
 
 - Add wrapper code that can auto-add intersphinx to fixes to Rez packages and create a PR
+
+
+
+
+
+- do more unittest. Variants class
+-  make sure fix / reporting works with source packages that contain variants
+ - and built packages
+
+- does has_python_package account for source packages + variants? Because it needs to!
+ - Also technically source packages need to be built in order to determine if they are a Python package
+
+
+- Do CI stuff
+- Do TODO notes
+
