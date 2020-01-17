@@ -21,26 +21,15 @@ class Run(common.Common):
             cli.check("sphinx-apidoc", directory=root)
 
     def test_empty(self):
+        """Test that a directory that exists but is empty just makes a modules.rst file."""
         root = tempfile.mkdtemp(suffix="_some_test_python_package")
-        shutil.rmtree(root)
-        output = os.path.join(root, "documentation", "output")
 
-        with self.assertRaises(check_exception.DirectoryDoesNotExist):
-            cli.check(
-                _args(". --output-dir {output} --dry-run".format(output=output)),
-                directory=root,
-            )
-
-    def test_nothing(self):
-        root = tempfile.mkdtemp(suffix="_some_test_python_package")
-        self.add_item(root)
-        output = os.path.join(root, "documentation", "output")
         results = cli.check(
-            _args(". --output-dir {output} --dry-run".format(output=output)),
+            _args(". --output-dir {root} --dry-run".format(root=root)),
             directory=root,
         )
 
-        self.assertEqual(({os.path.join(output, "modules.rst")}, set(), set()), results)
+        self.assertEqual(({os.path.join(root, "modules.rst")}, set(), set()), results)
 
     def test_missing_dry_run_flag(self):
         root = tempfile.mkdtemp(suffix="_some_test_python_package")
@@ -53,6 +42,17 @@ class Run(common.Common):
             cli.check(
                 _args(". --output-dir {output}".format(output=output)), directory=root
             )
+
+    def test_nothing(self):
+        root = tempfile.mkdtemp(suffix="_some_test_python_package")
+        self.add_item(root)
+        output = os.path.join(root, "documentation", "output")
+        results = cli.check(
+            _args(". --output-dir {output} --dry-run".format(output=output)),
+            directory=root,
+        )
+
+        self.assertEqual(({os.path.join(output, "modules.rst")}, set(), set()), results)
 
     def test_directory_does_not_exist(self):
         root = tempfile.mkdtemp(suffix="_some_test_python_package")
