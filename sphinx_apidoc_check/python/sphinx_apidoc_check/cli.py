@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import glob
 import os
 
 from python_compatibility import wrapping
@@ -68,4 +69,11 @@ def check(text, directory=""):
             )
         )
 
-    return apidoc_patcher.parse(stdout.strip())
+    files_that_sphinx_sees = apidoc_patcher.parse(stdout.strip())
+    existing_files = set(glob.glob(os.path.join(arguments.destdir, "*")))
+
+    files_to_skip = existing_files.intersection(files_that_sphinx_sees)
+    files_to_add = files_that_sphinx_sees - files_to_skip
+    files_to_remove = existing_files - files_to_add - files_to_skip
+
+    return (files_to_add, files_to_skip, files_to_remove)
