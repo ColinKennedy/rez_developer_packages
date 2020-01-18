@@ -50,6 +50,12 @@ tests = {
         "requires": ["pylint-1.9+<2"],
     },
     "unittest": "python -m unittest discover",
+    "rez_lint": {
+        "command": "rez_lint",
+        "requires": [
+            "rez_lint-1+<2",
+        ],
+    },
 }
 
 
