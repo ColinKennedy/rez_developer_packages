@@ -37,6 +37,7 @@ def _parse_arguments(text):
     parser.add_argument(
         "-n",
         "--no-strict",
+        action="store_true",
         help="If this flag is added, old files in the output directory that don't point "
         "to source Python files are allowed. Otherwise, they must be removed.",
     )
@@ -70,25 +71,28 @@ def main(text):
         for path in sorted(to_add):
             print(path)
 
-        print("Please re-run sphinx-apidoc to fix this")
+    has_remove_issues = not arguments.no_strict and to_remove
 
-        sys.exit(check_constant.UPDATE_CODE)
-
-    if arguments.strict and to_remove:
+    if has_remove_issues:
+        print()
         print("These files must be removed:")
 
         for path in sorted(to_remove):
             print(path)
 
+    if to_add or has_remove_issues:
+        print()
         print("Please re-run sphinx-apidoc to fix this")
 
         sys.exit(check_constant.UPDATE_CODE)
+
 
     print("These files will remain unchanged (no action required):")
 
     for path in sorted(to_skip):
         print(path)
 
+    print()
     print("Everything looks good. No further action needed")
 
     sys.exit(0)
