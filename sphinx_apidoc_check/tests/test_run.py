@@ -299,9 +299,8 @@ class Integrations(common.Common):
         some_directory = tempfile.mkdtemp(suffix="_some_directory")
         self.add_item(some_directory)
         _, stderr, _ = self._do_basic_run(
-            '{{command}} "{{root}} --output-dir {{output}} --dry-run" --directory {some_directory}'.format(
-                some_directory=some_directory
-            )
+            '{{command}} "{{root}} --output-dir {{output}} --dry-run"'
+            "--directory {some_directory}".format(some_directory=some_directory)
         )
 
         self.assertFalse(stderr)
@@ -318,9 +317,8 @@ class Integrations(common.Common):
         some_directory = tempfile.mkdtemp(suffix="_some_directory")
         self.add_item(some_directory)
         _, stderr, _ = self._do_basic_run(
-            '{{command}} "{{root}} --output-dir {{output}} --dry-run" --directory {some_directory}'.format(
-                some_directory=some_directory
-            )
+            '{{command}} "{{root}} --output-dir {{output}} --dry-run"'
+            "--directory {some_directory}".format(some_directory=some_directory)
         )
 
         self.assertFalse(stderr)
