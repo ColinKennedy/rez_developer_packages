@@ -11,7 +11,6 @@ import tempfile
 import textwrap
 
 from python_compatibility.testing import common
-from six.moves import mock
 from sphinx_apidoc_check import cli
 from sphinx_apidoc_check.core import check_exception
 
@@ -312,7 +311,7 @@ class Integrations(common.Common):
 
         some_directory = tempfile.mkdtemp(suffix="_some_directory")
         self.add_item(some_directory)
-        stdout, stderr, _ = self._do_basic_run('{command} "python --dry-run"')
+        _, stderr, _ = self._do_basic_run('{command} "python --dry-run"')
 
         expected_error = (
             'Command "python --dry-run" is not a valid call to ``sphinx-apidoc``. '
