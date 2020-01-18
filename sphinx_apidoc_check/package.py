@@ -30,7 +30,10 @@ tests = {
     "black": {"command": "rez-env black -- black python tests"},
     "coverage": {
         "command": "coverage run --parallel-mode --include=python/* -m unittest discover && coverage combine --append && coverage html",
-        "requires": ["coverage"],
+        "requires": [
+            "coverage-4+",
+            "mock-3+",
+        ],
     },
     "isort": {"command": "isort --recursive python tests", "requires": ["isort"]},
     "isort_check": {
@@ -53,7 +56,12 @@ tests = {
         "command": "rez-package-check",
         "requires": ["rez_package_check-1+<2"],
     },
-    "unittest": "python -m unittest discover",
+    "unittest": {
+        "command": "python -m unittest discover",
+        "requires": [
+            "mock-3+",
+        ],
+    }
 }
 
 

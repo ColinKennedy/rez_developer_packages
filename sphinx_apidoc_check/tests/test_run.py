@@ -11,6 +11,7 @@ import tempfile
 import textwrap
 
 from python_compatibility.testing import common
+from six.moves import mock
 from sphinx_apidoc_check import cli
 from sphinx_apidoc_check.core import check_exception
 
@@ -217,7 +218,7 @@ class Integrations(common.Common):
         structure = {
             "some_package": {
                 "__init__.py": None,
-                "some_package": {"some_module.rst": None,},
+                "something_inside": {"__init__.py": None, "some_module.py": None,},
             }
         }
 
@@ -226,9 +227,7 @@ class Integrations(common.Common):
         common.make_files(structure, root)
         output = os.path.join(root, "documentation", "output")
         command = self._get_command()
-        full_command = template.format(
-            command=command, root=root, output=output
-        )
+        full_command = template.format(command=command, root=root, output=output)
         process = subprocess.Popen(
             _args(full_command), stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
@@ -239,29 +238,9 @@ class Integrations(common.Common):
 
     def test_basic(self):
         """Test a basic run of ``sphinx_apidoc_check``."""
-        stdout, stderr, output = self._do_basic_run('{command} "{root} --output-dir {output} --dry-run"')
-        self.assertFalse(stderr)
-
-        expected_template = textwrap.dedent(
-            """\
-            These files must be added:
-            {file_1}
-            {file_2}
-            Please re-run sphinx-apidoc to fix this
-            """
+        stdout, stderr, output = self._do_basic_run(
+            '{command} "{root} --output-dir {output} --dry-run"'
         )
-
-        self.assertEqual(
-            expected_template.format(
-                file_1=os.path.join(output, "modules.rst"),
-                file_2=os.path.join(output, "some_package.rst"),
-            ),
-            stdout,
-        )
-
-    def test_more_arguments(self):
-        """Test that a variation of arguments still works."""
-        stdout, stderr, output = self._do_basic_run('{command} "{root} --output-dir {output} --dry-run --separate"')
         self.assertFalse(stderr)
 
         expected_template = textwrap.dedent(
@@ -278,18 +257,74 @@ class Integrations(common.Common):
             expected_template.format(
                 file_1=os.path.join(output, "modules.rst"),
                 file_2=os.path.join(output, "some_package.rst"),
-                file_3=os.path.join(output, "some_package.some_module.rst"),
+                file_3=os.path.join(output, "some_package.something_inside.rst"),
             ),
             stdout,
         )
 
-    # def test_temporary_cd(self):
-    #     """Make sure that the user's working directory stays the same."""
-    #     pass
-    #
-    # def test_temporary_cd_error(self):
-    #     """Make sure that the user's working directory stays the same even after erroring."""
-    #     pass
+    def test_more_arguments(self):
+        """Test that a variation of arguments still works."""
+        stdout, stderr, output = self._do_basic_run(
+            '{command} "{root} --output-dir {output} --dry-run --separate"'
+        )
+        self.assertFalse(stderr)
+
+        expected_template = textwrap.dedent(
+            """\
+            These files must be added:
+            {file_1}
+            {file_2}
+            {file_3}
+            {file_4}
+            Please re-run sphinx-apidoc to fix this
+            """
+        )
+
+        self.assertEqual(
+            expected_template.format(
+                file_1=os.path.join(output, "modules.rst"),
+                file_2=os.path.join(output, "some_package.rst"),
+                file_3=os.path.join(output, "some_package.something_inside.rst"),
+                file_4=os.path.join(
+                    output, "some_package.something_inside.some_module.rst"
+                ),
+            ),
+            stdout,
+        )
+
+    def test_temporary_cd(self):
+        """Make sure that the user's working directory stays the same."""
+        current_directory = os.getcwd()
+
+        some_directory = tempfile.mkdtemp(suffix="_some_directory")
+        self.add_item(some_directory)
+        _, stderr, _ = self._do_basic_run(
+            '{{command}} "{{root}} --output-dir {{output}} --dry-run" --directory {some_directory}'.format(
+                some_directory=some_directory
+            )
+        )
+
+        self.assertFalse(stderr)
+        self.assertEqual(current_directory, os.getcwd())
+
+    @mock.patch("sphinx_apidoc_check.cli._get_apidoc_main_function")
+    def test_temporary_cd_error(self, _get_apidoc_main_function):
+        """Make sure that the user's working directory stays the same even after erroring."""
+        current_directory = os.getcwd()
+        _get_apidoc_main_function.raiseError.side_effect = mock.Mock(
+            side_effect=Exception("Some exception.")
+        )
+
+        some_directory = tempfile.mkdtemp(suffix="_some_directory")
+        self.add_item(some_directory)
+        _, stderr, _ = self._do_basic_run(
+            '{{command}} "{{root}} --output-dir {{output}} --dry-run" --directory {some_directory}'.format(
+                some_directory=some_directory
+            )
+        )
+
+        self.assertFalse(stderr)
+        self.assertEqual(current_directory, os.getcwd())
 
 
 def _args(text):
