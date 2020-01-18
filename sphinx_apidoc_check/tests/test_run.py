@@ -25,8 +25,7 @@ class Run(common.Common):
         root = tempfile.mkdtemp(suffix="_some_test_python_package")
 
         results = cli.check(
-            _args(". --output-dir {root} --dry-run".format(root=root)),
-            directory=root,
+            _args(". --output-dir {root} --dry-run".format(root=root)), directory=root,
         )
 
         self.assertEqual(({os.path.join(root, "modules.rst")}, set(), set()), results)
