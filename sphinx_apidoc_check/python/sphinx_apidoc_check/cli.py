@@ -9,6 +9,8 @@ generated.
 
 """
 
+from __future__ import print_function
+
 import glob
 import os
 
@@ -97,7 +99,6 @@ def check(text, directory=""):
         directory = os.path.normcase(os.path.join(os.getcwd(), directory))
 
     if not os.path.isdir(directory):
-        # TODO : Add unittest for this
         raise check_exception.DirectoryDoesNotExist(
             'Path "{directory}" is not a directory. Check your spelling and try again.'.format(
                 directory=directory
