@@ -1,6 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""The main module that makes ``sphinx_apidoc_check`` work.
+
+It handles gathering the user's input arguments and running the
+``sphinx-apidoc`` Python calls to find out which .rst files need to be
+generated.
+
+"""
+
 import glob
 import os
 
@@ -11,10 +19,26 @@ from .core import apidoc_patcher, check_exception
 
 
 def _get_apidoc_main_function():
+    """callable[list[str]] -> int: The function that is used to print the .rst files to create."""
     return apidoc.main
 
 
 def _get_sphinx_apidoc_arguments(text):
+    """Change some raw shell input text into valid Python objects.
+
+    Args:
+        text (list[str]):
+            The arguments to pass directly into ``sphinx-apidoc``.
+            e.g. ["python", "--output-dir", "documentation/source/api"].
+
+    Raises:
+        :class:`.InvalidSphinxArguments`:
+            If the given `text` cannot be parsed by ``sphinx-apidoc``.
+
+    Returns:
+        :class:`argparse.Namespace`: The parsed user input.
+
+    """
     parser = apidoc.get_parser()
 
     try:
@@ -41,6 +65,31 @@ def _get_sphinx_apidoc_arguments(text):
 
 
 def check(text, directory=""):
+    """Look for Sphinx API documentation .rst files that need to be created.
+
+    Args:
+        text (list[str]):
+            The user's raw input options. These will be parsed into
+            options and used to control the execution of this function.
+            e.g. ['"python --output-dir documentation/source/api"', "--no-strict"].
+        directory (str, optional):
+            The folder that will be cd'ed into while the
+            ``sphinx-apidoc`` main function is running.
+
+    Raises:
+        :class:`.DirectoryDoesNotExist`: If the given `directory` is not a folder on-disk.
+        :class:`.NoDryRun`: If the user does not include the "--dry-run" flag in `text`.
+        RuntimeError: If for whatever reason ``sphinx-apidoc`` fails to run.
+
+    Returns:
+        tuple[set[str], set[str], set[str]]:
+            The files of file paths that would be created by the
+            ``sphinx-apidoc`` command, the files that would remain
+            unchanged, and the files in that currently exist in the
+            destination folder that do not point to any Python modules
+            (and should be removed).
+
+    """
     if not directory:
         directory = os.getcwd()
 

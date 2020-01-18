@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""The entry point for the ``sphinx_apidoc_check`` CLI script."""
+
 from __future__ import print_function
 
 import argparse
@@ -26,6 +28,13 @@ def _parse_arguments(text):
         "--no-strict",
         help="If this flag is added, old files in the output directory that don't point "
         "to source Python files are allowed. Otherwise, they must be removed.",
+    )
+
+    parser.add_argument(
+        "-d",
+        "--directory",
+        help="The folder on-disk that will be cd'ed into before running the "
+        "``sphinx-apidoc`` comnand.",
     )
 
     return parser.parse_args(text)
