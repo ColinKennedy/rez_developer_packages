@@ -299,29 +299,28 @@ class Integrations(common.Common):
         some_directory = tempfile.mkdtemp(suffix="_some_directory")
         self.add_item(some_directory)
         _, stderr, _ = self._do_basic_run(
-            '{{command}} "{{root}} --output-dir {{output}} --dry-run"'
+            '{{command}} "{{root}} --output-dir {{output}} --dry-run" '
             "--directory {some_directory}".format(some_directory=some_directory)
         )
 
         self.assertFalse(stderr)
         self.assertEqual(current_directory, os.getcwd())
 
-    @mock.patch("sphinx_apidoc_check.cli._get_apidoc_main_function")
-    def test_temporary_cd_error(self, _get_apidoc_main_function):
+    def test_temporary_cd_error(self):
         """Make sure that the user's working directory stays the same even after erroring."""
         current_directory = os.getcwd()
-        _get_apidoc_main_function.raiseError.side_effect = mock.Mock(
-            side_effect=Exception("Some exception.")
-        )
 
         some_directory = tempfile.mkdtemp(suffix="_some_directory")
         self.add_item(some_directory)
-        _, stderr, _ = self._do_basic_run(
-            '{{command}} "{{root}} --output-dir {{output}} --dry-run"'
-            "--directory {some_directory}".format(some_directory=some_directory)
+        stdout, stderr, _ = self._do_basic_run('{command} "python --dry-run"')
+
+        expected_error = (
+            'Command "python --dry-run" is not a valid call to ``sphinx-apidoc``. '
+            "Here's the full error message "
+            '"sphinx-apidoc: error: argument -o/--output-dir is required".\n'
         )
 
-        self.assertFalse(stderr)
+        self.assertEqual(expected_error, stderr)
         self.assertEqual(current_directory, os.getcwd())
 
 
