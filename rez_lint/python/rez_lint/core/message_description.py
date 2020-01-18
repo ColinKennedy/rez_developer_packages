@@ -73,9 +73,11 @@ class Description(object):
         return os.path.exists(self._location.path)
 
     def get_code(self):
+        """:attr:`.Code`): Get the category label + its unique key."""
         return self._code
 
     def get_full_text(self):
+        """list[str]: Get the "verbose" message for this instance."""
         return self._full
 
     def get_header(self):
@@ -92,6 +94,7 @@ class Description(object):
         return path
 
     def get_location(self):
+        """:attr:`.Location`: Find the path, row, and column data for this instance."""
         return self._location
 
     def get_location_data(self):

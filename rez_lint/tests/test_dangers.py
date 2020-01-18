@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""Test all of the checkers in "dangers.py"."""
+
 import textwrap
 
 from rez.config import config
@@ -12,7 +14,10 @@ from . import packaging
 
 
 class Requirements(packaging.BasePackaging):
+    """Add tests for Rez-requirement related checkers."""
+
     def test_no_impropers_001(self):
+        """Check that a package with no "improper" requirements don't trigger any errors."""
         package = self._make_installed_package(
             "my_package",
             textwrap.dedent(
@@ -35,6 +40,7 @@ class Requirements(packaging.BasePackaging):
         self.assertFalse(has_issue)
 
     def test_no_impropers_002(self):
+        """Adding some dependency should not trigger the "improper" check."""
         dependency_package = self._make_installed_package(
             "some_dependency_that_is_okay",
             textwrap.dedent(

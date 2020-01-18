@@ -42,16 +42,21 @@ class Context(collections.MutableMapping):
         return dict(self._data)
 
     def __delitem__(self, key):
+        """Delete the value at the given `key`."""
         del self._data[key]
 
     def __getitem__(self, key):
+        """Get the value that is stored in `key`."""
         return self._data[key]
 
     def __iter__(self):
+        """iter[str, object]: Loop over this dictionary's contents."""
         return iter(self._data)
 
     def __len__(self):
+        """int: Get the number of key/value pairs in this instance."""
         return len(self._data)
 
     def __setitem__(self, key, value):
+        """Pair `value` to `key` and add these two objects to the current instance."""
         self._data[key] = value

@@ -446,6 +446,7 @@ class UrlNotReachable(base_checker.BaseChecker):
             package (:class:`rez.packages_.Package`):
                 A Rez package that may have a ``help`` attribute/function defined.
                 This attribute will be checked for issues.
+            _: An un-used argument.
 
         """
         if not package.help:
