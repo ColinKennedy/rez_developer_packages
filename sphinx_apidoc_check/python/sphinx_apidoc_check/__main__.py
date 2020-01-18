@@ -57,8 +57,7 @@ def main(text):
 
     try:
         to_add, to_skip, to_remove = cli.check(
-            shlex.split(arguments.command),
-            directory=arguments.directory,
+            shlex.split(arguments.command), directory=arguments.directory,
         )
     except check_exception.CoreException as error:
         print(error)
