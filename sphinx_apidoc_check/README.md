@@ -1,3 +1,46 @@
+``sphinx-apidoc`` is a convenient command. But it has to be re-run
+whenever module or folder names change (how often it needs to get run
+depends on your the settings of your ``sphinx-apidoc`` call).
 
-- Write this README.md
-- Do CI checkers
+This script is a wrapper around ``sphinx-apidoc`` that informs the user
+when it's time to update your API documentation .rst files.
+
+
+## How To Run
+
+Assuming that you have your Python package in a folder called
+"python" and your API documentation is located in a folder at
+"documentation/source/api", the command looks like this.
+
+```sh
+rez-env sphinx_apidoc_check -- sphinx_apidoc_check "python --output-dir documentation/source/api --dry-run"
+```
+
+``sphinx_apidoc_check`` will run ``sphinx-apidoc`` and diff the files
+that it finds against the files currently found in the output folder.
+
+
+## Things To Know
+### Adding Extra Arguments to sphinx-apidoc
+Anything in the ""s is sent directly as arguments to ``sphinx-apidoc``.
+So if your Sphinx API documentation was generated on a per-file basis,
+all you need to do is add "--separate".
+
+```sh
+rez-env sphinx_apidoc_check -- sphinx_apidoc_check "python --output-dir documentation/source/api --dry-run --separate"
+```
+
+### Running From A Different Working Directory
+
+``sphinx_apidoc_check`` by default assumes that you want to run the
+command from your current working directory. But if that's not the case,
+you can specify the folder directly, using "--directory". Just make sure
+that you put this argument **outside** of the ""s, because this is an
+argument for ``sphinx_apidoc_check``.
+
+```sh
+rez-env sphinx_apidoc_check -- sphinx_apidoc_check "python --output-dir documentation/source/api --dry-run --separate" --directory /some/location/here
+```
+
+``sphinx_apidoc_check`` will ``cd`` into "/some/location/here" before
+running its command.
