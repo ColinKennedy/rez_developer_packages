@@ -41,6 +41,7 @@ tests = {
         # Need to disable D202 for now, until a new pydocstyle version is released
         # Reference: https://github.com/psf/black/issues/1159
         #
+        # TODO : Why does the tests folder not get picked up?
         "command": "rez-env pydocstyle -- pydocstyle --ignore=D213,D202,D203,D406,D407 python tests",
         "requires": ["pydocstyle"],
     },
