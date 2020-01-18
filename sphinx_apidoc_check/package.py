@@ -49,12 +49,7 @@ tests = {
         "command": "pylint --disable=bad-continuation python/sphinx_apidoc_check tests",
         "requires": ["pylint-1.9+<2"],
     },
-    "package_check": {
-        "command": "rez-package-check",
-        "requires": ["rez_package_check-1+<2"],
-    },
     "unittest": "python -m unittest discover",
-    }
 }
 
 
