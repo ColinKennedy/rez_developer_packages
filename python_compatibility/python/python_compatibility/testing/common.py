@@ -72,7 +72,8 @@ def make_files(file_structure, root):
         if not os.path.isdir(directory):
             os.makedirs(directory)
 
-        if item_path is None and not os.path.isfile(item_path):
-            open(item_path, "a").close()
-        else:
+        if items is None:
+            if not os.path.isfile(item_path):
+                open(item_path, "a").close()
+        elif not os.path.isdir(item_path):
             os.makedirs(item_path)
