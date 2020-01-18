@@ -62,7 +62,7 @@ class Run(common.Common):
             cli.check("sphinx-apidoc", directory=root)
 
     def test_added_files_001(self):
-        structure = {"some_package": {"__init__.py": dict(), "some_module.py": dict(),}}
+        structure = {"some_package": {"__init__.py": None, "some_module.py": None,}}
 
         root = tempfile.mkdtemp(suffix="_some_test_python_package")
         self.add_item(root)
@@ -85,7 +85,7 @@ class Run(common.Common):
         self.assertEqual((added, set(), set()), results)
 
     def test_added_files_002(self):
-        structure = {"some_package": {"__init__.py": dict(), "some_module.py": dict(),}}
+        structure = {"some_package": {"__init__.py": None, "some_module.py": None,}}
 
         root = tempfile.mkdtemp(suffix="_some_test_python_package")
         self.add_item(root)
@@ -110,7 +110,7 @@ class Run(common.Common):
 
     def test_added_files_003(self):
         """Check that existing API files don't get returned. Only new API files."""
-        structure = {"some_package": {"__init__.py": dict(), "some_module.py": dict(),}}
+        structure = {"some_package": {"__init__.py": None, "some_module.py": None,}}
 
         root = tempfile.mkdtemp(suffix="_some_test_python_package")
         self.add_item(root)
@@ -137,7 +137,7 @@ class Run(common.Common):
         self.assertEqual((added, {existing_file}, set()), results)
 
     def test_removed_files(self):
-        structure = {"some_package": {"__init__.py": dict(),}}
+        structure = {"some_package": {"__init__.py": None,}}
 
         root = tempfile.mkdtemp(suffix="_some_test_python_package")
         self.add_item(root)
@@ -164,7 +164,7 @@ class Run(common.Common):
         self.assertEqual((added, set(), {existing_file}), results)
 
     def test_changed_files(self):
-        structure = {"some_package": {"__init__.py": dict(),}}
+        structure = {"some_package": {"__init__.py": None,}}
 
         root = tempfile.mkdtemp(suffix="_some_test_python_package")
         self.add_item(root)
