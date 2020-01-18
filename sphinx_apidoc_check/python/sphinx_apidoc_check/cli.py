@@ -13,6 +13,7 @@ from __future__ import print_function
 
 import glob
 import os
+import sys
 
 from python_compatibility import wrapping
 from sphinx.ext import apidoc
@@ -50,8 +51,8 @@ def _get_sphinx_apidoc_arguments(text):
         _, stderr = output
 
         if error.code != 2:
-            print("Found issue:")
-            print(stderr)
+            print("Found issue:", file=sys.stderr)
+            print(stderr, file=sys.stderr)
 
             raise
 

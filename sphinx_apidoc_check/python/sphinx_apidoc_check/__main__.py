@@ -60,7 +60,7 @@ def main(text):
             shlex.split(arguments.command), directory=arguments.directory,
         )
     except check_exception.CoreException as error:
-        print(error)
+        print(error, file=sys.stderr)
 
         sys.exit(check_constant.ERROR_ENCOUNTERED)
 
