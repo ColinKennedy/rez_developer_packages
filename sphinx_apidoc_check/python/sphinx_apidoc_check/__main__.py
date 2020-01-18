@@ -14,6 +14,17 @@ from .core import check_constant, check_exception
 
 
 def _parse_arguments(text):
+    """Split raw user input into tokenized Python objects.
+
+    Args:
+        text (str):
+            Some user input from command-line. Usually something like
+            '"python --output-dir documentation/source/api" --no-strict".
+
+    Returns:
+        :class:`argparse.Namespace`: The parsed arguments.
+
+    """
     parser = argparse.ArgumentParser(
         description="A CI linter that checks if API documentation needs to be re-generated.",
     )
