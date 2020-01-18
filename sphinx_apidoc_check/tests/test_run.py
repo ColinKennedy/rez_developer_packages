@@ -248,6 +248,7 @@ class Integrations(common.Common):
             {file_1}
             {file_2}
             {file_3}
+
             Please re-run sphinx-apidoc to fix this
             """
         )
@@ -275,6 +276,7 @@ class Integrations(common.Common):
             {file_2}
             {file_3}
             {file_4}
+
             Please re-run sphinx-apidoc to fix this
             """
         )
