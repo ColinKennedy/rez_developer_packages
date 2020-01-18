@@ -25,7 +25,6 @@ private_build_requires = [
 build_command = "python -m rez_build_helper --items bin python"
 
 tests = {
-    "unittest": "python -m unittest discover",
     "black_diff": {"command": "rez-env black -- black --diff --check python tests"},
     "black": {"command": "rez-env black -- black python tests"},
     "coverage": {
