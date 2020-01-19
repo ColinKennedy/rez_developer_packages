@@ -40,9 +40,7 @@ def __check_for_intersphinx_mapping(arguments):
         sys.exit(check_constant.NO_REZ_PACKAGE)
 
     _check_for_intersphinx_mapping(
-        source_package,
-        arguments.sphinx_files_must_exist,
-        arguments.excluded_packages,
+        source_package, arguments.sphinx_files_must_exist, arguments.excluded_packages,
     )
 
 
@@ -57,9 +55,7 @@ def __fix_intersphinx_mapping(arguments):
 
     try:
         fix_applied = cli.fix_intersphinx_mapping(
-            source_package,
-            True,
-            arguments.excluded_packages,
+            source_package, True, arguments.excluded_packages,
         )
     except exceptions.SphinxFileMissing as error:
         print(error, file=sys.stderr)
@@ -182,9 +178,7 @@ def _check_for_intersphinx_mapping(  # pylint: disable=too-many-arguments
 
     """
     try:
-        missing = cli.get_missing_intersphinx_mappings(
-            package, sphinx_files_must_exist
-        )
+        missing = cli.get_missing_intersphinx_mappings(package, sphinx_files_must_exist)
     except exceptions.SphinxFileMissing:
         print(
             '--sphinx-files-must-exist is enabled but "{package.name}" has no conf.py file.'.format(

@@ -210,7 +210,7 @@ class Cases(common.Common):
         )
 
         if existing_dependencies is not None:
-            template += '\nintersphinx_mapping = {existing_dependencies!r}\n'
+            template += "\nintersphinx_mapping = {existing_dependencies!r}\n"
 
         with open(os.path.join(documentation_source, "conf.py"), "w") as handler:
             handler.write(template.format(existing_dependencies=existing_dependencies))

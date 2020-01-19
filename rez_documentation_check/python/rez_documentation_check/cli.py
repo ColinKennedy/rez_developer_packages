@@ -66,9 +66,7 @@ def get_existing_intersphinx_links(directory):
     return dict()
 
 
-def get_missing_intersphinx_mappings(
-    package, sphinx_files_must_exist=False
-):
+def get_missing_intersphinx_mappings(package, sphinx_files_must_exist=False):
     """Find every intersphinx key / URL that exists as a Python import but is not written to-disk.
 
     Args:
