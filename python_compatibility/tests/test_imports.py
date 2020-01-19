@@ -141,11 +141,15 @@ class ImportNearest(unittest.TestCase):
 
     def test_class_attribute(self):
         """Import a module from a Python class attribute namespace."""
-        self.assertEqual(unittest, imports.import_nearest_module("unittest.TestCase.setUp"))
+        self.assertEqual(
+            unittest, imports.import_nearest_module("unittest.TestCase.setUp")
+        )
 
     def test_invalid(self):
         """Fail to import if the namespace does not point to a Python module."""
-        self.assertEqual(None, imports.import_nearest_module("something_that_doesnt_exist"))
+        self.assertEqual(
+            None, imports.import_nearest_module("something_that_doesnt_exist")
+        )
 
 
 class Module(unittest.TestCase):

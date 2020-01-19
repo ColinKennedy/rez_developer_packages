@@ -3,8 +3,8 @@
 
 """Generic-but-still-useful wrappers."""
 
-import cProfile
 import contextlib
+import cProfile
 import functools
 import os
 import pstats
@@ -84,8 +84,10 @@ def profile_temporary(sort_field="cumulative"):
             The default value is usually what you want. Default: "cumulative".
 
     """
+
     def actual_profileit(function):
         """Wrap the given function."""
+
         @functools.wraps(function)
         def wrapper(*args, **kwargs):
             """Pass the function + its arguments here and run it while profiling it."""
