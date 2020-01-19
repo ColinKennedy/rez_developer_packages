@@ -1,3 +1,11 @@
+
+TODO:
+
+- Make sure to check for missing intersphinx mapping URLs. Not just mappings
+- Add example command-line use
+- Update this README.md with new information
+
+
 # rez-documentation-check
 
 A tool that checks for missing intersphinx mappings for Rez packages

@@ -69,6 +69,7 @@ def keep_cwd(directory):
         os.chdir(directory)
 
 
+# TODO : Add doc
 def profile(name, sort_field="cumulative"):
     def actual_profileit(function):
         @functools.wraps(function)
