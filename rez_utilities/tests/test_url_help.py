@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""Test that querying rez help URLs works as expected."""
+
 import os
-import shutil
 import tempfile
 import textwrap
 import unittest

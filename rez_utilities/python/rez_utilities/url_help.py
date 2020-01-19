@@ -5,13 +5,9 @@
 """A module for querying rez-help from Rez packages."""
 
 import fnmatch
-import itertools
 import logging
 
-from python_compatibility import website
 from six.moves import urllib
-
-from .plugins import registry
 
 _EXPECTED_API_LABELS = frozenset(
     ("api documentation", "api", "api-documentation", "api_documentation")

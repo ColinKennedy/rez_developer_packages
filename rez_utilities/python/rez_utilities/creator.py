@@ -112,7 +112,7 @@ def release_package(directory, options, parser, new_release_path, search_paths=N
         build_._package = None  # pylint: disable=protected-access
 
     if not os.path.isdir(directory):
-        raise ValueError('Directory "{directory}" does not exist.', directory)
+        raise ValueError('Directory "{directory}" does not exist.'.format(directory=directory))
 
     if not search_paths:
         search_paths = []
@@ -123,7 +123,15 @@ def release_package(directory, options, parser, new_release_path, search_paths=N
     _clear_rez_get_current_developer_package_cache()
 
     try:
-        # TODO : Add note about why we need to change these paths
+        # The paths changed here serve 2 purposes
+        #
+        # 1. release_packages_path gets changed so that the released
+        #    package goes to `new_release_path` and not to the regular
+        #    release path.
+        # 2. packages_path needs to be given the release path + any
+        #    other paths needed to resolve the package (e.g. folders were
+        #    dependencies may live.
+        #
         config.release_packages_path = new_release_path
         config.packages_path[:] = [  # pylint: disable=no-member
             new_release_path
