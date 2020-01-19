@@ -7,10 +7,9 @@ import tempfile
 import textwrap
 import unittest
 
-from rez import packages_
 from python_compatibility.testing import common
+from rez import packages_
 from rez_utilities import url_help
-
 
 _DEFAULT_HELP = object()
 
@@ -176,6 +175,6 @@ def _make_fake_package(help_text=_DEFAULT_HELP):
     if help_text == _DEFAULT_HELP:
         return base
 
-    base += '\nhelp = {help_text!r}'
+    base += "\nhelp = {help_text!r}"
 
     return base.format(help_text=help_text)

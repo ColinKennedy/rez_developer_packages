@@ -6,9 +6,10 @@
 import logging
 import os
 
-from rez.config import config
-from rez.cli import build as build_, release
 from rez import build_process_, build_system, packages_
+from rez.cli import build as build_
+from rez.cli import release
+from rez.config import config
 
 from . import rez_configuration
 
@@ -105,6 +106,7 @@ def release_package(directory, options, parser, new_release_path, search_paths=N
             temporary directory.
 
     """
+
     def _clear_rez_get_current_developer_package_cache():
         # Reference: https://github.com/nerdvegas/rez/blob/master/src/rez/cli/build.py#L9-L29
         build_._package = None  # pylint: disable=protected-access

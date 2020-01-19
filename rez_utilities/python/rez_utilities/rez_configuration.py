@@ -3,11 +3,14 @@
 
 """Configurable functions to control the output of functions from this package."""
 
-from rez import serialise
 import wurlitzer
+from rez import serialise
 
-
-REZ_PACKAGE_NAMES = frozenset("package." + extension.lstrip(".") for format_ in serialise.FileFormat for extension in format_.value)
+REZ_PACKAGE_NAMES = frozenset(
+    "package." + extension.lstrip(".")
+    for format_ in serialise.FileFormat
+    for extension in format_.value
+)
 
 
 def get_context():

@@ -72,9 +72,7 @@ def _is_path_variant_and_has_python_package(root, path, variants):
 
     """
     for variant_less_path in iter_variant_extracted_paths(root, path, variants):
-        if not imports.has_importable_module(
-            variant_less_path, ignore={"__init__.py"}
-        ):
+        if not imports.has_importable_module(variant_less_path, ignore={"__init__.py"}):
             # This condition happens only when a Rez package defines
             # A Python package but the package is empty. Which
             # probably is user error and shouldn't happen often.
