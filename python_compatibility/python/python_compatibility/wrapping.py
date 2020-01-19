@@ -9,6 +9,7 @@ import functools
 import os
 import pstats
 import sys
+import tempfile
 
 from six.moves import io
 
@@ -69,19 +70,37 @@ def keep_cwd(directory):
         os.chdir(directory)
 
 
-# TODO : Add doc
-def profile_temporary(name, sort_field="cumulative"):
+def profile_temporary(sort_field="cumulative"):
+    """Profile some Python object to get its timing information.
+
+    Example:
+        >>> @profile_temporary()
+        >>> def something():
+        ...     time.sleep(1)
+
+    Args:
+        sort_field (str, optional):
+            A potential column of information to sort the output data by.
+            The default value is usually what you want. Default: "cumulative".
+
+    """
     def actual_profileit(function):
+        """Wrap the given function."""
         @functools.wraps(function)
         def wrapper(*args, **kwargs):
+            """Pass the function + its arguments here and run it while profiling it."""
             profiler = cProfile.Profile()
             results = profiler.runcall(function, *args, **kwargs)
-            profiler.dump_stats(name)
-            stats = pstats.Stats(name)
+
+            with tempfile.NamedTemporaryFile() as handler:
+                pass
+
+            profiler.dump_stats(handler.name)
+            stats = pstats.Stats(handler.name)
             stats.sort_stats(sort_field)
             stats.print_stats()
 
-            os.remove(name)
+            os.remove(handler.name)
 
             return results
 
