@@ -81,10 +81,10 @@ class SourceResolvedContext(base_context.BaseContext):
             rez_context, python_package_roots
         )
 
-        context[lint_constant.RESOLVED_SOURCE_CONTEXT] = rez_context
-
         packages = _get_root_rez_packages(dependency_paths)
         packages = {package_ for package_ in packages if package_.name != package.name}
+
+        context[lint_constant.RESOLVED_SOURCE_CONTEXT] = rez_context
         context[lint_constant.DEPENDENT_PACKAGES] = packages
 
 
