@@ -147,10 +147,7 @@ def find_intersphinx_links(requirements, allow_non_api=False):
 
     output = dict()
 
-    finders = [url_help.find_api_documentation]
-
-    if allow_non_api:
-        finders.append(url_help.find_package_documentation)
+    finders = [url_help.find_package_documentation, url_help.find_api_documentation]
 
     for package in packages:
         for finder in finders:

@@ -226,13 +226,12 @@ def _check_for_intersphinx_mapping(  # pylint: disable=too-many-arguments
         name: item for name, item in missing.items() if name not in packages_to_exclude
     }
 
-    for name, item in missing.items():
-        print('Rez package "{name}" has "{item}".'.format(name=name, item=item))
-
-    print(pprint.pformat(missing, indent=4))
-
     if missing:
         print("Missing intersphinx links were found.")
+        print('Please add the mapping below to your Sphinx conf.py file.')
+        print()
+
+        print('intersphinx_mapping = ' + pprint.pformat(missing, indent=4))
 
         sys.exit(check_constant.MISSING_INTERSPHINX_LINKS)
 
@@ -244,11 +243,6 @@ def _check_for_intersphinx_mapping(  # pylint: disable=too-many-arguments
 
 def _resolve_arguments(arguments):
     """Change user-provided arguments into something that this Python package can use.
-
-    Specifically ...
-
-    - Find the Rez package object from the user-provided Rez package folder.
-    - Get the absolute paths for every item that was given.
 
     Args:
         arguments (:class:`argparse.Namespace`): The user-provided arguments from command-line.

@@ -3,9 +3,11 @@
 
 """Generic-but-still-useful wrappers."""
 
+import cProfile
 import contextlib
 import functools
 import os
+import pstats
 import sys
 
 from six.moves import io
@@ -65,6 +67,26 @@ def keep_cwd(directory):
         yield
     finally:
         os.chdir(directory)
+
+
+def profile(name, sort_field="cumulative"):
+    def actual_profileit(function):
+        @functools.wraps(function)
+        def wrapper(*args, **kwargs):
+            profiler = cProfile.Profile()
+            retval = profiler.runcall(function, *args, **kwargs)
+            profiler.dump_stats(name)
+            stats = pstats.Stats(name)
+            stats.sort_stats(sort_field)
+            stats.print_stats()
+
+            os.remove(name)
+
+            return retval
+
+        return wrapper
+
+    return actual_profileit
 
 
 def run_once(function):
