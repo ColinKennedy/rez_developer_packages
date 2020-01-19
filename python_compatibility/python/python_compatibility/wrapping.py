@@ -79,9 +79,9 @@ def profile_temporary(sort_field="cumulative"):
         ...     time.sleep(1)
 
     Args:
-        sort_field (str, optional):
-            A potential column of information to sort the output data by.
-            The default value is usually what you want. Default: "cumulative".
+        sort_field (str, optional): A potential column of information
+            to sort the output data by. The default value is usually
+            what you want. Default: "cumulative".
 
     """
 
