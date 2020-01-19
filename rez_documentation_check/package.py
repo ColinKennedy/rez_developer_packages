@@ -14,7 +14,6 @@ requires = [
     "rez-2.47+<3",
     "rez_utilities-1+<2",
     "six-1.13+<2",
-    "wurlitzer-2+<3",
 ]
 
 private_build_requires = ["rez_build_helper-1.1+<2"]
@@ -28,7 +27,11 @@ tests = {
     "black": {"command": "rez-env black -- black python tests"},
     "coverage": {
         "command": "coverage run --parallel-mode --include=python/* -m unittest discover && coverage combine --append && coverage html",
-        "requires": ["coverage"],
+        "requires": [
+            "coverage-4.5+<5",
+            "mock-3+<4",
+            "wurlitzer-2+<3",
+        ],
     },
     "documentation_api": {
         "command": "rm -rf documentation/source/api && sphinx-apidoc python --module-first --separate --o documentation/source/api",
@@ -72,6 +75,7 @@ tests = {
         "command": "python -m unittest discover",
         "requires": [
             "mock-3+<4",
+            "wurlitzer-2+<3",
         ],
     }
 }

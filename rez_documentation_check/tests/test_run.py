@@ -668,7 +668,7 @@ def _make_temporary_build(package):
 
     _LOGGER.debug('Building to "%s" path.', install_path)
 
-    with configuration.get_context():
+    with wurlitzer.pipes():
         builder.build(clean=True, install=True, install_path=install_path)
 
     return install_path
