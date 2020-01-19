@@ -27,7 +27,7 @@ class Common(common.Common):
 
     def tearDown(self):
         """Restore the old Rez packages_path configuration variable."""
-        config.packages_path[:] = self._rez_packages_path
+        config.packages_path[:] = self._rez_packages_path  # pylint: disable=no-member
 
     @staticmethod
     def _fake_sourcing_the_package(environment, package):
