@@ -148,10 +148,13 @@ class Integration(common.Common):
         if stderr:
             raise RuntimeError(stderr)
 
-        expected = (
-            'Rez package "foo_bar" has "(\'https://some_path.com\', None)".\n'
-            "{   'foo_bar': ('https://some_path.com', None)}\n"
-            "Missing intersphinx links were found.\n"
+        expected = textwrap.dedent(
+            """\
+            Missing intersphinx links were found.
+            Please add the mapping below to your Sphinx conf.py file.
+
+            intersphinx_mapping = {   'foo_bar': ('https://some_path.com', None)}
+            """
         )
 
         self.assertTrue(expected in stdout)
@@ -198,8 +201,8 @@ class Cases(common.Common):
 
         return packages_.get_developer_package(directory)
 
-    @mock.patch("rez_utilities.url_help._find_rez_api_documentation")
-    def test_one_error_002(self, _find_rez_api_documentation):
+    @mock.patch("rez_utilities.url_help.find_api_documentation")
+    def test_one_error_002(self, find_api_documentation):
         """Check that the tool contains a single missing intersphinx mapping.
 
         This test assumes that the user is calling
@@ -212,7 +215,7 @@ class Cases(common.Common):
         """
         dependency = "foo_bar"
         url = "https://some_path.com"
-        _find_rez_api_documentation.return_value = url
+        find_api_documentation.return_value = url
 
         package = self._make_fake_package_with_intersphinx_mapping(
             textwrap.dedent(
@@ -239,14 +242,14 @@ class Cases(common.Common):
             cli.get_missing_intersphinx_mappings(package),
         )
 
-    @mock.patch("rez_utilities.url_help._find_rez_api_documentation")
-    def test_multiple_errors(self, _find_rez_api_documentation):
+    @mock.patch("rez_utilities.url_help.find_api_documentation")
+    def test_multiple_errors(self, find_api_documentation):
         """Check that the tool contains more than one error."""
         dependency1 = "foo_bar"
         dependency2 = "another_one"
         url = "https://some_path.com"
 
-        _find_rez_api_documentation.return_value = url
+        find_api_documentation.return_value = url
 
         package = self._make_fake_package_with_intersphinx_mapping(
             textwrap.dedent(
@@ -277,14 +280,14 @@ class Cases(common.Common):
         }
         self.assertEqual(expected, cli.find_intersphinx_links(package.requires or []))
 
-    @mock.patch("rez_utilities.url_help._find_rez_api_documentation")
-    def test_partial_errors(self, _find_rez_api_documentation):
+    @mock.patch("rez_utilities.url_help.find_api_documentation")
+    def test_partial_errors(self, find_api_documentation):
         """Allow other keys in the intersphinx mapping that may not be in the found requirements."""
         dependency1 = "foo_bar"
         dependency2 = "another_one"
         url = "https://some_path.com"
 
-        _find_rez_api_documentation.return_value = url
+        find_api_documentation.return_value = url
 
         existing_intersphinx = {"fake_environment": ("http:/some_url.com", None)}
         package = self._make_fake_package_with_intersphinx_mapping(
@@ -343,10 +346,7 @@ class Cases(common.Common):
 
         package = inspection.get_nearest_rez_package(root)
 
-        self.assertEqual(
-            "https://sphinx-code-include.readthedocs.io/en/latest/objects.inv",
-            url_help.find_package_documentation(package),
-        )
+        self.assertEqual("https://google.com", url_help.find_package_documentation(package))
 
 
 class InputIssues(common.Common):
