@@ -172,18 +172,6 @@ def find_package_documentation(package, filters=frozenset(("*",))):
         str: The found Sphinx-compatible documentation, if any exists.
 
     """
-
-    def _get_inventory_file(url):
-        suffix = "/objects.inv"
-
-        if not url.endswith(suffix):
-            url += suffix
-
-        if website.is_url_reachable(url):
-            return url
-
-        return ""
-
     for label, url in get_help_urls(package):
         if any(fnmatch.fnmatch(label, pattern) for pattern in filters):
             return url
