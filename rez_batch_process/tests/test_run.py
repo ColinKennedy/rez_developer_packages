@@ -615,7 +615,7 @@ def _release_packages(packages, search_paths=None):
 
     # Rez prints a lot of text to console during release so we'll silence it all
     with wurlitzer.pipes():
-        new_release_path = creator.release_package(
+        new_release_path = creator.release(
             inspection.get_package_root(package),
             options,
             parser,
@@ -630,7 +630,7 @@ def _release_packages(packages, search_paths=None):
                 package.name,
                 new_release_path,
             )
-            creator.release_package(
+            creator.release(
                 inspection.get_package_root(package),
                 options,
                 parser,
