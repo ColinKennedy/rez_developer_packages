@@ -10,6 +10,7 @@ import textwrap
 import unittest
 
 from python_compatibility.testing import common
+from rez.config import config
 from rez_documentation_check.core import sphinx_convention
 
 DEFAULT_CODE = object()
@@ -17,6 +18,16 @@ DEFAULT_CODE = object()
 
 class Common(common.Common):
     """Test-agnostic helper methods."""
+
+    def setUp(self):
+        """Store Rez's local paths (because tests may modify it) so it can be restored later."""
+        super(Common, self).setUp()
+
+        self._rez_packages_path = list(config.packages_path)  # pylint: disable=no-member
+
+    def tearDown(self):
+        """Restore the old Rez packages_path configuration variable."""
+        config.packages_path[:] = self._rez_packages_path
 
     @staticmethod
     def _fake_sourcing_the_package(environment, package):

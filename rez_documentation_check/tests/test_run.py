@@ -16,6 +16,7 @@ from rez.config import config
 from rez_documentation_check import cli
 from rez_documentation_check.core import configuration, sphinx_convention
 from rez_utilities import inspection, url_help
+from six.moves import mock
 
 from . import common
 
@@ -152,7 +153,50 @@ class Integration(common.Common):
 
         self.assertTrue(expected in stdout)
 
-    def test_one_error_002(self):
+
+class Cases(common.Common):
+    def _make_dependency_package(self, name, version):
+        directory = tempfile.mkdtemp(suffix="_")
+        self.add_item(directory)
+        install_package_root = os.path.join(directory, name, version)
+        os.makedirs(install_package_root)
+
+        template = textwrap.dedent(
+                        """\
+                        name = "{name}"
+                        version = "{version}"
+                        """
+                    )
+        with open(os.path.join(install_package_root, "package.py"), "w") as handler:
+            handler.write(template.format(name=name, version=version))
+
+        return packages_.get_developer_package(install_package_root)
+
+    def _make_fake_package_with_intersphinx_mapping(self, package, existing_dependencies):
+        directory = tempfile.mkdtemp(suffix="_some_temporary_rez_package_for_unittests")
+        self.add_item(directory)
+
+        with open(os.path.join(directory, "package.py"), "w") as handler:
+            handler.write(package)
+
+        documentation_source = os.path.join(directory, "documentation", "source")
+        os.makedirs(documentation_source)
+
+        template = textwrap.dedent(
+            """\
+            project = "foo"
+            version = release = "1.0.0"
+            intersphinx_mapping = {existing_dependencies!r}
+            """
+        )
+
+        with open(os.path.join(documentation_source, "conf.py"), "w") as handler:
+            handler.write(template.format(existing_dependencies=existing_dependencies))
+
+        return packages_.get_developer_package(directory)
+
+    @mock.patch("rez_utilities.url_help._find_rez_api_documentation")
+    def test_one_error_002(self, _find_rez_api_documentation):
         """Check that the tool contains a single missing intersphinx mapping.
 
         This test assumes that the user is calling
@@ -165,27 +209,31 @@ class Integration(common.Common):
         """
         dependency = "foo_bar"
         url = "https://some_path.com"
+        _find_rez_api_documentation.return_value = url
 
-        environment, paths, importer_package, importer_python_file = _make_full_fake_environment(
-            {dependency: url}
-        )
-        self.add_items(paths)
-
-        self._fake_sourcing_the_package(environment, importer_package)
-
-        expected = {importer_package.name: {dependency: (url, None)}}
-        self.assertEqual(
+        package = self._make_fake_package_with_intersphinx_mapping(
+            textwrap.dedent(
+                """\
+                name = "thing"
+                version = "1.0.0"
+                requires = [
+                    "foo_bar",
+                ]
+                """
+            ),
             dict(),
-            cli.get_existing_intersphinx_links(
-                os.path.dirname(importer_package.filepath)
-            ),
         )
-        self.assertEqual(expected, cli.find_intersphinx_links({importer_python_file}))
+
+        dependency = self._make_dependency_package("foo_bar", "1.0.0")
+        path = inspection.get_packages_path_from_package(dependency)
+        config.packages_path.append(path)  # pylint: disable=no-member
+
+        root = inspection.get_package_root(package)
+        self.assertEqual(dict(), cli.get_existing_intersphinx_links(root))
+        self.assertEqual({dependency.name: (url, None)}, cli.find_intersphinx_links(package.requires or []))
         self.assertEqual(
-            {dependency: (url, None)},
-            cli.get_missing_intersphinx_mappings(
-                importer_package, {importer_python_file}
-            ),
+            {dependency.name: (url, None)},
+            cli.get_missing_intersphinx_mappings(package),
         )
 
     def test_multiple_errors(self):

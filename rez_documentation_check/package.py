@@ -68,7 +68,12 @@ tests = {
         "command": "rez-package-check",
         "requires": ["rez_package_check-1+<2"],
     },
-    "unittest": "python -m unittest discover",
+    "unittest": {
+        "command": "python -m unittest discover",
+        "requires": [
+            "mock-3+<4",
+        ],
+    }
 }
 
 
