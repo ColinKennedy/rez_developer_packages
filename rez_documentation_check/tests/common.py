@@ -40,8 +40,7 @@ def make_python_package(directory):
     """Make a basic Python package.
 
     Args:
-        directory (str):
-            The created Python package will be placed underneath
+        directory (str): The created Python package will be placed underneath
             `directory`, an absolute folder.
 
     """
@@ -54,12 +53,11 @@ def make_sphinx_files(directory, mapping=DEFAULT_CODE):
     """Create example Sphinx files for unittesting.
 
     Args:
-        directory (str):
-            The absolute directory to a Rez package.
-        mapping (dict[str] or NoneType, optional):
-            Whatever value is given will be added to the generated
-            conf.py as the ``intersphinx_mapping`` attribute. If nothing
-            is given, ``intersphinx_mapping`` will not be added at all.
+        directory (str): The absolute directory to a Rez package.
+        mapping (dict[str] or NoneType, optional): Whatever value is given
+            will be added to the generated conf.py as the
+            ``intersphinx_mapping`` attribute. If nothing is given,
+            ``intersphinx_mapping`` will not be added at all.
 
     """
     source_directory = os.path.join(directory, "documentation", "source")

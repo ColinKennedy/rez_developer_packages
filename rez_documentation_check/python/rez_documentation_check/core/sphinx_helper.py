@@ -207,10 +207,9 @@ def _replace_inline(links, path):
     """Update every ``intersphinx_mapping`` assignment with the given `links`.
 
     Args:
-        links (dict[str, str or tuple[str, str or NoneType]]):
-            The key / URL pairs that link to other Sphinx documentation projects.
-        path (str):
-            The path to a conf.py file on-disk that will be appended to.
+        links (dict[str, str or tuple[str, str or NoneType]]): The key / URL pairs
+            that link to other Sphinx documentation projects.
+        path (str): The path to a conf.py file on-disk that will be appended to.
 
     """
     with open(path, "r") as handler:
@@ -232,10 +231,9 @@ def _append_to_end(links, path):
     """Add the ``intersphinx_mapping`` to the end of a conf.py file.
 
     Args:
-        links (dict[str, str or tuple[str, str or NoneType]]):
-            The key / URL pairs that link to other Sphinx documentation projects.
-        path (str):
-            The path to a conf.py file on-disk that will be appended to.
+        links (dict[str, str or tuple[str, str or NoneType]]): The key / URL pairs
+            that link to other Sphinx documentation projects.
+        path (str): The path to a conf.py file on-disk that will be appended to.
 
     """
     with open(path, "r") as handler:

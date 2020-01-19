@@ -81,8 +81,7 @@ def _delete(path):
     """Delete the given file or folder.
 
     Args:
-        package (:class:`rez.developer_package.DeveloperPackage`):
-            The path on-disk to delete + its parent directories.
+        path (str): Delete this file or folder.
 
     """
     if os.path.isdir(path):
@@ -166,15 +165,13 @@ def _check_for_intersphinx_mapping(  # pylint: disable=too-many-arguments
     Args:
         package (:class:`rez.developer_package.DeveloperPackage`):
             The Rez package to find intersphinx mapping details for.
-        sphinx_files_must_exist (bool):
-            If True and the "conf.py" file doesn't exist, raise an
-            exception. If False and the file doesn't exist, still report
-            the missing intersphinx links.
-        excluded_packages (iter[str]):
-            The names of Rez packages to ignore. If an intersphinx
-            key/value pair matches any of the names given to this
-            parameter, it will be ignored. This parameter supports glob
-            matching.
+        sphinx_files_must_exist (bool): If True and the "conf.py" file
+            doesn't exist, raise an exception. If False and the file
+            doesn't exist, still report the missing intersphinx links.
+        excluded_packages (iter[str]): The names of Rez packages to ignore.
+            If an intersphinx key/value pair matches any of the names
+            given to this parameter, it will be ignored. This parameter
+            supports glob matching.
 
     """
     try:
