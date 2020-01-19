@@ -31,21 +31,21 @@ class Url(common.Common):
     def _fake_package_root():
         os.environ["REZ_MY_FAKE_PACKAGE_ROOT"] = "blah"
 
-    def _test(self, directory):
+    def _test(self, package):
         """Get documentation URL links that are missing for a given Rez package file.
 
         Args:
-            directory (str): The absolute path to a Rez package's root directory.
+            package (:class:`rez.packages_.Package`): The Rez package to test.
 
         Returns:
             set[tuple[int, str, str]]:
                 The position, help command label, and URL for each invalid URL found.
 
         """
-        self.add_item(directory)
+        self.add_item(inspection.get_package_root(package))
         self._fake_package_root()
 
-        return cli.find_intersphinx_links({directory})
+        return cli.find_intersphinx_links(package.requires or [])
 
     def test_empty_001(self):
         """Check that setting ``intersphinx_mapping`` to something invalid returns gracefully."""
@@ -131,7 +131,7 @@ class Integration(common.Common):
         # REZ_PACKAGES_PATH to include the importer_package's path +
         # foo_bar, which is one of its dependenices.
         #
-        command = _make_check_command(importer_package, importer_python_file)
+        command = _make_check_command(importer_package)
         base = "REZ_PACKAGES_PATH={packages_path}".format(
             packages_path=(os.pathsep).join(package_paths)
         )
@@ -293,7 +293,7 @@ class Integration(common.Common):
         )
 
 
-class InputIssues(unittest.TestCase):
+class InputIssues(common.Common):
     """Test incorrect input will raise exceptions as expected."""
 
     @staticmethod
@@ -315,36 +315,19 @@ class InputIssues(unittest.TestCase):
 
         return process.communicate()
 
-    def test_missing_package(self):
-        """Every file/folder must exist and must be inside of Rez packages."""
-        with self.assertRaises(EnvironmentError):
-            cli.find_intersphinx_links({"/blah"})
-
-        command = 'rez-documentation-check check --package "" --items "/does/not/exist"'
-        stdout, stderr = self._test_command(command)
-        expected = (
-            "usage: __main__.py check [-h] [-i ITEMS [ITEMS ...]] [-p PACKAGE] [-s] "
-            "[-e [EXCLUDED_PACKAGES [EXCLUDED_PACKAGES ...]]] [-a] [-n]\n"
-            "__main__.py check: error: argument -p/--package: expected one argument\n"
-        ).split()
-
-        self.assertEqual("", stdout)
-        self.assertEqual(expected, stderr.split())
-
     def test_non_rez_input(self):
         """Every file/folder must exist and must be inside of Rez packages."""
-        with self.assertRaises(EnvironmentError):
-            cli.find_intersphinx_links({"/blah"})
+        root = tempfile.mkdtemp(suffix="_a_folder_with_no_rez_package")
+        self.add_item(root)
 
-        command = _make_check_command("", "/path/that/does/not/exist")
+        command = 'rez-documentation-check check --package {root}'.format(root=root)
         _, stderr = self._test_command(command)
         expected = (
-            'RuntimeError: Item "/path/that/does/not/exist" resolved to '
-            '"/path/that/does/not/exist" but this path does not exist.'
-        )
+            'Path "{root}" is not inside '
+            'of a Rez package version. Please CD into a Rez package and try again.'
+        ).format(root=root)
 
-        self.assertTrue(stderr.startswith("Traceback (most recent call last):"))
-        self.assertTrue(stderr.rstrip().endswith(expected))
+        self.assertEqual(expected, stderr.rstrip())
 
 
 class Others(common.Common):
@@ -408,18 +391,12 @@ def _create_fake_rez_dependency_package(name, help_=common.DEFAULT_CODE):
     return packages_.get_developer_package(directory)
 
 
-def _make_check_command(package, path):
-    try:
-        directory = os.path.dirname(package.filepath)
-    except AttributeError:
-        directory = package
+def _make_check_command(package):
+    directory = inspection.get_package_root(package)
 
-    if directory:
-        return 'rez-documentation-check check --package {package} --items "{path}"'.format(
-            package=directory, path=path
-        )
-
-    return 'rez-documentation-check check --items "{path}"'.format(path=path)
+    return 'rez-documentation-check check --package {directory}'.format(
+        directory=directory
+    )
 
 
 def _make_fake_package(mapping=common.DEFAULT_CODE):
@@ -433,7 +410,7 @@ def _make_fake_package(mapping=common.DEFAULT_CODE):
             Default: :attr:`common.DEFAULT_CODE`.
 
     Returns:
-        str: The root directory to a Rez package.
+        :class:`rez.developer_package.DeveloperPackage`: The generated Rez package.
 
     """
     package_code = textwrap.dedent(
@@ -461,7 +438,7 @@ def _make_fake_package(mapping=common.DEFAULT_CODE):
     common.make_sphinx_files(directory, mapping)
     common.make_python_package(directory)
 
-    return os.path.join(directory, "python")
+    return packages_.get_developer_package(directory)
 
 
 def _make_full_fake_environment(dependencies, existing_intersphinx=None):

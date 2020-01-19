@@ -3,6 +3,8 @@
 
 """Check a Rez package for out of date intersphinx data."""
 
+from __future__ import print_function
+
 import argparse
 import fnmatch
 import json
@@ -20,7 +22,7 @@ from rez.config import config
 from rez_utilities import creator, inspection
 
 from . import cli
-from .core import exceptions, python_dependency
+from .core import check_constant, exceptions, python_dependency
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -33,58 +35,18 @@ def __check_for_intersphinx_mapping(arguments):
 
     """
     try:
-        source_package, items, install_path = _resolve_arguments(arguments)
+        source_package = _resolve_arguments(arguments)
     except EnvironmentError as error:
-        print(error)
+        print(error, file=sys.stderr)
 
-        sys.exit(5)
-    except exceptions.BuildPackageDetected as error:
-        print(error)
+        sys.exit(check_constant.NO_REZ_PACKAGE)
 
-        sys.exit(6)
-
-    try:
-        _check_for_intersphinx_mapping(
-            source_package,
-            items,
-            arguments.sphinx_files_must_exist,
-            arguments.excluded_packages,
-            arguments.add_rez_requirements,
-            allow_non_api=arguments.allow_non_api,
-        )
-    except Exception:
-        raise
-    finally:
-        _delete(install_path)
-
-
-def __find_intersphinx_mapping(arguments):
-    """Get the intersphinx mapping and write it out as a JSON dict.
-
-    This command is used mostly internally by this tool. It isn't meant
-    to be called by a user, necessarily.
-
-    Args:
-        arguments (:class:`argparse.Namespace`): The user-provided arguments from command-line.
-
-    """
-    intersphinx_mapping = python_dependency.get_intersphinx_links_using_current_environment(
-        arguments.name, arguments.directories
+    _check_for_intersphinx_mapping(
+        source_package,
+        arguments.sphinx_files_must_exist,
+        arguments.excluded_packages,
+        allow_non_api=arguments.allow_non_api,
     )
-    root = os.environ[inspection.get_root_key(arguments.name)]
-    package = inspection.get_nearest_rez_package(root)
-
-    if arguments.add_rez_requirements:
-        package_links = python_dependency.get_intersphinx_links_from_requirements(
-            package.requires or [], allow_non_api=arguments.allow_non_api
-        )
-        intersphinx_mapping.update(package_links)
-
-    if arguments.output:
-        with open(arguments.output, "w") as handler:
-            json.dump(intersphinx_mapping, handler, indent=4)
-
-    print(pprint.pformat(intersphinx_mapping, indent=4))
 
 
 def __fix_intersphinx_mapping(arguments):
@@ -94,39 +56,33 @@ def __fix_intersphinx_mapping(arguments):
         arguments (:class:`argparse.Namespace`): The user-provided arguments from command-line.
 
     """
-    source_package, items, install_path = _resolve_arguments(arguments)
+    source_package, = _resolve_arguments(arguments)
 
     try:
         fix_applied = cli.fix_intersphinx_mapping(
             source_package,
-            items,
             True,
             arguments.excluded_packages,
-            arguments.add_rez_requirements,
             allow_non_api=arguments.allow_non_api,
         )
     except exceptions.SphinxFileMissing as error:
-        print(error)
+        print(error, file=sys.stderr)
 
-        _delete(install_path)
-
-        sys.exit(2)
-
-    _delete(install_path)
+        sys.exit(check_constant.MISSING_SPHINX_FILE)
 
     if not fix_applied:
         print(
             "Everything looks good. All intersphinx mapping values exist. There's nothing to fix!"
         )
 
-        sys.exit(0)
+        sys.exit(check_constant.SUCCESS)
 
     print(
         'Fix was applied to Package "{source_package.name}" located at '
         '"{source_package.filepath}".'.format(source_package=source_package)
     )
 
-    sys.exit(0)
+    sys.exit(check_constant.SUCCESS)
 
 
 def _delete(path):
@@ -212,10 +168,8 @@ def _make_absolute(items, package):
 
 def _check_for_intersphinx_mapping(  # pylint: disable=too-many-arguments
     package,
-    items,
     sphinx_files_must_exist,
     excluded_packages,
-    add_rez_requirements,
     allow_non_api=False,
 ):
     """Replace or add the ``intersphinx_mapping`` attribute to a user's conf.py Sphinx file.
@@ -223,9 +177,6 @@ def _check_for_intersphinx_mapping(  # pylint: disable=too-many-arguments
     Args:
         package (:class:`rez.developer_package.DeveloperPackage`):
             The Rez package to find intersphinx mapping details for.
-        items (set[str]):
-            The absolute file(s)/folder(s) on-disk to Python files that
-            will be used to search for intersphinx data.
         sphinx_files_must_exist (bool):
             If True and the "conf.py" file doesn't exist, raise an
             exception. If False and the file doesn't exist, still report
@@ -235,11 +186,6 @@ def _check_for_intersphinx_mapping(  # pylint: disable=too-many-arguments
             key/value pair matches any of the names given to this
             parameter, it will be ignored. This parameter supports glob
             matching.
-        add_rez_requirements (bool):
-            If False, only Python imported modules will be used to
-            search for documentation. If True, this function will also
-            include all Rez packages in a user's ``requires`` attribute
-            for documentation.
         allow_non_api (bool, optional):
             If False, only "recognized" API documentation will be
             returned. If True, all types of Rez documentation will be
@@ -250,18 +196,18 @@ def _check_for_intersphinx_mapping(  # pylint: disable=too-many-arguments
     try:
         missing = cli.get_missing_intersphinx_mappings(
             package,
-            items,
             sphinx_files_must_exist,
-            add_rez_requirements=add_rez_requirements,
             allow_non_api=allow_non_api,
         )
     except exceptions.SphinxFileMissing:
         print(
             '--sphinx-files-must-exist is enabled but "{package.name}" has no conf.py file.'.format(
                 package=package
-            )
+            ),
+            file=sys.stderr,
         )
-        sys.exit(2)
+
+        sys.exit(check_constant.MISSING_SPHINX_FILE)
 
     packages_to_exclude = [
         name
@@ -288,12 +234,12 @@ def _check_for_intersphinx_mapping(  # pylint: disable=too-many-arguments
     if missing:
         print("Missing intersphinx links were found.")
 
-        sys.exit(1)
+        sys.exit(check_constant.MISSING_INTERSPHINX_LINKS)
 
     print("Intersphinx is up to date.")
     print("All checks passed!")
 
-    sys.exit(0)
+    sys.exit(check_constant.SUCCESS)
 
 
 def _resolve_arguments(arguments):
@@ -309,7 +255,6 @@ def _resolve_arguments(arguments):
 
     Raises:
         EnvironmentError: If no Rez package could be found from the user's input.
-        :class:`.BuildPackageDetected`: If the found Rez package is an installed Rez package.
 
     Returns:
         tuple[:class:`rez.developer_package.DeveloperPackage`, set[str], str]:
@@ -337,19 +282,7 @@ def _resolve_arguments(arguments):
             "Please CD into a Rez package and try again.".format(path=path)
         )
 
-    if inspection.is_built_package(package):
-        raise exceptions.BuildPackageDetected(
-            'Package "{package}" is a built package. '
-            "This tool is only meant to be run within a source Rez package.".format(
-                package=package
-            )
-        )
-
-    install_path = tempfile.mkdtemp()
-    build_package = creator.build(package, install_path)
-    items = _make_absolute(arguments.items, build_package)
-
-    return package, items, install_path
+    return package
 
 
 def _parse_arguments(text):
@@ -366,14 +299,6 @@ def _parse_arguments(text):
     """
 
     def _add_items_argument(parser, add_sphinx_flag=False):
-        parser.add_argument(
-            "-i",
-            "--items",
-            default=[os.getcwd()],
-            nargs="+",
-            help="The file(s)/folder(s) that will be searched for Python imports.",
-        )
-
         parser.add_argument(
             "-p",
             "--package",
@@ -436,41 +361,6 @@ def _parse_arguments(text):
     )
     checker.set_defaults(execute=__check_for_intersphinx_mapping)
     _add_items_argument(checker, add_sphinx_flag=True)
-
-    finder = commands.add_parser(
-        "find-intersphinx", help="Find intersphinx links and output it to a JSON file."
-    )
-    finder.set_defaults(execute=__find_intersphinx_mapping)
-    finder.add_argument(
-        "name",
-        help="The Rez package which presumably is the root of every folder in `directories`.",
-    )
-    finder.add_argument(
-        "directories",
-        nargs="+",
-        help="The paths that will be used to search for Python files.",
-    )
-    finder.add_argument(
-        "-o",
-        "--output",
-        default="",
-        help="The path on-disk to save the intersphinx mapping to JSON.",
-    )
-    finder.add_argument(
-        "-a",
-        "--add-rez-requirements",
-        action="store_true",
-        help="If this flag is included, the Rez package's explicit requirements "
-        "will be searched for documentation.",
-    )
-    finder.add_argument(
-        "-n",
-        "--non-api",
-        action="store_true",
-        dest="allow_non_api",
-        help="rez-documentation-check only searches for API documentation by default. "
-        "Add this flag to search for other types of documentation, too.",
-    )
 
     fixer = commands.add_parser(
         "fix",

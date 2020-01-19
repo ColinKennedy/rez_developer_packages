@@ -14,18 +14,9 @@ Some terminology:
 
 The steps that this tool does can be summarized like this:
 
-- Given some file / folder paths
-- Find the Rez package that describes those paths
-- If the Rez package is not installed (e.g. it's a source Rez package)
-    - Build the package to a temporary location
-- Search each of the given file / folder paths for Python files
-- For each Python file, get every import statement
-- Find every Python module that each import comes from
-- If the module comes from a recognizable Rez package or Python package
-    - Get the package's name
-- Search for a documentation URL that matches that package's name
-- Format the package + URL data as intersphinx data
-- Print the intersphinx data or write it to-disk
+- Check the current Rez package's list of requirements
+- If a requirement exists that has documentation, tell the user that
+  they need to add an intersphinx link
 
 
 ## Where The Intersphinx Mapping Data Comes From
@@ -51,16 +42,10 @@ You also have the option to include Rez package dependencies as
 intersphinx data, if you're prefer to not just check for Python imports.
 
 
-## Using this package from Python
-
-Check out [api.py](python/rez_documentation_check/api.py). It has all of
-the "public" functions that you can use.
+TODO - Remove api.py
 
 
-## Install
-
-Every requirement of this package can be installed using standard Rez
-commands if you don't already have the packages sourced, yourself.
+TODO check which if these dependencies are actually still in-use
 
 ```sh
 rez-bind rez
