@@ -244,10 +244,9 @@ class Cases(common.Common):
         """Check that the tool contains more than one error."""
         dependency1 = "foo_bar"
         dependency2 = "another_one"
-        url1 = "https://some_path.com"
-        url2 = "https://another_path_here.com"
+        url = "https://some_path.com"
 
-        _find_rez_api_documentation.side_effect = [url1, url2]
+        _find_rez_api_documentation.return_value = url
 
         package = self._make_fake_package_with_intersphinx_mapping(
             textwrap.dedent(
@@ -273,8 +272,8 @@ class Cases(common.Common):
         self.assertEqual(dict(), cli.get_existing_intersphinx_links(root))
 
         expected = {
-            dependency1.name: (url1, None),
-            dependency2.name: (url2, None),
+            dependency1.name: (url, None),
+            dependency2.name: (url, None),
         }
         self.assertEqual(expected, cli.find_intersphinx_links(package.requires or []))
 
@@ -283,10 +282,9 @@ class Cases(common.Common):
         """Allow other keys in the intersphinx mapping that may not be in the found requirements."""
         dependency1 = "foo_bar"
         dependency2 = "another_one"
-        url1 = "https://some_path.com"
-        url2 = "https://another_path_here.com"
+        url = "https://some_path.com"
 
-        _find_rez_api_documentation.side_effect = [url1, url2]
+        _find_rez_api_documentation.return_value = url
 
         existing_intersphinx = {"fake_environment": ("http:/some_url.com", None)}
         package = self._make_fake_package_with_intersphinx_mapping(
@@ -313,8 +311,8 @@ class Cases(common.Common):
         self.assertEqual(existing_intersphinx, cli.get_existing_intersphinx_links(root))
 
         expected = {
-            dependency1.name: (url1, None),
-            dependency2.name: (url2, None),
+            dependency1.name: (url, None),
+            dependency2.name: (url, None),
         }
         self.assertEqual(expected, cli.find_intersphinx_links(package.requires or []))
 
