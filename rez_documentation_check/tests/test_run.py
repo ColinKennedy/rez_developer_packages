@@ -3,6 +3,9 @@
 
 """Check that all features of this Python API / CLI work as expected."""
 
+# TODO : Make sure that these tests work using source Rez packages.
+# I think they're only testing installed Rez packages right now
+#
 import itertools
 import logging
 import os
