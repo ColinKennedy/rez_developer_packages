@@ -275,43 +275,45 @@ class Cases(common.Common):
         }
         self.assertEqual(expected, cli.find_intersphinx_links(package.requires or []))
 
-    def test_partial_errors(self):
-        """Check existing intersphinx mapping URLs aren't present in errors."""
+    @mock.patch("rez_utilities.url_help._find_rez_api_documentation")
+    def test_partial_errors(self, _find_rez_api_documentation):
+        """Allow other keys in the intersphinx mapping that may not be in the found requirements."""
         dependency1 = "foo_bar"
         dependency2 = "another_one"
         url1 = "https://some_path.com"
         url2 = "https://another_path_here.com"
 
-        existing_intersphinx = {"fake_environment": ("http:/some_url.com", None)}
-        environment, paths, importer_package, importer_python_file = _make_full_fake_environment(
-            {dependency1: url1, dependency2: url2},
-            existing_intersphinx=existing_intersphinx,
-        )
-        self.add_items(paths)
+        _find_rez_api_documentation.side_effect = [url1, url2]
 
-        self._fake_sourcing_the_package(environment, importer_package)
+        existing_intersphinx = {"fake_environment": ("http:/some_url.com", None)}
+        package = self._make_fake_package_with_intersphinx_mapping(
+            textwrap.dedent(
+                """\
+                name = "thing"
+                version = "1.0.0"
+                requires = [
+                    "another_one",
+                    "foo_bar",
+                ]
+                """
+            ),
+            existing_intersphinx,
+        )
+
+        dependency1 = self._make_dependency_package("foo_bar", "1.0.0")
+        dependency2 = self._make_dependency_package("another_one", "2.0.0")
+        config.packages_path.append(inspection.get_packages_path_from_package(dependency1))  # pylint: disable=no-member
+        config.packages_path.append(inspection.get_packages_path_from_package(dependency2))  # pylint: disable=no-member
+
+        root = inspection.get_package_root(package)
+
+        self.assertEqual(existing_intersphinx, cli.get_existing_intersphinx_links(root))
 
         expected = {
-            importer_package.name: {
-                dependency1: (url1, None),
-                dependency2: (url2, None),
-            }
+            dependency1.name: (url1, None),
+            dependency2.name: (url2, None),
         }
-        self.assertEqual(
-            existing_intersphinx,
-            cli.get_existing_intersphinx_links(
-                os.path.dirname(importer_package.filepath)
-            ),
-        )
-        self.assertEqual(expected, cli.find_intersphinx_links({importer_python_file}))
-        links = {dependency1: (url1, None), dependency2: (url2, None)}
-        links.update(existing_intersphinx)
-        self.assertEqual(
-            links,
-            cli.get_missing_intersphinx_mappings(
-                importer_package, {importer_python_file}
-            ),
-        )
+        self.assertEqual(expected, cli.find_intersphinx_links(package.requires or []))
 
     def test_non_api_documentation(self):
         """Find Sphinx documentation, even if it isn't labelled as API documentation."""
