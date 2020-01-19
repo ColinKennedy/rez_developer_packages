@@ -8,12 +8,12 @@ import os
 import tempfile
 import textwrap
 
+import git
+import wurlitzer
 from python_compatibility.testing import common
 from rez import exceptions, packages_
 from rez_utilities import creator, inspection
 from six.moves import mock
-import wurlitzer
-import git
 
 _CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 _LOGGER = logging.getLogger(__name__)
@@ -76,6 +76,7 @@ class Release(common.Common):
 
     def test_normal(self):
         """Release a package and make sure it is valid."""
+
         def _make_fake_git_repository_at_directory(root):
             repository = git.Repo.init(root)
             repository.index.add(".")
@@ -115,15 +116,15 @@ class Release(common.Common):
         self.add_item(release_path)
 
         with wurlitzer.pipes():
-            new_release_path = creator.release(
-                inspection.get_package_root(package),
-                options,
-                parser,
-                release_path,
+            creator.release(
+                inspection.get_package_root(package), options, parser, release_path,
             )
 
-        self.assertIsNotNone(packages_.get_developer_package(new_release_path))
-        self.assertTrue(os.path.isfile(os.path.join(new_release_path, "some_packge", "1.0.0")))
+        release_package = packages_.get_developer_package(
+            os.path.join(release_path, "some_package", "1.0.0")
+        )
+
+        self.assertIsNotNone(release_package)
 
 
 def _build_source_that_has_build_method(root):
