@@ -13,7 +13,6 @@ Submodules
 
    rez_documentation_check.core.configuration
    rez_documentation_check.core.exceptions
-   rez_documentation_check.core.python_dependency
    rez_documentation_check.core.sphinx_convention
    rez_documentation_check.core.sphinx_helper
 

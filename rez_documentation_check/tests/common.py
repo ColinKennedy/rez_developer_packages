@@ -4,10 +4,8 @@
 """Helper classes and functions for making unittests easier."""
 
 import os
-import shutil
 import sys
 import textwrap
-import unittest
 
 from python_compatibility.testing import common
 from rez.config import config

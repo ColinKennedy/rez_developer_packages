@@ -3,16 +3,11 @@
 
 """Check that all features of this Python API / CLI work as expected."""
 
-# TODO : Make sure that these tests work using source Rez packages.
-# I think they're only testing installed Rez packages right now
-#
-import itertools
 import logging
 import os
 import subprocess
 import tempfile
 import textwrap
-import unittest
 
 from rez import build_process_, build_system, packages_, resolved_context
 from rez.config import config
@@ -272,12 +267,12 @@ class Cases(common.Common):
 
         dependency1 = self._make_dependency_package("foo_bar", "1.0.0")
         dependency2 = self._make_dependency_package("another_one", "2.0.0")
-        config.packages_path.append(
+        config.packages_path.append(  # pylint: disable=no-member
             inspection.get_packages_path_from_package(dependency1)
-        )  # pylint: disable=no-member
-        config.packages_path.append(
+        )
+        config.packages_path.append(  # pylint: disable=no-member
             inspection.get_packages_path_from_package(dependency2)
-        )  # pylint: disable=no-member
+        )
 
         root = inspection.get_package_root(package)
 

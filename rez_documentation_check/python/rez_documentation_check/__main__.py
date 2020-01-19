@@ -7,22 +7,20 @@ from __future__ import print_function
 
 import argparse
 import fnmatch
-import json
 import logging
 import os
 import pprint
 import shutil
 import sys
-import tempfile
 
 from python_compatibility.sphinx import conf_manager
 from rez import exceptions as rez_exceptions
 from rez import resolved_context
 from rez.config import config
-from rez_utilities import creator, inspection
+from rez_utilities import inspection
 
 from . import cli
-from .core import check_constant, exceptions, python_dependency
+from .core import check_constant, exceptions
 
 _LOGGER = logging.getLogger(__name__)
 
