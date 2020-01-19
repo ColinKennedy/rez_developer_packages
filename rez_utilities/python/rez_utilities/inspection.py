@@ -18,8 +18,11 @@ All "source" Rez packages are by definition not "built".
 
 """
 
+import atexit
+import functools
 import logging
 import os
+import shutil
 import tempfile
 
 from python_compatibility import filer, imports
@@ -208,8 +211,11 @@ def has_python_package(package, paths=None, allow_build=True):
     # find out, we need to run this function again, but with the built
     # package.
     #
-    build_directory = tempfile.mkdtemp()
+    build_directory = tempfile.mkdtemp(suffix="_some_temporary_rez_build_package")
     build_package = creator.build(package, build_directory)
+
+    # Reference: https://stackoverflow.com/questions/3850261/doing-something-before-program-exit
+    # atexit.register(functools.partial(shutil.rmtree, build_directory))
 
     return has_python_package(build_package)
 
