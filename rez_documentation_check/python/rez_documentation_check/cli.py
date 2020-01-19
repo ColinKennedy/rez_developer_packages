@@ -10,9 +10,8 @@ import logging
 import os
 
 from python_compatibility.sphinx import conf_manager
-from rez_utilities import inspection
 from rez import packages_
-from rez_utilities import url_help
+from rez_utilities import inspection, url_help
 
 from .core import exceptions, sphinx_helper
 
@@ -69,9 +68,7 @@ def get_existing_intersphinx_links(directory):
 
 
 def get_missing_intersphinx_mappings(
-    package,
-    sphinx_files_must_exist=False,
-    allow_non_api=False,
+    package, sphinx_files_must_exist=False, allow_non_api=False,
 ):
     """Find every intersphinx key / URL that exists as a Python import but is not written to-disk.
 
@@ -162,10 +159,7 @@ def find_intersphinx_links(requirements, allow_non_api=False):
 
 
 def fix_intersphinx_mapping(  # pylint: disable=too-many-arguments
-    package,
-    sphinx_files_must_exist,
-    excluded_packages,
-    allow_non_api=False,
+    package, sphinx_files_must_exist, excluded_packages, allow_non_api=False,
 ):
     """Replace or add the ``intersphinx_mapping`` attribute to a user's conf.py Sphinx file.
 
@@ -205,9 +199,7 @@ def fix_intersphinx_mapping(  # pylint: disable=too-many-arguments
 
     try:
         missing = get_missing_intersphinx_mappings(
-            package,
-            sphinx_files_must_exist=False,
-            allow_non_api=allow_non_api,
+            package, sphinx_files_must_exist=False, allow_non_api=allow_non_api,
         )
     except exceptions.SphinxFileMissing:
         raise exceptions.SphinxFileMissing(

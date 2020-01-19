@@ -23,7 +23,9 @@ class Common(common.Common):
         """Store Rez's local paths (because tests may modify it) so it can be restored later."""
         super(Common, self).setUp()
 
-        self._rez_packages_path = list(config.packages_path)  # pylint: disable=no-member
+        self._rez_packages_path = list(
+            config.packages_path  # pylint: disable=no-member
+        )
 
     def tearDown(self):
         """Restore the old Rez packages_path configuration variable."""

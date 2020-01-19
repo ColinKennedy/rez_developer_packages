@@ -7,4 +7,4 @@ import six
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
-six.add_move(six.MovedModule('mock', 'mock', 'unittest.mock'))
+six.add_move(six.MovedModule("mock", "mock", "unittest.mock"))

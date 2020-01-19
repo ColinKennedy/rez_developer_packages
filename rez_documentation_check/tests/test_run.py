@@ -168,17 +168,19 @@ class Cases(common.Common):
         os.makedirs(install_package_root)
 
         template = textwrap.dedent(
-                        """\
-                        name = "{name}"
-                        version = "{version}"
-                        """
-                    )
+            """\
+            name = "{name}"
+            version = "{version}"
+            """
+        )
         with open(os.path.join(install_package_root, "package.py"), "w") as handler:
             handler.write(template.format(name=name, version=version))
 
         return packages_.get_developer_package(install_package_root)
 
-    def _make_fake_package_with_intersphinx_mapping(self, package, existing_dependencies):
+    def _make_fake_package_with_intersphinx_mapping(
+        self, package, existing_dependencies
+    ):
         directory = tempfile.mkdtemp(suffix="_some_temporary_rez_package_for_unittests")
         self.add_item(directory)
 
@@ -236,7 +238,10 @@ class Cases(common.Common):
 
         root = inspection.get_package_root(package)
         self.assertEqual(dict(), cli.get_existing_intersphinx_links(root))
-        self.assertEqual({dependency.name: (url, None)}, cli.find_intersphinx_links(package.requires or []))
+        self.assertEqual(
+            {dependency.name: (url, None)},
+            cli.find_intersphinx_links(package.requires or []),
+        )
         self.assertEqual(
             {dependency.name: (url, None)},
             cli.get_missing_intersphinx_mappings(package),
@@ -267,8 +272,12 @@ class Cases(common.Common):
 
         dependency1 = self._make_dependency_package("foo_bar", "1.0.0")
         dependency2 = self._make_dependency_package("another_one", "2.0.0")
-        config.packages_path.append(inspection.get_packages_path_from_package(dependency1))  # pylint: disable=no-member
-        config.packages_path.append(inspection.get_packages_path_from_package(dependency2))  # pylint: disable=no-member
+        config.packages_path.append(
+            inspection.get_packages_path_from_package(dependency1)
+        )  # pylint: disable=no-member
+        config.packages_path.append(
+            inspection.get_packages_path_from_package(dependency2)
+        )  # pylint: disable=no-member
 
         root = inspection.get_package_root(package)
 
@@ -306,8 +315,12 @@ class Cases(common.Common):
 
         dependency1 = self._make_dependency_package("foo_bar", "1.0.0")
         dependency2 = self._make_dependency_package("another_one", "2.0.0")
-        config.packages_path.append(inspection.get_packages_path_from_package(dependency1))  # pylint: disable=no-member
-        config.packages_path.append(inspection.get_packages_path_from_package(dependency2))  # pylint: disable=no-member
+        config.packages_path.append(
+            inspection.get_packages_path_from_package(dependency1)
+        )  # pylint: disable=no-member
+        config.packages_path.append(
+            inspection.get_packages_path_from_package(dependency2)
+        )  # pylint: disable=no-member
 
         root = inspection.get_package_root(package)
 
@@ -346,7 +359,9 @@ class Cases(common.Common):
 
         package = inspection.get_nearest_rez_package(root)
 
-        self.assertEqual("https://google.com", url_help.find_package_documentation(package))
+        self.assertEqual(
+            "https://google.com", url_help.find_package_documentation(package)
+        )
 
 
 class InputIssues(common.Common):
@@ -376,11 +391,11 @@ class InputIssues(common.Common):
         root = tempfile.mkdtemp(suffix="_a_folder_with_no_rez_package")
         self.add_item(root)
 
-        command = 'rez-documentation-check check --package {root}'.format(root=root)
+        command = "rez-documentation-check check --package {root}".format(root=root)
         _, stderr = self._test_command(command)
         expected = (
             'Path "{root}" is not inside '
-            'of a Rez package version. Please CD into a Rez package and try again.'
+            "of a Rez package version. Please CD into a Rez package and try again."
         ).format(root=root)
 
         self.assertEqual(expected, stderr.rstrip())
@@ -450,7 +465,7 @@ def _create_fake_rez_dependency_package(name, help_=common.DEFAULT_CODE):
 def _make_check_command(package):
     directory = inspection.get_package_root(package)
 
-    return 'rez-documentation-check check --package {directory}'.format(
+    return "rez-documentation-check check --package {directory}".format(
         directory=directory
     )
 

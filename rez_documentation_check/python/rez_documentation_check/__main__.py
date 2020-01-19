@@ -56,7 +56,7 @@ def __fix_intersphinx_mapping(arguments):
         arguments (:class:`argparse.Namespace`): The user-provided arguments from command-line.
 
     """
-    source_package, = _resolve_arguments(arguments)
+    source_package = _resolve_arguments(arguments)
 
     try:
         fix_applied = cli.fix_intersphinx_mapping(
@@ -167,10 +167,7 @@ def _make_absolute(items, package):
 
 
 def _check_for_intersphinx_mapping(  # pylint: disable=too-many-arguments
-    package,
-    sphinx_files_must_exist,
-    excluded_packages,
-    allow_non_api=False,
+    package, sphinx_files_must_exist, excluded_packages, allow_non_api=False,
 ):
     """Replace or add the ``intersphinx_mapping`` attribute to a user's conf.py Sphinx file.
 
@@ -195,9 +192,7 @@ def _check_for_intersphinx_mapping(  # pylint: disable=too-many-arguments
     """
     try:
         missing = cli.get_missing_intersphinx_mappings(
-            package,
-            sphinx_files_must_exist,
-            allow_non_api=allow_non_api,
+            package, sphinx_files_must_exist, allow_non_api=allow_non_api,
         )
     except exceptions.SphinxFileMissing:
         print(
@@ -228,10 +223,10 @@ def _check_for_intersphinx_mapping(  # pylint: disable=too-many-arguments
 
     if missing:
         print("Missing intersphinx links were found.")
-        print('Please add the mapping below to your Sphinx conf.py file.')
+        print("Please add the mapping below to your Sphinx conf.py file.")
         print()
 
-        print('intersphinx_mapping = ' + pprint.pformat(missing, indent=4))
+        print("intersphinx_mapping = " + pprint.pformat(missing, indent=4))
 
         sys.exit(check_constant.MISSING_INTERSPHINX_LINKS)
 
