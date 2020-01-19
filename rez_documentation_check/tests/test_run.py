@@ -497,65 +497,6 @@ def _make_fake_package(mapping=common.DEFAULT_CODE):
     return packages_.get_developer_package(directory)
 
 
-def _make_full_fake_environment(dependencies, existing_intersphinx=None):
-    def _make_importer_code(dependencies):
-        base = textwrap.dedent(
-            """
-            for _ in range(10):
-                another()
-            """
-        )
-        template = textwrap.dedent(
-            """
-            try:
-                from {dependency} import some_module
-            except ImportError:
-                pass
-            """
-        )
-
-        for dependency in dependencies:
-            base += template.format(dependency=dependency)
-
-        return base
-
-    paths = set()
-    code = _make_importer_code(dependencies)
-
-    for dependency, url in dependencies.items():
-        dependency_package = _create_fake_rez_dependency_package(
-            dependency, help_=[["api", url]]
-        )
-        paths.add(os.path.dirname(os.path.dirname(dependency_package.filepath)))
-
-    importer_package, importer_python_file = _make_importer_package(
-        code,
-        dependencies=list(dependencies.keys()),
-        existing_intersphinx=existing_intersphinx,
-    )
-    directory = _make_temporary_build(_THIS_PACKAGE)
-
-    local_request = "{package.name}=="
-    package_paths = itertools.chain(
-        [directory, os.path.dirname(os.path.dirname(importer_package.filepath))],
-        paths,
-        config.packages_path,  # pylint: disable=no-member
-    )
-    context = resolved_context.ResolvedContext(
-        [_THIS_PACKAGE.name, local_request.format(package=importer_package)],
-        package_paths=package_paths,
-    )
-
-    environment = context.get_environ()
-
-    return (
-        environment,
-        {directory, os.path.dirname(os.path.dirname(importer_package.filepath))},
-        importer_package,
-        importer_python_file,
-    )
-
-
 def _get_build_file_code():
     """str: A generic Bez-style build Python file."""
     code = textwrap.dedent(
