@@ -39,21 +39,17 @@ class Module(object):
              level    base          leaf   alias
 
         Args:
-            base (str):
-                The first part of an import.
-            leaf (str):
-                The last namespace part of an import.
-            row (int):
-                The 1-based line number where the module import comes from.
-            level (int, optional):
-                `level` specifies how many folders up the import is.
-                The default value means "no folder level context". Each
-                prefix "." added is an extra +1 level. Default: 0.
-            alias (str, optional):
-                The user-provided alternative name for `leaf`. Default: "".
-            pragma (object, optional):
-                An extra context for the called import statement. If
-                nothing is given, it just means "process the import
+            base (str): The first part of an import.
+            leaf (str): The last namespace part of an import.
+            row (int): The 1-based line number where the module import comes from.
+            level (int, optional): `level` specifies how many folders up
+                the import is. The default value means "no folder level
+                context". Each prefix "." added is an extra +1 level.
+                Default: 0.
+            alias (str, optional): The user-provided alternative name for `leaf`.
+                Default: "".
+            pragma (object, optional): An extra context for the called import statement.
+                If nothing is given, it just means "process the import
                 as-normal". Default is None.
 
         """
@@ -76,8 +72,7 @@ class Module(object):
         Args:
             module (:class:`Module`):
                 The import to copy from.
-            pragma (NoneType, optional):
-                The context to override. Otherwise,
+            pragma (NoneType, optional): The context to override. Otherwise,
                 :meth:`Module.get_pragma` will be used instead. Default
                 is None.
 

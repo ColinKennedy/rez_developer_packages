@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""A set of functions that make it easier for dealing with Python packages."""
+
 import os
 
 

@@ -50,12 +50,11 @@ def make_files(file_structure, root):
     """Create a file and folder structure, starting a `root` directory.
 
     Args:
-        file_structure (dict[str, dict[str] or None]):
-            Every key represents a file or folder. If the value of that key
-            is None, it is created as a file. If the key's value is an empty dict,
-            an empty folder is created instead.
-        root (str):
-            The starting directory that is used to recursively build
+        file_structure (dict[str, dict[str] or None]): Every key represents a file or folder.
+            If the value of that key is None, it is created as a file.
+            If the key's value is an empty dict, an empty folder is
+            created instead.
+        root (str): The starting directory that is used to recursively build
             files and folders.
 
     """

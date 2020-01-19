@@ -87,19 +87,19 @@ class Wraps(common.Common):
 
         stdout, stderr = output
 
-        self.assertEqual('', stdout)
-        self.assertEqual('', stderr)
+        self.assertEqual("", stdout)
+        self.assertEqual("", stderr)
 
     def test_pipes_multiple_lines(self):
         """Check that pipes capture stdout and stderr even with multiple statements."""
         with wrapping.capture_pipes() as output:
-            print('Hello')
-            print('there!')
+            print("Hello")
+            print("there!")
 
-            print('General', file=sys.stderr)
-            print('Kanobi', file=sys.stderr)
+            print("General", file=sys.stderr)
+            print("Kanobi", file=sys.stderr)
 
         stdout, stderr = output
 
-        self.assertEqual('Hello\nthere!\n', stdout)
-        self.assertEqual('General\nKanobi\n', stderr)
+        self.assertEqual("Hello\nthere!\n", stdout)
+        self.assertEqual("General\nKanobi\n", stderr)
