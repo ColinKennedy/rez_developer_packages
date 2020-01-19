@@ -145,7 +145,6 @@ class Module(object):
 
             parts = joined.split(".")
 
-
     def set_from_namespace(self, namespace):
         """Change this module's import statement.
 

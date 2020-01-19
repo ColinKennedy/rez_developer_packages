@@ -46,7 +46,6 @@ class Common(unittest.TestCase):
         self._items.update(items)
 
 
-# TODO : Add unittests for this
 def make_files(file_structure, root):
     """Create a file and folder structure, starting a `root` directory.
 

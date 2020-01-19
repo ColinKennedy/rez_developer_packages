@@ -12,6 +12,21 @@ from six.moves import io
 
 @contextlib.contextmanager
 def capture_pipes():
+    """Capture the stdout and stderr of the code that executes within this context.
+
+    Example:
+        >>> import sys
+
+        >>> with capture_pipes() as output:
+        >>>     print('hello')
+        >>>     print('there', file=sys.stderr)
+
+        >>> stdout, stderr = output
+
+    Yields:
+        tuple[:class:`io.StringIO`, :class:`io.StringIO`]: The captured stdout and stderr.
+
+    """
     oldout, olderr = sys.stdout, sys.stderr
 
     try:
@@ -25,9 +40,26 @@ def capture_pipes():
         out[1] = out[1].getvalue()
 
 
-# TODO : Add tests for this
 @contextlib.contextmanager
 def keep_cwd(directory):
+    """After the current Python context exits, cd into the given directory.
+
+    This is useful for when you need to temporarily change the user's directory
+    while running some code.
+
+    Example:
+        >>> some_folder = os.getcwd()
+
+        >>> with keep_cwd(some_folder):
+        >>>     os.chdir('some other folder')
+
+        >>> print(some_folder == os.getcwd())  # This will return True
+
+    Yields:
+        The current context. Once this is yielded, the user's working directory
+        is set back to `directory`.
+
+    """
     try:
         yield
     finally:
