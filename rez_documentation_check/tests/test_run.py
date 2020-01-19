@@ -79,7 +79,7 @@ class Integration(common.Common):
         dependency_package = _create_fake_rez_dependency_package(
             dependency, help_=expected_help
         )
-        importer_package, importer_python_file = _make_importer_package(
+        importer_package = _make_importer_package(
             textwrap.dedent(
                 """
                 for _ in range(10):
@@ -102,7 +102,6 @@ class Integration(common.Common):
         return (
             (directory, importer_root, dependency_root),
             importer_package,
-            importer_python_file,
         )
 
     def test_one_error_001(self):
@@ -114,7 +113,7 @@ class Integration(common.Common):
             RuntimeError: If the called command-line tool fails for any reason.
 
         """
-        paths, importer_package, importer_python_file = self._setup_packages()
+        paths, importer_package = self._setup_packages()
         local_request = "{package.name}=="
         package_paths = list(paths) + config.packages_path  # pylint: disable=no-member
 
@@ -156,6 +155,8 @@ class Integration(common.Common):
 
 
 class Cases(common.Common):
+    """A series of potential input situations that should be tested for an expected output."""
+
     def _make_dependency_package(self, name, version):
         directory = tempfile.mkdtemp(suffix="_")
         self.add_item(directory)
@@ -174,8 +175,24 @@ class Cases(common.Common):
         return packages_.get_developer_package(install_package_root)
 
     def _make_fake_package_with_intersphinx_mapping(
-        self, package, existing_dependencies
+        self, package, existing_dependencies=None
     ):
+        """Make a fake Rez package and give it a Sphinx conf.py file.
+
+        The conf.py file name have basically nothing in it or it may
+        have a set of pre-defined intersphinx mappings.
+
+        Args:
+            package (str):
+                The Python code that will be used to build a Rez package
+                definition file. Make sure to include a ``requires``
+                attribute, if needed.
+            existing_dependencies (dict[str, str or tuple[str, str]], optional):
+                The object that will be used for intersphinx
+                dependencies. By default, the intersphinx_mapping is
+                undefined. Default is None.
+
+        """
         directory = tempfile.mkdtemp(suffix="_some_temporary_rez_package_for_unittests")
         self.add_item(directory)
 
@@ -189,9 +206,11 @@ class Cases(common.Common):
             """\
             project = "foo"
             version = release = "1.0.0"
-            intersphinx_mapping = {existing_dependencies!r}
             """
         )
+
+        if existing_dependencies is not None:
+            template += '\nintersphinx_mapping = {existing_dependencies!r}\n'
 
         with open(os.path.join(documentation_source, "conf.py"), "w") as handler:
             handler.write(template.format(existing_dependencies=existing_dependencies))
@@ -310,12 +329,12 @@ class Cases(common.Common):
 
         dependency1 = self._make_dependency_package("foo_bar", "1.0.0")
         dependency2 = self._make_dependency_package("another_one", "2.0.0")
-        config.packages_path.append(
+        config.packages_path.append(  # pylint: disable=no-member
             inspection.get_packages_path_from_package(dependency1)
-        )  # pylint: disable=no-member
-        config.packages_path.append(
+        )
+        config.packages_path.append(  # pylint: disable=no-member
             inspection.get_packages_path_from_package(dependency2)
-        )  # pylint: disable=no-member
+        )
 
         root = inspection.get_package_root(package)
 
@@ -625,7 +644,7 @@ def _make_importer_package(code, dependencies=None, existing_intersphinx=None):
         ) as handler:
             handler.write(text.format(existing_intersphinx=existing_intersphinx))
 
-    return package, importer_python_file
+    return package
 
 
 def _make_temporary_build(package):

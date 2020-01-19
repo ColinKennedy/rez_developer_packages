@@ -43,7 +43,6 @@ def __check_for_intersphinx_mapping(arguments):
         source_package,
         arguments.sphinx_files_must_exist,
         arguments.excluded_packages,
-        allow_non_api=arguments.allow_non_api,
     )
 
 
@@ -61,7 +60,6 @@ def __fix_intersphinx_mapping(arguments):
             source_package,
             True,
             arguments.excluded_packages,
-            allow_non_api=arguments.allow_non_api,
         )
     except exceptions.SphinxFileMissing as error:
         print(error, file=sys.stderr)
@@ -165,7 +163,7 @@ def _make_absolute(items, package):
 
 
 def _check_for_intersphinx_mapping(  # pylint: disable=too-many-arguments
-    package, sphinx_files_must_exist, excluded_packages, allow_non_api=False,
+    package, sphinx_files_must_exist, excluded_packages
 ):
     """Replace or add the ``intersphinx_mapping`` attribute to a user's conf.py Sphinx file.
 
@@ -181,16 +179,11 @@ def _check_for_intersphinx_mapping(  # pylint: disable=too-many-arguments
             key/value pair matches any of the names given to this
             parameter, it will be ignored. This parameter supports glob
             matching.
-        allow_non_api (bool, optional):
-            If False, only "recognized" API documentation will be
-            returned. If True, all types of Rez documentation will be
-            searched. Basically, False "guesses" correct documentation.
-            Default is False.
 
     """
     try:
         missing = cli.get_missing_intersphinx_mappings(
-            package, sphinx_files_must_exist, allow_non_api=allow_non_api,
+            package, sphinx_files_must_exist
         )
     except exceptions.SphinxFileMissing:
         print(
@@ -317,15 +310,6 @@ def _parse_arguments(text):
             action="store_true",
             help="If this flag is included, the Rez package's explicit requirements "
             "will be searched for documentation.",
-        )
-
-        parser.add_argument(
-            "-n",
-            "--non-api",
-            action="store_true",
-            dest="allow_non_api",
-            help="rez-documentation-check only searches for API documentation by default. "
-            "Add this flag to search for other types of documentation, too.",
         )
 
     parser = argparse.ArgumentParser(description="")

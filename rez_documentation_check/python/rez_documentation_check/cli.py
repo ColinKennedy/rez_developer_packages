@@ -5,13 +5,12 @@
 
 import collections
 import fnmatch
-import itertools
 import logging
 import os
 
 from python_compatibility.sphinx import conf_manager
 from rez import packages_
-from rez_utilities import inspection, url_help
+from rez_utilities import url_help
 
 from .core import exceptions, sphinx_helper
 
@@ -68,7 +67,7 @@ def get_existing_intersphinx_links(directory):
 
 
 def get_missing_intersphinx_mappings(
-    package, sphinx_files_must_exist=False, allow_non_api=False,
+    package, sphinx_files_must_exist=False
 ):
     """Find every intersphinx key / URL that exists as a Python import but is not written to-disk.
 
@@ -79,11 +78,6 @@ def get_missing_intersphinx_mappings(
             If True and the "conf.py" files doesn't exist, raise an
             If exception. False and the file doesn't exist, don't error
             If and just keep moving. Default is False.
-        allow_non_api (bool, optional):
-            If False, only "recognized" API documentation will be
-            returned. If True, all types of Rez documentation will be
-            searched. Basically, False "guesses" correct documentation.
-            Default is False.
 
     Raises:
         :class:`.exceptions.SphinxFileMissing`:
@@ -102,26 +96,20 @@ def get_missing_intersphinx_mappings(
             "or create a conf.py to continue."
         )
 
-    links = find_intersphinx_links(package.requires or [], allow_non_api=allow_non_api)
+    links = find_intersphinx_links(package.requires or [])
     existing = get_existing_intersphinx_links(root)
     existing.update(links)
 
     return existing
 
 
-# TODO : Maybe remove allow_non_api ?
-def find_intersphinx_links(requirements, allow_non_api=False):
+def find_intersphinx_links(requirements):
     """Convert a Rez package's list of requirements into API documentation links.
 
     Args:
         requirements (iter[:class:`rez.utils.formatting.PackageRequest`]):
             The Package + version (if there is a version) information
             that will be used to query documentation details.
-        allow_non_api (bool, optional):
-            If False, only "recognized" API documentation will be
-            returned. If True, all types of Rez documentation will be
-            searched. Basically, False "guesses" correct documentation.
-            Default is False.
 
     Returns:
         dict[str, tuple[str, None]]:
@@ -159,7 +147,7 @@ def find_intersphinx_links(requirements, allow_non_api=False):
 
 
 def fix_intersphinx_mapping(  # pylint: disable=too-many-arguments
-    package, sphinx_files_must_exist, excluded_packages, allow_non_api=False,
+    package, sphinx_files_must_exist, excluded_packages
 ):
     """Replace or add the ``intersphinx_mapping`` attribute to a user's conf.py Sphinx file.
 
@@ -174,11 +162,6 @@ def fix_intersphinx_mapping(  # pylint: disable=too-many-arguments
             The names of Rez packages to ignore. Any intersphinx
             key/value pair that matches any of the names given to this
             parameter will be ignored. This parameter supports glob matching.
-        allow_non_api (bool, optional):
-            If False, only "recognized" API documentation will be
-            returned. If True, all types of Rez documentation will be
-            searched. Basically, False "guesses" correct documentation.
-            Default is False.
 
     Raises:
         :class:`.exceptions.SphinxFileMissing`:
@@ -199,7 +182,7 @@ def fix_intersphinx_mapping(  # pylint: disable=too-many-arguments
 
     try:
         missing = get_missing_intersphinx_mappings(
-            package, sphinx_files_must_exist=False, allow_non_api=allow_non_api,
+            package, sphinx_files_must_exist=False
         )
     except exceptions.SphinxFileMissing:
         raise exceptions.SphinxFileMissing(
