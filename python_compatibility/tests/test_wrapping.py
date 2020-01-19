@@ -9,7 +9,6 @@ import functools
 import os
 import sys
 import tempfile
-import unittest
 
 from python_compatibility import wrapping
 from python_compatibility.testing import common

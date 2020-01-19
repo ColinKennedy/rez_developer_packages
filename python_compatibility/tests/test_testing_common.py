@@ -37,7 +37,6 @@ class FileMaker(common.Common):
         root = tempfile.mkdtemp(suffix="_the_single_files")
         self.add_item(root)
 
-        files = {"foo.txt", "another.md", "no_extension"}
         common.make_files(
             {"foo": {"another.py": None, "thing": {"blah.py": None}}}, root
         )

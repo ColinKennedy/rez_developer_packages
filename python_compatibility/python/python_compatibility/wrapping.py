@@ -4,6 +4,7 @@
 """Generic-but-still-useful wrappers."""
 
 import contextlib
+import functools
 import os
 import sys
 
@@ -80,11 +81,15 @@ def run_once(function):
 
     """
 
+    @functools.wraps(function)
     def wrapper(*args, **kwargs):
+        """Make sure that the wrapped function only gets run once."""
         if not wrapper.has_run:
             wrapper.has_run = True
 
             return function(*args, **kwargs)
+
+        return None
 
     wrapper.has_run = False
 
