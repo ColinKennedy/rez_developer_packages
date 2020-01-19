@@ -70,12 +70,12 @@ def keep_cwd(directory):
 
 
 # TODO : Add doc
-def profile(name, sort_field="cumulative"):
+def profile_temporary(name, sort_field="cumulative"):
     def actual_profileit(function):
         @functools.wraps(function)
         def wrapper(*args, **kwargs):
             profiler = cProfile.Profile()
-            retval = profiler.runcall(function, *args, **kwargs)
+            results = profiler.runcall(function, *args, **kwargs)
             profiler.dump_stats(name)
             stats = pstats.Stats(name)
             stats.sort_stats(sort_field)
@@ -83,7 +83,7 @@ def profile(name, sort_field="cumulative"):
 
             os.remove(name)
 
-            return retval
+            return results
 
         return wrapper
 
