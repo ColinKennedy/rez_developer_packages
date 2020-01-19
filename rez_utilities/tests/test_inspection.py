@@ -209,9 +209,7 @@ class HasPythonPackage(common.Common):
         a Python module, it shouldn't need to be built and still return True.
 
         """
-        root = tempfile.mkdtemp(
-            suffix="_a_rez_source_package_with_a_variant"
-        )
+        root = tempfile.mkdtemp(suffix="_a_rez_source_package_with_a_variant")
         self.add_item(root)
         root = os.path.join(root, "some_package")
         os.makedirs(root)
@@ -250,7 +248,6 @@ class HasPythonPackage(common.Common):
         )
 
         self.assertFalse(local.LocalBuildProcess.build.was_run)
-
 
     def test_build(self):
         """A build Rez package should return True if it has a Python module inside of it."""
@@ -347,6 +344,7 @@ class HasPythonPackage(common.Common):
 
 def _check_called(function):
     """Add an extra attribute to a given function to track if Python has called it."""
+
     @functools.wraps(function)
     def wrapper(*args, **kwargs):
         try:

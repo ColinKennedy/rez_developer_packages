@@ -112,7 +112,9 @@ def release_package(directory, options, parser, new_release_path, search_paths=N
         build_._package = None  # pylint: disable=protected-access
 
     if not os.path.isdir(directory):
-        raise ValueError('Directory "{directory}" does not exist.'.format(directory=directory))
+        raise ValueError(
+            'Directory "{directory}" does not exist.'.format(directory=directory)
+        )
 
     if not search_paths:
         search_paths = []
