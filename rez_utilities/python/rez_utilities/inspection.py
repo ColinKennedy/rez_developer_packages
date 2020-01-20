@@ -212,7 +212,7 @@ def has_python_package(package, paths=None, allow_build=True):
     build_package = creator.build(package, build_directory)
 
     # Reference: https://stackoverflow.com/questions/3850261/doing-something-before-program-exit
-    # atexit.register(functools.partial(shutil.rmtree, build_directory))
+    atexit.register(functools.partial(shutil.rmtree, build_directory))
 
     return has_python_package(build_package)
 
