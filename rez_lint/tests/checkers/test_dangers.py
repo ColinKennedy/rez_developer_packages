@@ -8,10 +8,9 @@ import tempfile
 import textwrap
 
 from rez import packages_
-from rez_utilities import creator
 from rez.config import config
 from rez_lint import cli
-from rez_utilities import inspection
+from rez_utilities import creator, inspection
 
 from .. import packaging
 
@@ -37,7 +36,8 @@ class ImproperRequirements(packaging.BasePackaging):
         has_issue = any(
             description
             for description in results
-            if description.get_summary()[0] == "Improper package requirements were found"
+            if description.get_summary()[0]
+            == "Improper package requirements were found"
         )
 
         self.assertFalse(has_issue)
@@ -99,7 +99,8 @@ class ImproperRequirements(packaging.BasePackaging):
         has_issue = any(
             description
             for description in results
-            if description.get_summary()[0] == "Improper package requirements were found"
+            if description.get_summary()[0]
+            == "Improper package requirements were found"
         )
 
         self.assertFalse(has_issue)
@@ -134,7 +135,9 @@ class MissingRequirements(packaging.BasePackaging):
             """
         )
 
-        dependency1_directory = packaging.make_fake_source_package("another_dependency", code)
+        dependency1_directory = packaging.make_fake_source_package(
+            "another_dependency", code
+        )
         self.add_item(dependency1_directory)
 
         with open(os.path.join(dependency1_directory, "rezbuild.py"), "w") as handler:
@@ -142,7 +145,9 @@ class MissingRequirements(packaging.BasePackaging):
 
         os.makedirs(os.path.join(dependency1_directory, "python"))
 
-        with open(os.path.join(dependency1_directory, "python", "some_module.py"), "w") as handler:
+        with open(
+            os.path.join(dependency1_directory, "python", "some_module.py"), "w"
+        ) as handler:
             handler.write(
                 textwrap.dedent(
                     """\
@@ -155,7 +160,10 @@ class MissingRequirements(packaging.BasePackaging):
         dependency1_build_path = tempfile.mkdtemp(suffix="_another_dependency")
         self.add_item(dependency1_build_path)
 
-        creator.build(packages_.get_developer_package(dependency1_directory), dependency1_build_path)
+        creator.build(
+            packages_.get_developer_package(dependency1_directory),
+            dependency1_build_path,
+        )
 
         code = textwrap.dedent(
             """\
@@ -173,7 +181,9 @@ class MissingRequirements(packaging.BasePackaging):
             """
         )
 
-        dependency2_directory = packaging.make_fake_source_package("direct_dependency", code)
+        dependency2_directory = packaging.make_fake_source_package(
+            "direct_dependency", code
+        )
         self.add_item(dependency2_directory)
         os.makedirs(os.path.join(dependency2_directory, "python"))
 
@@ -187,7 +197,10 @@ class MissingRequirements(packaging.BasePackaging):
         config.packages_path = [dependency1_build_path] + config.packages_path
 
         try:
-            creator.build(packages_.get_developer_package(dependency2_directory), dependency2_build_path)
+            creator.build(
+                packages_.get_developer_package(dependency2_directory),
+                dependency2_build_path,
+            )
         finally:
             config.packages_path[:] = original
 
@@ -278,7 +291,9 @@ class MissingRequirements(packaging.BasePackaging):
             """
         )
 
-        results = self._create_test_environment(code, files={os.path.join("python", "some_module.py")})
+        results = self._create_test_environment(
+            code, files={os.path.join("python", "some_module.py")}
+        )
 
         has_issue = any(
             description
@@ -315,7 +330,9 @@ class MissingRequirements(packaging.BasePackaging):
             """
         )
 
-        root = os.path.join(tempfile.mkdtemp(suffix="_some_package_location"), "some_package")
+        root = os.path.join(
+            tempfile.mkdtemp(suffix="_some_package_location"), "some_package"
+        )
         os.makedirs(root)
         self.add_item(root)
         os.makedirs(os.path.join(root, "python"))
@@ -323,7 +340,9 @@ class MissingRequirements(packaging.BasePackaging):
         with open(os.path.join(root, "package.py"), "w") as handler:
             handler.write(code)
 
-        with open(os.path.join(root, "python", "a_module_with_dependency.py"), "w") as handler:
+        with open(
+            os.path.join(root, "python", "a_module_with_dependency.py"), "w"
+        ) as handler:
             handler.write("import some_module; print(some_module.get_foo())")
 
         original = list(config.packages_path)
@@ -342,7 +361,7 @@ class MissingRequirements(packaging.BasePackaging):
 
         self.assertEqual(1, len(issues))
         self.assertEqual(
-            'Full list "[\'another_dependency\']".',
+            "Full list \"['another_dependency']\".",
             issues[0].get_message(verbose=True)[-1].lstrip(),
         )
 
@@ -366,7 +385,9 @@ class MissingRequirements(packaging.BasePackaging):
             """
         )
 
-        root = os.path.join(tempfile.mkdtemp(suffix="_some_package_location"), "some_package")
+        root = os.path.join(
+            tempfile.mkdtemp(suffix="_some_package_location"), "some_package"
+        )
         os.makedirs(root)
         self.add_item(root)
         os.makedirs(os.path.join(root, "python"))
@@ -374,7 +395,9 @@ class MissingRequirements(packaging.BasePackaging):
         with open(os.path.join(root, "package.py"), "w") as handler:
             handler.write(code)
 
-        with open(os.path.join(root, "python", "a_module_with_dependency.py"), "w") as handler:
+        with open(
+            os.path.join(root, "python", "a_module_with_dependency.py"), "w"
+        ) as handler:
             handler.write("import some_module; print(some_module.get_foo())")
 
         original = list(config.packages_path)
@@ -393,7 +416,7 @@ class MissingRequirements(packaging.BasePackaging):
 
         self.assertEqual(1, len(issues))
         self.assertEqual(
-            'Full list "[\'another_dependency\']".',
+            "Full list \"['another_dependency']\".",
             issues[0].get_message(verbose=True)[-1].lstrip(),
         )
 
@@ -476,7 +499,7 @@ class MissingRequirements(packaging.BasePackaging):
 
 def _get_rezbuild_text():
     return textwrap.dedent(
-        '''\
+        """\
         #!/usr/bin/env python
         # -*- coding: utf-8 -*-
 
@@ -497,5 +520,5 @@ def _get_rezbuild_text():
                 source_path=os.environ["REZ_BUILD_SOURCE_PATH"],
                 install_path=os.environ["REZ_BUILD_INSTALL_PATH"],
             )
-        '''
+        """
     )
