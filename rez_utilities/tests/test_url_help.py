@@ -172,6 +172,7 @@ class FindUrl(common.Common):
         return package
 
     def test_api_found(self):
+        """Find a Rez package's documentation, using its ``help`` attribute'."""
         url = "foo"
         self.assertEqual(
             url,
@@ -183,6 +184,13 @@ class FindUrl(common.Common):
         )
 
     def test_api_multiple_found(self):
+        """Find a Rez package's documentation, using its ``help`` attribute'.
+
+        Make sure to pick the key "api_documentation" because it's a
+        perfect match. "some_api_key" is only a partial match, so it
+        should not be preferred.
+
+        """
         expected_url = "lka;sdfj"
         package = self._build_package(
             _make_fake_package(
@@ -198,6 +206,12 @@ class FindUrl(common.Common):
         self.assertEqual(expected_url, url_help.find_package_documentation(package))
 
     def test_api_unknown_001(self):
+        """Find a Rez package's documentation, using its ``help`` attribute'.
+
+        Since "some_api_key" is the closest known label, make sure to
+        return that.
+
+        """
         expected_url = "blah"
         package = self._build_package(
             _make_fake_package(
@@ -212,6 +226,11 @@ class FindUrl(common.Common):
         self.assertEqual(expected_url, url_help.find_package_documentation(package))
 
     def test_api_unknown_002(self):
+        """Find a Rez package's documentation, using its ``help`` attribute'.
+
+        No label is found so just return the first help entry.
+
+        """
         expected_url = "blah"
         package = self._build_package(
             _make_fake_package(
@@ -226,6 +245,7 @@ class FindUrl(common.Common):
         self.assertEqual(expected_url, url_help.find_package_documentation(package))
 
     def test_package_found(self):
+        """Get a Rez package's API documentation using the pre-written list of documentation."""
         package_definition = _make_fake_package()
         package_definition += '\nname = "six"'
         package = self._build_package(package_definition)
@@ -235,6 +255,7 @@ class FindUrl(common.Common):
         )
 
     def test_package_not_found(self):
+        """Return no API docs because the package is not in the pre-written list of URLs."""
         package_definition = _make_fake_package()
         package = self._build_package(package_definition)
 
