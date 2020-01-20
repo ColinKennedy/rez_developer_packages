@@ -86,7 +86,6 @@ def main(text):
 
         sys.exit(check_constant.UPDATE_CODE)
 
-
     print("These files will remain unchanged (no action required):")
 
     for path in sorted(to_skip):
