@@ -3,13 +3,6 @@
 
 """Check that everything in explains.py works as expected."""
 
-# TODO : Add unittest for missing commands
-#   File "/home/selecaoone/packages/rez_lint/1.0.0/python/rez_lint/plugins/contexts/packaging.py", line 184, in _get_package_specific_python_paths
-#     package_variables = _get_package_specific_environment(package)
-#   File "/home/selecaoone/packages/rez_lint/1.0.0/python/rez_lint/plugins/contexts/packaging.py", line 158, in _get_package_specific_environment
-#     for line in package.commands.evaluated_code.splitlines():
-# AttributeError: 'NoneType' object has no attribute 'evaluated_code'
-
 import os
 import textwrap
 
