@@ -267,12 +267,18 @@ class FindUrl(common.Common):
         package_definition += '\nversion = "2.0"'
         package = self._build_package(package_definition)
 
-        self.assertEqual("https://docs.python.org/2/index.html", url_help.find_api_documentation(package))
+        self.assertEqual(
+            "https://docs.python.org/2/index.html",
+            url_help.find_api_documentation(package),
+        )
 
         package_definition += '\nversion = "3.7.6"'
         package = self._build_package(package_definition)
 
-        self.assertEqual("https://docs.python.org/3.7/index.html", url_help.find_api_documentation(package))
+        self.assertEqual(
+            "https://docs.python.org/3.7/index.html",
+            url_help.find_api_documentation(package),
+        )
 
     def test_package_not_found(self):
         """Return no API docs because the package is not in the pre-written list of URLs."""
