@@ -248,13 +248,13 @@ class MissingRequirements(packaging.BasePackaging):
 
         results = self._create_test_environment(code)
 
-        has_issue = any(
+        issues = [
             description
             for description in results
             if description.get_summary()[0] == "Missing Package requirements"
-        )
+        ]
 
-        self.assertFalse(has_issue)
+        self.assertEqual([], issues)
 
     def test_none_001(self):
         """Don't error if there are requirements defined but the list is empty."""
@@ -268,13 +268,13 @@ class MissingRequirements(packaging.BasePackaging):
 
         results = self._create_test_environment(code)
 
-        has_issue = any(
+        issues = [
             description
             for description in results
             if description.get_summary()[0] == "Missing Package requirements"
-        )
+        ]
 
-        self.assertFalse(has_issue)
+        self.assertEqual([], issues)
 
     def test_none_002(self):
         """Don't error if there are requirements defined but the list is empty and there's files."""
@@ -295,13 +295,13 @@ class MissingRequirements(packaging.BasePackaging):
             code, files={os.path.join("python", "some_module.py")}
         )
 
-        has_issue = any(
+        issues = [
             description
             for description in results
             if description.get_summary()[0] == "Missing Package requirements"
-        )
+        ]
 
-        self.assertFalse(has_issue)
+        self.assertEqual([], issues)
 
     def test_one(self):
         """Error because there is a missing dependency.
