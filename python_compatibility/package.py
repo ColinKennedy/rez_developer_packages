@@ -20,23 +20,23 @@ variants = [["python-2.7"]]
 build_command = "python -m rez_build_helper --items bin python"
 
 tests = {
-    "black_diff": {"command": "rez-env black -- black --diff --check python tests"},
-    "black": {"command": "rez-env black -- black python tests"},
+    "black_diff": {"command": "rez-env black-19.10+ -- black --diff --check python tests"},
+    "black": {"command": "rez-env black-19.10+ -- black python tests"},
     "coverage": {
         "command": "coverage run --parallel-mode --include=python/* -m unittest discover && coverage combine --append && coverage html",
-        "requires": ["coverage"],
+        "requires": ["coverage-4.5+"],
     },
     "isort": {"command": "isort --recursive python tests", "requires": ["isort"]},
     "isort_check": {
         "command": "isort --check-only --diff --recursive python tests",
-        "requires": ["isort"],
+        "requires": ["isort-4.3+"],
     },
     "pydocstyle": {
         # Need to disable D202 for now, until a new pydocstyle version is released
         # Reference: https://github.com/psf/black/issues/1159
         #
-        "command": "rez-env pydocstyle -- pydocstyle --ignore=D213,D202,D203,D406,D407 python tests",
-        "requires": ["pydocstyle"],
+        "command": "pydocstyle --ignore=D213,D202,D203,D406,D407 python tests",
+        "requires": ["pydocstyle-3+"],
     },
     "pylint": {
         "command": "pylint --disable=bad-continuation python/python_compatibility tests",
@@ -51,3 +51,4 @@ def commands():
 
     env.PATH.append(os.path.join("{root}", "bin"))
     env.PYTHONPATH.append(os.path.join("{root}", "python"))
+    env.PYTHON_COMPATIBILITY_DEPENDENCY_PATHS_SCRIPT.set("_get-python-dependency-paths")

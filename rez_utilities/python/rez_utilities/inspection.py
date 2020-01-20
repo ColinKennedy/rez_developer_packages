@@ -18,8 +18,11 @@ All "source" Rez packages are by definition not "built".
 
 """
 
+import atexit
+import functools
 import logging
 import os
+import shutil
 import tempfile
 
 from python_compatibility import filer, imports
@@ -72,9 +75,7 @@ def _is_path_variant_and_has_python_package(root, path, variants):
 
     """
     for variant_less_path in iter_variant_extracted_paths(root, path, variants):
-        if not imports.has_importable_module(
-            variant_less_path, ignore={"__init__.py"}
-        ):
+        if not imports.has_importable_module(variant_less_path, ignore={"__init__.py"}):
             # This condition happens only when a Rez package defines
             # A Python package but the package is empty. Which
             # probably is user error and shouldn't happen often.
@@ -119,9 +120,6 @@ def is_built_package(package):
     return str(package.version) == os.path.basename(parent_folder)
 
 
-# TODO : Check if there's a better way to do this function.
-# Maybe there's a way to query the package's editted variables via resources?
-#
 def has_python_package(package, paths=None, allow_build=True):
     """Check if the given Rez package has at least one Python package inside of it.
 
@@ -210,8 +208,11 @@ def has_python_package(package, paths=None, allow_build=True):
     # find out, we need to run this function again, but with the built
     # package.
     #
-    build_directory = tempfile.mkdtemp()
+    build_directory = tempfile.mkdtemp(suffix="_some_temporary_rez_build_package")
     build_package = creator.build(package, build_directory)
+
+    # Reference: https://stackoverflow.com/questions/3850261/doing-something-before-program-exit
+    atexit.register(functools.partial(shutil.rmtree, build_directory))
 
     return has_python_package(build_package)
 

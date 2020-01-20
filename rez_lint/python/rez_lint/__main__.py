@@ -6,7 +6,6 @@
 from __future__ import print_function
 
 import argparse
-import importlib
 import itertools
 import logging
 import operator
@@ -15,14 +14,6 @@ import sys
 
 from . import cli
 from .core import message_description, registry
-from .plugins.checkers import (
-    base_checker,
-    conventions,
-    dangers,
-    explains,
-    explains_comment,
-)
-from .plugins.contexts import base_context, packaging, parsing
 
 _LOGGER = logging.getLogger("rez_lint")
 __HANDLER = logging.StreamHandler(stream=sys.stdout)
@@ -83,60 +74,6 @@ def _parse_arguments(text):
     return parser.parse_args(text)
 
 
-# TODO : Add docstring
-def _register_internal_plugins():
-    registry.register_checker(conventions.SemanticVersioning)
-    registry.register_checker(dangers.ImproperRequirements)
-    registry.register_checker(dangers.MissingRequirements)
-    registry.register_checker(dangers.NoRezTest)
-    registry.register_checker(dangers.NotPythonDefinition)
-    registry.register_checker(dangers.RequirementLowerBoundsMissing)
-    registry.register_checker(dangers.RequirementsNotSorted)
-    registry.register_checker(dangers.TooManyDependencies)
-    registry.register_checker(dangers.UrlNotReachable)
-    registry.register_checker(explains.NoChangeLog)
-    registry.register_checker(explains.NoDocumentation)
-    registry.register_checker(explains.NoReadMe)
-    registry.register_checker(explains_comment.NeedsComment)
-    registry.register_context(packaging.HasPythonPackage)
-    registry.register_context(packaging.SourceResolvedContext)
-    registry.register_context(parsing.ParsePackageDefinition)
-
-
-def _register_external_plugins():
-    """Add user plugins to the current ``rez_lint`` environment.
-
-    If any user added their own context or checker plugins, this
-    function will add them here.
-
-    """
-    environment = os.getenv("REZ_LINT_PLUGIN_PATHS")
-
-    if not environment:
-        _LOGGER.debug('No environment paths were "%s" found.')
-
-        return
-
-    _LOGGER.debug('Environment paths "%s" found.', environment)
-
-    paths = []
-
-    for namespace in environment.split(os.pathsep):
-        if namespace not in paths:
-            paths.append(namespace)
-
-    for namespace in paths:
-        _LOGGER.info('Importing module "%s".', namespace)
-        importlib.import_module(namespace)
-
-    registry.register_plugins(
-        itertools.chain(
-            base_checker.BaseChecker.__subclasses__(),
-            base_context.BaseContext.__subclasses__(),
-        )
-    )
-
-
 def _resolve_arguments(arguments):
     """Find the disabled user rules.
 
@@ -162,9 +99,6 @@ def _resolve_arguments(arguments):
 
 def main():
     """Run the main execution of the current script."""
-    _register_internal_plugins()
-    _register_external_plugins()
-
     arguments = _parse_arguments(sys.argv[1:])
     folder, disable = _resolve_arguments(arguments)
 

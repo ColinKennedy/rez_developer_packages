@@ -3,19 +3,18 @@
 
 """Check that all features of this Python API / CLI work as expected."""
 
-import itertools
 import logging
 import os
 import subprocess
 import tempfile
 import textwrap
-import unittest
 
 from rez import build_process_, build_system, packages_, resolved_context
 from rez.config import config
 from rez_documentation_check import cli
 from rez_documentation_check.core import configuration, sphinx_convention
 from rez_utilities import inspection, url_help
+from six.moves import mock
 
 from . import common
 
@@ -31,21 +30,21 @@ class Url(common.Common):
     def _fake_package_root():
         os.environ["REZ_MY_FAKE_PACKAGE_ROOT"] = "blah"
 
-    def _test(self, directory):
+    def _test(self, package):
         """Get documentation URL links that are missing for a given Rez package file.
 
         Args:
-            directory (str): The absolute path to a Rez package's root directory.
+            package (:class:`rez.packages_.Package`): The Rez package to test.
 
         Returns:
             set[tuple[int, str, str]]:
                 The position, help command label, and URL for each invalid URL found.
 
         """
-        self.add_item(directory)
+        self.add_item(inspection.get_package_root(package))
         self._fake_package_root()
 
-        return cli.find_intersphinx_links({directory})
+        return cli.find_intersphinx_links(package.requires or [])
 
     def test_empty_001(self):
         """Check that setting ``intersphinx_mapping`` to something invalid returns gracefully."""
@@ -80,7 +79,7 @@ class Integration(common.Common):
         dependency_package = _create_fake_rez_dependency_package(
             dependency, help_=expected_help
         )
-        importer_package, importer_python_file = _make_importer_package(
+        importer_package = _make_importer_package(
             textwrap.dedent(
                 """
                 for _ in range(10):
@@ -103,7 +102,6 @@ class Integration(common.Common):
         return (
             (directory, importer_root, dependency_root),
             importer_package,
-            importer_python_file,
         )
 
     def test_one_error_001(self):
@@ -115,7 +113,7 @@ class Integration(common.Common):
             RuntimeError: If the called command-line tool fails for any reason.
 
         """
-        paths, importer_package, importer_python_file = self._setup_packages()
+        paths, importer_package = self._setup_packages()
         local_request = "{package.name}=="
         package_paths = list(paths) + config.packages_path  # pylint: disable=no-member
 
@@ -131,7 +129,7 @@ class Integration(common.Common):
         # REZ_PACKAGES_PATH to include the importer_package's path +
         # foo_bar, which is one of its dependenices.
         #
-        command = _make_check_command(importer_package, importer_python_file)
+        command = _make_check_command(importer_package)
         base = "REZ_PACKAGES_PATH={packages_path}".format(
             packages_path=(os.pathsep).join(package_paths)
         )
@@ -144,15 +142,83 @@ class Integration(common.Common):
         if stderr:
             raise RuntimeError(stderr)
 
-        expected = (
-            'Rez package "foo_bar" has "(\'https://some_path.com\', None)".\n'
-            "{   'foo_bar': ('https://some_path.com', None)}\n"
-            "Missing intersphinx links were found.\n"
+        expected = textwrap.dedent(
+            """\
+            Missing intersphinx links were found.
+            Please add the mapping below to your Sphinx conf.py file.
+
+            intersphinx_mapping = {   'foo_bar': ('https://some_path.com', None)}
+            """
         )
 
         self.assertTrue(expected in stdout)
 
-    def test_one_error_002(self):
+
+class Cases(common.Common):
+    """A series of potential input situations that should be tested for an expected output."""
+
+    def _make_dependency_package(self, name, version):
+        directory = tempfile.mkdtemp(suffix="_")
+        self.add_item(directory)
+        install_package_root = os.path.join(directory, name, version)
+        os.makedirs(install_package_root)
+
+        template = textwrap.dedent(
+            """\
+            name = "{name}"
+            version = "{version}"
+            """
+        )
+        with open(os.path.join(install_package_root, "package.py"), "w") as handler:
+            handler.write(template.format(name=name, version=version))
+
+        return packages_.get_developer_package(install_package_root)
+
+    def _make_fake_package_with_intersphinx_mapping(
+        self, package, existing_dependencies=None
+    ):
+        """Make a fake Rez package and give it a Sphinx conf.py file.
+
+        The conf.py file name have basically nothing in it or it may
+        have a set of pre-defined intersphinx mappings.
+
+        Args:
+            package (str):
+                The Python code that will be used to build a Rez package
+                definition file. Make sure to include a ``requires``
+                attribute, if needed.
+            existing_dependencies (dict[str, str or tuple[str, str]], optional):
+                The object that will be used for intersphinx
+                dependencies. By default, the intersphinx_mapping is
+                undefined. Default is None.
+
+        """
+        directory = tempfile.mkdtemp(suffix="_some_temporary_rez_package_for_unittests")
+        self.add_item(directory)
+
+        with open(os.path.join(directory, "package.py"), "w") as handler:
+            handler.write(package)
+
+        documentation_source = os.path.join(directory, "documentation", "source")
+        os.makedirs(documentation_source)
+
+        template = textwrap.dedent(
+            """\
+            project = "foo"
+            version = release = "1.0.0"
+            """
+        )
+
+        if existing_dependencies is not None:
+            template += "\nintersphinx_mapping = {existing_dependencies!r}\n"
+
+        with open(os.path.join(documentation_source, "conf.py"), "w") as handler:
+            handler.write(template.format(existing_dependencies=existing_dependencies))
+
+        return packages_.get_developer_package(directory)
+
+    @mock.patch("rez_utilities.url_help.find_api_documentation")
+    def test_one_error_002(self, find_api_documentation):
         """Check that the tool contains a single missing intersphinx mapping.
 
         This test assumes that the user is calling
@@ -165,100 +231,120 @@ class Integration(common.Common):
         """
         dependency = "foo_bar"
         url = "https://some_path.com"
+        find_api_documentation.return_value = url
 
-        environment, paths, importer_package, importer_python_file = _make_full_fake_environment(
-            {dependency: url}
-        )
-        self.add_items(paths)
-
-        self._fake_sourcing_the_package(environment, importer_package)
-
-        expected = {importer_package.name: {dependency: (url, None)}}
-        self.assertEqual(
+        package = self._make_fake_package_with_intersphinx_mapping(
+            textwrap.dedent(
+                """\
+                name = "thing"
+                version = "1.0.0"
+                requires = [
+                    "foo_bar",
+                ]
+                """
+            ),
             dict(),
-            cli.get_existing_intersphinx_links(
-                os.path.dirname(importer_package.filepath)
-            ),
-        )
-        self.assertEqual(expected, cli.find_intersphinx_links({importer_python_file}))
-        self.assertEqual(
-            {dependency: (url, None)},
-            cli.get_missing_intersphinx_mappings(
-                importer_package, {importer_python_file}
-            ),
         )
 
-    def test_multiple_errors(self):
+        dependency = self._make_dependency_package("foo_bar", "1.0.0")
+        path = inspection.get_packages_path_from_package(dependency)
+        config.packages_path.append(path)  # pylint: disable=no-member
+
+        root = inspection.get_package_root(package)
+        self.assertEqual(dict(), cli.get_existing_intersphinx_links(root))
+        self.assertEqual(
+            {dependency.name: (url, None)},
+            cli.find_intersphinx_links(package.requires or []),
+        )
+        self.assertEqual(
+            {dependency.name: (url, None)},
+            cli.get_missing_intersphinx_mappings(package),
+        )
+
+    @mock.patch("rez_utilities.url_help.find_api_documentation")
+    def test_multiple_errors(self, find_api_documentation):
         """Check that the tool contains more than one error."""
         dependency1 = "foo_bar"
         dependency2 = "another_one"
-        url1 = "https://some_path.com"
-        url2 = "https://another_path_here.com"
+        url = "https://some_path.com"
 
-        environment, paths, importer_package, importer_python_file = _make_full_fake_environment(
-            {dependency1: url1, dependency2: url2}
+        find_api_documentation.return_value = url
+
+        package = self._make_fake_package_with_intersphinx_mapping(
+            textwrap.dedent(
+                """\
+                name = "thing"
+                version = "1.0.0"
+                requires = [
+                    "another_one",
+                    "foo_bar",
+                ]
+                """
+            ),
+            dict(),
         )
-        self.add_items(paths)
 
-        self._fake_sourcing_the_package(environment, importer_package)
+        dependency1 = self._make_dependency_package("foo_bar", "1.0.0")
+        dependency2 = self._make_dependency_package("another_one", "2.0.0")
+        config.packages_path.append(  # pylint: disable=no-member
+            inspection.get_packages_path_from_package(dependency1)
+        )
+        config.packages_path.append(  # pylint: disable=no-member
+            inspection.get_packages_path_from_package(dependency2)
+        )
+
+        root = inspection.get_package_root(package)
+
+        self.assertEqual(dict(), cli.get_existing_intersphinx_links(root))
 
         expected = {
-            importer_package.name: {
-                dependency1: (url1, None),
-                dependency2: (url2, None),
-            }
+            dependency1.name: (url, None),
+            dependency2.name: (url, None),
         }
-        self.assertEqual(
-            dict(),
-            cli.get_existing_intersphinx_links(
-                os.path.dirname(importer_package.filepath)
-            ),
-        )
-        self.assertEqual(expected, cli.find_intersphinx_links({importer_python_file}))
-        self.assertEqual(
-            {dependency1: (url1, None), dependency2: (url2, None)},
-            cli.get_missing_intersphinx_mappings(
-                importer_package, {importer_python_file}
-            ),
-        )
+        self.assertEqual(expected, cli.find_intersphinx_links(package.requires or []))
 
-    def test_partial_errors(self):
-        """Check existing intersphinx mapping URLs aren't present in errors."""
+    @mock.patch("rez_utilities.url_help.find_api_documentation")
+    def test_partial_errors(self, find_api_documentation):
+        """Allow other keys in the intersphinx mapping that may not be in the found requirements."""
         dependency1 = "foo_bar"
         dependency2 = "another_one"
-        url1 = "https://some_path.com"
-        url2 = "https://another_path_here.com"
+        url = "https://some_path.com"
+
+        find_api_documentation.return_value = url
 
         existing_intersphinx = {"fake_environment": ("http:/some_url.com", None)}
-        environment, paths, importer_package, importer_python_file = _make_full_fake_environment(
-            {dependency1: url1, dependency2: url2},
-            existing_intersphinx=existing_intersphinx,
+        package = self._make_fake_package_with_intersphinx_mapping(
+            textwrap.dedent(
+                """\
+                name = "thing"
+                version = "1.0.0"
+                requires = [
+                    "another_one",
+                    "foo_bar",
+                ]
+                """
+            ),
+            existing_intersphinx,
         )
-        self.add_items(paths)
 
-        self._fake_sourcing_the_package(environment, importer_package)
+        dependency1 = self._make_dependency_package("foo_bar", "1.0.0")
+        dependency2 = self._make_dependency_package("another_one", "2.0.0")
+        config.packages_path.append(  # pylint: disable=no-member
+            inspection.get_packages_path_from_package(dependency1)
+        )
+        config.packages_path.append(  # pylint: disable=no-member
+            inspection.get_packages_path_from_package(dependency2)
+        )
+
+        root = inspection.get_package_root(package)
+
+        self.assertEqual(existing_intersphinx, cli.get_existing_intersphinx_links(root))
 
         expected = {
-            importer_package.name: {
-                dependency1: (url1, None),
-                dependency2: (url2, None),
-            }
+            dependency1.name: (url, None),
+            dependency2.name: (url, None),
         }
-        self.assertEqual(
-            existing_intersphinx,
-            cli.get_existing_intersphinx_links(
-                os.path.dirname(importer_package.filepath)
-            ),
-        )
-        self.assertEqual(expected, cli.find_intersphinx_links({importer_python_file}))
-        links = {dependency1: (url1, None), dependency2: (url2, None)}
-        links.update(existing_intersphinx)
-        self.assertEqual(
-            links,
-            cli.get_missing_intersphinx_mappings(
-                importer_package, {importer_python_file}
-            ),
-        )
+        self.assertEqual(expected, cli.find_intersphinx_links(package.requires or []))
 
     def test_non_api_documentation(self):
         """Find Sphinx documentation, even if it isn't labelled as API documentation."""
@@ -288,12 +374,11 @@ class Integration(common.Common):
         package = inspection.get_nearest_rez_package(root)
 
         self.assertEqual(
-            "https://sphinx-code-include.readthedocs.io/en/latest/objects.inv",
-            url_help.find_package_documentation(package),
+            "https://google.com", url_help.find_package_documentation(package)
         )
 
 
-class InputIssues(unittest.TestCase):
+class InputIssues(common.Common):
     """Test incorrect input will raise exceptions as expected."""
 
     @staticmethod
@@ -315,36 +400,19 @@ class InputIssues(unittest.TestCase):
 
         return process.communicate()
 
-    def test_missing_package(self):
-        """Every file/folder must exist and must be inside of Rez packages."""
-        with self.assertRaises(EnvironmentError):
-            cli.find_intersphinx_links({"/blah"})
-
-        command = 'rez-documentation-check check --package "" --items "/does/not/exist"'
-        stdout, stderr = self._test_command(command)
-        expected = (
-            "usage: __main__.py check [-h] [-i ITEMS [ITEMS ...]] [-p PACKAGE] [-s] "
-            "[-e [EXCLUDED_PACKAGES [EXCLUDED_PACKAGES ...]]] [-a] [-n]\n"
-            "__main__.py check: error: argument -p/--package: expected one argument\n"
-        ).split()
-
-        self.assertEqual("", stdout)
-        self.assertEqual(expected, stderr.split())
-
     def test_non_rez_input(self):
         """Every file/folder must exist and must be inside of Rez packages."""
-        with self.assertRaises(EnvironmentError):
-            cli.find_intersphinx_links({"/blah"})
+        root = tempfile.mkdtemp(suffix="_a_folder_with_no_rez_package")
+        self.add_item(root)
 
-        command = _make_check_command("", "/path/that/does/not/exist")
+        command = "rez-documentation-check check --package {root}".format(root=root)
         _, stderr = self._test_command(command)
         expected = (
-            'RuntimeError: Item "/path/that/does/not/exist" resolved to '
-            '"/path/that/does/not/exist" but this path does not exist.'
-        )
+            'Path "{root}" is not inside '
+            "of a Rez package version. Please CD into a Rez package and try again."
+        ).format(root=root)
 
-        self.assertTrue(stderr.startswith("Traceback (most recent call last):"))
-        self.assertTrue(stderr.rstrip().endswith(expected))
+        self.assertEqual(expected, stderr.rstrip())
 
 
 class Others(common.Common):
@@ -408,18 +476,12 @@ def _create_fake_rez_dependency_package(name, help_=common.DEFAULT_CODE):
     return packages_.get_developer_package(directory)
 
 
-def _make_check_command(package, path):
-    try:
-        directory = os.path.dirname(package.filepath)
-    except AttributeError:
-        directory = package
+def _make_check_command(package):
+    directory = inspection.get_package_root(package)
 
-    if directory:
-        return 'rez-documentation-check check --package {package} --items "{path}"'.format(
-            package=directory, path=path
-        )
-
-    return 'rez-documentation-check check --items "{path}"'.format(path=path)
+    return "rez-documentation-check check --package {directory}".format(
+        directory=directory
+    )
 
 
 def _make_fake_package(mapping=common.DEFAULT_CODE):
@@ -433,7 +495,7 @@ def _make_fake_package(mapping=common.DEFAULT_CODE):
             Default: :attr:`common.DEFAULT_CODE`.
 
     Returns:
-        str: The root directory to a Rez package.
+        :class:`rez.developer_package.DeveloperPackage`: The generated Rez package.
 
     """
     package_code = textwrap.dedent(
@@ -461,66 +523,7 @@ def _make_fake_package(mapping=common.DEFAULT_CODE):
     common.make_sphinx_files(directory, mapping)
     common.make_python_package(directory)
 
-    return os.path.join(directory, "python")
-
-
-def _make_full_fake_environment(dependencies, existing_intersphinx=None):
-    def _make_importer_code(dependencies):
-        base = textwrap.dedent(
-            """
-            for _ in range(10):
-                another()
-            """
-        )
-        template = textwrap.dedent(
-            """
-            try:
-                from {dependency} import some_module
-            except ImportError:
-                pass
-            """
-        )
-
-        for dependency in dependencies:
-            base += template.format(dependency=dependency)
-
-        return base
-
-    paths = set()
-    code = _make_importer_code(dependencies)
-
-    for dependency, url in dependencies.items():
-        dependency_package = _create_fake_rez_dependency_package(
-            dependency, help_=[["api", url]]
-        )
-        paths.add(os.path.dirname(os.path.dirname(dependency_package.filepath)))
-
-    importer_package, importer_python_file = _make_importer_package(
-        code,
-        dependencies=list(dependencies.keys()),
-        existing_intersphinx=existing_intersphinx,
-    )
-    directory = _make_temporary_build(_THIS_PACKAGE)
-
-    local_request = "{package.name}=="
-    package_paths = itertools.chain(
-        [directory, os.path.dirname(os.path.dirname(importer_package.filepath))],
-        paths,
-        config.packages_path,  # pylint: disable=no-member
-    )
-    context = resolved_context.ResolvedContext(
-        [_THIS_PACKAGE.name, local_request.format(package=importer_package)],
-        package_paths=package_paths,
-    )
-
-    environment = context.get_environ()
-
-    return (
-        environment,
-        {directory, os.path.dirname(os.path.dirname(importer_package.filepath))},
-        importer_package,
-        importer_python_file,
-    )
+    return packages_.get_developer_package(directory)
 
 
 def _get_build_file_code():
@@ -641,7 +644,7 @@ def _make_importer_package(code, dependencies=None, existing_intersphinx=None):
         ) as handler:
             handler.write(text.format(existing_intersphinx=existing_intersphinx))
 
-    return package, importer_python_file
+    return package
 
 
 def _make_temporary_build(package):
@@ -665,7 +668,7 @@ def _make_temporary_build(package):
 
     _LOGGER.debug('Building to "%s" path.', install_path)
 
-    with configuration.get_context():
+    with wurlitzer.pipes():
         builder.build(clean=True, install=True, install_path=install_path)
 
     return install_path

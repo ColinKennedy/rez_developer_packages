@@ -85,7 +85,7 @@ class NoDocumentation(base_checker.BaseChecker):
                 return one description of each found issue.
 
         """
-        if not context[lint_constant.HAS_PYTHON_PACKAGE]:
+        if not _has_context_python_package(context):
             return []
 
         root = inspection.get_package_root(package)
@@ -117,3 +117,7 @@ class NoReadMe(_MissingFile):
     def get_long_code():
         """str: The string used to refer to this class or disable it."""
         return "no-read-me"
+
+
+def _has_context_python_package(context):
+    return context[lint_constant.HAS_PYTHON_PACKAGE]

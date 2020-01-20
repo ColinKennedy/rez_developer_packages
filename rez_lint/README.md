@@ -301,6 +301,10 @@ checks to prevent developers from releasing code.
 
 # TODO
 
+- Check that the plug-in system works
+- The requirements-related checks must take into account variants, not just the user's listed requirements.
+- Make sure that no versions lower than 1.0.0 are written
+ - Add some context awareness. e.g. don't run this check if the semantic versioning check failed
 - TODO finish bad-author
 - Add unittests
 - Fix vimgrep sorting. The line / column number should be ascending

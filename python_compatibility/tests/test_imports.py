@@ -124,6 +124,34 @@ class Run(common.Common):
             imports.import_file("fake_package", handler.name)
 
 
+class ImportNearest(unittest.TestCase):
+    """Test permutations of :func:`python_compatibility.imports.import_nearest_module`."""
+
+    def test_module(self):
+        """Import a module from a Python module namespace."""
+        self.assertEqual(unittest, imports.import_nearest_module("unittest"))
+
+    def test_function(self):
+        """Import a module from a Python function namespace."""
+        self.assertEqual(textwrap, imports.import_nearest_module("textwrap.dedent"))
+
+    def test_module_attribute(self):
+        """Import a module from a Python module attribute namespace."""
+        self.assertEqual(sys, imports.import_nearest_module("sys.maxsize"))
+
+    def test_class_attribute(self):
+        """Import a module from a Python class attribute namespace."""
+        self.assertEqual(
+            unittest, imports.import_nearest_module("unittest.TestCase.setUp")
+        )
+
+    def test_invalid(self):
+        """Fail to import if the namespace does not point to a Python module."""
+        self.assertEqual(
+            None, imports.import_nearest_module("something_that_doesnt_exist")
+        )
+
+
 class Module(unittest.TestCase):
     """Test different situations for :func:`python_compatibility.imports.get_parent_module`."""
 

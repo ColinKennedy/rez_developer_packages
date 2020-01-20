@@ -3,15 +3,20 @@
 
 """A series of tests for building/installing Rez packages."""
 
+import logging
 import os
 import tempfile
 import textwrap
 
+import git
+import wurlitzer
 from python_compatibility.testing import common
 from rez import exceptions, packages_
-from rez_utilities import creator
+from rez_utilities import creator, inspection
+from six.moves import mock
 
 _CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
+_LOGGER = logging.getLogger(__name__)
 
 
 class Build(common.Common):
@@ -64,6 +69,62 @@ class Build(common.Common):
 
         with self.assertRaises(exceptions.BuildSystemError):
             creator.build(package, root)
+
+
+class Release(common.Common):
+    """Make sure :func:`rez_utilities.creator.release_package` works as expected."""
+
+    def test_normal(self):
+        """Release a package and make sure it is valid."""
+
+        def _make_fake_git_repository_at_directory(root):
+            repository = git.Repo.init(root)
+            repository.index.add(".")
+            repository.index.commit("initial commit")
+
+        source_path = tempfile.mkdtemp(suffix="_rez_package_source_path")
+        self.add_item(source_path)
+
+        with open(os.path.join(source_path, "package.py"), "w") as handler:
+            handler.write(
+                textwrap.dedent(
+                    """\
+                    name = "some_package"
+                    version = "1.0.0"
+                    build_command = "echo 'foo'"
+                    """
+                )
+            )
+
+        _make_fake_git_repository_at_directory(source_path)
+
+        package = packages_.get_developer_package(source_path)
+
+        options = mock.MagicMock()
+        options.cmd = "release"
+        options.debug = False
+        options.message = "Fake release message"
+        options.no_message = False
+        options.process = "local"
+        options.variants = None
+        options.vcs = None
+
+        parser = mock.MagicMock()
+        parser.prog = "rez release"
+
+        release_path = tempfile.mkdtemp(suffix="_rez_package_release_path")
+        self.add_item(release_path)
+
+        with wurlitzer.pipes():
+            creator.release(
+                inspection.get_package_root(package), options, parser, release_path,
+            )
+
+        release_package = packages_.get_developer_package(
+            os.path.join(release_path, "some_package", "1.0.0")
+        )
+
+        self.assertIsNotNone(release_package)
 
 
 def _build_source_that_has_build_method(root):

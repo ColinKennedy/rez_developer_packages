@@ -42,6 +42,7 @@ class ImproperRequirements(base_checker.BaseChecker):
         """str: The string used to refer to this class or disable it."""
         return "improper-requirements"
 
+    # TODO : Make this test say different things depending on if it's a test or build package
     @classmethod
     def run(cls, package, _):
         """Check if `package` depends on a Rez package that it shouldn't.
@@ -125,8 +126,7 @@ class MissingRequirements(base_checker.BaseChecker):
 
         missing = []
 
-        # TODO : Add global variable here
-        for package_ in context["dependent_packages"]:
+        for package_ in context[lint_constant.DEPENDENT_PACKAGES]:
             if package_.name not in listed_requirements:
                 missing.append(package_)
 
@@ -395,7 +395,7 @@ class TooManyDependencies(base_checker.BaseChecker):
             list[:class:`.Description`]: If `package` is too large.
 
         """
-        requirements = package.requires
+        requirements = package.requires or []
         current = len(requirements)
 
         if current < cls._maximum_dependencies:
@@ -446,6 +446,7 @@ class UrlNotReachable(base_checker.BaseChecker):
             package (:class:`rez.packages_.Package`):
                 A Rez package that may have a ``help`` attribute/function defined.
                 This attribute will be checked for issues.
+            _: An un-used argument.
 
         """
         if not package.help:

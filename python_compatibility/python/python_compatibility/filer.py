@@ -33,6 +33,9 @@ def in_directory(path, directory, follow=True):
 
     """
     if not follow:
+        if not directory:
+            return False
+
         return pathrip.get_common_prefix([path, directory]) == directory
 
     directory = os.path.join(os.path.realpath(directory), "")
