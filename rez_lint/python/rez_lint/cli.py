@@ -156,6 +156,7 @@ def _register_internal_plugins():
     registry.register_checker(dangers.UrlNotReachable)
     registry.register_checker(explains.NoChangeLog)
     registry.register_checker(explains.NoDocumentation)
+    registry.register_checker(explains.NoHelp)
     registry.register_checker(explains.NoReadMe)
     registry.register_checker(explains_comment.NeedsComment)
     registry.register_context(packaging.HasPythonPackage)

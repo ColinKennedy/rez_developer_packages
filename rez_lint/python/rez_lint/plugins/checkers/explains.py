@@ -107,6 +107,42 @@ class NoDocumentation(base_checker.BaseChecker):
         ]
 
 
+# TODO : Add unittests for this class
+class NoHelp(base_checker.BaseChecker):
+    """Find the ``help`` attribute for the user's Rez package and report if it's missing."""
+
+    @staticmethod
+    def get_long_code():
+        """str: The string used to refer to this class or disable it."""
+        return "no-help"
+
+    @classmethod
+    def run(cls, package, _):
+        """Check a Rez package for the ``help`` attribute.
+
+        Args:
+            package (:class:`rez.packages_.DeveloperPackage`):
+                The Rez package that will be checked for help links.
+
+        """
+        if package.help:
+            return
+
+        summary = "The help attribute is undefined or empty"
+        full = [
+            summary,
+            "Every Rez package should always point to some documentation.",
+            "Reference: https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#help",
+        ]
+        root = inspection.get_package_root(package)
+        code = base_checker.Code(short_name="E", long_name=cls.get_long_code())
+        location = message_description.Location(path=root, row=0, column=0, text="")
+
+        return [
+            message_description.Description([summary], location, code=code, full=full),
+        ]
+
+
 class NoReadMe(_MissingFile):
     """Check that some kind of explanation file (README.md / README.rst / etc) exists."""
 
