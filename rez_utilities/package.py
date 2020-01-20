@@ -9,6 +9,7 @@ description = "Helper functions / objects for working with Rez."
 authors = ["Colin Kennedy (https://github.com/ColinKennedy)"]
 
 requires = [
+    "python-2+<3",
     "python_compatibility-1+<2",
     "rez-2.47+<3",
     "six-1.12+<2",
