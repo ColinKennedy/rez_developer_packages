@@ -241,9 +241,14 @@ def _resolve(package):
         :class:`rez.resolved_context.ResolvedContext`: The created context.
 
     """
+    version = ""
+
+    if inspection.is_built_package(package):
+        version = package.version
+
     return resolved_context.ResolvedContext(
         [
-            "{package.name}=={package.version}".format(package=package),
+            "{package.name}=={version}".format(package=package, version=version),
             "python_compatibility",
         ],
         package_paths=[inspection.get_packages_path_from_package(package)]

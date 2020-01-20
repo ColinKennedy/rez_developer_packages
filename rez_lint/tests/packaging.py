@@ -5,32 +5,10 @@
 
 import os
 import tempfile
-import textwrap
-import unittest
 
 from python_compatibility.testing import common
 from rez import packages_
 from rez_utilities import creator, inspection
-
-
-def _make_fake_source_package(name, text):
-    """Create a Rez source package using the given `name`.
-
-    Args:
-        name (str): The name of the source Rez packge to create.
-        text (str): The text that will be used for a "package.py" file.
-
-    Returns:
-        str: The directory on-disk that points to the root of the Rez package.
-
-    """
-    directory = os.path.join(tempfile.mkdtemp("_some_rez_source_package"), name)
-    os.makedirs(directory)
-
-    with open(os.path.join(directory, "package.py"), "w") as handler:
-        handler.write(text)
-
-    return directory
 
 
 class BasePackaging(common.Common):
@@ -51,7 +29,7 @@ class BasePackaging(common.Common):
                 The package the represents the newly-built package.
 
         """
-        directory = _make_fake_source_package(name, text)
+        directory = make_fake_source_package(name, text)
 
         package = packages_.get_developer_package(directory)
         new_package = creator.build(package, tempfile.mkdtemp())
@@ -60,3 +38,23 @@ class BasePackaging(common.Common):
         self.add_item(inspection.get_packages_path_from_package(new_package))
 
         return new_package
+
+
+def make_fake_source_package(name, text):
+    """Create a Rez source package using the given `name`.
+
+    Args:
+        name (str): The name of the source Rez packge to create.
+        text (str): The text that will be used for a "package.py" file.
+
+    Returns:
+        str: The directory on-disk that points to the root of the Rez package.
+
+    """
+    directory = os.path.join(tempfile.mkdtemp("_some_rez_source_package"), name)
+    os.makedirs(directory)
+
+    with open(os.path.join(directory, "package.py"), "w") as handler:
+        handler.write(text)
+
+    return directory

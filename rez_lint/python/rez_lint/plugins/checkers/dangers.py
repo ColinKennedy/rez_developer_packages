@@ -410,7 +410,8 @@ class TooManyDependencies(base_checker.BaseChecker):
             summary,
             "This package has many dependencies, which limits its portability, "
             "usefulness, and will increase resolve time.",
-            "Consider moving dependencies to ``tests``, ``private_build_requires``, or ``build_requires``.",
+            "Consider moving dependencies to "
+            "``tests``, ``private_build_requires``, or ``build_requires``.",
             "Or move helper functions / classes to a separate utility Rez package to reduce load.",
         ]
 
