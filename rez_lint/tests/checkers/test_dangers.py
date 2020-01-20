@@ -37,7 +37,7 @@ class ImproperRequirements(packaging.BasePackaging):
         has_issue = any(
             description
             for description in results
-            if description.get_summary() == "Improper package requirements were found"
+            if description.get_summary()[0] == "Improper package requirements were found"
         )
 
         self.assertFalse(has_issue)
@@ -99,7 +99,7 @@ class ImproperRequirements(packaging.BasePackaging):
         has_issue = any(
             description
             for description in results
-            if description.get_summary() == "Improper package requirements were found"
+            if description.get_summary()[0] == "Improper package requirements were found"
         )
 
         self.assertFalse(has_issue)
@@ -116,7 +116,10 @@ class ImproperRequirements(packaging.BasePackaging):
 
 
 class MissingRequirements(packaging.BasePackaging):
+    """Check that the :class:`rez_lint.plugins.checkers.dangers.MissingRequirements` class works."""
+
     def _make_nested_dependencies(self):
+        """list[str]: A helper function to make some dependencies to test with."""
         code = textwrap.dedent(
             """\
             name = "another_dependency"
@@ -191,6 +194,19 @@ class MissingRequirements(packaging.BasePackaging):
         return [dependency1_build_path, dependency2_build_path]
 
     def _create_test_environment(self, text, files=None):
+        """Make a Rez source package, given some Rez definition text, for testing.
+
+        Args:
+            text (str):
+                The text that will be used for a "package.py" file.
+            files (iter[str], optional):
+                File paths that will be used to create empty files in
+                the source package. Default is empty.
+
+        Returns:
+            list[:class:`rez_lint.core.message_description.Description`]: Get the found issues.
+
+        """
         if not files:
             files = set()
 
@@ -209,6 +225,7 @@ class MissingRequirements(packaging.BasePackaging):
         return cli.lint(directory)
 
     def test_empty(self):
+        """Don't error if there is not set of requirements listed."""
         code = textwrap.dedent(
             """\
             name = "some_package"
@@ -221,12 +238,13 @@ class MissingRequirements(packaging.BasePackaging):
         has_issue = any(
             description
             for description in results
-            if description.get_summary() == "Missing Package requirements"
+            if description.get_summary()[0] == "Missing Package requirements"
         )
 
         self.assertFalse(has_issue)
 
     def test_none_001(self):
+        """Don't error if there are requirements defined but the list is empty."""
         code = textwrap.dedent(
             """\
             name = "some_package"
@@ -240,12 +258,13 @@ class MissingRequirements(packaging.BasePackaging):
         has_issue = any(
             description
             for description in results
-            if description.get_summary() == "Missing Package requirements"
+            if description.get_summary()[0] == "Missing Package requirements"
         )
 
         self.assertFalse(has_issue)
 
     def test_none_002(self):
+        """Don't error if there are requirements defined but the list is empty and there's files."""
         code = textwrap.dedent(
             """\
             name = "some_package"
@@ -264,12 +283,21 @@ class MissingRequirements(packaging.BasePackaging):
         has_issue = any(
             description
             for description in results
-            if description.get_summary() == "Missing Package requirements"
+            if description.get_summary()[0] == "Missing Package requirements"
         )
 
         self.assertFalse(has_issue)
 
     def test_one(self):
+        """Error because there is a missing dependency.
+
+        In this case, the Rez package includes "direct_dependency".
+        But the import, "import some_module" actually comes from the
+        dependency package of "direct_dependency". In other words,
+        "some_package" should also depend on "another_dependency", but
+        doesn't.
+
+        """
         dependency_paths = self._make_nested_dependencies()
 
         code = textwrap.dedent(
@@ -287,9 +315,13 @@ class MissingRequirements(packaging.BasePackaging):
             """
         )
 
-        root = tempfile.mkdtemp(suffix="_some_package_location")
+        root = os.path.join(tempfile.mkdtemp(suffix="_some_package_location"), "some_package")
+        os.makedirs(root)
         self.add_item(root)
         os.makedirs(os.path.join(root, "python"))
+
+        with open(os.path.join(root, "package.py"), "w") as handler:
+            handler.write(code)
 
         with open(os.path.join(root, "python", "a_module_with_dependency.py"), "w") as handler:
             handler.write("import some_module; print(some_module.get_foo())")
@@ -298,26 +330,75 @@ class MissingRequirements(packaging.BasePackaging):
         config.packages_path[:] = dependency_paths + config.packages_path
 
         try:
-            results = self._create_test_environment(code)
+            results = cli.lint(root)
         finally:
             config.packages_path[:] = original
 
-        issues = len([
+        issues = [
             description
             for description in results
-            if description.get_summary() == "Missing Package requirements"
-        ])
+            if description.get_summary()[0] == "Missing Package requirements"
+        ]
 
-        for description in results:
-            if description.get_summary() == "Missing Package requirements":
-                raise ValueError(description)
+        self.assertEqual(1, len(issues))
+        self.assertEqual(
+            'Full list "[\'another_dependency\']".',
+            issues[0].get_message(verbose=True)[-1].lstrip(),
+        )
 
-        self.assertEqual(1, issues)
+    def test_mixed(self):
+        """Get the right missing dependencies even if a mix of dependencies are given."""
+        dependency_paths = self._make_nested_dependencies()
 
-#     def test_mixed(self):
-#         pass
-#
-#
+        code = textwrap.dedent(
+            """\
+            name = "some_package"
+            version = "1.0.0"
+            requires = [
+                "direct_dependency",
+                "python",
+            ]
+
+            def commands():
+                import os
+
+                env.PYTHONPATH.append(os.path.join("{root}", "python"))
+            """
+        )
+
+        root = os.path.join(tempfile.mkdtemp(suffix="_some_package_location"), "some_package")
+        os.makedirs(root)
+        self.add_item(root)
+        os.makedirs(os.path.join(root, "python"))
+
+        with open(os.path.join(root, "package.py"), "w") as handler:
+            handler.write(code)
+
+        with open(os.path.join(root, "python", "a_module_with_dependency.py"), "w") as handler:
+            handler.write("import some_module; print(some_module.get_foo())")
+
+        original = list(config.packages_path)
+        config.packages_path[:] = dependency_paths + config.packages_path
+
+        try:
+            results = cli.lint(root)
+        finally:
+            config.packages_path[:] = original
+
+        issues = [
+            description
+            for description in results
+            if description.get_summary()[0] == "Missing Package requirements"
+        ]
+
+        self.assertEqual(1, len(issues))
+        self.assertEqual(
+            'Full list "[\'another_dependency\']".',
+            issues[0].get_message(verbose=True)[-1].lstrip(),
+        )
+
+
+# TODO : Finish these
 # class RequirementLowerBoundsMissing(unittest.TestCase):
 #     def test_empty(self):
 #         pass
