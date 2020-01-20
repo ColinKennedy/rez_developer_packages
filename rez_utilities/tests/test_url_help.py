@@ -15,7 +15,7 @@ from rez_utilities import url_help
 _DEFAULT_HELP = object()
 
 
-class Url(common.Common):
+class CheckUrl(common.Common):
     """Check that different package help URLs settings all raise exceptions correctly."""
 
     def _test(self, code):
@@ -144,6 +144,101 @@ class Url(common.Common):
             )
         )
         self.assertEqual({"thing", "another", "foo_bar"}, results)
+
+
+class FindUrl(common.Common):
+    """Find the URLs to a Rez package's help documentation."""
+
+    def _build_package(self, code):
+        """Make a Rez package, given some Rez package definition code.
+
+        Args:
+            code (str): Python code that defines a valid Rez package.
+
+        Returns:
+            :class:`rez.developer_package.DeveloperPackage`:
+                The generated Rez package. This package will be
+                auto-deleted once a unittest is completed.
+
+        """
+        folder = tempfile.mkdtemp()
+
+        with open(os.path.join(folder, "package.py"), "w") as handler:
+            handler.write(code)
+
+        self.add_item(folder)
+        package = packages_.get_developer_package(folder)
+
+        return package
+
+    def test_api_found(self):
+        url = "foo"
+        self.assertEqual(
+            url,
+            url_help.find_package_documentation(
+                self._build_package(
+                    _make_fake_package(help_text=[["api_documentation", url]])
+                )
+            ),
+        )
+
+    def test_api_multiple_found(self):
+        expected_url = "lka;sdfj"
+        package = self._build_package(
+            _make_fake_package(
+                help_text=[
+                    ["something", "blah"],
+                    ["another", "thing"],
+                    ["some_api_key", "ttt"],
+                    ["api_documentation", expected_url],
+                ]
+            )
+        )
+
+        self.assertEqual(expected_url, url_help.find_package_documentation(package))
+
+    def test_api_unknown_001(self):
+        expected_url = "blah"
+        package = self._build_package(
+            _make_fake_package(
+                help_text=[
+                    ["something", "ttt"],
+                    ["some_api_key", expected_url],
+                    ["another", "thing"],
+                ]
+            )
+        )
+
+        self.assertEqual(expected_url, url_help.find_package_documentation(package))
+
+    def test_api_unknown_002(self):
+        expected_url = "blah"
+        package = self._build_package(
+            _make_fake_package(
+                help_text=[
+                    ["something", expected_url],
+                    ["foo", "ttt"],
+                    ["another", "thing"],
+                ]
+            )
+        )
+
+        self.assertEqual(expected_url, url_help.find_package_documentation(package))
+
+    def test_package_found(self):
+        package_definition = _make_fake_package()
+        package_definition += '\nname = "six"'
+        package = self._build_package(package_definition)
+
+        self.assertEqual(
+            "https://six.readthedocs.io", url_help.find_api_documentation(package)
+        )
+
+    def test_package_not_found(self):
+        package_definition = _make_fake_package()
+        package = self._build_package(package_definition)
+
+        self.assertEqual("", url_help.find_api_documentation(package))
 
 
 def _make_fake_package(help_text=_DEFAULT_HELP):

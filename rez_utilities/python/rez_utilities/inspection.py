@@ -120,9 +120,6 @@ def is_built_package(package):
     return str(package.version) == os.path.basename(parent_folder)
 
 
-# TODO : Check if there's a better way to do this function.
-# Maybe there's a way to query the package's editted variables via resources?
-#
 def has_python_package(package, paths=None, allow_build=True):
     """Check if the given Rez package has at least one Python package inside of it.
 

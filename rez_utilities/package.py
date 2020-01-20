@@ -24,7 +24,11 @@ tests = {
     "black": {"command": "rez-env black-19.10+ -- black python tests"},
     "coverage": {
         "command": "coverage erase && coverage run --parallel-mode --include=python/* -m unittest discover && coverage combine --append && coverage html",
-        "requires": ["coverage-4.5+<5"],
+        "requires": [
+            "GitPython-2+<4",
+            "coverage-4.5+<5",
+            "mock-3+<4",
+        ],
     },
     "isort": {"command": "isort --recursive python tests", "requires": ["isort"]},
     "isort_check": {
@@ -38,14 +42,25 @@ tests = {
         "command": "pydocstyle --ignore=D213,D202,D203,D406,D407 python tests",
         "requires": ["pydocstyle-3+"],
     },
-    "pylint": {
-        "command": "pylint --disable=bad-continuation python/rez_utilities tests",
-        "requires": ["pylint-1.9+<2"],
+    "pylint_source": {
+        "command": "pylint --disable=bad-continuation python/rez_utilities",
+        "requires": [
+            "GitPython-2+<4",
+            "pylint-1.9+<2",
+        ],
+    },
+    "pylint_tests": {
+        "command": "pylint --disable=bad-continuation,duplicate-code tests",
+        "requires": [
+            "GitPython-2+<4",
+            "pylint-1.9+<2",
+        ],
     },
     "unittest": {
         "command": "python -m unittest discover",
         "requires": [
-            "GitPython-3+<4",
+            "GitPython-2+<4",
+            "mock-3+<4",
         ],
     },
 }

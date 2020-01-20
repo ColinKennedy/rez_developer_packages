@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# TODO : Add unittests for these functions
 """A module for querying rez-help from Rez packages."""
 
 import fnmatch
@@ -168,8 +167,46 @@ def find_package_documentation(package, filters=frozenset(("*",))):
         str: The found Sphinx-compatible documentation, if any exists.
 
     """
-    for label, url in get_help_urls(package):
+
+    def _sort_by_label(item):
+        label, _ = item
+
+        all_labels = get_common_documentation_help_labels()
+        count = len(all_labels)
+
+        for index, label_ in enumerate(all_labels):
+            if label_ == label:
+                return index
+
+        guess_conditions = [
+            "api" in label,
+            "api" in label.lower(),
+            "documentation" in label,
+            "documentation" in label.lower(),
+            "docs" in label,
+            "docs" in label.lower(),
+        ]
+
+        for index, condition in enumerate(guess_conditions):
+            if condition:
+                return count + index + 1
+
+        return count + len(guess_conditions)  # Put the term somewhere at the end
+
+    for label, url in sorted(get_help_urls(package), key=_sort_by_label):
         if any(fnmatch.fnmatch(label, pattern) for pattern in filters):
             return url
 
     return ""
+
+
+def get_common_documentation_help_labels():
+    """tuple[str]: Typical "documentation"-related keys that you'd expect used for rez-help."""
+    return (
+        "api_documentation",
+        "user_documentation",
+        "developer_documentation",
+        "api",
+        "user",
+        "developer",
+    )

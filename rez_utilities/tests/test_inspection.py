@@ -64,7 +64,7 @@ class Packaging(common.Common):
 
     def test_detect_missing(self):
         """Check that a directory that has no Rez package returns None."""
-        directory = tempfile.mkdtemp()
+        directory = tempfile.mkdtemp(suffix="_detect_missing")
         self.add_item(directory)
 
         self.assertIsNone(inspection.get_nearest_rez_package(directory))
@@ -347,6 +347,7 @@ def _check_called(function):
 
     @functools.wraps(function)
     def wrapper(*args, **kwargs):
+        """Add the `was_run` attribute to this function call."""
         try:
             result = function(*args, **kwargs)
         except Exception:
