@@ -150,39 +150,7 @@ class HasPythonPackage(common.Common):
             )
 
         with open(os.path.join(root, "rezbuild.py"), "w") as handler:
-            handler.write(
-                textwrap.dedent(
-                    '''\
-                    #!/usr/bin/env python
-                    # -*- coding: utf-8 -*-
-
-                    """The main module which installs Maya onto the user's system."""
-
-                    # IMPORT STANDARD LIBRARIES
-                    import os
-                    import shutil
-                    import sys
-
-
-                    def build(source_path, install_path):
-                        for folder in {"python", }:
-                            source = os.path.join(source_path, folder)
-                            destination = os.path.join(install_path, folder)
-                            shutil.copytree(source, destination)
-
-                        open(
-                            os.path.join(install_path, "python", "some_package", "some_module.py"),
-                            "a",
-                        ).close()
-
-                    if __name__ == "__main__":
-                        build(
-                            source_path=os.environ["REZ_BUILD_SOURCE_PATH"],
-                            install_path=os.environ["REZ_BUILD_INSTALL_PATH"],
-                        )
-                    '''
-                )
-            )
+            handler.write(_get_rezbuild_text())
 
         python_root = os.path.join(root, "python", "some_package")
         os.makedirs(python_root)
@@ -275,39 +243,7 @@ class HasPythonPackage(common.Common):
             )
 
         with open(os.path.join(root, "rezbuild.py"), "w") as handler:
-            handler.write(
-                textwrap.dedent(
-                    '''\
-                    #!/usr/bin/env python
-                    # -*- coding: utf-8 -*-
-
-                    """The main module which installs Maya onto the user's system."""
-
-                    # IMPORT STANDARD LIBRARIES
-                    import os
-                    import shutil
-                    import sys
-
-
-                    def build(source_path, install_path):
-                        for folder in {"python", }:
-                            source = os.path.join(source_path, folder)
-                            destination = os.path.join(install_path, folder)
-                            shutil.copytree(source, destination)
-
-                        open(
-                            os.path.join(install_path, "python", "some_package", "some_module.py"),
-                            "a",
-                        ).close()
-
-                    if __name__ == "__main__":
-                        build(
-                            source_path=os.environ["REZ_BUILD_SOURCE_PATH"],
-                            install_path=os.environ["REZ_BUILD_INSTALL_PATH"],
-                        )
-                    '''
-                )
-            )
+            handler.write(_get_rezbuild_text())
 
         python_root = os.path.join(root, "python", "some_package")
         os.makedirs(python_root)
@@ -360,3 +296,35 @@ def _check_called(function):
     wrapper.was_run = False
 
     return wrapper
+
+
+def _get_rezbuild_text():
+    return textwrap.dedent(
+        '''\
+        #!/usr/bin/env python
+        # -*- coding: utf-8 -*-
+
+        # IMPORT STANDARD LIBRARIES
+        import os
+        import shutil
+        import sys
+
+
+        def build(source_path, install_path):
+            for folder in {"python", }:
+                source = os.path.join(source_path, folder)
+                destination = os.path.join(install_path, folder)
+                shutil.copytree(source, destination)
+
+            open(
+                os.path.join(install_path, "python", "some_package", "some_module.py"),
+                "a",
+            ).close()
+
+        if __name__ == "__main__":
+            build(
+                source_path=os.environ["REZ_BUILD_SOURCE_PATH"],
+                install_path=os.environ["REZ_BUILD_INSTALL_PATH"],
+            )
+        '''
+    )
