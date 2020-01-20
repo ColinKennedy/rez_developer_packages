@@ -28,10 +28,7 @@ tests = {
     "black": {"command": "rez-env black -- black package.py python tests"},
     "coverage": {
         "command": "coverage run --parallel-mode --include=python/* -m unittest discover && coverage combine --append && coverage html",
-        "requires": [
-            "coverage-4+<5",
-            "mock-3+",
-        ],
+        "requires": ["coverage-4+<5", "mock-3+",],
     },
     "isort": {
         "command": "isort --recursive package.py python tests",
@@ -52,12 +49,7 @@ tests = {
         "command": "pylint --disable=bad-continuation python/rez_lint tests",
         "requires": ["pylint-1.9+<2"],
     },
-    "unittest": {
-        "command": "python -m unittest discover",
-        "requires": [
-            "mock-3+",
-        ],
-    }
+    "unittest": {"command": "python -m unittest discover", "requires": ["mock-3+",],},
 }
 
 

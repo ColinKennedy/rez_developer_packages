@@ -13,10 +13,10 @@
 import os
 import textwrap
 
-from rez_utilities import inspection
 from rez_lint import cli
 from rez_lint.core import message_description
 from rez_lint.plugins.checkers import base_checker
+from rez_utilities import inspection
 from six.moves import mock
 
 from . import packaging
@@ -105,7 +105,9 @@ class FileChecks(packaging.BasePackaging):
         """Report a missing Sphinx documentation conf.py file if none exists."""
         directory = self._make_generic_installed_package()
 
-        with mock.patch("rez_lint.plugins.checkers.explains._has_context_python_package") as patched:
+        with mock.patch(
+            "rez_lint.plugins.checkers.explains._has_context_python_package"
+        ) as patched:
             patched.return_value = True
             results = cli.lint(directory)
 

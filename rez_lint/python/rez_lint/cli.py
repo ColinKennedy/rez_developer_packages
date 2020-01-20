@@ -24,7 +24,6 @@ from .plugins.checkers import (
 )
 from .plugins.contexts import base_context, packaging, parsing
 
-
 _LOGGER = logging.getLogger(__name__)
 
 

@@ -13,7 +13,7 @@ import os
 import sys
 
 from . import cli
-from .core import message_description, registry
+from .core import message_description
 
 _LOGGER = logging.getLogger("rez_lint")
 __HANDLER = logging.StreamHandler(stream=sys.stdout)
