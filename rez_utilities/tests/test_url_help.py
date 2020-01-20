@@ -244,7 +244,13 @@ class FindUrl(common.Common):
 
         self.assertEqual(expected_url, url_help.find_package_documentation(package))
 
-    def test_package_found(self):
+    def test_api_unknown_003(self):
+        """Return no API documentation if there's no Rez package ``help`` attribute."""
+        package = self._build_package(_make_fake_package(help_text=[]))
+
+        self.assertEqual("", url_help.find_package_documentation(package))
+
+    def test_package_found_001(self):
         """Get a Rez package's API documentation using the pre-written list of documentation."""
         package_definition = _make_fake_package()
         package_definition += '\nname = "six"'
@@ -253,6 +259,20 @@ class FindUrl(common.Common):
         self.assertEqual(
             "https://six.readthedocs.io", url_help.find_api_documentation(package)
         )
+
+    def test_package_found_002(self):
+        """Get the "python" Rez package's API documentation."""
+        package_definition = _make_fake_package()
+        package_definition += '\nname = "python"'
+        package_definition += '\nversion = "2.0"'
+        package = self._build_package(package_definition)
+
+        self.assertEqual("https://docs.python.org/2/index.html", url_help.find_api_documentation(package))
+
+        package_definition += '\nversion = "3.7.6"'
+        package = self._build_package(package_definition)
+
+        self.assertEqual("https://docs.python.org/3.7/index.html", url_help.find_api_documentation(package))
 
     def test_package_not_found(self):
         """Return no API docs because the package is not in the pre-written list of URLs."""
