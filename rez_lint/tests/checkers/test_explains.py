@@ -19,7 +19,7 @@ from rez_lint.plugins.checkers import base_checker
 from rez_utilities import inspection
 from six.moves import mock
 
-from . import packaging
+from .. import packaging
 
 
 class FileChecks(packaging.BasePackaging):

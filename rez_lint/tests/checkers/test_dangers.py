@@ -8,9 +8,8 @@ import textwrap
 from rez.config import config
 from rez_lint import cli
 from rez_utilities import inspection
-from six.moves import mock
 
-from . import packaging
+from .. import packaging
 
 
 class Requirements(packaging.BasePackaging):
@@ -51,11 +50,10 @@ class Requirements(packaging.BasePackaging):
                 """
             ),
         )
-        dependency_directory = inspection.get_package_root(dependency_package)
         dependency_path = inspection.get_packages_path_from_package(dependency_package)
 
-        original = list(config.packages_path)
-        config.packages_path[:] = [dependency_path] + original
+        original = list(config.packages_path)  # pylint: disable=no-member
+        config.packages_path[:] = [dependency_path] + original  # pylint: disable=no-member
 
         try:
             installed_package = self._make_installed_package(
@@ -76,18 +74,18 @@ class Requirements(packaging.BasePackaging):
         except Exception:
             raise
         finally:
-            config.packages_path[:] = original
+            config.packages_path[:] = original  # pylint: disable=no-member
 
         directory = inspection.get_package_root(installed_package)
-        original = list(config.packages_path)
-        config.packages_path[:] = [directory, dependency_path] + original
+        original = list(config.packages_path)  # pylint: disable=no-member
+        config.packages_path[:] = [directory, dependency_path] + original  # pylint: disable=no-member
 
         try:
             results = cli.lint(directory)
         except Exception:
             raise
         finally:
-            config.packages_path[:] = original
+            config.packages_path[:] = original  # pylint: disable=no-member
 
         has_issue = any(
             description
