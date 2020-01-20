@@ -27,7 +27,7 @@ tests = {
     },
     "black": {"command": "rez-env black -- black package.py python tests"},
     "coverage": {
-        "command": "coverage run --parallel-mode --include=python/* -m unittest discover && coverage combine --append && coverage html",
+        "command": "coverage erase && coverage run --parallel-mode --include=python/* -m unittest discover && coverage combine --append && coverage html",
         "requires": ["coverage-4+<5", "mock-3+",],
     },
     "isort": {
