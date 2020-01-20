@@ -189,7 +189,7 @@ def lint(
             Default is False.
 
     Returns:
-        list[:class:`Description`]: Get the found issues.
+        list[:class:`.Description`]: Get the found issues.
 
     """
     _register_internal_plugins()
