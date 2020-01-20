@@ -126,7 +126,7 @@ class NoHelp(base_checker.BaseChecker):
 
         """
         if package.help:
-            return
+            return []
 
         summary = "The help attribute is undefined or empty"
         full = [
