@@ -76,7 +76,10 @@ def get_definition_row(path, attribute):
             "".format(attribute=attribute, _EXPRESSIONS=sorted(_EXPRESSIONS))
         )
 
-    return _get_row_number(path, expressions)
+    try:
+        return _get_row_number(path, expressions)
+    except IndexError:
+        return 0
 
 
 def get_line_at_row(path, row):

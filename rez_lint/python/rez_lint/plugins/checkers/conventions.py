@@ -20,6 +20,30 @@ class SemanticVersioning(base_checker.BaseChecker):
 
     """
 
+    @classmethod
+    def _get_no_version_messages(cls, package):
+        """Tell the user that they need to define a version."""
+        summary = "Package has no version"
+        full = [
+            summary,
+            'Package {package.filepath}" has no version. Please define one.'.format(
+                package=package
+            ),
+        ]
+
+        row = package_parser.get_definition_row(package.filepath, "version")
+        text = package_parser.get_line_at_row(package.filepath, row)
+
+        location = message_description.Location(
+            path=package.filepath, row=row, column=0, text=text,
+        )
+
+        code = base_checker.Code(short_name="C", long_name=cls.get_long_code())
+
+        return [
+            message_description.Description([summary], location, code=code, full=full),
+        ]
+
     @staticmethod
     def get_long_code():
         """str: The string used to refer to this class or disable it."""
@@ -41,13 +65,16 @@ class SemanticVersioning(base_checker.BaseChecker):
         """
         version = package.version
 
+        if not version:
+            return cls._get_no_version_messages(package)
+
         if not _has_missing_numbers(version):
             return []
 
-        summary = "Package is not X.Y.Z semantic versioning.".format(package=package)
+        summary = "Package is not X.Y.Z semantic versioning."
         full = [
             summary,
-            'Package {package.filepath}" has version "{package.version}".'.format(
+            'Package "{package.filepath}" has version "{package.version}".'.format(
                 package=package
             ),
             "See https://semver.org for more details.",
@@ -71,8 +98,11 @@ def _has_missing_numbers(version):
     """bool: Check if the given Rez version isn't using semantic versioning."""
     for attribute in ["major", "minor", "patch"]:
         try:
-            getattr(version, attribute)
+            value = getattr(version, attribute)
         except IndexError:
+            return True
+
+        if not str(value).isdigit():
             return True
 
     return False
