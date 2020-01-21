@@ -74,8 +74,10 @@ def register_checker(checker):
 
     """
     if checker in _CHECKERS:
-        raise EnvironmentError('Cannot register "{checker}" because it is already registered.'
-                               ''.format(checker=checker))
+        raise EnvironmentError(
+            'Cannot register "{checker}" because it is already registered.'
+            "".format(checker=checker)
+        )
 
     if _is_private(checker):
         raise ValueError(
@@ -106,8 +108,10 @@ def register_context(context):
 
     """
     if context in _CONTEXTS:
-        raise EnvironmentError('Cannot register "{context}" because it is already registered.'
-                               ''.format(context=context))
+        raise EnvironmentError(
+            'Cannot register "{context}" because it is already registered.'
+            "".format(context=context)
+        )
 
     if _is_private(context):
         raise ValueError(

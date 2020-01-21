@@ -3,15 +3,15 @@
 
 """Make sure that the plugin registry system of ``rez_lint`` works as expected."""
 
-import os
 import inspect
+import os
 import sys
 import tempfile
 import textwrap
 
 from python_compatibility.testing import common
-from rez_lint.core import registry
 from rez_lint import cli
+from rez_lint.core import registry
 
 
 class Registry(common.Common):
@@ -136,6 +136,7 @@ class Registry(common.Common):
 
     def test_already_registered_002(self):
         """Don't allow the user to explicitly register the same plugin more than once."""
+
         class MyChecker(object):
             @staticmethod
             def get_long_code():
