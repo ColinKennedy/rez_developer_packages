@@ -543,7 +543,7 @@ class RequirementLowerBoundsMissing(packaging.BasePackaging):
 
 
 class RequirementsNotSorted(packaging.BasePackaging):
-    """Test that the :class:`rez_lint.plugins.checkers.dangers.RequirementsNotSorted.` class works"""
+    """Test that the :class:`rez_lint.plugins.checkers.dangers.RequirementsNotSorted.` class works."""
 
     def _test_found(self, name, code, expected):
         """Test a scenario where unsorted requirements are found.
@@ -565,14 +565,12 @@ class RequirementsNotSorted(packaging.BasePackaging):
         issues = [
             description
             for description in results
-            if description.get_summary()[0]
-            == "Package requirements are not sorted"
+            if description.get_summary()[0] == "Package requirements are not sorted"
         ]
 
         self.assertEqual(1, len(issues))
         self.assertEqual(
-            expected,
-            issues[0].get_message(verbose=True)[-1].lstrip(),
+            expected, issues[0].get_message(verbose=True)[-1].lstrip(),
         )
 
     def _test_not_found(self, name, code):
@@ -594,8 +592,7 @@ class RequirementsNotSorted(packaging.BasePackaging):
         issues = [
             description
             for description in results
-            if description.get_summary()[0]
-            == "Package requirements are not sorted"
+            if description.get_summary()[0] == "Package requirements are not sorted"
         ]
 
         self.assertEqual(0, len(issues))
@@ -636,7 +633,7 @@ class RequirementsNotSorted(packaging.BasePackaging):
                 requires = ["rez", "python"]
                 """
             ),
-            'Expected order: "[\'python\', \'rez\']"',
+            "Expected order: \"['python', 'rez']\"",
         )
 
     def test_one_002(self):
@@ -650,7 +647,7 @@ class RequirementsNotSorted(packaging.BasePackaging):
                 requires = ["rez-2+", "python-2+<3"]
                 """
             ),
-            'Expected order: "[\'python-2+<3\', \'rez-2+\']"',
+            "Expected order: \"['python-2+<3', 'rez-2+']\"",
         )
 
     def test_okay_001(self):
