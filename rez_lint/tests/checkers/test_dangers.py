@@ -808,20 +808,121 @@ class NoRezTest(packaging.BasePackaging):
         self.assertEqual([], issues)
 
 
-# class TooManyDependencies(unittest.TestCase):
-#     def test_undefined(self):
-#         pass
-#
-#     def test_empty(self):
-#         pass
-#
-#     def test_under(self):
-#         pass
-#
-#     def test_over(self):
-#         pass
-#
-#
+class TooManyDependencies(packaging.BasePackaging):
+    """Test that the :class:`rez_lint.plugins.checkers.dangers.TooManyDependencies.` class works."""
+
+    def test_undefined(self):
+        """Test that having undefined dependencies does not trigger the issue."""
+        root = packaging.make_fake_source_package(
+            "some_package",
+            textwrap.dedent(
+                """\
+                name = "some_package"
+                version = "1.0.0"
+                """
+            ),
+        )
+        self.add_item(os.path.dirname(root))
+
+        results = cli.lint(root)
+
+        issues = [
+            description
+            for description in results
+            if description.get_summary()[0].startswith(
+                "Package has too many dependencies ("
+            )
+        ]
+
+        self.assertEqual([], issues)
+
+    def test_empty(self):
+        """Test that having no dependencies does not trigger the issue."""
+        root = packaging.make_fake_source_package(
+            "some_package",
+            textwrap.dedent(
+                """\
+                name = "some_package"
+                version = "1.0.0"
+                requires = []
+                """
+            ),
+        )
+        self.add_item(os.path.dirname(root))
+
+        results = cli.lint(root)
+
+        issues = [
+            description
+            for description in results
+            if description.get_summary()[0].startswith(
+                "Package has too many dependencies ("
+            )
+        ]
+
+        self.assertEqual([], issues)
+
+    def test_under(self):
+        """Test that having dependencies does not raise an issue if they're below the maximum."""
+        root = packaging.make_fake_source_package(
+            "some_package",
+            textwrap.dedent(
+                """\
+                name = "some_package"
+                version = "1.0.0"
+                requires = ["python"]
+                """
+            ),
+        )
+        self.add_item(os.path.dirname(root))
+
+        results = cli.lint(root)
+
+        issues = [
+            description
+            for description in results
+            if description.get_summary()[0] == "Package has too many dependencies (0/10)"
+        ]
+
+        self.assertEqual([], issues)
+
+    def test_over(self):
+        """Test that having too many dependencies raises an issue."""
+        root = packaging.make_fake_source_package(
+            "some_package",
+            textwrap.dedent(
+                """\
+                name = "some_package"
+                version = "1.0.0"
+                requires = [
+                    "dependency_1",
+                    "dependency_2",
+                    "dependency_3",
+                    "dependency_4",
+                    "dependency_5",
+                    "dependency_6",
+                    "dependency_7",
+                    "dependency_8",
+                    "dependency_9",
+                    "dependency_10",
+                    "dependency_11",
+                    ]
+                """
+            ),
+        )
+        self.add_item(os.path.dirname(root))
+
+        results = cli.lint(root)
+
+        issues = [
+            description
+            for description in results
+            if description.get_summary()[0] == "Package has too many dependencies (11/10)"
+        ]
+
+        self.assertEqual(1, len(issues))
+
+
 # class UrlNotReachable(unittest.TestCase):
 #     def test_undefined(self):
 #         pass
@@ -829,10 +930,18 @@ class NoRezTest(packaging.BasePackaging):
 #     def test_empty(self):
 #         pass
 #
-#     def test_reachable(self):
+#     def test_reachable_001(self):
+#         pass
+#
+#     def test_reachable_002(self):
+#         """Test that having a single ``help`` URL is allowed, as long it's reachable."""
 #         pass
 #
 #     def test_unreachable(self):
+#         pass
+#
+#     def test_internet_down(self):
+#         """Make sure this checker does not raise an exception if the user is offline."""
 #         pass
 
 
