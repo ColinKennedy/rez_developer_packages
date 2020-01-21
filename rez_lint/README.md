@@ -301,6 +301,7 @@ checks to prevent developers from releasing code.
 
 # TODO
 
+- Add no-help to this page
 - Check that the plug-in system works - add unittests
 - The requirements-related checks must take into account variants, not just the user's listed requirements.
 - Make sure that no versions lower than 1.0.0 are written
