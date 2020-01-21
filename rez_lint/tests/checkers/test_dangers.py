@@ -92,8 +92,6 @@ class ImproperRequirements(packaging.BasePackaging):
 
         try:
             results = cli.lint(directory)
-        except Exception:
-            raise
         finally:
             config.packages_path[:] = original  # pylint: disable=no-member
 
@@ -189,9 +187,9 @@ class ImproperRequirements(packaging.BasePackaging):
 
         directory = inspection.get_package_root(installed_package)
         original = list(config.packages_path)  # pylint: disable=no-member
-        config.packages_path[:] = (
+        config.packages_path[:] = (  # pylint: disable=no-member
             [directory] + dependencies + original
-        )  # pylint: disable=no-member
+        )
 
         try:
             results = cli.lint(directory)
