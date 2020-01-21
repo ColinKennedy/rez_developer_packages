@@ -126,3 +126,138 @@ class FileChecks(packaging.BasePackaging):
         issue = self._get_no_readme_message(directory)
 
         self.assertTrue(issue in results)
+
+
+class NoHelp(packaging.BasePackaging):
+    """Test that the :class:`rez_lint.plugins.checkers.explains.NoHelp.` class works."""
+
+    def _test_found(self, name, code):
+        """Run a test that assumes that there is "no-help" issue.
+
+        Args:
+            name (str): The name of the fake Rez source package to create.
+            code (str): The source code used to create a package definition.
+
+        Raises:
+            AssertionError: If `code` actually does not return a "no-help" issue.
+
+        """
+        directory = packaging.make_fake_source_package(name, code)
+        self.add_item(os.path.dirname(directory))
+
+        results = cli.lint(directory)
+
+        issues = [
+            description
+            for description in results
+            if description.get_summary()[0] == "The help attribute is undefined or empty"
+        ]
+
+        self.assertEqual(1, len(issues))
+
+        first_non_summary_line = issues[0].get_message(verbose=True)[1].lstrip()
+
+        self.assertTrue(
+            first_non_summary_line == "Every Rez package should always point to some documentation."
+        )
+
+    def _test_not_found(self, name, code):
+        """Run a test that assumes that there is no "no-help" issue.
+
+        Args:
+            name (str): The name of the fake Rez source package to create.
+            code (str): The source code used to create a package definition.
+
+        Raises:
+            AssertionError: If `code` actually does return a "no-help" issue.
+
+        """
+        directory = packaging.make_fake_source_package(name, code)
+        self.add_item(os.path.dirname(directory))
+
+        results = cli.lint(directory)
+
+        issues = [
+            description
+            for description in results
+            if description.get_summary()[0] == "The help attribute is undefined or empty"
+        ]
+
+        self.assertEqual([], issues)
+
+    def test_undefined(self):
+        """Return an error if there's no defined help."""
+        self._test_found(
+            "some_package",
+            textwrap.dedent(
+                """\
+                name = "some_package"
+                version = "1.0.0"
+                """
+            )
+        )
+
+    def test_empty_001(self):
+        """Return an error if there's an empty URL list."""
+        self._test_found(
+            "some_package",
+            textwrap.dedent(
+                """\
+                name = "some_package"
+                version = "1.0.0"
+                help = []
+                """
+            )
+        )
+
+    def test_empty_002(self):
+        """Return an error if there's an empty URL string."""
+        self._test_found(
+            "some_package",
+            textwrap.dedent(
+                """\
+                name = "some_package"
+                version = "1.0.0"
+                help = ""
+                """
+            )
+        )
+
+    def test_okay_001(self):
+        """Don't return an issue if there is a labeled help URL."""
+        self._test_not_found(
+            "some_package",
+            textwrap.dedent(
+                """\
+                name = "some_package"
+                version = "1.0.0"
+                help = [["some label", "some_website"]]
+                """
+            )
+        )
+
+    def test_okay_002(self):
+        """Don't return an issue if there is a help URL string."""
+        self._test_not_found(
+            "some_package",
+            textwrap.dedent(
+                """\
+                name = "some_package"
+                version = "1.0.0"
+                help = "some_website"
+                """
+            )
+        )
+
+    def test_multiple(self):
+        """Don't return an issue if there are 2+ help URLs."""
+        self._test_not_found(
+            "some_package",
+            textwrap.dedent(
+                """\
+                name = "some_package"
+                version = "1.0.0"
+                help = [["some label", "some_website"], ["another", "thing"]]
+                """
+            )
+        )
