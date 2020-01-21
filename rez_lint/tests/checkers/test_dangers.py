@@ -733,17 +733,81 @@ class NotPythonDefinition(packaging.BasePackaging):
         self.assertEqual([], issues)
 
 
-# class NoRezTest(unittest.TestCase):
-#     def test_undefined(self):
-#         pass
-#
-#     def test_empty(self):
-#         pass
-#
-#     def test_exists(self):
-#         pass
-#
-#
+class NoRezTest(packaging.BasePackaging):
+    """Test that the :class:`rez_lint.plugins.checkers.dangers.NoRezTest.` class works."""
+
+    def test_undefined(self):
+        """Test that undefined rez tests trigger an issue."""
+        root = packaging.make_fake_source_package(
+            "some_package",
+            textwrap.dedent(
+                """\
+                name = "some_package"
+                version = "1.0.0"
+                """
+        ))
+        self.add_item(os.path.dirname(root))
+
+        results = cli.lint(root)
+
+        issues = [
+            description
+            for description in results
+            if description.get_summary()[0]
+            == "Package has no rez-test attribute defined"
+        ]
+
+        self.assertEqual(1, len(issues))
+
+    def test_empty(self):
+        """Test that an empty rez test triggers an issue."""
+        root = packaging.make_fake_source_package(
+            "some_package",
+            textwrap.dedent(
+                """\
+                name = "some_package"
+                version = "1.0.0"
+                tests = {}
+                """
+        ))
+        self.add_item(os.path.dirname(root))
+
+        results = cli.lint(root)
+
+        issues = [
+            description
+            for description in results
+            if description.get_summary()[0]
+            == "Package has no rez-test attribute defined"
+        ]
+
+        self.assertEqual(1, len(issues))
+
+    def test_exists(self):
+        """Test that having 1+ rez tests is enough to satisfy the checker."""
+        root = packaging.make_fake_source_package(
+            "some_package",
+            textwrap.dedent(
+                """\
+                name = "some_package"
+                version = "1.0.0"
+                tests = {"some_test": "echo 'I am a test!'"}
+                """
+        ))
+        self.add_item(os.path.dirname(root))
+
+        results = cli.lint(root)
+
+        issues = [
+            description
+            for description in results
+            if description.get_summary()[0]
+            == "Package has no rez-test attribute defined"
+        ]
+
+        self.assertEqual([], issues)
+
+
 # class TooManyDependencies(unittest.TestCase):
 #     def test_undefined(self):
 #         pass
