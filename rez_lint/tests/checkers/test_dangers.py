@@ -106,23 +106,24 @@ class ImproperRequirements(packaging.BasePackaging):
 
         self.assertFalse(has_issue)
 
-    def test_one_improper_001(self):
-        """If the user has a build system in their requires, flag it as an issue."""
-        pass
+    # def test_one_improper_001(self):
+    #     """If the user has a build system in their requires, flag it as an issue."""
+    #     pass
 
     # def test_one_improper_002(self):
     #     """If the user has a unittest system in their requires, flag it as an issue."""
     #     pass
     #
     # def test_one_improper_003(self):
-    #     """If the user has a build system in their requires, flag it as an issue."""
+    #     """If the user has a build system in their variants, flag it as an issue."""
     #     pass
     #
     # def test_one_improper_004(self):
     #     """If the user has a unittest system in their variants, flag it as an issue."""
     #     pass
-    #
+
     def test_multiple_impropers(self):
+        """Find multiple improper Rez packages. Build and unittest systems."""
         dependencies = set()
         descriptions = [
             (
@@ -201,15 +202,26 @@ class ImproperRequirements(packaging.BasePackaging):
             description
             for description in results
             if description.get_summary()[0]
-            == "Improper package requirements were found"
+            in (
+                "Improper build package requirements were found",
+                "Improper unittest package requirements were found",
+            )
         ]
+
+        self.assertEqual(2, len(issues))
 
         self.assertEqual(
             issues[0].get_message(verbose=True)[1].lstrip(),
-            "Requirements \"['cmake', 'mock']",
+            'Requirements "[\'cmake\']" should not be in requires. '
+            'Instead, they should be either defined in the '
+            '``private_build_requires`` or ``build_requires`` attribute.',
         )
 
-        self.assertEqual(1, len(issues))
+        self.assertEqual(
+            issues[1].get_message(verbose=True)[1].lstrip(),
+            'Requirements "[\'mock\']" should not be in requires. '
+            'Instead, they should be defined as part of the package\'s ``tests`` attribute.'
+        )
 
     def test_mixed_impropers(self):
         """Have one import dependency, and one okay one."""

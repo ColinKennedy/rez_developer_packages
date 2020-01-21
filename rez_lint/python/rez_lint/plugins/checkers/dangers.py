@@ -23,17 +23,19 @@ class ImproperRequirements(base_checker.BaseChecker):
     frameworks go in the ``tests`` attribute, as secondary requirements.
     They shouldn't be added to the required packages.
 
+    Attributes:
+        _blacklisted_build_packages (frozenset[str]):
+            Build systems shouldn't be Rez requirements. This is the
+            full list of known build-system-related packages.
+        _blacklisted_unittest_packages (frozenset[str]):
+            Unittest systems shouldn't be Rez requirements. This is the
+            full list of known systems that are used to create tests.
+
     """
 
-    _blacklisted_build_packages = frozenset(
-        (
-            # Build systems shouldn't be Rez requirements
-            "cmake",
-        )
-    )
+    _blacklisted_build_packages = frozenset(("cmake",))
     _blacklisted_unittest_packages = frozenset(
         (
-            # Unittesting systems shouldn't be in Rez requirements
             "coverage",  # Reference: https://pypi.org/project/coverage
             "mock",  # Reference: https://pypi.org/project/mock
             "nose",  # Reference: https://pypi.org/project/nose
@@ -44,6 +46,54 @@ class ImproperRequirements(base_checker.BaseChecker):
             "unittest2",  # Reference: https://pypi.org/project/unittest2
         )
     )
+
+    @classmethod
+    def _get_build_messages(cls, package, dependencies):
+        summary = "Improper build package requirements were found"
+
+        full = [
+            summary,
+            'Requirements "{impropers}" should not be in requires. '
+            "Instead, they should be either defined "
+            "in the ``private_build_requires`` or ``build_requires`` attribute.".format(
+                impropers=sorted(request.name for request in dependencies)
+            ),
+        ]
+
+        row = package_parser.get_definition_row(package.filepath, "requires")
+        code = base_checker.Code(short_name="D", long_name=cls.get_long_code())
+        text = package_parser.get_line_at_row(package.filepath, row)
+
+        location = message_description.Location(
+            path=package.filepath, row=row, column=0, text=text,
+        )
+
+        return [
+            message_description.Description([summary], location, code=code, full=full),
+        ]
+
+    @classmethod
+    def _get_unittest_messages(cls, package, dependencies):
+        summary = "Improper unittest package requirements were found"
+
+        full = [
+            summary,
+            'Requirements "{impropers}" should not be in requires. '
+            "Instead, they should be defined as part of the package's ``tests`` attribute."
+            "".format(impropers=sorted(request.name for request in dependencies)),
+        ]
+
+        row = package_parser.get_definition_row(package.filepath, "requires")
+        code = base_checker.Code(short_name="D", long_name=cls.get_long_code())
+        text = package_parser.get_line_at_row(package.filepath, row)
+
+        location = message_description.Location(
+            path=package.filepath, row=row, column=0, text=text,
+        )
+
+        return [
+            message_description.Description([summary], location, code=code, full=full),
+        ]
 
     @staticmethod
     def get_long_code():
@@ -71,62 +121,23 @@ class ImproperRequirements(base_checker.BaseChecker):
 
         for requirement in requirements:
             if requirement.name in cls._blacklisted_build_packages:
-                improper_build_dependencies.append(improper_build_dependencies)
+                improper_build_dependencies.append(requirement)
             if requirement.name in cls._blacklisted_unittest_packages:
-                improper_unittest_dependencies.append(improper_build_dependencies)
+                improper_unittest_dependencies.append(requirement)
+
+        results = []
 
         if improper_build_dependencies:
-            summary = "Improper build package requirements were found"
-
-            full = [
-                summary,
-                'Requirements "{impropers}" should not be in requires. '
-                "Instead, they should be either defined "
-                "in the ``private_build_requires`` or ``build_requires`` attribute.".format(
-                    impropers=sorted(
-                        request.name for request in improper_build_dependencies
-                    )
-                ),
-            ]
-
-            row = package_parser.get_definition_row(package.filepath, "requires")
-            code = base_checker.Code(short_name="D", long_name=cls.get_long_code())
-            text = package_parser.get_line_at_row(package.filepath, row)
-
-            location = message_description.Location(
-                path=package.filepath, row=row, column=0, text=text,
+            results.extend(
+                cls._get_build_messages(package, improper_build_dependencies)
             )
 
-            return [
-                message_description.Description(
-                    [summary], location, code=code, full=full
-                ),
-            ]
-            return []
+        if improper_unittest_dependencies:
+            results.extend(
+                cls._get_unittest_messages(package, improper_unittest_dependencies)
+            )
 
-        return []
-
-        summary = "Improper package requirements were found"
-        full = [
-            summary,
-            'Requirements "{impropers}" should not be in requires. '
-            "Instead, they should be either defined "
-            "in tests or private_build_requires.".format(
-                impropers=sorted(request.name for request in impropers)
-            ),
-        ]
-
-        row = package_parser.get_definition_row(package.filepath, "requires")
-        code = base_checker.Code(short_name="D", long_name=cls.get_long_code())
-        text = package_parser.get_line_at_row(package.filepath, row)
-
-        location = message_description.Location(
-            path=package.filepath, row=row, column=0, text=text,
-        )
-
-        return [
-            message_description.Description([summary], location, code=code, full=full),
-        ]
+        return results
 
 
 class MissingRequirements(base_checker.BaseChecker):
