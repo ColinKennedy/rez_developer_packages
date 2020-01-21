@@ -150,7 +150,8 @@ class NoHelp(packaging.BasePackaging):
         issues = [
             description
             for description in results
-            if description.get_summary()[0] == "The help attribute is undefined or empty"
+            if description.get_summary()[0]
+            == "The help attribute is undefined or empty"
         ]
 
         self.assertEqual(1, len(issues))
@@ -158,7 +159,8 @@ class NoHelp(packaging.BasePackaging):
         first_non_summary_line = issues[0].get_message(verbose=True)[1].lstrip()
 
         self.assertTrue(
-            first_non_summary_line == "Every Rez package should always point to some documentation."
+            first_non_summary_line
+            == "Every Rez package should always point to some documentation."
         )
 
     def _test_not_found(self, name, code):
@@ -180,7 +182,8 @@ class NoHelp(packaging.BasePackaging):
         issues = [
             description
             for description in results
-            if description.get_summary()[0] == "The help attribute is undefined or empty"
+            if description.get_summary()[0]
+            == "The help attribute is undefined or empty"
         ]
 
         self.assertEqual([], issues)
@@ -194,7 +197,7 @@ class NoHelp(packaging.BasePackaging):
                 name = "some_package"
                 version = "1.0.0"
                 """
-            )
+            ),
         )
 
     def test_empty_001(self):
@@ -207,7 +210,7 @@ class NoHelp(packaging.BasePackaging):
                 version = "1.0.0"
                 help = []
                 """
-            )
+            ),
         )
 
     def test_empty_002(self):
@@ -220,7 +223,7 @@ class NoHelp(packaging.BasePackaging):
                 version = "1.0.0"
                 help = ""
                 """
-            )
+            ),
         )
 
     def test_okay_001(self):
@@ -233,7 +236,7 @@ class NoHelp(packaging.BasePackaging):
                 version = "1.0.0"
                 help = [["some label", "some_website"]]
                 """
-            )
+            ),
         )
 
     def test_okay_002(self):
@@ -246,7 +249,7 @@ class NoHelp(packaging.BasePackaging):
                 version = "1.0.0"
                 help = "some_website"
                 """
-            )
+            ),
         )
 
     def test_multiple(self):
@@ -259,5 +262,5 @@ class NoHelp(packaging.BasePackaging):
                 version = "1.0.0"
                 help = [["some label", "some_website"], ["another", "thing"]]
                 """
-            )
+            ),
         )

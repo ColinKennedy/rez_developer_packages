@@ -25,10 +25,14 @@ class ImproperRequirements(base_checker.BaseChecker):
 
     """
 
-    _blacklisted_packages = frozenset(
+    _blacklisted_build_packages = frozenset(
         (
             # Build systems shouldn't be Rez requirements
-            "cmake",  # Reference: https://pypi.org/project/unittest2
+            "cmake",
+        )
+    )
+    _blacklisted_unittest_packages = frozenset(
+        (
             # Unittesting systems shouldn't be in Rez requirements
             "coverage",  # Reference: https://pypi.org/project/coverage
             "mock",  # Reference: https://pypi.org/project/mock
@@ -62,21 +66,54 @@ class ImproperRequirements(base_checker.BaseChecker):
 
         """
         requirements = package.requires or []
-        impropers = []
+        improper_unittest_dependencies = []
+        improper_build_dependencies = []
 
         for requirement in requirements:
-            if requirement.name in cls._blacklisted_packages:
-                impropers.append(requirement)
+            if requirement.name in cls._blacklisted_build_packages:
+                improper_build_dependencies.append(improper_build_dependencies)
+            if requirement.name in cls._blacklisted_unittest_packages:
+                improper_unittest_dependencies.append(improper_build_dependencies)
 
-        if not impropers:
+        if improper_build_dependencies:
+            summary = "Improper build package requirements were found"
+
+            full = [
+                summary,
+                'Requirements "{impropers}" should not be in requires. '
+                "Instead, they should be either defined "
+                "in the ``private_build_requires`` or ``build_requires`` attribute.".format(
+                    impropers=sorted(
+                        request.name for request in improper_build_dependencies
+                    )
+                ),
+            ]
+
+            row = package_parser.get_definition_row(package.filepath, "requires")
+            code = base_checker.Code(short_name="D", long_name=cls.get_long_code())
+            text = package_parser.get_line_at_row(package.filepath, row)
+
+            location = message_description.Location(
+                path=package.filepath, row=row, column=0, text=text,
+            )
+
+            return [
+                message_description.Description(
+                    [summary], location, code=code, full=full
+                ),
+            ]
             return []
+
+        return []
 
         summary = "Improper package requirements were found"
         full = [
             summary,
             'Requirements "{impropers}" should not be in requires. '
             "Instead, they should be either defined "
-            "in tests or private_build_requires.".format(impropers=impropers,),
+            "in tests or private_build_requires.".format(
+                impropers=sorted(request.name for request in impropers)
+            ),
         ]
 
         row = package_parser.get_definition_row(package.filepath, "requires")
@@ -460,7 +497,9 @@ class UrlNotReachable(base_checker.BaseChecker):
             return []
 
         if not website.is_internet_on():
-            _LOGGER.warning("User has no internet. Checking for help URLs will be skipped.")
+            _LOGGER.warning(
+                "User has no internet. Checking for help URLs will be skipped."
+            )
 
             return []
 

@@ -106,15 +106,184 @@ class ImproperRequirements(packaging.BasePackaging):
 
         self.assertFalse(has_issue)
 
-    # TODO : Do these
-    # def test_one_improper(self):
+    def test_one_improper_001(self):
+        """If the user has a build system in their requires, flag it as an issue."""
+        pass
+
+    # def test_one_improper_002(self):
+    #     """If the user has a unittest system in their requires, flag it as an issue."""
     #     pass
     #
-    # def test_multiple_impropers(self):
+    # def test_one_improper_003(self):
+    #     """If the user has a build system in their requires, flag it as an issue."""
     #     pass
     #
-    # def test_mixed_impropers(self):
+    # def test_one_improper_004(self):
+    #     """If the user has a unittest system in their variants, flag it as an issue."""
     #     pass
+    #
+    def test_multiple_impropers(self):
+        dependencies = set()
+        descriptions = [
+            (
+                "cmake",
+                textwrap.dedent(
+                    """\
+                    name = "cmake"
+                    version = "1.0.0"
+                    build_command = "echo 'foo'"
+                    """
+                ),
+            ),
+            (
+                "some_dependency_that_is_okay",
+                textwrap.dedent(
+                    """\
+                    name = "some_dependency_that_is_okay"
+                    version = "1.0.0"
+                    build_command = "echo 'foo'"
+                    """
+                ),
+            ),
+            (
+                "mock",
+                textwrap.dedent(
+                    """\
+                    name = "mock"
+                    version = "1.0.0"
+                    build_command = "echo 'foo'"
+                    """
+                ),
+            ),
+        ]
+
+        for name, code in descriptions:
+            package = self._make_installed_package(name, code)
+            dependencies.add(inspection.get_packages_path_from_package(package))
+
+        dependencies = list(dependencies)
+        original = list(config.packages_path)  # pylint: disable=no-member
+        config.packages_path[:] = dependencies + original  # pylint: disable=no-member
+
+        try:
+            installed_package = self._make_installed_package(
+                "my_package",
+                textwrap.dedent(
+                    """\
+                    name = "my_package"
+                    version = "1.0.0"
+
+                    requires = [
+                        "cmake",
+                        "mock",
+                        "some_dependency_that_is_okay",
+                    ]
+
+                    build_command = "echo 'foo'"
+                    """
+                ),
+            )
+        finally:
+            config.packages_path[:] = original  # pylint: disable=no-member
+
+        directory = inspection.get_package_root(installed_package)
+        original = list(config.packages_path)  # pylint: disable=no-member
+        config.packages_path[:] = (
+            [directory] + dependencies + original
+        )  # pylint: disable=no-member
+
+        try:
+            results = cli.lint(directory)
+        finally:
+            config.packages_path[:] = original  # pylint: disable=no-member
+
+        issues = [
+            description
+            for description in results
+            if description.get_summary()[0]
+            == "Improper package requirements were found"
+        ]
+
+        self.assertEqual(
+            issues[0].get_message(verbose=True)[1].lstrip(),
+            "Requirements \"['cmake', 'mock']",
+        )
+
+        self.assertEqual(1, len(issues))
+
+    def test_mixed_impropers(self):
+        """Have one import dependency, and one okay one."""
+        dependencies = set()
+        descriptions = [
+            (
+                "some_dependency_that_is_okay",
+                textwrap.dedent(
+                    """\
+                    name = "some_dependency_that_is_okay"
+                    version = "1.0.0"
+                    build_command = "echo 'foo'"
+                    """
+                ),
+            ),
+            (
+                "mock",
+                textwrap.dedent(
+                    """\
+                    name = "mock"
+                    version = "1.0.0"
+                    build_command = "echo 'foo'"
+                    """
+                ),
+            ),
+        ]
+
+        for name, code in descriptions:
+            package = self._make_installed_package(name, code)
+            dependencies.add(inspection.get_packages_path_from_package(package))
+
+        dependencies = list(dependencies)
+        original = list(config.packages_path)  # pylint: disable=no-member
+        config.packages_path[:] = dependencies + original  # pylint: disable=no-member
+
+        try:
+            installed_package = self._make_installed_package(
+                "my_package",
+                textwrap.dedent(
+                    """\
+                    name = "my_package"
+                    version = "1.0.0"
+
+                    requires = [
+                        "mock",
+                        "some_dependency_that_is_okay",
+                    ]
+
+                    build_command = "echo 'foo'"
+                    """
+                ),
+            )
+        finally:
+            config.packages_path[:] = original  # pylint: disable=no-member
+
+        directory = inspection.get_package_root(installed_package)
+        original = list(config.packages_path)  # pylint: disable=no-member
+        config.packages_path[:] = (
+            [directory] + dependencies + original
+        )  # pylint: disable=no-member
+
+        try:
+            results = cli.lint(directory)
+        finally:
+            config.packages_path[:] = original  # pylint: disable=no-member
+
+        issues = [
+            description
+            for description in results
+            if description.get_summary()[0]
+            == "Improper package requirements were found"
+        ]
+
+        self.assertEqual(1, len(issues))
 
 
 class MissingRequirements(packaging.BasePackaging):
