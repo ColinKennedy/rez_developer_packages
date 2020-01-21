@@ -6,6 +6,7 @@
 import logging
 
 from parso.python import tree
+from rez.utils import formatting
 
 from ...core import (
     lint_constant,
@@ -18,6 +19,7 @@ from . import base_checker
 _LOGGER = logging.getLogger(__name__)
 
 
+# TODO : Add unittest for requirements that do and don't have versions attached
 class NeedsComment(base_checker.BaseChecker):
     """A checker that looks at a Rez package's ``requires`` to see if it needs explaining.
 
@@ -111,7 +113,8 @@ class NeedsComment(base_checker.BaseChecker):
         # {"foo": "Some comment here"}
         #
         requirement_pairs = {
-            formatting.PackageRequest(request).name: comment for request, comment in pairs.items()
+            formatting.PackageRequest(request).name: comment
+            for request, comment in pairs.items()
         }
 
         dependencies = set(

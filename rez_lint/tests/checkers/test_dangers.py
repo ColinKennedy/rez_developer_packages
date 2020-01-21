@@ -442,7 +442,8 @@ class RequirementLowerBoundsMissing(packaging.BasePackaging):
         issues = [
             description
             for description in results
-            if description.get_summary()[0] == "Package requires are missing a minimum version"
+            if description.get_summary()[0]
+            == "Package requires are missing a minimum version"
         ]
 
         self.assertEqual(0, len(issues))
@@ -467,14 +468,16 @@ class RequirementLowerBoundsMissing(packaging.BasePackaging):
         issues = [
             description
             for description in results
-            if description.get_summary()[0] == "Package requires are missing a minimum version"
+            if description.get_summary()[0]
+            == "Package requires are missing a minimum version"
         ]
 
         self.assertEqual(1, len(issues))
         self.assertEqual(
-            'Requirements "[\'python\']" have no minimum version.',
+            "Requirements \"['python']\" have no minimum version.",
             issues[0].get_message(verbose=True)[-1].lstrip(),
         )
+
     def test_empty(self):
         """If no ``requires`` is listed, don't raise an issue."""
         code = textwrap.dedent(
