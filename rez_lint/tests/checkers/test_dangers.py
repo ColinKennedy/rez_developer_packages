@@ -677,14 +677,62 @@ class RequirementsNotSorted(packaging.BasePackaging):
         )
 
 
-# class NotPythonDefinition(unittest.TestCase):
-#     def test_yaml(self):
-#         pass
-#
-#     def test_python(self):
-#         pass
-#
-#
+class NotPythonDefinition(packaging.BasePackaging):
+    """Test that the :class:`rez_lint.plugins.checkers.dangers.NotPythonDefinition.` class works."""
+
+    def test_yaml(self):
+        """Test that package.yaml files trigger an issue."""
+        root = os.path.join(tempfile.mkdtemp(suffix="_test_yaml"), "some_package")
+        os.makedirs(root)
+
+        with open(os.path.join(root, "package.yaml"), "w") as handler:
+            handler.write(
+                textwrap.dedent(
+                    """\
+                    name: some_package
+                    version: 1.0.0
+                    """
+                )
+            )
+
+        results = cli.lint(root)
+
+        issues = [
+            description
+            for description in results
+            if description.get_summary()[0]
+            == "Using a non-Python Rez package definition file"
+        ]
+
+        self.assertEqual(1, len(issues))
+
+    def test_python(self):
+        """Test that package.py files don't trigger an issue."""
+        root = os.path.join(tempfile.mkdtemp(suffix="_test_yaml"), "some_package")
+        os.makedirs(root)
+
+        with open(os.path.join(root, "package.py"), "w") as handler:
+            handler.write(
+                textwrap.dedent(
+                    """\
+                    name = "some_package"
+                    version = "1.0.0"
+                    """
+                )
+            )
+
+        results = cli.lint(root)
+
+        issues = [
+            description
+            for description in results
+            if description.get_summary()[0]
+            == "Using a non-Python Rez package definition file"
+        ]
+
+        self.assertEqual([], issues)
+
+
 # class NoRezTest(unittest.TestCase):
 #     def test_undefined(self):
 #         pass
