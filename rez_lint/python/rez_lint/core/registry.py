@@ -9,11 +9,45 @@ to enforce better standards for Rez packages, too.
 
 """
 
+import inspect
+
 from ..plugins.checkers import base_checker
 from ..plugins.contexts import base_context
 
 _CHECKERS = []
 _CONTEXTS = []
+
+
+def _is_private(plugin):
+    """bool: Check if the plugin is meant to be registered."""
+    if not inspect.isclass(plugin):
+        name = plugin.__class__.__name__
+    else:
+        name = plugin.__name__
+
+    return name.startswith("_")
+
+
+def _has_checker_interface(plugin):
+    """bool: Make sure `plugin` will work with ``rez_lint``."""
+    attributes = ["get_long_code", "get_order", "run"]
+
+    for name in attributes:
+        if not hasattr(plugin, name):
+            return False
+
+    return True
+
+
+def _has_context_interface(plugin):
+    """bool: Make sure `plugin` will work with ``rez_lint``."""
+    attributes = ["get_order", "run"]
+
+    for name in attributes:
+        if not hasattr(plugin, name):
+            return False
+
+    return True
 
 
 def get_checkers():
@@ -38,7 +72,13 @@ def register_checker(checker):
         ValueError: If `checker` is not a valid plugin.
 
     """
-    if not issubclass(checker, base_checker.BaseChecker):
+    if _is_private(checker):
+        raise ValueError(
+            'Class "{checker}" cannot be a plugin because it is private.'
+            "".format(checker=checker)
+        )
+
+    if not _has_checker_interface(checker):
         raise ValueError(
             'Class "{checker}" must inherit from BaseChecker. '
             "It is not a valid checker plugin.".format(checker=checker)
@@ -59,7 +99,13 @@ def register_context(context):
         ValueError: If `context` is not a valid plugin.
 
     """
-    if not issubclass(context, base_context.BaseContext):
+    if _is_private(context):
+        raise ValueError(
+            'Class "{context}" cannot be a plugin because it is private.'
+            "".format(context=context)
+        )
+
+    if not _has_context_interface(context):
         raise ValueError(
             'Class "{context}" must inherit from BaseContext. '
             "It is not a valid context plugin.".format(context=context)
@@ -83,10 +129,15 @@ def register_plugins(plugins):
     checkers = get_checkers()
 
     for plugin in plugins:
-        if issubclass(plugin, base_context.BaseContext) and plugin not in contexts:
-            register_context(plugin)
-        elif issubclass(plugin, base_checker.BaseChecker) and plugin not in checkers:
-            register_checker(plugin)
+        if _is_private(plugin):
+            continue
+
+        if _has_checker_interface(plugin):
+            if plugin not in checkers:
+                register_checker(plugin)
+        elif _has_context_interface(plugin):
+            if plugin not in contexts:
+                register_context(plugin)
         else:
             raise NotImplementedError(
                 'Plugin "{plugin}" is not a recognized type.'.format(plugin=plugin)

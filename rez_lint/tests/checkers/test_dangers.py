@@ -203,15 +203,15 @@ class ImproperRequirements(packaging.BasePackaging):
 
         self.assertEqual(
             issues[0].get_message(verbose=True)[1].lstrip(),
-            'Requirements "[\'cmake\']" should not be in requires. '
-            'Instead, they should be either defined in the '
-            '``private_build_requires`` or ``build_requires`` attribute.',
+            "Requirements \"['cmake']\" should not be in requires. "
+            "Instead, they should be either defined in the "
+            "``private_build_requires`` or ``build_requires`` attribute.",
         )
 
         self.assertEqual(
             issues[1].get_message(verbose=True)[1].lstrip(),
-            'Requirements "[\'mock\']" should not be in requires. '
-            'Instead, they should be defined as part of the package\'s ``tests`` attribute.'
+            "Requirements \"['mock']\" should not be in requires. "
+            "Instead, they should be defined as part of the package's ``tests`` attribute.",
         )
 
     def test_mixed_impropers(self):
