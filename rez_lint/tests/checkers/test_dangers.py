@@ -745,7 +745,8 @@ class NoRezTest(packaging.BasePackaging):
                 name = "some_package"
                 version = "1.0.0"
                 """
-        ))
+            ),
+        )
         self.add_item(os.path.dirname(root))
 
         results = cli.lint(root)
@@ -769,7 +770,8 @@ class NoRezTest(packaging.BasePackaging):
                 version = "1.0.0"
                 tests = {}
                 """
-        ))
+            ),
+        )
         self.add_item(os.path.dirname(root))
 
         results = cli.lint(root)
@@ -793,7 +795,8 @@ class NoRezTest(packaging.BasePackaging):
                 version = "1.0.0"
                 tests = {"some_test": "echo 'I am a test!'"}
                 """
-        ))
+            ),
+        )
         self.add_item(os.path.dirname(root))
 
         results = cli.lint(root)
