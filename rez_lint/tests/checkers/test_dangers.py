@@ -424,30 +424,6 @@ class MissingRequirements(packaging.BasePackaging):
 class RequirementLowerBoundsMissing(packaging.BasePackaging):
     """Test that the :class:`.RequirementLowerBoundsMissing` works as expected."""
 
-    def _test_not_found(self, name, code):
-        """Run a test that assumes that there is no "lower-bounds-missing" issue.
-
-        Args:
-            name (str): The name of the fake Rez source package to create.
-            code (str): The source code used to create a package definition.
-
-        Raises:
-            AssertionError: `code` must result in no ``rez_lint`` "lower-bounds-missing" issue.
-        """
-        directory = packaging.make_fake_source_package(name, code)
-        self.add_item(os.path.dirname(directory))
-
-        results = cli.lint(directory)
-
-        issues = [
-            description
-            for description in results
-            if description.get_summary()[0]
-            == "Package requires are missing a minimum version"
-        ]
-
-        self.assertEqual(0, len(issues))
-
     def _test_found(self, name, code):
         """Run a test that assumes that there is a "lower-bounds-missing" issue.
 
@@ -478,6 +454,31 @@ class RequirementLowerBoundsMissing(packaging.BasePackaging):
             issues[0].get_message(verbose=True)[-1].lstrip(),
         )
 
+    def _test_not_found(self, name, code):
+        """Run a test that assumes that there is no "lower-bounds-missing" issue.
+
+        Args:
+            name (str): The name of the fake Rez source package to create.
+            code (str): The source code used to create a package definition.
+
+        Raises:
+            AssertionError: `code` must result in no ``rez_lint`` "lower-bounds-missing" issue.
+
+        """
+        directory = packaging.make_fake_source_package(name, code)
+        self.add_item(os.path.dirname(directory))
+
+        results = cli.lint(directory)
+
+        issues = [
+            description
+            for description in results
+            if description.get_summary()[0]
+            == "Package requires are missing a minimum version"
+        ]
+
+        self.assertEqual(0, len(issues))
+
     def test_empty(self):
         """If no ``requires`` is listed, don't raise an issue."""
         code = textwrap.dedent(
@@ -496,6 +497,18 @@ class RequirementLowerBoundsMissing(packaging.BasePackaging):
             name = "some_package"
             version = "1.0.0"
             requires = []
+            """
+        )
+
+        self._test_not_found("some_package", code)
+
+    def test_okay(self):
+        """If there's no issue, don't raise any issues."""
+        code = textwrap.dedent(
+            """\
+            name = "some_package"
+            version = "1.0.0"
+            requires = ["python-2+", "rez-2+"]
             """
         )
 
@@ -529,20 +542,144 @@ class RequirementLowerBoundsMissing(packaging.BasePackaging):
         self._test_found("some_package", code)
 
 
-# class RequirementsNotSorted(unittest.TestCase):
-#     def test_empty(self):
-#         pass
-#
-#     def test_none(self):
-#         pass
-#
-#     def test_one(self):
-#         pass
-#
-#     def test_mixed(self):
-#         pass
-#
-#
+class RequirementsNotSorted(packaging.BasePackaging):
+    """Test that the :class:`rez_lint.plugins.checkers.dangers.RequirementsNotSorted.` class works"""
+
+    def _test_found(self, name, code, expected):
+        """Test a scenario where unsorted requirements are found.
+
+        Args:
+            name (str): The name of the fake Rez source package to create.
+            code (str): The source code used to create a package definition.
+            expected (str): The first line of the found issue (after the summary).
+
+        Raises:
+            AssertionError: If the issue was not found.
+
+        """
+        directory = packaging.make_fake_source_package(name, code)
+        self.add_item(os.path.dirname(directory))
+
+        results = cli.lint(directory)
+
+        issues = [
+            description
+            for description in results
+            if description.get_summary()[0]
+            == "Package requirements are not sorted"
+        ]
+
+        self.assertEqual(1, len(issues))
+        self.assertEqual(
+            expected,
+            issues[0].get_message(verbose=True)[-1].lstrip(),
+        )
+
+    def _test_not_found(self, name, code):
+        """Test a scenario where requirements are sorted.
+
+        Args:
+            name (str): The name of the fake Rez source package to create.
+            code (str): The source code used to create a package definition.
+
+        Raises:
+            AssertionError: If the issue was found.
+
+        """
+        directory = packaging.make_fake_source_package(name, code)
+        self.add_item(os.path.dirname(directory))
+
+        results = cli.lint(directory)
+
+        issues = [
+            description
+            for description in results
+            if description.get_summary()[0]
+            == "Package requirements are not sorted"
+        ]
+
+        self.assertEqual(0, len(issues))
+
+    def test_empty(self):
+        """Check that an issue isn't raised if ``requires`` is not defined."""
+        self._test_not_found(
+            "some_package",
+            textwrap.dedent(
+                """\
+                name = "some_package"
+                version = "1.0.0"
+                """
+            ),
+        )
+
+    def test_none(self):
+        """Check that an issue isn't raised if ``requires`` is defined but empty."""
+        self._test_not_found(
+            "some_package",
+            textwrap.dedent(
+                """\
+                name = "some_package"
+                version = "1.0.0"
+                requires = []
+                """
+            ),
+        )
+
+    def test_one_001(self):
+        """Check that an issue is raised."""
+        self._test_found(
+            "some_package",
+            textwrap.dedent(
+                """\
+                name = "some_package"
+                version = "1.0.0"
+                requires = ["rez", "python"]
+                """
+            ),
+            'Expected order: "[\'python\', \'rez\']"',
+        )
+
+    def test_one_002(self):
+        """Check that an issue is raised."""
+        self._test_found(
+            "some_package",
+            textwrap.dedent(
+                """\
+                name = "some_package"
+                version = "1.0.0"
+                requires = ["rez-2+", "python-2+<3"]
+                """
+            ),
+            'Expected order: "[\'python-2+<3\', \'rez-2+\']"',
+        )
+
+    def test_okay_001(self):
+        """Check that an issue is not raised."""
+        self._test_not_found(
+            "some_package",
+            textwrap.dedent(
+                """\
+                name = "some_package"
+                version = "1.0.0"
+                requires = ["python", "rez"]
+                """
+            ),
+        )
+
+    def test_okay_002(self):
+        """Check that an issue is not raised."""
+        self._test_not_found(
+            "some_package",
+            textwrap.dedent(
+                """\
+                name = "some_package"
+                version = "1.0.0"
+                requires = ["python-2+<3", "rez-2+"]
+                """
+            ),
+        )
+
+
 # class NotPythonDefinition(unittest.TestCase):
 #     def test_yaml(self):
 #         pass
