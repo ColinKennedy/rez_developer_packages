@@ -915,7 +915,30 @@ class TooManyDependencies(packaging.BasePackaging):
         )
         self.add_item(os.path.dirname(root))
 
-        results = cli.lint(root)
+        package_definition_template = textwrap.dedent(
+            """\
+            name = "{name}"
+            version = "1.0.0"
+            """
+        )
+
+        dependencies = set()
+
+        for index in range(1, 12):
+            name = "dependency_{index}".format(index=index)
+            directory = packaging.make_fake_source_package(name, package_definition_template.format(name=name))
+            package = packages_.get_developer_package(directory)
+            dependencies.add(inspection.get_packages_path_from_package(package))
+
+            self.add_item(os.path.dirname(directory))
+
+        original = list(config.packages_path)  # pylint: disable=no-member
+        config.packages_path[:] = list(dependencies) + original  # pylint: disable=no-member
+
+        try:
+            results = cli.lint(root)
+        finally:
+            config.packages_path[:] = original
 
         issues = [
             description
