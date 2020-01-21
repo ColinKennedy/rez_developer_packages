@@ -957,7 +957,19 @@ class TooManyDependencies(packaging.BasePackaging):
 
 
 class UrlNotReachable(packaging.BasePackaging):
+    """Test that the :class:`rez_lint.plugins.checkers.dangers.UrlNotReachable.` class works."""
+
     def _test_found(self, name, code):
+        """Run a test that assumes that there is a "url-unreachable" issue.
+
+        Args:
+            name (str): The name of the fake Rez source package to create.
+            code (str): The source code used to create a package definition.
+
+        Raises:
+            AssertionError: If `code` doesn't return a "url-unreachable" issue.
+
+        """
         directory = packaging.make_fake_source_package(name, code)
         self.add_item(os.path.dirname(directory))
 
@@ -977,6 +989,16 @@ class UrlNotReachable(packaging.BasePackaging):
         )
 
     def _test_not_found(self, name, code):
+        """Run a test that assumes that there is no "url-unreachable" issue.
+
+        Args:
+            name (str): The name of the fake Rez source package to create.
+            code (str): The source code used to create a package definition.
+
+        Raises:
+            AssertionError: If `code` actually does return a "url-unreachable" issue.
+
+        """
         directory = packaging.make_fake_source_package(name, code)
         self.add_item(os.path.dirname(directory))
 
@@ -991,6 +1013,7 @@ class UrlNotReachable(packaging.BasePackaging):
         self.assertEqual([], issues)
 
     def test_undefined(self):
+        """Check that undefined URL(s) is considered "valid" by this checker."""
         self._test_not_found(
             "some_package",
             textwrap.dedent(
@@ -1002,6 +1025,7 @@ class UrlNotReachable(packaging.BasePackaging):
         )
 
     def test_empty_001(self):
+        """Check that an empty URL is considered "valid" by this checker."""
         self._test_not_found(
             "some_package",
             textwrap.dedent(
@@ -1014,6 +1038,7 @@ class UrlNotReachable(packaging.BasePackaging):
         )
 
     def test_empty_002(self):
+        """Check that an empty list of URLs is considered "valid" by this checker."""
         self._test_not_found(
             "some_package",
             textwrap.dedent(
@@ -1026,6 +1051,7 @@ class UrlNotReachable(packaging.BasePackaging):
         )
 
     def test_reachable_001(self):
+        """Check that regular websites are shown as "reachable"."""
         self._test_not_found(
             "some_package",
             textwrap.dedent(
@@ -1038,6 +1064,7 @@ class UrlNotReachable(packaging.BasePackaging):
         )
 
     def test_reachable_002(self):
+        """Check that IP addresses are shown as "reachable"."""
         self._test_not_found(
             "some_package",
             textwrap.dedent(
