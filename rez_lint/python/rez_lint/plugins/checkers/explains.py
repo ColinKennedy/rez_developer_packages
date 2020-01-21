@@ -107,7 +107,6 @@ class NoDocumentation(base_checker.BaseChecker):
         ]
 
 
-# TODO : Add unittests for this class
 class NoHelp(base_checker.BaseChecker):
     """Find the ``help`` attribute for the user's Rez package and report if it's missing."""
 

@@ -429,7 +429,6 @@ class TooManyDependencies(base_checker.BaseChecker):
         ]
 
 
-# TODO : Make sure this works even if the package has only a single string URL defined
 # TODO : Change the logic of this plugin to ALSO allow relative paths, assuming rez-test actually allows this (which it might)
 #
 class UrlNotReachable(base_checker.BaseChecker):
