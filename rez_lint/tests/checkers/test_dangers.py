@@ -1119,6 +1119,7 @@ class UrlNotReachable(packaging.BasePackaging):
 
 
 def _get_rezbuild_text():
+    """Create a basic rezbuild.py file's contents."""
     return textwrap.dedent(
         """\
         #!/usr/bin/env python
