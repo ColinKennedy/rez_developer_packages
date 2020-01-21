@@ -268,7 +268,7 @@ def get_comment_pairs(nodes):
     Returns:
         dict[str, str]:
             The string or variable name and its commented value.
-            e.g. {"rez": "The best thing to happen since sliced bread!"}.
+            e.g. {"rez-2+": "The best thing to happen since sliced bread!"}.
 
     """
     pairs = dict()

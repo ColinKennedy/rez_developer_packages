@@ -103,13 +103,24 @@ class NeedsComment(base_checker.BaseChecker):
 
             return []
 
+        # This next line is very important. It strips version information from a request
+        # e.g. it'll take a dict like
+        #
+        # {"foo-1": "Some comment here"}
+        # and change it to
+        # {"foo": "Some comment here"}
+        #
+        requirement_pairs = {
+            formatting.PackageRequest(request).name: comment for request, comment in pairs.items()
+        }
+
         dependencies = set(
             package.name for package in context[lint_constant.DEPENDENT_PACKAGES]
         )
 
         try:
             missing = _get_missing_comment_pairs(
-                package.requires or [], pairs, dependencies
+                package.requires or [], requirement_pairs, dependencies
             )
         except EnvironmentError:
             return []
