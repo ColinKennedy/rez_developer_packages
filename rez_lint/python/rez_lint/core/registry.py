@@ -69,9 +69,14 @@ def register_checker(checker):
             reports them.
 
     Raises:
+        EnvironmentError: If `checker` is already registered.
         ValueError: If `checker` is not a valid plugin.
 
     """
+    if checker in _CHECKERS:
+        raise EnvironmentError('Cannot register "{checker}" because it is already registered.'
+                               ''.format(checker=checker))
+
     if _is_private(checker):
         raise ValueError(
             'Class "{checker}" cannot be a plugin because it is private.'
@@ -96,9 +101,14 @@ def register_context(context):
             passed into the user's registered checker plugins.
 
     Raises:
+        EnvironmentError: If `context` is already registered.
         ValueError: If `context` is not a valid plugin.
 
     """
+    if context in _CONTEXTS:
+        raise EnvironmentError('Cannot register "{context}" because it is already registered.'
+                               ''.format(context=context))
+
     if _is_private(context):
         raise ValueError(
             'Class "{context}" cannot be a plugin because it is private.'

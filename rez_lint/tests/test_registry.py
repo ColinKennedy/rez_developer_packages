@@ -112,8 +112,13 @@ class Registry(common.Common):
         self.assertEqual(current_plugins + 1, len(all_plugins))
         self.assertTrue("FakePlugin" in {plugin.__name__ if inspect.isclass(plugin) else plugin.__class__.__name__ for plugin in all_plugins})
 
-    def test_already_registered(self):
-        """Don't allow the user to register something that is already registered."""
+    def test_already_registered_001(self):
+        """Allow the user to accidentally register the same plugins twice.
+
+        We do this because it may happen by accident. Plus, they aren't
+        explicitly registering the plugin. So it feels safe to allow.
+
+        """
         current_plugins = self._make_basic_environment(
             textwrap.dedent(
                 """\
@@ -126,7 +131,42 @@ class Registry(common.Common):
             )
         )
 
+        cli._register_external_plugins.has_run = False
         cli._register_external_plugins()
+
+    def test_already_registered_002(self):
+        """Don't allow the user to explicitly register the same plugin more than once."""
+        class MyChecker(object):
+            @staticmethod
+            def get_long_code():
+                return "something"
+
+            @staticmethod
+            def get_order():
+                return 0
+
+            @staticmethod
+            def run(_, __):
+                return []
+
+        class MyContext(object):
+            @staticmethod
+            def get_order():
+                return 0
+
+            @staticmethod
+            def run(_, __):
+                return
+
+        registry.register_checker(MyChecker)
+
+        with self.assertRaises(EnvironmentError):
+            registry.register_checker(MyChecker)
+
+        registry.register_context(MyContext)
+
+        with self.assertRaises(EnvironmentError):
+            registry.register_context(MyContext)
 
 
 def _convert_to_importable_namespace(path, root):
