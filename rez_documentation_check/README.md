@@ -1,7 +1,9 @@
 
 TODO:
 
+- Check variants for missing linking. Not just the requires of a package
 - Make sure to check for missing intersphinx mapping URLs. Not just mappings
+- This should work with new style AND old style intersphinx mappings
 - Make sure there are test results (both for check and fix) that have NO intersphinx_mapping defined at all
 - Add example command-line use
 
