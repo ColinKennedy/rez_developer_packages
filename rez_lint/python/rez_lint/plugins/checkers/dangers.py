@@ -3,12 +3,16 @@
 
 """A collection of issues that bring harm to the current Rez package or others."""
 
+import logging
 import os
 
+from python_compatibility import website
 from rez_utilities import url_help
 
 from ...core import lint_constant, message_description, package_parser
 from . import base_checker
+
+_LOGGER = logging.getLogger(__name__)
 
 
 class ImproperRequirements(base_checker.BaseChecker):
@@ -456,13 +460,18 @@ class UrlNotReachable(base_checker.BaseChecker):
         if not package.help:
             return []
 
+        if not website.is_internet_on():
+            _LOGGER.warning("User has no internet. Checking for help URLs will be skipped.")
+
+            return []
+
         urls = url_help.get_invalid_help_urls(package)
 
         if not urls:
             return []
 
         summary = "Package help has an un-reachable URL"
-        urls = sorted([(label, url) for _, label, url in urls])
+        urls = sorted([(label, url) if label else url for _, label, url in urls])
         full = [
             summary,
             'Found URLs are un-reachable "{urls}".'.format(urls=urls),

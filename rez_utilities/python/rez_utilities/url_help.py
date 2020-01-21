@@ -7,6 +7,7 @@ import fnmatch
 import logging
 
 from six.moves import urllib
+import six
 
 _EXPECTED_API_LABELS = frozenset(
     ("api documentation", "api", "api-documentation", "api_documentation")
@@ -80,7 +81,15 @@ def get_invalid_help_urls(package):
     """
     invalids = set()
 
-    for index, (label, command) in enumerate(package.help or []):
+    help_ = package.help or []
+
+    if isinstance(help_, six.string_types):
+        # The user can give a list of list of strings or just a single string
+        # Reference: https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#help
+        #
+        help_ = [["", help_]]
+
+    for index, (label, command) in enumerate(help_):
         url = _get_url(command)
 
         if not is_url_reachable(url):

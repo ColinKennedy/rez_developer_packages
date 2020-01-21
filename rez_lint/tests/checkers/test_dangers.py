@@ -11,6 +11,7 @@ from rez import packages_
 from rez.config import config
 from rez_lint import cli
 from rez_utilities import creator, inspection
+from six.moves import mock
 
 from .. import packaging
 
@@ -884,7 +885,8 @@ class TooManyDependencies(packaging.BasePackaging):
         issues = [
             description
             for description in results
-            if description.get_summary()[0] == "Package has too many dependencies (0/10)"
+            if description.get_summary()[0]
+            == "Package has too many dependencies (0/10)"
         ]
 
         self.assertEqual([], issues)
@@ -926,14 +928,18 @@ class TooManyDependencies(packaging.BasePackaging):
 
         for index in range(1, 12):
             name = "dependency_{index}".format(index=index)
-            directory = packaging.make_fake_source_package(name, package_definition_template.format(name=name))
+            directory = packaging.make_fake_source_package(
+                name, package_definition_template.format(name=name)
+            )
             package = packages_.get_developer_package(directory)
             dependencies.add(inspection.get_packages_path_from_package(package))
 
             self.add_item(os.path.dirname(directory))
 
         original = list(config.packages_path)  # pylint: disable=no-member
-        config.packages_path[:] = list(dependencies) + original  # pylint: disable=no-member
+        config.packages_path[:] = (
+            list(dependencies) + original
+        )  # pylint: disable=no-member
 
         try:
             results = cli.lint(root)
@@ -943,32 +949,146 @@ class TooManyDependencies(packaging.BasePackaging):
         issues = [
             description
             for description in results
-            if description.get_summary()[0] == "Package has too many dependencies (11/10)"
+            if description.get_summary()[0]
+            == "Package has too many dependencies (11/10)"
         ]
 
         self.assertEqual(1, len(issues))
 
 
-# class UrlNotReachable(unittest.TestCase):
-#     def test_undefined(self):
-#         pass
-#
-#     def test_empty(self):
-#         pass
-#
-#     def test_reachable_001(self):
-#         pass
-#
-#     def test_reachable_002(self):
-#         """Test that having a single ``help`` URL is allowed, as long it's reachable."""
-#         pass
-#
-#     def test_unreachable(self):
-#         pass
-#
-#     def test_internet_down(self):
-#         """Make sure this checker does not raise an exception if the user is offline."""
-#         pass
+class UrlNotReachable(packaging.BasePackaging):
+    def _test_found(self, name, code):
+        directory = packaging.make_fake_source_package(name, code)
+        self.add_item(os.path.dirname(directory))
+
+        results = cli.lint(directory)
+
+        issues = [
+            description
+            for description in results
+            if description.get_summary()[0] == "Package help has an un-reachable URL"
+        ]
+
+        self.assertEqual(1, len(issues))
+
+        first_non_summary_line = issues[0].get_message(verbose=True)[-1].lstrip()
+        self.assertTrue(
+            first_non_summary_line.startswith('Found URLs are un-reachable "')
+        )
+
+    def _test_not_found(self, name, code):
+        directory = packaging.make_fake_source_package(name, code)
+        self.add_item(os.path.dirname(directory))
+
+        results = cli.lint(directory)
+
+        issues = [
+            description
+            for description in results
+            if description.get_summary()[0] == "Package help has an un-reachable URL"
+        ]
+
+        self.assertEqual([], issues)
+
+    def test_undefined(self):
+        self._test_not_found(
+            "some_package",
+            textwrap.dedent(
+                """\
+                name = "some_package"
+                version = "1.0.0"
+                """
+            ),
+        )
+
+    def test_empty_001(self):
+        self._test_not_found(
+            "some_package",
+            textwrap.dedent(
+                """\
+                name = "some_package"
+                version = "1.0.0"
+                help = ""
+                """
+            ),
+        )
+
+    def test_empty_002(self):
+        self._test_not_found(
+            "some_package",
+            textwrap.dedent(
+                """\
+                name = "some_package"
+                version = "1.0.0"
+                help = []
+                """
+            ),
+        )
+
+    def test_reachable_001(self):
+        self._test_not_found(
+            "some_package",
+            textwrap.dedent(
+                """\
+                name = "some_package"
+                version = "1.0.0"
+                help = [["Home Page", "https://www.google.com"]]
+                """
+            ),
+        )
+
+    def test_reachable_002(self):
+        self._test_not_found(
+            "some_package",
+            textwrap.dedent(
+                """\
+                name = "some_package"
+                version = "1.0.0"
+                help = "http://216.58.192.142"  # This is the IP address of google.com
+                """
+            ),
+        )
+
+    def test_reachable_003(self):
+        """Test that having a single ``help`` URL is allowed, as long it's reachable."""
+        self._test_not_found(
+            "some_package",
+            textwrap.dedent(
+                """\
+                name = "some_package"
+                version = "1.0.0"
+                help = "https://www.google.com"
+                """
+            ),
+        )
+
+    def test_unreachable(self):
+        """Report an issue if the URL doesn't point to a valid website."""
+        self._test_found(
+            "some_package",
+            textwrap.dedent(
+                """\
+                name = "some_package"
+                version = "1.0.0"
+                help = "something_that_doesnt_exist.com"
+                """
+            ),
+        )
+
+    @mock.patch("python_compatibility.website.is_internet_on")
+    def test_internet_down(self, is_internet_on):
+        """Make sure this checker does not raise an exception if the user is offline."""
+        is_internet_on.return_value = False
+        self._test_not_found(
+            "some_package",
+            textwrap.dedent(
+                """\
+                name = "some_package"
+                version = "1.0.0"
+                help = "something_that_doesnt_exist.com"
+                """
+            ),
+        )
 
 
 def _get_rezbuild_text():
