@@ -138,7 +138,7 @@ class MissingRequirements(packaging.BasePackaging):
         dependency1_directory = packaging.make_fake_source_package(
             "another_dependency", code
         )
-        self.add_item(dependency1_directory)
+        self.add_item(os.path.dirname(dependency1_directory))
 
         with open(os.path.join(dependency1_directory, "rezbuild.py"), "w") as handler:
             handler.write(_get_rezbuild_text())
@@ -184,7 +184,7 @@ class MissingRequirements(packaging.BasePackaging):
         dependency2_directory = packaging.make_fake_source_package(
             "direct_dependency", code
         )
-        self.add_item(dependency2_directory)
+        self.add_item(os.path.dirname(dependency2_directory))
         os.makedirs(os.path.join(dependency2_directory, "python"))
 
         with open(os.path.join(dependency2_directory, "rezbuild.py"), "w") as handler:
@@ -224,7 +224,7 @@ class MissingRequirements(packaging.BasePackaging):
             files = set()
 
         directory = packaging.make_fake_source_package("some_package", text)
-        self.add_item(directory)
+        self.add_item(os.path.dirname(directory))
 
         for path in files:
             full_path = os.path.join(directory, path)
