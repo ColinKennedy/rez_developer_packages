@@ -421,21 +421,111 @@ class MissingRequirements(packaging.BasePackaging):
         )
 
 
-# TODO : Finish these
-# class RequirementLowerBoundsMissing(unittest.TestCase):
-#     def test_empty(self):
-#         pass
-#
-#     def test_none(self):
-#         pass
-#
-#     def test_one(self):
-#         pass
-#
-#     def test_mixed(self):
-#         pass
-#
-#
+class RequirementLowerBoundsMissing(packaging.BasePackaging):
+    """Test that the :class:`.RequirementLowerBoundsMissing` works as expected."""
+
+    def _test_not_found(self, name, code):
+        """Run a test that assumes that there is no "lower-bounds-missing" issue.
+
+        Args:
+            name (str): The name of the fake Rez source package to create.
+            code (str): The source code used to create a package definition.
+
+        Raises:
+            AssertionError: `code` must result in no ``rez_lint`` "lower-bounds-missing" issue.
+        """
+        directory = packaging.make_fake_source_package(name, code)
+        self.add_item(os.path.dirname(directory))
+
+        results = cli.lint(directory)
+
+        issues = [
+            description
+            for description in results
+            if description.get_summary()[0] == "Package requires are missing a minimum version"
+        ]
+
+        self.assertEqual(0, len(issues))
+
+    def _test_found(self, name, code):
+        """Run a test that assumes that there is a "lower-bounds-missing" issue.
+
+        Args:
+            name (str): The name of the fake Rez source package to create.
+            code (str): The source code used to create a package definition.
+
+        Raises:
+            AssertionError: If `code` has no "lower-bounds-missing" issue
+                or the issue isn't a Python issue.
+
+        """
+        directory = packaging.make_fake_source_package(name, code)
+        self.add_item(os.path.dirname(directory))
+
+        results = cli.lint(directory)
+
+        issues = [
+            description
+            for description in results
+            if description.get_summary()[0] == "Package requires are missing a minimum version"
+        ]
+
+        self.assertEqual(1, len(issues))
+        self.assertEqual(
+            'Requirements "[\'python\']" have no minimum version.',
+            issues[0].get_message(verbose=True)[-1].lstrip(),
+        )
+    def test_empty(self):
+        """If no ``requires`` is listed, don't raise an issue."""
+        code = textwrap.dedent(
+            """\
+            name = "some_package"
+            version = "1.0.0"
+            """
+        )
+
+        self._test_not_found("some_package", code)
+
+    def test_none(self):
+        """If ``requires`` is listed but it's empty, don't raise an issue."""
+        code = textwrap.dedent(
+            """\
+            name = "some_package"
+            version = "1.0.0"
+            requires = []
+            """
+        )
+
+        self._test_not_found("some_package", code)
+
+    def test_one(self):
+        """If ``requires`` has an issue, raise it."""
+        code = textwrap.dedent(
+            """\
+            name = "some_package"
+            version = "1.0.0"
+            requires = ["python"]
+            """
+        )
+
+        self._test_found("some_package", code)
+
+    def test_mixed(self):
+        """If ``requires`` has a mixture of requirements, raise only the problems."""
+        code = textwrap.dedent(
+            """\
+            name = "some_package"
+            version = "1.0.0"
+            requires = [
+                "rez-2+",
+                "python",
+            ]
+            """
+        )
+
+        self._test_found("some_package", code)
+
+
 # class RequirementsNotSorted(unittest.TestCase):
 #     def test_empty(self):
 #         pass
