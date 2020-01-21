@@ -104,19 +104,12 @@ class ImproperRequirements(packaging.BasePackaging):
 
         self.assertFalse(has_issue)
 
+    # TODO : Add support for this later
     # def test_one_improper_001(self):
-    #     """If the user has a build system in their requires, flag it as an issue."""
-    #     pass
-
-    # def test_one_improper_002(self):
-    #     """If the user has a unittest system in their requires, flag it as an issue."""
-    #     pass
-    #
-    # def test_one_improper_003(self):
     #     """If the user has a build system in their variants, flag it as an issue."""
     #     pass
     #
-    # def test_one_improper_004(self):
+    # def test_one_improper_002(self):
     #     """If the user has a unittest system in their variants, flag it as an issue."""
     #     pass
 
@@ -290,7 +283,7 @@ class ImproperRequirements(packaging.BasePackaging):
             description
             for description in results
             if description.get_summary()[0]
-            == "Improper package requirements were found"
+            == "Improper unittest package requirements were found"
         ]
 
         self.assertEqual(1, len(issues))
