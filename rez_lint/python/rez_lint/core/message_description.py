@@ -28,7 +28,13 @@ class Description(object):
             full (list[str], optional): The message that is displayed
                 when the user enables "verbose" lint messages.
 
+        Raises:
+            ValueError: If `location` has no file path.
+
         """
+        if not location.path:
+            raise ValueError('Location "{location!r}" must have a non-empty file path.'.format(location=location))
+
         super(Description, self).__init__()
 
         self._code = code
@@ -85,7 +91,7 @@ class Description(object):
         path = self._location.path
         relative = os.path.relpath(path, os.getcwd())
 
-        if len(relative) < path:
+        if not relative.startswith(".."):
             path = relative
 
         if path == ".":

@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Test that :class:`rez_lint.core.message_description.Description` formats correctly."""
+"""Test that :class:`rez_lint.core.message_description.Description` works."""
 
 import unittest
+import os
 
 from rez_lint.plugins.checkers import base_checker
 from rez_lint.core import message_description
@@ -16,7 +17,7 @@ class Description(unittest.TestCase):
         """Creating a description with basically nothing in it should still be valid."""
         message_description.Description(
             [],
-            message_description.Location("", 0, 0, ""),
+            message_description.Location(".", 0, 0, ""),
             base_checker.Code(short_name="", long_name=""),
         )
 
@@ -24,7 +25,7 @@ class Description(unittest.TestCase):
         """Make sure description summarizes print as-expected."""
         description = message_description.Description(
             ["Some important message"],
-            message_description.Location("", 0, 0, ""),
+            message_description.Location(".", 0, 0, ""),
             base_checker.Code(short_name="Z", long_name="some-code"),
         )
 
@@ -35,7 +36,7 @@ class Description(unittest.TestCase):
         summary = "Some important message"
         description = message_description.Description(
             [summary],
-            message_description.Location("", 0, 0, ""),
+            message_description.Location(".", 0, 0, ""),
             base_checker.Code(short_name="Z", long_name="some-code"),
             full=[summary, "More information here", "And even more"],
         )
@@ -48,3 +49,48 @@ class Description(unittest.TestCase):
             ],
             description.get_message(verbose=True),
         )
+
+
+class Header(unittest.TestCase):
+    """Make sure the description header is already formatted as expected."""
+
+    def test_empty(self):
+        """An empty location should error - there needs to always be some file path."""
+        with self.assertRaises(ValueError):
+            message_description.Description(
+                [],
+                message_description.Location("", 0, 0, ""),
+                base_checker.Code(short_name="Z", long_name="some-code"),
+            )
+
+    def test_relative_001(self):
+        """A location that is below the current directory should return relative."""
+        description = message_description.Description(
+            [],
+            message_description.Location(os.path.join(os.getcwd(), "something", "else"), 0, 0, ""),
+            base_checker.Code(short_name="Z", long_name="some-code"),
+        )
+
+        self.assertEqual(os.path.join("something", "else"), description.get_header())
+
+    def test_absolute(self):
+        """A location that is next to or above the current directory should return absolute."""
+        parent = os.path.dirname(os.getcwd())
+
+        description = message_description.Description(
+            [],
+            message_description.Location(parent, 0, 0, ""),
+            base_checker.Code(short_name="Z", long_name="some-code"),
+        )
+
+        self.assertEqual(parent, description.get_header())
+
+    def test_dot(self):
+        """A single dot path (e.g. ".") should return the current directory."""
+        description = message_description.Description(
+            [],
+            message_description.Location(".", 0, 0, ""),
+            base_checker.Code(short_name="Z", long_name="some-code"),
+        )
+
+        self.assertEqual(os.getcwd(), description.get_header())
