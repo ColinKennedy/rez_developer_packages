@@ -25,22 +25,31 @@ class Registry(common.Common):
 
     @staticmethod
     def _initialize_all():
+        """Delete all registered classes."""
         registry.clear_checkers()
         registry.clear_contexts()
-        cli._register_internal_plugins.has_run = False
-        cli._register_internal_plugins()
+        cli._register_internal_plugins.has_run = False  # pylint: disable=protected-access
+        cli._register_internal_plugins()  # pylint: disable=protected-access
 
     def setUp(self):
+        """Delete all registered classes."""
         super(Registry, self).setUp()
 
         self._initialize_all()  # Make doubly certain we're working with a clean slate
 
     def tearDown(self):
+        """Delete all registered classes."""
         super(Registry, self).tearDown()
 
         self._initialize_all()
 
     def _make_basic_environment(self, text):
+        """Make a Python plugin file and make it importable - and then get its plugins.
+
+        Args:
+            text (str): The Python source code that will be used to register new plugins.
+
+        """
         current_plugins = len(registry.get_checkers() + registry.get_contexts())
 
         root = tempfile.mkdtemp(suffix="_some_python_path_root")
@@ -57,74 +66,70 @@ class Registry(common.Common):
         namespace = _convert_to_importable_namespace(handler.name, root)
 
         os.environ["REZ_LINT_PLUGIN_PATHS"] = namespace
-        cli._register_external_plugins.has_run = False
-        cli._register_external_plugins()
+        cli._register_external_plugins.has_run = False  # pylint: disable=protected-access
+        cli._register_external_plugins()  # pylint: disable=protected-access
 
         return current_plugins
 
-    # def test_do_nothing(self):
-    #     """Don't register any new plugins."""
-    #     current_plugins = self._make_basic_environment("")
-    #     self.assertEqual(
-    #         current_plugins, len(registry.get_checkers() + registry.get_contexts()),
-    #     )
-    #
-    # def test_register_automatic(self):
-    #     """Register a new context and checker plugin, using the subclassing method."""
-    #     current_plugins = self._make_basic_environment(
-    #         textwrap.dedent(
-    #             """\
-    #             from rez_lint.plugins.checkers import base_checker
-    #
-    #             class Something(base_checker.BaseChecker):
-    #                 def run(package, context):
-    #                     return []
-    #             """
-    #         )
-    #     )
-    #
-    #     all_plugins = registry.get_checkers() + registry.get_contexts()
-    #     self.assertEqual(current_plugins + 1, len(all_plugins))
-    #     self.assertTrue("Something" in {plugin.__name__ for plugin in all_plugins})
-    #
-    # def test_register_manual(self):
-    #     """Allow the user to manually register a custom class."""
-    #     current_plugins = self._make_basic_environment(
-    #         textwrap.dedent(
-    #             """\
-    #             from rez_lint.core import registry
-    #             from rez_lint.plugins.checkers import base_checker
-    #
-    #             class FakePlugin(object):
-    #                 @staticmethod
-    #                 def get_long_code():
-    #                     return "foo-bar"
-    #
-    #                 def get_order():
-    #                     return 0
-    #
-    #                 def run(package, context):
-    #                     return []
-    #
-    #             fake_plugin = FakePlugin()
-    #             registry.register_checker(fake_plugin)
-    #             """
-    #         )
-    #     )
-    #
-    #     all_plugins = registry.get_checkers() + registry.get_contexts()
-    #
-    #     self.assertEqual(current_plugins + 1, len(all_plugins))
-    #
-    #     self.assertTrue(
-    #         "FakePlugin"
-    #         in {
-    #             plugin.__name__
-    #             if inspect.isclass(plugin)
-    #             else plugin.__class__.__name__
-    #             for plugin in all_plugins
-    #         }
-    #     )
+    def test_register_automatic(self):
+        """Register a new context and checker plugin, using the subclassing method."""
+        all_plugins = registry.get_checkers() + registry.get_contexts()
+        self.assertFalse("Something" in {plugin.__name__ for plugin in all_plugins})
+
+        current_plugins = self._make_basic_environment(
+            textwrap.dedent(
+                """\
+                from rez_lint.plugins.checkers import base_checker
+
+                class Something(base_checker.BaseChecker):
+                    def run(package, context):
+                        return []
+                """
+            )
+        )
+
+        all_plugins = registry.get_checkers() + registry.get_contexts()
+        self.assertTrue("Something" in {plugin.__name__ for plugin in all_plugins})
+
+    def test_register_manual(self):
+        """Allow the user to manually register a custom class."""
+        all_plugins = registry.get_checkers() + registry.get_contexts()
+        self.assertFalse("FakePlugin" in {plugin.__name__ for plugin in all_plugins})
+
+        current_plugins = self._make_basic_environment(
+            textwrap.dedent(
+                """\
+                from rez_lint.core import registry
+                from rez_lint.plugins.checkers import base_checker
+
+                class FakePlugin(object):
+                    @staticmethod
+                    def get_long_code():
+                        return "foo-bar"
+
+                    def get_order():
+                        return 0
+
+                    def run(package, context):
+                        return []
+
+                fake_plugin = FakePlugin()
+                registry.register_checker(fake_plugin)
+                """
+            )
+        )
+
+        all_plugins = registry.get_checkers() + registry.get_contexts()
+
+        self.assertTrue(
+            "FakePlugin"
+            in {
+                plugin.__name__
+                if inspect.isclass(plugin)
+                else plugin.__class__.__name__
+                for plugin in all_plugins
+            }
+        )
 
     def test_already_registered_001(self):
         """Allow the user to accidentally register the same plugins twice.
