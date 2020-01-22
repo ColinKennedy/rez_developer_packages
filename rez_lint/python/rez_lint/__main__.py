@@ -13,7 +13,7 @@ import os
 import sys
 
 from . import cli
-from .core import message_description
+from .core import exceptions, exit_code, message_description
 
 _LOGGER = logging.getLogger("rez_lint")
 __HANDLER = logging.StreamHandler(stream=sys.stdout)
@@ -102,12 +102,17 @@ def main():
     arguments = _parse_arguments(sys.argv[1:])
     folder, disable = _resolve_arguments(arguments)
 
-    descriptions = cli.lint(
-        folder,
-        disable=disable,
-        recursive=arguments.recursive,
-        verbose=arguments.verbose,
-    )
+    try:
+        descriptions = cli.lint(
+            folder,
+            disable=disable,
+            recursive=arguments.recursive,
+            verbose=arguments.verbose,
+        )
+    except exceptions.NoPackageFound as error:
+        print(str(error), file=sys.stderr)
+
+        sys.exit(exit_code.NO_REZ_PACKAGE)
 
     if not descriptions:
         if not arguments.vimgrep:

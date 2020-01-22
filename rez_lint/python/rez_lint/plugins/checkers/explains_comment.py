@@ -90,6 +90,14 @@ class NeedsComment(base_checker.BaseChecker):
         """
         graph = context.get(lint_constant.PARSO_GRAPH)
 
+        if lint_constant.DEPENDENT_PACKAGES not in context:
+            _LOGGER.warning(
+                'Context "%s" has no recorded dependencies. This checker must be skipped.',
+                context,
+            )
+
+            return []
+
         if not graph:
             _LOGGER.info("NeedsComment class will not run because no graph was found.")
 
