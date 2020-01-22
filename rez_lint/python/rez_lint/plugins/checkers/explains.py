@@ -120,8 +120,9 @@ class NoHelp(base_checker.BaseChecker):
         """Check a Rez package for the ``help`` attribute.
 
         Args:
-            package (:class:`rez.packages_.DeveloperPackage`):
-                The Rez package that will be checked for help links.
+            package (:class:`rez.packages_.DeveloperPackage`): The Rez package
+                that will be checked for help links.
+            _: An unused argument.
 
         """
         if package.help:
