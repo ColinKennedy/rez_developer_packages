@@ -11,9 +11,6 @@ to enforce better standards for Rez packages, too.
 
 import inspect
 
-from ..plugins.checkers import base_checker
-from ..plugins.contexts import base_context
-
 _CHECKERS = []
 _CONTEXTS = []
 

@@ -76,7 +76,7 @@ class Registry(common.Common):
         all_plugins = registry.get_checkers() + registry.get_contexts()
         self.assertFalse("Something" in {plugin.__name__ for plugin in all_plugins})
 
-        current_plugins = self._make_basic_environment(
+        self._make_basic_environment(
             textwrap.dedent(
                 """\
                 from rez_lint.plugins.checkers import base_checker
@@ -96,7 +96,7 @@ class Registry(common.Common):
         all_plugins = registry.get_checkers() + registry.get_contexts()
         self.assertFalse("FakePlugin" in {plugin.__name__ for plugin in all_plugins})
 
-        current_plugins = self._make_basic_environment(
+        self._make_basic_environment(
             textwrap.dedent(
                 """\
                 from rez_lint.core import registry
@@ -150,32 +150,41 @@ class Registry(common.Common):
             )
         )
 
-        cli._register_external_plugins.has_run = False
-        cli._register_external_plugins()
+        cli._register_external_plugins.has_run = False  # pylint: disable=protected-access
+        cli._register_external_plugins()  # pylint: disable=protected-access
 
     def test_already_registered_002(self):
         """Don't allow the user to explicitly register the same plugin more than once."""
 
         class MyChecker(object):
+            """Do nothing."""
+
             @staticmethod
             def get_long_code():
+                """Do nothing."""
                 return "something"
 
             @staticmethod
             def get_order():
+                """Do nothing."""
                 return 0
 
             @staticmethod
             def run(_, __):
+                """Do nothing."""
                 return []
 
         class MyContext(object):
+            """Do nothing."""
+
             @staticmethod
             def get_order():
+                """Do nothing."""
                 return 0
 
             @staticmethod
             def run(_, __):
+                """Do nothing."""
                 return
 
         registry.register_checker(MyChecker)

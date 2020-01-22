@@ -12,7 +12,7 @@ from .. import packaging
 
 
 class SemanticVersioning(packaging.BasePackaging):
-    """Make sure that the :class:`rez_lint.plugins.checkers.conventions.SemanticVersioning` works."""
+    """Make sure :class:`rez_lint.plugins.checkers.conventions.SemanticVersioning` works."""
 
     def test_undefined(self):
         """If the version is undefined, don't report an issue."""

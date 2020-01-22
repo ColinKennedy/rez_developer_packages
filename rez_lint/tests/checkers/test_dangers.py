@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# pylint: disable=too-many-lines
 """Test all of the checkers in "dangers.py"."""
 
 import os
@@ -716,7 +717,7 @@ class RequirementLowerBoundsMissing(packaging.BasePackaging):
 
 
 class RequirementsNotSorted(packaging.BasePackaging):
-    """Test that the :class:`rez_lint.plugins.checkers.dangers.RequirementsNotSorted.` class works."""
+    """Test the :class:`rez_lint.plugins.checkers.dangers.RequirementsNotSorted.` class."""
 
     def _test_found(self, name, code, expected):
         """Test a scenario where unsorted requirements are found.
