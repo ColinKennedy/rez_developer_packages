@@ -80,6 +80,7 @@ def _find_rez_packages(directory, recursive=False):
         set[:class:`rez.packages_.Package`]: The found Rez package.
 
     """
+
     def _get_safe_package(path):
         try:
             return {packages_.get_developer_package(path)}

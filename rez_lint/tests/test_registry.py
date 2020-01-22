@@ -28,7 +28,9 @@ class Registry(common.Common):
         """Delete all registered classes."""
         registry.clear_checkers()
         registry.clear_contexts()
-        cli._register_internal_plugins.has_run = False  # pylint: disable=protected-access
+        cli._register_internal_plugins.has_run = (
+            False  # pylint: disable=protected-access
+        )
         cli._register_internal_plugins()  # pylint: disable=protected-access
 
     def setUp(self):
@@ -66,7 +68,9 @@ class Registry(common.Common):
         namespace = _convert_to_importable_namespace(handler.name, root)
 
         os.environ["REZ_LINT_PLUGIN_PATHS"] = namespace
-        cli._register_external_plugins.has_run = False  # pylint: disable=protected-access
+        cli._register_external_plugins.has_run = (
+            False  # pylint: disable=protected-access
+        )
         cli._register_external_plugins()  # pylint: disable=protected-access
 
         return current_plugins
@@ -150,7 +154,9 @@ class Registry(common.Common):
             )
         )
 
-        cli._register_external_plugins.has_run = False  # pylint: disable=protected-access
+        cli._register_external_plugins.has_run = (
+            False  # pylint: disable=protected-access
+        )
         cli._register_external_plugins()  # pylint: disable=protected-access
 
     def test_already_registered_002(self):

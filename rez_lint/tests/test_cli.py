@@ -3,12 +3,11 @@
 
 """Test the plugin registry calls for :mod:`rez_lint.cli`."""
 
-import unittest
 import os
+import unittest
 
 from rez_lint import cli
 from rez_utilities import inspection
-
 
 _CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 
@@ -20,8 +19,7 @@ class Generic(unittest.TestCase):
         """Make sure that getting plugins from a given directory works."""
         package = inspection.get_nearest_rez_package(_CURRENT_DIRECTORY)
         found = cli._find_rez_packages(  # pylint: disable=protected-access
-            inspection.get_package_root(package),
-            recursive=False,
+            inspection.get_package_root(package), recursive=False,
         )
         found_package = next(iter((found)))
 
@@ -35,8 +33,7 @@ class Generic(unittest.TestCase):
         """Make sure that getting plugins recursively works."""
         package = inspection.get_nearest_rez_package(_CURRENT_DIRECTORY)
         found = cli._find_rez_packages(  # pylint: disable=protected-access
-            inspection.get_package_root(package),
-            recursive=True,
+            inspection.get_package_root(package), recursive=True,
         )
         found_package = next(iter((found)))
 

@@ -3,11 +3,11 @@
 
 """Test that :class:`rez_lint.core.message_description.Description` works."""
 
-import unittest
 import os
+import unittest
 
-from rez_lint.plugins.checkers import base_checker
 from rez_lint.core import message_description
+from rez_lint.plugins.checkers import base_checker
 
 
 class Description(unittest.TestCase):
@@ -29,7 +29,9 @@ class Description(unittest.TestCase):
             base_checker.Code(short_name="Z", long_name="some-code"),
         )
 
-        self.assertEqual(['Z: 0, 0: Some important message (some-code)'], description.get_message())
+        self.assertEqual(
+            ["Z: 0, 0: Some important message (some-code)"], description.get_message()
+        )
 
     def test_full(self):
         """Make sure description summarizes print as-expected."""
@@ -43,7 +45,7 @@ class Description(unittest.TestCase):
 
         self.assertEqual(
             [
-                'Z: 0, 0: Some important message (some-code)',
+                "Z: 0, 0: Some important message (some-code)",
                 "    More information here",
                 "    And even more",
             ],
@@ -67,7 +69,9 @@ class Header(unittest.TestCase):
         """A location that is below the current directory should return relative."""
         description = message_description.Description(
             [],
-            message_description.Location(os.path.join(os.getcwd(), "something", "else"), 0, 0, ""),
+            message_description.Location(
+                os.path.join(os.getcwd(), "something", "else"), 0, 0, ""
+            ),
             base_checker.Code(short_name="Z", long_name="some-code"),
         )
 

@@ -33,7 +33,11 @@ class Description(object):
 
         """
         if not location.path:
-            raise ValueError('Location "{location!r}" must have a non-empty file path.'.format(location=location))
+            raise ValueError(
+                'Location "{location!r}" must have a non-empty file path.'.format(
+                    location=location
+                )
+            )
 
         super(Description, self).__init__()
 
