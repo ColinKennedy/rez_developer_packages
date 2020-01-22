@@ -80,18 +80,21 @@ def _find_rez_packages(directory, recursive=False):
         set[:class:`rez.packages_.Package`]: The found Rez package.
 
     """
+    def _get_safe_package(path):
+        try:
+            return {packages_.get_developer_package(path)}
+        except rez_exceptions.PackageMetadataError:
+            return {}
+
     if not recursive:
         return {_search_current_folder(directory)}
 
-    packages = set()
+    packages = _get_safe_package(directory)
 
     for root, folders, _ in os.walk(directory):
         for folder in folders:
             path = os.path.join(root, folder)
-            package = packages_.get_developer_package(path)
-
-            if package:
-                packages.add(package)
+            packages.update(_get_safe_package(path))
 
     if not packages:
         raise exceptions.NoPackageFound(
