@@ -7,7 +7,7 @@ import logging
 import os
 
 from python_compatibility import website
-from rez_utilities import url_help
+from rez_utilities import url_help, inspection
 
 from ...core import lint_constant, message_description, package_parser
 from . import base_checker
@@ -486,6 +486,41 @@ class UrlNotReachable(base_checker.BaseChecker):
     """
 
     @staticmethod
+    def _filter_existing_paths(urls, root):
+        """Return all Rez help entries that don't point to file(s)/folder(s) on-disk.
+
+        Args:
+            urls (iter[tuple[int, str, str]]):
+                The entry number in a Rez package's ``help`` attribute,
+                the human-readable label that was added to identify it,
+                and the command, URL, or file path that was chosen.
+            root (str):
+                An absolute path to a directory on disk. If a relative
+                path is found as a part of `urls`, this path is used to
+                resolve that relative path into an absolute one.
+
+        Returns:
+            list[tuple[int, str, str]]:
+                The given `urls` that are not a valid file or folder on-disk.
+
+        """
+        invalids = []
+
+        for index, label, url in urls:
+            if os.path.isabs(url):
+                if not os.path.exists(url):
+                    invalids.append((index, label, url))
+
+                continue
+
+            possible_existing_path = os.path.normpath(os.path.join(root, url))
+
+            if not os.path.exists(possible_existing_path):
+                invalids.append((index, label, url))
+
+        return invalids
+
+    @staticmethod
     def get_long_code():
         """str: The string used to refer to this class or disable it."""
         return "url-unreachable"
@@ -514,6 +549,11 @@ class UrlNotReachable(base_checker.BaseChecker):
             return []
 
         urls = url_help.get_invalid_help_urls(package)
+
+        if not urls:
+            return []
+
+        urls = cls._filter_existing_paths(urls, inspection.get_package_root(package))
 
         if not urls:
             return []

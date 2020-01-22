@@ -1262,7 +1262,33 @@ class UrlNotReachable(packaging.BasePackaging):
             ),
         )
 
-    def test_unreachable(self):
+    def test_reachable_004(self):
+        """Test that a relative file path is still allowed (rez-help allows it)."""
+        name = "some_package"
+        code = textwrap.dedent(
+            """\
+            name = "some_package"
+            version = "1.0.0"
+            help = "README.md"
+            """
+        )
+
+        directory = packaging.make_fake_source_package(name, code)
+        self.add_item(os.path.dirname(directory))
+        open(os.path.join(directory, "README.md"), "a").close()
+
+        results = cli.lint(directory)
+
+        issues = [
+            description
+            for description in results
+            if description.get_summary()[0]
+            == "Package requires are missing a minimum version"
+        ]
+
+        self.assertEqual(0, len(issues))
+
+    def test_unreachable_001(self):
         """Report an issue if the URL doesn't point to a valid website."""
         self._test_found(
             "some_package",
@@ -1274,6 +1300,31 @@ class UrlNotReachable(packaging.BasePackaging):
                 """
             ),
         )
+
+    def test_unreachable_002(self):
+        """Report an issue if the URL is a relative path that doesn't point to something on-disk."""
+        name = "some_package"
+        code = textwrap.dedent(
+            """\
+            name = "some_package"
+            version = "1.0.0"
+            help = "README.md"
+            """
+        )
+
+        directory = packaging.make_fake_source_package(name, code)
+        self.add_item(os.path.dirname(directory))
+
+        results = cli.lint(directory)
+
+        issues = [
+            description
+            for description in results
+            if description.get_summary()[0]
+            == "Package help has an un-reachable URL"
+        ]
+
+        self.assertEqual(1, len(issues))
 
     @mock.patch("python_compatibility.website.is_internet_on")
     def test_internet_down(self, is_internet_on):
