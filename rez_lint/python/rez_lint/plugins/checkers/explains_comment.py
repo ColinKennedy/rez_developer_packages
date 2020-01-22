@@ -19,7 +19,6 @@ from . import base_checker
 _LOGGER = logging.getLogger(__name__)
 
 
-# TODO : Add unittest for requirements that do and don't have versions attached
 class NeedsComment(base_checker.BaseChecker):
     """A checker that looks at a Rez package's ``requires`` to see if it needs explaining.
 

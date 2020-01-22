@@ -68,7 +68,6 @@ class SourceResolvedContext(base_context.BaseContext):
 
         """
         try:
-            # TODO : Add unittest to make sure source Rez packages are supported
             rez_context = _resolve(package)
         except exceptions.RezError:
             _LOGGER.exception('Package "%s" could not be resolved.', package)

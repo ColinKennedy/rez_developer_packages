@@ -100,7 +100,6 @@ class ImproperRequirements(base_checker.BaseChecker):
         """str: The string used to refer to this class or disable it."""
         return "improper-requirements"
 
-    # TODO : Make this test say different things depending on if it's a test or build package
     @classmethod
     def run(cls, package, _):
         """Check if `package` depends on a Rez package that it shouldn't.
