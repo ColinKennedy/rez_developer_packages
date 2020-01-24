@@ -5,6 +5,7 @@
 """Test all of the checkers in "dangers.py"."""
 
 import os
+import shutil
 import tempfile
 import textwrap
 
@@ -1288,6 +1289,33 @@ class UrlNotReachable(packaging.BasePackaging):
 
         self.assertEqual(0, len(issues))
 
+    def test_reachable_005(self):
+        """Test that an absolute file path is still allowed (rez-help allows it)."""
+        path = tempfile.mkdtemp()
+        name = "some_package"
+        template = textwrap.dedent(
+            """\
+            name = "some_package"
+            version = "1.0.0"
+            help = "{path}"
+            """
+        )
+        code = template.format(path=path)
+
+        directory = packaging.make_fake_source_package(name, code)
+        self.add_item(os.path.dirname(directory))
+
+        results = cli.lint(directory)
+
+        issues = [
+            description
+            for description in results
+            if description.get_summary()[0]
+            == "Package requires are missing a minimum version"
+        ]
+
+        self.assertEqual(0, len(issues))
+
     def test_unreachable_001(self):
         """Report an issue if the URL doesn't point to a valid website."""
         self._test_found(
@@ -1311,6 +1339,35 @@ class UrlNotReachable(packaging.BasePackaging):
             help = "README.md"
             """
         )
+
+        directory = packaging.make_fake_source_package(name, code)
+        self.add_item(os.path.dirname(directory))
+
+        results = cli.lint(directory)
+
+        issues = [
+            description
+            for description in results
+            if description.get_summary()[0]
+            == "Package help has an un-reachable URL"
+        ]
+
+        self.assertEqual(1, len(issues))
+
+    def test_unreachable_003(self):
+        """Report an issue if the URL is an absolute path that doesn't point to something on-disk."""
+        absolute_root = tempfile.mkdtemp()
+        shutil.rmtree(absolute_root)
+
+        name = "some_package"
+        template = textwrap.dedent(
+            """\
+            name = "some_package"
+            version = "1.0.0"
+            help = "{absolute_root}"
+            """
+        )
+        code = template.format(absolute_root=absolute_root)
 
         directory = packaging.make_fake_source_package(name, code)
         self.add_item(os.path.dirname(directory))
