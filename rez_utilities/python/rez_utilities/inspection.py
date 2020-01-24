@@ -33,7 +33,6 @@ from . import creator
 
 _LOGGER = logging.getLogger(__name__)
 
-
 def _is_path_variant_and_has_python_package(root, path, variants):
     """Check if a path is inside of a source Rez package's list of variants.
 
