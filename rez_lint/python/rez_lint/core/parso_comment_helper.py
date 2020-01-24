@@ -358,4 +358,10 @@ def trim_list_excess(nodes):
     open_index = _find_open_brace(nodes)
     close_index = _find_close_brace(nodes)
 
+    if open_index == -1:
+        raise RuntimeError('Nodes "{nodes}" has no open brace.'.format(nodes=nodes))
+
+    if close_index == -1:
+        raise RuntimeError('Nodes "{nodes}" has no close brace.'.format(nodes=nodes))
+
     return nodes[open_index + 1 : close_index + 1]
