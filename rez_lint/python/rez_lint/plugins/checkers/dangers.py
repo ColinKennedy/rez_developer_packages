@@ -7,7 +7,7 @@ import logging
 import os
 
 from python_compatibility import website
-from rez_utilities import url_help, inspection
+from rez_utilities import inspection, url_help
 
 from ...core import lint_constant, message_description, package_parser
 from . import base_checker

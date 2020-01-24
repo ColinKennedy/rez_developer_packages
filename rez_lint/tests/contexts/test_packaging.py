@@ -4,16 +4,15 @@
 """Test classes and functions in the :mod:`rez_lint.plugins.contexts.packaging` module."""
 
 import os
-import textwrap
 import tempfile
+import textwrap
 import unittest
 
-from rez_utilities import creator
-from rez.config import config
-from rez_utilities import inspection
-from rez_lint.plugins.contexts import packaging
-from rez_lint.core import lint_constant
 from rez import packages_
+from rez.config import config
+from rez_lint.core import lint_constant
+from rez_lint.plugins.contexts import packaging
+from rez_utilities import creator, inspection
 
 from .. import packaging as testing_packaging
 
@@ -33,20 +32,21 @@ class SourceResolved(testing_packaging.BasePackaging):
                     "some_dependency-1",
                 ]
                 """
-            )
+            ),
         )
         self.add_item(os.path.dirname(directory))
 
         package = packages_.get_developer_package(directory)
 
         dependency_directory = testing_packaging.make_fake_source_package(
-            "some_dependency", textwrap.dedent(
+            "some_dependency",
+            textwrap.dedent(
                 """\
                 name = "some_dependency"
                 version = "1.1.0"
                 build_command = "echo 'foo'"
                 """
-            )
+            ),
         )
         self.add_item(os.path.dirname(dependency_directory))
 
@@ -67,7 +67,9 @@ class SourceResolved(testing_packaging.BasePackaging):
 
         self.assertTrue(lint_constant.RESOLVED_SOURCE_CONTEXT in context)
         rez_resolved = context[lint_constant.RESOLVED_SOURCE_CONTEXT]
-        self.assertEqual(os.path.join(directory), rez_resolved.get_environ()['REZ_SOME_PACKAGE_ROOT'])
+        self.assertEqual(
+            os.path.join(directory), rez_resolved.get_environ()["REZ_SOME_PACKAGE_ROOT"]
+        )
         self.assertEqual(set(), context[lint_constant.DEPENDENT_PACKAGES])
 
     def test_no_commands(self):
@@ -83,7 +85,7 @@ class SourceResolved(testing_packaging.BasePackaging):
                 name = "some_package"
                 version = "1.0.0"
                 """
-            )
+            ),
         )
         self.add_item(os.path.dirname(directory))
 
@@ -91,5 +93,7 @@ class SourceResolved(testing_packaging.BasePackaging):
         context = dict()
         packaging.SourceResolvedContext.run(package, context)
         rez_resolved = context[lint_constant.RESOLVED_SOURCE_CONTEXT]
-        self.assertEqual(os.path.join(directory), rez_resolved.get_environ()['REZ_SOME_PACKAGE_ROOT'])
+        self.assertEqual(
+            os.path.join(directory), rez_resolved.get_environ()["REZ_SOME_PACKAGE_ROOT"]
+        )
         self.assertEqual(set(), context[lint_constant.DEPENDENT_PACKAGES])

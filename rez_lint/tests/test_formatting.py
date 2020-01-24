@@ -113,7 +113,7 @@ class MessageDescription(common.Common):
             print('more lines')
             """
         )
-        code += '\n' * 100
+        code += "\n" * 100
 
         root = tempfile.mkdtemp()
         self.add_item(root)
@@ -124,30 +124,40 @@ class MessageDescription(common.Common):
             handler.write(code)
 
         description = message_description.Description(
-            ['some text'],
+            ["some text"],
             message_description.Location(path, 110, 3, ""),
             base_checker.Code(short_name="Z", long_name="some-code"),
         )
 
-        self.assertEqual(['Z: 110, 3: some text (some-code)'], description.get_message(verbose=True))
+        self.assertEqual(
+            ["Z: 110, 3: some text (some-code)"], description.get_message(verbose=True)
+        )
         self.assertEqual(3, description.get_padding_row())
         self.assertEqual(1, description.get_padding_column())
-        self.assertEqual("{path}:110:3: (some-code)".format(path=path), description.get_location_data())
+        self.assertEqual(
+            "{path}:110:3: (some-code)".format(path=path),
+            description.get_location_data(),
+        )
 
     def test_vimgrep_002(self):
         root = tempfile.mkdtemp()
         self.add_item(root)
 
         description = message_description.Description(
-            ['some text'],
+            ["some text"],
             message_description.Location(root, 110, 3, ""),
             base_checker.Code(short_name="Z", long_name="some-code"),
         )
 
-        self.assertEqual(['Z: 110, 3: some text (some-code)'], description.get_message(verbose=True))
+        self.assertEqual(
+            ["Z: 110, 3: some text (some-code)"], description.get_message(verbose=True)
+        )
         self.assertEqual(0, description.get_padding_row())
         self.assertEqual(1, description.get_padding_column())
-        self.assertEqual("{root}:110:3: (some-code)".format(root=root), description.get_location_data())
+        self.assertEqual(
+            "{root}:110:3: (some-code)".format(root=root),
+            description.get_location_data(),
+        )
 
     def test_location_specific(self):
         code = textwrap.dedent(
@@ -158,13 +168,13 @@ class MessageDescription(common.Common):
             print('more lines')
             """
         )
-        code += '\n' * 100
+        code += "\n" * 100
 
         root = tempfile.mkdtemp()
         self.add_item(root)
 
         description = message_description.Description(
-            ['some text'],
+            ["some text"],
             message_description.Location(root, 110, 3, ""),
             base_checker.Code(short_name="Z", long_name="some-code"),
         )
@@ -172,7 +182,7 @@ class MessageDescription(common.Common):
         self.assertTrue(description.is_location_specific())
 
         description = message_description.Description(
-            ['some text'],
+            ["some text"],
             message_description.Location("foo", 110, 3, ""),
             base_checker.Code(short_name="Z", long_name="some-code"),
         )

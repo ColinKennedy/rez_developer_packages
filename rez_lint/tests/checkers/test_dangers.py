@@ -1348,8 +1348,7 @@ class UrlNotReachable(packaging.BasePackaging):
         issues = [
             description
             for description in results
-            if description.get_summary()[0]
-            == "Package help has an un-reachable URL"
+            if description.get_summary()[0] == "Package help has an un-reachable URL"
         ]
 
         self.assertEqual(1, len(issues))
@@ -1377,8 +1376,7 @@ class UrlNotReachable(packaging.BasePackaging):
         issues = [
             description
             for description in results
-            if description.get_summary()[0]
-            == "Package help has an un-reachable URL"
+            if description.get_summary()[0] == "Package help has an un-reachable URL"
         ]
 
         self.assertEqual(1, len(issues))
