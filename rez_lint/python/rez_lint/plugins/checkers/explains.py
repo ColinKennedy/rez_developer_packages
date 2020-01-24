@@ -91,7 +91,7 @@ class NoDocumentation(base_checker.BaseChecker):
         root = inspection.get_package_root(package)
 
         if conf_manager.get_conf_file(root):
-            return []
+            return []  # pragma: no cover
 
         summary = "No documentation found"
         full = [

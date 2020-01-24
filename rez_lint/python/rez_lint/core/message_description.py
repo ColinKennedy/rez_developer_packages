@@ -172,7 +172,7 @@ class Description(object):
         """bool: Check if this instance should come before or after another instance."""
         return self.get_summary() < other.get_summary()
 
-    def __repr__(self):
+    def __repr__(self):  # pragma: no cover
         """str: Get the code needed to copy or re-create this instance."""
         template = "{self.__class__.__name__}({summary!r}, {location!r}, {code!r}, full={full})"
 
@@ -185,7 +185,7 @@ class Description(object):
         )
 
 
-def get_vimgrep_sort(line):
+def get_vimgrep_sort(line):  # pragma: no cover
     """Get a sorting priority for some vimgrep-style line of text.
 
     Args:

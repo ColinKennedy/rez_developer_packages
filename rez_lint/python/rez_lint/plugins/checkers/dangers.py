@@ -509,7 +509,7 @@ class UrlNotReachable(base_checker.BaseChecker):
                 if not os.path.exists(url):
                     invalids.append((index, label, url))
 
-                continue
+                continue  # pragma: no cover
 
             possible_existing_path = os.path.normpath(os.path.join(root, url))
 

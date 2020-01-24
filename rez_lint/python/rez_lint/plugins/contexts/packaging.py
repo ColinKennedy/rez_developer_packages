@@ -213,13 +213,13 @@ def _get_root_rez_packages(paths):
 
     for path in paths:
         if _is_root_already_found(path, package_roots):
-            continue
+            continue  # pragma: no cover
 
         package = inspection.get_nearest_rez_package(path)
 
         if package:
             packages[package.name] = package
-        else:
+        else:  # pragma: no cover
             _LOGGER.warning('Path "%s" has no Rez package.', path)
 
     return set(packages.values())

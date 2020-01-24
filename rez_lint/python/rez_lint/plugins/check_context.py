@@ -33,17 +33,13 @@ class Context(collections.MutableMapping):
         """
         self._data = {
             "package": package,
-            "runtime_context": {"processed_packages": processed_packages},
+            "runtime_context": {"processed_packages": processed_packages or []},
             "user_settings": {"verbose": verbose, "vimgrep": vimgrep},
         }
 
-    def get_data(self):
-        """dict[str, object]: The arbitrary user data this instance stored."""
-        return dict(self._data)
-
     def __delitem__(self, key):
         """Delete the value at the given `key`."""
-        del self._data[key]
+        del self._data[key]  # pragma: no cover
 
     def __getitem__(self, key):
         """Get the value that is stored in `key`."""
@@ -51,11 +47,11 @@ class Context(collections.MutableMapping):
 
     def __iter__(self):
         """iter[str, object]: Loop over this dictionary's contents."""
-        return iter(self._data)
+        return iter(self._data)  # pragma: no cover
 
     def __len__(self):
         """int: Get the number of key/value pairs in this instance."""
-        return len(self._data)
+        return len(self._data)  # pragma: no cover
 
     def __setitem__(self, key, value):
         """Pair `value` to `key` and add these two objects to the current instance."""

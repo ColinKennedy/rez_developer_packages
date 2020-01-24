@@ -49,7 +49,7 @@ def _get_comment_from_node(node):
             if not line.strip().startswith("#"):
                 return lines[:index]
 
-        return lines
+        return lines  # pragma: no cover
 
     def _replace_newlines(match):
         newlines = match.group("newlines") or ""
@@ -161,7 +161,7 @@ def _get_requirement_text(node):
     """
     if isinstance(node, tree.Name):
         # This happens when the users write a constant variable
-        return node.name
+        return node.name  # pragma: no cover
 
     if isinstance(node, tree.String):
         # The most common occurrence - people just write the requirement as a string
@@ -347,7 +347,7 @@ def trim_list_excess(nodes):
             if isinstance(node, tree.Operator) and node.value == brace:
                 return index
 
-        return -1
+        return -1  # pragma: no cover
 
     def _find_close_brace(nodes):
         return _find_brace(nodes, "]")

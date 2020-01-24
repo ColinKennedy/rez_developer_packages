@@ -37,4 +37,4 @@ class BaseContext(object):
                 parameter - add, modify, or delete any data you'd like.
 
         """
-        pass
+        pass  # pragma: no cover

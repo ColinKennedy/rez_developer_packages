@@ -128,12 +128,9 @@ class NeedsComment(base_checker.BaseChecker):
             package.name for package in context[lint_constant.DEPENDENT_PACKAGES]
         )
 
-        try:
-            missing = _get_missing_comment_pairs(
-                package.requires or [], requirement_pairs, dependencies
-            )
-        except EnvironmentError:
-            return []
+        missing = _get_missing_comment_pairs(
+            package.requires or [], requirement_pairs, dependencies
+        )
 
         if not missing:
             return []

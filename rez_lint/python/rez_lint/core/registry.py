@@ -110,13 +110,13 @@ def register_context(context):
             "".format(context=context)
         )
 
-    if _is_private(context):
+    if _is_private(context):  # pragma: no cover
         raise ValueError(
             'Class "{context}" cannot be a plugin because it is private.'
             "".format(context=context)
         )
 
-    if not _has_context_interface(context):
+    if not _has_context_interface(context):  # pragma: no cover
         raise ValueError(
             'Class "{context}" must inherit from BaseContext. '
             "It is not a valid context plugin.".format(context=context)
@@ -149,7 +149,7 @@ def register_plugins(plugins):
         elif _has_context_interface(plugin):
             if plugin not in contexts:
                 register_context(plugin)
-        else:
+        else:  # pragma: no cover
             raise NotImplementedError(
                 'Plugin "{plugin}" is not a recognized type.'.format(plugin=plugin)
             )

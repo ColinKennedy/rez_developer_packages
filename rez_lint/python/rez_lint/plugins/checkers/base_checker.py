@@ -19,7 +19,7 @@ class BaseChecker(object):
     @abc.abstractmethod
     def get_long_code():
         """str: The string used to refer to this class or disable it."""
-        return ""
+        return ""  # pragma: no cover
 
     @staticmethod
     def get_order():
@@ -46,4 +46,4 @@ class BaseChecker(object):
                 return one description of each found issue.
 
         """
-        return []
+        return []  # pragma: no cover
