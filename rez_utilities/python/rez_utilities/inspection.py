@@ -33,7 +33,7 @@ from . import creator
 
 _LOGGER = logging.getLogger(__name__)
 
-def _is_path_variant_and_has_python_package(root, path, variants):
+def _get_variant_less_path(root, path, variants):
     """Check if a path is inside of a source Rez package's list of variants.
 
     This function's purpose is hard to describe.
@@ -73,7 +73,7 @@ def _is_path_variant_and_has_python_package(root, path, variants):
         bool: If `path` is a file variant file path inside of a Rez package.
 
     """
-    for variant_less_path in iter_variant_extracted_paths(root, path, variants):
+    for variant_less_path in _iter_variant_extracted_paths(root, path, variants):
         if not imports.has_importable_module(variant_less_path, ignore={"__init__.py"}):
             # This condition happens only when a Rez package defines
             # A Python package but the package is empty. Which
@@ -90,6 +90,33 @@ def _is_path_variant_and_has_python_package(root, path, variants):
         return True
 
     return False
+
+
+def _iter_variant_extracted_paths(root, path, variants):
+    """Convert a Rez package path that contains a variant back into its "non-variant" form.
+
+    Args:
+        root (str):
+            The directory that contains the Rez package's package.py,
+            package.txt, or package.yaml.
+        path (str):
+            A path that is a sub-folder inside of the Rez package. This
+            path also has a variant somewhere in it.
+        variants (iter[list[:class:`rez.utils.formatting.PackageRequest`]]):
+            A Rez package's different build configurations. Usually,
+            this will just be different Python versions such as
+            [[PackageRequest("python-2.7")]] but it can be more complex.
+
+    Yields:
+        str: The original `path` but without a variant.
+
+    """
+    for variant in sorted(variants, key=len, reverse=True):
+        inner_path = os.path.join(*[str(request) for request in variant])
+        resolved_path = os.path.join(root, inner_path)
+
+        if filer.in_directory(path, resolved_path, follow=False):
+            yield path.replace(inner_path + os.sep, "")
 
 
 def is_built_package(package):
@@ -253,11 +280,15 @@ def get_package_python_paths(package, context):
             if imports.has_importable_module(path, ignore={"__init__.py"}):
                 output.add(path)
 
+                continue
+
         if not is_built:
-            if _is_path_variant_and_has_python_package(
-                root, path, package.variants or []
-            ):
-                output.add(path)
+            try:
+                variant_less_path = next(_iter_variant_extracted_paths(root, path, package.variants or []))
+            except StopIteration:
+                pass
+            else:
+                output.add(variant_less_path)
 
     return output
 
@@ -413,30 +444,3 @@ def iter_latest_packages(paths=None, packages=None):
             continue
 
         yield package
-
-
-def iter_variant_extracted_paths(root, path, variants):
-    """Convert a Rez package path that contains a variant back into its "non-variant" form.
-
-    Args:
-        root (str):
-            The directory that contains the Rez package's package.py,
-            package.txt, or package.yaml.
-        path (str):
-            A path that is a sub-folder inside of the Rez package. This
-            path also has a variant somewhere in it.
-        variants (iter[list[:class:`rez.utils.formatting.PackageRequest`]]):
-            A Rez package's different build configurations. Usually,
-            this will just be different Python versions such as
-            [[PackageRequest("python-2.7")]] but it can be more complex.
-
-    Yields:
-        str: The original `path` but without a variant.
-
-    """
-    for variant in variants:
-        inner_path = os.path.join(*[str(request) for request in variant])
-        resolved_path = os.path.join(root, inner_path)
-
-        if filer.in_directory(path, resolved_path, follow=False):
-            yield path.replace(inner_path + os.sep, "")
