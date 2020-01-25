@@ -50,16 +50,19 @@ rez_lint --disable=no-change-log,lower-bounds-missing
 
 ### Danger
 
-|          Code           |                                      Description                                      |
-|-------------------------|---------------------------------------------------------------------------------------|
-| improper-requirements   | Adding Requirements to a Rez package that should be re-located                        |
-| lower-bounds-missing    | Rez requirements should define lower bounds, to keep Rez resolves fast                |
-| missing-requirements    | Auto-detected package requirements that aren't in the Rez package's ``requires`` list |
-| no-rez-test             | Define tests for the Rez package. This goes without saying                            |
-| not-python-definition   | Using anything other than a package.py to define a Rez package                        |
-| requirements-not-sorted | Rez requirements need to be in alphabetical order                                     |
-| too-many-dependencies   | When a Rez package has more dependencies that necessary                               |
-| url-unreachable         | If Rez help refers to a missing website                                               |
+|               Code               |                                            Description                                            |
+|----------------------------------|---------------------------------------------------------------------------------------------------|
+| duplicate-build-requires         | The ``build_requires`` attribute cannot list othe same Rez package family more than once.         |
+| duplicate-private-build-requires | The ``private_build_requires`` attribute cannot list othe same Rez package family more than once. |
+| duplicate-requires               | The ``requires`` attribute cannot list othe same Rez package family more than once.               |
+| improper-requirements            | Adding Requirements to a Rez package that should be re-located                                    |
+| lower-bounds-missing             | Rez requirements should define lower bounds, to keep Rez resolves fast                            |
+| missing-requirements             | Auto-detected package requirements that aren't in the Rez package's ``requires`` list             |
+| no-rez-test                      | Define tests for the Rez package. This goes without saying                                        |
+| not-python-definition            | Using anything other than a package.py to define a Rez package                                    |
+| requirements-not-sorted          | Rez requirements need to be in alphabetical order                                                 |
+| too-many-dependencies            | When a Rez package has more dependencies that necessary                                           |
+| url-unreachable                  | If Rez help refers to a missing website                                                           |
 
 
 ### Explain
@@ -98,6 +101,43 @@ authors = [
     "Colin Kennedy (my@mail.com)",
 ]
 ```
+
+
+## duplicate-build-requires / dupicate-requires / dupicate-build-requires
+
+The next 3 checks have the same logic and meaning, so they've been
+grouped into a single section. In short, these checkers cover 3
+attributes that Rez uses to define package dependencies.
+
+- [build_requires](https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#build_requires)
+- [private_build_requires](https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#private_build_requires)
+- [requires](https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#requires)
+
+Each attribute expects a list and looks like this:
+
+```python
+requires = [
+	"python-2",
+	"rez-2",
+	"some_dependency-1+",
+]
+```
+
+But sometimes, people sometimes make the mistake of listing the same
+Rez package more than once.
+
+```python
+requires = [
+	"python-2",
+	"some_dependency-1+"  # Duplicate "some_dependency"
+	"rez-2",
+	"some_dependency-2+<3",  # Duplicate "some_dependency"
+]
+```
+
+These checkers make sure that the ``requires``, ``build_requires``, and
+``private_build_requires`` attributes don't accidentally get duplicates.
+
 
 ## improper-requirements
 
@@ -441,10 +481,7 @@ prevent developers from releasing code.
 
 - rename "verbose" to "details" and make "verbose" show logging statements
 - change the clear option to allow you to clear just a single class, if needed
-
-- Add a disable for context plugins
-- Add a thing that checks what a checker requires
- - If the checker requires a context and it is disabled, disable the checker
+- Add executed checkers into the context
 
 - need a unittest to safely fallback loading a registered plugin fails, for any reason
 
