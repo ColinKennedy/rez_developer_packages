@@ -74,7 +74,7 @@ class SourceResolvedContext(base_context.BaseContext):
 
             return
 
-        python_package_roots = _get_package_specific_python_paths(package)
+        python_package_roots = inspection.get_package_python_files(package, rez_context)
         dependency_paths = _search_for_python_dependencies(
             rez_context, python_package_roots
         )
@@ -130,63 +130,6 @@ def _search_for_python_dependencies(context, directories):
     stdout_lines = filter(None, (line for line in stdout.splitlines()))
 
     return set(line for line in stdout_lines if os.path.isfile(line))
-
-
-def _get_package_specific_environment(package):
-    def _append(values, item):
-        values.append(item)
-
-    def _prepend(values, item):
-        values.insert(0, item)
-
-    def _set(values, item):
-        values[:] = [item]
-
-    options = [
-        (re.compile(r"^\s*env\.(?P<key>\w+).append\s*\((?P<value>.+)\)"), _append),
-        (re.compile(r"^\s*env\.(?P<key>\w+).prepend\s*\((?P<value>.+)\)"), _prepend),
-        (re.compile(r"^\s*env\.(?P<key>\w+).set\s*\((?P<value>.+)\)"), _set),
-        (re.compile(r"^\s*appendenv\s*\((?P<key>\w+),\s*(?P<value>.+)\)"), _append),
-        (re.compile(r"^\s*prependenv\s*\((?P<key>\w+),\s*(?P<value>.+)\)"), _prepend),
-        (re.compile(r"^\s*setenv\s*\((?P<key>\w+),\s*(?P<value>.+)\)"), _set),
-    ]
-    variables = collections.defaultdict(list)
-
-    commands = package.commands
-
-    if not commands:
-        return dict()
-
-    for line in commands.evaluated_code.splitlines():
-        for option, caller in options:
-            match = option.match(line)
-
-            if match:
-                variable = variables[match.group("key")]
-                raw_text = match.group("value")
-                code = eval(raw_text, {"os": os})
-                caller(variable, code)
-
-    return dict(variables)
-
-
-def _get_package_specific_python_paths(package):
-    """Open `package` and check the paths that it adds to the user's PYTHONPATH.
-
-    Args:
-        package (:class:`rez.packages_.Package`):
-            The Rez package that modifies the user's PYTHONPATH
-            environment variable with path information.
-
-    Returns:
-        list[str]: The found paths that `package`adds to the PYTHONPATH.
-
-    """
-    # TODO : Replace `_get_package_specific_environment` with my filer checker approach
-    package_variables = _get_package_specific_environment(package)
-    root = inspection.get_package_root(package)
-
-    return [path.format(root=root) for path in package_variables.get("PYTHONPATH", [])]
 
 
 def _get_root_rez_packages(paths):

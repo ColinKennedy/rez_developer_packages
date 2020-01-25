@@ -174,29 +174,10 @@ def has_python_package(package, paths=None, allow_build=True):
         package_paths=[get_packages_path_from_package(package)] + paths,
     )
 
-    environment = context.get_environ()
-    root = get_package_root(package)
-    paths = environment.get("PYTHONPATH", "").split(os.pathsep)
+    paths = get_package_python_files(package, context)
 
-    if not paths:
-        return False
-
-    for path in paths:
-        if filer.in_directory(path, root, follow=False) or filer.in_directory(
-            path, root, follow=True
-        ):
-            # This condition occurs in 1 of 2 scenarios
-            # 1. The Rez package is built
-            # 2. The Rez package is a source package but contains no variants
-            #
-            if imports.has_importable_module(path, ignore={"__init__.py"}):
-                return True
-
-        if not is_built:
-            if _is_path_variant_and_has_python_package(
-                root, path, package.variants or []
-            ):
-                return True
+    if paths:
+        return True
 
     if is_built or not allow_build:
         return False
@@ -214,6 +195,71 @@ def has_python_package(package, paths=None, allow_build=True):
     atexit.register(functools.partial(shutil.rmtree, build_directory))
 
     return has_python_package(build_package)
+
+
+def get_package_python_files(package, context):
+    """Get the Python files that a Rez package adds to the user's PYTHONPATH
+
+    Note:
+        This function is a bit sub-optimal. Basically, Rez's API should
+        have a way to just query an individual package's contribution
+        to PYTHONPATH. But currently doesn't. So we have to hack around
+        the problem by using a Rez context.
+
+    Reference:
+        https://github.com/nerdvegas/rez/issues/737
+        https://github.com/nerdvegas/rez/pull/739
+        https://rez-talk.slack.com/archives/CHELFCTFB/p1578604659006100
+
+    Args:
+        package (:class:`rez.packages_.Package`):
+            The built or source Rez package to get a valid path from.
+        context (:class:`rez.resolved_context.ResolvedContext`):
+            The main object that's used to find Python files within the Rez package.
+
+    Returns:
+        set[str]: The found Python files (excluding __init__.py files).
+
+    """
+    # Note: Here we're trying to get `package`'s specific changes to PYTHONPATH (if any)
+    #
+    # Unfortunately, the Rez API doesn't really support this yet.
+    # There's 2 GitHub links that may one-day implement it though:
+    #     - https://github.com/nerdvegas/rez/issues/737
+    #     - https://github.com/nerdvegas/rez/pull/739
+    #
+    # Reference: https://rez-talk.slack.com/archives/CHELFCTFB/p1578604659006100
+    #
+    # Once that work is merged, replace `get_package_python_files` with it.
+    #
+    environment = context.get_environ()
+    paths = environment.get("PYTHONPATH", "").split(os.pathsep)
+
+    if not paths:
+        return set()
+
+    root = get_package_root(package)
+    is_built = is_built_package(package)
+    output = set()
+
+    for path in paths:
+        if filer.in_directory(path, root, follow=False) or filer.in_directory(
+            path, root, follow=True
+        ):
+            # This condition occurs in 1 of 2 scenarios
+            # 1. The Rez package is built
+            # 2. The Rez package is a source package but contains no variants
+            #
+            if imports.has_importable_module(path, ignore={"__init__.py"}):
+                output.add(path)
+
+        if not is_built:
+            if _is_path_variant_and_has_python_package(
+                root, path, package.variants or []
+            ):
+                output.add(path)
+
+    return output
 
 
 def get_nearest_rez_package(directory):
