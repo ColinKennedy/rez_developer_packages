@@ -74,7 +74,7 @@ class SourceResolvedContext(base_context.BaseContext):
 
             return
 
-        python_package_roots = inspection.get_package_python_files(package, rez_context)
+        python_package_roots = inspection.get_package_python_paths(package, rez_context)
         dependency_paths = _search_for_python_dependencies(
             rez_context, python_package_roots
         )

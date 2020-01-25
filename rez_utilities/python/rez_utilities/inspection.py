@@ -174,7 +174,7 @@ def has_python_package(package, paths=None, allow_build=True):
         package_paths=[get_packages_path_from_package(package)] + paths,
     )
 
-    paths = get_package_python_files(package, context)
+    paths = get_package_python_paths(package, context)
 
     if paths:
         return True
@@ -197,7 +197,7 @@ def has_python_package(package, paths=None, allow_build=True):
     return has_python_package(build_package)
 
 
-def get_package_python_files(package, context):
+def get_package_python_paths(package, context):
     """Get the Python files that a Rez package adds to the user's PYTHONPATH
 
     Note:
@@ -230,7 +230,7 @@ def get_package_python_files(package, context):
     #
     # Reference: https://rez-talk.slack.com/archives/CHELFCTFB/p1578604659006100
     #
-    # Once that work is merged, replace `get_package_python_files` with it.
+    # Once that work is merged, replace `get_package_python_paths` with it.
     #
     environment = context.get_environ()
     paths = environment.get("PYTHONPATH", "").split(os.pathsep)
