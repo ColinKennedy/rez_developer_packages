@@ -18,6 +18,162 @@ from six.moves import mock
 from .. import packaging
 
 
+class DuplicateDependencies(packaging.BasePackaging):
+    _expected_summary_lines = (
+        "A Rez package was listed in ``requires`` more than once",
+        "Multiple Rez packages were listed in ``requires`` more than once",
+        "A Rez package was listed in a single variant more than once",
+        "Multiple Rez packages were listed in a single variant than once",
+    )
+
+    def _get_issues(self, name, text):
+        directory = packaging.make_fake_source_package(name, text)
+        self.add_item(directory)
+
+        return cli.lint(directory)
+
+    def _test_empty(self, name, text):
+        issues = self._get_issues(name, text)
+        issues = [issue for issues in issues if issues.get_summary()[0] in self._expected_summary_lines]
+        self.assertEqual(0, len(issues))
+
+    def test_undefined_001(self):
+        self._test_empty(
+            "some_fake_package.",
+            textwrap.dedent(
+                """\
+                name = "some_fake_package"
+                version = "2.0.0"
+                """
+            ),
+        )
+
+    def test_undefined_002(self):
+        self._test_empty(
+            "some_fake_package.",
+            textwrap.dedent(
+                """\
+                name = "some_fake_package"
+                version = "2.0.0"
+                requires = []
+                """
+            ),
+        )
+
+    def test_undefined_003(self):
+        self._test_empty(
+            "some_fake_package.",
+            textwrap.dedent(
+                """\
+                name = "some_fake_package"
+                version = "2.0.0"
+                variants = []
+                """
+            ),
+        )
+
+    def test_empty(self):
+        self._test_empty(
+            "some_fake_package.",
+            textwrap.dedent(
+                """\
+                name = "some_fake_package"
+                version = "2.0.0"
+                requires = []
+                variants = []
+                """
+            ),
+        )
+
+    def test_requires_001(self):
+        issues = self._get_issues(
+            "some_fake_package",
+            textwrap.dedent(
+                """\
+                name = "some_fake_package"
+                version = "2.0.0"
+                requires = [
+                    "some_dependency",
+                    "foo_bar-3",
+                    "thing_asdf-2",
+                    "some_dependency",
+                ]
+                """
+            ),
+        )
+
+        issues = [issue for issue in issues if issue.get_summary()[0] in self._expected_summary_lines]
+
+        self.assertEqual(1, len(issues))
+        message = [
+            'D: 3, 0: A Rez package was listed in ``requires`` more than once (duplicate-dependencies)',
+            '    Requirements should only list each Rez package once. But "[\'some_dependency\']" requirements was listed multiple times.',
+        ]
+
+        self.assertEqual(message, issues[0].get_message(verbose=True))
+
+    def test_requires_002(self):
+        issues = self._get_issues(
+            "some_fake_package",
+            textwrap.dedent(
+                """\
+                name = "some_fake_package"
+                version = "2.0.0"
+                requires = [
+                    "some_dependency-2+<4",
+                    "foo_bar-3",
+                    "thing_asdf-2",
+                    "some_dependency",
+                ]
+                """
+            ),
+        )
+
+        issues = [issue for issue in issues if issue.get_summary()[0] in self._expected_summary_lines]
+
+        self.assertEqual(1, len(issues))
+        message = [
+            'D: 3, 0: A Rez package was listed in ``requires`` more than once (duplicate-dependencies)',
+            '    Requirements should only list each Rez package once. But "[\'some_dependency\']" requirements was listed multiple times.',
+        ]
+
+        self.assertEqual(message, issues[0].get_message(verbose=True))
+
+    def test_requires_003(self):
+        issues = self._get_issues(
+            "some_fake_package",
+            textwrap.dedent(
+                """\
+                name = "some_fake_package"
+                version = "2.0.0"
+                requires = [
+                    "some_dependency-2+<4",
+                    "foo_bar-3",
+                    "thing_asdf-2",
+                    "some_dependency-2",
+                ]
+                """
+            ),
+        )
+
+        issues = [issue for issue in issues if issue.get_summary()[0] in self._expected_summary_lines]
+
+        self.assertEqual(1, len(issues))
+        message = [
+            'D: 3, 0: A Rez package was listed in ``requires`` more than once (duplicate-dependencies)',
+            '    Requirements should only list each Rez package once. But "[\'some_dependency\']" requirements was listed multiple times.',
+        ]
+
+        self.assertEqual(message, issues[0].get_message(verbose=True))
+
+    # TODO : Finish these
+    # def test_requires_and_variants(self):
+    #     pass
+    #
+    # def test_variants(self):
+    #     pass
+
+
 class ImproperRequirements(packaging.BasePackaging):
     """Add tests for Rez-requirement related checkers."""
 

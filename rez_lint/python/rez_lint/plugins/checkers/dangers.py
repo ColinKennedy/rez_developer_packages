@@ -3,6 +3,7 @@
 
 """A collection of issues that bring harm to the current Rez package or others."""
 
+import collections
 import logging
 import os
 
@@ -13,6 +14,73 @@ from ...core import lint_constant, message_description, package_parser
 from . import base_checker
 
 _LOGGER = logging.getLogger(__name__)
+
+
+# TODO : Make the same class for build_requires and private_build_requires
+
+class DuplicateDependencies(base_checker.BaseChecker):
+    @staticmethod
+    def _get_duplicate_requirements(requirements):
+        counter = collections.Counter([requirement.name for requirement in requirements])
+
+        return {package_name for package_name, count in counter.most_common() if count > 1}
+
+    @classmethod
+    def _get_duplicate_requirements_message(cls, package, duplicates):
+        if len(duplicates) == 1:
+            beginning = "A Rez package was"
+        else:
+            beginning = "Multiple Rez packages were"
+
+        summary = beginning + " listed in ``requires`` more than once"
+
+        full = [
+            summary,
+            'Requirements should only list each Rez package once. '
+            'But "{duplicates}" requirements was listed multiple times.'.format(
+                duplicates=sorted(duplicates))
+        ]
+
+        row = package_parser.get_definition_row(package.filepath, "requires")
+        code = base_checker.Code(short_name="D", long_name=cls.get_long_code())
+        text = package_parser.get_line_at_row(package.filepath, row)
+
+        location = message_description.Location(
+            path=package.filepath, row=row, column=0, text=text,
+        )
+
+        return [
+            message_description.Description([summary], location, code=code, full=full),
+        ]
+
+    @staticmethod
+    def get_long_code():
+        """str: The string used to refer to this class or disable it."""
+        return "duplicate-dependencies"
+
+    @classmethod
+    def run(cls, package, _):
+        requirements = package.requires or []
+        variants = package.variants or []
+
+        if not requirements and not variants:
+            return []
+
+        issues = []
+        duplicate_requirements = cls._get_duplicate_requirements(requirements)
+
+        if duplicate_requirements:
+            issues.extend(cls._get_duplicate_requirements_message(package, duplicate_requirements))
+
+        return issues
+
+        # TODO : Finish
+        # duplicate_variants = cls._get_duplicate_variants(variants)
+        #
+        # if duplicate_variants:
+        #     issues.append(cls._get_duplicate_variants_messgae(package, duplicate_variants))
+
+        return issues
 
 
 class ImproperRequirements(base_checker.BaseChecker):
