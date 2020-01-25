@@ -281,10 +281,9 @@ class HasPythonPackage(common.Common):
 
 class GetPackagePythonFiles(common.Common):
     def _make_fake_rez_install_package(self, name, version, text):
-        root = tempfile.mkdtemp(suffix="_rez_source_package_get_package_python_paths")
+        root = tempfile.mkdtemp(suffix="_rez_install_package_get_package_python_paths")
         directory = os.path.join(root, name, version)
-        # TODO : Remove
-        # self.add_item(root)
+        self.add_item(root)
 
         python_root = os.path.join(directory, "python")
         os.makedirs(python_root)
@@ -301,8 +300,7 @@ class GetPackagePythonFiles(common.Common):
         root = tempfile.mkdtemp(suffix="_rez_source_package_get_package_python_paths")
         directory = os.path.join(root, name)
         os.makedirs(directory)
-        # TODO : Remove
-        # self.add_item(root)
+        self.add_item(root)
 
         with open(os.path.join(directory, "package.py"), "w") as handler:
             handler.write(text)
@@ -341,6 +339,11 @@ class GetPackagePythonFiles(common.Common):
                 """\
                 name = "some_dependency"
                 version = "1.1.0"
+
+                def commands():
+                    import os
+
+                    env.PYTHONPATH.append(os.path.join("{root}", "python"))
                 """
             )
         )
@@ -352,6 +355,11 @@ class GetPackagePythonFiles(common.Common):
                 """\
                 name = "another_one"
                 version = "2.3.0"
+
+                def commands():
+                    import os
+
+                    env.PYTHONPATH.append(os.path.join("{root}", "python"))
                 """
             )
         )
@@ -456,43 +464,44 @@ class GetPackagePythonFiles(common.Common):
 
         self.assertEqual({os.path.join(root, "some_fake_package", "1.0.0", "python")}, python_files)
 
-    # TODO : Finish this
-    # def test_installed_package_with_variants(self):
-    #     dependencies = self._make_test_dependencies()
-    #     package = self._make_fake_rez_source_package(
-    #         "some_fake_package",
-    #         textwrap.dedent(
-    #             """\
-    #             name = "some_fake_package"
-    #             version = "1.0.0"
-    #             variants = [["some_dependency-1", "another_one-2.3"], ["another_one-2.3"]]
-    #             build_command = "echo 'foo'"
-    #
-    #             def commands():
-    #                 import os
-    #
-    #                 env.PYTHONPATH.append(os.path.join("{root}", "python"))
-    #             """
-    #         ),
-    #     )
-    #     install_path = tempfile.mkdtemp(suffix="_install_path")
-    #     self.add_item(install_path)
-    #
-    #     build_package = creator.build(
-    #         package,
-    #         install_path,
-    #         packages_path=dependencies + config.packages_path,
-    #     )
-    #
-    #     context = resolved_context.ResolvedContext(
-    #         ["{build_package.name}==1.0.0".format(build_package=build_package)],
-    #         package_paths=[inspection.get_packages_path_from_package(build_package)] + dependencies + config.packages_path,
-    #     )
-    #
-    #     python_files = inspection.get_package_python_paths(package, context)
-    #     raise ValueError(python_files)
-    #
-    #     self.assertEqual({os.path.join(install_path, "some_fake_package", "1.0.0", "python")}, python_files)
+    def test_installed_package_with_variants(self):
+        dependencies = self._make_test_dependencies()
+        package = self._make_fake_rez_source_package(
+            "some_fake_package",
+            textwrap.dedent(
+                """\
+                name = "some_fake_package"
+                version = "1.0.0"
+                variants = [["some_dependency-1", "another_one-2.3"], ["another_one-2.3"]]
+                build_command = "echo 'foo'"
+
+                def commands():
+                    import os
+
+                    env.PYTHONPATH.append(os.path.join("{root}", "python"))
+                """
+            ),
+        )
+        install_path = tempfile.mkdtemp(suffix="_install_path")
+        self.add_item(install_path)
+
+        build_package = creator.build(
+            package,
+            install_path,
+            packages_path=dependencies + config.packages_path,
+        )
+
+        context = resolved_context.ResolvedContext(
+            ["{build_package.name}==1.0.0".format(build_package=build_package)],
+            package_paths=[inspection.get_packages_path_from_package(build_package)] + dependencies + config.packages_path,
+        )
+
+        python_files = inspection.get_package_python_paths(build_package, context)
+
+        self.assertEqual(
+            {os.path.join(install_path, "some_fake_package", "1.0.0", "another_one-2.3", "python")},
+            python_files,
+        )
 
 
 def _check_called(function):

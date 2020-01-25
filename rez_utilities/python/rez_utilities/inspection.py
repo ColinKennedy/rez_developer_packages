@@ -203,8 +203,14 @@ def has_python_package(package, paths=None, allow_build=True):
 
     paths = get_package_python_paths(package, context)
 
-    if paths:
-        return True
+    for root_path in paths:
+        for _, _, files in os.walk(root_path):
+            for file_path in files:
+                if file_path == "__init__.py":
+                    continue
+
+                if file_path.endswith(".py"):
+                    return True
 
     if is_built or not allow_build:
         return False
@@ -226,6 +232,9 @@ def has_python_package(package, paths=None, allow_build=True):
 
 def get_package_python_paths(package, context):
     """Get the Python files that a Rez package adds to the user's PYTHONPATH
+
+    If the Rez package is an installed Rez package and it contains
+    variants, each variant will have its paths returned.
 
     Note:
         This function is a bit sub-optimal. Basically, Rez's API should
@@ -266,29 +275,32 @@ def get_package_python_paths(package, context):
         return set()
 
     root = get_package_root(package)
-    is_built = is_built_package(package)
+
+    if is_built_package(package):
+        return {path for path in paths if filer.in_directory(path, root, follow=False)}
+
     output = set()
 
     for path in paths:
+        # If the Rez package is a source Rez package + has variants
+        # we need to strip the "variants" out of `path`, before
+        # returning it.
+        #
+        try:
+            variant_less_path = next(_iter_variant_extracted_paths(root, path, package.variants or []))
+        except StopIteration:
+            pass
+        else:
+            output.add(variant_less_path)
+
+            continue
+
         if filer.in_directory(path, root, follow=False) or filer.in_directory(
             path, root, follow=True
         ):
-            # This condition occurs in 1 of 2 scenarios
-            # 1. The Rez package is built
-            # 2. The Rez package is a source package but contains no variants
-            #
-            if imports.has_importable_module(path, ignore={"__init__.py"}):
-                output.add(path)
+            output.add(path)
 
-                continue
-
-        if not is_built:
-            try:
-                variant_less_path = next(_iter_variant_extracted_paths(root, path, package.variants or []))
-            except StopIteration:
-                pass
-            else:
-                output.add(variant_less_path)
+            continue
 
     return output
 
