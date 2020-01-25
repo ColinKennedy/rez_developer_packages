@@ -22,6 +22,28 @@ __HANDLER.setFormatter(__FORMATTER)
 _LOGGER.addHandler(__HANDLER)
 
 
+def _get_log_level(value):
+    """Convert a user-provided integer into a log level.
+
+    The higher `value` is, the more verbose the logging level becomes.
+    e.g. value of `2` returns INFO.
+
+    Args:
+        value (int): Some value to convert into a recommended logging level.
+
+    Returns:
+        int: The base-10 logging level that was found.
+
+    """
+    # Reference:
+    #     DEBUG = 10
+    #     INFO = 20
+    #     ERROR = 30
+    #     FATAL = 40
+    #
+    return logging.ERROR - (value * 10)
+
+
 def _parse_arguments(text):
     """Tokenize the user's input to command-line into something that this package can use.
 
@@ -57,10 +79,18 @@ def _parse_arguments(text):
     )
 
     parser.add_argument(
+        "-c",
+        "--concise",
+        action="store_true",
+        help="Add this option to make lint results more compact.",
+    )
+
+    parser.add_argument(
         "-v",
         "--verbose",
-        action="store_true",
-        help="Add this option to get more information about a check result.",
+        default=0,
+        action="count",
+        help="Add this option to print logger messages. Repeat for more verbosity.",
     )
 
     parser.add_argument(
@@ -102,12 +132,14 @@ def main():
     arguments = _parse_arguments(sys.argv[1:])
     folder, disable = _resolve_arguments(arguments)
 
+    _LOGGER.setLevel(_get_log_level(arguments.verbose))
+
     try:
         descriptions = cli.lint(
             folder,
             disable=disable,
             recursive=arguments.recursive,
-            verbose=arguments.verbose,
+            verbose=not arguments.concise,
         )
     except exceptions.NoPackageFound as error:
         print(str(error), file=sys.stderr)
@@ -146,7 +178,7 @@ def main():
             else:
                 lines.extend(
                     description.get_message(
-                        verbose=arguments.verbose,
+                        verbose=not arguments.concise,
                         padding=[padding_row, padding_column],
                     )
                 )

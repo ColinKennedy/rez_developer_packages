@@ -479,7 +479,6 @@ prevent developers from releasing code.
 - TODO finish bad-author
 - Fix vimgrep sorting. The line / column number should be ascending
 
-- rename "verbose" to "details" and make "verbose" show logging statements
 - change the clear option to allow you to clear just a single class, if needed
 - Add executed checkers into the context
 
