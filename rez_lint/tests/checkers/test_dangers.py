@@ -18,7 +18,7 @@ from six.moves import mock
 from .. import packaging
 
 
-class DuplicateRequires(packaging.BasePackaging):
+class _DuplicateListAttribute(packaging.BasePackaging):
     _expected_summary_lines = (
         "A Rez package was listed in ``requires`` more than once",
         "Multiple Rez packages were listed in ``requires`` more than once",
@@ -28,16 +28,224 @@ class DuplicateRequires(packaging.BasePackaging):
         directory = packaging.make_fake_source_package(name, text)
         self.add_item(directory)
 
-        return cli.lint(directory)
+        issues = cli.lint(directory)
+
+        return [issue for issue in issues if issue.get_summary()[0] in self._expected_summary_lines]
 
     def _test_empty(self, name, text):
         issues = self._get_issues(name, text)
-        issues = [issue for issues in issues if issues.get_summary()[0] in self._expected_summary_lines]
+        issues = [issue for issue in issues if issue.get_summary()[0] in self._expected_summary_lines]
         self.assertEqual(0, len(issues))
 
+
+class DuplicateBuildRequires(_DuplicateListAttribute):
+    _expected_summary_lines = (
+        "A Rez package was listed in ``build_requires`` more than once",
+        "Multiple Rez packages were listed in ``build_requires`` more than once",
+    )
+
+    def test_undefined(self):
+        self._test_empty(
+            "some_fake_package",
+            textwrap.dedent(
+                """\
+                name = "some_fake_package"
+                version = "2.0.0"
+                """
+            ),
+        )
+
+    def test_empty(self):
+        self._test_empty(
+            "some_fake_package",
+            textwrap.dedent(
+                """\
+                name = "some_fake_package"
+                version = "2.0.0"
+                build_requires = []
+                """
+            ),
+        )
+
+    def test_001(self):
+        issues = self._get_issues(
+            "some_fake_package",
+            textwrap.dedent(
+                """\
+                name = "some_fake_package"
+                version = "2.0.0"
+                build_requires = [
+                    "something",
+                    "another-1",
+                    "something",
+                ]
+                """
+            ),
+        )
+
+        self.assertEqual(1, len(issues))
+        message = [
+            'D: 3, 0: A Rez package was listed in ``build_requires`` more than once (duplicate-build-requires)',
+            '    Requirements should only list each Rez package once. But "[\'something\']" requirements was listed multiple times.',
+        ]
+
+        self.assertEqual(message, issues[0].get_message(verbose=True))
+
+    def test_002(self):
+        issues = self._get_issues(
+            "some_fake_package",
+            textwrap.dedent(
+                """\
+                name = "some_fake_package"
+                version = "2.0.0"
+                build_requires = [
+                    "something-2",
+                    "another-1",
+                    "something",
+                ]
+                """
+            ),
+        )
+
+        self.assertEqual(1, len(issues))
+        message = [
+            'D: 3, 0: A Rez package was listed in ``build_requires`` more than once (duplicate-build-requires)',
+            '    Requirements should only list each Rez package once. But "[\'something\']" requirements was listed multiple times.',
+        ]
+
+        self.assertEqual(message, issues[0].get_message(verbose=True))
+
+    def test_003(self):
+        issues = self._get_issues(
+            "some_fake_package",
+            textwrap.dedent(
+                """\
+                name = "some_fake_package"
+                version = "2.0.0"
+                build_requires = [
+                    "something-2",
+                    "another-1",
+                    "something-1+<3",
+                ]
+                """
+            ),
+        )
+
+        self.assertEqual(1, len(issues))
+        message = [
+            'D: 3, 0: A Rez package was listed in ``build_requires`` more than once (duplicate-build-requires)',
+            '    Requirements should only list each Rez package once. But "[\'something\']" requirements was listed multiple times.',
+        ]
+
+        self.assertEqual(message, issues[0].get_message(verbose=True))
+
+
+class DuplicatePrivateBuildRequires(_DuplicateListAttribute):
+    _expected_summary_lines = (
+        "A Rez package was listed in ``private_build_requires`` more than once",
+        "Multiple Rez packages were listed in ``private_build_requires`` more than once",
+    )
+
+    def test_undefined(self):
+        self._test_empty(
+            "some_fake_package",
+            textwrap.dedent(
+                """\
+                name = "some_fake_package"
+                version = "2.0.0"
+                """
+            ),
+        )
+
+    def test_empty(self):
+        self._test_empty(
+            "some_fake_package",
+            textwrap.dedent(
+                """\
+                name = "some_fake_package"
+                version = "2.0.0"
+                private_build_requires = []
+                """
+            ),
+        )
+
+    def test_001(self):
+        issues = self._get_issues(
+            "some_fake_package",
+            textwrap.dedent(
+                """\
+                name = "some_fake_package"
+                version = "2.0.0"
+                private_build_requires = [
+                    "something",
+                    "another-1",
+                    "something",
+                ]
+                """
+            ),
+        )
+
+        self.assertEqual(1, len(issues))
+        message = [
+            'D: 3, 0: A Rez package was listed in ``private_build_requires`` more than once (duplicate-private-build-requires)',
+            '    Requirements should only list each Rez package once. But "[\'something\']" requirements was listed multiple times.',
+        ]
+
+        self.assertEqual(message, issues[0].get_message(verbose=True))
+
+    def test_002(self):
+        issues = self._get_issues(
+            "some_fake_package",
+            textwrap.dedent(
+                """\
+                name = "some_fake_package"
+                version = "2.0.0"
+                private_build_requires = [
+                    "something-2",
+                    "another-1",
+                    "something",
+                ]
+                """
+            ),
+        )
+
+        self.assertEqual(1, len(issues))
+        message = [
+            'D: 3, 0: A Rez package was listed in ``private_build_requires`` more than once (duplicate-private-build-requires)',
+            '    Requirements should only list each Rez package once. But "[\'something\']" requirements was listed multiple times.',
+        ]
+
+        self.assertEqual(message, issues[0].get_message(verbose=True))
+
+    def test_003(self):
+        issues = self._get_issues(
+            "some_fake_package",
+            textwrap.dedent(
+                """\
+                name = "some_fake_package"
+                version = "2.0.0"
+                private_build_requires = [
+                    "something-2",
+                    "another-1",
+                    "something-1+<3",
+                ]
+                """
+            ),
+        )
+
+        self.assertEqual(1, len(issues))
+        message = [
+            'D: 3, 0: A Rez package was listed in ``private_build_requires`` more than once (duplicate-private-build-requires)',
+            '    Requirements should only list each Rez package once. But "[\'something\']" requirements was listed multiple times.',
+        ]
+
+        self.assertEqual(message, issues[0].get_message(verbose=True))
+
+
+class DuplicateRequires(_DuplicateListAttribute):
     def test_undefined_001(self):
         self._test_empty(
-            "some_fake_package.",
+            "some_fake_package",
             textwrap.dedent(
                 """\
                 name = "some_fake_package"
@@ -48,7 +256,7 @@ class DuplicateRequires(packaging.BasePackaging):
 
     def test_undefined_002(self):
         self._test_empty(
-            "some_fake_package.",
+            "some_fake_package",
             textwrap.dedent(
                 """\
                 name = "some_fake_package"
@@ -60,7 +268,7 @@ class DuplicateRequires(packaging.BasePackaging):
 
     def test_undefined_003(self):
         self._test_empty(
-            "some_fake_package.",
+            "some_fake_package",
             textwrap.dedent(
                 """\
                 name = "some_fake_package"
@@ -72,7 +280,7 @@ class DuplicateRequires(packaging.BasePackaging):
 
     def test_empty(self):
         self._test_empty(
-            "some_fake_package.",
+            "some_fake_package",
             textwrap.dedent(
                 """\
                 name = "some_fake_package"
@@ -83,7 +291,7 @@ class DuplicateRequires(packaging.BasePackaging):
             ),
         )
 
-    def test_requires_001(self):
+    def test_001(self):
         issues = self._get_issues(
             "some_fake_package",
             textwrap.dedent(
@@ -100,8 +308,6 @@ class DuplicateRequires(packaging.BasePackaging):
             ),
         )
 
-        issues = [issue for issue in issues if issue.get_summary()[0] in self._expected_summary_lines]
-
         self.assertEqual(1, len(issues))
         message = [
             'D: 3, 0: A Rez package was listed in ``requires`` more than once (duplicate-requires)',
@@ -110,7 +316,7 @@ class DuplicateRequires(packaging.BasePackaging):
 
         self.assertEqual(message, issues[0].get_message(verbose=True))
 
-    def test_requires_002(self):
+    def test_002(self):
         issues = self._get_issues(
             "some_fake_package",
             textwrap.dedent(
@@ -127,8 +333,6 @@ class DuplicateRequires(packaging.BasePackaging):
             ),
         )
 
-        issues = [issue for issue in issues if issue.get_summary()[0] in self._expected_summary_lines]
-
         self.assertEqual(1, len(issues))
         message = [
             'D: 3, 0: A Rez package was listed in ``requires`` more than once (duplicate-requires)',
@@ -137,7 +341,7 @@ class DuplicateRequires(packaging.BasePackaging):
 
         self.assertEqual(message, issues[0].get_message(verbose=True))
 
-    def test_requires_003(self):
+    def test_003(self):
         issues = self._get_issues(
             "some_fake_package",
             textwrap.dedent(
@@ -153,8 +357,6 @@ class DuplicateRequires(packaging.BasePackaging):
                 """
             ),
         )
-
-        issues = [issue for issue in issues if issue.get_summary()[0] in self._expected_summary_lines]
 
         self.assertEqual(1, len(issues))
         message = [

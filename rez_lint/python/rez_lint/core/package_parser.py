@@ -17,7 +17,9 @@ def _make_attribute_expressions(attribute):
 
 
 _EXPRESSIONS = {
+    "build_requires": _make_attribute_expressions("build_requires"),
     "help": _make_attribute_expressions("help"),
+    "private_build_requires": _make_attribute_expressions("private_build_requires"),
     "requires": _make_attribute_expressions("requires"),
     "version": _make_attribute_expressions("version"),
 }
