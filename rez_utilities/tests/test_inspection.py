@@ -13,6 +13,7 @@ import unittest
 from python_compatibility.testing import common
 from rez.config import config
 from rez_utilities import creator, inspection
+from rez import packages_, resolved_context
 from rezplugins.build_process import local
 
 _CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
@@ -277,6 +278,154 @@ class HasPythonPackage(common.Common):
         with self.assertRaises(ValueError):
             inspection.has_python_package(None)
 
+
+class GetPackagePythonFiles(common.Common):
+    def _make_fake_rez_install_package(self, name, version, text):
+        root = tempfile.mkdtemp(suffix="_rez_source_package_get_package_python_paths")
+        directory = os.path.join(root, name, version)
+        os.makedirs(directory)
+        # TODO : Remove
+        # self.add_item(root)
+
+        with open(os.path.join(directory, "package.py"), "w") as handler:
+            handler.write(text)
+
+        return packages_.get_developer_package(directory)
+
+    def _make_fake_rez_source_package(self, name, text):
+        root = tempfile.mkdtemp(suffix="_rez_source_package_get_package_python_paths")
+        directory = os.path.join(root, name)
+        os.makedirs(directory)
+        # TODO : Remove
+        # self.add_item(root)
+
+        with open(os.path.join(directory, "package.py"), "w") as handler:
+            handler.write(text)
+
+        return packages_.get_developer_package(directory)
+
+    def _make_test_case(self, name, text, extra_paths=None):
+        if not extra_paths:
+            extra_paths = []
+
+        package = self._make_fake_rez_source_package(name, text)
+        root = inspection.get_package_root(package)
+        python_root = os.path.join(root, "python")
+        os.makedirs(python_root)
+
+        open(os.path.join(python_root, "thing.py"), "w").close()
+        open(os.path.join(python_root, "another.py"), "w").close()
+
+        context = resolved_context.ResolvedContext(
+            ["{package.name}==".format(package=package)],
+            package_paths=[inspection.get_packages_path_from_package(package)] + extra_paths + config.packages_path,
+        )
+
+        return inspection.get_package_python_paths(package, context), root
+
+    def test_empty(self):
+        python_files, _ = self._make_test_case(
+            "some_fake_package",
+            textwrap.dedent(
+                """\
+                name = "some_fake_package"
+                version = "1.0.0"
+
+                def commands():
+                    pass
+                """
+            )
+        )
+
+        self.assertEqual(set(), python_files)
+
+    def test_undefined(self):
+        python_files, _ = self._make_test_case(
+            "some_fake_package",
+            textwrap.dedent(
+                """\
+                name = "some_fake_package"
+                version = "1.0.0"
+                """
+            )
+        )
+
+        self.assertEqual(set(), python_files)
+
+    def test_source_package_no_variants(self):
+        python_files, root = self._make_test_case(
+            "some_fake_package",
+            textwrap.dedent(
+                """\
+                name = "some_fake_package"
+                version = "1.0.0"
+
+                def commands():
+                    import os
+
+                    env.PYTHONPATH.append(os.path.join("{root}", "python"))
+                """
+            )
+        )
+
+        self.assertEqual({os.path.join(root, "python")}, python_files)
+
+    def test_source_package_with_variants(self):
+        # To actually make this test work, "some_fake_package" needs some variants.
+        #
+        # It may be overkill, but we're going to make some quick Rez packages
+        # that can be used for variants.
+        #
+        dependency1 = self._make_fake_rez_install_package(
+            "some_dependency",
+            "1.1.0",
+            textwrap.dedent(
+                """\
+                name = "some_dependency"
+                version = "1.1.0"
+                """
+            )
+        )
+
+        dependency2 = self._make_fake_rez_install_package(
+            "another_one",
+            "2.3.0",
+            textwrap.dedent(
+                """\
+                name = "another_one"
+                version = "2.3.0"
+                """
+            )
+        )
+
+        python_files, root = self._make_test_case(
+            "some_fake_package",
+            textwrap.dedent(
+                """\
+                name = "some_fake_package"
+                version = "1.0.0"
+                variants = [["some_dependency-1", "another_one-2.3"], ["another_one-2.3"]]
+
+                def commands():
+                    import os
+
+                    env.PYTHONPATH.append(os.path.join("{root}", "python"))
+                """
+            ),
+            extra_paths=[
+                inspection.get_packages_path_from_package(dependency1),
+                inspection.get_packages_path_from_package(dependency2),
+            ],
+        )
+
+        self.assertEqual({os.path.join(root, "python")}, python_files)
+
+    # def test_installed_package_no_variants(self):
+    #     pass
+    #
+    # def test_installed_package_with_variants(self):
+    #     pass
+    #
 
 def _check_called(function):
     """Add an extra attribute to a given function to track if Python has called it."""
