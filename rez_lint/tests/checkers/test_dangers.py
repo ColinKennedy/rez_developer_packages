@@ -166,12 +166,11 @@ class DuplicateDependencies(packaging.BasePackaging):
 
         self.assertEqual(message, issues[0].get_message(verbose=True))
 
-    # TODO : Finish these
-    # def test_requires_and_variants(self):
-    #     pass
-    #
-    # def test_variants(self):
-    #     pass
+    def test_requires_and_variants(self):
+        pass
+
+    def test_variants(self):
+        pass
 
 
 class ImproperRequirements(packaging.BasePackaging):
