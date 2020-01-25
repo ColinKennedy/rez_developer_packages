@@ -456,6 +456,7 @@ class GetPackagePythonFiles(common.Common):
 
         self.assertEqual({os.path.join(root, "some_fake_package", "1.0.0", "python")}, python_files)
 
+    # TODO : Finish this
     # def test_installed_package_with_variants(self):
     #     dependencies = self._make_test_dependencies()
     #     package = self._make_fake_rez_source_package(
