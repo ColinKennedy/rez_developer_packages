@@ -69,6 +69,7 @@ rez_lint --disable=no-change-log,lower-bounds-missing
 | needs-comment    | A package requirement needs an explanation                          |
 | no-change-log    | Need a CHANGELOG.md / CHANGELOG.rst / etc for the package           |
 | no-documentation | Missing documentation in a Python package                           |
+| no-help          | Need to define the ``help`` attribute in your Rez definition file   |
 | no-read-me       | Package has no summary information. What does it do, its rules, etc |
 
 
@@ -259,12 +260,47 @@ rez-env Sphinx -- sphinx-quickstart
 ```
 
 
+## no-help
+
+Every Rez package should have help documentation to link to.
+
+You can use either a list-of-list-of-strs or a single str, as recommended by Rez's
+[help attribute](https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#help)
+That said, the list-of-list-of-strs form is recommended.
+
+Here's an example of an excellent ``help`` attribute, for the "black" Python package.
+
+```python
+name = "black"
+
+version = "19.10b0"
+
+description = "The Uncompromising Code Formatter"
+
+help = [
+	["Developer Documentation", "https://black.readthedocs.io/en/stable"],
+	["PyPI", "https://pypi.org/project/black/19.10b0"]  # Include version numbers whenever you can
+	["Source Code", "https://github.com/psf/black"],
+]
+```
+
+If you don't have documentation posted anywhere, feel free to just link
+to a local file, such as a index.html or README.md in your Rez package.
+
+
+```python
+help = [
+	["README", "README.md"],
+]
+```
+
+
 ## no-read-me
 
 This one is simple. Every Rez package should have a README.md,
 README.rst, or README.txt to explain what the package is for.
 
-Really take the extra effort to flesh out details about the package.
+Really take some extra effort to flesh out details about the package. Such as:
 
 - describe what the package does
 - package requirements
@@ -272,7 +308,7 @@ Really take the extra effort to flesh out details about the package.
 - style guide information
 - contributor guidelines
 
-Things like that help a lot for new starters or people who stumble on the code.
+Explaining these topics a lot for new starters or people who stumble on the code.
 
 
 ## no-rez-test
@@ -340,8 +376,9 @@ requires = [
 ]
 ```
 
-If they sorted the list above, it'd be plain as day that a requirement was posted twice.
-In this case, "dependency_here".
+If they sorted the list above, it'd be plain as day that a requirement
+was posted twice. n this case, "dependency_here" has 2 entries, when
+there should only be one.
 
 ```python
 requires = [
@@ -398,11 +435,9 @@ prevent developers from releasing code.
 
 # TODO
 
-- Add no-help to this page
 - The requirements-related checks must take into account variants, not just the user's listed requirements.
 - TODO finish bad-author
 - Fix vimgrep sorting. The line / column number should be ascending
-
 
 - rename "verbose" to "details" and make "verbose" show logging statements
 - change the clear option to allow you to clear just a single class, if needed
@@ -420,5 +455,3 @@ TODO
 - CI
 - Add unittests
  - make sure most of the tests (if not all) work with YAML files
-
-
