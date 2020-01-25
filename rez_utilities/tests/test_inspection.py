@@ -477,14 +477,11 @@ class GetPackagePythonFiles(common.Common):
         install_path = tempfile.mkdtemp(suffix="_install_path")
         self.add_item(install_path)
 
-        original = list(config.packages_path)
-        config.packages_path[:] = dependencies + config.packages_path
-
-        try:
-            # TODO : Get build to allow packages
-            build_package = creator.build(package, install_path)
-        finally:
-            config.packages_path[:] = original
+        build_package = creator.build(
+            package,
+            install_path,
+            packages_path=dependencies + config.packages_path,
+        )
 
         context = resolved_context.ResolvedContext(
             ["{build_package.name}==1.0.0".format(build_package=build_package)],

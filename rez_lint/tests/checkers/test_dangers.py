@@ -368,16 +368,11 @@ class MissingRequirements(packaging.BasePackaging):
         dependency2_build_path = tempfile.mkdtemp(suffix="_direct_dependency")
         self.add_item(dependency2_build_path)
 
-        original = list(config.packages_path)
-        config.packages_path = [dependency1_build_path] + config.packages_path
-
-        try:
-            creator.build(
-                packages_.get_developer_package(dependency2_directory),
-                dependency2_build_path,
-            )
-        finally:
-            config.packages_path[:] = original
+        creator.build(
+            packages_.get_developer_package(dependency2_directory),
+            dependency2_build_path,
+            packages_path=[dependency1_build_path] + config.packages_path,
+        )
 
         return [dependency1_build_path, dependency2_build_path]
 

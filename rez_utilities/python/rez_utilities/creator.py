@@ -3,6 +3,7 @@
 
 """A module that's devoted to building and "creating" Rez packages."""
 
+import copy
 import logging
 import os
 
@@ -16,7 +17,7 @@ from . import rez_configuration
 _LOGGER = logging.getLogger(__name__)
 
 
-def build(package, install_path):
+def build(package, install_path, packages_path=None):
     """Build the given Rez `package` to the given `install_path`.
 
     Args:
@@ -27,6 +28,11 @@ def build(package, install_path):
             This path represents a path that you might add to the
             REZ_PACKAGES_PATH environment variable (for example) so it
             should not contain the package's name or version.
+        packages_path (list[str], optional):
+            The paths that will be used to search for Rez packages while
+            building. This is usually to make it easier to find package
+            dependencies. If `packages_path` is not defined, Rez will
+            use its default paths. Default is None.
 
     Raises:
         RuntimeError: If the package fails to build for any reason.
@@ -36,6 +42,13 @@ def build(package, install_path):
             The package the represents the newly-built package.
 
     """
+    if packages_path:
+        # If the user has custom paths to use for building, prefer those
+        # Reference: https://github.com/nerdvegas/rez/blob/da16fdeb754ccd93c8ce54fa2b6a4d4ef3601e6b/src/rez/build_process_.py#L232
+        #
+        package = copy.deepcopy(package)
+        package.config.packages_path[:] = packages_path
+
     directory = os.path.dirname(package.filepath)
 
     system = build_system.create_build_system(directory, package=package, verbose=True)
