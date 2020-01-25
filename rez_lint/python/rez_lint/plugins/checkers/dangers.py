@@ -3,6 +3,7 @@
 
 """A collection of issues that bring harm to the current Rez package or others."""
 
+import abc
 import collections
 import logging
 import os
@@ -16,23 +17,20 @@ from . import base_checker
 _LOGGER = logging.getLogger(__name__)
 
 
-# TODO : Make the same class for build_requires and private_build_requires
-
-class DuplicateDependencies(base_checker.BaseChecker):
-    @staticmethod
-    def _get_duplicate_requirements(requirements):
-        counter = collections.Counter([requirement.name for requirement in requirements])
-
-        return {package_name for package_name, count in counter.most_common() if count > 1}
+class _DuplicateListAttribute(base_checker.BaseChecker):
+    @abc.abstractproperty
+    def _attribute_name(self):
+        return ""
 
     @classmethod
-    def _get_duplicate_requirements_message(cls, package, duplicates):
+    @abc.abstractmethod
+    def _get_duplicates_message(cls, package, duplicates):
         if len(duplicates) == 1:
             beginning = "A Rez package was"
         else:
             beginning = "Multiple Rez packages were"
 
-        summary = beginning + " listed in ``requires`` more than once"
+        summary = beginning + " listed in ``{cls._attribute_name}`` more than once".format(cls=cls)
 
         full = [
             summary,
@@ -41,7 +39,7 @@ class DuplicateDependencies(base_checker.BaseChecker):
                 duplicates=sorted(duplicates))
         ]
 
-        row = package_parser.get_definition_row(package.filepath, "requires")
+        row = package_parser.get_definition_row(package.filepath, cls._attribute_name)
         code = base_checker.Code(short_name="D", long_name=cls.get_long_code())
         text = package_parser.get_line_at_row(package.filepath, row)
 
@@ -54,33 +52,68 @@ class DuplicateDependencies(base_checker.BaseChecker):
         ]
 
     @staticmethod
-    def get_long_code():
-        """str: The string used to refer to this class or disable it."""
-        return "duplicate-dependencies"
+    def _get_duplicates(requirements):
+        counter = collections.Counter([requirement.name for requirement in requirements])
+
+        return {package_name for package_name, count in counter.most_common() if count > 1}
+
+    @staticmethod
+    @abc.abstractmethod
+    def _get_list_attribute(package):
+        return []
 
     @classmethod
     def run(cls, package, _):
-        requirements = package.requires or []
-        variants = package.variants or []
+        values = cls._get_list_attribute(package)
 
-        if not requirements and not variants:
+        if not values:
             return []
 
-        issues = []
-        duplicate_requirements = cls._get_duplicate_requirements(requirements)
+        duplicates = cls._get_duplicates(values)
 
-        if duplicate_requirements:
-            issues.extend(cls._get_duplicate_requirements_message(package, duplicate_requirements))
+        if not duplicates:
+            return []
 
-        return issues
+        return cls._get_duplicates_message(package, duplicates)
 
-        # TODO : Finish
-        # duplicate_variants = cls._get_duplicate_variants(variants)
-        #
-        # if duplicate_variants:
-        #     issues.append(cls._get_duplicate_variants_messgae(package, duplicate_variants))
 
-        return issues
+class DuplicateBuildRequires(_DuplicateListAttribute):
+    _attribute_name = "build_requires"
+
+    @staticmethod
+    def _get_list_attribute(package):
+        return package.build_requires or []
+
+    @staticmethod
+    def get_long_code():
+        """str: The string used to refer to this class or disable it."""
+        return "duplicate-build-requires"
+
+
+class DuplicatePrivateBuildRequires(_DuplicateListAttribute):
+    _attribute_name = "private_build_requires"
+
+    @staticmethod
+    def _get_list_attribute(package):
+        return package.private_build_requires or []
+
+    @staticmethod
+    def get_long_code():
+        """str: The string used to refer to this class or disable it."""
+        return "duplicate-private-build-requires"
+
+
+class DuplicateRequires(_DuplicateListAttribute):
+    _attribute_name = "requires"
+
+    @staticmethod
+    def _get_list_attribute(package):
+        return package.requires or []
+
+    @staticmethod
+    def get_long_code():
+        """str: The string used to refer to this class or disable it."""
+        return "duplicate-requires"
 
 
 class ImproperRequirements(base_checker.BaseChecker):

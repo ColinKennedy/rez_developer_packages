@@ -150,7 +150,9 @@ def _register_internal_plugins():
 
     """
     registry.register_checker(conventions.SemanticVersioning)
-    registry.register_checker(dangers.DuplicateDependencies)
+    registry.register_checker(dangers.DuplicateBuildRequires)
+    registry.register_checker(dangers.DuplicatePrivateBuildRequires)
+    registry.register_checker(dangers.DuplicateRequires)
     registry.register_checker(dangers.ImproperRequirements)
     registry.register_checker(dangers.MissingRequirements)
     registry.register_checker(dangers.NoRezTest)

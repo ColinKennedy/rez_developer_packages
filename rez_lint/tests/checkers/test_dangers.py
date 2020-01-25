@@ -18,12 +18,10 @@ from six.moves import mock
 from .. import packaging
 
 
-class DuplicateDependencies(packaging.BasePackaging):
+class DuplicateRequires(packaging.BasePackaging):
     _expected_summary_lines = (
         "A Rez package was listed in ``requires`` more than once",
         "Multiple Rez packages were listed in ``requires`` more than once",
-        "A Rez package was listed in a single variant more than once",
-        "Multiple Rez packages were listed in a single variant than once",
     )
 
     def _get_issues(self, name, text):
@@ -106,7 +104,7 @@ class DuplicateDependencies(packaging.BasePackaging):
 
         self.assertEqual(1, len(issues))
         message = [
-            'D: 3, 0: A Rez package was listed in ``requires`` more than once (duplicate-dependencies)',
+            'D: 3, 0: A Rez package was listed in ``requires`` more than once (duplicate-requires)',
             '    Requirements should only list each Rez package once. But "[\'some_dependency\']" requirements was listed multiple times.',
         ]
 
@@ -133,7 +131,7 @@ class DuplicateDependencies(packaging.BasePackaging):
 
         self.assertEqual(1, len(issues))
         message = [
-            'D: 3, 0: A Rez package was listed in ``requires`` more than once (duplicate-dependencies)',
+            'D: 3, 0: A Rez package was listed in ``requires`` more than once (duplicate-requires)',
             '    Requirements should only list each Rez package once. But "[\'some_dependency\']" requirements was listed multiple times.',
         ]
 
@@ -160,17 +158,11 @@ class DuplicateDependencies(packaging.BasePackaging):
 
         self.assertEqual(1, len(issues))
         message = [
-            'D: 3, 0: A Rez package was listed in ``requires`` more than once (duplicate-dependencies)',
+            'D: 3, 0: A Rez package was listed in ``requires`` more than once (duplicate-requires)',
             '    Requirements should only list each Rez package once. But "[\'some_dependency\']" requirements was listed multiple times.',
         ]
 
         self.assertEqual(message, issues[0].get_message(verbose=True))
-
-    def test_requires_and_variants(self):
-        pass
-
-    def test_variants(self):
-        pass
 
 
 class ImproperRequirements(packaging.BasePackaging):
