@@ -100,12 +100,23 @@ authors = [
 
 ## improper-requirements
 
-If a dependency package requires "mock-1" and another package has a
-package.py that looks like this:
+Some Rez packages should not be direct requirements of other packages.
+For example, you shouldn't add "mock" or "cmake" or "pytest" as
+dependencies of your package.
+
+Unittest / integration test packages should go in your [tests](https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#tests)
+attribute. Build packages such as "cmake" should go either in the Rez package's [private_build_requires](https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#private_build_requires)
+or [build_requires](https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#build_requires).
+
+In summary, that's basically all you need to know. Feel free to skip
+to the next section. But if you want to know more **why** this is
+recommended, please keep reading.
+
+Imagine you have a package like this
 
 ```python
 requires = [
-    "dependency-1",  # This uses mock-1
+    "dependency-1",  # This package's `requires` includes mock-1
 ]
 
 tests = {
@@ -117,8 +128,9 @@ tests = {
 }
 ```
 
-The Rez resolve will fail because dependency's requirement on mock conflicts
-with the current package.
+The Rez resolve will fail because dependency's requirement on mock
+conflicts with the current package. But if "dependency-1" added "mock-1"
+in its ``tests``, there would have been no issues at all.
 
 Same goes with build dependencies. They should not be in any ``requires``.
 It should be in either build_requires or private_build_requires.
@@ -135,7 +147,7 @@ requires = [
 ]
 ```
 
-If "dependency" also uses ``private_build_requires``, there'd be no problems.
+If "dependency-1" also uses ``private_build_requires``, there'd be no problems.
 
 
 ## lower-bounds-missing
@@ -146,37 +158,65 @@ In short, always specify a minimum version, even if that version is the
 ```python
 requires = [
     "dependency-2",  # Do this
-    "another_dependency",  # Do not do this
+    "dependency",  # Do not do this
 ]
 ```
 
 Rez has to take into account every version range in a every package
 request for a resolve. So the tighter the requirements, the faster Rez
-can resolve.
+can resolve. Code bases that don't use minimum versions tend to have
+much slower resolve times (not to mention more error-prone) than those
+who that do include minimum versions.
 
 
 ## needs-comment
 
 Ever see a list of 20 requirements in a Rez package and you have no idea
-if any of them are needed? Hopefully you'll never be in this situation
-where you must refactor one of these packages. But if you are, you'll be
-grateful for comments.
+if any of them are actually needed? Hopefully you'll never be in this
+situation where you must refactor one of these packages. But if you are,
+you'll be grateful for comments.
 
 This checker is simple. If the Rez package defines at least one Python package,
 ``rez_lint`` ...
 
 - finds every Rez package dependency based on the imported Python modules across all files
-- gets a list of the "actually used" Rez packages from those imports
+- gets a list of Rez packages from those imports
 - checks this found list against the package's actual ``requires``
 
-Anything in the ``requires`` that wasn't from imports needs a comment
-explaining why that dependency is there.
+If there's anything in ``requires`` that wasn't found from imports, it
+needs a comment explaining why that dependency is there.
+
+You can add a comment easily, using an in-line comment like this
+
+```python
+requires = [
+	"dependency-1",  # I am an in-line comment
+]
+```
+
+Or do a multi-line comment, starting from the line above the requirement
+you're describing.
+
+```python
+requires = [
+	# I am an multi-line comment
+	# and there are multiple lines.
+	#
+	# Example:
+	#     Formatting is also respected
+	#
+	"dependency-1",
+]
+```
+
+You can also mix and match single-line and multi-line descriptions, if
+you need to.
 
 
 ## no-change-log
 
 The Rez package should have a CHANGELOG file at its root to explain what
-was changed. It can be any file format
+has changed. It can be any file format
 
 - CHANGELOG.rst
 - CHANGELOG.md
@@ -198,7 +238,9 @@ can then be included in Sphinx documentation, like this
 And here's a link to what the final result looks like
 - https://sphinx-code-include.readthedocs.io/en/latest/changelog.html
 
-Basically, you only need to maintain one file if you use the .rst extension.
+Basically, you only need to maintain one file if you use the .rst
+extension. But if you use any other extension, you have to maintain 2
+separate CHANGELOG files.
 
 
 ## no-documentation
@@ -207,11 +249,20 @@ If the Rez package defines a Python package, that package is expected to
 have Sphinx documentation. The documentation format that it checks for is
 [in this Python code](https://github.com/ColinKennedy/rez_developer_packages/blob/07d92ddd15b3650f39c76387eb598ada64edd202/python_compatibility/python/python_compatibility/sphinx/conf_manager.py#L93-L130)
 
+Basically to make documentation, run this
+
+```sh
+cd {package_root}
+mkdir documentation
+cd documentation
+rez-env Sphinx -- sphinx-quickstart
+```
+
 
 ## no-read-me
 
-This one is simple. Every Rez package should have a README.md, README.rst, or README.txt
-to explain what the package is for.
+This one is simple. Every Rez package should have a README.md,
+README.rst, or README.txt to explain what the package is for.
 
 Really take the extra effort to flesh out details about the package.
 
@@ -226,9 +277,9 @@ Things like that help a lot for new starters or people who stumble on the code.
 
 ## no-rez-test
 
-Unless the Rez package is meant for configuration, chances are
-the package implements some code. Your code should be tested,
-always, when users are involved. Define tests using the package's
+Unless the Rez package is meant for configuration, chances are the
+package implements some code. Your code should be tested, always. Define
+tests using the package's
 [test](https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#tests)
 attribute.
 
@@ -238,7 +289,8 @@ attribute.
 Rez definition files should be package.py. Though other standards
 exist, do not use them. For example, you could define a package using
 package.yaml. If you're dealing with a code-base that uses package.yaml,
-run ``rez-yaml2py`` and Rez will handle the conversion for you.
+run ``rez-yaml2py`` and Rez will handle the conversion for you. You will
+be better off using package.py files.
 
 
 ## requirements-not-sorted
@@ -268,11 +320,51 @@ requires = [
 
 and you don't have to worry about that anymore.
 
+Also, if your requirements aren't sorted, sometimes you'll come across
+packages that look like this:
+
+```python
+requires = [
+	"rez-2+",
+	"things_here-10",
+	"more_examples-10",
+	"you_get_the_point-13",
+	"dependency_here-3.1+<5",
+	"this_list_is_long-3",
+	"so_people_dont-3.1",
+	"actually_ready_it_that_much-4",
+	"dependency_here-1.5+<5",
+	"because_if_they_did-6",
+	"theyd_see_that_a_dependency_were_listed_twice-4",
+	"oops-1",
+]
+```
+
+If they sorted the list above, it'd be plain as day that a requirement was posted twice.
+In this case, "dependency_here".
+
+```python
+requires = [
+	"actually_ready_it_that_much-4",
+	"because_if_they_did-6",
+	"dependency_here-1.5+<5",
+	"dependency_here-3.1+<5",
+	"more_examples-10",
+	"oops-1",
+	"rez-2+",
+	"so_people_dont-3.1",
+	"theyd_see_that_a_dependency_were_listed_twice-4",
+	"things_here-10",
+	"this_list_is_long-3",
+	"you_get_the_point-13",
+]
+```
+
 
 ## semantic-versioning
 
 The Rez documentation recommends [semantic versioning](https://github.com/nerdvegas/rez/wiki/Basic-Concepts#versions).
-So ``rez_lint`` also recommend it.
+So ``rez_lint`` also recommends it.
 
 
 ## too-many-dependencies
@@ -282,32 +374,33 @@ the code can be restructured. It also limits the package's portability
 and usefulness to others because anyone that uses a 10+ dependency
 package is now, by extension, concerned with those dependencies.
 
+If a package has many dependencies, it also means that it will break
+if any those dependencies experience any problems.
+
 If you are writing a package uses many dependencies, consider using
 [Dependency Inversion](https://en.wikipedia.org/wiki/Dependency_inversion_principle)
 or [Dependency injection](https://en.wikipedia.org/wiki/Dependency_injection)
-so that you can simply supply packages in the user's ``rez-env`` request
-instead of adding it directly into the Package.
+so that you can simply supply packages in the user's ``rez-env``
+request instead of adding it directly into the Package. That will keep
+dependencies down while still keeping packages flexible.
 
 
 ## url-unreachable
 
-The rez-help command is determined by written [help attribute](https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#help)
+The rez-help command is determined by a written
+[help attribute](https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#help)
 in the Rez package.py.
 
-This check simply makes sure that the URL is still good. Also, if the
-Internet is down, the check will simply return "all good" to prevent CI
-checks to prevent developers from releasing code.
+This check makes sure that the URL is still good. Also, if the Internet
+is down, the check will simply return "all good" to prevent CI checks to
+prevent developers from releasing code.
 
 
 # TODO
 
 - Add no-help to this page
-- Check that the plug-in system works - add unittests
 - The requirements-related checks must take into account variants, not just the user's listed requirements.
-- Make sure that no versions lower than 1.0.0 are written
- - Add some context awareness. e.g. don't run this check if the semantic versioning check failed
 - TODO finish bad-author
-- Add unittests
 - Fix vimgrep sorting. The line / column number should be ascending
 
 
