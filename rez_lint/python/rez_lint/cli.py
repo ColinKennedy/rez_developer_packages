@@ -212,6 +212,8 @@ def lint(
         context = check_context.Context(
             package, list(processed_packages), vimgrep=vimgrep, verbose=verbose,
         )
+        context["processed_checker"] = []
+        context["processed_contexts"] = []
 
         for manager in sorted(
             registry.get_contexts(),
@@ -219,6 +221,7 @@ def lint(
             reverse=True,
         ):
             manager.run(package, context)
+            context["processed_contexts"].append(manager)
 
         for checker in sorted(
             registry.get_checkers(),
@@ -226,9 +229,17 @@ def lint(
             reverse=True,
         ):
             if checker.get_long_code() in disable:
+                context["processed_contexts"].append(
+                    {"checker": checker, "status": "skipped"}
+                )
+
                 continue
 
-            output.update(checker.run(package, context))
+            results = checker.run(package, context)
+            context["processed_contexts"].append(
+                {"checker": checker, "status": "ran", "results": results}
+            )
+            output.update(results)
 
         processed_packages.append(package)
 

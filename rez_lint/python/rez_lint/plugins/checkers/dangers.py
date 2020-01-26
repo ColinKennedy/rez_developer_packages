@@ -257,7 +257,9 @@ class ImproperRequirements(base_checker.BaseChecker):
         try:
             impropers = sorted(request.name for request in dependencies)
         except AttributeError:
-            impropers = sorted([request.name for request in requests] for requests in dependencies)
+            impropers = sorted(
+                [request.name for request in requests] for requests in dependencies
+            )
 
         full = [
             summary,
@@ -287,7 +289,9 @@ class ImproperRequirements(base_checker.BaseChecker):
         try:
             impropers = sorted(request.name for request in dependencies)
         except AttributeError:
-            impropers = sorted([request.name for request in requests] for requests in dependencies)
+            impropers = sorted(
+                [request.name for request in requests] for requests in dependencies
+            )
 
         full = [
             summary,
