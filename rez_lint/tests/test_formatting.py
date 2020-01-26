@@ -16,7 +16,8 @@ from rez_lint.plugins.checkers import base_checker
 class Description(unittest.TestCase):
     """Test that :class:`rez_lint.core.message_description.Description` formats correctly."""
 
-    def test_empty(self):
+    @staticmethod
+    def test_empty():
         """Creating a description with basically nothing in it should still be valid."""
         message_description.Description(
             [],
@@ -104,7 +105,10 @@ class Header(unittest.TestCase):
 
 
 class MessageDescription(common.Common):
+    """Check that :class:`rez_lint.core.message_description.Description` works."""
+
     def test_vimgrep_001(self):
+        """Check that Description prints path / row / column information correctly."""
         code = textwrap.dedent(
             """\
             import os
@@ -140,6 +144,7 @@ class MessageDescription(common.Common):
         )
 
     def test_vimgrep_002(self):
+        """Check that Description prints path / row / column information correctly."""
         root = tempfile.mkdtemp()
         self.add_item(root)
 
@@ -160,6 +165,7 @@ class MessageDescription(common.Common):
         )
 
     def test_location_specific(self):
+        """Since a file path is given, the Description class should return True."""
         code = textwrap.dedent(
             """\
             import os

@@ -417,9 +417,9 @@ class ImproperRequirements(packaging.BasePackaging):
         dependency_path = inspection.get_packages_path_from_package(dependency_package)
 
         original = list(config.packages_path)  # pylint: disable=no-member
-        config.packages_path[:] = [
+        config.packages_path[:] = [  # pylint: disable=no-member
             dependency_path
-        ] + original  # pylint: disable=no-member
+        ] + original
 
         try:
             installed_package = self._make_installed_package(
@@ -629,9 +629,9 @@ class ImproperRequirements(packaging.BasePackaging):
 
         directory = inspection.get_package_root(installed_package)
         original = list(config.packages_path)  # pylint: disable=no-member
-        config.packages_path[:] = (
+        config.packages_path[:] = (  # pylint: disable=no-member
             [directory] + dependencies + original
-        )  # pylint: disable=no-member
+        )
 
         try:
             results = cli.lint(directory)
@@ -728,7 +728,7 @@ class MissingRequirements(packaging.BasePackaging):
         creator.build(
             packages_.get_developer_package(dependency2_directory),
             dependency2_build_path,
-            packages_path=[dependency1_build_path] + config.packages_path,
+            packages_path=[dependency1_build_path] + config.packages_path,  # pylint: disable=no-member
         )
 
         return [dependency1_build_path, dependency2_build_path]
@@ -872,13 +872,13 @@ class MissingRequirements(packaging.BasePackaging):
         ) as handler:
             handler.write("import some_module; print(some_module.get_foo())")
 
-        original = list(config.packages_path)
-        config.packages_path[:] = dependency_paths + config.packages_path
+        original = list(config.packages_path)  # pylint: disable=no-member
+        config.packages_path[:] = dependency_paths + config.packages_path  # pylint: disable=no-member
 
         try:
             results = cli.lint(root)
         finally:
-            config.packages_path[:] = original
+            config.packages_path[:] = original  # pylint: disable=no-member
 
         issues = [
             description
@@ -927,13 +927,13 @@ class MissingRequirements(packaging.BasePackaging):
         ) as handler:
             handler.write("import some_module; print(some_module.get_foo())")
 
-        original = list(config.packages_path)
-        config.packages_path[:] = dependency_paths + config.packages_path
+        original = list(config.packages_path)  # pylint: disable=no-member
+        config.packages_path[:] = dependency_paths + config.packages_path  # pylint: disable=no-member
 
         try:
             results = cli.lint(root)
         finally:
-            config.packages_path[:] = original
+            config.packages_path[:] = original  # pylint: disable=no-member
 
         issues = [
             description
@@ -1463,14 +1463,14 @@ class TooManyDependencies(packaging.BasePackaging):
             self.add_item(os.path.dirname(directory))
 
         original = list(config.packages_path)  # pylint: disable=no-member
-        config.packages_path[:] = (
+        config.packages_path[:] = (  # pylint: disable=no-member
             list(dependencies) + original
-        )  # pylint: disable=no-member
+        )
 
         try:
             results = cli.lint(root)
         finally:
-            config.packages_path[:] = original
+            config.packages_path[:] = original  # pylint: disable=no-member
 
         issues = [
             description
