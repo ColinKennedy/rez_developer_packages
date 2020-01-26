@@ -107,10 +107,12 @@ TODO explain the plugin stuff
 
 TODO - Check all rez package and their unittests / CI / coverage
 
- - python_compatibility
- - rez_documentation_check
- - rez_batch_process
- - rez_utilities
+ --- python_compatibility
+ --- rez_documentation_check
+ --- rez_utilities
+
+ release everything as new minors
+
 
 TODO
 - do needs "intersphinx" finder
