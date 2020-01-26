@@ -1,10 +1,12 @@
 
 TODO:
 
+- Make sure that it only says intersphinx error for things that we can actually find URLs for
 - Check variants for missing linking. Not just the requires of a package
 - Make sure to check for missing intersphinx mapping URLs. Not just mappings
 - This should work with new style AND old style intersphinx mappings
 - Make sure there are test results (both for check and fix) that have NO intersphinx_mapping defined at all
+- Do a unittest for the --add-rez-requirements flag
 - Add example command-line use
 
 
