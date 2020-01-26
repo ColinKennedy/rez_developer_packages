@@ -73,6 +73,21 @@ def make_fake_source_package(name, text):
 
 @contextlib.contextmanager
 def override_packages_path(paths, prepend=False):
+    """Change the :attr:`rez.config.packages_path` attribute to whatever `paths` is.
+
+    Example:
+        >>> with override_packages_path(["/foo/bar"], prepend=True):
+        ...     some_command_that_relies_on_the_rez_api()
+
+    Args:
+        paths (list[str]):
+            The new paths that will be used to search for Rez packages.
+        prepend (bool, optional):
+            If False, `paths` will completely override :attr:`rez.config.packages_path`.
+            If True, `paths` will be given priority over :attr:`rez.config.packages_path`
+            but the original packages_path will stick around. Default is False.
+
+    """
     original = list(config.packages_path)  # pylint: disable=no-member
 
     if prepend:
