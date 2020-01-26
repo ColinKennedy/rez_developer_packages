@@ -92,10 +92,12 @@ class DuplicateBuildRequires(_DuplicateListAttribute):
         )
 
         self.assertEqual(1, len(issues))
-        message = [
-            "D: 3, 0: A Rez package was listed in ``build_requires`` more than once (duplicate-build-requires)",
-            "    Requirements should only list each Rez package once. But \"['something']\" requirements was listed multiple times.",
-        ]
+
+        first_line = "D: 3, 0: A Rez package was listed in ``build_requires`` " \
+            "more than once (duplicate-build-requires)"
+        other_line = "    Requirements should only list each Rez package once. " \
+            "But \"['something']\" requirements was listed multiple times."
+        message = [first_line, other_line]
 
         self.assertEqual(message, issues[0].get_message(verbose=True))
 
@@ -116,10 +118,12 @@ class DuplicateBuildRequires(_DuplicateListAttribute):
         )
 
         self.assertEqual(1, len(issues))
-        message = [
-            "D: 3, 0: A Rez package was listed in ``build_requires`` more than once (duplicate-build-requires)",
-            "    Requirements should only list each Rez package once. But \"['something']\" requirements was listed multiple times.",
-        ]
+
+        first_line = "D: 3, 0: A Rez package was listed in ``build_requires`` " \
+            "more than once (duplicate-build-requires)"
+        other_line = "    Requirements should only list each Rez package once. " \
+            "But \"['something']\" requirements was listed multiple times."
+        message = [first_line, other_line]
 
         self.assertEqual(message, issues[0].get_message(verbose=True))
 
@@ -140,10 +144,12 @@ class DuplicateBuildRequires(_DuplicateListAttribute):
         )
 
         self.assertEqual(1, len(issues))
-        message = [
-            "D: 3, 0: A Rez package was listed in ``build_requires`` more than once (duplicate-build-requires)",
-            "    Requirements should only list each Rez package once. But \"['something']\" requirements was listed multiple times.",
-        ]
+
+        first_line = "D: 3, 0: A Rez package was listed in ``build_requires`` " \
+            "more than once (duplicate-build-requires)"
+        other_line = "    Requirements should only list each Rez package once. " \
+            "But \"['something']\" requirements was listed multiple times."
+        message = [first_line, other_line]
 
         self.assertEqual(message, issues[0].get_message(verbose=True))
 
@@ -194,10 +200,12 @@ class DuplicatePrivateBuildRequires(_DuplicateListAttribute):
         )
 
         self.assertEqual(1, len(issues))
-        message = [
-            "D: 3, 0: A Rez package was listed in ``private_build_requires`` more than once (duplicate-private-build-requires)",
-            "    Requirements should only list each Rez package once. But \"['something']\" requirements was listed multiple times.",
-        ]
+
+        first_line = "D: 3, 0: A Rez package was listed in ``private_build_requires`` " \
+            "more than once (duplicate-private-build-requires)"
+        other_line = "    Requirements should only list each Rez package once. " \
+            "But \"['something']\" requirements was listed multiple times.",
+        message = [first_line, other_line]
 
         self.assertEqual(message, issues[0].get_message(verbose=True))
 
@@ -218,9 +226,14 @@ class DuplicatePrivateBuildRequires(_DuplicateListAttribute):
         )
 
         self.assertEqual(1, len(issues))
+
+        first_line = "D: 3, 0: A Rez package was listed in ``private_build_requires`` " \
+            "more than once (duplicate-private-build-requires)"
+        other_line = "    Requirements should only list each Rez package once. " \
+            "But \"['something']\" requirements was listed multiple times.",
         message = [
-            "D: 3, 0: A Rez package was listed in ``private_build_requires`` more than once (duplicate-private-build-requires)",
-            "    Requirements should only list each Rez package once. But \"['something']\" requirements was listed multiple times.",
+            first_line,
+            other_line,
         ]
 
         self.assertEqual(message, issues[0].get_message(verbose=True))
@@ -242,10 +255,12 @@ class DuplicatePrivateBuildRequires(_DuplicateListAttribute):
         )
 
         self.assertEqual(1, len(issues))
-        message = [
-            "D: 3, 0: A Rez package was listed in ``private_build_requires`` more than once (duplicate-private-build-requires)",
-            "    Requirements should only list each Rez package once. But \"['something']\" requirements was listed multiple times.",
-        ]
+
+        first_line = "D: 3, 0: A Rez package was listed in ``private_build_requires`` " \
+            "more than once (duplicate-private-build-requires)"
+        other_line = "    Requirements should only list each Rez package once. " \
+            "But \"['something']\" requirements was listed multiple times.",
+        message = [first_line, other_line]
 
         self.assertEqual(message, issues[0].get_message(verbose=True))
 
@@ -317,9 +332,12 @@ class DuplicateRequires(_DuplicateListAttribute):
         )
 
         self.assertEqual(1, len(issues))
+
+        line = "    Requirements should only list each Rez package once. " \
+            "But \"['some_dependency']\" requirements was listed multiple times."
         message = [
             "D: 3, 0: A Rez package was listed in ``requires`` more than once (duplicate-requires)",
-            "    Requirements should only list each Rez package once. But \"['some_dependency']\" requirements was listed multiple times.",
+            line,
         ]
 
         self.assertEqual(message, issues[0].get_message(verbose=True))
@@ -342,9 +360,12 @@ class DuplicateRequires(_DuplicateListAttribute):
         )
 
         self.assertEqual(1, len(issues))
+
+        line = "    Requirements should only list each Rez package once. " \
+            "But \"['some_dependency']\" requirements was listed multiple times."
         message = [
             "D: 3, 0: A Rez package was listed in ``requires`` more than once (duplicate-requires)",
-            "    Requirements should only list each Rez package once. But \"['some_dependency']\" requirements was listed multiple times.",
+            line,
         ]
 
         self.assertEqual(message, issues[0].get_message(verbose=True))
@@ -367,9 +388,12 @@ class DuplicateRequires(_DuplicateListAttribute):
         )
 
         self.assertEqual(1, len(issues))
+
+        line = "    Requirements should only list each Rez package once. " \
+            "But \"['some_dependency']\" requirements was listed multiple times."
         message = [
             "D: 3, 0: A Rez package was listed in ``requires`` more than once (duplicate-requires)",
-            "    Requirements should only list each Rez package once. But \"['some_dependency']\" requirements was listed multiple times.",
+            line,
         ]
 
         self.assertEqual(message, issues[0].get_message(verbose=True))
