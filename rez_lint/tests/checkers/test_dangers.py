@@ -19,12 +19,28 @@ from .. import packaging
 
 
 class _DuplicateListAttribute(packaging.BasePackaging):
+    """A generic unittest class that looks for a small set of reported issues."""
+
     _expected_summary_lines = (
         "A Rez package was listed in ``requires`` more than once",
         "Multiple Rez packages were listed in ``requires`` more than once",
     )
 
     def _get_issues(self, name, text):
+        """Find all issues that this class is tracking, given some Rez package data.
+
+        This method creates a fake source Rez package and passes it to
+        ``rez_lint`` for testing.
+
+        Args:
+            name (str): The name of the source Rez package that will be created.
+            text (str): The code used for a package.py file, for that Rez package.
+
+        Returns:
+            list[:class:`rez_lint.core.message_description.Description`]:
+                The found issues, if any.
+
+        """
         directory = packaging.make_fake_source_package(name, text)
         self.add_item(directory)
 
@@ -37,6 +53,16 @@ class _DuplicateListAttribute(packaging.BasePackaging):
         ]
 
     def _test_empty(self, name, text):
+        """Check for the class's expected issues and confirm that no issue exists.
+
+        Args:
+            name (str): The name of the source Rez package that will be created.
+            text (str): The code used for a package.py file, for that Rez package.
+
+        Raises:
+            AssertionError: If the issue that this class checks was found in the package.
+
+        """
         issues = self._get_issues(name, text)
         issues = [
             issue
@@ -47,12 +73,15 @@ class _DuplicateListAttribute(packaging.BasePackaging):
 
 
 class DuplicateBuildRequires(_DuplicateListAttribute):
+    """Check that :class:`rez_lint.plugins.checkers.dangers.DuplicateBuildRequires` works."""
+
     _expected_summary_lines = (
         "A Rez package was listed in ``build_requires`` more than once",
         "Multiple Rez packages were listed in ``build_requires`` more than once",
     )
 
     def test_undefined(self):
+        """Report no issue if a Rez package's list of requirements is undefined."""
         self._test_empty(
             "some_fake_package",
             textwrap.dedent(
@@ -64,6 +93,7 @@ class DuplicateBuildRequires(_DuplicateListAttribute):
         )
 
     def test_empty(self):
+        """Report no issue if a Rez package's list of requirements is empty."""
         self._test_empty(
             "some_fake_package",
             textwrap.dedent(
@@ -76,6 +106,7 @@ class DuplicateBuildRequires(_DuplicateListAttribute):
         )
 
     def test_001(self):
+        """Check that 2 dependencies without an explicit version still report an issue."""
         issues = self._get_issues(
             "some_fake_package",
             textwrap.dedent(
@@ -102,6 +133,7 @@ class DuplicateBuildRequires(_DuplicateListAttribute):
         self.assertEqual(message, issues[0].get_message(verbose=True))
 
     def test_002(self):
+        """Check that a dependency with and without an explicit version still report an issue."""
         issues = self._get_issues(
             "some_fake_package",
             textwrap.dedent(
@@ -128,6 +160,7 @@ class DuplicateBuildRequires(_DuplicateListAttribute):
         self.assertEqual(message, issues[0].get_message(verbose=True))
 
     def test_003(self):
+        """Check that 2 dependencies that have explicit version ranges still report an issue."""
         issues = self._get_issues(
             "some_fake_package",
             textwrap.dedent(
@@ -155,12 +188,15 @@ class DuplicateBuildRequires(_DuplicateListAttribute):
 
 
 class DuplicatePrivateBuildRequires(_DuplicateListAttribute):
+    """Check that :class:`rez_lint.plugins.checkers.dangers.DuplicatePrivateBuildRequires` works."""
+
     _expected_summary_lines = (
         "A Rez package was listed in ``private_build_requires`` more than once",
         "Multiple Rez packages were listed in ``private_build_requires`` more than once",
     )
 
     def test_undefined(self):
+        """Report no issue if a Rez package's list of requirements is undefined."""
         self._test_empty(
             "some_fake_package",
             textwrap.dedent(
@@ -172,6 +208,7 @@ class DuplicatePrivateBuildRequires(_DuplicateListAttribute):
         )
 
     def test_empty(self):
+        """Report no issue if a Rez package's list of requirements is empty."""
         self._test_empty(
             "some_fake_package",
             textwrap.dedent(
@@ -184,6 +221,7 @@ class DuplicatePrivateBuildRequires(_DuplicateListAttribute):
         )
 
     def test_001(self):
+        """Check that 2 dependencies without an explicit version still report an issue."""
         issues = self._get_issues(
             "some_fake_package",
             textwrap.dedent(
@@ -210,6 +248,7 @@ class DuplicatePrivateBuildRequires(_DuplicateListAttribute):
         self.assertEqual(message, issues[0].get_message(verbose=True))
 
     def test_002(self):
+        """Check that a dependency with and without an explicit version still report an issue."""
         issues = self._get_issues(
             "some_fake_package",
             textwrap.dedent(
@@ -239,6 +278,7 @@ class DuplicatePrivateBuildRequires(_DuplicateListAttribute):
         self.assertEqual(message, issues[0].get_message(verbose=True))
 
     def test_003(self):
+        """Check that 2 dependencies that have explicit version ranges still report an issue."""
         issues = self._get_issues(
             "some_fake_package",
             textwrap.dedent(
@@ -266,7 +306,10 @@ class DuplicatePrivateBuildRequires(_DuplicateListAttribute):
 
 
 class DuplicateRequires(_DuplicateListAttribute):
+    """Check that :class:`rez_lint.plugins.checkers.dangers.DuplicateRequires` works."""
+
     def test_undefined_001(self):
+        """Report no issue if a Rez package's list of requirements is undefined."""
         self._test_empty(
             "some_fake_package",
             textwrap.dedent(
@@ -278,6 +321,7 @@ class DuplicateRequires(_DuplicateListAttribute):
         )
 
     def test_undefined_002(self):
+        """Report no issue if a Rez package's list of variants is undefined."""
         self._test_empty(
             "some_fake_package",
             textwrap.dedent(
@@ -290,6 +334,7 @@ class DuplicateRequires(_DuplicateListAttribute):
         )
 
     def test_undefined_003(self):
+        """Report no issue if a Rez package's list of requirements is undefined."""
         self._test_empty(
             "some_fake_package",
             textwrap.dedent(
@@ -302,6 +347,7 @@ class DuplicateRequires(_DuplicateListAttribute):
         )
 
     def test_empty(self):
+        """Report no issue if a Rez package's list of requirements is empty."""
         self._test_empty(
             "some_fake_package",
             textwrap.dedent(
@@ -315,6 +361,7 @@ class DuplicateRequires(_DuplicateListAttribute):
         )
 
     def test_001(self):
+        """Check that 2 dependencies without an explicit version still report an issue."""
         issues = self._get_issues(
             "some_fake_package",
             textwrap.dedent(
@@ -343,6 +390,7 @@ class DuplicateRequires(_DuplicateListAttribute):
         self.assertEqual(message, issues[0].get_message(verbose=True))
 
     def test_002(self):
+        """Check that a dependency with and without an explicit version still report an issue."""
         issues = self._get_issues(
             "some_fake_package",
             textwrap.dedent(
@@ -371,6 +419,7 @@ class DuplicateRequires(_DuplicateListAttribute):
         self.assertEqual(message, issues[0].get_message(verbose=True))
 
     def test_003(self):
+        """Check that 2 dependencies that have explicit version ranges still report an issue."""
         issues = self._get_issues(
             "some_fake_package",
             textwrap.dedent(
