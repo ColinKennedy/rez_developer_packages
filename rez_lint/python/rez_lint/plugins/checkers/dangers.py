@@ -42,20 +42,26 @@ class _DuplicateListAttribute(base_checker.BaseChecker):
         else:
             beginning = "Multiple Rez packages were"
 
-        summary = beginning + " listed in ``{cls._attribute_name}`` more than once".format(cls=cls)
+        summary = (
+            beginning
+            + " listed in ``{cls._attribute_name}`` more than once".format(cls=cls)
+        )
 
         full = [
             summary,
-            'Requirements should only list each Rez package once. '
+            "Requirements should only list each Rez package once. "
             'But "{duplicates}" requirements was listed multiple times.'.format(
-                duplicates=sorted(duplicates))
+                duplicates=sorted(duplicates)
+            ),
         ]
 
         row = package_parser.get_definition_row(package, cls._attribute_name)
         code = base_checker.Code(short_name="D", long_name=cls.get_long_code())
         text = package_parser.get_line_at_row(package, row)
 
-        location = message_description.Location(path=package, row=row, column=0, text=text)
+        location = message_description.Location(
+            path=package, row=row, column=0, text=text
+        )
 
         return [
             message_description.Description([summary], location, code=code, full=full),
@@ -73,9 +79,13 @@ class _DuplicateListAttribute(base_checker.BaseChecker):
             set[str]: The found package families.
 
         """
-        counter = collections.Counter([requirement.name for requirement in requirements])
+        counter = collections.Counter(
+            [requirement.name for requirement in requirements]
+        )
 
-        return {package_name for package_name, count in counter.most_common() if count > 1}
+        return {
+            package_name for package_name, count in counter.most_common() if count > 1
+        }
 
     @staticmethod
     @abc.abstractmethod
