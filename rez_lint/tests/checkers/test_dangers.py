@@ -1730,7 +1730,7 @@ class UrlNotReachable(packaging.BasePackaging):
         self.assertEqual(1, len(issues))
 
     def test_unreachable_003(self):
-        """Report an issue if the URL is an absolute path that doesn't point to something on-disk."""
+        """Report an issue if the URL is an absolute path that doesn't exist on-disk."""
         absolute_root = tempfile.mkdtemp()
         shutil.rmtree(absolute_root)
 
