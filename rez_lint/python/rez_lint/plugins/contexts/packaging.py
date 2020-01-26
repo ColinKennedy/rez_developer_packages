@@ -3,10 +3,8 @@
 
 """A module for context plugins that are slow or difficult to query."""
 
-import collections
 import logging
 import os
-import re
 import subprocess
 
 from python_compatibility import filer
