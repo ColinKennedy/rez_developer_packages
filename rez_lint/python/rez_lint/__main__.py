@@ -185,7 +185,7 @@ def main():
 
     if arguments.vimgrep:
         # Make sure that each file + row / column prints in ascending order
-        lines = sorted(lines, key=message_description.get_vimgrep_sort)
+        lines = message_description.sort_with_vimgrep(lines)
 
     for line in lines:
         print(line)

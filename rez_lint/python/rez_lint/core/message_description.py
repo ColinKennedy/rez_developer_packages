@@ -185,7 +185,7 @@ class Description(object):
         )
 
 
-def get_vimgrep_sort(line):  # pragma: no cover
+def _get_vimgrep_sort(line):  # pragma: no cover
     """Get a sorting priority for some vimgrep-style line of text.
 
     Args:
@@ -199,4 +199,29 @@ def get_vimgrep_sort(line):  # pragma: no cover
             function as a key.
 
     """
-    return tuple([int(item) if item.isdigit() else item for item in line.split()])
+    items = []
+
+    for item in line.split():
+        stripped = item.strip(',:')
+
+        if stripped.isdigit():
+            items.append(int(stripped))
+        else:
+            items.append(item)
+
+    return tuple(items)
+
+
+def sort_with_vimgrep(lines):
+    """Sort some vimrgrep-formatted lines, based on file path and row / column data.
+
+    Args:
+        lines (iter[str]):
+            Text such as ["package.py:10:0:requires = ["].
+            (Where 10 is the row number, 0 is the column)
+
+    Returns:
+        list[str]: The sorted text.
+
+    """
+    return sorted(lines, key=_get_vimgrep_sort)

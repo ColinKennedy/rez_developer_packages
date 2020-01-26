@@ -194,3 +194,45 @@ class MessageDescription(common.Common):
         )
 
         self.assertFalse(description.is_location_specific())
+
+    def test_sorting(self):
+        """Make sure the vimgrep output is sorted correctly."""
+        descriptions = [
+            message_description.Description(
+                ["some text"],
+                message_description.Location("foo", 110, 3, ""),
+                base_checker.Code(short_name="Z", long_name="some-code"),
+            ),
+            message_description.Description(
+                ["bar"],
+                message_description.Location("foo", 1, 10, ""),
+                base_checker.Code(short_name="Z", long_name="some-code"),
+            ),
+            message_description.Description(
+                ["another"],
+                message_description.Location("foo", 1, 10, ""),
+                base_checker.Code(short_name="Z", long_name="some-code"),
+            ),
+            message_description.Description(
+                ["foo"],
+                message_description.Location("foo", 20, 10, ""),
+                base_checker.Code(short_name="Z", long_name="some-code"),
+            ),
+        ]
+
+        lines = []
+        lines.extend(
+            line
+            for description in descriptions
+            for line in description.get_message(verbose=True)
+        )
+
+        self.assertEqual(
+            [
+                "Z: 1, 10: another (some-code)",
+                "Z: 1, 10: bar (some-code)",
+                "Z: 20, 10: foo (some-code)",
+                "Z: 110, 3: some text (some-code)",
+            ],
+            message_description.sort_with_vimgrep(lines),
+        )
