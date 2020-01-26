@@ -489,31 +489,22 @@ class ImproperRequirements(packaging.BasePackaging):
         )
         dependency_path = inspection.get_packages_path_from_package(dependency_package)
 
-        original = list(config.packages_path)  # pylint: disable=no-member
-        config.packages_path[:] = [  # pylint: disable=no-member
-            dependency_path
-        ] + original
+        installed_package = self._make_installed_package(
+            "my_package",
+            textwrap.dedent(
+                """\
+                name = "my_package"
+                version = "1.0.0"
 
-        try:
-            installed_package = self._make_installed_package(
-                "my_package",
-                textwrap.dedent(
-                    """\
-                    name = "my_package"
-                    version = "1.0.0"
+                requires = [
+                    "some_dependency_that_is_okay",
+                ]
 
-                    requires = [
-                        "some_dependency_that_is_okay",
-                    ]
-
-                    build_command = "echo 'foo'"
-                    """
-                ),
-            )
-        except Exception:
-            raise
-        finally:
-            config.packages_path[:] = original  # pylint: disable=no-member
+                build_command = "echo 'foo'"
+                """
+            ),
+            packages_path=[dependency_path] + config.packages_path,  # pylint: disable=no-member
+        )
 
         directory = inspection.get_package_root(installed_package)
         original = list(config.packages_path)  # pylint: disable=no-member
@@ -586,29 +577,25 @@ class ImproperRequirements(packaging.BasePackaging):
             dependencies.add(inspection.get_packages_path_from_package(package))
 
         dependencies = list(dependencies)
-        original = list(config.packages_path)  # pylint: disable=no-member
-        config.packages_path[:] = dependencies + original  # pylint: disable=no-member
 
-        try:
-            installed_package = self._make_installed_package(
-                "my_package",
-                textwrap.dedent(
-                    """\
-                    name = "my_package"
-                    version = "1.0.0"
+        installed_package = self._make_installed_package(
+            "my_package",
+            textwrap.dedent(
+                """\
+                name = "my_package"
+                version = "1.0.0"
 
-                    requires = [
-                        "cmake",
-                        "mock",
-                        "some_dependency_that_is_okay",
-                    ]
+                requires = [
+                    "cmake",
+                    "mock",
+                    "some_dependency_that_is_okay",
+                ]
 
-                    build_command = "echo 'foo'"
-                    """
-                ),
-            )
-        finally:
-            config.packages_path[:] = original  # pylint: disable=no-member
+                build_command = "echo 'foo'"
+                """
+            ),
+            packages_path=dependencies + config.packages_path,  # pylint: disable=no-member
+        )
 
         directory = inspection.get_package_root(installed_package)
         original = list(config.packages_path)  # pylint: disable=no-member
@@ -677,28 +664,24 @@ class ImproperRequirements(packaging.BasePackaging):
             dependencies.add(inspection.get_packages_path_from_package(package))
 
         dependencies = list(dependencies)
-        original = list(config.packages_path)  # pylint: disable=no-member
-        config.packages_path[:] = dependencies + original  # pylint: disable=no-member
 
-        try:
-            installed_package = self._make_installed_package(
-                "my_package",
-                textwrap.dedent(
-                    """\
-                    name = "my_package"
-                    version = "1.0.0"
+        installed_package = self._make_installed_package(
+            "my_package",
+            textwrap.dedent(
+                """\
+                name = "my_package"
+                version = "1.0.0"
 
-                    requires = [
-                        "mock",
-                        "some_dependency_that_is_okay",
-                    ]
+                requires = [
+                    "mock",
+                    "some_dependency_that_is_okay",
+                ]
 
-                    build_command = "echo 'foo'"
-                    """
-                ),
-            )
-        finally:
-            config.packages_path[:] = original  # pylint: disable=no-member
+                build_command = "echo 'foo'"
+                """
+            ),
+            packages_path=dependencies + config.packages_path,  # pylint: disable=no-member
+        )
 
         directory = inspection.get_package_root(installed_package)
         original = list(config.packages_path)  # pylint: disable=no-member
