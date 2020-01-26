@@ -33,6 +33,7 @@ from . import creator
 
 _LOGGER = logging.getLogger(__name__)
 
+
 def _get_variant_less_path(root, path, variants):
     """Check if a path is inside of a source Rez package's list of variants.
 
@@ -231,7 +232,7 @@ def has_python_package(package, paths=None, allow_build=True):
 
 
 def get_package_python_paths(package, context):
-    """Get the Python files that a Rez package adds to the user's PYTHONPATH
+    """Get the Python files that a Rez package adds to the user's PYTHONPATH.
 
     If the Rez package is an installed Rez package and it contains
     variants, each variant will have its paths returned.
@@ -287,7 +288,9 @@ def get_package_python_paths(package, context):
         # returning it.
         #
         try:
-            variant_less_path = next(_iter_variant_extracted_paths(root, path, package.variants or []))
+            variant_less_path = next(
+                _iter_variant_extracted_paths(root, path, package.variants or [])
+            )
         except StopIteration:
             pass
         else:

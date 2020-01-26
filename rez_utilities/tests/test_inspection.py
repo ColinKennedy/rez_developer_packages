@@ -321,7 +321,9 @@ class GetPackagePythonFiles(common.Common):
 
         context = resolved_context.ResolvedContext(
             ["{package.name}==".format(package=package)],
-            package_paths=[inspection.get_packages_path_from_package(package)] + extra_paths + config.packages_path,
+            package_paths=[inspection.get_packages_path_from_package(package)]
+            + extra_paths
+            + config.packages_path,
         )
 
         return inspection.get_package_python_paths(package, context), root
@@ -345,7 +347,7 @@ class GetPackagePythonFiles(common.Common):
 
                     env.PYTHONPATH.append(os.path.join("{root}", "python"))
                 """
-            )
+            ),
         )
 
         dependency2, _ = self._make_fake_rez_install_package(
@@ -361,7 +363,7 @@ class GetPackagePythonFiles(common.Common):
 
                     env.PYTHONPATH.append(os.path.join("{root}", "python"))
                 """
-            )
+            ),
         )
 
         return [
@@ -380,7 +382,7 @@ class GetPackagePythonFiles(common.Common):
                 def commands():
                     pass
                 """
-            )
+            ),
         )
 
         self.assertEqual(set(), python_files)
@@ -393,7 +395,7 @@ class GetPackagePythonFiles(common.Common):
                 name = "some_fake_package"
                 version = "1.0.0"
                 """
-            )
+            ),
         )
 
         self.assertEqual(set(), python_files)
@@ -411,7 +413,7 @@ class GetPackagePythonFiles(common.Common):
 
                     env.PYTHONPATH.append(os.path.join("{root}", "python"))
                 """
-            )
+            ),
         )
 
         self.assertEqual({os.path.join(root, "python")}, python_files)
@@ -457,12 +459,16 @@ class GetPackagePythonFiles(common.Common):
 
         context = resolved_context.ResolvedContext(
             ["{package.name}==1.0.0".format(package=package)],
-            package_paths=[inspection.get_packages_path_from_package(package)] + dependencies + config.packages_path,
+            package_paths=[inspection.get_packages_path_from_package(package)]
+            + dependencies
+            + config.packages_path,
         )
 
         python_files = inspection.get_package_python_paths(package, context)
 
-        self.assertEqual({os.path.join(root, "some_fake_package", "1.0.0", "python")}, python_files)
+        self.assertEqual(
+            {os.path.join(root, "some_fake_package", "1.0.0", "python")}, python_files
+        )
 
     def test_installed_package_with_variants(self):
         dependencies = self._make_test_dependencies()
@@ -486,20 +492,28 @@ class GetPackagePythonFiles(common.Common):
         self.add_item(install_path)
 
         build_package = creator.build(
-            package,
-            install_path,
-            packages_path=dependencies + config.packages_path,
+            package, install_path, packages_path=dependencies + config.packages_path,
         )
 
         context = resolved_context.ResolvedContext(
             ["{build_package.name}==1.0.0".format(build_package=build_package)],
-            package_paths=[inspection.get_packages_path_from_package(build_package)] + dependencies + config.packages_path,
+            package_paths=[inspection.get_packages_path_from_package(build_package)]
+            + dependencies
+            + config.packages_path,
         )
 
         python_files = inspection.get_package_python_paths(build_package, context)
 
         self.assertEqual(
-            {os.path.join(install_path, "some_fake_package", "1.0.0", "another_one-2.3", "python")},
+            {
+                os.path.join(
+                    install_path,
+                    "some_fake_package",
+                    "1.0.0",
+                    "another_one-2.3",
+                    "python",
+                )
+            },
             python_files,
         )
 
@@ -526,7 +540,7 @@ def _check_called(function):
 
 def _get_rezbuild_text():
     return textwrap.dedent(
-        '''\
+        """\
         #!/usr/bin/env python
         # -*- coding: utf-8 -*-
 
@@ -552,5 +566,5 @@ def _get_rezbuild_text():
                 source_path=os.environ["REZ_BUILD_SOURCE_PATH"],
                 install_path=os.environ["REZ_BUILD_INSTALL_PATH"],
             )
-        '''
+        """
     )

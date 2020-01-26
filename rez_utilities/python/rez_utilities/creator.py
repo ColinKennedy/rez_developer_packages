@@ -44,7 +44,7 @@ def build(package, install_path, packages_path=None):
     """
     if packages_path:
         # If the user has custom paths to use for building, prefer those
-        # Reference: https://github.com/nerdvegas/rez/blob/da16fdeb754ccd93c8ce54fa2b6a4d4ef3601e6b/src/rez/build_process_.py#L232
+        # Reference: https://github.com/nerdvegas/rez/blob/da16fdeb754ccd93c8ce54fa2b6a4d4ef3601e6b/src/rez/build_process_.py#L232 pylint: disable=line-too-long
         #
         package = copy.deepcopy(package)
         package.config.packages_path[:] = packages_path
