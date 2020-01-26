@@ -3,11 +3,13 @@
 
 """A set of basic classes and functions to make unittesting for ``rez_lint`` a bit easier."""
 
+import contextlib
 import os
 import tempfile
 
 from python_compatibility.testing import common
 from rez import packages_
+from rez.config import config
 from rez_utilities import creator, inspection
 
 
@@ -39,7 +41,9 @@ class BasePackaging(common.Common):
         directory = make_fake_source_package(name, text)
 
         package = packages_.get_developer_package(directory)
-        new_package = creator.build(package, tempfile.mkdtemp(), packages_path=packages_path)
+        new_package = creator.build(
+            package, tempfile.mkdtemp(), packages_path=packages_path
+        )
 
         self.add_item(os.path.dirname(directory))
         self.add_item(inspection.get_packages_path_from_package(new_package))
@@ -65,3 +69,18 @@ def make_fake_source_package(name, text):
         handler.write(text)
 
     return directory
+
+
+@contextlib.contextmanager
+def override_packages_path(paths, prepend=False):
+    original = list(config.packages_path)  # pylint: disable=no-member
+
+    if prepend:
+        config.packages_path[:] = paths + original  # pylint: disable=no-member
+    else:
+        config.packages_path[:] = paths  # pylint: disable=no-member
+
+    try:
+        yield
+    finally:
+        config.packages_path[:] = original  # pylint: disable=no-member

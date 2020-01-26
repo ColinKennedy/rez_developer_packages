@@ -56,13 +56,9 @@ class SourceResolved(testing_packaging.BasePackaging):
         dependency_path = inspection.get_packages_path_from_package(dependency_package)
 
         context = dict()
-        original = list(config.packages_path)  # pylint: disable=no-member
-        config.packages_path[:] = [dependency_path] + original  # pylint: disable=no-member
 
-        try:
+        with testing_packaging.override_packages_path([dependency_path], prepend=True):
             packaging.SourceResolvedContext.run(package, context)
-        finally:
-            config.packages_path[:] = original  # pylint: disable=no-member
 
         self.assertTrue(lint_constant.RESOLVED_SOURCE_CONTEXT in context)
         rez_resolved = context[lint_constant.RESOLVED_SOURCE_CONTEXT]

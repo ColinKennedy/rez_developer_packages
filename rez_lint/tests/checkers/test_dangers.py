@@ -124,10 +124,14 @@ class DuplicateBuildRequires(_DuplicateListAttribute):
 
         self.assertEqual(1, len(issues))
 
-        first_line = "D: 3, 0: A Rez package was listed in ``build_requires`` " \
+        first_line = (
+            "D: 3, 0: A Rez package was listed in ``build_requires`` "
             "more than once (duplicate-build-requires)"
-        other_line = "    Requirements should only list each Rez package once. " \
+        )
+        other_line = (
+            "    Requirements should only list each Rez package once. "
             "But \"['something']\" requirements was listed multiple times."
+        )
         message = [first_line, other_line]
 
         self.assertEqual(message, issues[0].get_message(verbose=True))
@@ -151,10 +155,14 @@ class DuplicateBuildRequires(_DuplicateListAttribute):
 
         self.assertEqual(1, len(issues))
 
-        first_line = "D: 3, 0: A Rez package was listed in ``build_requires`` " \
+        first_line = (
+            "D: 3, 0: A Rez package was listed in ``build_requires`` "
             "more than once (duplicate-build-requires)"
-        other_line = "    Requirements should only list each Rez package once. " \
+        )
+        other_line = (
+            "    Requirements should only list each Rez package once. "
             "But \"['something']\" requirements was listed multiple times."
+        )
         message = [first_line, other_line]
 
         self.assertEqual(message, issues[0].get_message(verbose=True))
@@ -178,10 +186,14 @@ class DuplicateBuildRequires(_DuplicateListAttribute):
 
         self.assertEqual(1, len(issues))
 
-        first_line = "D: 3, 0: A Rez package was listed in ``build_requires`` " \
+        first_line = (
+            "D: 3, 0: A Rez package was listed in ``build_requires`` "
             "more than once (duplicate-build-requires)"
-        other_line = "    Requirements should only list each Rez package once. " \
+        )
+        other_line = (
+            "    Requirements should only list each Rez package once. "
             "But \"['something']\" requirements was listed multiple times."
+        )
         message = [first_line, other_line]
 
         self.assertEqual(message, issues[0].get_message(verbose=True))
@@ -239,10 +251,14 @@ class DuplicatePrivateBuildRequires(_DuplicateListAttribute):
 
         self.assertEqual(1, len(issues))
 
-        first_line = "D: 3, 0: A Rez package was listed in ``private_build_requires`` " \
+        first_line = (
+            "D: 3, 0: A Rez package was listed in ``private_build_requires`` "
             "more than once (duplicate-private-build-requires)"
-        other_line = "    Requirements should only list each Rez package once. " \
+        )
+        other_line = (
+            "    Requirements should only list each Rez package once. "
             "But \"['something']\" requirements was listed multiple times."
+        )
         message = [first_line, other_line]
 
         self.assertEqual(message, issues[0].get_message(verbose=True))
@@ -266,10 +282,14 @@ class DuplicatePrivateBuildRequires(_DuplicateListAttribute):
 
         self.assertEqual(1, len(issues))
 
-        first_line = "D: 3, 0: A Rez package was listed in ``private_build_requires`` " \
+        first_line = (
+            "D: 3, 0: A Rez package was listed in ``private_build_requires`` "
             "more than once (duplicate-private-build-requires)"
-        other_line = "    Requirements should only list each Rez package once. " \
+        )
+        other_line = (
+            "    Requirements should only list each Rez package once. "
             "But \"['something']\" requirements was listed multiple times."
+        )
         message = [
             first_line,
             other_line,
@@ -296,10 +316,14 @@ class DuplicatePrivateBuildRequires(_DuplicateListAttribute):
 
         self.assertEqual(1, len(issues))
 
-        first_line = "D: 3, 0: A Rez package was listed in ``private_build_requires`` " \
+        first_line = (
+            "D: 3, 0: A Rez package was listed in ``private_build_requires`` "
             "more than once (duplicate-private-build-requires)"
-        other_line = "    Requirements should only list each Rez package once. " \
+        )
+        other_line = (
+            "    Requirements should only list each Rez package once. "
             "But \"['something']\" requirements was listed multiple times."
+        )
         message = [first_line, other_line]
 
         self.assertEqual(message, issues[0].get_message(verbose=True))
@@ -380,8 +404,10 @@ class DuplicateRequires(_DuplicateListAttribute):
 
         self.assertEqual(1, len(issues))
 
-        line = "    Requirements should only list each Rez package once. " \
+        line = (
+            "    Requirements should only list each Rez package once. "
             "But \"['some_dependency']\" requirements was listed multiple times."
+        )
         message = [
             "D: 3, 0: A Rez package was listed in ``requires`` more than once (duplicate-requires)",
             line,
@@ -409,8 +435,10 @@ class DuplicateRequires(_DuplicateListAttribute):
 
         self.assertEqual(1, len(issues))
 
-        line = "    Requirements should only list each Rez package once. " \
+        line = (
+            "    Requirements should only list each Rez package once. "
             "But \"['some_dependency']\" requirements was listed multiple times."
+        )
         message = [
             "D: 3, 0: A Rez package was listed in ``requires`` more than once (duplicate-requires)",
             line,
@@ -438,8 +466,10 @@ class DuplicateRequires(_DuplicateListAttribute):
 
         self.assertEqual(1, len(issues))
 
-        line = "    Requirements should only list each Rez package once. " \
+        line = (
+            "    Requirements should only list each Rez package once. "
             "But \"['some_dependency']\" requirements was listed multiple times."
+        )
         message = [
             "D: 3, 0: A Rez package was listed in ``requires`` more than once (duplicate-requires)",
             line,
@@ -503,20 +533,16 @@ class ImproperRequirements(packaging.BasePackaging):
                 build_command = "echo 'foo'"
                 """
             ),
-            packages_path=[dependency_path] + config.packages_path,  # pylint: disable=no-member
+            packages_path=[dependency_path]
+            + config.packages_path,  # pylint: disable=no-member
         )
 
         directory = inspection.get_package_root(installed_package)
-        original = list(config.packages_path)  # pylint: disable=no-member
-        config.packages_path[:] = [  # pylint: disable=no-member
-            directory,
-            dependency_path,
-        ] + original
 
-        try:
+        with packaging.override_packages_path(
+            [directory, dependency_path], prepend=True
+        ):
             results = cli.lint(directory)
-        finally:
-            config.packages_path[:] = original  # pylint: disable=no-member
 
         has_issue = any(
             description
@@ -594,19 +620,14 @@ class ImproperRequirements(packaging.BasePackaging):
                 build_command = "echo 'foo'"
                 """
             ),
-            packages_path=dependencies + config.packages_path,  # pylint: disable=no-member
+            packages_path=dependencies
+            + config.packages_path,  # pylint: disable=no-member
         )
 
         directory = inspection.get_package_root(installed_package)
-        original = list(config.packages_path)  # pylint: disable=no-member
-        config.packages_path[:] = (  # pylint: disable=no-member
-            [directory] + dependencies + original
-        )
 
-        try:
+        with packaging.override_packages_path([directory] + dependencies, prepend=True):
             results = cli.lint(directory)
-        finally:
-            config.packages_path[:] = original  # pylint: disable=no-member
 
         issues = [
             description
@@ -680,19 +701,14 @@ class ImproperRequirements(packaging.BasePackaging):
                 build_command = "echo 'foo'"
                 """
             ),
-            packages_path=dependencies + config.packages_path,  # pylint: disable=no-member
+            packages_path=dependencies
+            + config.packages_path,  # pylint: disable=no-member
         )
 
         directory = inspection.get_package_root(installed_package)
-        original = list(config.packages_path)  # pylint: disable=no-member
-        config.packages_path[:] = (  # pylint: disable=no-member
-            [directory] + dependencies + original
-        )
 
-        try:
+        with packaging.override_packages_path([directory] + dependencies, prepend=True):
             results = cli.lint(directory)
-        finally:
-            config.packages_path[:] = original  # pylint: disable=no-member
 
         issues = [
             description
@@ -784,7 +800,8 @@ class MissingRequirements(packaging.BasePackaging):
         creator.build(
             packages_.get_developer_package(dependency2_directory),
             dependency2_build_path,
-            packages_path=[dependency1_build_path] + config.packages_path,  # pylint: disable=no-member
+            packages_path=[dependency1_build_path]
+            + config.packages_path,  # pylint: disable=no-member
         )
 
         return [dependency1_build_path, dependency2_build_path]
@@ -928,13 +945,8 @@ class MissingRequirements(packaging.BasePackaging):
         ) as handler:
             handler.write("import some_module; print(some_module.get_foo())")
 
-        original = list(config.packages_path)  # pylint: disable=no-member
-        config.packages_path[:] = dependency_paths + config.packages_path  # pylint: disable=no-member
-
-        try:
+        with packaging.override_packages_path(dependency_paths, prepend=True):
             results = cli.lint(root)
-        finally:
-            config.packages_path[:] = original  # pylint: disable=no-member
 
         issues = [
             description
@@ -983,13 +995,8 @@ class MissingRequirements(packaging.BasePackaging):
         ) as handler:
             handler.write("import some_module; print(some_module.get_foo())")
 
-        original = list(config.packages_path)  # pylint: disable=no-member
-        config.packages_path[:] = dependency_paths + config.packages_path  # pylint: disable=no-member
-
-        try:
+        with packaging.override_packages_path(dependency_paths, prepend=True):
             results = cli.lint(root)
-        finally:
-            config.packages_path[:] = original  # pylint: disable=no-member
 
         issues = [
             description
@@ -1518,15 +1525,8 @@ class TooManyDependencies(packaging.BasePackaging):
 
             self.add_item(os.path.dirname(directory))
 
-        original = list(config.packages_path)  # pylint: disable=no-member
-        config.packages_path[:] = (  # pylint: disable=no-member
-            list(dependencies) + original
-        )
-
-        try:
+        with packaging.override_packages_path(list(dependencies), prepend=True):
             results = cli.lint(root)
-        finally:
-            config.packages_path[:] = original  # pylint: disable=no-member
 
         issues = [
             description
