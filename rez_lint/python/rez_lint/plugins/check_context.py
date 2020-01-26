@@ -31,6 +31,8 @@ class Context(collections.MutableMapping):
                 everything to be printed.
 
         """
+        super(Context, self).__init__()  # pylint: disable=no-member
+
         self._data = {
             "package": package,
             "runtime_context": {"processed_packages": processed_packages or []},
