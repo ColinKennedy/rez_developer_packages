@@ -49,7 +49,7 @@ tests = {
         "command": "pylint --disable=bad-continuation python/rez_lint",
         "requires": ["pylint-1.9+<2"],
     },
-    "pylint_test": {
+    "pylint_tests": {
         "command": "pylint --disable=bad-continuation,duplicate-code tests",
         "requires": ["pylint-1.9+<2"],
     },
