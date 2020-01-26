@@ -242,7 +242,7 @@ class DuplicatePrivateBuildRequires(_DuplicateListAttribute):
         first_line = "D: 3, 0: A Rez package was listed in ``private_build_requires`` " \
             "more than once (duplicate-private-build-requires)"
         other_line = "    Requirements should only list each Rez package once. " \
-            "But \"['something']\" requirements was listed multiple times.",
+            "But \"['something']\" requirements was listed multiple times."
         message = [first_line, other_line]
 
         self.assertEqual(message, issues[0].get_message(verbose=True))
@@ -269,7 +269,7 @@ class DuplicatePrivateBuildRequires(_DuplicateListAttribute):
         first_line = "D: 3, 0: A Rez package was listed in ``private_build_requires`` " \
             "more than once (duplicate-private-build-requires)"
         other_line = "    Requirements should only list each Rez package once. " \
-            "But \"['something']\" requirements was listed multiple times.",
+            "But \"['something']\" requirements was listed multiple times."
         message = [
             first_line,
             other_line,
@@ -299,7 +299,7 @@ class DuplicatePrivateBuildRequires(_DuplicateListAttribute):
         first_line = "D: 3, 0: A Rez package was listed in ``private_build_requires`` " \
             "more than once (duplicate-private-build-requires)"
         other_line = "    Requirements should only list each Rez package once. " \
-            "But \"['something']\" requirements was listed multiple times.",
+            "But \"['something']\" requirements was listed multiple times."
         message = [first_line, other_line]
 
         self.assertEqual(message, issues[0].get_message(verbose=True))
