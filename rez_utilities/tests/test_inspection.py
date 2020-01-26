@@ -3,7 +3,6 @@
 
 """Test all functions in the :mod:`rez_utilities.inspection` module."""
 
-
 import functools
 import os
 import tempfile
@@ -280,7 +279,29 @@ class HasPythonPackage(common.Common):
 
 
 class GetPackagePythonFiles(common.Common):
+    """Check that the :func:`rez_utilities.inspection.get_package_python_paths` works."""
+
     def _make_fake_rez_install_package(self, name, version, text):
+        """Create an installed (built) Rez package.
+
+        Note:
+            This method creates Python files whether `text` actually
+            appends to PYTHONPATH or not. They just get ignored by
+            unittests, in that case.
+
+        Args:
+            name (str):
+                The name of the Rez package family to make.
+            version (str):
+                The major, minor, and patch information for the package.
+                e.g. "1.0.0".
+            text (str):
+                The source code used for the package.py file.
+
+        Returns:
+            :class:`rez.developer_package.DeveloperPackage`: The created instance.
+
+        """
         root = tempfile.mkdtemp(suffix="_rez_install_package_get_package_python_paths")
         directory = os.path.join(root, name, version)
         self.add_item(root)
@@ -297,6 +318,16 @@ class GetPackagePythonFiles(common.Common):
         return packages_.get_developer_package(directory), root
 
     def _make_fake_rez_source_package(self, name, text):
+        """Create a source (non-installed) Rez package.
+
+        Args:
+            name (str): The name of the Rez package family to make.
+            text (str): The source code used for the package.py file.
+
+        Returns:
+            :class:`rez.developer_package.DeveloperPackage`: The created instance.
+
+        """
         root = tempfile.mkdtemp(suffix="_rez_source_package_get_package_python_paths")
         directory = os.path.join(root, name)
         os.makedirs(directory)
@@ -308,6 +339,33 @@ class GetPackagePythonFiles(common.Common):
         return packages_.get_developer_package(directory)
 
     def _make_test_case(self, name, text, extra_paths=None):
+        """Create a Rez package that has some Python files inside of it.
+
+        This method exists to make unittesting a bit easier to understand.
+
+        Note:
+            This method creates Python files whether `text` actually
+            appends to PYTHONPATH or not. They just get ignored by
+            unittests, in that case.
+
+        Args:
+            name (str):
+                The name of the Rez package family to make.
+            text (str):
+                The source code used for the package.py file.
+            extra_paths (list[str], optional):
+                A list of paths used to search for Rez packages
+                during the Rez resolve that this function calls.
+                If no paths are given, Rez will default to
+                :attr:`rez.config.packages_path` instead. Default is
+                None.
+
+        Returns:
+            tuple[set[str], str]:
+                The found Python files (excluding __init__.py files)
+                and the parent folder where the created package.py goes.
+
+        """
         if not extra_paths:
             extra_paths = []
 
@@ -323,12 +381,13 @@ class GetPackagePythonFiles(common.Common):
             ["{package.name}==".format(package=package)],
             package_paths=[inspection.get_packages_path_from_package(package)]
             + extra_paths
-            + config.packages_path,
+            + config.packages_path,  # pylint: disable=no-member
         )
 
         return inspection.get_package_python_paths(package, context), root
 
     def _make_test_dependencies(self):
+        """Create a couple of generic, installed Rez packages to use for unittesting."""
         # To actually make this test work, "some_fake_package" needs some variants.
         #
         # It may be overkill, but we're going to make some quick Rez packages
@@ -372,6 +431,7 @@ class GetPackagePythonFiles(common.Common):
         ]
 
     def test_empty(self):
+        """Return nothing because the package does not modify the PYTHONPATH."""
         python_files, _ = self._make_test_case(
             "some_fake_package",
             textwrap.dedent(
@@ -388,6 +448,7 @@ class GetPackagePythonFiles(common.Common):
         self.assertEqual(set(), python_files)
 
     def test_undefined(self):
+        """Return nothing because the package does not modify the PYTHONPATH."""
         python_files, _ = self._make_test_case(
             "some_fake_package",
             textwrap.dedent(
@@ -401,6 +462,7 @@ class GetPackagePythonFiles(common.Common):
         self.assertEqual(set(), python_files)
 
     def test_source_package_no_variants(self):
+        """Create a source Rez package with no variants and get the PYTHONPATH folders."""
         python_files, root = self._make_test_case(
             "some_fake_package",
             textwrap.dedent(
@@ -419,6 +481,7 @@ class GetPackagePythonFiles(common.Common):
         self.assertEqual({os.path.join(root, "python")}, python_files)
 
     def test_source_package_with_variants(self):
+        """Create a source Rez package with variants and get the folders affecting PYTHONPATH."""
         dependencies = self._make_test_dependencies()
         python_files, root = self._make_test_case(
             "some_fake_package",
@@ -440,6 +503,7 @@ class GetPackagePythonFiles(common.Common):
         self.assertEqual({os.path.join(root, "python")}, python_files)
 
     def test_installed_package_no_variants(self):
+        """Create a Rez package with no variants and get the folders affecting PYTHONPATH."""
         dependencies = self._make_test_dependencies()
         package, root = self._make_fake_rez_install_package(
             "some_fake_package",
@@ -461,7 +525,7 @@ class GetPackagePythonFiles(common.Common):
             ["{package.name}==1.0.0".format(package=package)],
             package_paths=[inspection.get_packages_path_from_package(package)]
             + dependencies
-            + config.packages_path,
+            + config.packages_path,  # pylint: disable=no-member
         )
 
         python_files = inspection.get_package_python_paths(package, context)
@@ -471,6 +535,7 @@ class GetPackagePythonFiles(common.Common):
         )
 
     def test_installed_package_with_variants(self):
+        """Create a Rez package with variants and get the folders affecting PYTHONPATH."""
         dependencies = self._make_test_dependencies()
         package = self._make_fake_rez_source_package(
             "some_fake_package",
@@ -492,14 +557,16 @@ class GetPackagePythonFiles(common.Common):
         self.add_item(install_path)
 
         build_package = creator.build(
-            package, install_path, packages_path=dependencies + config.packages_path,
+            package,
+            install_path,
+            packages_path=dependencies + config.packages_path,  # pylint: disable=no-member
         )
 
         context = resolved_context.ResolvedContext(
             ["{build_package.name}==1.0.0".format(build_package=build_package)],
             package_paths=[inspection.get_packages_path_from_package(build_package)]
             + dependencies
-            + config.packages_path,
+            + config.packages_path,  # pylint: disable=no-member
         )
 
         python_files = inspection.get_package_python_paths(build_package, context)
