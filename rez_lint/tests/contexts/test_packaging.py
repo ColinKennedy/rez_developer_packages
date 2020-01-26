@@ -8,7 +8,6 @@ import tempfile
 import textwrap
 
 from rez import packages_
-from rez.config import config
 from rez_lint.core import lint_constant
 from rez_lint.plugins.contexts import packaging
 from rez_utilities import creator, inspection

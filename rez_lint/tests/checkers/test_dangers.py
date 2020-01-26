@@ -553,14 +553,13 @@ class ImproperRequirements(packaging.BasePackaging):
 
         self.assertFalse(has_issue)
 
-    # TODO : Add support for this later
-    # def test_one_improper_001(self):
-    #     """If the user has a build system in their variants, flag it as an issue."""
-    #     pass
-    #
-    # def test_one_improper_002(self):
-    #     """If the user has a unittest system in their variants, flag it as an issue."""
-    #     pass
+    def test_one_improper_001(self):
+        """If the user has a build system in their variants, flag it as an issue."""
+        pass
+
+    def test_one_improper_002(self):
+        """If the user has a unittest system in their variants, flag it as an issue."""
+        pass
 
     def test_multiple_impropers(self):
         """Find multiple improper Rez packages. Build and unittest systems."""
