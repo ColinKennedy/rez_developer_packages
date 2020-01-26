@@ -18,13 +18,25 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class _DuplicateListAttribute(base_checker.BaseChecker):
+    """The base class that will be used to make sure list Rez requirements are correct."""
+
     @abc.abstractproperty
     def _attribute_name(self):
+        """str: The Rez attribute to check for. e.g. "requires", "private_build_requires", etc."""
         return ""
 
     @classmethod
-    @abc.abstractmethod
     def _get_duplicates_message(cls, package, duplicates):
+        """Create a readable message.
+
+        Args:
+            package (str): The path on-disk to the Rez package definition file.
+            duplicates (set[str]): The name of every Rez package family that has 2-or-more entries.
+
+        Returns:
+            list[:class:`.Description`]: The full, formatted message.
+
+        """
         if len(duplicates) == 1:
             beginning = "A Rez package was"
         else:
@@ -39,13 +51,11 @@ class _DuplicateListAttribute(base_checker.BaseChecker):
                 duplicates=sorted(duplicates))
         ]
 
-        row = package_parser.get_definition_row(package.filepath, cls._attribute_name)
+        row = package_parser.get_definition_row(package, cls._attribute_name)
         code = base_checker.Code(short_name="D", long_name=cls.get_long_code())
-        text = package_parser.get_line_at_row(package.filepath, row)
+        text = package_parser.get_line_at_row(package, row)
 
-        location = message_description.Location(
-            path=package.filepath, row=row, column=0, text=text,
-        )
+        location = message_description.Location(path=package, row=row, column=0, text=text)
 
         return [
             message_description.Description([summary], location, code=code, full=full),
@@ -53,6 +63,16 @@ class _DuplicateListAttribute(base_checker.BaseChecker):
 
     @staticmethod
     def _get_duplicates(requirements):
+        """Get every Rez package family that is listed more than once.
+
+        Args:
+            requirements (iter[:class`rez.utils.formatting.PackageRequest`]):
+                Every recorded Rez package + version range.
+
+        Returns:
+            set[str]: The found package families.
+
+        """
         counter = collections.Counter([requirement.name for requirement in requirements])
 
         return {package_name for package_name, count in counter.most_common() if count > 1}
@@ -60,10 +80,33 @@ class _DuplicateListAttribute(base_checker.BaseChecker):
     @staticmethod
     @abc.abstractmethod
     def _get_list_attribute(package):
+        """Get the package + version dependencies of some Rez package.
+
+        Args:
+            package (:class:`rez.packages_.Package`): A Rez package to check for some attribute.
+
+        Returns:
+            list[:class`rez.utils.formatting.PackageRequest`]: The found dependencies.
+
+        """
         return []
 
     @classmethod
     def run(cls, package, _):
+        """Find every duplicated dependency in the Rez package.
+
+        Args:
+            package (:class:`rez.packages_.Package`):
+                The package that will be used to query a list attribute
+                for dependencies.
+
+        Returns:
+            list[:class:`.Description`]:
+                If there's an issue, get all formatted messages.
+                Otherwise, return an empty list to show that there's no
+                issues.
+
+        """
         values = cls._get_list_attribute(package)
 
         if not values:
@@ -74,14 +117,26 @@ class _DuplicateListAttribute(base_checker.BaseChecker):
         if not duplicates:
             return []
 
-        return cls._get_duplicates_message(package, duplicates)
+        return cls._get_duplicates_message(package.filepath, duplicates)
 
 
 class DuplicateBuildRequires(_DuplicateListAttribute):
+    """Check the ``build_requires`` Rez attribute for dependencies listed more than once."""
+
     _attribute_name = "build_requires"
 
     @staticmethod
     def _get_list_attribute(package):
+        """Get the package/version data of Rez package's ``build_requires`` attribute.
+
+        Args:
+            package (:class:`rez.packages_.Package`): A Rez package to query from.
+
+        Returns:
+            list[:class`rez.utils.formatting.PackageRequest`]:
+                The found dependencies, if any.
+
+        """
         return package.build_requires or []
 
     @staticmethod
@@ -91,10 +146,22 @@ class DuplicateBuildRequires(_DuplicateListAttribute):
 
 
 class DuplicatePrivateBuildRequires(_DuplicateListAttribute):
+    """Check the ``private_build_requires`` Rez attribute for dependencies listed more than once."""
+
     _attribute_name = "private_build_requires"
 
     @staticmethod
     def _get_list_attribute(package):
+        """Get the package/version data of Rez package's ``private_build_requires`` attribute.
+
+        Args:
+            package (:class:`rez.packages_.Package`): A Rez package to query from.
+
+        Returns:
+            list[:class`rez.utils.formatting.PackageRequest`]:
+                The found dependencies, if any.
+
+        """
         return package.private_build_requires or []
 
     @staticmethod
@@ -104,10 +171,22 @@ class DuplicatePrivateBuildRequires(_DuplicateListAttribute):
 
 
 class DuplicateRequires(_DuplicateListAttribute):
+    """Check the ``requires`` Rez attribute for dependencies listed more than once."""
+
     _attribute_name = "requires"
 
     @staticmethod
     def _get_list_attribute(package):
+        """Get the package/version data of Rez package's ``requires`` attribute.
+
+        Args:
+            package (:class:`rez.packages_.Package`): A Rez package to query from.
+
+        Returns:
+            list[:class`rez.utils.formatting.PackageRequest`]:
+                The found dependencies, if any.
+
+        """
         return package.requires or []
 
     @staticmethod
