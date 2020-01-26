@@ -12,9 +12,10 @@ import textwrap
 from rez import build_process_, build_system, packages_, resolved_context
 from rez.config import config
 from rez_documentation_check import cli
-from rez_documentation_check.core import configuration, sphinx_convention
+from rez_documentation_check.core import sphinx_convention
 from rez_utilities import inspection, url_help
 from six.moves import mock
+import wurlitzer
 
 from . import common
 
