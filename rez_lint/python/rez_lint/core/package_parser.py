@@ -21,6 +21,7 @@ _EXPRESSIONS = {
     "help": _make_attribute_expressions("help"),
     "private_build_requires": _make_attribute_expressions("private_build_requires"),
     "requires": _make_attribute_expressions("requires"),
+    "variants": _make_attribute_expressions("build_requires"),
     "version": _make_attribute_expressions("version"),
 }
 

@@ -223,6 +223,7 @@ class ImproperRequirements(base_checker.BaseChecker):
 
     """
 
+    _attribute_name = "requires"
     _blacklisted_build_packages = frozenset(("cmake",))
     _blacklisted_unittest_packages = frozenset(
         (
@@ -238,19 +239,36 @@ class ImproperRequirements(base_checker.BaseChecker):
     )
 
     @classmethod
+    def _has_blacklisted_build_packages(cls, requirement):
+        return requirement.name in cls._blacklisted_build_packages
+
+    @classmethod
+    def _has_blacklisted_unittest_packages(cls, requirement):
+        return requirement.name in cls._blacklisted_unittest_packages
+
+    @staticmethod
+    def _get_attribute_information(package):
+        return package.requires or []
+
+    @classmethod
     def _get_build_messages(cls, package, dependencies):
         summary = "Improper build package requirements were found"
 
+        try:
+            impropers = sorted(request.name for request in dependencies)
+        except AttributeError:
+            impropers = sorted([request.name for request in requests] for requests in dependencies)
+
         full = [
             summary,
-            'Requirements "{impropers}" should not be in requires. '
+            'Package request "{impropers}" should not be in {cls._attribute_name}. '
             "Instead, they should be either defined "
             "in the ``private_build_requires`` or ``build_requires`` attribute.".format(
-                impropers=sorted(request.name for request in dependencies)
+                impropers=impropers, cls=cls
             ),
         ]
 
-        row = package_parser.get_definition_row(package.filepath, "requires")
+        row = package_parser.get_definition_row(package.filepath, cls._attribute_name)
         code = base_checker.Code(short_name="D", long_name=cls.get_long_code())
         text = package_parser.get_line_at_row(package.filepath, row)
 
@@ -266,14 +284,19 @@ class ImproperRequirements(base_checker.BaseChecker):
     def _get_unittest_messages(cls, package, dependencies):
         summary = "Improper unittest package requirements were found"
 
+        try:
+            impropers = sorted(request.name for request in dependencies)
+        except AttributeError:
+            impropers = sorted([request.name for request in requests] for requests in dependencies)
+
         full = [
             summary,
-            'Requirements "{impropers}" should not be in requires. '
+            'Package request "{impropers}" should not be in {cls._attribute_name}. '
             "Instead, they should be defined as part of the package's ``tests`` attribute."
-            "".format(impropers=sorted(request.name for request in dependencies)),
+            "".format(impropers=impropers, cls=cls),
         ]
 
-        row = package_parser.get_definition_row(package.filepath, "requires")
+        row = package_parser.get_definition_row(package.filepath, cls._attribute_name)
         code = base_checker.Code(short_name="D", long_name=cls.get_long_code())
         text = package_parser.get_line_at_row(package.filepath, row)
 
@@ -304,15 +327,15 @@ class ImproperRequirements(base_checker.BaseChecker):
                 If `package` depends on something weird, like "mock" or "cmake".
 
         """
-        requirements = package.requires or []
+        requirements = cls._get_attribute_information(package)
         improper_unittest_dependencies = []
         improper_build_dependencies = []
 
-        for requirement in requirements:
-            if requirement.name in cls._blacklisted_build_packages:
-                improper_build_dependencies.append(requirement)
-            if requirement.name in cls._blacklisted_unittest_packages:
-                improper_unittest_dependencies.append(requirement)
+        for item in requirements:
+            if cls._has_blacklisted_build_packages(item):
+                improper_build_dependencies.append(item)
+            if cls._has_blacklisted_unittest_packages(item):
+                improper_unittest_dependencies.append(item)
 
         results = []
 
@@ -327,6 +350,46 @@ class ImproperRequirements(base_checker.BaseChecker):
             )
 
         return results
+
+
+class ImproperVariants(ImproperRequirements):
+    """A checker that makes sure the user doesn't put weird requirements in their Rez packages.
+
+    Build requirements should be placed in the
+    ``private_build_requires`` or ``build_requires`` attribute. Testing
+    frameworks go in the ``tests`` attribute, as secondary requirements.
+    They shouldn't be added to the required packages.
+
+    """
+
+    _attribute_name = "variants"
+
+    @classmethod
+    def _has_blacklisted_build_packages(cls, requests):
+        """bool: If one of the variants has a build-related package."""
+        for package in requests:
+            if package.name in cls._blacklisted_build_packages:
+                return True
+
+        return False
+
+    @classmethod
+    def _has_blacklisted_unittest_packages(cls, requests):
+        """bool: If one of the variants has a unittest-related package."""
+        for package in requests:
+            if package.name in cls._blacklisted_unittest_packages:
+                return True
+
+        return False
+
+    @staticmethod
+    def _get_attribute_information(package):
+        return package.variants or []
+
+    @staticmethod
+    def get_long_code():
+        """str: The string used to refer to this class or disable it."""
+        return "improper-variants"
 
 
 class MissingRequirements(base_checker.BaseChecker):

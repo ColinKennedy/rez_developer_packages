@@ -553,14 +553,6 @@ class ImproperRequirements(packaging.BasePackaging):
 
         self.assertFalse(has_issue)
 
-    def test_one_improper_001(self):
-        """If the user has a build system in their variants, flag it as an issue."""
-        pass
-
-    def test_one_improper_002(self):
-        """If the user has a unittest system in their variants, flag it as an issue."""
-        pass
-
     def test_multiple_impropers(self):
         """Find multiple improper Rez packages. Build and unittest systems."""
         dependencies = set()
@@ -642,14 +634,14 @@ class ImproperRequirements(packaging.BasePackaging):
 
         self.assertEqual(
             issues[0].get_message(verbose=True)[1].lstrip(),
-            "Requirements \"['cmake']\" should not be in requires. "
+            "Package request \"['cmake']\" should not be in requires. "
             "Instead, they should be either defined in the "
             "``private_build_requires`` or ``build_requires`` attribute.",
         )
 
         self.assertEqual(
             issues[1].get_message(verbose=True)[1].lstrip(),
-            "Requirements \"['mock']\" should not be in requires. "
+            "Package request \"['mock']\" should not be in requires. "
             "Instead, they should be defined as part of the package's ``tests`` attribute.",
         )
 
@@ -717,6 +709,108 @@ class ImproperRequirements(packaging.BasePackaging):
         ]
 
         self.assertEqual(1, len(issues))
+
+
+class ImproperVariants(packaging.BasePackaging):
+    """Add tests for Rez-requirement related checkers."""
+
+    def test_001(self):
+        """If the user has a build system in their variants, flag it as an issue."""
+        dependency_package = self._make_installed_package(
+            "cmake",
+            textwrap.dedent(
+                """\
+                name = "cmake"
+                version = "1.0.0"
+                build_command = "echo 'foo'"
+                """
+            ),
+        )
+        dependency_path = inspection.get_packages_path_from_package(dependency_package)
+
+        installed_package = self._make_installed_package(
+            "my_package",
+            textwrap.dedent(
+                """\
+                name = "my_package"
+                version = "1.0.0"
+                build_command = "echo 'foo'"
+
+                variants = [["cmake-1"]]
+                """
+            ),
+            packages_path=[dependency_path]
+            + config.packages_path,  # pylint: disable=no-member
+        )
+
+        directory = inspection.get_package_root(installed_package)
+
+        with packaging.override_packages_path(
+            [directory, dependency_path], prepend=True
+        ):
+            results = cli.lint(directory)
+
+        issues = [
+            description
+            for description in results
+            if description.get_summary()[0]
+            == "Improper build package requirements were found"
+        ]
+
+        self.assertEqual(1, len(issues))
+        self.assertEqual(
+            "D: 0, 0: Improper build package requirements were found (improper-variants)",
+            issues[0].get_message(verbose=True)[0],
+        )
+
+    def test_002(self):
+        """If the user has a unittest system in their variants, flag it as an issue."""
+        dependency_package = self._make_installed_package(
+            "mock",
+            textwrap.dedent(
+                """\
+                name = "mock"
+                version = "1.0.0"
+                build_command = "echo 'foo'"
+                """
+            ),
+        )
+        dependency_path = inspection.get_packages_path_from_package(dependency_package)
+
+        installed_package = self._make_installed_package(
+            "my_package",
+            textwrap.dedent(
+                """\
+                name = "my_package"
+                version = "1.0.0"
+                build_command = "echo 'foo'"
+
+                variants = [["mock-1"]]
+                """
+            ),
+            packages_path=[dependency_path]
+            + config.packages_path,  # pylint: disable=no-member
+        )
+
+        directory = inspection.get_package_root(installed_package)
+
+        with packaging.override_packages_path(
+            [directory, dependency_path], prepend=True
+        ):
+            results = cli.lint(directory)
+
+        issues = [
+            description
+            for description in results
+            if description.get_summary()[0]
+            == "Improper unittest package requirements were found"
+        ]
+
+        self.assertEqual(1, len(issues))
+        self.assertEqual(
+            "D: 0, 0: Improper unittest package requirements were found (improper-variants)",
+            issues[0].get_message(verbose=True)[0],
+        )
 
 
 class MissingRequirements(packaging.BasePackaging):
