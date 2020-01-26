@@ -80,7 +80,6 @@ rez_lint --disable=no-change-log,lower-bounds-missing
 
 |        Code         |                                     Description                                      |
 |---------------------|--------------------------------------------------------------------------------------|
-| bad-author          | Author names should either be a valid GitHub user name, full name, or e-mail address |
 | semantic-versioning | Use versioning X.Y.Z (example: "1.0.0") for packaging                                |
 
 
@@ -88,19 +87,6 @@ rez_lint --disable=no-change-log,lower-bounds-missing
 
 Now that every issue check is listed, here's some quick information
 about **why** these checks need to exist (listed in alphabetical order).
-
-
-## bad-author
-
-In a Rez package, use your full name (the full name that's listed on
-GitHub), your GitHub user name, or e-mail address. You can also use any
-combination of these, if you want.
-
-```python
-authors = [
-    "Colin Kennedy (my@mail.com)",
-]
-```
 
 
 ## duplicate-build-requires / dupicate-requires / dupicate-build-requires
@@ -476,13 +462,9 @@ prevent developers from releasing code.
 # TODO
 
 - The requirements-related checks must take into account variants, not just the user's listed requirements.
-- TODO finish bad-author
 - Fix vimgrep sorting. The line / column number should be ascending
 
 - change the clear option to allow you to clear just a single class, if needed
-- Add executed checkers into the context
-
-- need a unittest to safely fallback loading a registered plugin fails, for any reason
 
 TODO
   - C100 - author name is not a GitHub user or e-mail address
