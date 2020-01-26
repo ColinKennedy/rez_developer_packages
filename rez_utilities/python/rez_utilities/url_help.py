@@ -6,8 +6,8 @@
 import fnmatch
 import logging
 
-from six.moves import urllib
 import six
+from six.moves import urllib
 
 _EXPECTED_API_LABELS = frozenset(
     ("api documentation", "api", "api-documentation", "api_documentation")

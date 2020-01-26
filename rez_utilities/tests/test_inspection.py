@@ -11,9 +11,9 @@ import textwrap
 import unittest
 
 from python_compatibility.testing import common
+from rez import packages_, resolved_context
 from rez.config import config
 from rez_utilities import creator, inspection
-from rez import packages_, resolved_context
 from rezplugins.build_process import local
 
 _CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
