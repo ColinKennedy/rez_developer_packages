@@ -14,15 +14,22 @@ from rez_utilities import creator, inspection
 class BasePackaging(common.Common):
     """A simple class for testing in ``rez_lint``. Its job is to make Rez installed packages."""
 
-    def _make_installed_package(self, name, text):
+    def _make_installed_package(self, name, text, packages_path=None):
         """Create a Rez source package and install it into a temporary directory.
 
         All temporary directories will be marked for clean-up. Clean-up
         occurs after each test is run.
 
         Args:
-            name (str): The name of the source Rez packge to create.
-            text (str): The text that will be used for a "package.py" file.
+            name (str):
+                The name of the source Rez packge to create.
+            text (str):
+                The text that will be used for a "package.py" file.
+            packages_path (list[str], optional):
+                The paths that will be used to search for Rez packages while
+                building. This is usually to make it easier to find package
+                dependencies. If `packages_path` is not defined, Rez will
+                use its default paths. Default is None.
 
         Returns:
             :class:`rez.developer_package.DeveloperPackage`:
@@ -32,7 +39,7 @@ class BasePackaging(common.Common):
         directory = make_fake_source_package(name, text)
 
         package = packages_.get_developer_package(directory)
-        new_package = creator.build(package, tempfile.mkdtemp())
+        new_package = creator.build(package, tempfile.mkdtemp(), packages_path=packages_path)
 
         self.add_item(os.path.dirname(directory))
         self.add_item(inspection.get_packages_path_from_package(new_package))
