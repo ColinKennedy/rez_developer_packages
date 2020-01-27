@@ -54,7 +54,7 @@ class Fix(package_common.Tests):
         run_command.return_value = ""
         root = os.path.join(tempfile.mkdtemp(), "test_folder")
         os.makedirs(root)
-        self.add_item(root)
+        self.delete_item_later(root)
 
         packages = [
             package_common.make_package(
@@ -64,8 +64,8 @@ class Fix(package_common.Tests):
         repository, packages, remote_root = package_common.make_fake_repository(
             packages, root
         )
-        self.add_item(repository.working_dir)
-        self.add_item(remote_root)
+        self.delete_item_later(repository.working_dir)
+        self.delete_item_later(remote_root)
 
         self._test((set(), [], []), packages)
         self.assertEqual(1, run_command.call_count)
@@ -90,7 +90,7 @@ class Fix(package_common.Tests):
         run_command.return_value = ""
         root = os.path.join(tempfile.mkdtemp(), "test_folder")
         os.makedirs(root)
-        self.add_item(root)
+        self.delete_item_later(root)
 
         packages = [
             package_common.make_package(
@@ -107,10 +107,10 @@ class Fix(package_common.Tests):
         repository, packages, remote_root = package_common.make_fake_repository(
             packages, root
         )
-        self.add_item(repository.working_dir)
-        self.add_item(remote_root)
+        self.delete_item_later(repository.working_dir)
+        self.delete_item_later(remote_root)
         release_path = _release_packages(packages)
-        self.add_item(release_path)
+        self.delete_item_later(release_path)
 
         self._test((set(), [], []), packages, paths=[release_path])
         self.assertEqual(2, run_command.call_count)
@@ -129,7 +129,7 @@ class Fix(package_common.Tests):
         run_command.return_value = ""
         root = os.path.join(tempfile.mkdtemp(), "test_folder")
         os.makedirs(root)
-        self.add_item(root)
+        self.delete_item_later(root)
 
         packages = [
             package_common.make_package(
@@ -146,11 +146,11 @@ class Fix(package_common.Tests):
         repository, packages, remote_root = package_common.make_fake_repository(
             packages, root
         )
-        self.add_item(repository.working_dir)
-        self.add_item(remote_root)
+        self.delete_item_later(repository.working_dir)
+        self.delete_item_later(remote_root)
 
         release_path = _release_packages(packages)
-        self.add_item(release_path)
+        self.delete_item_later(release_path)
 
         package = next(package for package in packages if package.name == "project_a")
 
@@ -185,7 +185,7 @@ class Fix(package_common.Tests):
         run_command.return_value = ""
         root = os.path.join(tempfile.mkdtemp(), "test_folder")
         os.makedirs(root)
-        self.add_item(root)
+        self.delete_item_later(root)
 
         repository_a, packages_a, remote_root = package_common.make_fake_repository(
             [
@@ -201,10 +201,10 @@ class Fix(package_common.Tests):
             ],
             root,
         )
-        self.add_item(repository_a.working_dir)
-        self.add_item(remote_root)
+        self.delete_item_later(repository_a.working_dir)
+        self.delete_item_later(remote_root)
         release_path_a = _release_packages(packages_a)
-        self.add_item(release_path_a)
+        self.delete_item_later(release_path_a)
 
         repository_b, packages_b, remote_root = package_common.make_fake_repository(
             [
@@ -223,10 +223,10 @@ class Fix(package_common.Tests):
             ],
             root,
         )
-        self.add_item(repository_b.working_dir)
-        self.add_item(remote_root)
+        self.delete_item_later(repository_b.working_dir)
+        self.delete_item_later(remote_root)
         release_path_b = _release_packages(packages_b, search_paths=[release_path_a])
-        self.add_item(release_path_b)
+        self.delete_item_later(release_path_b)
 
         self._test(
             (set(), [], [],), packages_a, paths=[release_path_a],
@@ -286,7 +286,7 @@ class Variations(package_common.Tests):
         run_command.return_value = ""
         root = os.path.join(tempfile.mkdtemp(), "test_folder")
         os.makedirs(root)
-        self.add_item(root)
+        self.delete_item_later(root)
 
         packages = [
             package_common.make_package("project_a", root, builder, variants=variants)
@@ -295,8 +295,8 @@ class Variations(package_common.Tests):
         repository, packages, remote_root = package_common.make_fake_repository(
             packages, path_root
         )
-        self.add_item(repository.working_dir)
-        self.add_item(remote_root)
+        self.delete_item_later(repository.working_dir)
+        self.delete_item_later(remote_root)
 
         return packages
 
@@ -323,7 +323,7 @@ class Variations(package_common.Tests):
         release_path = _release_packages(
             packages, search_paths=config.packages_path,  # pylint: disable=no-member
         )
-        self.add_item(release_path)
+        self.delete_item_later(release_path)
 
         packages = [
             packages_.get_developer_package(
@@ -468,7 +468,7 @@ class Bad(package_common.Tests):
         """Check that a fix will not run if the package has no destination repository."""
         root = os.path.join(tempfile.mkdtemp(), "test_folder")
         os.makedirs(root)
-        self.add_item(root)
+        self.delete_item_later(root)
 
         package = package_common.make_package(
             "project_a", root, self._make_source_package_with_no_remote
@@ -498,7 +498,7 @@ class Bad(package_common.Tests):
         run_command.return_value = ""
         root = os.path.join(tempfile.mkdtemp(), "test_folder")
         os.makedirs(root)
-        self.add_item(root)
+        self.delete_item_later(root)
 
         packages = [
             package_common.make_package(
@@ -515,8 +515,8 @@ class Bad(package_common.Tests):
         repository, packages, remote_root = package_common.make_fake_repository(
             packages, root
         )
-        self.add_item(repository.working_dir)
-        self.add_item(remote_root)
+        self.delete_item_later(repository.working_dir)
+        self.delete_item_later(remote_root)
 
         package = packages[1]
         package_root = inspection.get_package_root(package)
@@ -540,7 +540,7 @@ class Bad(package_common.Tests):
         """Do not run fix if the Rez package does not define a Python package / module."""
         root = os.path.join(tempfile.mkdtemp(), "test_folder")
         os.makedirs(root)
-        self.add_item(root)
+        self.delete_item_later(root)
 
         package = package_common.make_package(
             "project_a", root, package_common.make_source_package
@@ -548,8 +548,8 @@ class Bad(package_common.Tests):
         repository, packages, remote_root = package_common.make_fake_repository(
             [package], root
         )
-        self.add_item(repository.working_dir)
-        self.add_item(remote_root)
+        self.delete_item_later(repository.working_dir)
+        self.delete_item_later(remote_root)
         package = packages[0]
 
         expected = (

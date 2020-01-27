@@ -65,7 +65,7 @@ class Packaging(common.Common):
     def test_detect_missing(self):
         """Check that a directory that has no Rez package returns None."""
         directory = tempfile.mkdtemp(suffix="_detect_missing")
-        self.add_item(directory)
+        self.delete_item_later(directory)
 
         self.assertIsNone(inspection.get_nearest_rez_package(directory))
 
@@ -86,7 +86,7 @@ class HasPythonPackage(common.Common):
         root = tempfile.mkdtemp(
             suffix="_a_rez_source_package_that_has_at_least_1_python_module"
         )
-        self.add_item(root)
+        self.delete_item_later(root)
         root = os.path.join(root, "some_package")
         os.makedirs(root)
 
@@ -129,7 +129,7 @@ class HasPythonPackage(common.Common):
         root = tempfile.mkdtemp(
             suffix="_a_rez_source_package_with_no_python_modules_until_build"
         )
-        self.add_item(root)
+        self.delete_item_later(root)
         root = os.path.join(root, "some_package")
         os.makedirs(root)
 
@@ -178,7 +178,7 @@ class HasPythonPackage(common.Common):
 
         """
         root = tempfile.mkdtemp(suffix="_a_rez_source_package_with_a_variant")
-        self.add_item(root)
+        self.delete_item_later(root)
         root = os.path.join(root, "some_package")
         os.makedirs(root)
 
@@ -222,7 +222,7 @@ class HasPythonPackage(common.Common):
         root = tempfile.mkdtemp(
             suffix="_a_rez_source_package_with_no_python_modules_until_build"
         )
-        self.add_item(root)
+        self.delete_item_later(root)
         root = os.path.join(root, "some_package")
         os.makedirs(root)
 
@@ -253,7 +253,7 @@ class HasPythonPackage(common.Common):
         package = inspection.get_nearest_rez_package(root)
 
         install_root = tempfile.mkdtemp(suffix="_installed_rez_package")
-        self.add_item(install_root)
+        self.delete_item_later(install_root)
 
         build_package = creator.build(package, install_root)
 
@@ -304,7 +304,7 @@ class GetPackagePythonFiles(common.Common):
         """
         root = tempfile.mkdtemp(suffix="_rez_install_package_get_package_python_paths")
         directory = os.path.join(root, name, version)
-        self.add_item(root)
+        self.delete_item_later(root)
 
         python_root = os.path.join(directory, "python")
         os.makedirs(python_root)
@@ -331,7 +331,7 @@ class GetPackagePythonFiles(common.Common):
         root = tempfile.mkdtemp(suffix="_rez_source_package_get_package_python_paths")
         directory = os.path.join(root, name)
         os.makedirs(directory)
-        self.add_item(root)
+        self.delete_item_later(root)
 
         with open(os.path.join(directory, "package.py"), "w") as handler:
             handler.write(text)
@@ -554,7 +554,7 @@ class GetPackagePythonFiles(common.Common):
             ),
         )
         install_path = tempfile.mkdtemp(suffix="_install_path")
-        self.add_item(install_path)
+        self.delete_item_later(install_path)
 
         build_package = creator.build(
             package,

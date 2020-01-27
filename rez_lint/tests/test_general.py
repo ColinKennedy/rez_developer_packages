@@ -18,7 +18,7 @@ class InvalidPackages(packaging.BasePackaging):
     def test_incomplete_package(self):
         """If a Rez package is completely invalid, exit early."""
         directory = packaging.make_fake_source_package("some_package", "")
-        self.add_item(os.path.dirname(directory))
+        self.delete_item_later(os.path.dirname(directory))
 
         with self.assertRaises(exceptions.NoPackageFound):
             cli.lint(directory)
@@ -35,6 +35,6 @@ class InvalidPackages(packaging.BasePackaging):
                 """
             ),
         )
-        self.add_item(os.path.dirname(directory))
+        self.delete_item_later(os.path.dirname(directory))
 
         cli.lint(directory)

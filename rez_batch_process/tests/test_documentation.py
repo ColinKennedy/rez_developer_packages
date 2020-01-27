@@ -59,7 +59,7 @@ class Add(common.Common):
 
         """
         root = tempfile.mkdtemp(suffix="_source_root")
-        self.add_item(root)
+        self.delete_item_later(root)
         package = package_common.make_package(
             "package_name", root, package_common.make_source_python_package,
         )
@@ -121,8 +121,8 @@ class Add(common.Common):
         repository, packages, remote_root = package_common.make_fake_repository(
             [package], root
         )
-        self.add_item(repository.working_dir)
-        self.add_item(remote_root)
+        self.delete_item_later(repository.working_dir)
+        self.delete_item_later(remote_root)
 
         return packages[0]
 
@@ -141,7 +141,7 @@ class Add(common.Common):
         package = self._wrap_in_repository(package)
 
         build_root = tempfile.mkdtemp(suffix="_build_folder")
-        self.add_item(build_root)
+        self.delete_item_later(build_root)
         build_package = creator.build(package, build_root)
 
         if not inspection.is_built_package(build_package):
@@ -152,7 +152,7 @@ class Add(common.Common):
     def test_invalid(self):
         """Make an invalid package and try to add it to a repository."""
         root = tempfile.mkdtemp(suffix="_source_package_with_no_variants")
-        self.add_item(root)
+        self.delete_item_later(root)
 
         package = package_common.make_package(
             "project_a", root, package_common.make_source_python_package
@@ -172,7 +172,7 @@ class Add(common.Common):
 
         """
         root = tempfile.mkdtemp(suffix="_source_package_with_no_variants")
-        self.add_item(root)
+        self.delete_item_later(root)
 
         package = package_common.make_package(
             "project_a", root, package_common.make_source_python_package
@@ -189,7 +189,7 @@ class Add(common.Common):
 
         """
         root = tempfile.mkdtemp(suffix="_source_package_with_variants")
-        self.add_item(root)
+        self.delete_item_later(root)
 
         package = package_common.make_package(
             "project_a", root, package_common.make_source_variant_python_package

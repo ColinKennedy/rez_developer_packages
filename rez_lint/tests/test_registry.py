@@ -55,7 +55,7 @@ class Registry(common.Common):
         current_plugins = len(registry.get_checkers() + registry.get_contexts())
 
         root = tempfile.mkdtemp(suffix="_some_python_path_root")
-        self.add_item(root)
+        self.delete_item_later(root)
         sys.path.append(root)
 
         with tempfile.NamedTemporaryFile(suffix=".py", delete=True) as handler:

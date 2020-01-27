@@ -45,8 +45,8 @@ class BasePackaging(common.Common):
             package, tempfile.mkdtemp(), packages_path=packages_path
         )
 
-        self.add_item(os.path.dirname(directory))
-        self.add_item(inspection.get_packages_path_from_package(new_package))
+        self.delete_item_later(os.path.dirname(directory))
+        self.delete_item_later(inspection.get_packages_path_from_package(new_package))
 
         return new_package
 

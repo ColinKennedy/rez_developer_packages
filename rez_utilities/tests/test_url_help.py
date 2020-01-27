@@ -35,7 +35,7 @@ class CheckUrl(common.Common):
         with open(os.path.join(folder, "package.py"), "w") as handler:
             handler.write(code)
 
-        self.add_item(folder)
+        self.delete_item_later(folder)
         package = packages_.get_developer_package(folder)
 
         return set(name for _, name, _ in url_help.get_invalid_help_urls(package))
@@ -166,7 +166,7 @@ class FindUrl(common.Common):
         with open(os.path.join(folder, "package.py"), "w") as handler:
             handler.write(code)
 
-        self.add_item(folder)
+        self.delete_item_later(folder)
         package = packages_.get_developer_package(folder)
 
         return package

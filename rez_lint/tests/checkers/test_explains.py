@@ -143,7 +143,7 @@ class NoHelp(packaging.BasePackaging):
 
         """
         directory = packaging.make_fake_source_package(name, code)
-        self.add_item(os.path.dirname(directory))
+        self.delete_item_later(os.path.dirname(directory))
 
         results = cli.lint(directory)
 
@@ -175,7 +175,7 @@ class NoHelp(packaging.BasePackaging):
 
         """
         directory = packaging.make_fake_source_package(name, code)
-        self.add_item(os.path.dirname(directory))
+        self.delete_item_later(os.path.dirname(directory))
 
         results = cli.lint(directory)
 

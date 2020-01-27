@@ -120,7 +120,7 @@ class MessageDescription(common.Common):
         code += "\n" * 100
 
         root = tempfile.mkdtemp()
-        self.add_item(root)
+        self.delete_item_later(root)
 
         path = os.path.join(root, "some_module.py")
 
@@ -146,7 +146,7 @@ class MessageDescription(common.Common):
     def test_vimgrep_002(self):
         """Check that Description prints path / row / column information correctly."""
         root = tempfile.mkdtemp()
-        self.add_item(root)
+        self.delete_item_later(root)
 
         description = message_description.Description(
             ["some text"],
@@ -177,7 +177,7 @@ class MessageDescription(common.Common):
         code += "\n" * 100
 
         root = tempfile.mkdtemp()
-        self.add_item(root)
+        self.delete_item_later(root)
 
         description = message_description.Description(
             ["some text"],

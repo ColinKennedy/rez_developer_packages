@@ -26,8 +26,8 @@ class Build(common.Common):
         """Test that a built Rez package cannot be built again."""
         root = tempfile.mkdtemp("_fake_source_package_with_build_method")
         build_package, build_root = _build_source_that_has_build_method(root)
-        self.add_item(root)
-        self.add_item(build_root)
+        self.delete_item_later(root)
+        self.delete_item_later(build_root)
 
         # Typically, you can't build something that has already been
         # built Unless the build process also copies the files needed to
@@ -35,7 +35,7 @@ class Build(common.Common):
         # guess still possible.
         #
         another_root = tempfile.mkdtemp(suffix="_another_root")
-        self.add_item(another_root)
+        self.delete_item_later(another_root)
 
         with self.assertRaises(exceptions.BuildSystemError):
             creator.build(build_package, another_root)
@@ -44,8 +44,8 @@ class Build(common.Common):
         """Build a regular source Rez package."""
         root = tempfile.mkdtemp("_fake_source_package_with_build_method")
         build_package, build_root = _build_source_that_has_build_method(root)
-        self.add_item(root)
-        self.add_item(build_root)
+        self.delete_item_later(root)
+        self.delete_item_later(build_root)
 
         self.assertIsNotNone(build_package)
 
@@ -65,7 +65,7 @@ class Build(common.Common):
 
         package = packages_.get_developer_package(package_root)
         root = tempfile.mkdtemp(suffix="_build_test")
-        self.add_item(root)
+        self.delete_item_later(root)
 
         with self.assertRaises(exceptions.BuildSystemError):
             creator.build(package, root)
@@ -83,7 +83,7 @@ class Release(common.Common):
             repository.index.commit("initial commit")
 
         source_path = tempfile.mkdtemp(suffix="_rez_package_source_path")
-        self.add_item(source_path)
+        self.delete_item_later(source_path)
 
         with open(os.path.join(source_path, "package.py"), "w") as handler:
             handler.write(
@@ -113,7 +113,7 @@ class Release(common.Common):
         parser.prog = "rez release"
 
         release_path = tempfile.mkdtemp(suffix="_rez_package_release_path")
-        self.add_item(release_path)
+        self.delete_item_later(release_path)
 
         with wurlitzer.pipes():
             creator.release(

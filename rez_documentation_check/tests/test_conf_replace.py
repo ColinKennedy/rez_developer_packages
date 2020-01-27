@@ -32,7 +32,7 @@ class _Tester(common.Common):
         ) as handler:
             handler.write(code)
 
-        self.add_item(handler.name)
+        self.delete_item_later(handler.name)
         sphinx_helper.replace_intersphinx_mapping(links, handler.name)
 
         with open(handler.name, "r") as sphinx_file:
@@ -196,7 +196,7 @@ class Special(_Tester):
         ) as handler:
             handler.write(code)
 
-        self.add_item(handler.name)
+        self.delete_item_later(handler.name)
 
         with self.assertRaises(exceptions.SphinxFileBroken):
             sphinx_helper.replace_intersphinx_mapping(links, handler.name)

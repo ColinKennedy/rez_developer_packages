@@ -42,7 +42,7 @@ class _DuplicateListAttribute(packaging.BasePackaging):
 
         """
         directory = packaging.make_fake_source_package(name, text)
-        self.add_item(directory)
+        self.delete_item_later(directory)
 
         issues = cli.lint(directory)
 
@@ -835,7 +835,7 @@ class MissingRequirements(packaging.BasePackaging):
         dependency1_directory = packaging.make_fake_source_package(
             "another_dependency", code
         )
-        self.add_item(os.path.dirname(dependency1_directory))
+        self.delete_item_later(os.path.dirname(dependency1_directory))
 
         with open(os.path.join(dependency1_directory, "rezbuild.py"), "w") as handler:
             handler.write(_get_rezbuild_text())
@@ -855,7 +855,7 @@ class MissingRequirements(packaging.BasePackaging):
             )
 
         dependency1_build_path = tempfile.mkdtemp(suffix="_another_dependency")
-        self.add_item(dependency1_build_path)
+        self.delete_item_later(dependency1_build_path)
 
         creator.build(
             packages_.get_developer_package(dependency1_directory),
@@ -881,14 +881,14 @@ class MissingRequirements(packaging.BasePackaging):
         dependency2_directory = packaging.make_fake_source_package(
             "direct_dependency", code
         )
-        self.add_item(os.path.dirname(dependency2_directory))
+        self.delete_item_later(os.path.dirname(dependency2_directory))
         os.makedirs(os.path.join(dependency2_directory, "python"))
 
         with open(os.path.join(dependency2_directory, "rezbuild.py"), "w") as handler:
             handler.write(_get_rezbuild_text())
 
         dependency2_build_path = tempfile.mkdtemp(suffix="_direct_dependency")
-        self.add_item(dependency2_build_path)
+        self.delete_item_later(dependency2_build_path)
 
         creator.build(
             packages_.get_developer_package(dependency2_directory),
@@ -917,7 +917,7 @@ class MissingRequirements(packaging.BasePackaging):
             files = set()
 
         directory = packaging.make_fake_source_package("some_package", text)
-        self.add_item(os.path.dirname(directory))
+        self.delete_item_later(os.path.dirname(directory))
 
         for path in files:
             full_path = os.path.join(directory, path)
@@ -1027,7 +1027,7 @@ class MissingRequirements(packaging.BasePackaging):
             tempfile.mkdtemp(suffix="_some_package_location"), "some_package"
         )
         os.makedirs(root)
-        self.add_item(root)
+        self.delete_item_later(root)
         os.makedirs(os.path.join(root, "python"))
 
         with open(os.path.join(root, "package.py"), "w") as handler:
@@ -1077,7 +1077,7 @@ class MissingRequirements(packaging.BasePackaging):
             tempfile.mkdtemp(suffix="_some_package_location"), "some_package"
         )
         os.makedirs(root)
-        self.add_item(root)
+        self.delete_item_later(root)
         os.makedirs(os.path.join(root, "python"))
 
         with open(os.path.join(root, "package.py"), "w") as handler:
@@ -1120,7 +1120,7 @@ class RequirementLowerBoundsMissing(packaging.BasePackaging):
 
         """
         directory = packaging.make_fake_source_package(name, code)
-        self.add_item(os.path.dirname(directory))
+        self.delete_item_later(os.path.dirname(directory))
 
         results = cli.lint(directory)
 
@@ -1149,7 +1149,7 @@ class RequirementLowerBoundsMissing(packaging.BasePackaging):
 
         """
         directory = packaging.make_fake_source_package(name, code)
-        self.add_item(os.path.dirname(directory))
+        self.delete_item_later(os.path.dirname(directory))
 
         results = cli.lint(directory)
 
@@ -1241,7 +1241,7 @@ class RequirementsNotSorted(packaging.BasePackaging):
 
         """
         directory = packaging.make_fake_source_package(name, code)
-        self.add_item(os.path.dirname(directory))
+        self.delete_item_later(os.path.dirname(directory))
 
         results = cli.lint(directory)
 
@@ -1268,7 +1268,7 @@ class RequirementsNotSorted(packaging.BasePackaging):
 
         """
         directory = packaging.make_fake_source_package(name, code)
-        self.add_item(os.path.dirname(directory))
+        self.delete_item_later(os.path.dirname(directory))
 
         results = cli.lint(directory)
 
@@ -1430,7 +1430,7 @@ class NoRezTest(packaging.BasePackaging):
                 """
             ),
         )
-        self.add_item(os.path.dirname(root))
+        self.delete_item_later(os.path.dirname(root))
 
         results = cli.lint(root)
 
@@ -1455,7 +1455,7 @@ class NoRezTest(packaging.BasePackaging):
                 """
             ),
         )
-        self.add_item(os.path.dirname(root))
+        self.delete_item_later(os.path.dirname(root))
 
         results = cli.lint(root)
 
@@ -1480,7 +1480,7 @@ class NoRezTest(packaging.BasePackaging):
                 """
             ),
         )
-        self.add_item(os.path.dirname(root))
+        self.delete_item_later(os.path.dirname(root))
 
         results = cli.lint(root)
 
@@ -1508,7 +1508,7 @@ class TooManyDependencies(packaging.BasePackaging):
                 """
             ),
         )
-        self.add_item(os.path.dirname(root))
+        self.delete_item_later(os.path.dirname(root))
 
         results = cli.lint(root)
 
@@ -1534,7 +1534,7 @@ class TooManyDependencies(packaging.BasePackaging):
                 """
             ),
         )
-        self.add_item(os.path.dirname(root))
+        self.delete_item_later(os.path.dirname(root))
 
         results = cli.lint(root)
 
@@ -1560,7 +1560,7 @@ class TooManyDependencies(packaging.BasePackaging):
                 """
             ),
         )
-        self.add_item(os.path.dirname(root))
+        self.delete_item_later(os.path.dirname(root))
 
         results = cli.lint(root)
 
@@ -1597,7 +1597,7 @@ class TooManyDependencies(packaging.BasePackaging):
                 """
             ),
         )
-        self.add_item(os.path.dirname(root))
+        self.delete_item_later(os.path.dirname(root))
 
         package_definition_template = textwrap.dedent(
             """\
@@ -1616,7 +1616,7 @@ class TooManyDependencies(packaging.BasePackaging):
             package = packages_.get_developer_package(directory)
             dependencies.add(inspection.get_packages_path_from_package(package))
 
-            self.add_item(os.path.dirname(directory))
+            self.delete_item_later(os.path.dirname(directory))
 
         with packaging.override_packages_path(list(dependencies), prepend=True):
             results = cli.lint(root)
@@ -1646,7 +1646,7 @@ class UrlNotReachable(packaging.BasePackaging):
 
         """
         directory = packaging.make_fake_source_package(name, code)
-        self.add_item(os.path.dirname(directory))
+        self.delete_item_later(os.path.dirname(directory))
 
         results = cli.lint(directory)
 
@@ -1675,7 +1675,7 @@ class UrlNotReachable(packaging.BasePackaging):
 
         """
         directory = packaging.make_fake_source_package(name, code)
-        self.add_item(os.path.dirname(directory))
+        self.delete_item_later(os.path.dirname(directory))
 
         results = cli.lint(directory)
 
@@ -1776,7 +1776,7 @@ class UrlNotReachable(packaging.BasePackaging):
         )
 
         directory = packaging.make_fake_source_package(name, code)
-        self.add_item(os.path.dirname(directory))
+        self.delete_item_later(os.path.dirname(directory))
         open(os.path.join(directory, "README.md"), "a").close()
 
         results = cli.lint(directory)
@@ -1804,7 +1804,7 @@ class UrlNotReachable(packaging.BasePackaging):
         code = template.format(path=path)
 
         directory = packaging.make_fake_source_package(name, code)
-        self.add_item(os.path.dirname(directory))
+        self.delete_item_later(os.path.dirname(directory))
 
         results = cli.lint(directory)
 
@@ -1842,7 +1842,7 @@ class UrlNotReachable(packaging.BasePackaging):
         )
 
         directory = packaging.make_fake_source_package(name, code)
-        self.add_item(os.path.dirname(directory))
+        self.delete_item_later(os.path.dirname(directory))
 
         results = cli.lint(directory)
 
@@ -1870,7 +1870,7 @@ class UrlNotReachable(packaging.BasePackaging):
         code = template.format(absolute_root=absolute_root)
 
         directory = packaging.make_fake_source_package(name, code)
-        self.add_item(os.path.dirname(directory))
+        self.delete_item_later(os.path.dirname(directory))
 
         results = cli.lint(directory)
 

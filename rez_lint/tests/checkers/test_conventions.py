@@ -24,7 +24,7 @@ class SemanticVersioning(packaging.BasePackaging):
                 """
             ),
         )
-        self.add_item(os.path.dirname(directory))
+        self.delete_item_later(os.path.dirname(directory))
 
         results = cli.lint(directory)
 
@@ -52,7 +52,7 @@ class SemanticVersioning(packaging.BasePackaging):
                 """
             ),
         )
-        self.add_item(os.path.dirname(directory))
+        self.delete_item_later(os.path.dirname(directory))
 
         results = cli.lint(directory)
 
@@ -76,7 +76,7 @@ class SemanticVersioning(packaging.BasePackaging):
                 """
             ),
         )
-        self.add_item(os.path.dirname(directory))
+        self.delete_item_later(os.path.dirname(directory))
 
         results = cli.lint(directory)
 

@@ -42,7 +42,7 @@ class Url(common.Common):
                 The position, help command label, and URL for each invalid URL found.
 
         """
-        self.add_item(inspection.get_package_root(package))
+        self.delete_item_later(inspection.get_package_root(package))
         self._fake_package_root()
 
         return cli.find_intersphinx_links(package.requires or [])
@@ -95,10 +95,10 @@ class Integration(common.Common):
             dependencies={dependency},
         )
         directory = _make_temporary_build(_THIS_PACKAGE)
-        self.add_item(directory)
+        self.delete_item_later(directory)
         importer_root = os.path.dirname(os.path.dirname(importer_package.filepath))
         dependency_root = os.path.dirname(os.path.dirname(dependency_package.filepath))
-        self.add_items({importer_root, dependency_root})
+        self.delete_items_later({importer_root, dependency_root})
 
         return (
             (directory, importer_root, dependency_root),
@@ -160,7 +160,7 @@ class Cases(common.Common):
 
     def _make_dependency_package(self, name, version):
         directory = tempfile.mkdtemp(suffix="_")
-        self.add_item(directory)
+        self.delete_item_later(directory)
         install_package_root = os.path.join(directory, name, version)
         os.makedirs(install_package_root)
 
@@ -195,7 +195,7 @@ class Cases(common.Common):
 
         """
         directory = tempfile.mkdtemp(suffix="_some_temporary_rez_package_for_unittests")
-        self.add_item(directory)
+        self.delete_item_later(directory)
 
         with open(os.path.join(directory, "package.py"), "w") as handler:
             handler.write(package)
@@ -370,7 +370,7 @@ class Cases(common.Common):
         with open(os.path.join(root, "package.py"), "w") as handler:
             handler.write(contents)
 
-        self.add_item(directory)
+        self.delete_item_later(directory)
 
         package = inspection.get_nearest_rez_package(root)
 
@@ -404,7 +404,7 @@ class InputIssues(common.Common):
     def test_non_rez_input(self):
         """Every file/folder must exist and must be inside of Rez packages."""
         root = tempfile.mkdtemp(suffix="_a_folder_with_no_rez_package")
-        self.add_item(root)
+        self.delete_item_later(root)
 
         command = "rez-documentation-check check --package {root}".format(root=root)
         _, stderr = self._test_command(command)
@@ -422,7 +422,7 @@ class Others(common.Common):
     def test_existing_links(self):
         """Check that the :func:`get_existing_intersphinx_links` works as expected."""
         directory = tempfile.mkdtemp()
-        self.add_item(directory)
+        self.delete_item_later(directory)
 
         source = os.path.join(directory, "documentation", "source")
         os.makedirs(source)

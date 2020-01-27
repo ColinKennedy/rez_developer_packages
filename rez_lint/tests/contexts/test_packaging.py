@@ -32,7 +32,7 @@ class SourceResolved(testing_packaging.BasePackaging):
                 """
             ),
         )
-        self.add_item(os.path.dirname(directory))
+        self.delete_item_later(os.path.dirname(directory))
 
         package = packages_.get_developer_package(directory)
 
@@ -46,11 +46,11 @@ class SourceResolved(testing_packaging.BasePackaging):
                 """
             ),
         )
-        self.add_item(os.path.dirname(dependency_directory))
+        self.delete_item_later(os.path.dirname(dependency_directory))
 
         dependency_package = packages_.get_developer_package(dependency_directory)
         dependency_build_path = tempfile.mkdtemp(suffix="_dependency_build_path")
-        self.add_item(dependency_build_path)
+        self.delete_item_later(dependency_build_path)
         dependency_package = creator.build(dependency_package, dependency_build_path)
         dependency_path = inspection.get_packages_path_from_package(dependency_package)
 
@@ -81,7 +81,7 @@ class SourceResolved(testing_packaging.BasePackaging):
                 """
             ),
         )
-        self.add_item(os.path.dirname(directory))
+        self.delete_item_later(os.path.dirname(directory))
 
         package = packages_.get_developer_package(directory)
         context = dict()

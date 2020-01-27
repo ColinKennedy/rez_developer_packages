@@ -23,7 +23,7 @@ class Run(common.Common):
     def test_bad_arguments(self):
         """Error early if not incorrect arguments are passed to ``sphinx-apidoc``."""
         root = tempfile.mkdtemp(suffix="_some_test_python_package")
-        self.add_item(root)
+        self.delete_item_later(root)
 
         with self.assertRaises(check_exception.InvalidSphinxArguments):
             cli.check("sphinx-apidoc", directory=root)
@@ -41,7 +41,7 @@ class Run(common.Common):
     def test_missing_dry_run_flag(self):
         """Make sure every call to ``sphinx_apidoc_check`` has a --dry-run flag included."""
         root = tempfile.mkdtemp(suffix="_some_test_python_package")
-        self.add_item(root)
+        self.delete_item_later(root)
 
         output = os.path.join(root, "documentation", "output")
         os.makedirs(output)
@@ -54,7 +54,7 @@ class Run(common.Common):
     def test_nothing(self):
         """Test that a Python folder with nothing in it just reports the modules.rst file."""
         root = tempfile.mkdtemp(suffix="_some_test_python_package")
-        self.add_item(root)
+        self.delete_item_later(root)
         output = os.path.join(root, "documentation", "output")
         results = cli.check(
             _args(". --output-dir {output} --dry-run".format(output=output)),
@@ -76,7 +76,7 @@ class Run(common.Common):
         structure = {"some_package": {"__init__.py": None, "some_module.py": None,}}
 
         root = tempfile.mkdtemp(suffix="_some_test_python_package")
-        self.add_item(root)
+        self.delete_item_later(root)
         common.make_files(structure, root)
         output = os.path.join(root, "documentation", "output")
         results = cli.check(
@@ -100,7 +100,7 @@ class Run(common.Common):
         structure = {"some_package": {"__init__.py": None, "some_module.py": None,}}
 
         root = tempfile.mkdtemp(suffix="_some_test_python_package")
-        self.add_item(root)
+        self.delete_item_later(root)
         common.make_files(structure, root)
         output = os.path.join(root, "documentation", "output")
         results = cli.check(
@@ -125,7 +125,7 @@ class Run(common.Common):
         structure = {"some_package": {"__init__.py": None, "some_module.py": None,}}
 
         root = tempfile.mkdtemp(suffix="_some_test_python_package")
-        self.add_item(root)
+        self.delete_item_later(root)
         common.make_files(structure, root)
         output = os.path.join(root, "documentation", "output")
         os.makedirs(output)
@@ -153,7 +153,7 @@ class Run(common.Common):
         structure = {"some_package": {"__init__.py": None,}}
 
         root = tempfile.mkdtemp(suffix="_some_test_python_package")
-        self.add_item(root)
+        self.delete_item_later(root)
         common.make_files(structure, root)
         output = os.path.join(root, "documentation", "output")
         os.makedirs(output)
@@ -181,7 +181,7 @@ class Run(common.Common):
         structure = {"some_package": {"__init__.py": None,}}
 
         root = tempfile.mkdtemp(suffix="_some_test_python_package")
-        self.add_item(root)
+        self.delete_item_later(root)
         common.make_files(structure, root)
         output = os.path.join(root, "documentation", "output")
         os.makedirs(output)
@@ -222,7 +222,7 @@ class Integrations(common.Common):
         }
 
         root = tempfile.mkdtemp(suffix="_some_test_python_package")
-        self.add_item(root)
+        self.delete_item_later(root)
         common.make_files(structure, root)
         output = os.path.join(root, "documentation", "output")
         command = self._get_command()
@@ -298,7 +298,7 @@ class Integrations(common.Common):
         current_directory = os.getcwd()
 
         some_directory = tempfile.mkdtemp(suffix="_some_directory")
-        self.add_item(some_directory)
+        self.delete_item_later(some_directory)
         _, stderr, _ = self._do_basic_run(
             '{{command}} "{{root}} --output-dir {{output}} --dry-run" '
             "--directory {some_directory}".format(some_directory=some_directory)
@@ -312,7 +312,7 @@ class Integrations(common.Common):
         current_directory = os.getcwd()
 
         some_directory = tempfile.mkdtemp(suffix="_some_directory")
-        self.add_item(some_directory)
+        self.delete_item_later(some_directory)
         _, stderr, _ = self._do_basic_run('{command} "python --dry-run"')
 
         expected_error = (
