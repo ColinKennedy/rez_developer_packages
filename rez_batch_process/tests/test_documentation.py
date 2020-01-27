@@ -212,6 +212,7 @@ class Add(common.Common):
 
         self._test_package([package])
 
+    # TODO : Finish
     # def test_release(self):
     #     pass
 
