@@ -254,7 +254,7 @@ def _convert_to_github_user_names(package_authors, github_users):
                 break
         else:
             _LOGGER.warning(
-                'Author "%s" coult not be converted into a GitHub user.', author
+                'Author "%s" could not be converted into a GitHub user.', author
             )
 
     return output
