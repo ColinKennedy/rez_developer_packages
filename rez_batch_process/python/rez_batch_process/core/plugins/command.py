@@ -213,6 +213,7 @@ class RezShellCommand(base.BaseCommand):
                     new_branch=new_branch
                 )
             )
+
             adapter.create_pull_request(
                 url,
                 title,
