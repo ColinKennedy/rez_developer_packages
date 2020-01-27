@@ -462,12 +462,3 @@ prevent developers from releasing code.
 # TODO
 
 - The requirements-related checks must take into account variants, not just the user's listed requirements.
-- Fix vimgrep sorting. The line / column number should be ascending
-
-- change the clear option to allow you to clear just a single class, if needed
-
-TODO
-  - C100 - author name is not a GitHub user or e-mail address
-
-- make sure to add a comment to add_item everywhere
- - Change add_item as "delete_item_later"
