@@ -464,14 +464,45 @@ class Bad(package_common.Tests):
 
         return path
 
-    def test_no_repository(self):
-        """Check that a fix will not run if the package has no destination repository."""
+    def test_no_remote(self):
+        """Check that a fix will not run if the package's repository has no git remote."""
         root = os.path.join(tempfile.mkdtemp(), "test_folder")
         os.makedirs(root)
         self.delete_item_later(root)
 
         package = package_common.make_package(
             "project_a", root, self._make_source_package_with_no_remote
+        )
+
+        invalids = [
+            exceptions.NoRepositoryRemote(
+                package,
+                os.path.join(root, "project_a"),
+                "No remote origin could be found for"
+            )
+        ]
+
+        unfixed, invalids, skips = self._test_unhandled([package])
+
+        self.assertEqual(set(), unfixed)
+        self.assertEqual([], skips)
+
+        invalid = next(iter(invalids))
+
+        self.assertEqual(exceptions.NoRepositoryRemote, type(invalid))
+        self.assertTrue(str(invalid).startswith("No remote origin could be found for"))
+
+    def test_no_repository(self):
+        """Check that a fix will not run if the package has no destination repository."""
+        def _make_package_with_no_repository(text, name, version, root):
+            return package_common.make_source_package(text, name, None, root)
+
+        root = os.path.join(tempfile.mkdtemp(), "test_folder")
+        os.makedirs(root)
+        self.delete_item_later(root)
+
+        package = package_common.make_package(
+            "project_a", root, _make_package_with_no_repository
         )
 
         invalids = [

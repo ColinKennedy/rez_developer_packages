@@ -32,12 +32,32 @@ class Tests(common.Common):
                 example. Default is None.
 
         """
+        unfixed, invalids, skips = self._test_unhandled(packages, paths=paths)
+        self.assertEqual(expected, (unfixed, invalids, skips))
+
+    @staticmethod
+    def _test_unhandled(packages, paths=None):
+        """Get the conditions for a test (but don't actually test the packages).
+
+        Args:
+            packages (:class:`rez.developer_package.DeveloperPackage`):
+                The Rez packages that will be processed.
+            paths (list[str], optional): The locations on-disk that
+                will be used to any Rez-environment-related work. Some
+                plugins need these paths for resolving a context, for
+                example. Default is None.
+
+        Returns:
+            The output of :func:`rez_batch_process.core.worker.fix`.
+
+        """
         arguments = mock.MagicMock()
         arguments.command = "echo 'foo'"
         arguments.pull_request_prefix = "ticket-name"
         arguments.exit_on_error = True
         _, unfixed, invalids, skips = worker.fix(packages, arguments, paths=paths)
-        self.assertEqual(expected, (unfixed, invalids, skips))
+
+        return (unfixed, invalids, skips)
 
 
 def _make_python_rezbuild(path):

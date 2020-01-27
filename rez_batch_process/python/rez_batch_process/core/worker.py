@@ -121,7 +121,7 @@ def report(
 
         try:
             repository = rez_git.get_repository_url(package)
-        except exceptions.InvalidPackage as error:
+        except (exceptions.InvalidPackage, exceptions.NoRepositoryRemote) as error:
             invalids.append(error)
 
             continue
