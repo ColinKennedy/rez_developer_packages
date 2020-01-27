@@ -10,7 +10,7 @@ authors = ["Colin Kennedy (https://github.com/ColinKennedy)"]
 
 requires = [
     "python-2+<3",
-    "python_compatibility-1+<2",
+    "python_compatibility-1.1+<2",
     "rez-2.47+<3",
     "six-1.12+<2",
     "wurlitzer-2+<3",  # This package is used to make Rez builds quiet. If an alternative exists, please remove this dependency
