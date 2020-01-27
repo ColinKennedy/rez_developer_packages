@@ -9,6 +9,7 @@ details. This module does the actual work.
 """
 
 import collections
+import shutil
 import logging
 import os
 import sys
@@ -236,15 +237,19 @@ def fix(  # pylint: disable=too-many-arguments,too-many-locals
 
     for repository_url, packages in _group_by_repository(packages):
         # TODO : Add thing to make this more quiet, if needed
-        clone_directory = git_link.make_repository_folder(
-            temporary_directory, repository_url
-        )
-
-        if not clone_directory:
+        if not temporary_directory:
             clone_directory = tempfile.mkdtemp(
                 suffix="_{name}_pull_request_location".format(
                     name=repository_url.split("/")[-1]
                 )
+            )
+            # `git.Repo.clone_from` requires that the directory not already exist.
+            # But we need the temporary directory name. So remove the directory
+            #
+            shutil.rmtree(clone_directory)
+        else:
+            clone_directory = git_link.make_repository_folder(
+                temporary_directory, repository_url
             )
 
         if not os.path.isdir(clone_directory):

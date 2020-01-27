@@ -147,9 +147,9 @@ def make_fake_repository(packages, root):
         initialized_packages.append(packages_.get_developer_package(destination))
 
     remote_root = tempfile.mkdtemp(suffix="_remote_bare_repository")
-    shutil.rmtree(
-        remote_root
-    )  # I just need the folder name. The directory should not exist
+    # `git.Repo.init` needs to build from a non-existent folder. So we `shutil.rmtree` here
+    shutil.rmtree(remote_root)
+
     remote_root += ".git"  # bare repositories, by convention, end in ".git"
     remote = git.Repo.init(remote_root, bare=True)
 

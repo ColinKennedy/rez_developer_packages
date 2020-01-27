@@ -18,6 +18,7 @@ from rez import exceptions
 from rez_batch_process.core import worker
 from rez_utilities import creator, inspection
 from six.moves import mock
+import git
 
 from . import package_common
 
@@ -41,12 +42,25 @@ class Add(common.Common):
         """
         name = "{base}.txt".format(base=uuid.uuid4())
         arguments = _make_arguments(name)
-        fixed, unfixed, invalids, skips = worker.fix(packages, arguments)
+
+        with mock.patch("rez_batch_process.core.gitter.git_registry.get_remote_adapter") as patch:
+            patch.return_value = True
+            fixed, unfixed, invalids, skips = worker.fix(packages, arguments)
 
         self.assertEqual((set(), [], []), (unfixed, invalids, skips))
 
         package = next(iter(fixed))
-        test_file = os.path.join(inspection.get_package_root(package), name)
+        package_root = inspection.get_package_root(package)
+        git_repository_root = os.path.dirname(package_root)
+        git_repository = git.Repo(git_repository_root)
+
+        for branch in git_repository.branches:
+            if branch.name.startswith(arguments.pull_request_prefix):
+                branch.checkout()
+
+                break
+
+        test_file = os.path.join(package_root, name)
 
         self.assertTrue(os.path.isfile(test_file))
         self.assertFalse(inspection.is_built_package(package))
