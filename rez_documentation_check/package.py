@@ -10,7 +10,7 @@ authors = ["ColinKennedy (colinvfx@gmail.com)"]
 
 requires = [
     "parso-0.5+<1",
-    "python_compatibility-1+<2",
+    "python_compatibility-1.1+<2",
     "rez-2.47+<3",
     "rez_utilities-1+<2",
     "six-1.13+<2",
