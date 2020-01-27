@@ -13,7 +13,7 @@ requires = [
     "backports.functools_lru_cache-1.6+<2",
     "parso-0+<1",
     "python-2+<3",
-    "python_compatibility-1+<2",
+    "python_compatibility-1.1+<2",
     "rez-2.47+<3",
     "rez_utilities-1+<2",
     "six-1.13+<2",
