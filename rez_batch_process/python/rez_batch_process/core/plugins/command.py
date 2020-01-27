@@ -224,6 +224,8 @@ class RezShellCommand(base.BaseCommand):
             )
         except Exception:  # pylint: disable=broad-except
             _LOGGER.exception("No pull request could be created")
+
+            raise
         finally:
             # Revert back to the previous branch
             current_branch.checkout()
