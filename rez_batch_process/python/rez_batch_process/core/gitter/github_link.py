@@ -77,12 +77,11 @@ class GithubAdapter(base_adapter.BaseAdapter):
                 that will be added to a review in case not enough
                 maintainers in the Rez package + repository could be
                 found to fill the review.
-            base_url (str, optional):
-                The API url that is used if the user needs to access
-                a non-standard remote location. For example, if the
-                user is working in GitHub Enterprise and not regular
-                GitHub, they'll need to provide a `base_url` to the
-                GitHub Enterprise URL to authenticate. Default: "".
+            base_url (str, optional): The API url that is used if the
+                user needs to access a non-standard remote location. For
+                example, if the user is working in GitHub Enterprise and
+                not regular GitHub, they'll need to provide a `base_url`
+                to the GitHub Enterprise URL to authenticate. Default: "".
 
         """
         super(GithubAdapter, self).__init__()

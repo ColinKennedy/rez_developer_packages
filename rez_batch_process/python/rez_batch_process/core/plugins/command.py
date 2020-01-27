@@ -106,7 +106,8 @@ class RezShellCommand(base.BaseCommand):
         if stderr:
             message = (
                 'Package "{package.name}" raised an error when '
-                '"{command}" command was run. Documentation may not have been added correctly.'.format(
+                '"{command}" command was run. Documentation may '
+                "not have been added correctly.".format(
                     package=package, command=command
                 )
             )
@@ -192,8 +193,9 @@ class RezShellCommand(base.BaseCommand):
         body = cls._get_pull_request_body(package)
         commit_message = cls._get_commit_message(package.name)
 
-        branch_template = "{configuration.pull_request_prefix}_{package.name}_add_documentation".format(
-            configuration=configuration, package=package,
+        branch_template = (
+            "{configuration.pull_request_prefix}_{package.name}_add_documentation"
+            "".format(configuration=configuration, package=package,)
         )
         new_branch_name = _get_unique_branch(repository, branch_template)
         new_branch = repository.create_head(new_branch_name)
@@ -280,12 +282,14 @@ class RezShellCommand(base.BaseCommand):
         parser.add_argument(
             "-c",
             "--cached-users",
-            help="A file that contains GitHub/bitbucket/etc usernames, emails, and login info. Must be a JSON file.",
+            help="A file that contains GitHub/bitbucket/etc usernames, "
+            "emails, and login info. Must be a JSON file.",
         )
         parser.add_argument(
             "-b",
             "--base-url",
-            help="If you are authenticating to a non-standard remote (e.g. GitHub enterprise), use this flag to provide the URL.",
+            help="If you are authenticating to a non-standard remote "
+            "(e.g. GitHub enterprise), use this flag to provide the URL.",
         )
 
         return parser.parse_args(text)
@@ -323,16 +327,16 @@ class RezShellCommand(base.BaseCommand):
         return ""
 
 
-def _get_unique_branch(repository, base):
+def _get_unique_branch(repository, base_branch_name):
     """Get a git branch name that has not been used before by a repository.
 
     Args:
         repository (:class:`git.Repo`):
             The Git repository that will be used to query existing branch names.
-        base (str):
+        base_branch_name (str):
             A suggested branch name that will be used to find a unique
-            name. If `base` is not a current branch in `repository` then
-            `base` will be returned by this function.
+            name. If `base_branch_name` is not a current branch in `repository` then
+            `base_branch_name` will be returned by this function.
 
     Returns:
         str: The found unique branch name.
@@ -346,11 +350,11 @@ def _get_unique_branch(repository, base):
 
         return False
 
-    branch = base
+    branch = base_branch_name
     index = 1
 
     while _has_branch(repository, branch):
-        branch = base + "_{index}".format(index=index)
+        branch = base_branch_name + "_{index}".format(index=index)
         index += 1
 
     return branch
