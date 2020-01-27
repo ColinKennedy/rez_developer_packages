@@ -163,3 +163,31 @@ def clear_checkers():
 def clear_contexts():
     """Remove all context plugins so that :func:`get_contexts` can't access them."""
     _CONTEXTS[:] = []
+
+
+def remove_checker(plugin):
+    """Remove a checker plugin if it exists.
+
+    Args:
+        plugin (:class:`.BaseChecker`): A class / executable to be removed from the registry.
+
+    Raises:
+        EnvironmentError: If `plugin` is not a registered plugin.
+
+    """
+    if plugin in _CHECKERS:
+        _CHECKERS.remove(plugin)
+
+
+def remove_context(plugin):
+    """Remove a context plugin if it exists.
+
+    Args:
+        plugin (:class:`.BaseContext`): A class / executable to be removed from the registry.
+
+    Raises:
+        EnvironmentError: If `plugin` is not a registered plugin.
+
+    """
+    if plugin in _CONTEXTS:
+        _CONTEXTS.remove(plugin)
