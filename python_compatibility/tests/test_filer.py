@@ -110,8 +110,8 @@ class Symlinks(common.Common):
         self._destination = os.path.join(tempfile.mkdtemp(), "folder")
         os.symlink(directory, self._destination)
 
-        self.add_item(self._source)
-        self.add_item(self._destination)
+        self.delete_item_later(self._source)
+        self.delete_item_later(self._destination)
 
     def test_yes_001(self):
         """Check that `in_directory` returns True for normal paths."""

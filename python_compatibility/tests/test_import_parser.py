@@ -44,7 +44,7 @@ class _TestCase(common.Common):
 
         """
         root, path = package_tester.make_fake_python_project()
-        self.add_item(root)
+        self.delete_item_later(root)
         sys.path.append(root)
 
         with open(path, "w") as handler:

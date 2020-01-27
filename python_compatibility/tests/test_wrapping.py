@@ -55,7 +55,7 @@ class Wraps(common.Common):
 
         with wrapping.keep_cwd(current_directory):
             root = tempfile.mkdtemp()
-            self.add_item(root)
+            self.delete_item_later(root)
 
             os.chdir(root)
 
@@ -73,7 +73,7 @@ class Wraps(common.Common):
 
         with wrapping.keep_cwd(current_directory):
             root = tempfile.mkdtemp()
-            self.add_item(root)
+            self.delete_item_later(root)
 
             os.chdir(root)
 

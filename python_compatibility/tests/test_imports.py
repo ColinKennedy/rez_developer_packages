@@ -52,7 +52,7 @@ class ImportDetection(common.Common):
     def test_empty(self):
         """Test False if the Python path is empty."""
         directory = tempfile.mkdtemp()
-        self.add_item(directory)
+        self.delete_item_later(directory)
 
         self.assertEqual([], os.listdir(directory))
         self.assertFalse(imports.has_importable_module(directory))
@@ -118,7 +118,7 @@ class Run(common.Common):
         ) as handler:
             handler.write(code)
 
-        self.add_item(code)
+        self.delete_item_later(code)
 
         with self.assertRaises(SyntaxError):
             imports.import_file("fake_package", handler.name)

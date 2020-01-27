@@ -37,11 +37,11 @@ class Common(unittest.TestCase):
         os.environ.clear()
         os.environ.update(self._environment)
 
-    def add_item(self, item):
+    def delete_item_later(self, item):
         """Add the given file/folder to the unittest."""
         self._items.add(item)
 
-    def add_items(self, items):
+    def delete_items_later(self, items):
         """Add every given file/folder to the unittest."""
         self._items.update(items)
 

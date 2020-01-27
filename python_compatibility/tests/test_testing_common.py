@@ -15,7 +15,7 @@ class FileMaker(common.Common):
     def test_empty(self):
         """Don't create anything but still run."""
         root = tempfile.mkdtemp(suffix="_the_empty_root")
-        self.add_item(root)
+        self.delete_item_later(root)
         common.make_files({}, root)
 
         self.assertEqual([], os.listdir(root))
@@ -23,7 +23,7 @@ class FileMaker(common.Common):
     def test_make_files(self):
         """Create some files."""
         root = tempfile.mkdtemp(suffix="_the_single_files")
-        self.add_item(root)
+        self.delete_item_later(root)
         files = {"foo.txt", "another.md", "no_extension"}
         common.make_files({name: None for name in files}, root)
 
@@ -35,7 +35,7 @@ class FileMaker(common.Common):
     def test_make_nested(self):
         """Create a nested set of files and folders."""
         root = tempfile.mkdtemp(suffix="_the_single_files")
-        self.add_item(root)
+        self.delete_item_later(root)
 
         common.make_files(
             {"foo": {"another.py": None, "thing": {"blah.py": None}}}, root
