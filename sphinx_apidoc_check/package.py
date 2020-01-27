@@ -15,7 +15,7 @@ authors = [
 requires = [
     "Sphinx-1+<2",
     "python-2+",
-    "python_compatibility-1+<2",
+    "python_compatibility-1.1+<2",
 ]
 
 private_build_requires = [
