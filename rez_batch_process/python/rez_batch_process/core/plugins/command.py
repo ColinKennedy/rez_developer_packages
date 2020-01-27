@@ -172,6 +172,9 @@ class RezShellCommand(base.BaseCommand):
             index=True, working_tree=True
         )  # Make sure there are no uncommitted changes
 
+        origin = repository.remote(name="origin")
+        origin.pull(current_branch)
+
         url = rez_git.get_repository_url_from_repository(repository)
         adapter = git_registry.get_remote_adapter(
             package,
