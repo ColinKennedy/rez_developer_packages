@@ -13,6 +13,7 @@ build_command = "python -m rez_build_helper --items python"
 requires = [
     "parso-0.5+<1",
     "python-2+<3",
+    "rez-2.42+<3",
 ]
 
 tests = {

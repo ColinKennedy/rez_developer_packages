@@ -18,7 +18,8 @@ class TestAddToAttributeTests(unittest.TestCase):
         results = api.add_to_attribute("tests", overrides, text)
         self.assertEqual(expected, results)
 
-    def test_contents_overwrite(self):
+    def test_complex(self):
+        """Partially override one key and completely replace another."""
         original = textwrap.dedent(
             """\
             tests = {
@@ -74,21 +75,85 @@ class TestAddToAttributeTests(unittest.TestCase):
 
         self._test(expected, original, overrides)
 
-    # TODO : Finish these
-    # def test_empty(self):
-    #     pass
-    #
-    # def test_undefined(self):
-    #     # Declare it (since it doesn't already exist)
-    #     pass
-    #
-    # def test_existing_key(self):
-    #     # overwrite
-    #     pass
-    #
-    # def test_invalid(self):
-    #     pass
-    #
+    def test_empty_001(self):
+        original = textwrap.dedent(
+            """\
+            tests = {}
+            """
+        )
+
+        overrides = {
+            "another": {
+                "command": "more",
+                "requires": ["information"],
+            },
+            "bar": {
+                "command": "thing",
+                "requires": ["whatever-1"],
+            },
+            "foo": "thing",
+            "second_thing": {
+                "command": "and more",
+                "requires": ["information"],
+            },
+        }
+
+        self._test(overrides, original, overrides)
+
+    def test_empty_002(self):
+        original = textwrap.dedent(
+            """\
+            tests = {
+                "another": {
+                    "command": "more",
+                    "requires": ["information"],
+                },
+                "bar": {
+                    "command": "thing",
+                    "requires": ["whatever-1"],
+                },
+                "foo": "thing",
+                "second_thing": {
+                    "command": "and more",
+                    "requires": ["information"],
+                },
+            }
+            """
+        )
+
+        overrides = {}
+
+        with self.assertRaises(ValueError):
+            api.add_to_attribute("tests", overrides, "foo = 'bar'")
+
+    def test_undefined(self):
+        original = ""
+        overrides = {
+            "another": {
+                "command": "more",
+                "requires": ["information"],
+            },
+            "bar": {
+                "command": "thing",
+                "requires": ["whatever-1"],
+            },
+            "foo": "thing",
+            "second_thing": {
+                "command": "and more",
+                "requires": ["information"],
+            },
+        }
+
+        self._test(overrides, original, overrides)
+
+    def test_invalid(self):
+        """If `overrides` is not a dict, raise an exception."""
+        original = ""
+        overrides = "something that is not a dict"
+
+        with self.assertRaises(ValueError):
+            api.add_to_attribute("tests", overrides, original)
+
     # def test_single_expand(self):
     #     pass
     #
