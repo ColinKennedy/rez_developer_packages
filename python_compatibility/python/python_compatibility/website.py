@@ -3,11 +3,12 @@
 
 """Website / URL / "world-wide-web" related functions."""
 
+import socket
 
 from six.moves import urllib
 
 
-def is_internet_on(timeout=1):
+def is_internet_on(timeout=2):
     """Check if the user has connection to an external website.
 
     Reference:
@@ -22,12 +23,19 @@ def is_internet_on(timeout=1):
         bool: If there is no network connection.
 
     """
+    # Reference: https://stackoverflow.com/questions/8763451
+    known_exceptions = (
+        urllib.error.HTTPError,  # old-style timeout
+        socket.timeout,  # Python 3 exception for timeouts
+        urllib.error.URLError,
+    )
+
     try:
         urllib.request.urlopen(
             "http://216.58.192.142",  # This is the IP address to google
             timeout=timeout,
         )
-    except urllib.error.URLError:
+    except known_exceptions:
         return False
 
     return True
