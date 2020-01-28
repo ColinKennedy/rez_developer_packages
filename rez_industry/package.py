@@ -10,6 +10,11 @@ private_build_requires = ["rez_build_helper-1+<2"]
 
 build_command = "python -m rez_build_helper --items python"
 
+requires = [
+    "parso-0.5+<1",
+    "python-2+<3",
+]
+
 tests = {
     "black_diff": {
         "command": "rez-env black -- black --diff --check package.py python tests"
