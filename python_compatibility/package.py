@@ -2,7 +2,7 @@
 
 name = "python_compatibility"
 
-version = "1.1.0"
+version = "1.2.0"
 
 description = "Miscellaneous, core Python 2 + 3 functions."
 
