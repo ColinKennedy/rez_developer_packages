@@ -180,6 +180,59 @@ class Special(_Tester):
         )
         self._test(expected, links, code)
 
+    def test_overwrite_single_001(self):
+        """A variation of `test_overwrite` that has a mapping which is only on one lint."""
+        code = textwrap.dedent(
+            """\
+            project = "foo"
+
+            release = version = "1.0.0"
+
+            intersphinx_mapping = {"existing": "value", "another": "asdfasdf"}
+            """
+        )
+        links = {"another": ("https://google.com", None), "existing": "value"}
+        expected = textwrap.dedent(
+            """\
+            project = "foo"
+
+            release = version = "1.0.0"
+
+            intersphinx_mapping = {
+                "another": ('https://google.com', None),
+                "existing": "value",
+            }
+            """
+        )
+        self._test(expected, links, code)
+
+    def test_overwrite_single_002(self):
+        """A variation of `test_overwrite` that has a mapping which is only on one lint."""
+        code = textwrap.dedent(
+            """\
+            project = "foo"
+
+            release = version = "1.0.0"
+
+            intersphinx_mapping = {"existing": "value", "another": "asdfasdf"
+            }
+            """
+        )
+        links = {"another": ("https://google.com", None), "existing": "value"}
+        expected = textwrap.dedent(
+            """\
+            project = "foo"
+
+            release = version = "1.0.0"
+
+            intersphinx_mapping = {
+                "another": ('https://google.com', None),
+                "existing": "value",
+            }
+            """
+        )
+        self._test(expected, links, code)
+
     def test_syntax_error(self):
         """Check that a conf.py that contains a syntax error raises the correct exception."""
         code = textwrap.dedent(
