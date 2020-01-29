@@ -44,7 +44,12 @@ tests = {
         "command": "pylint --disable=bad-continuation python/rez_industry",
         "requires": ["pylint-1.9+<2"],
     },
-    "unittest": {"command": "python -m unittest discover"},
+    "unittest": {
+        "command": "python -m unittest discover",
+        "requires": [
+            "python_compatibility-1.2+<2",  # TODO : Remove this dependency after `parso` is fully supported
+        ]
+    },
 }
 
 
