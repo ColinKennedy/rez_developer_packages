@@ -155,26 +155,6 @@ class TestAddToAttributeTests(common.Common):
 
     # TODO : Hopefully we'll not need this unittest once parso is fully implemented
     def test_empty_003(self):
-        original = textwrap.dedent(
-            """\
-            tests = {
-                "another": {
-                    "command": "more",
-                    "requires": ["information"],
-                },
-                "bar": {
-                    "command": "thing",
-                    "requires": ["whatever-1"],
-                },
-                "foo": "thing",
-                "second_thing": {
-                    "command": "and more",
-                    "requires": ["information"],
-                },
-            }
-            """
-        )
-
         overrides = {'thing': 'asdf'}
 
         with self.assertRaises(ValueError):
@@ -211,47 +191,53 @@ class TestAddToAttributeTests(common.Common):
 
         self._test(expected, original, overrides)
 
-    # def test_invalid(self):
-    #     """If `overrides` is not a dict, raise an exception."""
-    #     original = ""
-    #     overrides = "something that is not a dict"
-    #
-    #     with self.assertRaises(ValueError):
-    #         api.add_to_attribute("tests", overrides, original)
-    #
-    # def test_single_expand(self):
-    #     pass
-    #
-    # def test_multiple_line_overwrite(self):
-    #     pass
+    def test_invalid(self):
+        """If `overrides` is not a dict, raise an exception."""
+        original = os.path.join(tempfile.mkdtemp(suffix="_invalid"), "package.py")
+        open(original, "a").close()  # TODO : Remove the need for this later once `parso` support is complete
+        overrides = "something that is not a dict"
 
+        with self.assertRaises(ValueError):
+            api.add_to_attribute("tests", overrides, original)
 
-# TODO : Shamelessly copied. Might be worth an extra Rez package?
-def _iter_nested_children(node, seen=None):
-    """Find every child node of the given `node`, recursively.
+    def test_single_line_expand(self):
+        original = textwrap.dedent(
+            """\
+            name = 'thing'
 
-    Args:
-        node (:class:`parso.python.tree.PythonBaseNode`):
-            The node to get children of.
-        seen (set[:class:`parso.python.tree.PythonBaseNode`]):
-            The nodes that have already been checked.
+            tests = {"foo": "bar", "another_test": {"command": "blah"}}
+            """
+        )
+        overrides = {
+            "another": {"command": "more", "requires": ["information"],},
+            "bar": {"command": "thing", "requires": ["whatever-1"],},
+            "foo": "thing",
+            "second_thing": {"command": "and more", "requires": ["information"],},
+        }
 
-    Yields:
-        :class:`parso.python.tree.PythonBaseNode`: The found children.
+        expected = textwrap.dedent(
+            """\
+            name = 'thing'
 
-    """
-    if not seen:
-        seen = set()
+            tests = {
+                "another": {
+                    "command": "more",
+                    "requires": ["information"],
+                },
+                "another_test": {
+                    "command": "blah",
+                },
+                "bar": {
+                    "command": "thing",
+                    "requires": ["whatever-1"],
+                },
+                "foo": "thing",
+                "second_thing": {
+                    "command": "and more",
+                    "requires": ["information"],
+                },
+            }
+            """
+        )
 
-    if not hasattr(node, "children"):
-        yield
-        return
-
-    for child in node.children:
-        if child not in seen:
-            seen.add(child)
-
-            yield child
-
-            for subchild in _iter_nested_children(child):
-                yield subchild
+        self._test(expected, original, overrides)
