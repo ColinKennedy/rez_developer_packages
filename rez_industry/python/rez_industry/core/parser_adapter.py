@@ -78,7 +78,7 @@ class TestsAdapter(BaseAdapter):
             node.children[0].prefix = " "  # Add a space between "tests =" and the first "{"
             assignment.children[-1] = node
         else:
-            graph.append(tree.PythonNode("assignment", [tree.String("tests = ", (0, 0))] + [node]))
+            graph.children.append(tree.PythonNode("assignment", [tree.String("tests = ", (0, 0), prefix="\n\n")] + [node]))
 
         return graph.get_code()
 

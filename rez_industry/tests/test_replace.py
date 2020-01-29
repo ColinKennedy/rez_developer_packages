@@ -184,36 +184,37 @@ class TestAddToAttributeTests(common.Common):
         with self.assertRaises(ValueError):
             api.add_to_attribute("tests", overrides, " ")
 
-    # def test_undefined(self):
-    #     original = ""
-    #     overrides = {
-    #         "another": {"command": "more", "requires": ["information"],},
-    #         "bar": {"command": "thing", "requires": ["whatever-1"],},
-    #         "foo": "thing",
-    #         "second_thing": {"command": "and more", "requires": ["information"],},
-    #     }
-    #
-    #     textwrap.dedent(
-    #         """\
-    #         tests = {
-    #             "another": {
-    #                 "command": "more",
-    #                 "requires": ["information"],
-    #             },
-    #             "bar": {
-    #                 "command": "thing",
-    #                 "requires": ["whatever-1"],
-    #             },
-    #             "foo": "thing",
-    #             "second_thing": {
-    #                 "command": "and more",
-    #                 "requires": ["information"],
-    #             },
-    #         }
-    #         """)
-    #
-    #     self._test(expected, original, overrides)
-    #
+    def test_undefined(self):
+        original = "name = 'thing'"
+        overrides = {
+            "another": {"command": "more", "requires": ["information"],},
+            "bar": {"command": "thing", "requires": ["whatever-1"],},
+            "foo": "thing",
+            "second_thing": {"command": "and more", "requires": ["information"],},
+        }
+
+        expected = textwrap.dedent(
+            """\
+            name = 'thing'
+
+            tests = {
+                "another": {
+                    "command": "more",
+                    "requires": ["information"],
+                },
+                "bar": {
+                    "command": "thing",
+                    "requires": ["whatever-1"],
+                },
+                "foo": "thing",
+                "second_thing": {
+                    "command": "and more",
+                    "requires": ["information"],
+                },
+            }""")
+
+        self._test(expected, original, overrides)
+
     # def test_invalid(self):
     #     """If `overrides` is not a dict, raise an exception."""
     #     original = ""
