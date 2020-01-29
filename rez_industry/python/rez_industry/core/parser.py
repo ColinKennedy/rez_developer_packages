@@ -18,6 +18,9 @@ def add_to_attribute(attribute, data, path):
     if not data:
         raise ValueError('Object "{data}" cannot be empty.'.format(data=data))
 
+    if not os.path.isfile(path):
+        raise ValueError('Path "{path}" must point to a package.py file on-disk.'.format(path=path))
+
     try:
         adapter_class = _ADAPTERS[attribute]
     except KeyError:

@@ -155,7 +155,34 @@ class TestAddToAttributeTests(common.Common):
         overrides = {}
 
         with self.assertRaises(ValueError):
-            api.add_to_attribute("tests", overrides, "foo = 'bar'")
+            api.add_to_attribute("tests", overrides, " ")
+
+    # TODO : Hopefully we'll not need this unittest once parso is fully implemented
+    def test_empty_003(self):
+        original = textwrap.dedent(
+            """\
+            tests = {
+                "another": {
+                    "command": "more",
+                    "requires": ["information"],
+                },
+                "bar": {
+                    "command": "thing",
+                    "requires": ["whatever-1"],
+                },
+                "foo": "thing",
+                "second_thing": {
+                    "command": "and more",
+                    "requires": ["information"],
+                },
+            }
+            """
+        )
+
+        overrides = {'thing': 'asdf'}
+
+        with self.assertRaises(ValueError):
+            api.add_to_attribute("tests", overrides, " ")
 
     # def test_undefined(self):
     #     original = ""
