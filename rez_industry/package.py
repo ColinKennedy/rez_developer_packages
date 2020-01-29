@@ -23,7 +23,11 @@ tests = {
     "black": {"command": "rez-env black -- black package.py python tests"},
     "coverage": {
         "command": "coverage erase && coverage run --parallel-mode --include=python/* -m unittest discover && coverage combine --append && coverage html",
-        "requires": ["coverage-4+<5"],
+        "requires": [
+            "coverage-4+<5",
+            "python_compatibility-1.2+<2",  # TODO : Remove this dependency after `parso` is fully supported
+            "rez-2.52.1+<3",  # The tests use newer features than what is required by the package
+        ],
     },
     "isort": {
         "command": "isort --recursive package.py python tests",
