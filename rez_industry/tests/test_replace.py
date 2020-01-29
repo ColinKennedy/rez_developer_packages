@@ -131,32 +131,32 @@ class TestAddToAttributeTests(common.Common):
 
         self._test(expected, original, overrides)
 
-    # def test_empty_002(self):
-    #     original = textwrap.dedent(
-    #         """\
-    #         tests = {
-    #             "another": {
-    #                 "command": "more",
-    #                 "requires": ["information"],
-    #             },
-    #             "bar": {
-    #                 "command": "thing",
-    #                 "requires": ["whatever-1"],
-    #             },
-    #             "foo": "thing",
-    #             "second_thing": {
-    #                 "command": "and more",
-    #                 "requires": ["information"],
-    #             },
-    #         }
-    #         """
-    #     )
-    #
-    #     overrides = {}
-    #
-    #     with self.assertRaises(ValueError):
-    #         api.add_to_attribute("tests", overrides, "foo = 'bar'")
-    #
+    def test_empty_002(self):
+        original = textwrap.dedent(
+            """\
+            tests = {
+                "another": {
+                    "command": "more",
+                    "requires": ["information"],
+                },
+                "bar": {
+                    "command": "thing",
+                    "requires": ["whatever-1"],
+                },
+                "foo": "thing",
+                "second_thing": {
+                    "command": "and more",
+                    "requires": ["information"],
+                },
+            }
+            """
+        )
+
+        overrides = {}
+
+        with self.assertRaises(ValueError):
+            api.add_to_attribute("tests", overrides, "foo = 'bar'")
+
     # def test_undefined(self):
     #     original = ""
     #     overrides = {
