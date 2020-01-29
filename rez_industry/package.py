@@ -48,6 +48,7 @@ tests = {
         "command": "python -m unittest discover",
         "requires": [
             "python_compatibility-1.2+<2",  # TODO : Remove this dependency after `parso` is fully supported
+            "rez-2.52.1+<3",  # The tests use newer features than what is required by the package
         ]
     },
 }

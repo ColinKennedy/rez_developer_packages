@@ -31,66 +31,62 @@ class TestAddToAttributeTests(common.Common):
 
         self.assertEqual(expected, results)
 
-    # def test_complex(self):
-    #     """Partially override one key and completely replace another."""
-    #     original = textwrap.dedent(
-    #         """\
-    #         tests = {
-    #             "another": {
-    #                 "command": "more",
-    #                 "requires": ["information"],
-    #             },
-    #             "bar": {
-    #                 "command": "thing",
-    #                 "requires": ["whatever-1"],
-    #             },
-    #             "foo": "thing",
-    #             "second_thing": {
-    #                 "command": "and more",
-    #                 "requires": ["information"],
-    #             },
-    #         }
-    #         """
-    #     )
-    #     original = textwrap.dedent(
-    #         """\
-    #         foo = {
-    #             "thing": {
-    #                 "requires": [],
-    #             },
-    #         }
-    #         """
-    #     )
-    #
-    #     overrides = {
-    #         "bar": {"requires": ["whatever-2+<3"],},
-    #         "foo": {"command": "another thing", "requires": ["blah-1"],},
-    #     }
-    #
-    #     expected = textwrap.dedent(
-    #         """\
-    #         tests = {
-    #             "another": {
-    #                 "command": "more",
-    #                 "requires": ["information"],
-    #             },
-    #             "bar": {
-    #                 "command": "thing",
-    #                 "requires": ["whatever-2+<3"],
-    #             },
-    #             "foo": {
-    #                 "command": "another thing",
-    #                 "requires": ["blah-1"],
-    #             },
-    #             "second_thing": {
-    #                 "command": "and more",
-    #                 "requires": ["information"],
-    #             },
-    #         }
-    #         """
-    #     )
-    #
-    #     self._test(expected, original, overrides)
+    def test_complex(self):
+        """Partially override one key and completely replace another."""
+        original = textwrap.dedent(
+            """\
+            name = "foo"
+
+            tests = {
+                "another": {
+                    "command": "more",
+                    "requires": ["information"],
+                },
+                "bar": {
+                    "command": "another",
+                    "requires": ["something"],
+                },
+                "foo": "thing",
+                "second_thing": {
+                    "command": "and more",
+                    "requires": ["information"],
+                },
+            }
+            """
+        )
+
+        overrides = {
+            "bar": {"command": "thing", "run_on": "explicit"},
+            "foo": {"command": "another thing", "requires": ["blah-1"],},
+        }
+
+        expected = textwrap.dedent(
+            """\
+            name = "foo"
+
+            tests = {
+                "another": {
+                    "command": "more",
+                    "requires": ["information"],
+                },
+                "bar": {
+                    "command": "thing",
+                    "requires": ["something"],
+                    "run_on": "explicit",
+                },
+                "foo": {
+                    "command": "another thing",
+                    "requires": ["blah-1"],
+                },
+                "second_thing": {
+                    "command": "and more",
+                    "requires": ["information"],
+                },
+            }
+            """
+        )
+
+        self._test(expected, original, overrides)
 
     def test_empty_001(self):
         original = textwrap.dedent(

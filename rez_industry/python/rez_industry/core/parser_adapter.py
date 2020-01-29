@@ -58,6 +58,22 @@ class TestsAdapter(BaseAdapter):
 
     @classmethod
     def modify_with_existing(cls, graph, data, package):
+        def _bake_down_tests_data(data):
+            # TODO : Again, in the future when parso is more fleshed out, we won't need this function
+            output = dict()
+
+            for key, value in data.items():
+                if isinstance(value, collections.MutableMapping):
+                    output[key] = _bake_down_tests_data(value)
+
+                    continue
+                elif key == "requires":
+                    value = [str(request) for request in value]
+
+                output[key] = value
+
+            return output
+
         # TODO : In the future, make a parso function that collects
         # existing data using `graph` so that `package` is not needed
         # anymore.
@@ -69,9 +85,10 @@ class TestsAdapter(BaseAdapter):
             raise NotImplementedError('@early and @late functions are not supported.')
 
         existing = package.tests or dict()
+        existing = _bake_down_tests_data(existing)
         new = dict()
-        new.update(existing)
-        new.update(data)
+        _update(new, existing)
+        _update(new, data)
         node = _make_tests_node(sorted(new.items()))
 
         if assignment:
@@ -107,6 +124,21 @@ def _find_assignment_nodes(attribute, graph):
 #         return []
 #
 #     return list(_iter_nested_children(node))
+
+
+# TODO : Might be worth moving to python_compatibility?
+def _update(d, u):
+    # Reference: https://stackoverflow.com/a/59685868/3626104
+    if not isinstance(d, collections.MutableMapping):
+        return u
+
+    for k, v in u.iteritems():
+        if isinstance(v, collections.Mapping):
+            d[k] = _update(d.get(k, type(v)()), v)
+        else:
+            d[k] = v
+
+    return d
 
 
 # TODO : This was copied from another package. Might be worth making a separate package?
