@@ -237,7 +237,3 @@ def _make_tests_node(data):
         "atom",
         [tree.Operator("{", (0, 0)), base, tree.Operator("}", (0, 0), prefix="\n")]
     )
-
-
-def _merge(first, second):
-    raise NotImplementedError()
