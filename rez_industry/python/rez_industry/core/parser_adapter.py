@@ -2,14 +2,13 @@
 # -*- coding: utf-8 -*-
 
 import abc
-import json
 import collections
-
-from rez import package_serialise
-from rez.vendor.schema import schema
-from parso.python import tree
+import json
 
 import six
+from parso.python import tree
+from rez import package_serialise
+from rez.vendor.schema import schema
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -29,10 +28,12 @@ class HelpAdapter(BaseAdapter):
     @staticmethod
     def check_if_invalid(data):
         try:
-            package_serialise.package_serialise_schema.validate({
-                "name": "",  # This key is required so we just give it nothing
-                "help": data,
-            })
+            package_serialise.package_serialise_schema.validate(
+                {
+                    "name": "",  # This key is required so we just give it nothing
+                    "help": data,
+                }
+            )
         except schema.SchemaError as error:
             return str(error)
 
@@ -47,10 +48,12 @@ class TestsAdapter(BaseAdapter):
     @staticmethod
     def check_if_invalid(data):
         try:
-            package_serialise.package_serialise_schema.validate({
-                "name": "",  # This key is required so we just give it nothing
-                "tests": data,
-            })
+            package_serialise.package_serialise_schema.validate(
+                {
+                    "name": "",  # This key is required so we just give it nothing
+                    "tests": data,
+                }
+            )
         except schema.SchemaError as error:
             return str(error)
 
@@ -82,7 +85,7 @@ class TestsAdapter(BaseAdapter):
         assignment = _find_assignment_nodes("tests", graph)
 
         if assignment and _is_binding(assignment):
-            raise NotImplementedError('@early and @late functions are not supported.')
+            raise NotImplementedError("@early and @late functions are not supported.")
 
         existing = package.tests or dict()
         existing = _bake_down_tests_data(existing)
@@ -92,10 +95,17 @@ class TestsAdapter(BaseAdapter):
         node = _make_tests_node(sorted(new.items()))
 
         if assignment:
-            node.children[0].prefix = " "  # Add a space between "tests =" and the first "{"
+            node.children[
+                0
+            ].prefix = " "  # Add a space between "tests =" and the first "{"
             assignment.children[-1] = node
         else:
-            graph.children.append(tree.PythonNode("assignment", [tree.String("tests = ", (0, 0), prefix="\n\n")] + [node]))
+            graph.children.append(
+                tree.PythonNode(
+                    "assignment",
+                    [tree.String("tests = ", (0, 0), prefix="\n\n")] + [node],
+                )
+            )
 
         return graph.get_code()
 
@@ -152,6 +162,7 @@ def _iter_nested_children(node):
         :class:`parso.python.tree.PythonBaseNode`: The found children.
 
     """
+
     def __iter_nested_children(node, seen=None):
         if not seen:
             seen = set()
@@ -174,14 +185,14 @@ def _iter_nested_children(node):
 
 
 def _escape(key):
-    return '"{key}"'.format(key=key.replace('"', '\"'))
+    return '"{key}"'.format(key=key.replace('"', '"'))
 
 
 def _escape_all(value):
     if isinstance(value, six.string_types):
         return _escape(value)
     elif isinstance(value, list):
-        return json.dumps(value) # JSON will escape ' to "s for us
+        return json.dumps(value)  # JSON will escape ' to "s for us
 
     return str(value)
 
@@ -192,9 +203,12 @@ def _make_dict_nodes(data, prefix=""):
     for key, item in data:
         item = _escape_all(item)
 
-        nodes.extend([
-            tree.String(_escape(key), (0, 0), prefix="\n    {prefix}".format(prefix=prefix)),
-            tree.Operator(":", (0, 0)),
+        nodes.extend(
+            [
+                tree.String(
+                    _escape(key), (0, 0), prefix="\n    {prefix}".format(prefix=prefix)
+                ),
+                tree.Operator(":", (0, 0)),
                 tree.PythonNode(
                     "atom",
                     [
@@ -219,10 +233,12 @@ def _make_tests_node(data):
     nodes = []
 
     for key, value in data:
-        nodes.extend([
-            tree.String(_escape(key), (0, 0), prefix="\n    "),
-            tree.Operator(":", (0, 0)),
-        ])
+        nodes.extend(
+            [
+                tree.String(_escape(key), (0, 0), prefix="\n    "),
+                tree.Operator(":", (0, 0)),
+            ]
+        )
 
         if isinstance(value, collections.MutableMapping):
             nodes.append(_make_dict_nodes(sorted(value.items()), prefix="    "))
@@ -235,5 +251,5 @@ def _make_tests_node(data):
 
     return tree.PythonNode(
         "atom",
-        [tree.Operator("{", (0, 0)), base, tree.Operator("}", (0, 0), prefix="\n")]
+        [tree.Operator("{", (0, 0)), base, tree.Operator("}", (0, 0), prefix="\n")],
     )

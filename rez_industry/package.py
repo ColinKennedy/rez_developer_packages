@@ -4,7 +4,9 @@ name = "rez_industry"
 
 version = "0.1.0"
 
-description = 'A Rez package manufacturer. It\'s reliably modifies and "modernizes" Rez packages.'
+description = (
+    'A Rez package manufacturer. It\'s reliably modifies and "modernizes" Rez packages.'
+)
 
 private_build_requires = ["rez_build_helper-1+<2"]
 
@@ -53,7 +55,7 @@ tests = {
         "requires": [
             "python_compatibility-1.2+<2",  # TODO : Remove this dependency after `parso` is fully supported
             "rez-2.52.1+<3",  # The tests use newer features than what is required by the package
-        ]
+        ],
     },
 }
 
