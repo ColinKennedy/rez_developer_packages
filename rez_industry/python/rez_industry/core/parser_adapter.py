@@ -101,6 +101,7 @@ class TestsAdapter(BaseAdapter):
 
         def _override_tests(base, data):
             data_graph = parso.parse(str(data))
+            _flatten_nodes(data_graph)
             data_pairs = _make_makeshift_node_dict(data_graph)
 
             return _update_foo(base, data_pairs)
@@ -117,10 +118,13 @@ class TestsAdapter(BaseAdapter):
         if assignment and _is_binding(assignment):
             raise NotImplementedError("@early and @late functions are not supported.")
 
+        if assignment:
+            maker_root = _get_dict_maker_root(assignment)
+            _flatten_nodes(maker_root)
+
         existing = _get_tests_data(graph)
         new = dict()
         new = copy.deepcopy(existing)
-        thing = copy.deepcopy(new)
         new = _override_tests(new, data)
         node = _make_tests_node(sorted(new.items()))
 
@@ -309,6 +313,12 @@ def _make_dict_nodes(data, prefix=""):
             tree.Operator("}", (0, 0), prefix="\n    "),
         ],
     )
+
+
+def _flatten_nodes(data_graph):
+    for child in _iter_nested_children(data_graph):
+        if hasattr(child, "prefix"):
+            child.prefix = ""
 
 
 def _make_tests_node(data):
