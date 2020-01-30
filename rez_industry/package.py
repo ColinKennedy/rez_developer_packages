@@ -5,7 +5,7 @@ name = "rez_industry"
 version = "0.1.0"
 
 description = (
-    'A Rez package manufacturer. It\'s reliably modifies and "modernizes" Rez packages.'
+    'A Rez package manufacturer. It\'s reliably modifies Rez package.py files.'
 )
 
 private_build_requires = ["rez_build_helper-1+<2"]

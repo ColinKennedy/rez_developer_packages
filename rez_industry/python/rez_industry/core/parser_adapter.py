@@ -13,20 +13,24 @@ from rez.vendor.schema import schema
 
 @six.add_metaclass(abc.ABCMeta)
 class BaseAdapter(object):
+    """A class that is used to modify a Rez package definition."""
+
     @staticmethod
     @abc.abstractmethod
     def check_if_invalid(data):
+        """str: If `data` is invalid, return a message explaining why."""
         return ""
 
     @staticmethod
     @abc.abstractmethod
-    def modify_with_existing(graph, data):
+    def modify_with_existing(graph, data, package):
         pass
 
 
 class HelpAdapter(BaseAdapter):
     @staticmethod
     def check_if_invalid(data):
+        """str: If `data` is not a str or list-of-lists, return a message."""
         try:
             package_serialise.package_serialise_schema.validate(
                 {
@@ -45,8 +49,20 @@ class HelpAdapter(BaseAdapter):
 
 
 class TestsAdapter(BaseAdapter):
+    """A class that modifies a Rez package definition `tests` attribute."""
+
     @staticmethod
     def check_if_invalid(data):
+        """Check that the incoming data will work as a `tests` attribute.
+
+        Args:
+            data (dict[str, str] or dict[str, dict[str, str or list]]):
+                The tests attribute content to test.
+
+        Returns:
+            str: A message why `data` is invalid. If `data` is valid, return nothing.
+
+        """
         try:
             package_serialise.package_serialise_schema.validate(
                 {
