@@ -85,13 +85,13 @@ class TestsAdapter(BaseAdapter):
     def modify_with_existing(cls, graph, data):
         # TODO : Change the name
         def _update_foo(existing, extras):
-            existing = copy.deepcopy(existing)
-
             if not isinstance(existing, collections.MutableMapping):
                 return extras
 
+            existing = copy.deepcopy(existing)
+
             for key, value in extras.items():
-                if isinstance(value, tree.PythonNode) and value.type == "atom":
+                if _is_parso_dict_instance(value):
                     dict_value = _make_makeshift_node_dict(value)
                     existing[key] = _update_foo(existing[key], dict_value)
                 else:
@@ -99,17 +99,11 @@ class TestsAdapter(BaseAdapter):
 
             return existing
 
-        def _make_makeshift_node_dict(node):
-            data_node_root = _get_dict_maker_root(node)
-            data_pairs = _get_dict_maker_pairs(data_node_root)
-
-            return {key.value.strip("'\""): value for key, value in data_pairs}
-
         def _override_tests(base, data):
             data_graph = parso.parse(str(data))
             data_pairs = _make_makeshift_node_dict(data_graph)
 
-            _update_foo(base, data_pairs)
+            return _update_foo(base, data_pairs)
 
         try:
             assignment = _find_assignment_nodes("tests", graph)[-1]
@@ -126,7 +120,8 @@ class TestsAdapter(BaseAdapter):
         existing = _get_tests_data(graph)
         new = dict()
         new = copy.deepcopy(existing)
-        _override_tests(new, data)
+        thing = copy.deepcopy(new)
+        new = _override_tests(new, data)
         node = _make_tests_node(sorted(new.items()))
 
         if assignment:
@@ -147,6 +142,10 @@ class TestsAdapter(BaseAdapter):
 
 def _is_binding(node):
     return not isinstance(node, tree.ExprStmt)
+
+
+def _is_parso_dict_instance(value):
+    return isinstance(value, tree.PythonNode) and value.type == "atom"
 
 
 def _find_assignment_nodes(attribute, graph):
@@ -205,7 +204,14 @@ def _get_tests_data(graph):
         if hasattr(value, "prefix"):
             value.prefix = ""
 
-    return {key.get_code(): value for key, value in pairs}
+    return {key.get_code(): _make_makeshift_node_dict(value) if _is_parso_dict_instance(value) else value for key, value in pairs}
+
+
+def _make_makeshift_node_dict(node):
+    data_node_root = _get_dict_maker_root(node)
+    data_pairs = _get_dict_maker_pairs(data_node_root)
+
+    return {key.value.strip("'\""): value for key, value in data_pairs}
 
 
 # TODO : Might be worth moving to python_compatibility?
@@ -261,9 +267,13 @@ def _escape(key):
 
 
 def _escape_all(value):
+    if hasattr(value, "get_code"):
+        return value.get_code()
+
     if isinstance(value, six.string_types):
         return _escape(value)
-    elif isinstance(value, list):
+
+    if isinstance(value, list):
         return json.dumps(value)  # JSON will escape ' to "s for us
 
     return str(value)
