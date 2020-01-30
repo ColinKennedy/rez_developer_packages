@@ -152,7 +152,19 @@ def _is_binding(node):
 
 
 def _is_parso_dict_instance(value):
-    return isinstance(value, tree.PythonNode) and value.type == "atom"
+    if not isinstance(value, tree.PythonNode):
+        return False
+
+    if value.type != "atom":
+        return False
+
+    if value.children[0].value != "{":
+        return False
+
+    if value.children[-1].value != "}":
+        return False
+
+    return True
 
 
 def _find_assignment_nodes(attribute, graph):
@@ -173,6 +185,13 @@ def _find_assignment_nodes(attribute, graph):
 def _get_dict_maker_root(node):
     for child in _iter_nested_children(node):
         if isinstance(child, tree.PythonNode) and child.type == "dictorsetmaker":
+            # If this happens, it means that `node` is a non-empty dict
+            return child
+
+
+    for child in _iter_nested_children(node):
+        if isinstance(child, tree.PythonNode) and child.type == "atom" and len(child.children) == 2 and child.children[0].value == "{" and child.children[-1].value == "}":
+            # If this happens, it means that `node` is an empty dict
             return child
 
     return None
