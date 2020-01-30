@@ -28,7 +28,7 @@ class BaseAdapter(object):
 
     @staticmethod
     @abc.abstractmethod
-    def modify_with_existing(graph, data, package):
+    def modify_with_existing(graph, data):
         pass
 
 
