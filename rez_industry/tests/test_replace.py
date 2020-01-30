@@ -7,7 +7,6 @@ import tempfile
 import textwrap
 import unittest
 
-from python_compatibility.testing import common
 from rez_industry import api
 
 
@@ -16,19 +15,9 @@ from rez_industry import api
 #     str to list of list of strs
 
 
-class TestAddToAttributeTests(common.Common):
+class TestAddToAttributeTests(unittest.TestCase):
     def _test(self, expected, text, overrides):
-        # TODO : Remove this code + delete_item_later once parso is fully supported
-        directory = tempfile.mkdtemp(suffix="_temporary_location")
-        self.delete_item_later(directory)
-
-        package_file = os.path.join(directory, "package.py")
-
-        with open(package_file, "w") as handler:
-            handler.write(text)
-
-        results = api.add_to_attribute("tests", overrides, package_file)
-
+        results = api.add_to_attribute("tests", overrides, text)
         self.assertEqual(expected, results)
 
     def test_complex(self):
@@ -153,13 +142,6 @@ class TestAddToAttributeTests(common.Common):
         with self.assertRaises(ValueError):
             api.add_to_attribute("tests", overrides, " ")
 
-    # TODO : Hopefully we'll not need this unittest once parso is fully implemented
-    def test_empty_003(self):
-        overrides = {"thing": "asdf"}
-
-        with self.assertRaises(ValueError):
-            api.add_to_attribute("tests", overrides, " ")
-
     def test_undefined(self):
         original = "name = 'thing'"
         overrides = {
@@ -194,10 +176,7 @@ class TestAddToAttributeTests(common.Common):
 
     def test_invalid(self):
         """If `overrides` is not a dict, raise an exception."""
-        original = os.path.join(tempfile.mkdtemp(suffix="_invalid"), "package.py")
-        open(
-            original, "a"
-        ).close()  # TODO : Remove the need for this later once `parso` support is complete
+        original = ""
         overrides = "something that is not a dict"
 
         with self.assertRaises(ValueError):

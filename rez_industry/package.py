@@ -16,6 +16,7 @@ requires = [
     "parso-0.5+<1",
     "python-2+<3",
     "rez-2.42+<3",
+    "six-1.13+<2",
 ]
 
 tests = {
@@ -27,7 +28,6 @@ tests = {
         "command": "coverage erase && coverage run --parallel-mode --include=python/* -m unittest discover && coverage combine --append && coverage html",
         "requires": [
             "coverage-4+<5",
-            "python_compatibility-1.2+<2",  # TODO : Remove this dependency after `parso` is fully supported
             "rez-2.52.1+<3",  # The tests use newer features than what is required by the package
         ],
     },
@@ -53,7 +53,6 @@ tests = {
     "unittest": {
         "command": "python -m unittest discover",
         "requires": [
-            "python_compatibility-1.2+<2",  # TODO : Remove this dependency after `parso` is fully supported
             "rez-2.52.1+<3",  # The tests use newer features than what is required by the package
         ],
     },

@@ -2,13 +2,19 @@
 # -*- coding: utf-8 -*-
 
 import abc
+import copy
 import collections
 import json
+import logging
 
 import six
+import parso
 from parso.python import tree
 from rez import package_serialise
 from rez.vendor.schema import schema
+
+
+_LOGGER = logging.getLogger(__name__)
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -76,44 +82,57 @@ class TestsAdapter(BaseAdapter):
         return ""
 
     @classmethod
-    def modify_with_existing(cls, graph, data, package):
-        def _bake_down_tests_data(data):
-            # TODO : Again, in the future when parso is more fleshed out, we won't need this function
-            output = dict()
+    def modify_with_existing(cls, graph, data):
+        # TODO : Change the name
+        def _update_foo(existing, extras):
+            existing = copy.deepcopy(existing)
 
-            for key, value in data.items():
-                if isinstance(value, collections.MutableMapping):
-                    output[key] = _bake_down_tests_data(value)
+            if not isinstance(existing, collections.MutableMapping):
+                return extras
 
-                    continue
-                elif key == "requires":
-                    value = [str(request) for request in value]
+            for key, value in extras.items():
+                if isinstance(value, tree.PythonNode) and value.type == "atom":
+                    dict_value = _make_makeshift_node_dict(value)
+                    existing[key] = _update_foo(existing[key], dict_value)
+                else:
+                    existing[key] = value
 
-                output[key] = value
+            return existing
 
-            return output
+        def _make_makeshift_node_dict(node):
+            data_node_root = _get_dict_maker_root(node)
+            data_pairs = _get_dict_maker_pairs(data_node_root)
 
-        # TODO : In the future, make a parso function that collects
-        # existing data using `graph` so that `package` is not needed
-        # anymore.
-        #
-        # existing = _get_tests_data(graph)
-        assignment = _find_assignment_nodes("tests", graph)
+            return {key.value.strip("'\""): value for key, value in data_pairs}
+
+        def _override_tests(base, data):
+            data_graph = parso.parse(str(data))
+            data_pairs = _make_makeshift_node_dict(data_graph)
+
+            _update_foo(base, data_pairs)
+
+        try:
+            assignment = _find_assignment_nodes("tests", graph)[-1]
+        except IndexError:
+            _LOGGER.warning(
+                'Graph "%s" has no assignment. Tests will be appended instead of inserted.',
+                graph,
+            )
+            assignment = None
 
         if assignment and _is_binding(assignment):
             raise NotImplementedError("@early and @late functions are not supported.")
 
-        existing = package.tests or dict()
-        existing = _bake_down_tests_data(existing)
+        existing = _get_tests_data(graph)
         new = dict()
-        _update(new, existing)
-        _update(new, data)
+        new = copy.deepcopy(existing)
+        _override_tests(new, data)
         node = _make_tests_node(sorted(new.items()))
 
         if assignment:
-            node.children[
-                0
-            ].prefix = " "  # Add a space between "tests =" and the first "{"
+            # Add a space between "tests =" and the first "{"
+            node.children[0].prefix = " "
+            # Now replace whatever assignment there used to be with the modified parso node
             assignment.children[-1] = node
         else:
             graph.children.append(
@@ -131,25 +150,62 @@ def _is_binding(node):
 
 
 def _find_assignment_nodes(attribute, graph):
+    nodes = []
+
     for child in _iter_nested_children(graph):
         if isinstance(child, tree.ExprStmt):
             for name in child.get_defined_names():
                 if name.value == attribute:
-                    return child
+                    column = name.start_pos[1]
+
+                    if column == 0:
+                        nodes.append(child)
+
+    return nodes
+
+
+def _get_dict_maker_root(node):
+    for child in _iter_nested_children(node):
+        if isinstance(child, tree.PythonNode) and child.type == "dictorsetmaker":
+            return child
 
     return None
 
 
-# def _get_tests_data(graph):
-#     def _get_nodes_after_colon(start):
-#         raise NotImplementedError()
-#
-#     try:
-#         node = _find_assignment_nodes("tests", graph)[-1]
-#     except IndexError:
-#         return []
-#
-#     return list(_iter_nested_children(node))
+def _get_dict_maker_pairs(node):
+    operators = []
+
+    for index, child in enumerate(node.children):
+        if isinstance(child, tree.Operator) and child.value == ":":
+            operators.append(index)
+
+    return [(node.children[index - 1], node.children[index + 1]) for index in operators]
+
+
+def _get_tests_data(graph):
+    graph = copy.deepcopy(graph)
+
+    try:
+        assignment = _find_assignment_nodes("tests", graph)[-1]
+    except IndexError:
+        return []
+
+    node = _get_dict_maker_root(assignment)
+    pairs = _get_dict_maker_pairs(node)
+
+    for key, value in pairs:
+        key.prefix = ""
+        key.value = key.value.strip("'\"")
+
+        if hasattr(value, "children"):
+            for child in value.children:
+                if hasattr(child, "prefix"):
+                    child.prefix = ""  # This will be reset later
+
+        if hasattr(value, "prefix"):
+            value.prefix = ""
+
+    return {key.get_code(): value for key, value in pairs}
 
 
 # TODO : Might be worth moving to python_compatibility?
@@ -158,7 +214,7 @@ def _update(d, u):
     if not isinstance(d, collections.MutableMapping):
         return u
 
-    for k, v in u.iteritems():
+    for k, v in u.items():
         if isinstance(v, collections.Mapping):
             d[k] = _update(d.get(k, type(v)()), v)
         else:
@@ -258,6 +314,8 @@ def _make_tests_node(data):
 
         if isinstance(value, collections.MutableMapping):
             nodes.append(_make_dict_nodes(sorted(value.items()), prefix="    "))
+        elif hasattr(value, "get_code"):
+            nodes.append(value)
         else:
             nodes.append(tree.String(_escape_all(value), (0, 0), prefix=" "))
 

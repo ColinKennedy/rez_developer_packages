@@ -14,14 +14,9 @@ _ADAPTERS = {
 }
 
 
-def add_to_attribute(attribute, data, path):
+def add_to_attribute(attribute, data, code):
     if not data:
         raise ValueError('Object "{data}" cannot be empty.'.format(data=data))
-
-    if not os.path.isfile(path):
-        raise ValueError(
-            'Path "{path}" must point to a package.py file on-disk.'.format(path=path)
-        )
 
     try:
         adapter_class = _ADAPTERS[attribute]
@@ -40,15 +35,6 @@ def add_to_attribute(attribute, data, path):
             )
         )
 
-    with open(path, "r") as handler:
-        code = handler.read()
-
     graph = parso.parse(code)
 
-    # TODO : Consider changing this in the future. We shouldn't need to
-    # read the package.py just to get existing value. We should just
-    # parse the existing values out, using `parso`.
-    #
-    package = packages_.get_developer_package(os.path.dirname(path))
-
-    return adapter_class.modify_with_existing(graph, data, package)
+    return adapter_class.modify_with_existing(graph, data)
