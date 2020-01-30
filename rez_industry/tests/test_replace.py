@@ -142,6 +142,45 @@ class TestAddToAttributeTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             api.add_to_attribute("tests", overrides, " ")
 
+    def test_empty_003(self):
+        original = textwrap.dedent(
+            """\
+            name = "whatever"
+
+            tests = dict()
+            """
+        )
+
+        expected = textwrap.dedent(
+            """\
+            name = "whatever"
+
+            tests = {
+                "another": {
+                    "command": "more",
+                    "requires": ["information"],
+                },
+                "bar": {
+                    "command": "thing",
+                    "requires": ["whatever-1"],
+                },
+                "foo": "thing",
+                "second_thing": {
+                    "command": "and more",
+                    "requires": ["information"],
+                },
+            }
+            """
+        )
+        overrides = {
+            "another": {"command": "more", "requires": ["information"],},
+            "bar": {"command": "thing", "requires": ["whatever-1"],},
+            "foo": "thing",
+            "second_thing": {"command": "and more", "requires": ["information"],},
+        }
+
+        self._test(expected, original, overrides)
+
     def test_undefined(self):
         original = "name = 'thing'"
         overrides = {

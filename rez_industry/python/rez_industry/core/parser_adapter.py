@@ -151,6 +151,32 @@ def _is_binding(node):
     return not isinstance(node, tree.ExprStmt)
 
 
+def _is_empty_dict(node):
+    def _is_close(node):
+        if not isinstance(node, tree.Operator):
+            return False
+
+        return node.value == ")"
+
+    def _is_open(node):
+        if not isinstance(node, tree.Operator):
+            return False
+
+        return node.value == "("
+
+    for child in _iter_nested_children(node):
+        if isinstance(child, tree.PythonNode) and child.type == "atom" and len(child.children) == 2 and child.children[0].value == "{" and child.children[-1].value == "}":
+            # If this happens, it means that `node` is an empty dict
+            return True
+
+        if isinstance(child, tree.Name) and child.value == "dict":
+            # Check if `child` is `dict()`
+            if _is_open(child.get_next_leaf()) and _is_close(child.get_next_leaf().get_next_leaf()):
+                return True
+
+    return False
+
+
 def _is_parso_dict_instance(value):
     if not isinstance(value, tree.PythonNode):
         return False
@@ -188,12 +214,6 @@ def _get_dict_maker_root(node):
             # If this happens, it means that `node` is a non-empty dict
             return child
 
-
-    for child in _iter_nested_children(node):
-        if isinstance(child, tree.PythonNode) and child.type == "atom" and len(child.children) == 2 and child.children[0].value == "{" and child.children[-1].value == "}":
-            # If this happens, it means that `node` is an empty dict
-            return child
-
     return None
 
 
@@ -216,6 +236,10 @@ def _get_tests_data(graph):
         return dict()
 
     node = _get_dict_maker_root(assignment)
+
+    if not node and _is_empty_dict(assignment):
+        return dict()
+
     pairs = _get_dict_maker_pairs(node)
 
     for key, value in pairs:
@@ -357,6 +381,9 @@ def _make_tests_node(data):
         if isinstance(value, collections.MutableMapping):
             nodes.append(_make_dict_nodes(sorted(value.items()), prefix="    "))
         elif hasattr(value, "get_code"):
+            if hasattr(value, "prefix"):
+                value.prefix = " "
+
             nodes.append(value)
         else:
             nodes.append(tree.String(_escape_all(value), (0, 0), prefix=" "))
