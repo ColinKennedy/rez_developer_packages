@@ -93,14 +93,17 @@ class TestsAdapter(BaseAdapter):
             for key, value in extras.items():
                 if _is_parso_dict_instance(value):
                     dict_value = _make_makeshift_node_dict(value)
-                    existing[key] = _update_foo(existing[key], dict_value)
+                    existing[key] = _update_foo(existing.get(key, dict()), dict_value)
                 else:
                     existing[key] = value
 
             return existing
 
         def _override_tests(base, data):
-            data_graph = parso.parse(str(data))
+            if not base:
+                return data
+
+            data_graph = parso.parse(json.dumps(data))
             _flatten_nodes(data_graph)
             data_pairs = _make_makeshift_node_dict(data_graph)
 
@@ -191,7 +194,7 @@ def _get_tests_data(graph):
     try:
         assignment = _find_assignment_nodes("tests", graph)[-1]
     except IndexError:
-        return []
+        return dict()
 
     node = _get_dict_maker_root(assignment)
     pairs = _get_dict_maker_pairs(node)
