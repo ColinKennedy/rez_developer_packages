@@ -2,17 +2,16 @@
 # -*- coding: utf-8 -*-
 
 import abc
-import copy
 import collections
+import copy
 import json
 import logging
 
-import six
 import parso
+import six
 from parso.python import tree
 from rez import package_serialise
 from rez.vendor.schema import schema
-
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -165,13 +164,21 @@ def _is_empty_dict(node):
         return node.value == "("
 
     for child in _iter_nested_children(node):
-        if isinstance(child, tree.PythonNode) and child.type == "atom" and len(child.children) == 2 and child.children[0].value == "{" and child.children[-1].value == "}":
+        if (
+            isinstance(child, tree.PythonNode)
+            and child.type == "atom"
+            and len(child.children) == 2
+            and child.children[0].value == "{"
+            and child.children[-1].value == "}"
+        ):
             # If this happens, it means that `node` is an empty dict
             return True
 
         if isinstance(child, tree.Name) and child.value == "dict":
             # Check if `child` is `dict()`
-            if _is_open(child.get_next_leaf()) and _is_close(child.get_next_leaf().get_next_leaf()):
+            if _is_open(child.get_next_leaf()) and _is_close(
+                child.get_next_leaf().get_next_leaf()
+            ):
                 return True
 
     return False
@@ -254,7 +261,12 @@ def _get_tests_data(graph):
         if hasattr(value, "prefix"):
             value.prefix = ""
 
-    return {key.get_code(): _make_makeshift_node_dict(value) if _is_parso_dict_instance(value) else value for key, value in pairs}
+    return {
+        key.get_code(): _make_makeshift_node_dict(value)
+        if _is_parso_dict_instance(value)
+        else value
+        for key, value in pairs
+    }
 
 
 def _make_makeshift_node_dict(node):

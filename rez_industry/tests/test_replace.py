@@ -9,7 +9,6 @@ import unittest
 
 from rez_industry import api
 
-
 # class TestAddToAttributeHelp(unittest.TestCase):
 #     pass
 #     str to list of list of strs
