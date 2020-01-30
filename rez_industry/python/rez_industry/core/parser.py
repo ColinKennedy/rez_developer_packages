@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""A main module that's responsible for modifying Rez package.py files."""
+
 import os
 
 import parso
@@ -15,6 +17,27 @@ _ADAPTERS = {
 
 
 def add_to_attribute(attribute, data, code):
+    """Add (override) new data onto some Rez package.py attribute.
+
+    Args:
+        attribute (str):
+            The name of the Rez attribute to modify.
+        data (object):
+            Anything that you may want to add to `attribute`. If the
+            given `attribute` cannot add `data`, ValueError is raised.
+        code (str):
+            The Rez package.py source code that will be added to.
+
+    Raises:
+        ValueError:
+            This function assume that there is something to add so
+            `data` cannot be empty. Also, if a given Rez `attribute` is
+            not supported or invalid, this function raises ValueError.
+
+    Returns:
+        str: The modified code that now contains `data` as a part of the given `attribute`.
+
+    """
     if not data:
         raise ValueError('Object "{data}" cannot be empty.'.format(data=data))
 
