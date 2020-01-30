@@ -176,9 +176,9 @@ def _is_empty_dict(node):
 
         if isinstance(child, tree.Name) and child.value == "dict":
             # Check if `child` is `dict()`
-            if _is_open(child.get_next_leaf()) and _is_close(
-                child.get_next_leaf().get_next_leaf()
-            ):
+            maybe_open = child.get_next_leaf()
+
+            if _is_open(maybe_open) and _is_close(maybe_open.get_next_leaf()):
                 return True
 
     return False
