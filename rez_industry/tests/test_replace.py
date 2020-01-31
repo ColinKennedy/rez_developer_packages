@@ -8,64 +8,307 @@ The module tests this by checking each permutation of the
 
 """
 
-import os
-import tempfile
 import textwrap
 import unittest
 
 from rez_industry import api
 
 
-class TestAddToAttributeHelp(unittest.TestCase):
+class AddToAttributeHelp(unittest.TestCase):
     """Make sure that :func:`rez_industry.api.add_to_attribute` works for Rez "help"."""
+
+    def _test(self, expected, text, overrides):
+        """Check that `overrides` is added to `text` as expected.
+
+        Args:
+            expected (str):
+                The output of `text` mixed with `overrides`.
+            text (str):
+                The raw Rez package.py input.
+            overrides (str or list[list[str, str]]):
+                The data that will append / replace help.
+
+        """
+        results = api.add_to_attribute("help", overrides, text)
+        self.assertEqual(expected, results)
 
     def test_empty_001(self):
         """Append should still work, even if help is just an empty string."""
-        pass
+        original = textwrap.dedent(
+            """\
+            name = "whatever"
+
+            help = ""
+            """
+        )
+
+        expected = textwrap.dedent(
+            """\
+            name = "whatever"
+
+            help = [
+                ["thing", "another"]
+            ]
+            """
+        )
+
+        self._test(expected, original, ["thing", "another"])
 
     def test_empty_002(self):
         """Append should still work, even if help is just an empty list."""
-        pass
+        original = textwrap.dedent(
+            """\
+            name = "whatever"
+
+            help = []
+            """
+        )
+
+        expected = textwrap.dedent(
+            """\
+            name = "whatever"
+
+            help = [
+                ["thing", "another"]
+            ]
+            """
+        )
+
+        self._test(expected, original, ["thing", "another"])
 
     def test_empty_003(self):
-        """Don't add any extries because `overrides` cannot be empty."""
-        pass
+        """Don't add any extries because the override cannot be empty."""
+        original = textwrap.dedent(
+            """\
+            name = "whatever"
+
+            help = []
+            """
+        )
+
+        with self.assertRaises(ValueError):
+            api.add_to_attribute("help", [], original)
 
     def test_empty_004(self):
-        """Add entries to an existing but empty "help" attribute."""
-        # Use `list()`
-        pass
+        """Don't add any extries because the override cannot be empty."""
+        original = textwrap.dedent(
+            """\
+            name = "whatever"
+
+            help = []
+            """
+        )
+
+        with self.assertRaises(ValueError):
+            api.add_to_attribute("help", "", original)
 
     def test_undefined(self):
         """Define a help attribute if one doesn't exist."""
-        pass
+        original = 'name = "whatever"'
 
-    def test_invalid(self):
+        expected = textwrap.dedent(
+            """\
+            name = "whatever"
+
+            help = [
+                ["thing", "blah"],
+                ["foo", "bar"],
+            ]
+            """
+        )
+
+        self._test(expected, original, [["thing", "blah"], ["foo", "bar"]])
+
+    def test_invalid_001(self):
         """Raise an exception if an invalid help attribute was given."""
-        pass
+        original = textwrap.dedent(
+            """\
+            name = "whatever"
+
+            help = []
+            """
+        )
+
+        with self.assertRaises(ValueError):
+            api.add_to_attribute("help", {"foo": "bar"}, original)
+
+    def test_invalid_002(self):
+        """Report an issue because you cannot override a list with a string."""
+        original = textwrap.dedent(
+            """\
+            name = "whatever"
+
+            help = [
+                ["foo", "bar"],
+            ]
+            """
+        )
+
+        with self.assertRaises(ValueError):
+            api.add_to_attribute("help", "something", original)
 
     def test_list_append_001(self):
         """Add a new entry to an existing list of help items."""
-        pass
+        original = textwrap.dedent(
+            """\
+            name = "whatever"
+
+            help = [
+                ["thing", "blah"],
+            ]
+            """
+        )
+
+        expected = textwrap.dedent(
+            """\
+            name = "whatever"
+
+            help = [
+                ["thing", "blah"],
+                ["foo", "bar"],
+            ]
+            """
+        )
+
+        self._test(expected, original, [["foo", "bar"]])
 
     def test_list_append_002(self):
         """Create a duplicate label entry to an existing list of help items."""
-        pass
+        original = textwrap.dedent(
+            """\
+            name = "whatever"
+
+            help = [
+                ["thing", "blah"],
+            ]
+            """
+        )
+
+        expected = textwrap.dedent(
+            """\
+            name = "whatever"
+
+            help = [
+                ["thing", "blah"],
+                ["thing", "another"],
+            ]
+            """
+        )
+
+        self._test(expected, original, [["thing", "another"]])
+
+    def test_list_append_002b(self):
+        """Fail to add the an existing entry more than once."""
+        original = textwrap.dedent(
+            """\
+            name = "whatever"
+
+            help = [
+                ["thing", "blah"],
+            ]
+            """
+        )
+
+        with self.assertRaises(ValueError):
+            api.add_to_attribute("help", [["thing", "blah"]], original)
+
+    def test_list_append_004(self):
+        """Replace a `list()` initialization with a non-empty one."""
+        original = textwrap.dedent(
+            """\
+            name = "whatever"
+
+            help = list()
+            """
+        )
+
+        expected = textwrap.dedent(
+            """\
+            name = "whatever"
+
+            help = [
+                ["foo", "bar"],
+            ]
+            """
+        )
+
+        self._test(expected, original, ["foo", "bar"])
 
     def test_list_override(self):
         """Replace a label entry of an existing list."""
-        pass
+        original = textwrap.dedent(
+            """\
+            name = "whatever"
+
+            help = [
+                ["thing", "blah"],
+            ]
+            """
+        )
+
+        expected = textwrap.dedent(
+            """\
+            name = "whatever"
+
+            help = [
+                ["thing", "blah"],
+                ["thing", "blah"],
+            ]
+            """
+        )
+
+        results = api.add_to_attribute("help", [["thing", "blah"]], original, append=True)
+        self.assertEqual(expected, results)
 
     def test_single_line_expand(self):
         """Change a single-line help list into a multiple-line help list."""
-        pass
+        original = textwrap.dedent(
+            """\
+            name = "whatever"
+
+            help = [["thing", "blah"], ["foo", "bar"]]
+            """
+        )
+
+        expected = textwrap.dedent(
+            """\
+            name = "whatever"
+
+            help = [
+                ["thing", "blah"],
+                ["foo", "bar"],
+                ["thing", "another"],
+            ]
+            """
+        )
+
+        self._test(expected, original, [["thing", "another"]])
 
     def test_str_to_list(self):
         """Convert a single help string into a list of lists, while inserting a new entry."""
-        pass
+        original = textwrap.dedent(
+            """\
+            name = "whatever"
+
+            help = "something"
+            """
+        )
+
+        expected = textwrap.dedent(
+            """\
+            name = "whatever"
+
+            help = [
+                ["documentation", "something"],
+                ["thing", "another"],
+            ]
+            """
+        )
+
+        self._test(expected, original, [["thing", "another"]])
 
 
-class TestAddToAttributeTests(unittest.TestCase):
+class AddToAttributeTests(unittest.TestCase):
     """Make sure that :func:`rez_industry.api.add_to_attribute` works for Rez "tests"."""
 
     def _test(self, expected, text, overrides):

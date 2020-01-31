@@ -13,7 +13,7 @@ _ADAPTERS = {
 }
 
 
-def add_to_attribute(attribute, data, code):
+def add_to_attribute(attribute, data, code, append=False):
     """Add (override) new data onto some Rez package.py attribute.
 
     Args:
@@ -57,4 +57,7 @@ def add_to_attribute(attribute, data, code):
 
     graph = parso.parse(code)
 
-    return adapter_class.modify_with_existing(graph, data)
+    if adapter_class.supports_duplicates():
+        return adapter_class.modify_with_existing(graph, data, append=append)
+    else:
+        return adapter_class.modify_with_existing(graph, data)
