@@ -1,14 +1,64 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import copy
+import json
 
 from rez import package_serialise
 from rez.vendor.schema import schema
+from parso.python import tree
+import parso
+import six
 
+from .. import parso_helper
 from . import base
 
 
 class HelpAdapter(base.BaseAdapter):
+    @staticmethod
+    def _apply_formatting(node):
+        def _is_allowed(node):
+            if isinstance(node, tree.Operator) and node.value in ("[", "]"):
+                return False
+
+            if isinstance(node, tree.String):
+                return False
+
+            return True
+
+        def _iter_inner_entries(node):
+            for child in node.children:
+                if isinstance(child, tree.PythonNode) and child.type == "atom":
+                    yield child
+
+        def _add_trailing_comma(child):
+            ending = child.children[-1]
+
+            if isinstance(ending, tree.Operator) and ending.value == ",":
+                return
+
+            child.children.append(tree.Operator(",", (0, 0)))
+
+        node = copy.deepcopy(node)
+        definitions = set()
+
+        for child in parso_helper.iter_nested_children(node):
+            if _is_list_root_definition(child):
+                definitions.add(child)
+            elif isinstance(child, tree.Operator) and child.value == ",":
+                child.prefix = ""
+            elif hasattr(child, "prefix") and _is_allowed(child):
+                child.prefix = " "
+
+        for child in _iter_inner_entries(node):
+            opening_brace = child.children[0]
+            opening_brace.prefix = "\n    "
+            _add_trailing_comma(child)
+
+        node.children[-1].prefix = "\n"
+
+        return node
+
     @staticmethod
     def supports_duplicates():
         return True
@@ -28,6 +78,88 @@ class HelpAdapter(base.BaseAdapter):
 
         return ""
 
-    @staticmethod
-    def modify_with_existing(graph, data, append=False):
-        raise NotImplementedError()
+    @classmethod
+    def modify_with_existing(cls, graph, data, append=False):
+        def _insert_or_append(node, graph, assignment):
+            if assignment:
+                node.children[0].prefix = " "
+                assignment.children[-1] = node
+            else:
+                graph.children.append(
+                    tree.PythonNode(
+                        "assignment",
+                        [tree.String("help = ", (0, 0), prefix="\n\n")] + [node]
+                    )
+                )
+        try:
+            assignment = parso_helper.find_assignment_nodes("help", graph)[-1]
+        except IndexError:
+            assignment = None
+
+        entries = []
+
+        if assignment:
+            entries = _get_help_data(assignment)
+
+        if not isinstance(entries, six.string_types) and isinstance(data, six.string_types):
+            raise ValueError(
+                'Data "{data}" is a string. And a help string cannot replace '
+                'a help list-of-lists.'.format(data=data))
+
+        if not append and not isinstance(data, six.string_types):
+            invalids = [item for item in data if item in entries]
+
+            if invalids:
+                raise ValueError(
+                    'Duplicate entries "{invalids}" were found. '
+                    'Re-run with `append=True` or remove the duplicates to contine.'
+                    ''.format(invalids=invalids)
+                )
+
+        node_data = parso.parse(json.dumps(data)).children[0]
+        node_data = cls._apply_formatting(node_data)
+
+        entries.append(node_data)
+
+        node = tree.PythonNode("atom", entries)
+
+        raise ValueError(node)
+
+        raise ValueError(node.get_code())
+
+        _insert_or_append(node, graph, assignment)
+
+        return graph.get_code()
+
+
+def _is_list_root_definition(node):
+    return isinstance(node, tree.PythonNode) and node.type == "testlist_comp"
+
+
+def _get_list_root(node):
+    for child in parso_helper.iter_nested_children(node):
+        if _is_list_root_definition(child):
+            # If this happens, it means that `node` is a non-empty dict
+            return child
+
+    return None
+
+
+def _get_help_data(node):
+    def _get_text(node):
+        if isinstance(node, tree.String):
+            return node.value.strip("'\"")
+
+        return node.get_code(include_prefix=False)
+
+    root = _get_list_root(node)
+    wrapped_entries = [child for child in parso_helper.iter_nested_children(root) if _is_list_root_definition(child)]
+
+    output = []
+
+    for wrapped_entry in wrapped_entries:
+        label, _, value = wrapped_entry.children
+
+        output.append([_get_text(label), _get_text(value)])
+
+    return output

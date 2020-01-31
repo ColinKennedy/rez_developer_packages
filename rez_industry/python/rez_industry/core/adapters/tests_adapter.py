@@ -12,6 +12,7 @@ from rez.vendor.schema import schema
 from rez import package_serialise
 import six
 
+from .. import parso_helper
 from . import base as base_
 
 _LOGGER = logging.getLogger(__name__)
@@ -73,7 +74,7 @@ class TestsAdapter(base_.BaseAdapter):
             return _update_foo(base, data_pairs)
 
         try:
-            assignment = _find_assignment_nodes("tests", graph)[-1]
+            assignment = parso_helper.find_assignment_nodes("tests", graph)[-1]
         except IndexError:
             _LOGGER.warning(
                 'Graph "%s" has no assignment. Tests will be appended instead of inserted.',
@@ -127,7 +128,7 @@ def _is_empty_dict(node):
 
         return node.value == "("
 
-    for child in _iter_nested_children(node):
+    for child in parso_helper.iter_nested_children(node):
         if (
             isinstance(child, tree.PythonNode)
             and child.type == "atom"
@@ -164,23 +165,8 @@ def _is_parso_dict_instance(value):
     return True
 
 
-def _find_assignment_nodes(attribute, graph):
-    nodes = []
-
-    for child in _iter_nested_children(graph):
-        if isinstance(child, tree.ExprStmt):
-            for name in child.get_defined_names():
-                if name.value == attribute:
-                    column = name.start_pos[1]
-
-                    if column == 0:
-                        nodes.append(child)
-
-    return nodes
-
-
 def _get_dict_maker_root(node):
-    for child in _iter_nested_children(node):
+    for child in parso_helper.iter_nested_children(node):
         if isinstance(child, tree.PythonNode) and child.type == "dictorsetmaker":
             # If this happens, it means that `node` is a non-empty dict
             return child
@@ -202,7 +188,7 @@ def _get_tests_data(graph):
     graph = copy.deepcopy(graph)
 
     try:
-        assignment = _find_assignment_nodes("tests", graph)[-1]
+        assignment = parso_helper.find_assignment_nodes("tests", graph)[-1]
     except IndexError:
         return dict()
 
@@ -255,39 +241,6 @@ def _update(d, u):
     return d
 
 
-# TODO : This was copied from another package. Might be worth making a separate package?
-def _iter_nested_children(node):
-    """Find every child node of the given `node`, recursively.
-
-    Args:
-        node (:class:`parso.python.tree.PythonBaseNode`): The node to get children of.
-
-    Yields:
-        :class:`parso.python.tree.PythonBaseNode`: The found children.
-
-    """
-
-    def __iter_nested_children(node, seen=None):
-        if not seen:
-            seen = set()
-
-        if not hasattr(node, "children"):
-            return
-            yield  # pylint: disable=unreachable
-
-        for child in node.children:
-            if child not in seen:
-                seen.add(child)
-
-                yield child
-
-                for subchild in __iter_nested_children(child, seen=seen):
-                    yield subchild
-
-    for child in __iter_nested_children(node):
-        yield child
-
-
 def _escape(key):
     return '"{key}"'.format(key=key.replace('"', '"'))
 
@@ -338,7 +291,7 @@ def _make_dict_nodes(data, prefix=""):
 
 
 def _flatten_nodes(data_graph):
-    for child in _iter_nested_children(data_graph):
+    for child in parso_helper.iter_nested_children(data_graph):
         if hasattr(child, "prefix"):
             child.prefix = ""
 

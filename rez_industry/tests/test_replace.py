@@ -197,7 +197,7 @@ class AddToAttributeHelp(unittest.TestCase):
 
         self._test(expected, original, [["thing", "another"]])
 
-    def test_append_002b(self):
+    def test_append_002_fail(self):
         """Fail to add the an existing entry more than once."""
         original = textwrap.dedent(
             """\
@@ -212,7 +212,7 @@ class AddToAttributeHelp(unittest.TestCase):
         with self.assertRaises(ValueError):
             api.add_to_attribute("help", [["thing", "blah"]], original)
 
-    def test_append_004(self):
+    def test_append_003(self):
         """Replace a `list()` initialization with a non-empty one."""
         original = textwrap.dedent(
             """\
@@ -232,7 +232,7 @@ class AddToAttributeHelp(unittest.TestCase):
             """
         )
 
-        self._test(expected, original, ["foo", "bar"])
+        self._test(expected, original, [["foo", "bar"]])
 
     def test_list_override(self):
         """Replace a label entry of an existing list."""
