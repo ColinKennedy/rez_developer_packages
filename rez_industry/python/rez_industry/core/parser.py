@@ -3,16 +3,13 @@
 
 """A main module that's responsible for modifying Rez package.py files."""
 
-import os
-
 import parso
-from rez import packages_
 
-from . import parser_adapter
+from .adapters import help_adapter, tests_adapter
 
 _ADAPTERS = {
-    "help": parser_adapter.HelpAdapter,
-    "tests": parser_adapter.TestsAdapter,
+    "help": help_adapter.HelpAdapter,
+    "tests": tests_adapter.TestsAdapter,
 }
 
 

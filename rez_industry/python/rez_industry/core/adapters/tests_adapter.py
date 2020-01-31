@@ -1,59 +1,23 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import abc
 import collections
 import copy
-import json
 import logging
+import json
 
 import parso
-import six
 from parso.python import tree
-from rez import package_serialise
 from rez.vendor.schema import schema
+from rez import package_serialise
+import six
+
+from . import base as base_
 
 _LOGGER = logging.getLogger(__name__)
 
 
-@six.add_metaclass(abc.ABCMeta)
-class BaseAdapter(object):
-    """A class that is used to modify a Rez package definition."""
-
-    @staticmethod
-    @abc.abstractmethod
-    def check_if_invalid(data):
-        """str: If `data` is invalid, return a message explaining why."""
-        return ""
-
-    @staticmethod
-    @abc.abstractmethod
-    def modify_with_existing(graph, data):
-        pass
-
-
-class HelpAdapter(BaseAdapter):
-    @staticmethod
-    def check_if_invalid(data):
-        """str: If `data` is not a str or list-of-lists, return a message."""
-        try:
-            package_serialise.package_serialise_schema.validate(
-                {
-                    "name": "",  # This key is required so we just give it nothing
-                    "help": data,
-                }
-            )
-        except schema.SchemaError as error:
-            return str(error)
-
-        return ""
-
-    @staticmethod
-    def modify_with_existing(graph, data):
-        raise NotImplementedError()
-
-
-class TestsAdapter(BaseAdapter):
+class TestsAdapter(base_.BaseAdapter):
     """A class that modifies a Rez package definition `tests` attribute."""
 
     @staticmethod
