@@ -10,6 +10,10 @@ from . import base
 
 class HelpAdapter(base.BaseAdapter):
     @staticmethod
+    def supports_duplicates():
+        return True
+
+    @staticmethod
     def check_if_invalid(data):
         """str: If `data` is not a str or list-of-lists, return a message."""
         try:
@@ -25,5 +29,5 @@ class HelpAdapter(base.BaseAdapter):
         return ""
 
     @staticmethod
-    def modify_with_existing(graph, data):
+    def modify_with_existing(graph, data, append=False):
         raise NotImplementedError()

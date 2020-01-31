@@ -147,7 +147,7 @@ class AddToAttributeHelp(unittest.TestCase):
         with self.assertRaises(ValueError):
             api.add_to_attribute("help", "something", original)
 
-    def test_list_append_001(self):
+    def test_append_001(self):
         """Add a new entry to an existing list of help items."""
         original = textwrap.dedent(
             """\
@@ -172,7 +172,7 @@ class AddToAttributeHelp(unittest.TestCase):
 
         self._test(expected, original, [["foo", "bar"]])
 
-    def test_list_append_002(self):
+    def test_append_002(self):
         """Create a duplicate label entry to an existing list of help items."""
         original = textwrap.dedent(
             """\
@@ -197,7 +197,7 @@ class AddToAttributeHelp(unittest.TestCase):
 
         self._test(expected, original, [["thing", "another"]])
 
-    def test_list_append_002b(self):
+    def test_append_002b(self):
         """Fail to add the an existing entry more than once."""
         original = textwrap.dedent(
             """\
@@ -212,7 +212,7 @@ class AddToAttributeHelp(unittest.TestCase):
         with self.assertRaises(ValueError):
             api.add_to_attribute("help", [["thing", "blah"]], original)
 
-    def test_list_append_004(self):
+    def test_append_004(self):
         """Replace a `list()` initialization with a non-empty one."""
         original = textwrap.dedent(
             """\

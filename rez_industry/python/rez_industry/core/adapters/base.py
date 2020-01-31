@@ -11,6 +11,10 @@ class BaseAdapter(object):
     """A class that is used to modify a Rez package definition."""
 
     @staticmethod
+    def supports_duplicates():
+        return False
+
+    @staticmethod
     @abc.abstractmethod
     def check_if_invalid(data):
         """str: If `data` is invalid, return a message explaining why."""
