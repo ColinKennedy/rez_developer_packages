@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""The main class used to modify a Rez package's `tests` attribute."""
+
 import collections
 import copy
 import logging
@@ -47,31 +49,33 @@ class TestsAdapter(base_.BaseAdapter):
 
     @classmethod
     def modify_with_existing(cls, graph, data):
-        # TODO : Change the name
-        def _update_foo(existing, extras):
-            if not isinstance(existing, collections.MutableMapping):
-                return extras
+        """Add `data` to a parso node `graph`.
 
-            existing = copy.deepcopy(existing)
+        Reference:
+            https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#tests
 
-            for key, value in extras.items():
-                if _is_parso_dict_instance(value):
-                    dict_value = _make_makeshift_node_dict(value)
-                    existing[key] = _update_foo(existing.get(key, dict()), dict_value)
-                else:
-                    existing[key] = value
+        Args:
+            graph (:class:`parso.python.Tree.PythonBaseNode`):
+                Some node that either contains a assignment for a
+                "tests" attribute or it it has no assignment and instead
+                "tests" is appended to the end of the nodes in `graph`.
+            data (dict[str, str or dict[str, str or list[str]]]):
+                Any values that'd typically define a Rez "tests"
+                attribute. Basically anything is allowed, as long the
+                Rez package schema considers it valid.
 
-            return existing
+        Raises:
+            NotImplementedError:
+                If the user tries to pass a `graph` that has an declared
+                "tests" function, using @early or @late bindings.
 
-        def _override_tests(base, data):
-            if not base:
-                return data
+        Returns:
+            str:
+                The modified Python source code. It should resemble the
+                source code of `graph` plus any serialized `data`.
 
-            data_graph = parso.parse(json.dumps(data))
-            _flatten_nodes(data_graph)
-            data_pairs = _make_makeshift_node_dict(data_graph)
-
-            return _update_foo(base, data_pairs)
+        """
+        graph = copy.deepcopy(graph)
 
         try:
             assignment = parso_helper.find_assignment_nodes("tests", graph)[-1]
@@ -112,10 +116,20 @@ class TestsAdapter(base_.BaseAdapter):
 
 
 def _is_binding(node):
+    """bool: Check if `node` is not an assigment. e.g. `foo = bar` returns False."""
     return not isinstance(node, tree.ExprStmt)
 
 
 def _is_empty_dict(node):
+    """Check if the given parso `node` represents an initialized-but-empty assignment.
+
+    Args:
+        node (:class:`parso.python.Tree.ExprStmt`): The assignment node to check.
+
+    Returns:
+        bool: Return False if `node` is a non-empty dict. Otherwise, return True.
+
+    """
     def _is_close(node):
         if not isinstance(node, tree.Operator):
             return False
@@ -150,6 +164,24 @@ def _is_empty_dict(node):
 
 
 def _is_parso_dict_instance(value):
+    """Check if `value` is a parso node that defines a dict.
+
+    Parso normally defines a dict roughly as an "atom" PythonNode. Its
+    children is another PythonNode, tagged as a "dictorsetmaker" and
+    wrapped in "{}"s.
+
+    This function is trying to define the outer "atom" PythonNode.
+
+    Args:
+        value (:class:`parso.python.Tree.PythonBaseNode`):
+            A Parso node that needs to be checked. Only a
+            :class:`parso.python.Tree.PythonNode` has a possibility of
+            returning True (but even then it is not guaranteed).
+
+    Returns:
+        bool: If the given `value` defines the outer node that defines a dict.
+
+    """
     if not isinstance(value, tree.PythonNode):
         return False
 
@@ -166,6 +198,19 @@ def _is_parso_dict_instance(value):
 
 
 def _get_dict_maker_root(node):
+    """Find the inner parso PythonNode that defines a Python dict.
+
+    Args:
+        node (:class:`parso.python.Tree.PythonBaseNode`):
+            A parso node that may or may not have a "dictorsetmaker"
+            node as one of its children. Usually, this will actually be
+            an "atom" type :class:`parso.python.tree.PythonNode`
+
+    Returns:
+        :class:`parso.python.tree.PythonNode` or NoneType:
+            Get the inner dict, if any exists in `node`.
+
+    """
     for child in parso_helper.iter_nested_children(node):
         if isinstance(child, tree.PythonNode) and child.type == "dictorsetmaker":
             # If this happens, it means that `node` is a non-empty dict
@@ -220,25 +265,51 @@ def _get_tests_data(graph):
 
 
 def _make_makeshift_node_dict(node):
+    """Find every key / value of a parso dict and partially cast it back to a Python object.
+
+    Args:
+        node (:class:`parso.python.Tree.PythonBaseNode`):
+            A parso node that may or may not have a "dictorsetmaker"
+            node as one of its children. Usually, this will actually be
+            an "atom" type :class:`parso.python.tree.PythonNode`
+
+    Returns:
+        dict[str, :class:`parso.python.Tree.PythonBaseNode`]:
+            The original `node`, but converted into actual Python keys.
+
+    """
     data_node_root = _get_dict_maker_root(node)
     data_pairs = _get_dict_maker_pairs(data_node_root)
 
     return {key.value.strip("'\""): value for key, value in data_pairs}
 
 
-# TODO : Might be worth moving to python_compatibility?
-def _update(d, u):
-    # Reference: https://stackoverflow.com/a/59685868/3626104
-    if not isinstance(d, collections.MutableMapping):
-        return u
+# TODO : Change the name
+def _update_foo(existing, extras):
+    if not isinstance(existing, collections.MutableMapping):
+        return extras
 
-    for k, v in u.items():
-        if isinstance(v, collections.Mapping):
-            d[k] = _update(d.get(k, type(v)()), v)
+    existing = copy.deepcopy(existing)
+
+    for key, value in extras.items():
+        if _is_parso_dict_instance(value):
+            dict_value = _make_makeshift_node_dict(value)
+            existing[key] = _update_foo(existing.get(key, dict()), dict_value)
         else:
-            d[k] = v
+            existing[key] = value
 
-    return d
+    return existing
+
+
+def _override_tests(base, data):
+    if not base:
+        return data
+
+    data_graph = parso.parse(json.dumps(data))
+    _flatten_nodes(data_graph)
+    data_pairs = _make_makeshift_node_dict(data_graph)
+
+    return _update_foo(base, data_pairs)
 
 
 def _escape(key):

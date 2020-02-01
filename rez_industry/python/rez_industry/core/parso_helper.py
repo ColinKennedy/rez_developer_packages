@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""Functions that make working with :mod:`parso` a little easier."""
+
 from parso.python import tree
 
 
@@ -38,6 +40,19 @@ def iter_nested_children(node):
 
 
 def find_assignment_nodes(attribute, graph):
+    """Get a parso node each time a certain Python attribute is declared and given a value.
+
+    Args:
+        attribute (str):
+            The name of a Python attribute. e.g. "tests", "help", etc.
+        graph (:class:`parso.python.tree.PythonBaseNode`):
+            The root node that will be checked. Usually, this is a
+            :class:`parso.python.tree.Module` but it doesn't have to be.
+
+    Returns:
+        set[:class:`parso.python.tree.PythonBaseNode`]: The found assignments, if any.
+
+    """
     nodes = []
 
     for child in iter_nested_children(graph):
@@ -50,5 +65,3 @@ def find_assignment_nodes(attribute, graph):
                         nodes.append(child)
 
     return nodes
-
-
