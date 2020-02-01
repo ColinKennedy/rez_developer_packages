@@ -4,11 +4,11 @@
 import copy
 import json
 
-from rez import package_serialise
-from rez.vendor.schema import schema
-from parso.python import tree
 import parso
 import six
+from parso.python import tree
+from rez import package_serialise
+from rez.vendor.schema import schema
 
 from .. import parso_helper
 from . import base
@@ -88,9 +88,10 @@ class HelpAdapter(base.BaseAdapter):
                 graph.children.append(
                     tree.PythonNode(
                         "assignment",
-                        [tree.String("help = ", (0, 0), prefix="\n\n")] + [node]
+                        [tree.String("help = ", (0, 0), prefix="\n\n")] + [node],
                     )
                 )
+
         try:
             assignment = parso_helper.find_assignment_nodes("help", graph)[-1]
         except IndexError:

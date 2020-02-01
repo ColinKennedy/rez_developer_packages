@@ -5,14 +5,14 @@
 
 import collections
 import copy
-import logging
 import json
+import logging
 
 import parso
-from parso.python import tree
-from rez.vendor.schema import schema
-from rez import package_serialise
 import six
+from parso.python import tree
+from rez import package_serialise
+from rez.vendor.schema import schema
 
 from .. import parso_helper
 from . import base as base_
@@ -130,6 +130,7 @@ def _is_empty_dict(node):
         bool: Return False if `node` is a non-empty dict. Otherwise, return True.
 
     """
+
     def _is_close(node):
         if not isinstance(node, tree.Operator):
             return False
@@ -345,7 +346,9 @@ def _update_partial_python_dict(existing, extras):
     for key, value in extras.items():
         if _is_parso_dict_instance(value):
             dict_value = _make_makeshift_node_dict(value)
-            existing[key] = _update_partial_python_dict(existing.get(key, dict()), dict_value)
+            existing[key] = _update_partial_python_dict(
+                existing.get(key, dict()), dict_value
+            )
         else:
             existing[key] = value
 
@@ -379,7 +382,7 @@ def _override_tests(base, data):
 
 def _escape(key):
     """Make some text into a double-quoted dict key string."""
-    return '"{key}"'.format(key=key.replace('"', '\"'))
+    return '"{key}"'.format(key=key.replace('"', '"'))
 
 
 def _escape_all(value):
