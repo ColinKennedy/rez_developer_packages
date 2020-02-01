@@ -56,7 +56,7 @@ class TestsAdapter(base_.BaseAdapter):
 
         Args:
             graph (:class:`parso.python.Tree.PythonBaseNode`):
-                Some node that either contains a assignment for a
+                Some node that either contains an assignment for a
                 "tests" attribute or it it has no assignment and instead
                 "tests" is appended to the end of the nodes in `graph`.
             data (dict[str, str or dict[str, str or list[str]]]):
