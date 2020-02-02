@@ -107,6 +107,3 @@ case, add an issue here and it can be added.
 - do more unittest. Variants class
 -  make sure fix / reporting works with source packages that contain variants
  - and built packages
-
-- does has_python_package account for source packages + variants? Because it needs to!
- - Also technically source packages need to be built in order to determine if they are a Python package
