@@ -3,6 +3,7 @@
 
 """Test all functions in the :mod:`rez_utilities.inspection` module."""
 
+import collections
 import functools
 import os
 import tempfile
@@ -69,6 +70,16 @@ class Packaging(common.Common):
 
         self.assertIsNone(inspection.get_nearest_rez_package(directory))
 
+    def test_in_valid_context(self):
+        """Make sure :func:`rez_lint.inspection.in_valid_context` works as expected."""
+        package = inspection.get_nearest_rez_package(_CURRENT_DIRECTORY)
+
+        Package = collections.namedtuple("Package", "name version")
+        fake_package = Package("foo", "6.6.6")
+
+        self.assertTrue(inspection.in_valid_context(package))
+        self.assertFalse(inspection.in_valid_context(fake_package))
+
 
 class HasPythonPackage(common.Common):
     """Test that the :func:`rez_utilities.inspection.has_python_package` function works."""
@@ -76,10 +87,12 @@ class HasPythonPackage(common.Common):
     def setUp(self):
         """Keep a copy of the Rez build command so that unittests can mock it."""
         self._saved_build_method = local.LocalBuildProcess.build
+        self._saved_in_valid_context = inspection.in_valid_context
 
     def tearDown(self):
         """Restore the old build command."""
         local.LocalBuildProcess.build = self._saved_build_method
+        inspection.in_valid_context = self._saved_in_valid_context
 
     def test_source(self):
         """Return True if a Rez package with at least one Python module is found."""
@@ -276,6 +289,16 @@ class HasPythonPackage(common.Common):
         """Make sure a non-package input raises an exception."""
         with self.assertRaises(ValueError):
             inspection.has_python_package(None)
+
+    def test_allow_current_context(self):
+        """Check that has_python_package only creates a context when needed."""
+        package = inspection.get_nearest_rez_package(_CURRENT_DIRECTORY)
+        inspection.in_valid_context = _check_called(inspection.in_valid_context)
+
+        self.assertTrue(inspection.has_python_package(package, allow_current_context=False))
+        self.assertFalse(inspection.in_valid_context.was_run)
+        self.assertTrue(inspection.has_python_package(package, allow_current_context=True))
+        self.assertTrue(inspection.in_valid_context.was_run)
 
 
 class GetPackagePythonFiles(common.Common):
