@@ -2,7 +2,7 @@
 
 name = "rez_batch_process"
 
-version = "0.0.2"
+version = "0.0.3"
 
 description = (
     "Check for Rez packages that need Sphinx documentation and automatically add it."
@@ -17,7 +17,7 @@ requires = [
     "PyGithub-1.45+<2",  # TODO : Remove this if needed. Same with `GitPython`
     "backports.functools_lru_cache-1.6+<2",
     "github3.py-1.3+<2",
-    "python_compatibility-1.1+<2",
+    "python_compatibility-2+<3",
     "rez-2.47+<3",
     "rez_utilities-1+<2",
     "six-1.13+<2",
