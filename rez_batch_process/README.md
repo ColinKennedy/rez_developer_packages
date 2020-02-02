@@ -95,6 +95,8 @@ TODO finish
 
 # Extending rez-batch-process
 
+TODO explain the plugin stuff
+
 
 # Current Caveats
 
@@ -102,38 +104,9 @@ TODO finish
 It could be extended to make pull requests in bitbucket. If that's the
 case, add an issue here and it can be added.
 
-
-TODO explain the plugin stuff
-
-TODO
-- do needs "intersphinx" finder
- - traverse all possible Rez packages
-  - Check if the Rez package has a conf.py
-   - Run the "missing intersphinx" check
-   - if anything missing comes up, do
-    - group by repository
-	- clone everything
-	- make the change as individual rez packages
-	- create a PR for each change
-	 - find a way to auto-add reviewers. No idea how to do this though ...
-
-   - Make the logic that determines this into a separate function / module so that it can be overwritten,if needed
-   - run the paths through a process (arbitrary user process / function)
-
-- Add wrapper code that can auto-add intersphinx to fixes to Rez packages and create a PR
-
-
-
-
-
 - do more unittest. Variants class
 -  make sure fix / reporting works with source packages that contain variants
  - and built packages
 
 - does has_python_package account for source packages + variants? Because it needs to!
  - Also technically source packages need to be built in order to determine if they are a Python package
-
-
-- Do CI stuff
-- Do TODO notes
-
