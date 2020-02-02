@@ -40,7 +40,7 @@ tests = {
         # Need to disable D202 for now, until a new pydocstyle version is released
         # Reference: https://github.com/psf/black/issues/1159
         #
-        "command": "pydocstyle --ignore=D213,D202,D203,D406,D407 python tests",
+        "command": "pydocstyle --ignore=D213,D202,D203,D406,D407 python tests/*",
         "requires": ["pydocstyle-3+"],
     },
     "pylint_source": {
