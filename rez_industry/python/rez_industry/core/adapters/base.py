@@ -18,13 +18,13 @@ class BaseAdapter(object):
 
     @staticmethod
     @abc.abstractmethod
-    def check_if_invalid(data):
+    def check_if_invalid(data):  # pragma: no cover
         """str: If `data` is invalid, return a message explaining why."""
         return ""
 
     @staticmethod
     @abc.abstractmethod
-    def modify_with_existing(graph, data):
+    def modify_with_existing(graph, data):  # pragma: no cover
         """Add `data` to a parso node `graph`.
 
         Args:

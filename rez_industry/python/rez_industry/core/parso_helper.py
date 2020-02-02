@@ -28,7 +28,7 @@ def iter_nested_children(node):
 
         if not hasattr(node, "children"):
             return
-            yield  # pylint: disable=unreachable
+            yield  # pragma: no cover pylint: disable=unreachable
 
         for child in node.children:
             if child not in seen:

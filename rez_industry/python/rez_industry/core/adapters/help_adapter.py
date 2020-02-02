@@ -152,10 +152,6 @@ class HelpAdapter(base.BaseAdapter):
         return graph.get_code()
 
 
-def _is_comma(node):
-    return isinstance(node, tree.Operator) and node.value == ","
-
-
 def _is_list_root_definition(node):
     return isinstance(node, tree.PythonNode) and node.type == "testlist_comp"
 
@@ -199,7 +195,7 @@ def _apply_formatting(node):
         if isinstance(node, tree.String):
             return False
 
-        return True
+        return True  # pragma: no cover
 
     def _iter_inner_entries(node):
         for child in parso_helper.iter_nested_children(node):
@@ -212,7 +208,7 @@ def _apply_formatting(node):
         if isinstance(child, tree.Operator) and child.value == ",":
             child.prefix = ""
         elif hasattr(child, "prefix") and _needs_space(child):
-            child.prefix = " "
+            child.prefix = " "  # pragma: no cover
 
     for child in _iter_inner_entries(node):
         opening_brace = child.children[0]

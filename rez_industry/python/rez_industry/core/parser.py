@@ -40,7 +40,7 @@ def add_to_attribute(attribute, data, code, append=False):
 
     try:
         adapter_class = _ADAPTERS[attribute]
-    except KeyError:
+    except KeyError:  # pragma: no cover
         raise ValueError(
             'Attribute "{attribute}" is not supported. Options were "{_ADAPTERS}".'
             "".format(attribute=attribute, _ADAPTERS=sorted(_ADAPTERS))
