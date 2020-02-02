@@ -275,9 +275,7 @@ def get_package_python_paths(package, paths):
         package (:class:`rez.packages_.Package`):
             The built or source Rez package to get a valid path from.
         paths (iter[str]):
-            The main object that's used to find Python files within the
-            Rez package. Usually, this is either :attr:`os.environ` or
-            :meth:`rez.resolved_context.ResolvedContext.get_environ`.
+            The PYTHONPATH paths within the Rez package.
 
     Returns:
         set[str]: The found Python files (excluding __init__.py files).
