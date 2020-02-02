@@ -210,6 +210,9 @@ def _search_for_python_dependencies(caller, directories):
         set[str]: The found Python file dependencies.
 
     """
+    if not directories:
+        return set()
+
     directories = " ".join(['"{path}"'.format(path=path) for path in directories])
 
     process = caller(
