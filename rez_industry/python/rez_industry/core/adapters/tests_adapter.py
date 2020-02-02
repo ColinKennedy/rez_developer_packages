@@ -226,7 +226,12 @@ def _get_dict_maker_pairs(node):
             to the key / value pairs of a Python dict.
 
     Returns:
-        list[tuple[:class:`parso.python.tree.PythonBaseNode`, :class:`parso.python.tree.PythonBaseNode`]]:
+        list[
+            tuple[
+                :class:`parso.python.tree.PythonBaseNode`,
+                :class:`parso.python.tree.PythonBaseNode`
+            ]
+        ]:
             The found parso key / value pairs of `node`.
 
     """
