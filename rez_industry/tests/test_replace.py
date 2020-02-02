@@ -113,7 +113,8 @@ class AddToAttributeHelp(unittest.TestCase):
             help = [
                 ["thing", "blah"],
                 ["foo", "bar"],
-            ]""")
+            ]"""
+        )
 
         self._test(expected, original, [["thing", "blah"], ["foo", "bar"]])
 
@@ -266,7 +267,9 @@ class AddToAttributeHelp(unittest.TestCase):
             """
         )
 
-        results = api.add_to_attribute("help", [["thing", "blah"]], original, append=True)
+        results = api.add_to_attribute(
+            "help", [["thing", "blah"]], original, append=True
+        )
         self.assertEqual(expected, results)
 
     def test_single_line_expand(self):

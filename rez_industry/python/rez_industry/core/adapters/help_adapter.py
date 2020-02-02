@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import copy
 import collections
+import copy
 import json
 
 import parso
@@ -54,7 +54,9 @@ class HelpAdapter(base.BaseAdapter):
 
     @staticmethod
     def _resolve_entries(first, second):
-        help_keys = collections.OrderedDict([(node.children[0].get_code(), node.children[0]) for node in first])
+        help_keys = collections.OrderedDict(
+            [(node.children[0].get_code(), node.children[0]) for node in first]
+        )
 
         for node in second:
             key = node.children[0]
@@ -114,15 +116,21 @@ class HelpAdapter(base.BaseAdapter):
 
         help_data = parso.parse(json.dumps(data)).children[0]
 
-        if assignment and not _get_list_root(assignment) and isinstance(help_data, tree.String):
+        if (
+            assignment
+            and not _get_list_root(assignment)
+            and isinstance(help_data, tree.String)
+        ):
             help_data.prefix = " "
             _insert_or_append(help_data, graph, assignment)
 
             return graph.get_code()
 
         if _get_list_root(assignment) and isinstance(help_data, tree.String):
-            raise ValueError('You may not add string "{help_data}" because assignment "{assignment}" is a list.'.format(
-                help_data=help_data.get_code(), assignment=assignment.get_code())
+            raise ValueError(
+                'You may not add string "{help_data}" because assignment "{assignment}" is a list.'.format(
+                    help_data=help_data.get_code(), assignment=assignment.get_code()
+                )
             )
 
         help_data = _get_inner_list_entries(help_data)
@@ -137,12 +145,19 @@ class HelpAdapter(base.BaseAdapter):
         else:
             entries.extend(help_data)
 
-        entries = [tree.PythonNode("atom", [tree.Operator("[", (0, 0)), entry, tree.Operator("]", (0, 0))]) for entry in entries]
+        entries = [
+            tree.PythonNode(
+                "atom", [tree.Operator("[", (0, 0)), entry, tree.Operator("]", (0, 0))]
+            )
+            for entry in entries
+        ]
         entries = _separate_with_commas(entries)
 
         node = tree.PythonNode(
             "atom",
-            [tree.Operator("[", (0, 0))] + entries + [tree.Operator(",", (0, 0)), tree.Operator("]", (0, 0))],
+            [tree.Operator("[", (0, 0))]
+            + entries
+            + [tree.Operator(",", (0, 0)), tree.Operator("]", (0, 0))],
         )
 
         node = _apply_formatting(node)
@@ -163,7 +178,9 @@ def _get_inner_list_entries(node):
         if not _is_list_root_definition(child):
             continue
 
-        if any(child_ for child_ in child.children if isinstance(child_, tree.PythonNode)):
+        if any(
+            child_ for child_ in child.children if isinstance(child_, tree.PythonNode)
+        ):
             continue
 
         entries.append(child)
