@@ -80,12 +80,11 @@ def override_packages_path(paths, prepend=False):
         ...     some_command_that_relies_on_the_rez_api()
 
     Args:
-        paths (list[str]):
-            The new paths that will be used to search for Rez packages.
-        prepend (bool, optional):
-            If False, `paths` will completely override :attr:`rez.config.packages_path`.
-            If True, `paths` will be given priority over :attr:`rez.config.packages_path`
-            but the original packages_path will stick around. Default is False.
+        paths (list[str]): The new paths that will be used to search for Rez packages.
+        prepend (bool, optional): If False, `paths` will completely override
+            :attr:`rez.config.packages_path`. If True, `paths` will be
+            given priority over :attr:`rez.config.packages_path` but the
+            original packages_path will stick around. Default is False.
 
     """
     original = list(config.packages_path)  # pylint: disable=no-member
