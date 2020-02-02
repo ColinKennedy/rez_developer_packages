@@ -3,7 +3,7 @@
 
 name = "rez_lint"
 
-version = "1.1.0"
+version = "1.2.0"
 
 description = 'A "pylint" for Rez packages'
 
@@ -13,7 +13,7 @@ requires = [
     "backports.functools_lru_cache-1.6+<2",
     "parso-0+<1",
     "python-2+<3",
-    "python_compatibility-1.1+<2",
+    "python_compatibility-2+<3",
     "rez-2.47+<3",
     "rez_utilities-1+<2",
     "six-1.13+<2",
