@@ -99,7 +99,9 @@ class HelpAdapter(base.BaseAdapter):
     def modify_with_existing(cls, graph, data, append=False):
         def _insert_or_append(node, graph, assignment):
             if assignment:
-                node.children[0].prefix = " "
+                if hasattr(node, "children"):
+                    node.children[0].prefix = " "
+
                 assignment.children[-1] = node
             else:
                 graph.children.append(
@@ -115,6 +117,12 @@ class HelpAdapter(base.BaseAdapter):
             assignment = None
 
         help_data = parso.parse(json.dumps(data)).children[0]
+
+        if assignment and not _get_list_root(assignment) and isinstance(help_data, tree.String):
+            help_data.prefix = " "
+            _insert_or_append(help_data, graph, assignment)
+
+            return graph.get_code()
 
         if _get_list_root(assignment) and isinstance(help_data, tree.String):
             raise ValueError('You may not add string "{help_data}" because assignment "{assignment}" is a list.'.format(
