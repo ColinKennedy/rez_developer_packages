@@ -10,6 +10,10 @@ from parso.python import tree
 def iter_nested_children(node):
     """Find every child node of the given `node`, recursively.
 
+    Note:
+        This function is **exclusive**, which means `node` is not
+        yielded as part of the output. Only its children are yielded.
+
     Args:
         node (:class:`parso.python.tree.PythonBaseNode`): The node to get children of.
 

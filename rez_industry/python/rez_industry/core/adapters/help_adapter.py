@@ -17,7 +17,7 @@ from . import base
 class HelpAdapter(base.BaseAdapter):
     @staticmethod
     def _apply_formatting(node):
-        def _is_allowed(node):
+        def _needs_space(node):
             if isinstance(node, tree.Operator) and node.value in ("[", "]"):
                 return False
 
@@ -27,7 +27,7 @@ class HelpAdapter(base.BaseAdapter):
             return True
 
         def _iter_inner_entries(node):
-            for child in node.children:
+            for child in parso_helper.iter_nested_children(node):
                 if isinstance(child, tree.PythonNode) and child.type == "atom":
                     yield child
 
@@ -47,13 +47,18 @@ class HelpAdapter(base.BaseAdapter):
                 definitions.add(child)
             elif isinstance(child, tree.Operator) and child.value == ",":
                 child.prefix = ""
-            elif hasattr(child, "prefix") and _is_allowed(child):
+            elif hasattr(child, "prefix") and _needs_space(child):
                 child.prefix = " "
+
+        entries = []
 
         for child in _iter_inner_entries(node):
             opening_brace = child.children[0]
             opening_brace.prefix = "\n    "
-            _add_trailing_comma(child)
+            entries.append(child)
+
+        # TODO : Check if this has the possibility of IndexErroring
+        _add_trailing_comma(entries[-1])
 
         node.children[-1].prefix = "\n"
 
@@ -100,33 +105,32 @@ class HelpAdapter(base.BaseAdapter):
         entries = []
 
         if assignment:
-            entries = _get_help_data(assignment)
+            entries = _get_list_root(assignment)
 
-        if not isinstance(entries, six.string_types) and isinstance(data, six.string_types):
-            raise ValueError(
-                'Data "{data}" is a string. And a help string cannot replace '
-                'a help list-of-lists.'.format(data=data))
+        # if not isinstance(entries, tree.String) and isinstance(data, six.string_types):
+        #     raise ValueError(
+        #         'Data "{data}" is a string. And a help string cannot replace '
+        #         'a help list-of-lists.'.format(data=data))
+        #
+        # if not append and not isinstance(data, six.string_types):
+        #     invalids = [item for item in data if item in entries]
+        #
+        #     if invalids:
+        #         raise ValueError(
+        #             'Duplicate entries "{invalids}" were found. '
+        #             'Re-run with `append=True` or remove the duplicates to contine.'
+        #             ''.format(invalids=invalids)
+        #         )
 
-        if not append and not isinstance(data, six.string_types):
-            invalids = [item for item in data if item in entries]
+        help_data = parso.parse(json.dumps(data)).children[0]
+        inner_help_entries = help_data.children[1]
+        entries.children.append(inner_help_entries)
 
-            if invalids:
-                raise ValueError(
-                    'Duplicate entries "{invalids}" were found. '
-                    'Re-run with `append=True` or remove the duplicates to contine.'
-                    ''.format(invalids=invalids)
-                )
+        node = tree.PythonNode(
+            "atom", [tree.Operator("[", (0, 0)), entries, tree.Operator("]", (0, 0))],
+        )
 
-        node_data = parso.parse(json.dumps(data)).children[0]
-        node_data = cls._apply_formatting(node_data)
-
-        entries.append(node_data)
-
-        node = tree.PythonNode("atom", entries)
-
-        raise ValueError(node)
-
-        raise ValueError(node.get_code())
+        node = cls._apply_formatting(node)
 
         _insert_or_append(node, graph, assignment)
 
