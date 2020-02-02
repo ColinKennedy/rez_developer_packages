@@ -13,8 +13,45 @@ from rez.vendor.schema import schema
 from .. import parso_helper
 from . import base
 
+_DEFAULT_FALLBACK_KEY = "documentation"
+
 
 class HelpAdapter(base.BaseAdapter):
+    @staticmethod
+    def _get_entries(assignment):
+        root = _get_list_root(assignment)
+
+        if root:
+            return [root]
+
+        string_root = _get_str_root(assignment)
+
+        if not string_root:
+            return []
+
+        return [
+            tree.PythonNode(
+                "atom",
+                [
+                    tree.Operator("[", (0, 0)),
+                    tree.PythonNode(
+                        "testlist_comp",
+                        [
+                            tree.String(
+                                '"{_DEFAULT_FALLBACK_KEY}"'.format(
+                                    _DEFAULT_FALLBACK_KEY=_DEFAULT_FALLBACK_KEY,
+                                ),
+                                (0, 0),
+                            ),
+                            tree.Operator(",", (0, 0)),
+                            string_root,
+                        ],
+                    ),
+                    tree.Operator("]", (0, 0)),
+                ],
+            ),
+        ]
+
     @staticmethod
     def supports_duplicates():
         return True
@@ -56,10 +93,7 @@ class HelpAdapter(base.BaseAdapter):
         entries = []
 
         if assignment:
-            root = _get_list_root(assignment)
-
-            if root:
-                entries = [root]
+            entries = cls._get_entries(assignment)
 
         # if not isinstance(entries, tree.String) and isinstance(data, six.string_types):
         #     raise ValueError(
@@ -114,7 +148,14 @@ def _is_list_root_definition(node):
 def _get_list_root(node):
     for child in parso_helper.iter_nested_children(node):
         if _is_list_root_definition(child):
-            # If this happens, it means that `node` is a non-empty dict
+            return child
+
+    return None
+
+
+def _get_str_root(node):
+    for child in parso_helper.iter_nested_children(node):
+        if isinstance(child, tree.String):
             return child
 
     return None
