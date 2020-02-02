@@ -59,5 +59,5 @@ def add_to_attribute(attribute, data, code, append=False):
 
     if adapter_class.supports_duplicates():
         return adapter_class.modify_with_existing(graph, data, append=append)
-    else:
-        return adapter_class.modify_with_existing(graph, data)
+
+    return adapter_class.modify_with_existing(graph, data)

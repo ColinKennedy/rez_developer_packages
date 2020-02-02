@@ -8,7 +8,6 @@ import copy
 import json
 
 import parso
-import six
 from parso.python import tree
 from rez import package_serialise
 from rez.vendor.schema import schema
@@ -142,7 +141,7 @@ class HelpAdapter(base.BaseAdapter):
         return ""
 
     @classmethod
-    def modify_with_existing(cls, graph, data, append=False):
+    def modify_with_existing(cls, graph, data, append=False):  # pylint: disable=arguments-differ
         """Add `data` to a parso node `graph`.
 
         Reference:
@@ -198,7 +197,8 @@ class HelpAdapter(base.BaseAdapter):
 
         if _get_list_root(assignment) and isinstance(help_data, tree.String):
             raise ValueError(
-                'You may not add string "{help_data}" because assignment "{assignment}" is a list.'.format(
+                'You may not add string "{help_data}" '
+                'because assignment "{assignment}" is a list.'.format(
                     help_data=help_data.get_code(), assignment=assignment.get_code()
                 )
             )

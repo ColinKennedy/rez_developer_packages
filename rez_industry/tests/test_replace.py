@@ -591,3 +591,33 @@ class AddToAttributeTests(unittest.TestCase):
         )
 
         self._test(expected, original, overrides)
+
+    def test_replace_str_with_dict(self):
+        """Change a str value into a dict value."""
+        original = textwrap.dedent(
+            """\
+            name = "whatever"
+
+            tests = {
+                "foo": "bar",
+            }
+            """
+        )
+
+        expected = textwrap.dedent(
+            """\
+            name = "whatever"
+
+            tests = {
+                "foo": {
+                    "command": "more",
+                    "requires": ["information"],
+                },
+            }
+            """
+        )
+        overrides = {
+            "foo": {"command": "more", "requires": ["information"]},
+        }
+
+        self._test(expected, original, overrides)

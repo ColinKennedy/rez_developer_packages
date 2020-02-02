@@ -320,7 +320,6 @@ def _make_makeshift_node_dict(node):
     return {key.value.strip("'\""): value for key, value in data_pairs}
 
 
-# TODO : Add a unittest that changes a string into an inner dict. Very important!
 def _update_partial_python_dict(existing, extras):
     """Add the contents of `extras` onto `existing`.
 
