@@ -33,28 +33,24 @@ class HelpAdapter(base.BaseAdapter):
         if string_root.get_code().strip() in ("''", '""'):
             return []
 
-        return [
-            tree.PythonNode(
-                "atom",
-                [
-                    tree.Operator("[", (0, 0)),
-                    tree.PythonNode(
-                        "testlist_comp",
-                        [
-                            tree.String(
-                                '"{_DEFAULT_FALLBACK_KEY}"'.format(
-                                    _DEFAULT_FALLBACK_KEY=_DEFAULT_FALLBACK_KEY,
-                                ),
-                                (0, 0),
-                            ),
-                            tree.Operator(",", (0, 0)),
-                            string_root,
-                        ],
+        node = tree.PythonNode(
+            "testlist_comp",
+            [
+                tree.String(
+                    '"{_DEFAULT_FALLBACK_KEY}"'.format(
+                        _DEFAULT_FALLBACK_KEY=_DEFAULT_FALLBACK_KEY,
                     ),
-                    tree.Operator("]", (0, 0)),
-                ],
-            ),
-        ]
+                    (0, 0),
+                ),
+                tree.Operator(",", (0, 0)),
+                string_root,
+            ],
+        )
+
+        for child in node.children:
+            child.parent = node
+
+        return [node]
 
     @staticmethod
     def _resolve_entries(first, second):
