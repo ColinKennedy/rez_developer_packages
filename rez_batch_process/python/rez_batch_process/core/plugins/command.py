@@ -17,7 +17,7 @@ from . import base
 
 _LOGGER = logging.getLogger(__name__)
 Configuration = collections.namedtuple(
-    "Configuration", "command token pull_request_prefix",
+    "Configuration", "command token pull_request_prefix ssl_no_verify",
 )
 
 
