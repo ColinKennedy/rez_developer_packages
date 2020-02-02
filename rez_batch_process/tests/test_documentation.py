@@ -44,7 +44,7 @@ class Add(common.Common):
         arguments = _make_arguments(name)
 
         with mock.patch("rez_batch_process.core.gitter.git_registry.get_remote_adapter") as patch:
-            patch.return_value = True
+            patch.create_pull_request = lambda *args, **kwargs: None
             fixed, unfixed, invalids, skips = worker.fix(packages, arguments)
 
         self.assertEqual((set(), [], []), (unfixed, invalids, skips))
