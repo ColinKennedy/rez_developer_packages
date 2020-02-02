@@ -113,9 +113,7 @@ class AddToAttributeHelp(unittest.TestCase):
             help = [
                 ["thing", "blah"],
                 ["foo", "bar"],
-            ]
-            """
-        )
+            ]""")
 
         self._test(expected, original, [["thing", "blah"], ["foo", "bar"]])
 
