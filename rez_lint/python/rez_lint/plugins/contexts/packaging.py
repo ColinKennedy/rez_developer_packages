@@ -65,17 +65,29 @@ class SourceResolvedContext(base_context.BaseContext):
                 The object that stores all of the cached results.
 
         """
-        try:
-            rez_context = _resolve(package)
-        except exceptions.RezError:
-            _LOGGER.exception('Package "%s" could not be resolved.', package)
+        rez_context = None
 
-            return
+        if not _is_already_in_valid_context(package):
+            try:
+                rez_context = _resolve(package)
+            except exceptions.RezError:
+                _LOGGER.exception('Package "%s" could not be resolved.', package)
 
-        python_package_roots = inspection.get_package_python_paths(package, rez_context)
-        dependency_paths = _search_for_python_dependencies(
-            rez_context, python_package_roots
-        )
+                return
+
+        environment = os.environ
+
+        if rez_context:
+            environment = rez_context.get_environ()
+
+        python_package_roots = inspection.get_package_python_paths(package, environment)
+
+        caller = _get_popen_with_shell
+
+        if rez_context:
+            caller = rez_context.execute_command
+
+        dependency_paths = _search_for_python_dependencies(caller, python_package_roots)
 
         packages = _get_root_rez_packages(dependency_paths)
         packages = {package_ for package_ in packages if package_.name != package.name}
@@ -84,7 +96,27 @@ class SourceResolvedContext(base_context.BaseContext):
         context[lint_constant.DEPENDENT_PACKAGES] = packages
 
 
-def _search_for_python_dependencies(context, directories):
+def _is_already_in_valid_context(package):
+    """Find out if the user can query dependencies without creating another context.
+
+    Args:
+        package (:class:`rez.packages_.Package`): Some package to check.
+
+    Returns:
+        bool:
+            If False, it means that we need to create a context
+            from scratch if we want to query the dependencies
+            of the given `package`. If True, it means that just
+            calling from :mod:`subprocess` should work.
+
+    """
+    if os.getenv("REZ_{name}_VERSION".format(name=package.name.upper())) != str(package.version):
+        return False
+
+    return bool(os.getenv("REZ_PYTHON_COMPATIBILITY_BASE"))
+
+
+def _search_for_python_dependencies(caller, directories):
     """Find every Python file dependency for a set of directories.
 
     Args:
@@ -100,7 +132,7 @@ def _search_for_python_dependencies(context, directories):
 
     """
     directories = " ".join(['"{path}"'.format(path=path) for path in directories])
-    process = context.execute_command(
+    process = caller(
         "{_DEPENDENCY_PATHS_SCRIPT} {directories}".format(
             _DEPENDENCY_PATHS_SCRIPT=_DEPENDENCY_PATHS_SCRIPT, directories=directories
         ),
@@ -128,6 +160,13 @@ def _search_for_python_dependencies(context, directories):
     stdout_lines = filter(None, (line for line in stdout.splitlines()))
 
     return set(line for line in stdout_lines if os.path.isfile(line))
+
+
+def _get_popen_with_shell(*args, **kwargs):
+    """Wrap a :func:`subprocess.Popen` call so that shell is always `True`."""
+    kwargs["shell"] = True
+
+    return subprocess.Popen(*args, **kwargs)
 
 
 def _get_root_rez_packages(paths):

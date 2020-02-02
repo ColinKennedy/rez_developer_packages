@@ -384,7 +384,7 @@ class GetPackagePythonFiles(common.Common):
             + config.packages_path,  # pylint: disable=no-member
         )
 
-        return inspection.get_package_python_paths(package, context), root
+        return inspection.get_package_python_paths(package, context.get_environ()), root
 
     def _make_test_dependencies(self):
         """Create a couple of generic, installed Rez packages to use for unittesting."""
@@ -528,7 +528,7 @@ class GetPackagePythonFiles(common.Common):
             + config.packages_path,  # pylint: disable=no-member
         )
 
-        python_files = inspection.get_package_python_paths(package, context)
+        python_files = inspection.get_package_python_paths(package, context.get_environ())
 
         self.assertEqual(
             {os.path.join(root, "some_fake_package", "1.0.0", "python")}, python_files
@@ -569,7 +569,7 @@ class GetPackagePythonFiles(common.Common):
             + config.packages_path,  # pylint: disable=no-member
         )
 
-        python_files = inspection.get_package_python_paths(build_package, context)
+        python_files = inspection.get_package_python_paths(build_package, context.get_environ())
 
         self.assertEqual(
             {

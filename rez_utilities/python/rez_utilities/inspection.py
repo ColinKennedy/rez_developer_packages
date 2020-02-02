@@ -202,7 +202,7 @@ def has_python_package(package, paths=None, allow_build=True):
         package_paths=[get_packages_path_from_package(package)] + paths,
     )
 
-    paths = get_package_python_paths(package, context)
+    paths = get_package_python_paths(package, context.get_environ())
 
     for root_path in paths:
         for _, _, files in os.walk(root_path):
@@ -231,7 +231,7 @@ def has_python_package(package, paths=None, allow_build=True):
     return has_python_package(build_package)
 
 
-def get_package_python_paths(package, context):
+def get_package_python_paths(package, environment):
     """Get the Python files that a Rez package adds to the user's PYTHONPATH.
 
     If the Rez package is an installed Rez package and it contains
@@ -251,8 +251,10 @@ def get_package_python_paths(package, context):
     Args:
         package (:class:`rez.packages_.Package`):
             The built or source Rez package to get a valid path from.
-        context (:class:`rez.resolved_context.ResolvedContext`):
-            The main object that's used to find Python files within the Rez package.
+        environment (dict[str, str]):
+            The main object that's used to find Python files within the
+            Rez package. Usually, this is either :attr:`os.environ` or
+            :meth:`rez.resolved_context.ResolvedContext.get_environ`.
 
     Returns:
         set[str]: The found Python files (excluding __init__.py files).
@@ -269,7 +271,6 @@ def get_package_python_paths(package, context):
     #
     # Once that work is merged, replace `get_package_python_paths` with it.
     #
-    environment = context.get_environ()
     paths = environment.get("PYTHONPATH", "").split(os.pathsep)
 
     if not paths:
