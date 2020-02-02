@@ -184,14 +184,13 @@ class Cases(common.Common):
         have a set of pre-defined intersphinx mappings.
 
         Args:
-            package (str):
-                The Python code that will be used to build a Rez package
-                definition file. Make sure to include a ``requires``
-                attribute, if needed.
-            existing_dependencies (dict[str, str or tuple[str, str]], optional):
-                The object that will be used for intersphinx
-                dependencies. By default, the intersphinx_mapping is
-                undefined. Default is None.
+            package (str): The Python code that will be used
+                to build a Rez package definition file. Make sure to
+                include a ``requires`` attribute, if needed.
+            existing_dependencies (dict[str, str or tuple[str, str]], optional): The object
+                that will be used for intersphinx dependencies. By
+                default, the intersphinx_mapping is undefined. Default
+                is None.
 
         """
         directory = tempfile.mkdtemp(suffix="_some_temporary_rez_package_for_unittests")

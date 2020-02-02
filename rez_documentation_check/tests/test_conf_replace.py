@@ -19,12 +19,10 @@ class _Tester(common.Common):
         """Create a test file containing `code` and try to change the file into `expected`.
 
         Args:
-            expected (str):
-                The conf.py that should be generated once the unittest completes.
-            links (dict[str, str or tuple[str, str or NoneType]]):
-                The Rez package + URL link that is being added to `code`.
-            code (str):
-                The input conf.py file that needs to be changed into `expected`.
+            expected (str): The conf.py that should be generated once the unittest completes.
+            links (dict[str, str or tuple[str, str or NoneType]]): The Rez package
+                + URL link that is being added to `code`.
+            code (str): The input conf.py file that needs to be changed into `expected`.
 
         """
         with tempfile.NamedTemporaryFile(
