@@ -310,10 +310,10 @@ class Variations(package_common.Tests):
                 A replacement for the function that would normally run
                 as part of the commands that run on a Rez package. If
                 this function gets run, we know that this test passes.
-            builder (callable[str, str, str, str] -> str):
-                The function that is used to generate the "contents" of the
-                Rez package. This function is only responsible for creating
-                the package.py/rezbuild.py files, it doesn't create a Python
+            builder (callable[str, str, str, str] -> str): The function that
+                is used to generate the "contents" of the Rez package.
+                This function is only responsible for creating the
+                package.py/rezbuild.py files, it doesn't create a Python
                 package, for example. This parameter is responsible for
                 creating the rest of the files of the package.
 

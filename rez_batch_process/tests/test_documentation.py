@@ -36,7 +36,7 @@ class Add(common.Common):
         successfully. If it doesn't, then the command must have failed.
 
         Args:
-            packages_to_fix (iter[:class:`rez.packages_.Package`]):
+            packages (iter[:class:`rez.packages_.Package`]):
                 The Rez packages to run a command on. e.g. adding documentation.
 
         """
