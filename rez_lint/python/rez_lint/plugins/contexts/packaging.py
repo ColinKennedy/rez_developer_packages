@@ -188,7 +188,7 @@ def _resolve(package):
     return resolved_context.ResolvedContext(
         [
             "{package.name}=={version}".format(package=package, version=version),
-            "python_compatibility",
+            "python_compatibility-2",
         ],
         package_paths=[inspection.get_packages_path_from_package(package)]
         + config.packages_path,  # pylint: disable=no-member
@@ -211,9 +211,10 @@ def _search_for_python_dependencies(caller, directories):
 
     """
     directories = " ".join(['"{path}"'.format(path=path) for path in directories])
+
     process = caller(
-        "python {_DEPENDENCY_PATHS_SCRIPT} {directories}".format(
-            _DEPENDENCY_PATHS_SCRIPT=_DEPENDENCY_PATHS_SCRIPT, directories=directories
+        "python -m python_compatibility.dependency_analyzer {directories}".format(
+            directories=directories
         ),
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
