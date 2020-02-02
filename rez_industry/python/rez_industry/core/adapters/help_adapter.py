@@ -29,6 +29,9 @@ class HelpAdapter(base.BaseAdapter):
         if not string_root:
             return []
 
+        if string_root.get_code().strip() in ("''", '""'):
+            return []
+
         return [
             tree.PythonNode(
                 "atom",
