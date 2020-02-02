@@ -23,7 +23,7 @@ import logging
 import os
 import sys
 
-from python_compatibility import filer, imports, import_parser, packaging
+from . import filer, imports, import_parser, packaging
 import six
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
@@ -109,12 +109,15 @@ def _get_imported_namespaces_at_directories(directories):
 
     for directory in directories:
         for path in packaging.iter_python_files(directory):
-            for namespace in import_parser.get_namespaces_from_file(path):
-                namespace_text = namespace.get_namespace()
+            try:
+                for namespace in import_parser.get_namespaces_from_file(path):
+                    namespace_text = namespace.get_namespace()
 
-                if namespace_text not in names:
-                    names.add(namespace_text)
-                    namespaces.add(namespace)
+                    if namespace_text not in names:
+                        names.add(namespace_text)
+                        namespaces.add(namespace)
+            except SyntaxError:
+                pass
 
     return namespaces
 
@@ -192,7 +195,10 @@ def _get_source_paths(namespaces):
     paths = set()
 
     for namespace in namespaces:
-        module = _get_nearest_module(namespace.get_namespace())
+        try:
+            module = _get_nearest_module(namespace.get_namespace())
+        except Exception:
+            continue
 
         if not module:
             logging.error(
@@ -289,6 +295,21 @@ def _parse_arguments(text):
     return directories
 
 
+def get_dependency_paths(directories):
+    missing = set()
+
+    for directory in directories:
+        if not os.path.isdir(directory):
+            missing.add(directory)
+
+    if missing:
+        raise NotImplementedError('Paths "{missing}" are not valid directories.'.format(missing=missing))
+
+    namespaces = _get_imported_namespaces_at_directories(directories)
+
+    return _get_source_paths(namespaces)
+
+
 def main(text):
     """Run the main execution of the current script.
 
@@ -301,19 +322,8 @@ def main(text):
 
     """
     directories = _parse_arguments(text)
-    missing = set()
 
-    for directory in directories:
-        if not os.path.isdir(directory):
-            missing.add(directory)
-
-    if missing:
-        raise NotImplementedError('Paths "{missing}" are not valid directories.'.format(missing=missing))
-
-    namespaces = _get_imported_namespaces_at_directories(directories)
-    source_paths = _get_source_paths(namespaces)
-
-    for path in sorted(source_paths):
+    for path in sorted(get_dependency_paths(directories)):
         # These don't actually need to be sorted. But it makes debugging easier
         print(path)
 

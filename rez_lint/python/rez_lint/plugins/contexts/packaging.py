@@ -7,7 +7,7 @@ import logging
 import os
 import subprocess
 
-from python_compatibility import filer
+from python_compatibility import dependency_analyzer, filer
 from rez import exceptions, resolved_context
 from rez.config import config
 from rez_utilities import inspection
@@ -36,12 +36,17 @@ class HasPythonPackage(base_context.BaseContext):
 
         """
         try:
-            has_package = inspection.has_python_package(package, allow_build=False)
+            has_package = inspection.has_python_package(
+                package,
+                allow_build=False,
+                allow_current_context=True,
+            )
         except exceptions.PackageFamilyNotFoundError:
             _LOGGER.warning(
                 'Package "%s" triggered an error so it cannot be checked for Python modules',
                 package,
             )
+
             has_package = False
 
         context[lint_constant.HAS_PYTHON_PACKAGE] = has_package
@@ -67,27 +72,20 @@ class SourceResolvedContext(base_context.BaseContext):
         """
         rez_context = None
 
-        if not _is_already_in_valid_context(package):
+        if inspection.in_valid_context(package):
+            python_paths = os.environ["PYTHONPATH"].split(os.pathsep)
+            dependency_paths = dependency_analyzer.get_dependency_paths(python_paths)
+        else:
+            python_paths = _get_package_python_paths(package)
+
             try:
                 rez_context = _resolve(package)
             except exceptions.RezError:
                 _LOGGER.exception('Package "%s" could not be resolved.', package)
 
-                return
+                return []
 
-        environment = os.environ
-
-        if rez_context:
-            environment = rez_context.get_environ()
-
-        python_package_roots = inspection.get_package_python_paths(package, environment)
-
-        caller = _get_popen_with_shell
-
-        if rez_context:
-            caller = rez_context.execute_command
-
-        dependency_paths = _search_for_python_dependencies(caller, python_package_roots)
+            dependency_paths = _get_dependency_paths_using_context(python_paths, rez_context)
 
         packages = _get_root_rez_packages(dependency_paths)
         packages = {package_ for package_ in packages if package_.name != package.name}
@@ -96,70 +94,13 @@ class SourceResolvedContext(base_context.BaseContext):
         context[lint_constant.DEPENDENT_PACKAGES] = packages
 
 
-def _is_already_in_valid_context(package):
-    """Find out if the user can query dependencies without creating another context.
+def _get_dependency_paths_using_context(paths, rez_context):
+    caller = _get_popen_with_shell
 
-    Args:
-        package (:class:`rez.packages_.Package`): Some package to check.
+    if rez_context:
+        caller = rez_context.execute_command
 
-    Returns:
-        bool:
-            If False, it means that we need to create a context
-            from scratch if we want to query the dependencies
-            of the given `package`. If True, it means that just
-            calling from :mod:`subprocess` should work.
-
-    """
-    if os.getenv("REZ_{name}_VERSION".format(name=package.name.upper())) != str(package.version):
-        return False
-
-    return bool(os.getenv("REZ_PYTHON_COMPATIBILITY_BASE"))
-
-
-def _search_for_python_dependencies(caller, directories):
-    """Find every Python file dependency for a set of directories.
-
-    Args:
-        context (:class:`rez.resolved_context.ResolvedContext`):
-            The runtime environment that will be used to query the dependencies.
-        directories (iter[str]):
-            The absolute path to folders on-disk that will be used to
-            search for Python files. The Python files get imported and
-            directly searched for dependency files.
-
-    Returns:
-        set[str]: The found Python file dependencies.
-
-    """
-    directories = " ".join(['"{path}"'.format(path=path) for path in directories])
-    process = caller(
-        "{_DEPENDENCY_PATHS_SCRIPT} {directories}".format(
-            _DEPENDENCY_PATHS_SCRIPT=_DEPENDENCY_PATHS_SCRIPT, directories=directories
-        ),
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-    )
-    stdout, stderr = process.communicate()
-
-    _LOGGER.debug("Found stdout")
-    _LOGGER.debug(stdout)
-
-    # If it's not a log message, then it must be some kind of error
-    stderr_lines = [
-        line
-        for line in stderr.splitlines()
-        if not line.startswith(("ERROR:", "INFO:", "WARNING:"))
-    ]
-
-    if stderr_lines:
-        _LOGGER.error("Could not get Python path dependencies")
-        _LOGGER.error(stderr)
-
-        return []
-
-    stdout_lines = filter(None, (line for line in stdout.splitlines()))
-
-    return set(line for line in stdout_lines if os.path.isfile(line))
+    return _search_for_python_dependencies(caller, paths)
 
 
 def _get_popen_with_shell(*args, **kwargs):
@@ -167,6 +108,25 @@ def _get_popen_with_shell(*args, **kwargs):
     kwargs["shell"] = True
 
     return subprocess.Popen(*args, **kwargs)
+
+
+def _get_package_python_paths(package):
+    rez_context = None
+
+    if not inspection.in_valid_context(package):
+        try:
+            rez_context = _resolve(package)
+        except exceptions.RezError:
+            _LOGGER.exception('Package "%s" could not be resolved.', package)
+
+            return []
+
+    environment = os.environ
+
+    if rez_context:
+        environment = rez_context.get_environ()
+
+    return inspection.get_package_python_paths(package, environment)
 
 
 def _get_root_rez_packages(paths):
@@ -232,3 +192,49 @@ def _resolve(package):
         package_paths=[inspection.get_packages_path_from_package(package)]
         + config.packages_path,  # pylint: disable=no-member
     )
+
+
+def _search_for_python_dependencies(caller, directories):
+    """Find every Python file dependency for a set of directories.
+
+    Args:
+        context (:class:`rez.resolved_context.ResolvedContext`):
+            The runtime environment that will be used to query the dependencies.
+        directories (iter[str]):
+            The absolute path to folders on-disk that will be used to
+            search for Python files. The Python files get imported and
+            directly searched for dependency files.
+
+    Returns:
+        set[str]: The found Python file dependencies.
+
+    """
+    directories = " ".join(['"{path}"'.format(path=path) for path in directories])
+    process = caller(
+        "python {_DEPENDENCY_PATHS_SCRIPT} {directories}".format(
+            _DEPENDENCY_PATHS_SCRIPT=_DEPENDENCY_PATHS_SCRIPT, directories=directories
+        ),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    stdout, stderr = process.communicate()
+
+    _LOGGER.debug("Found stdout")
+    _LOGGER.debug(stdout)
+
+    # If it's not a log message, then it must be some kind of error
+    stderr_lines = [
+        line
+        for line in stderr.splitlines()
+        if not line.startswith(("ERROR:", "INFO:", "WARNING:"))
+    ]
+
+    if stderr_lines:
+        _LOGGER.warning("Could not get Python path dependencies")
+        _LOGGER.warning(stderr)
+
+        return set()
+
+    stdout_lines = filter(None, (line for line in stdout.splitlines()))
+
+    return set(line for line in stdout_lines if os.path.isfile(line))

@@ -120,6 +120,23 @@ def _iter_variant_extracted_paths(root, path, variants):
             yield path.replace(inner_path + os.sep, "")
 
 
+def in_valid_context(package):
+    """Find out if the user can query dependencies without creating another context.
+
+    Args:
+        package (:class:`rez.packages_.Package`): Some package to check.
+
+    Returns:
+        bool:
+            If False, it means that we need to create a context
+            from scratch if we want to query the dependencies
+            of the given `package`. If True, it means that just
+            calling from :mod:`subprocess` should work.
+
+    """
+    return os.getenv("REZ_{name}_VERSION".format(name=package.name.upper())) == str(package.version)
+
+
 def is_built_package(package):
     """Check if the given Rez package is a source directory or a built Rez package.
 
@@ -147,7 +164,7 @@ def is_built_package(package):
     return str(package.version) == os.path.basename(parent_folder)
 
 
-def has_python_package(package, paths=None, allow_build=True):
+def has_python_package(package, paths=None, allow_build=True, allow_current_context=False):
     """Check if the given Rez package has at least one Python package inside of it.
 
     Note:
@@ -197,12 +214,17 @@ def has_python_package(package, paths=None, allow_build=True):
     if is_built:
         version = package.version
 
-    context = resolved_context.ResolvedContext(
-        ["{package.name}=={version}".format(package=package, version=version)],
-        package_paths=[get_packages_path_from_package(package)] + paths,
-    )
+    if allow_current_context and in_valid_context(package):
+        environment = os.environ.get("PYTHONPATH", "").split(os.pathsep)
+    else:
+        context = resolved_context.ResolvedContext(
+            ["{package.name}=={version}".format(package=package, version=version)],
+            package_paths=[get_packages_path_from_package(package)] + paths,
+        )
 
-    paths = get_package_python_paths(package, context.get_environ())
+        environment = context.get_environ().get("PYTHONPATH", "").split(os.pathsep)
+
+    paths = get_package_python_paths(package, paths)
 
     for root_path in paths:
         for _, _, files in os.walk(root_path):
@@ -231,7 +253,8 @@ def has_python_package(package, paths=None, allow_build=True):
     return has_python_package(build_package)
 
 
-def get_package_python_paths(package, environment):
+# TODO : Make this into a list. Not set
+def get_package_python_paths(package, paths):
     """Get the Python files that a Rez package adds to the user's PYTHONPATH.
 
     If the Rez package is an installed Rez package and it contains
@@ -251,7 +274,7 @@ def get_package_python_paths(package, environment):
     Args:
         package (:class:`rez.packages_.Package`):
             The built or source Rez package to get a valid path from.
-        environment (dict[str, str]):
+        paths (iter[str]):
             The main object that's used to find Python files within the
             Rez package. Usually, this is either :attr:`os.environ` or
             :meth:`rez.resolved_context.ResolvedContext.get_environ`.
@@ -271,11 +294,6 @@ def get_package_python_paths(package, environment):
     #
     # Once that work is merged, replace `get_package_python_paths` with it.
     #
-    paths = environment.get("PYTHONPATH", "").split(os.pathsep)
-
-    if not paths:
-        return set()
-
     root = get_package_root(package)
 
     if is_built_package(package):

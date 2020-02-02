@@ -2,7 +2,7 @@
 
 name = "python_compatibility"
 
-version = "1.2.0"
+version = "2.0.0"
 
 description = "Miscellaneous, core Python 2 + 3 functions."
 
@@ -17,7 +17,7 @@ private_build_requires = ["rez_build_helper-1.1+<2"]
 
 variants = [["python-2.7"]]
 
-build_command = "python -m rez_build_helper --items bin python"
+build_command = "python -m rez_build_helper --items python"
 
 tests = {
     "black_diff": {"command": "rez-env black-19.10+ -- black --diff --check python tests"},
@@ -49,6 +49,5 @@ tests = {
 def commands():
     import os
 
-    env.PATH.append(os.path.join("{root}", "bin"))
     env.PYTHONPATH.append(os.path.join("{root}", "python"))
-    env.PYTHON_COMPATIBILITY_DEPENDENCY_PATHS_SCRIPT.set("_get-python-dependency-paths")
+    env.PYTHON_COMPATIBILITY_DEPENDENCY_PATHS_SCRIPT.set(os.path.join("{root}", "python", "dependency_analyzer.py"))
