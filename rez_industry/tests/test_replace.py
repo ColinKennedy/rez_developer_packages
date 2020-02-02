@@ -47,12 +47,12 @@ class AddToAttributeHelp(unittest.TestCase):
             name = "whatever"
 
             help = [
-                ["thing", "another"]
+                ["thing", "another"],
             ]
             """
         )
 
-        self._test(expected, original, ["thing", "another"])
+        self._test(expected, original, [["thing", "another"]])
 
     def test_empty_002(self):
         """Append should still work, even if help is just an empty list."""
@@ -69,12 +69,12 @@ class AddToAttributeHelp(unittest.TestCase):
             name = "whatever"
 
             help = [
-                ["thing", "another"]
+                ["thing", "another"],
             ]
             """
         )
 
-        self._test(expected, original, ["thing", "another"])
+        self._test(expected, original, [["thing", "another"]])
 
     def test_empty_003(self):
         """Don't add any extries because the override cannot be empty."""
