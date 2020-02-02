@@ -89,14 +89,11 @@ class TestsAdapter(base_.BaseAdapter):
         if assignment and _is_binding(assignment):
             raise NotImplementedError("@early and @late functions are not supported.")
 
-        if assignment:
-            maker_root = _get_dict_maker_root(assignment)
-            maker_root = _flatten_nodes(maker_root)
-
         existing = _get_tests_data(graph)
         new = dict()
         new = copy.deepcopy(existing)
         new = _override_tests(new, data)
+        new = {key: _flatten_everything(value) for key, value in new.items()}
         node = _make_tests_node(sorted(new.items()))
 
         if assignment:
@@ -374,7 +371,6 @@ def _override_tests(base, data):
         return data
 
     data_graph = parso.parse(json.dumps(data))
-    data_graph = _flatten_nodes(data_graph)
     data_pairs = _make_makeshift_node_dict(data_graph)
 
     return _update_partial_python_dict(base, data_pairs)
@@ -456,8 +452,27 @@ def _make_dict_nodes(data, prefix=""):
     )
 
 
-def _flatten_nodes(node):
-    """Remove all prefix / whitespace information from a parso node's children.
+def _flatten_everything(data):
+    """Remove all prefix / whitespace information, wherever possible.
+
+    Args:
+        node (:class:`parso.python.tree.PythonBaseNode` or dict[str]):
+            A parso object that presumably has whitespace or a dict of
+            parso values.
+
+    Returns:
+        :class:`parso.python.tree.PythonBaseNode` or dict[str]:
+            The original `node` given, but without whitespace.
+
+    """
+    if not isinstance(data, collections.MutableMapping):
+        return _flatten_node(data)
+
+    return {key: _flatten_node(value) for key, value in data.items()}
+
+
+def _flatten_node(node):
+    """Remove all prefix / whitespace information from a parso node + its children.
 
     :class:`TestsAdapter` is responsible for setting + appending
     whitespace for all of the parso nodes that eventually get written
@@ -477,6 +492,9 @@ def _flatten_nodes(node):
 
     """
     node = copy.deepcopy(node)
+
+    if hasattr(node, "prefix"):
+        node.prefix = ""
 
     for child in parso_helper.iter_nested_children(node):
         if hasattr(child, "prefix"):
