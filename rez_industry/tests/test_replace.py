@@ -21,12 +21,9 @@ class AddToAttributeHelp(unittest.TestCase):
         """Check that `overrides` is added to `text` as expected.
 
         Args:
-            expected (str):
-                The output of `text` mixed with `overrides`.
-            text (str):
-                The raw Rez package.py input.
-            overrides (str or list[list[str, str]]):
-                The data that will append / replace help.
+            expected (str): The output of `text` mixed with `overrides`.
+            text (str): The raw Rez package.py input.
+            overrides (str or list[list[str, str]]): The data that will append / replace help.
 
         """
         results = api.add_to_attribute("help", overrides, text)

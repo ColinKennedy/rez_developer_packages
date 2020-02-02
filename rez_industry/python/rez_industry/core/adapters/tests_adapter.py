@@ -56,9 +56,10 @@ class TestsAdapter(base_.BaseAdapter):
 
         Args:
             graph (:class:`parso.python.Tree.PythonBaseNode`):
-                Some node that either contains an assignment for a
-                "tests" attribute or it it has no assignment and instead
-                "tests" is appended to the end of the nodes in `graph`.
+                Some node that may assignment an attribute called
+                "tests". If "tests" assignment exists, it gets
+                overwritten. If no assignment exists then a new
+                assignment is appended to the end of the file.
             data (dict[str, str or dict[str, str or list[str]]]):
                 Any values that'd typically define a Rez "tests"
                 attribute. Basically anything is allowed, as long the

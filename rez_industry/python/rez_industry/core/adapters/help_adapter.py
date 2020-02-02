@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""The main class used to modify a Rez package's `help` attribute."""
+
 import collections
 import copy
 import json
@@ -18,8 +20,30 @@ _DEFAULT_FALLBACK_KEY = "documentation"
 
 
 class HelpAdapter(base.BaseAdapter):
+    """A class that modifies a Rez package definition `help` attribute.
+
+    In Rez, the "help" attribute can be a "list of list of strings" or
+    just a single string. Because the standard varies a bit, a lot of
+    logic had to be written to reason through these 2 scenarios.
+
+    """
+
     @staticmethod
     def _get_entries(assignment):
+        """Find every help key + value entry from some "help" attribute.
+
+        If `assignment` is invalid, this function may return an empty list.
+
+        Args:
+            assignment (:class:`parso.python.tree.ExprStmt`):
+                The node that assigns the "help" attribute, which will
+                be modified.
+
+        Returns:
+            list[:class:`parso.python.tree.PythonNode`]:
+                The list node that is a parso "list of list of strs".
+
+        """
         root = _get_list_root(assignment)
 
         if root:
@@ -54,6 +78,29 @@ class HelpAdapter(base.BaseAdapter):
 
     @staticmethod
     def _resolve_entries(first, second):
+        """Figure out what to do with similar help key (label) / value entries.
+
+        The logic goes like this
+
+        - If a label exists in `first` and `second` the one from `first` is removed.
+        - Otherwise, the output will always be in order of `first` plus `second`.
+
+        Args:
+            first (:class:`parso.python.tree.PythonNode`):
+                The inner entry node that should contain only 2
+                elements, usually 2 strings. The first string is a
+                "label" and the second is a URL or file-path on disk
+                that the label points to.
+            second (:class:`parso.python.tree.PythonNode`):
+                The inner entry node that should contain only 2
+                elements, usually 2 strings. The first string is a
+                "label" and the second is a URL or file-path on disk
+                that the label points to.
+
+        Returns:
+            list[:class:`parso.python.tree.PythonNode`]: The resolved label / value entries.
+
+        """
         help_keys = collections.OrderedDict(
             [(node.children[0].get_code(), node.children[0]) for node in first]
         )
@@ -76,6 +123,7 @@ class HelpAdapter(base.BaseAdapter):
 
     @staticmethod
     def supports_duplicates():
+        """bool: Allow appending duplicate data in :meth:`HelpAdapter.modify_with_existing`."""
         return True
 
     @staticmethod
@@ -95,6 +143,28 @@ class HelpAdapter(base.BaseAdapter):
 
     @classmethod
     def modify_with_existing(cls, graph, data, append=False):
+        """Add `data` to a parso node `graph`.
+
+        Reference:
+            https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#help
+
+        Args:
+            graph (:class:`parso.python.Tree.PythonBaseNode`):
+                Some node that may assignment an attribute called
+                "tests". If "tests" assignment exists, it gets
+                overwritten. If no assignment exists then a new
+                assignment is appended to the end of the file.
+            data (dict[str, str or dict[str, str or list[str]]]):
+                Any values that'd typically define a Rez "tests"
+                attribute. Basically anything is allowed, as long the
+                Rez package schema considers it valid.
+
+        Returns:
+            str:
+                The modified Python source code. It should resemble the
+                source code of `graph` plus any serialized `data`.
+
+        """
         def _insert_or_append(node, graph, assignment):
             if assignment:
                 if hasattr(node, "children"):
@@ -168,10 +238,23 @@ class HelpAdapter(base.BaseAdapter):
 
 
 def _is_list_root_definition(node):
+    """bool: If `node` defines the inner part of a list of "help" entries."""
     return isinstance(node, tree.PythonNode) and node.type == "testlist_comp"
 
 
 def _get_inner_list_entries(node):
+    """Find the literal "help" entries of a node.
+
+    Args:
+        node (:class:`parso.python.tree.PythonBaseNode`):
+            A parso object that (we assume) has 0+ child list parso
+            objects. Each child found is returned.
+
+    Returns:
+        list[:class:`parso.python.tree.PythonNode`]:
+            The found key / value "help" attribute entries, if any.
+
+    """
     entries = []
 
     for child in parso_helper.iter_nested_children(node):
@@ -189,6 +272,18 @@ def _get_inner_list_entries(node):
 
 
 def _get_list_root(node):
+    """Find the first node that could be considered the root of a "help" attribute.
+
+    Args:
+        node (:class:`parso.python.tree.ExprStmt`):
+            A node that defines a "help" attribute and should contain a
+            list of list of strings.
+
+    Returns:
+        :class:`parso.python.tree.PythonNode` or NoneType:
+            The top of a list of list of strings, if any.
+
+    """
     for child in parso_helper.iter_nested_children(node):
         if _is_list_root_definition(child):
             return child
@@ -197,6 +292,18 @@ def _get_list_root(node):
 
 
 def _get_str_root(node):
+    """Find the first node that could be considered the root of a "help" attribute.
+
+    Args:
+        node (:class:`parso.python.tree.ExprStmt`):
+            A node that defines a "help" attribute and should contain a
+            string help URL or file path.
+
+    Returns:
+        :class:`parso.python.tree.PythonNode` or NoneType:
+            The URL / file-path node, if any.
+
+    """
     for child in parso_helper.iter_nested_children(node):
         if isinstance(child, tree.String):
             return child
@@ -205,6 +312,17 @@ def _get_str_root(node):
 
 
 def _apply_formatting(node):
+    """Get a copy of `node` that has "human-readable" whitespace.
+
+    Args:
+        node (:class:`parso.python.Tree.PythonBaseNode`):
+            A parso object that represents the top-level "list of list
+            of strings" that defines a Rez help attribute.
+
+    Returns:
+        :class:`parso.python.Tree.PythonBaseNode`: The copy of `node` that has nice newlines.
+
+    """
     def _needs_space(node):
         if isinstance(node, tree.Operator) and node.value in ("[", "]"):
             return False
@@ -237,9 +355,18 @@ def _apply_formatting(node):
 
 
 def _separate_with_commas(nodes):
+    """Add a comma between every parso node, starting at the first element.
+
+    Args:
+        nodes (list): Some objects that will get parso nodes inserted between its elements.
+
+    Returns:
+        list[:class:`parso.python.Tree.PythonBaseNode`]:
+            The original `nodes` plus comma operators.
+
+    """
     nodes = copy.deepcopy(nodes)
 
-    # Add a comma between every element, starting at the first element
     for index in reversed(range(1, len(nodes))):
         nodes.insert(index, tree.Operator(",", (0, 0)))
 

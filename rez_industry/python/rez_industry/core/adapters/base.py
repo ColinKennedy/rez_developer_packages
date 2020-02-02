@@ -14,6 +14,7 @@ class BaseAdapter(object):
 
     @staticmethod
     def supports_duplicates():
+        """bool: Enable "append" support for this class, if set to True."""
         return False
 
     @staticmethod
