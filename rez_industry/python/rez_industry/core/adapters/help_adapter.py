@@ -16,55 +16,6 @@ from . import base
 
 class HelpAdapter(base.BaseAdapter):
     @staticmethod
-    def _apply_formatting(node):
-        def _needs_space(node):
-            if isinstance(node, tree.Operator) and node.value in ("[", "]"):
-                return False
-
-            if isinstance(node, tree.String):
-                return False
-
-            return True
-
-        def _iter_inner_entries(node):
-            for child in parso_helper.iter_nested_children(node):
-                if isinstance(child, tree.PythonNode) and child.type == "atom":
-                    yield child
-
-        def _add_trailing_comma(child):
-            ending = child.children[-1]
-
-            if isinstance(ending, tree.Operator) and ending.value == ",":
-                return
-
-            child.children.append(tree.Operator(",", (0, 0)))
-
-        node = copy.deepcopy(node)
-        definitions = set()
-
-        for child in parso_helper.iter_nested_children(node):
-            if _is_list_root_definition(child):
-                definitions.add(child)
-            elif isinstance(child, tree.Operator) and child.value == ",":
-                child.prefix = ""
-            elif hasattr(child, "prefix") and _needs_space(child):
-                child.prefix = " "
-
-        entries = []
-
-        for child in _iter_inner_entries(node):
-            opening_brace = child.children[0]
-            opening_brace.prefix = "\n    "
-            entries.append(child)
-
-        # TODO : Check if this has the possibility of IndexErroring
-        _add_trailing_comma(entries[-1])
-
-        node.children[-1].prefix = "\n"
-
-        return node
-
-    @staticmethod
     def supports_duplicates():
         return True
 
@@ -105,7 +56,10 @@ class HelpAdapter(base.BaseAdapter):
         entries = []
 
         if assignment:
-            entries = _get_list_root(assignment)
+            root = _get_list_root(assignment)
+
+            if root:
+                entries = [root]
 
         # if not isinstance(entries, tree.String) and isinstance(data, six.string_types):
         #     raise ValueError(
@@ -124,13 +78,14 @@ class HelpAdapter(base.BaseAdapter):
 
         help_data = parso.parse(json.dumps(data)).children[0]
         inner_help_entries = help_data.children[1]
-        entries.children.append(inner_help_entries)
+        entries.append(inner_help_entries)
 
         node = tree.PythonNode(
-            "atom", [tree.Operator("[", (0, 0)), entries, tree.Operator("]", (0, 0))],
+            "atom",
+            [tree.Operator("[", (0, 0))] + entries + [tree.Operator("]", (0, 0))],
         )
 
-        node = cls._apply_formatting(node)
+        node = _apply_formatting(node)
 
         _insert_or_append(node, graph, assignment)
 
@@ -150,21 +105,50 @@ def _get_list_root(node):
     return None
 
 
-def _get_help_data(node):
-    def _get_text(node):
+def _apply_formatting(node):
+    def _needs_space(node):
+        if isinstance(node, tree.Operator) and node.value in ("[", "]"):
+            return False
+
         if isinstance(node, tree.String):
-            return node.value.strip("'\"")
+            return False
 
-        return node.get_code(include_prefix=False)
+        return True
 
-    root = _get_list_root(node)
-    wrapped_entries = [child for child in parso_helper.iter_nested_children(root) if _is_list_root_definition(child)]
+    def _iter_inner_entries(node):
+        for child in parso_helper.iter_nested_children(node):
+            if isinstance(child, tree.PythonNode) and child.type == "atom":
+                yield child
 
-    output = []
+    def _add_trailing_comma(child):
+        ending = child.children[-1]
 
-    for wrapped_entry in wrapped_entries:
-        label, _, value = wrapped_entry.children
+        if isinstance(ending, tree.Operator) and ending.value == ",":
+            return
 
-        output.append([_get_text(label), _get_text(value)])
+        child.children.append(tree.Operator(",", (0, 0)))
 
-    return output
+    node = copy.deepcopy(node)
+    definitions = set()
+
+    for child in parso_helper.iter_nested_children(node):
+        if _is_list_root_definition(child):
+            definitions.add(child)
+        elif isinstance(child, tree.Operator) and child.value == ",":
+            child.prefix = ""
+        elif hasattr(child, "prefix") and _needs_space(child):
+            child.prefix = " "
+
+    entries = []
+
+    for child in _iter_inner_entries(node):
+        opening_brace = child.children[0]
+        opening_brace.prefix = "\n    "
+        entries.append(child)
+
+    # TODO : Check if this has the possibility of IndexErroring
+    _add_trailing_comma(entries[-1])
+
+    node.children[-1].prefix = "\n"
+
+    return node
