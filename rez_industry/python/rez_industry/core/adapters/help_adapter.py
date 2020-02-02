@@ -93,6 +93,13 @@ class HelpAdapter(base.BaseAdapter):
         except IndexError:
             assignment = None
 
+        help_data = parso.parse(json.dumps(data)).children[0]
+
+        if _get_list_root(assignment) and isinstance(help_data, tree.String):
+            raise ValueError('You may not add string "{help_data}" because assignment "{assignment}" is a list.'.format(
+                help_data=help_data.get_code(), assignment=assignment.get_code())
+            )
+
         entries = []
 
         if assignment:
@@ -113,9 +120,6 @@ class HelpAdapter(base.BaseAdapter):
         #             ''.format(invalids=invalids)
         #         )
 
-        help_data = parso.parse(json.dumps(data)).children[0]
-        # ValueError: PythonNode(atom, [<Operator: [>, PythonNode(testlist_comp, [PythonNode(atom, [<Operator: [>, PythonNode(testlist_comp, [<String: "woo">, <Operator: ,>, <String: "blah">]), <Operator: ]>]), <Operator: ,>, PythonNode(atom, [
-        # <Operator: [>, PythonNode(testlist_comp, [<String: "thing">, <Operator: ,>, <String: "another">]), <Operator: ]>])]), <Operator: ]>])
         inner_help_entries = help_data.children[1]
 
         if entries and not _is_comma(entries[-1]) and not _is_comma(entries[-1].children[-1]):
