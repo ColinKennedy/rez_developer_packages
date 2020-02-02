@@ -275,12 +275,13 @@ class AddToAttributeHelp(unittest.TestCase):
             help = [
                 ["thing", "blah"],
                 ["foo", "bar"],
+                ["woo", "blah"],
                 ["thing", "another"],
             ]
             """
         )
 
-        self._test(expected, original, [["thing", "another"]])
+        self._test(expected, original, [["woo", "blah"], ["thing", "another"]])
 
     def test_str_to_list(self):
         """Convert a single help string into a list of lists, while inserting a new entry."""
