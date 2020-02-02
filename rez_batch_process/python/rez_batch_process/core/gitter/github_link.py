@@ -63,7 +63,9 @@ class GithubAdapter(base_adapter.BaseAdapter):
 
     _expected_minimum_reviewers = 3
 
-    def __init__(self, package, token, fallback_reviewers=None, base_url="", verify=True):
+    def __init__(
+        self, package, token, fallback_reviewers=None, base_url="", verify=True
+    ):
         """Create this instance and store Rez / GitHub information.
 
         Args:

@@ -9,9 +9,9 @@ details. This module does the actual work.
 """
 
 import collections
-import shutil
 import logging
 import os
+import shutil
 import sys
 import tempfile
 

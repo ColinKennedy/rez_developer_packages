@@ -13,12 +13,12 @@ import tempfile
 import textwrap
 import uuid
 
+import git
 from python_compatibility.testing import common
 from rez import exceptions
 from rez_batch_process.core import worker
 from rez_utilities import creator, inspection
 from six.moves import mock
-import git
 
 from . import package_common
 
@@ -43,7 +43,9 @@ class Add(common.Common):
         name = "{base}.txt".format(base=uuid.uuid4())
         arguments = _make_arguments(name)
 
-        with mock.patch("rez_batch_process.core.gitter.git_registry.get_remote_adapter") as patch:
+        with mock.patch(
+            "rez_batch_process.core.gitter.git_registry.get_remote_adapter"
+        ) as patch:
             patch.create_pull_request = lambda *args, **kwargs: None
             fixed, unfixed, invalids, skips = worker.fix(packages, arguments)
 

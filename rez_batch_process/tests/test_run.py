@@ -478,7 +478,7 @@ class Bad(package_common.Tests):
             exceptions.NoRepositoryRemote(
                 package,
                 os.path.join(root, "project_a"),
-                "No remote origin could be found for"
+                "No remote origin could be found for",
             )
         ]
 
@@ -494,6 +494,7 @@ class Bad(package_common.Tests):
 
     def test_no_repository(self):
         """Check that a fix will not run if the package has no destination repository."""
+
         def _make_package_with_no_repository(text, name, version, root):
             return package_common.make_source_package(text, name, None, root)
 

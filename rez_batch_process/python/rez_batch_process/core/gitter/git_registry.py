@@ -8,7 +8,9 @@ from . import github_link
 _ADAPTERS = [github_link.GithubAdapter]
 
 
-def get_remote_adapter(package, url, token, fallback_reviewers=None, base_url="", verify=True):
+def get_remote_adapter(
+    package, url, token, fallback_reviewers=None, base_url="", verify=True
+):
     """Find a class that should create pull requests for the given package + URL.
 
     Args:

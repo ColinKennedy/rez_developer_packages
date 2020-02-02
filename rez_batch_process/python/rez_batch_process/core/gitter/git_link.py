@@ -85,7 +85,9 @@ def _get_repository(url, directory="", keep=False):
 
     if not directory:
         directory = tempfile.mkdtemp(suffix="_temporary_test_location")
-        shutil.rmtree(directory)  # Remove the folder so that we just get the folder path
+        shutil.rmtree(
+            directory
+        )  # Remove the folder so that we just get the folder path
     else:
         directory = make_repository_folder(directory, url)
 
