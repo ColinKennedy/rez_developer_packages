@@ -63,7 +63,7 @@ class GithubAdapter(base_adapter.BaseAdapter):
 
     _expected_minimum_reviewers = 3
 
-    def __init__(self, package, token, fallback_reviewers=None, base_url=""):
+    def __init__(self, package, token, fallback_reviewers=None, base_url="", verify=True):
         """Create this instance and store Rez / GitHub information.
 
         Args:
@@ -82,6 +82,10 @@ class GithubAdapter(base_adapter.BaseAdapter):
                 example, if the user is working in GitHub Enterprise and
                 not regular GitHub, they'll need to provide a `base_url`
                 to the GitHub Enterprise URL to authenticate. Default: "".
+            verify (bool, optional):
+                If True, require a valid SSL certificate in private If
+                networks. False, accept all external SSL certificates.
+                Default is True.
 
         """
         super(GithubAdapter, self).__init__()
@@ -90,10 +94,11 @@ class GithubAdapter(base_adapter.BaseAdapter):
             fallback_reviewers = []
 
         self._base_url = base_url
-        self._token = token
         self._fallback_reviewers = fallback_reviewers
         self._package = package
-        self._user = get_user(token, url=base_url)
+        self._token = token
+        self._user = get_user(token, url=base_url, verify=verify)
+        self._verify = verify
 
     def _get_reviewers(self, repository, package_maintainers, fallback_reviewers=None):
         """Get the GitHub users that will be added to the pull request.
@@ -189,7 +194,7 @@ class GithubAdapter(base_adapter.BaseAdapter):
 
         """
         if not user_data:
-            user_data = _get_all_users(self._token, self._base_url)
+            user_data = _get_all_users(self._token, self._base_url, verify=self._verify)
         else:
             user_data = _read_users_from_cache(user_data)
 
@@ -261,7 +266,7 @@ def _convert_to_github_user_names(package_authors, github_users):
 
 
 @lru_cache()
-def _get_all_users(token, base_url=""):
+def _get_all_users(token, base_url="", verify=True):
     """Find every GitHub user.
 
     Warning:
@@ -278,15 +283,19 @@ def _get_all_users(token, base_url=""):
         base_url (str, optional):
             The API URL that goes with the given `token`. If you're not
             using GitHub Enterprise, just leave this parameter blank.
+        verify (bool, optional):
+            If True, require a valid SSL certificate in private If
+            networks. If False, accept all external SSL certificates.
+            Default is True.
 
     Returns:
         list[:attr:`_User`]: The found, public GitHub users.
 
     """
     if base_url:
-        accessor = github.Github(login_or_token=token, base_url=base_url)
+        accessor = github.Github(login_or_token=token, base_url=base_url, verify=verify)
     else:
-        accessor = github.Github(login_or_token=token)
+        accessor = github.Github(login_or_token=token, verify=verify)
 
     users = list(
         itertools.islice(accessor.get_users(), 5)
@@ -388,7 +397,7 @@ def _write_user_data_cache(users):
 
 
 @lru_cache()
-def get_user(token, url=""):
+def get_user(token, url="", verify=True):
     """Authenticate using a GitHub token and return the instance.
 
     Args:
@@ -397,12 +406,17 @@ def get_user(token, url=""):
         base_url (str, optional):
             The API URL that goes with the given `token`. If you're not
             using GitHub Enterprise, just leave this parameter blank.
+        verify (bool, optional):
+            If True, require a valid SSL certificate in private If
+            networks. If False, accept all external SSL certificates.
+            Default is True.
 
     Returns:
         :class:`github3.github.GitHub`: The found GitHub connection.
 
     """
     if url:
-        return github3.enterprise_login(token=token, url=url)
+        accessor = github3.enterprise_login(token=token, url=url)
+        accessor.session.verify = verify
 
     return github3.login(token=token)

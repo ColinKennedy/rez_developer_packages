@@ -8,7 +8,7 @@ from . import github_link
 _ADAPTERS = [github_link.GithubAdapter]
 
 
-def get_remote_adapter(package, url, token, fallback_reviewers=None, base_url=""):
+def get_remote_adapter(package, url, token, fallback_reviewers=None, base_url="", verify=True):
     """Find a class that should create pull requests for the given package + URL.
 
     Args:
@@ -30,6 +30,10 @@ def get_remote_adapter(package, url, token, fallback_reviewers=None, base_url=""
             user is working in GitHub Enterprise and not regular
             GitHub, they'll need to provide a `base_url` to the
             GitHub Enterprise URL to authenticate. Default: "".
+        verify (bool, optional):
+            If True, require a valid SSL certificate in private If
+            networks. If False, accept all external SSL certificates.
+            Default is True.
 
     Returns:
         :class:`.BaseAdapter` or NoneType: The found class, if any.
@@ -41,7 +45,11 @@ def get_remote_adapter(package, url, token, fallback_reviewers=None, base_url=""
     for adapter in _ADAPTERS:
         if adapter.is_valid_url(url):
             return adapter(
-                package, token, fallback_reviewers=fallback_reviewers, base_url=base_url
+                package,
+                token,
+                fallback_reviewers=fallback_reviewers,
+                base_url=base_url,
+                verify=verify,
             )
 
     return None

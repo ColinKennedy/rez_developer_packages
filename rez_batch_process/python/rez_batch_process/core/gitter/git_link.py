@@ -38,7 +38,6 @@ try:
 except ImportError:
     from backports.functools_lru_cache import lru_cache  # python 2
 
-
 _DIRECTORIES_TO_DELETE = set()
 _LOGGER = logging.getLogger(__name__)
 _REPOSITORIES = dict()

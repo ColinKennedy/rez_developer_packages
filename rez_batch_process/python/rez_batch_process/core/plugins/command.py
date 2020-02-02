@@ -182,6 +182,7 @@ class RezShellCommand(base.BaseCommand):
             configuration.token,
             fallback_reviewers=fallback_reviewers,
             base_url=base_url,
+            verify=configuration.ssl_no_verify,
         )
 
         if not adapter:
@@ -221,6 +222,7 @@ class RezShellCommand(base.BaseCommand):
                 new_branch.name,
                 current_branch.name,
                 user_data=cached_users,
+                verify=configuration.ssl_no_verify,
             )
         except Exception:  # pylint: disable=broad-except
             _LOGGER.exception("No pull request could be created")
@@ -297,6 +299,12 @@ class RezShellCommand(base.BaseCommand):
             help="If you are authenticating to a non-standard remote "
             "(e.g. GitHub enterprise), use this flag to provide the URL.",
         )
+        parser.add_argument(
+            "-s",
+            "--ssl-no-verify",
+            action="store_false",
+            help="Disable SSL verification",
+        )
 
         return parser.parse_args(text)
 
@@ -323,7 +331,10 @@ class RezShellCommand(base.BaseCommand):
         cls._create_pull_request(
             package,
             Configuration(
-                arguments.command, arguments.token, arguments.pull_request_prefix,
+                arguments.command,
+                arguments.token,
+                arguments.pull_request_prefix,
+                arguments.ssl_no_verify,
             ),
             cached_users=arguments.cached_users,
             fallback_reviewers=arguments.fallback_reviewers,
