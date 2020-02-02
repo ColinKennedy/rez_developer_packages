@@ -141,7 +141,9 @@ class HelpAdapter(base.BaseAdapter):
         return ""
 
     @classmethod
-    def modify_with_existing(cls, graph, data, append=False):  # pylint: disable=arguments-differ
+    def modify_with_existing(  # pylint: disable=arguments-differ
+        cls, graph, data, append=False
+    ):
         """Add `data` to a parso node `graph`.
 
         Reference:
@@ -164,6 +166,7 @@ class HelpAdapter(base.BaseAdapter):
                 source code of `graph` plus any serialized `data`.
 
         """
+
         def _insert_or_append(node, graph, assignment):
             if assignment:
                 if hasattr(node, "children"):
@@ -323,6 +326,7 @@ def _apply_formatting(node):
         :class:`parso.python.Tree.PythonBaseNode`: The copy of `node` that has nice newlines.
 
     """
+
     def _needs_space(node):
         if isinstance(node, tree.Operator) and node.value in ("[", "]"):
             return False
