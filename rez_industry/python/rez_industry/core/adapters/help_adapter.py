@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import copy
+import collections
 import json
 
 import parso
@@ -22,7 +23,7 @@ class HelpAdapter(base.BaseAdapter):
         root = _get_list_root(assignment)
 
         if root:
-            return [root]
+            return _get_inner_list_entries(root)
 
         string_root = _get_str_root(assignment)
 
@@ -54,6 +55,26 @@ class HelpAdapter(base.BaseAdapter):
                 ],
             ),
         ]
+
+    @staticmethod
+    def _resolve_entries(first, second):
+        help_keys = collections.OrderedDict([(node.children[0].get_code(), node.children[0]) for node in first])
+
+        for node in second:
+            key = node.children[0]
+            code = key.get_code()
+
+            if code in help_keys:
+                del help_keys[code]
+
+        output = []
+
+        for value in help_keys.values():
+            output.append(value.parent)
+
+        output.extend(second)
+
+        return output
 
     @staticmethod
     def supports_duplicates():
@@ -100,44 +121,27 @@ class HelpAdapter(base.BaseAdapter):
                 help_data=help_data.get_code(), assignment=assignment.get_code())
             )
 
+        help_data = _get_inner_list_entries(help_data)
+
         entries = []
 
         if assignment:
             entries = cls._get_entries(assignment)
 
-        # if not isinstance(entries, tree.String) and isinstance(data, six.string_types):
-        #     raise ValueError(
-        #         'Data "{data}" is a string. And a help string cannot replace '
-        #         'a help list-of-lists.'.format(data=data))
-        #
-        # if not append and not isinstance(data, six.string_types):
-        #     invalids = [item for item in data if item in entries]
-        #
-        #     if invalids:
-        #         raise ValueError(
-        #             'Duplicate entries "{invalids}" were found. '
-        #             'Re-run with `append=True` or remove the duplicates to contine.'
-        #             ''.format(invalids=invalids)
-        #         )
+        if not append:
+            entries = cls._resolve_entries(entries, help_data)
+        else:
+            entries.extend(help_data)
 
-        inner_help_entries = help_data.children[1]
-
-        if entries and not _is_comma(entries[-1]) and not _is_comma(entries[-1].children[-1]):
-            entries.append(tree.Operator(",", (0, 0)))
-
-        entries.append(inner_help_entries)
-
-        if not _is_comma(entries[-1]):
-            entries.append(tree.Operator(",", (0, 0)))
+        entries = [tree.PythonNode("atom", [tree.Operator("[", (0, 0)), entry, tree.Operator("]", (0, 0))]) for entry in entries]
+        entries = _separate_with_commas(entries)
 
         node = tree.PythonNode(
             "atom",
-            [tree.Operator("[", (0, 0))] + entries + [tree.Operator("]", (0, 0))],
+            [tree.Operator("[", (0, 0))] + entries + [tree.Operator(",", (0, 0)), tree.Operator("]", (0, 0))],
         )
 
-        # raise ValueError(node.get_code())
         node = _apply_formatting(node)
-        # raise ValueError(node.get_code())
 
         _insert_or_append(node, graph, assignment)
 
@@ -150,6 +154,21 @@ def _is_comma(node):
 
 def _is_list_root_definition(node):
     return isinstance(node, tree.PythonNode) and node.type == "testlist_comp"
+
+
+def _get_inner_list_entries(node):
+    entries = []
+
+    for child in parso_helper.iter_nested_children(node):
+        if not _is_list_root_definition(child):
+            continue
+
+        if any(child_ for child_ in child.children if isinstance(child_, tree.PythonNode)):
+            continue
+
+        entries.append(child)
+
+    return entries
 
 
 def _get_list_root(node):
@@ -198,3 +217,13 @@ def _apply_formatting(node):
     node.children[-1].prefix = "\n"
 
     return node
+
+
+def _separate_with_commas(nodes):
+    nodes = copy.deepcopy(nodes)
+
+    # Add a comma between every element, starting at the first element
+    for index in reversed(range(1, len(nodes))):
+        nodes.insert(index, tree.Operator(",", (0, 0)))
+
+    return nodes

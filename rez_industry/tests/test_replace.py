@@ -187,7 +187,6 @@ class AddToAttributeHelp(unittest.TestCase):
             name = "whatever"
 
             help = [
-                ["thing", "blah"],
                 ["thing", "another"],
             ]
             """
@@ -195,20 +194,32 @@ class AddToAttributeHelp(unittest.TestCase):
 
         self._test(expected, original, [["thing", "another"]])
 
-    def test_append_002_fail(self):
+    def test_append_002b_override(self):
         """Fail to add the an existing entry more than once."""
         original = textwrap.dedent(
             """\
             name = "whatever"
 
             help = [
+                ["something", "another"],
+                ["thing", "foo"],
+            ]
+            """
+        )
+
+        expected = textwrap.dedent(
+            """\
+            name = "whatever"
+
+            help = [
+                ["something", "another"],
+                ["foo", "bar"],
                 ["thing", "blah"],
             ]
             """
         )
 
-        with self.assertRaises(ValueError):
-            api.add_to_attribute("help", [["thing", "blah"]], original)
+        self._test(expected, original, [["foo", "bar"], ["thing", "blah"]])
 
     def test_append_003(self):
         """Replace a `list()` initialization with a non-empty one."""
@@ -273,7 +284,6 @@ class AddToAttributeHelp(unittest.TestCase):
             name = "whatever"
 
             help = [
-                ["thing", "blah"],
                 ["foo", "bar"],
                 ["woo", "blah"],
                 ["thing", "another"],
@@ -282,6 +292,26 @@ class AddToAttributeHelp(unittest.TestCase):
         )
 
         self._test(expected, original, [["woo", "blah"], ["thing", "another"]])
+
+    def test_str_to_str(self):
+        """Change a single help string into another string."""
+        original = textwrap.dedent(
+            """\
+            name = "whatever"
+
+            help = "something"
+            """
+        )
+
+        expected = textwrap.dedent(
+            """\
+            name = "whatever"
+
+            help = "another"
+            """
+        )
+
+        self._test(expected, original, "another")
 
     def test_str_to_list(self):
         """Convert a single help string into a list of lists, while inserting a new entry."""
