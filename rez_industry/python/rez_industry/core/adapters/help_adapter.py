@@ -77,19 +77,34 @@ class HelpAdapter(base.BaseAdapter):
         #         )
 
         help_data = parso.parse(json.dumps(data)).children[0]
+        # ValueError: PythonNode(atom, [<Operator: [>, PythonNode(testlist_comp, [PythonNode(atom, [<Operator: [>, PythonNode(testlist_comp, [<String: "woo">, <Operator: ,>, <String: "blah">]), <Operator: ]>]), <Operator: ,>, PythonNode(atom, [
+        # <Operator: [>, PythonNode(testlist_comp, [<String: "thing">, <Operator: ,>, <String: "another">]), <Operator: ]>])]), <Operator: ]>])
         inner_help_entries = help_data.children[1]
+
+        if entries and not _is_comma(entries[-1]) and not _is_comma(entries[-1].children[-1]):
+            entries.append(tree.Operator(",", (0, 0)))
+
         entries.append(inner_help_entries)
+
+        if not _is_comma(entries[-1]):
+            entries.append(tree.Operator(",", (0, 0)))
 
         node = tree.PythonNode(
             "atom",
             [tree.Operator("[", (0, 0))] + entries + [tree.Operator("]", (0, 0))],
         )
 
+        # raise ValueError(node.get_code())
         node = _apply_formatting(node)
+        # raise ValueError(node.get_code())
 
         _insert_or_append(node, graph, assignment)
 
         return graph.get_code()
+
+
+def _is_comma(node):
+    return isinstance(node, tree.Operator) and node.value == ","
 
 
 def _is_list_root_definition(node):
@@ -120,34 +135,17 @@ def _apply_formatting(node):
             if isinstance(child, tree.PythonNode) and child.type == "atom":
                 yield child
 
-    def _add_trailing_comma(child):
-        ending = child.children[-1]
-
-        if isinstance(ending, tree.Operator) and ending.value == ",":
-            return
-
-        child.children.append(tree.Operator(",", (0, 0)))
-
     node = copy.deepcopy(node)
-    definitions = set()
 
     for child in parso_helper.iter_nested_children(node):
-        if _is_list_root_definition(child):
-            definitions.add(child)
-        elif isinstance(child, tree.Operator) and child.value == ",":
+        if isinstance(child, tree.Operator) and child.value == ",":
             child.prefix = ""
         elif hasattr(child, "prefix") and _needs_space(child):
             child.prefix = " "
 
-    entries = []
-
     for child in _iter_inner_entries(node):
         opening_brace = child.children[0]
         opening_brace.prefix = "\n    "
-        entries.append(child)
-
-    # TODO : Check if this has the possibility of IndexErroring
-    _add_trailing_comma(entries[-1])
 
     node.children[-1].prefix = "\n"
 
