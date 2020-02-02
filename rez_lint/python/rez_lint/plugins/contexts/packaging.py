@@ -16,7 +16,6 @@ from ...core import lint_constant
 from . import base_context
 
 _LOGGER = logging.getLogger(__name__)
-_DEPENDENCY_PATHS_SCRIPT = os.environ["PYTHON_COMPATIBILITY_DEPENDENCY_PATHS_SCRIPT"]
 
 
 class HasPythonPackage(base_context.BaseContext):
@@ -73,17 +72,16 @@ class SourceResolvedContext(base_context.BaseContext):
         rez_context = None
 
         if inspection.in_valid_context(package):
-            python_paths = os.environ["PYTHONPATH"].split(os.pathsep)
+            python_paths = set(os.environ["PYTHONPATH"].split(os.pathsep))
+            python_paths = inspection.get_package_python_paths(package, python_paths)
             dependency_paths = dependency_analyzer.get_dependency_paths(python_paths)
         else:
-            python_paths = _get_package_python_paths(package)
+            python_paths = set(_get_package_python_paths(package))
 
             try:
                 rez_context = _resolve(package)
             except exceptions.RezError:
                 _LOGGER.exception('Package "%s" could not be resolved.', package)
-
-                return []
 
             dependency_paths = _get_dependency_paths_using_context(python_paths, rez_context)
 
@@ -126,7 +124,10 @@ def _get_package_python_paths(package):
     if rez_context:
         environment = rez_context.get_environ()
 
-    return inspection.get_package_python_paths(package, environment)
+    return inspection.get_package_python_paths(
+        package,
+        environment.get("PYTHONPATH", "").split(os.pathsep),
+    )
 
 
 def _get_root_rez_packages(paths):

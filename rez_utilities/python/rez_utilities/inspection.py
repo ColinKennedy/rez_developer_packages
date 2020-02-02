@@ -224,7 +224,7 @@ def has_python_package(package, paths=None, allow_build=True, allow_current_cont
 
         environment = context.get_environ().get("PYTHONPATH", "").split(os.pathsep)
 
-    paths = get_package_python_paths(package, paths)
+    paths = get_package_python_paths(package, environment)
 
     for root_path in paths:
         for _, _, files in os.walk(root_path):

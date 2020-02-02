@@ -50,4 +50,3 @@ def commands():
     import os
 
     env.PYTHONPATH.append(os.path.join("{root}", "python"))
-    env.PYTHON_COMPATIBILITY_DEPENDENCY_PATHS_SCRIPT.set(os.path.join("{root}", "python", "dependency_analyzer.py"))
