@@ -11,12 +11,28 @@ a Python package or already has documentation.
 from .plugins import command, conditional
 
 _PLUGINS = [conditional.NonPythonPackage, conditional.HasDocumentation]
-_COMMAND = command.RezShellCommand
+
+_COMMAND = {
+    "shell": command.RezShellCommand,
+}
 
 
-def get_command():
-    """:class:`.BaseCommand`: The command that will be used by this CLI when run."""
-    return _COMMAND
+def get_command(name):
+    """Find the adapter class needed for the ``rez_batch_process`` CLI to run.
+
+    Args:
+        name (str): An identifier used to find the correct command class.
+
+    Returns:
+        :class:`.BaseCommand` or NoneType: The found command.
+
+    """
+    return _COMMAND.get(name)
+
+
+def get_command_keys():
+    """set[str]: The available commands that are registered to ``rez_batch_process``."""
+    return set(_COMMAND.keys())
 
 
 def get_skip_plugins():

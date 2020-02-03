@@ -16,7 +16,7 @@ import six
 from rez.config import config
 from rez_utilities import inspection
 
-from .core import registry, worker
+from .core import cli_constant, registry, worker
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -123,7 +123,7 @@ def __fix(arguments, command_arguments):
                 )
             )
 
-        sys.exit(1)
+        sys.exit(cli_constant.UNFIXED_PACKAGES_FOUND)
 
     if packages:
         print("These packages were modified successfully:")
@@ -463,8 +463,15 @@ def _parse_arguments(text):
     _add_arguments(fixer)
 
     arguments, unknown_arguments = parser.parse_known_args(text)
-    command_parser = registry.get_command().parse_arguments
-    command_arguments = command_parser(unknown_arguments)
+    command_parser = registry.get_command(arguments.command)
+
+    if not command_parser:
+        print('Command "{arguments.command}" was not found. Options were "{options}".'
+              ''.format(arguments=arguments, options=sorted(registry.get_command_keys())))
+
+        sys.exit(cli_constant.NO_COMMAND_FOUND)
+
+    command_arguments = command_parser.parse_arguments(unknown_arguments)
 
     return arguments, command_arguments
 
