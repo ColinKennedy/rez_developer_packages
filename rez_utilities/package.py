@@ -8,6 +8,10 @@ description = "Helper functions / objects for working with Rez."
 
 authors = ["Colin Kennedy (https://github.com/ColinKennedy)"]
 
+help = [
+    ["README", "README.md"],
+]
+
 requires = [
     "python-2+<3",
     "python_compatibility-2+<3",

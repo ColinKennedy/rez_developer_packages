@@ -12,6 +12,10 @@ authors = [
     "ColinKennedy (colinvfx@gmail.com)",
 ]
 
+help = [
+    ["README", "README.md"],
+]
+
 requires = [
     "Sphinx-1+<2",
     "python-2+",

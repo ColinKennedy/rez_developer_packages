@@ -6,6 +6,10 @@ version = "0.1.0"
 
 description = "A Rez package manufacturer. It's reliably modifies Rez package.py files."
 
+help = [
+    ["README", "README.md"],
+]
+
 private_build_requires = ["rez_build_helper-1+<2"]
 
 build_command = "python -m rez_build_helper --items python"

@@ -7,6 +7,10 @@ version = "1.2.0"
 
 description = 'A "pylint" for Rez packages'
 
+help = [
+    ["README", "README.md"],
+]
+
 private_build_requires = ["rez_build_helper-1+<2"]
 
 requires = [

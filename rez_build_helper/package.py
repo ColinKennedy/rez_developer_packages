@@ -9,6 +9,10 @@ description = "Build Rez packages using Python"
 
 authors = ["ColinKennedy"]
 
+help = [
+    ["README", "README.md"],
+]
+
 build_command = 'python {root}/rezbuild.py {install}'
 
 

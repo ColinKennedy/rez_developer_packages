@@ -8,6 +8,10 @@ description = "Check a Rez package's Sphinx documentation for issues"
 
 authors = ["ColinKennedy (colinvfx@gmail.com)"]
 
+help = [
+    ["README", "README.md"],
+]
+
 requires = [
     "parso-0.5+<1",
     "python_compatibility-1.1+<2",

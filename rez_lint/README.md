@@ -1,11 +1,12 @@
-rez_lint is a "pylint-inspired" tool that checks Rez packages for issues.
+``rez_lint`` is a "pylint-inspired" tool that checks Rez packages for issues.
 
-Now, Rez does a great job catching problems with packages. This list
-catches the issues that Rez doesn't already. The kinds of checks that
-you didn't know you needed.
+Rez does a great job catching problems with packages, already.
+``rez_lint`` extends these checks to make Rez packages even more stable
+and problem-free.
 
 
 # How To Run
+## From Shell
 
 cd into your Rez package and run ``rez_lint``
 
@@ -14,6 +15,19 @@ rez-env rez_lint -- rez_lint
 ```
 
 The tool will check the package for issues and report them
+
+## From rez-test
+
+Simply add this to your Rez package definition
+
+```python
+tests = {
+	"rez_lint": {
+		"command": "rez_lint",
+		"requires": ["rez_lint"],
+	},
+}
+```
 
 
 # Features
@@ -32,7 +46,7 @@ package.py:6:0:version = "1.0" (semantic-versioning)
 package.py:12:0:requires = [ (lower-bounds-missing)
 ```
 
-Disable a check
+Disable 1-or-more checks
 
 ```sh
 rez_lint --disable=no-change-log,lower-bounds-missing
@@ -40,7 +54,6 @@ rez_lint --disable=no-change-log,lower-bounds-missing
 
 
 # Checks
-
 ## All Categories
 
 - Danger - These checks prevent issues within a package or for other packages.
@@ -122,7 +135,7 @@ requires = [
 ```
 
 These checkers make sure that the ``requires``, ``build_requires``, and
-``private_build_requires`` attributes don't accidentally get duplicates.
+``private_build_requires`` attributes don't accidentally have duplicates.
 
 
 ## improper-requirements
@@ -191,7 +204,7 @@ requires = [
 
 Rez has to take into account every version range in a every package
 request for a resolve. So the tighter the requirements, the faster Rez
-can resolve. Code bases that don't use minimum versions tend to have
+can resolve. Code-bases that don't use minimum versions tend to have
 much slower resolve times (not to mention more error-prone) than those
 who that do include minimum versions.
 
@@ -210,8 +223,9 @@ This checker is simple. If the Rez package defines at least one Python package,
 - gets a list of Rez packages from those imports
 - checks this found list against the package's actual ``requires``
 
-If there's anything in ``requires`` that wasn't found from imports, it
-needs a comment explaining why that dependency is there.
+If there's any Rez package in ``requires`` that wasn't found from
+Python imports, ``rez_lint`` errors, telling the user to add a comment
+explaining why that dependency is there.
 
 You can add a comment easily, using an in-line comment like this
 
@@ -423,10 +437,13 @@ requires = [
 ]
 ```
 
+Now from this list, it's obvious where the duplicate is and we can
+remove it.
 
 ## semantic-versioning
 
-The Rez documentation recommends [semantic versioning](https://github.com/nerdvegas/rez/wiki/Basic-Concepts#versions).
+The Rez documentation recommends
+[semantic versioning](https://github.com/nerdvegas/rez/wiki/Basic-Concepts#versions).
 So ``rez_lint`` also recommends it.
 
 
@@ -454,9 +471,11 @@ The rez-help command is determined by a written
 [help attribute](https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#help)
 in the Rez package.py.
 
-This check makes sure that the URL is still good. Also, if the Internet
-is down, the check will simply return "all good" to prevent CI checks to
-prevent developers from releasing code.
+This check makes sure that the URL still points to a valid URL or file
+on-disk. If the help item is a URL and your Internet is down, the check
+will not fail and instead pass-through. This is done so ``rez_lint``
+won't accidentally tie up code from getting released due to a network
+failure.
 
 
 # TODO

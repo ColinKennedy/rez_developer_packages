@@ -8,6 +8,10 @@ description = "Miscellaneous, core Python 2 + 3 functions."
 
 authors = ["Colin Kennedy (https://github.com/ColinKennedy)"]
 
+help = [
+    ["README", "README.md"],
+]
+
 requires = [
     "backports.tempfile-1+<2",
     "six-1.13+<2",

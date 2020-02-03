@@ -1,12 +1,12 @@
 ``rez_batch_process`` has one purpose - to automate the process of changing Rez packages.
 
 Rez is a great tool, but in a mature code-base of hundreds of Rez packages,
-it's hard to make broad changes.
+it's hard to make broad changes to many Rez packages at once.
 
 That's where ``rez_batch_process`` comes in.
 
 ``rez-batch-process`` is a command-line tool that finds Rez packages
-and does an arbitrary command onto the Rez package. After the command
+and runs an arbitrary command on the Rez package. After the command
 finishes, the change is applied as a new git branch and then submitted
 as a pull request.
 
@@ -21,7 +21,7 @@ Any shell command that you need to run on Rez packages, ``rez_batch_process`` ca
 # Example Use Cases
 
 ``rez_batch_process`` is very flexible with its built-in plug-in system.
-And even without it, you can do many complex tasks automatically.
+And even without using it, you can do many complex tasks automatically.
 Here's some examples of things you could do with ``rez_batch_process``,
 out of box.
 
@@ -32,6 +32,9 @@ out of box.
 - Add CI ``rez-test`` related checks onto packages
 - Modify the structure of Rez packages
 
+As long as you've got a shell command that runs from a Rez package root,
+any of these tasks are possible without extending ``rez_batch_process``.
+
 
 ## How It Works
 
@@ -41,6 +44,7 @@ The basic steps that ``rez_batch_process`` are:
 - For each package family found, get the latest release
 - Group every package by its published git repository (usually this data is written directly into the Rez package)
 - Clone each repository once
+- Run ``cd`` into each Rez package in the repository
 - Do the command that the user has specified
 - Create a new git branch, commit the changes, and submit a pull request for those changes
     - The pull request reviewers are auto-detected based on the Rez package's listed authors
@@ -50,17 +54,16 @@ The basic steps that ``rez_batch_process`` are:
 
 ``rez_batch_process`` comes with 2 commands. "check" and "fix".
 
-"fix" is the "do it" command that actually modifies Rez packages.
+"fix" is the "do it" command that actually modifies Rez packages and makes pull requests.
 "check" lets you preview the packages that would be changed by your command before it runs.
 "check" is basically a dry-run of "fix".
 
 
 # Example Command
 
-Now for the bad news. ``rez_batch_process`` is great. But because its
-syntax is a bit intense if you're not comfortable in command line.
-This section breaks down the command line options so it becomes more
-understandable.
+Now for the bad news. ``rez_batch_process`` is great. But its syntax is
+a bit intense. This section breaks down the command line options so it
+becomes more understandable.
 
 
 ## Basic Command
@@ -73,20 +76,21 @@ The above command adds a file called "test_file.txt" to every released
 package. The only thing that you would need to change, if following
 along, is ``git-token``. See this guide on
 [how to create your own git token](https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line).
-Replace that option with your own personal access token so that git pull
-requests will work with GitHub enterprise.
+Replace the "git-token" text with your own personal access token so that
+git pull requests will work with GitHub / GitHub enterprise.
 
 
 ## Advanced Command
 
+Here's a command that adds "test_file.txt" to a Rez package called
+"rez_batch_process", located in some GitHub Enterprise website.
+
+TODO implement this
 ```sh
-python -m rez_batch_process fix --keep-temporary-files --clone-directory /tmp/repository_clones/attempt_1 --packages rez_batch_process --base-url https://github-enterprise.com --search-packages-path `rez-config release_packages_path`:$REZ_PACKAGES_PATH "touch test_file.txt" AS-1234 git-token
+python -m rez_batch_process fix --keep-temporary-files --clone-directory /tmp/repository_clones/attempt_1 --packages rez_batch_process --search-packages-path `rez-config release_packages_path`:$REZ_PACKAGES_PATH "touch test_file.txt" --temporary-directory /tmp/foo/bar shell AS-1234 git-token --base-url https://github-enterprise.com
 ```
 
-```sh
-python -m rez_batch_process fix --keep-temporary-files --search-packages-path `rez-config release_packages_path`:$REZ_PACKAGES_PATH "touch test_file.txt" AS-1234 git-token --temporary-director
-y /tmp/foo/bar
-```
+This is an example of most parameters that ``rez_batch_process`` comes with by default.
 
 Wow - the "advanced" command is huge! Let's break it down to make it more understandable.
 
