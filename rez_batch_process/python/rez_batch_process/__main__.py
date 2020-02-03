@@ -519,7 +519,11 @@ def _parse_arguments(text):
 
     fixer = sub_parsers.add_parser("fix")
     fixer.set_defaults(execute=__fix)
-    fixer.add_argument("command", help='The plugin to run. e.g. "shell".')
+    fixer.add_argument(
+        "command",
+        help='The plugin to run. e.g. "shell".',
+        choices=sorted(registry.get_command_keys()),
+    )
     _add_arguments(fixer)
 
     arguments, unknown_arguments = parser.parse_known_args(text)
