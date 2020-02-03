@@ -466,8 +466,10 @@ def _parse_arguments(text):
     command_parser = registry.get_command(arguments.command)
 
     if not command_parser:
-        print('Command "{arguments.command}" was not found. Options were "{options}".'
-              ''.format(arguments=arguments, options=sorted(registry.get_command_keys())))
+        print(
+            'Command "{arguments.command}" was not found. Options were "{options}".'
+            "".format(arguments=arguments, options=sorted(registry.get_command_keys()))
+        )
 
         sys.exit(cli_constant.NO_COMMAND_FOUND)
 
