@@ -263,7 +263,7 @@ def fix(  # pylint: disable=too-many-arguments,too-many-locals
         if not keep_temporary_files:
             git_link.add_directory_to_delete(repository_root)
 
-        command = registry.get_command()
+        command = registry.get_command("shell")
 
         for package in packages:
             definitions = list(_find_package_definitions(repository_root, package.name))
