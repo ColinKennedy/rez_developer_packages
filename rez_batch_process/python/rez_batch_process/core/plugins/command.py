@@ -168,9 +168,9 @@ class RezShellCommand(base.BaseCommand):
 
         repository = rez_git.get_repository(package)
         current_branch = repository.active_branch
-        repository.head.reset(
+        repository.head.reset(  # Make sure there are no uncommitted changes
             index=True, working_tree=True
-        )  # Make sure there are no uncommitted changes
+        )
 
         origin = repository.remote(name="origin")
         origin.pull(current_branch)
