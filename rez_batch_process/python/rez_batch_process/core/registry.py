@@ -8,13 +8,12 @@ a Python package or already has documentation.
 
 """
 
+import collections
+
 from .plugins import command, conditional
 
-_PLUGINS = [conditional.NonPythonPackage, conditional.HasDocumentation]
-
-_COMMANDS = {
-    "shell": command.RezShellCommand,
-}
+_COMMANDS = {"shell": command.RezShellCommand}
+_PLUGINS = collections.OrderedDict()
 
 
 def get_command(name):
@@ -47,7 +46,12 @@ def get_skip_plugins():
             needs documentation.
 
     """
-    return _PLUGINS
+    return list(_PLUGINS.values())
+
+
+def get_skip_plugins_keys():
+    """set[str]: Find every plugin that is currently registerd to ``rez_batch_process``."""
+    return set(_PLUGINS.keys())
 
 
 def clear_command(name):
@@ -63,9 +67,29 @@ def clear_command(name):
     if name not in _COMMANDS:
         raise ValueError(
             'Name "{name}" is not registered so it cannot be cleared. Options were "{options}".'
-            ''.format(name=name, options=sorted(_COMMANDS.keys())))
+            "".format(name=name, options=sorted(_COMMANDS.keys()))
+        )
 
     del _COMMANDS[name]
+
+
+def clear_plugin(name):
+    """Remove `name` from the list of registered plugin adapters.
+
+    Args:
+        name (str): An identifier used to find the correct plugin class.
+
+    Raises:
+        ValueError: If there is no registered adapter for `name`.
+
+    """
+    if name not in _PLUGINS:
+        raise ValueError(
+            'Name "{name}" is not registered so it cannot be cleared. Options were "{options}".'
+            "".format(name=name, options=sorted(_PLUGINS.keys()))
+        )
+
+    del _PLUGINS[name]
 
 
 def register_command(name, adapter, override=False):
@@ -90,3 +114,29 @@ def register_command(name, adapter, override=False):
         raise ValueError('Name "{name}" is already registered.'.format(name=name))
 
     _COMMANDS[name] = adapter
+
+
+def register_plugin(name, plugin, override=False):
+    """Add `adapter` with an identifier of `name` to this available list of plugins.
+
+    Args:
+        name (str):
+            An identifier used to find the correct plugin class.
+        adapter (:class:`.BasePlugin`):
+            The class used to check for some kind of issue with a Rez
+            package. If the adapter finds some kind of problem, the Rez
+            package is skipped and a registered command will not be run.
+        override (bool, optional):
+            If True and `name` is already registered, replace the
+            existing adapter. False, raise an exception. Default is False.
+
+    Raises:
+        ValueError:
+            If `name` is already a registered plugin and `override` is
+            not set to True.
+
+    """
+    if not override and name in _COMMANDS:
+        raise ValueError('Name "{name}" is already registered.'.format(name=name))
+
+    _PLUGINS[name] = plugin

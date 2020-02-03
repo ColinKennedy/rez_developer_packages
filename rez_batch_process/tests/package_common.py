@@ -11,13 +11,30 @@ import textwrap
 import git
 from python_compatibility.testing import common
 from rez import packages_
-from rez_batch_process.core import worker
+from rez_batch_process.core import registry, worker
+from rez_batch_process.core.plugins import conditional
 from rez_utilities import creator, inspection
 from six.moves import mock
 
 
 class Tests(common.Common):
     """A common class used to test everything in this module."""
+
+    @classmethod
+    def setUpClass(cls):
+        """Add some generic plugins so that tests have something to work with."""
+        super(Tests, cls).setUpClass()
+
+        registry.register_plugin("non_python_package", conditional.NonPythonPackage)
+        registry.register_plugin("has_documentation", conditional.HasDocumentation)
+
+    @classmethod
+    def tearDownClass(cls):
+        """Remove all stored plugins."""
+        super(Tests, cls).tearDownClass()
+
+        for name in registry.get_skip_plugins_keys():
+            registry.clear_plugin(name)
 
     def _test(self, expected, packages, paths=None):
         """Check that `packages`, when processed, equals `expected`.
