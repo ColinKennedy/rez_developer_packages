@@ -6,6 +6,7 @@
 from __future__ import print_function
 
 import argparse
+import copy
 import fnmatch
 import logging
 import operator
@@ -431,6 +432,62 @@ def _add_arguments(parser):
     )
 
 
+def _process_help(text):
+    """Check which help message the user actually wants to print out to the shell.
+
+    The concept behind this function is a bit weird.
+
+    Imagine you have 3 calls to ``rez_batch_process``
+
+    python -m rez_batch_process --help
+    python -m rez_batch_process fix --help
+    python -m rez_batch_process fix shell --help
+
+    The first should print the choices "check" and "fix".
+    The second should print the arguments for "fix".
+    The third should print the arguments for the dynamic plugin for "shell".
+
+    Unfortunately, that's not how it works. If the "--help" flag is
+    listed anywhere after the ``python -m rez_batch_process fix`` part,
+    it prints the help message for fix. The help message for "shell" is
+    never shown.
+
+    This function fixes this problem, by detecting the user's intent and
+    slightly modifying the `text` input so that argparse stays happy and
+    the right help message is printed.
+
+    Args:
+        text (list[str]): User provided arguments (that will be modified).
+
+    Returns:
+        tuple[list[str], bool]:
+            The modified text + a True / False, which represents whether
+            the plugin's help needs to be displayed (or something else).
+
+    """
+    text = copy.copy(text)
+
+    found_text = ""
+
+    if "--help" in text:
+        found_text = "--help"
+    elif "-h" in text:
+        found_text = "-h"
+
+    if not found_text:
+        return text, False
+
+    try:
+        subparser_index = text.index("check")
+    except ValueError:
+        subparser_index = text.index("fix")
+
+    if text.index(found_text) - 1 > subparser_index:
+        text.remove(found_text)
+
+    return text, True
+
+
 def _parse_arguments(text):
     """Add commands such as "check" and "fix" which can detect / add documentation.
 
@@ -440,6 +497,8 @@ def _parse_arguments(text):
             by the registered command's parsed arguments.
 
     """
+    text, needs_subparser_help = _process_help(text)
+
     parser = argparse.ArgumentParser(
         description="Find Rez packages that are missing Sphinx documentation."
     )
@@ -460,6 +519,7 @@ def _parse_arguments(text):
 
     fixer = sub_parsers.add_parser("fix")
     fixer.set_defaults(execute=__fix)
+    fixer.add_argument("command", help='The plugin to run. e.g. "shell".')
     _add_arguments(fixer)
 
     arguments, unknown_arguments = parser.parse_known_args(text)
@@ -472,6 +532,9 @@ def _parse_arguments(text):
         )
 
         sys.exit(cli_constant.NO_COMMAND_FOUND)
+
+    if needs_subparser_help:
+        unknown_arguments = unknown_arguments + ["--help"]
 
     command_arguments = command_parser.parse_arguments(unknown_arguments)
 

@@ -12,7 +12,7 @@ from .plugins import command, conditional
 
 _PLUGINS = [conditional.NonPythonPackage, conditional.HasDocumentation]
 
-_COMMAND = {
+_COMMANDS = {
     "shell": command.RezShellCommand,
 }
 
@@ -27,12 +27,12 @@ def get_command(name):
         :class:`.BaseCommand` or NoneType: The found command.
 
     """
-    return _COMMAND.get(name)
+    return _COMMANDS.get(name)
 
 
 def get_command_keys():
     """set[str]: The available commands that are registered to ``rez_batch_process``."""
-    return set(_COMMAND.keys())
+    return set(_COMMANDS.keys())
 
 
 def get_skip_plugins():
@@ -48,3 +48,45 @@ def get_skip_plugins():
 
     """
     return _PLUGINS
+
+
+def clear_command(name):
+    """Remove `name` from the list of registered command adapters.
+
+    Args:
+        name (str): An identifier used to find the correct command class.
+
+    Raises:
+        ValueError: If there is no registered adapter for `name`.
+
+    """
+    if name not in _COMMANDS:
+        raise ValueError(
+            'Name "{name}" is not registered so it cannot be cleared. Options were "{options}".'
+            ''.format(name=name, options=sorted(_COMMANDS.keys())))
+
+    del _COMMANDS[name]
+
+
+def register_command(name, adapter, override=False):
+    """Add `adapter` with an identifier of `name` to this available list of commands.
+
+    Args:
+        name (str):
+            An identifier used to find the correct command class.
+        adapter (:class:`.BaseCommand`):
+            The class used to run some command.
+        override (bool, optional):
+            If True and `name` is already registered, replace the
+            existing adapter. False, raise an exception. Default is False.
+
+    Raises:
+        ValueError:
+            If `name` is already a registered command and `override` is
+            not set to True.
+
+    """
+    if not override and name in _COMMANDS:
+        raise ValueError('Name "{name}" is already registered.'.format(name=name))
+
+    _COMMANDS[name] = adapter
