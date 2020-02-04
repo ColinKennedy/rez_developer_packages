@@ -336,6 +336,123 @@ class AddToAttributeHelp(unittest.TestCase):
 
         self._test(expected, original, [["thing", "another"]])
 
+    def test_append_position_001(self):
+        """Place `help` at the end of the package.py file, if needed."""
+        original = textwrap.dedent(
+            """\
+            name = "foo"
+            """
+        )
+
+        overrides = [["README", "README.md"]]
+
+        expected = textwrap.dedent(
+            """\
+            name = "foo"
+
+            help = [
+                ["README", "README.md"],
+            ]""")
+
+        self._test(expected, original, overrides)
+
+    def test_append_position_002(self):
+        """Place `help` at the end of the package.py file, if needed."""
+        original = 'name = "foo"'
+        overrides = [["README", "README.md"]]
+
+        expected = textwrap.dedent(
+            """\
+            name = "foo"
+
+            help = [
+                ["README", "README.md"],
+            ]""")
+
+        self._test(expected, original, overrides)
+
+    def test_between_position(self):
+        """Place `help` immediately before `requires`, if it exists."""
+        original = textwrap.dedent(
+            """\
+            name = "foo"
+
+            build_requires = [
+                "something",
+            ]
+            """
+        )
+
+        overrides = [["README", "README.md"]]
+
+        expected = textwrap.dedent(
+            """\
+            name = "foo"
+
+            help = [
+                ["README", "README.md"],
+            ]
+
+            build_requires = [
+                "something",
+            ]
+            """
+        )
+
+        self._test(expected, original, overrides)
+
+    def test_between_partial_position(self):
+        """Place `help` in as-correct of a position as possible when attributes are missing."""
+        original = textwrap.dedent(
+            """\
+            name = "foo"
+
+            version = "1.0.0"
+
+            description = "Some important information here."
+
+            authors = [
+                "Someone",
+            ]
+
+            requires = [
+                "another",
+            ]
+
+            def commands():
+                pass
+            """
+        )
+
+        overrides = [["README", "README.md"]]
+
+        expected = textwrap.dedent(
+            """\
+            name = "foo"
+
+            version = "1.0.0"
+
+            description = "Some important information here."
+
+            authors = [
+                "Someone",
+            ]
+
+            help = [
+                ["README", "README.md"],
+            ]
+
+            requires = [
+                "another",
+            ]
+
+            def commands():
+                pass
+            """
+        )
+
+        self._test(expected, original, overrides)
+
 
 class AddToAttributeTests(unittest.TestCase):
     """Make sure that :func:`rez_industry.api.add_to_attribute` works for Rez "tests"."""
@@ -619,5 +736,116 @@ class AddToAttributeTests(unittest.TestCase):
         overrides = {
             "foo": {"command": "more", "requires": ["information"]},
         }
+
+        self._test(expected, original, overrides)
+
+    def test_append_position(self):
+        """Place `tests` at the end of the package.py file, if needed."""
+        original = textwrap.dedent(
+            """\
+            name = "foo"
+            """
+        )
+
+        overrides = {
+            "thing": {"command": "thing", "run_on": "explicit"},
+        }
+
+        expected = textwrap.dedent(
+            """\
+            name = "foo"
+
+            tests = {
+                "thing":
+                    "command": "thing",
+                    "run_on": "explicit",
+                },
+            }
+            """
+        )
+
+        self._test(expected, original, overrides)
+
+    def test_between_position(self):
+        """Place `tests` immediately before `private_build_requires`, if it exists."""
+        original = textwrap.dedent(
+            """\
+            name = "foo"
+
+            requires = [
+                "something",
+            ]
+
+
+            private_build_requires = [
+                "cmake",
+            ]
+
+            def commands():
+                pass
+            """
+        )
+
+        overrides = {
+            "thing": {"command": "thing", "run_on": "explicit"},
+        }
+
+        expected = textwrap.dedent(
+            """\
+            name = "foo"
+
+            requires = [
+                "something",
+            ]
+
+            tests = {
+                "thing":
+                    "command": "thing",
+                    "run_on": "explicit",
+                },
+            }
+
+
+            private_build_requires = [
+                "cmake",
+            ]
+
+            def commands():
+                pass
+            """
+        )
+
+        self._test(expected, original, overrides)
+
+    def test_between_partial_position(self):
+        """Place `tests` in as-correct of a position as possible when attributes are missing."""
+        original = textwrap.dedent(
+            """\
+            name = "foo"
+
+            def commands():
+                pass
+            """
+        )
+
+        overrides = {
+            "thing": {"command": "thing", "run_on": "explicit"},
+        }
+
+        expected = textwrap.dedent(
+            """\
+            name = "foo"
+
+            tests = {
+                "thing":
+                    "command": "thing",
+                    "run_on": "explicit",
+                },
+            }
+
+            def commands():
+                pass
+            """
+        )
 
         self._test(expected, original, overrides)
