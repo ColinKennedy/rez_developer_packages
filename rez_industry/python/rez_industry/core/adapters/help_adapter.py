@@ -166,38 +166,6 @@ class HelpAdapter(base.BaseAdapter):
                 source code of `graph` plus any serialized `data`.
 
         """
-        def _insert_or_append(node, graph, assignment):
-            if assignment:
-                if hasattr(node, "children"):
-                    node.children[0].prefix = " "
-
-                assignment.children[-1] = node
-
-                return
-
-            index = convention.find_nearest_node_index(graph.children, "help")
-
-            if index == -1:
-                graph.children.append(
-                    tree.PythonNode(
-                        "assignment",
-                        [tree.String("help = ", (0, 0), prefix="\n\n")] + [node],
-                    )
-                )
-
-                return
-
-            _kill_suffix(graph.children[index - 1])
-
-            graph.children.insert(
-                index,
-                tree.PythonNode(
-                    "assignment",
-                    [tree.String("help = ", (0, 0), prefix="\n\n")] + [node],
-                )
-            )
-            _adjust_prefix(graph.children, index + 1)
-
         try:
             assignment = parso_helper.find_assignment_nodes("help", graph)[-1]
         except IndexError:
@@ -211,7 +179,7 @@ class HelpAdapter(base.BaseAdapter):
             and isinstance(help_data, tree.String)
         ):
             help_data.prefix = " "
-            _insert_or_append(help_data, graph, assignment)
+            graph = convention.insert_or_append(help_data, graph, assignment, "help")
 
             return graph.get_code()
 
