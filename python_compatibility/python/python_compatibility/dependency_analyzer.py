@@ -27,7 +27,7 @@ import six
 
 from . import filer, import_parser, imports, packaging
 
-logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+_LOGGER = logging.getLogger(__name__)
 
 
 class _FakeModule(object):
@@ -118,7 +118,7 @@ def _get_imported_namespaces_at_directories(directories):
                         names.add(namespace_text)
                         namespaces.add(namespace)
             except SyntaxError:
-                pass
+                _LOGGER.exception('Could not load "%s" due to a syntax error', path)
 
     return namespaces
 
@@ -202,7 +202,7 @@ def _get_source_paths(namespaces):
             continue
 
         if not module:
-            logging.error(
+            _LOGGER.error(
                 'No parent module could be found for namespace "%s".', namespace
             )
 
@@ -214,11 +214,11 @@ def _get_source_paths(namespaces):
             # This happens whenever `module` is a built-in, such as
             # :mod:`sys`. Just ignore this exception.
             #
-            logging.warning('Module "%s" has no file path.', module)
+            _LOGGER.warning('Module "%s" has no file path.', module)
 
             continue
         except Exception:
-            logging.exception('Module "%s" could not be imported.', module)
+            _LOGGER.exception('Module "%s" could not be imported.', module)
 
             raise
 
