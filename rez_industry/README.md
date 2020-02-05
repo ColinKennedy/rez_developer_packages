@@ -7,7 +7,7 @@ A simple Python package that helps modify Rez package.py files.
 with open("/path/to/some/package.py", "r") as handler:
     code = handler.read()
 
-new_code = api.add_to_attribute("help", {"foo": "bar"}, code)
+new_code = api.add_to_attribute("tests", {"foo": "bar"}, code)
 
 with open("/path/to/some/package.py", "w") as handler:
     handler.write(new_code)
