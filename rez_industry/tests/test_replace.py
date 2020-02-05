@@ -352,7 +352,8 @@ class AddToAttributeHelp(unittest.TestCase):
 
             help = [
                 ["README", "README.md"],
-            ]""")
+            ]"""
+        )
 
         self._test(expected, original, overrides)
 
@@ -367,7 +368,8 @@ class AddToAttributeHelp(unittest.TestCase):
 
             help = [
                 ["README", "README.md"],
-            ]""")
+            ]"""
+        )
 
         self._test(expected, original, overrides)
 
@@ -760,7 +762,8 @@ class AddToAttributeTests(unittest.TestCase):
                     "command": "thing",
                     "run_on": "explicit",
                 },
-            }""")
+            }"""
+        )
 
         self._test(expected, original, overrides)
 
