@@ -2,7 +2,7 @@
 
 name = "sphinx_apidoc_check"
 
-version = "1.1.0"
+version = "1.2.0"
 
 description = (
     "Check if the user needs to re-run ``sphinx-apidoc`` on their Python package"
