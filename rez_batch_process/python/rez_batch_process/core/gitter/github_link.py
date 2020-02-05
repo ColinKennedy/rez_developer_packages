@@ -84,10 +84,9 @@ class GithubAdapter(base_adapter.BaseAdapter):
                 example, if the user is working in GitHub Enterprise and
                 not regular GitHub, they'll need to provide a `base_url`
                 to the GitHub Enterprise URL to authenticate. Default: "".
-            verify (bool, optional):
-                If True, require a valid SSL certificate in private If
-                networks. False, accept all external SSL certificates.
-                Default is True.
+            verify (bool, optional): If True, require a valid SSL
+                certificate in private If networks. False, accept all
+                external SSL certificates. Default is True.
 
         """
         super(GithubAdapter, self).__init__()
