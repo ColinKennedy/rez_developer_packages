@@ -252,7 +252,7 @@ class HelpAdapter(base.BaseAdapter):
 
         node = _apply_formatting(node)
 
-        convention.insert_or_append(node, graph, assignment, "help")
+        graph = convention.insert_or_append(node, graph, assignment, "help")
 
         return graph.get_code()
 

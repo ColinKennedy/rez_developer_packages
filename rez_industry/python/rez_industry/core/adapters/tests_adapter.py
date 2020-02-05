@@ -97,7 +97,7 @@ class TestsAdapter(base_.BaseAdapter):
         new = {key: _flatten_everything(value) for key, value in new.items()}
         node = _make_tests_node(sorted(new.items()))
 
-        convention.insert_or_append(node, graph, assignment, "tests")
+        graph = convention.insert_or_append(node, graph, assignment, "tests")
 
         return graph.get_code()
 
