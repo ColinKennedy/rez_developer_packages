@@ -16,15 +16,16 @@ Note:
 
 """
 
-import pkgutil
-import imp
 import argparse
+import imp
 import logging
 import os
+import pkgutil
 import sys
 
-from . import filer, imports, import_parser, packaging
 import six
+
+from . import filer, import_parser, imports, packaging
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
@@ -131,7 +132,7 @@ def _get_module_normal_namespace(namespace):
 
     possible_module = imports.import_nearest_module(namespace)
     module_namespace = possible_module.__name__
-    end_of_namespace = namespace[len(module_namespace):].lstrip(".")
+    end_of_namespace = namespace[len(module_namespace) :].lstrip(".")
 
     if _module_has_attribute(possible_module, end_of_namespace):
         return possible_module
@@ -296,6 +297,20 @@ def _parse_arguments(text):
 
 
 def get_dependency_paths(directories):
+    """Find the dependencies of every Python file in `directories`.
+
+    Args:
+        directories (list[str]):
+            The folders on-disk that may have Python files (with
+            dependencies) to search through.
+
+    Raises:
+        NotImplementedError: If any path in `directories` doesn't exist.
+
+    Returns:
+        set[str]: The file paths on-disk where the namespaces point to.
+
+    """
     missing = set()
 
     for directory in directories:
@@ -303,7 +318,9 @@ def get_dependency_paths(directories):
             missing.add(directory)
 
     if missing:
-        raise NotImplementedError('Paths "{missing}" are not valid directories.'.format(missing=missing))
+        raise NotImplementedError(
+            'Paths "{missing}" are not valid directories.'.format(missing=missing)
+        )
 
     namespaces = _get_imported_namespaces_at_directories(directories)
 
