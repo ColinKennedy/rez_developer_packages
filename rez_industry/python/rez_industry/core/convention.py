@@ -77,11 +77,9 @@ def _adjust_prefix(nodes, index):
       - Add 2 newlines
 
     Args:
-        nodes (iter[:class:`parso.python.tree.PythonNode`]):
-            The direct children of a Rez package.py which had some
-            attribute inserted.
-        index (int):
-            The 0-based position where the attribute was inserted.
+        nodes (iter[:class:`parso.python.tree.PythonNode`]): The direct children
+            of a Rez package.py which had some attribute inserted.
+        index (int): The 0-based position where the attribute was inserted.
 
     """
     try:
