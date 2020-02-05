@@ -3,6 +3,8 @@
 
 """Functions that make working with :mod:`parso` a little easier."""
 
+import itertools
+
 from parso.python import tree
 
 
@@ -43,7 +45,7 @@ def iter_nested_children(node):
         yield child
 
 
-def find_assignment_nodes(attribute, graph):
+def find_assignment_nodes(attribute, graph, inclusive=False):
     """Get a parso node each time a certain Python attribute is declared and given a value.
 
     Args:
@@ -52,6 +54,10 @@ def find_assignment_nodes(attribute, graph):
         graph (:class:`parso.python.tree.PythonBaseNode`):
             The root node that will be checked. Usually, this is a
             :class:`parso.python.tree.Module` but it doesn't have to be.
+        inclusive (bool, optional):
+            If True, include `graph` as the first item to be iterated
+            over. If False, only iterate over `graph`'s children,
+            recursively. Default is False.
 
     Returns:
         set[:class:`parso.python.tree.PythonBaseNode`]: The found assignments, if any.
@@ -59,7 +65,12 @@ def find_assignment_nodes(attribute, graph):
     """
     nodes = []
 
-    for child in iter_nested_children(graph):
+    items = iter_nested_children(graph)
+
+    if inclusive:
+        items = itertools.chain([graph], items)
+
+    for child in items:
         if isinstance(child, tree.ExprStmt):
             for name in child.get_defined_names():
                 if name.value == attribute:

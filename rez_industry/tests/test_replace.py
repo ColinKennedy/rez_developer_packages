@@ -756,13 +756,11 @@ class AddToAttributeTests(unittest.TestCase):
             name = "foo"
 
             tests = {
-                "thing":
+                "thing": {
                     "command": "thing",
                     "run_on": "explicit",
                 },
-            }
-            """
-        )
+            }""")
 
         self._test(expected, original, overrides)
 
@@ -775,7 +773,6 @@ class AddToAttributeTests(unittest.TestCase):
             requires = [
                 "something",
             ]
-
 
             private_build_requires = [
                 "cmake",
@@ -799,12 +796,11 @@ class AddToAttributeTests(unittest.TestCase):
             ]
 
             tests = {
-                "thing":
+                "thing": {
                     "command": "thing",
                     "run_on": "explicit",
                 },
             }
-
 
             private_build_requires = [
                 "cmake",
@@ -837,7 +833,7 @@ class AddToAttributeTests(unittest.TestCase):
             name = "foo"
 
             tests = {
-                "thing":
+                "thing": {
                     "command": "thing",
                     "run_on": "explicit",
                 },

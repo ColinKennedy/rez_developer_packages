@@ -14,7 +14,7 @@ from parso.python import tree
 from rez import package_serialise
 from rez.vendor.schema import schema
 
-from .. import parso_helper
+from .. import convention, parso_helper
 from . import base as base_
 
 _LOGGER = logging.getLogger(__name__)
@@ -97,18 +97,7 @@ class TestsAdapter(base_.BaseAdapter):
         new = {key: _flatten_everything(value) for key, value in new.items()}
         node = _make_tests_node(sorted(new.items()))
 
-        if assignment:
-            # Add a space between "tests =" and the first "{"
-            node.children[0].prefix = " "
-            # Now replace whatever assignment there used to be with the modified parso node
-            assignment.children[-1] = node
-        else:
-            graph.children.append(
-                tree.PythonNode(
-                    "assignment",
-                    [tree.String("tests = ", (0, 0), prefix="\n\n")] + [node],
-                )
-            )
+        convention.insert_or_append(node, graph, assignment, "tests")
 
         return graph.get_code()
 
