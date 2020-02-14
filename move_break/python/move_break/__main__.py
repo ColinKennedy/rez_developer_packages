@@ -123,7 +123,7 @@ def main():
     paths = _expand_paths(arguments.path)
     namespaces = _expand_namespaces(arguments.namespace)
 
-    cli.run(paths, namespaces, partial=arguments.partial_matches)
+    cli.move_imports(paths, namespaces, partial=arguments.partial_matches)
 
 
 if __name__ == "__main__":

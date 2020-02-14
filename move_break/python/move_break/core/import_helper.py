@@ -34,7 +34,6 @@ def get_replacement_indices(names, parts):
     if not names_to_change:
         return [-1, -1]
 
-    # TODO : I think this is copied from elsewhere. Find + make a function for it
     parent = names_to_change[0].parent
     indices = {parent.children.index(name) for name in names_to_change}
     start = min(indices)

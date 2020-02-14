@@ -45,7 +45,7 @@ class _Common(common.Common):
 
         self.delete_item_later(handler.name)
 
-        cli.run({handler.name}, namespaces, partial=partial)
+        cli.move_imports({handler.name}, namespaces, partial=partial)
 
         with open(handler.name, "r") as handler:
             new_code = handler.read()

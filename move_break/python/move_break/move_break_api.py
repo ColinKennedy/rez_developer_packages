@@ -2,9 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """These are the "public" functions that other packages may import from and use."""
-# TODO : Rename this module to `move_break_api`
-# TODO : Rename "run" to something else
 
-from .cli import run
+from .cli import move_imports
 
-__all__ = ["run"]
+__all__ = ["move_imports"]

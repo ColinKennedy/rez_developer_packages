@@ -18,7 +18,7 @@ def _get_graph(path):
     return parso.parse(code)
 
 
-def run(files, namespaces, partial=False):
+def move_imports(files, namespaces, partial=False):
     """Replace the imports of every given file.
 
     Not every path in `files` will actually be overwritten. Because

@@ -31,7 +31,6 @@ def get_imports(graph, partial=False, namespaces=frozenset()):
             query its data or replace it.
 
     """
-    # TODO : Add this to parso_helper
     imports = set()
     processed = set()  # This variable makes sure nodes are only ever parsed once
 
