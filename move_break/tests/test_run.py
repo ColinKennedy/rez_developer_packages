@@ -285,34 +285,58 @@ class Imports(_Common):
 
         self._test(expected, code, namespaces, partial=False)
 
-    # def test_from_comma_replace(self):
-    #     """Fully replace one namespace with another."""
-    #     code = "from foo import bar, another"
-    #     namespaces = [
-    #         ("foo.bar", "something.parse"),
-    #         ("foo.another", "something.another"),
-    #     ]
-    #     expected = "from something import parse, another"
-    #
-    #     self._test(expected, code, namespaces, partial=True)
+    def test_from_comma_replace(self):
+        """Fully replace one namespace with another."""
+        code = "from foo import bar, another"
+        namespaces = [
+            ("foo.bar", "something.parse"),
+            ("foo.another", "something.another"),
+        ]
+        expected = "from something import parse, another"
 
-    # # TODO : Finish
-    # # def test_from_complex(self):
-    # #     code = textwrap.dedent(
-    # #         """\
-    # #         from foo import bar
-    # #         from foo.bar import thing
-    # #         from foo.thing.another import blah as whatever, bazz, etc as more \
-    # #             another_line as thing, \
-    # #                 bad_formatting
-    # #         from something.parse import (
-    # #             blah as whatever, bazz,
-    # #             etc as more,
-    # #             another_line as thing,
-    # #                 bad_formatting
-    # #         )
-    # #         """
-    # #     )
+        self._test(expected, code, namespaces, partial=True)
+
+    # def test_from_complex(self):
+    #     """Check that complicated whitespace still replaces imports correctly."""
+    #     code = textwrap.dedent(
+    #         """\
+    #         from foo import bar
+    #         from foo.bar import thing
+    #         from foo.thing.another import blah as whatever, bazz, etc as more \
+    #             another_line as thing, \
+    #                 bad_formatting
+    #         from something.parse import (
+    #             blah as whatever, bazz,
+    #             etc as more,
+    #             another_line as thing,
+    #                 bad_formatting
+    #         )
+    #         """
+    #     )
+    #
+    #     namespaces = [
+    #         ("something.parse.blah", "a_new.namespace_here"),
+    #         ("something.parso.etc", "etc.dedicated.namespace"),
+    #     ]
+    #
+    #     expected = textwrap.dedent(
+    #         """\
+    #         from foo import bar
+    #         from foo.bar import thing
+    #         from foo.thing.another import blah as whatever, bazz, etc as more \
+    #             another_line as thing, \
+    #                 bad_formatting
+    #         from a_new import namespace_here as whatever
+    #         from etc.dedicated import namespace as more
+    #         from something.parse import (
+    #             bazz,
+    #             another_line as thing,
+    #                 bad_formatting
+    #         )
+    #         """
+    #     )
+    #
+    #     self._test(expected, code, namespaces, partial=False)
 
     # def test_star(self):
     #     code = "from foo import *"
