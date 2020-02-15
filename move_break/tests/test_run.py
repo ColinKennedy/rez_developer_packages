@@ -410,6 +410,160 @@ class Imports(_Common):
 
         self._test(expected, code, namespaces, partial=True)
 
+    def test_backslash_001(self):
+        """Replace imports with backslashes."""
+        code = textwrap.dedent(
+            """\
+            import os.path, \\
+                textwrap
+            """
+        )
+
+        namespaces = [("textwrap", "another")]
+
+        expected = textwrap.dedent(
+            """\
+            import os.path, \\
+                another
+            """
+        )
+
+        self._test(expected, code, namespaces, partial=False)
+
+    def test_backslash_002(self):
+        """Replace imports with backslashes."""
+        code = textwrap.dedent(
+            """\
+            import os.path, \\
+                    textwrap
+            """
+        )
+
+        namespaces = [("os.path", "another")]
+
+        expected = textwrap.dedent(
+            """\
+            import another, \\
+                    textwrap
+            """
+        )
+
+        self._test(expected, code, namespaces, partial=False)
+
+    def test_backslash_003(self):
+        """Replace imports with backslashes."""
+        code = textwrap.dedent(
+            """\
+            import os.path, \\
+                    textwrap \\
+                another
+            """
+        )
+
+        namespaces = [("textwrap", "thing")]
+
+        expected = textwrap.dedent(
+            """\
+            import os.path, \\
+                    thing \\
+                another
+            """
+        )
+
+        self._test(expected, code, namespaces, partial=False)
+
+    def test_backslash_004(self):
+        """Replace imports with backslashes."""
+        code = textwrap.dedent(
+            """\
+            import os.path, \\
+                    textwrap
+            """
+        )
+
+        namespaces = [("os", "another")]
+
+        expected = textwrap.dedent(
+            """\
+            import another.path, \\
+                    textwrap
+            """
+        )
+
+        self._test(expected, code, namespaces, partial=True)
+
+    def test_from_backslash_001(self):
+        """Replace imports with backslashes."""
+        code = textwrap.dedent(
+            """\
+            from thing import path, \\
+                textwrap
+            """
+        )
+
+        namespaces = [("thing.textwrap", "blah.another")]
+
+        expected = textwrap.dedent(
+            """\
+            from blah import path, \\
+                another
+            """
+        )
+
+        self._test(expected, code, namespaces, partial=True)
+
+    def test_from_backslash_002(self):
+        """Replace imports with backslashes."""
+        code = textwrap.dedent(
+            """\
+            from blah import path, \\
+                    textwrap
+            """
+        )
+
+        namespaces = [("blah.path", "another.thingy")]
+
+        expected = textwrap.dedent(
+            """\
+            from another import thingy, \\
+                    textwrap
+            """
+        )
+
+        self._test(expected, code, namespaces, partial=True)
+
+        expected = textwrap.dedent(
+            """\
+            from another import thingy
+            from blah import \\
+                    textwrap
+            """
+        )
+
+        self._test(expected, code, namespaces, partial=False)
+
+    def test_from_backslash_003(self):
+        """Replace imports with backslashes."""
+        code = textwrap.dedent(
+            """\
+            from mit import path, \\
+                    textwrap \\
+                another
+            """
+        )
+
+        namespaces = [("mit.textwrap", "cornell.thing")]
+
+        expected = textwrap.dedent(
+            """\
+            from cornell import path, \\
+                    thing \\
+                another
+            """
+        )
+
+        self._test(expected, code, namespaces, partial=True)
+
 
 class PartialFrom(_Common):
     """Control when and how "from X import Y" imports are replaced."""
