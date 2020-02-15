@@ -197,28 +197,27 @@ class Imports(_Common):
 
         self._test(expected, code, namespaces, partial=True)
 
-    # TODO : finish
-    # def test_complex(self):
-    #     code = textwrap.dedent(
-    #         """\
-    #         import thing.bar.more.items as thing
-    #         import something_else.more.items
-    #         """
-    #     )
-    #
-    #     namespaces = [
-    #         ("thing.bar", "different_location.here"),
-    #         ("something_else.move.items", "foo"),
-    #     ]
-    #
-    #     expected = textwrap.dedent(
-    #         """\
-    #         import different_location.here.more.items as thing
-    #         import foo
-    #         """
-    #     )
-    #
-    #     self._test(expected, code, namespaces)
+    def test_complex(self):
+        code = textwrap.dedent(
+            """\
+            import thing.bar.more.items as thing
+            import something_else.more.items
+            """
+        )
+
+        namespaces = [
+            ("thing.bar", "different_location.here"),
+            ("something_else.more.items", "foo"),
+        ]
+
+        expected = textwrap.dedent(
+            """\
+            import different_location.here.more.items as thing
+            import foo
+            """
+        )
+
+        self._test(expected, code, namespaces, partial=True)
 
     def test_from_001(self):
         """Replace a from import with a different nested namespace."""
