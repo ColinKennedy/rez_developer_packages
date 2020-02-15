@@ -3,8 +3,6 @@
   - "from foo import bar" would be come "from thing import other as bar"
   - instead of "from thing import other"
   - this is for ultra-conservative people who want to make sure code doesn't break
-- Need a filter option to only run on certain types of adapters (imports)
-- Need an option to allow partial namespace changes (and the default behavior should require the entire namespace be defined)
 - Need unittest to make sure the CLI works
  - There needs to be a unittest that reads namespaces as text
  - another that reads from process substitution

@@ -3,9 +3,6 @@
 
 """Check that setting / replacing imports works as expected."""
 
-# TODO : Add a test to make sure no old and new are never the same
-# TODO : Add "empty" permutations
-# TODO : Make more permutations to make sure each case is covered
 # TODO : need to have unittests where the imports AREN'T changed
 # TODO : Add unittests to make sure splits respect leading whitespace
 
@@ -72,6 +69,32 @@ class _Common(common.Common):
 
 class Imports(_Common):
     """A class to check if import replacement works correctly."""
+
+    def test_empty_001(self):
+        """Allow an empty Python module as input (even though it does nothing)."""
+        code = ""
+        namespaces = [("something", "another")]
+        expected = ""
+
+        self._test(expected, code, namespaces)
+
+    def test_empty_002(self):
+        """Require the user to always pass non-empty namespaces."""
+        code = ""
+        namespaces = []
+        expected = ""
+
+        with self.assertRaises(ValueError):
+            self._test(expected, code, namespaces)
+
+    def test_same_namespaces(self):
+        """If any old and new namespace pair is the same, then raise an exception."""
+        code = ""
+        namespaces = [("something.foo", "something.foo")]
+        expected = ""
+
+        with self.assertRaises(ValueError):
+            self._test(expected, code, namespaces)
 
     def test_normal_001(self):
         """Replace a basic, minimum import."""

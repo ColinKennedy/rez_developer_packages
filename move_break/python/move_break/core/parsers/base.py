@@ -12,7 +12,7 @@ import six
 class BaseAdapter(object):
     """A Python class that is meant to parse and replace Python import statements."""
 
-    def __init__(self, node, partial=False, namespaces=frozenset()):
+    def __init__(self, node, partial=False, namespaces=frozenset(), aliases=False):
         """Keep reference to a parso node (which defines some import).
 
         Args:
@@ -29,6 +29,12 @@ class BaseAdapter(object):
                 namespaces are used to figure out if it's okay to replace an
                 import or if any part of an import statement is missing. If
                 no namespaces are given then `partial` must be set to True.
+                Default: set().
+            aliases (bool, optional):
+                If True and replacing a namespace would cause Python
+                statements to fail, auto-add an import alias to ensure
+                backwards compatibility If False, don't add aliases. Default
+                is False.
 
         Raises:
             ValueError: If `namespaces` is empty and `partial` is not True.
@@ -39,6 +45,7 @@ class BaseAdapter(object):
 
         super(BaseAdapter, self).__init__()
 
+        self._aliases = aliases
         self._node = node
         self._partial = partial
         self._namespaces = namespaces

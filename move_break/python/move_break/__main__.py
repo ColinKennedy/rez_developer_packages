@@ -49,12 +49,6 @@ def _parse_arguments(text):
     )
 
     parser.add_argument(
-        "-r",
-        "--replace",
-        action="store_true",
-        help="If enabled, replace imports in the rest of the file, not just the import statements.")
-
-    parser.add_argument(
         "-t",
         "--types",
         default="",
@@ -149,6 +143,7 @@ def main():
         namespaces,
         partial=arguments.partial_matches,
         import_types=arguments.types,
+        aliases=arguments.aliases,
     )
 
 

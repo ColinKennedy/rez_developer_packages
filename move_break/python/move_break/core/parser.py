@@ -8,7 +8,7 @@ from parso_helper import node_seek
 from . import import_registry
 
 
-def get_imports(graph, partial=False, namespaces=frozenset()):
+def get_imports(graph, partial=False, namespaces=frozenset(), aliases=False):
     """Find every import in `graph`.
 
     Args:
@@ -24,6 +24,12 @@ def get_imports(graph, partial=False, namespaces=frozenset()):
             namespaces are used to figure out if it's okay to replace an
             import or if any part of an import statement is missing. If
             no namespaces are given then `partial` must be set to True.
+            Default: set().
+        aliases (bool, optional):
+            If True and replacing a namespace would cause Python
+            statements to fail, auto-add an import alias to ensure
+            backwards compatibility If False, don't add aliases. Default
+            is False.
 
     Returns:
         :class:`.BaseAdapter`:
