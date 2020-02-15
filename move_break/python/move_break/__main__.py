@@ -25,12 +25,11 @@ def _parse_arguments(text):
             folders or Python files to change plus old / new namespaces.
 
     """
-    # TODO : Change this to allow 1+ paths (multiple paths at once)
     parser = argparse.ArgumentParser(
         description="Replace any Python imports in a file or directory. It's useful for refactoring"
     )
 
-    parser.add_argument("path", help="A file or folder to replace Python imports.")
+    parser.add_argument("paths", nargs="+", help="A file or folder to replace Python imports.")
     parser.add_argument(
         "namespaces", help="A comma-separated list of old and new namespaces."
     )
@@ -127,7 +126,11 @@ def _expand_types(text):
 def main():
     """Run the main execution of the current script."""
     arguments = _parse_arguments(sys.argv[1:])
-    paths = _expand_paths(arguments.path)
+    paths = set()
+
+    for path in arguments.paths:
+        paths.update(_expand_paths(path))
+
     namespaces = _expand_namespaces(arguments.namespaces)
     import_types = _expand_types(arguments.types)
     allowed_import_types = import_registry.get_plugin_types()
