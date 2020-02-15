@@ -41,7 +41,9 @@ class BaseAdapter(object):
 
         """
         if not namespaces and not partial:
-            raise ValueError('Either set partial to True or define some Python namespaces.')
+            raise ValueError(
+                "Either set partial to True or define some Python namespaces."
+            )
 
         super(BaseAdapter, self).__init__()
 

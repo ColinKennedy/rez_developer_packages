@@ -5,9 +5,9 @@
 
 import operator
 
-from python_compatibility import iterbot
-from parso_helper import node_seek
 from parso.python import tree
+from parso_helper import node_seek
+from python_compatibility import iterbot
 
 from .. import import_helper
 from . import base as base_
@@ -79,7 +79,9 @@ class ImportFromAdapter(base_.BaseAdapter):
         """
         old_namespaces = {old for old, _ in self._namespaces}
 
-        if not self._partial and not _has_fully_described_namespace(self._get_namespaces(node), old_namespaces):
+        if not self._partial and not _has_fully_described_namespace(
+            self._get_namespaces(node), old_namespaces
+        ):
             # We need to split the import statement in two
             new_nodes = import_helper.make_replacement_nodes(new_parts[:-1], prefix)
             children = _get_tail_children(node.children[3:])
@@ -130,7 +132,9 @@ class ImportFromAdapter(base_.BaseAdapter):
             return
 
         if _old_parts_exceeds_base(base_names, old_parts):
-            self._replace_base_and_parts_of_tail(node, old_parts, new_parts, base_names, prefix)
+            self._replace_base_and_parts_of_tail(
+                node, old_parts, new_parts, base_names, prefix
+            )
 
             return
 
@@ -344,6 +348,7 @@ def _adjust_imported_names(old, new_namespace, nodes):
             The tail of a from-import whose import namespaces will be split.
 
     """
+
     def _get_import_from(node):
         """Get the :class:`parso.python.tree.ImportFrom` parent of `node`."""
         previous = None
@@ -395,12 +400,14 @@ def _adjust_imported_names(old, new_namespace, nodes):
         else:
             base = tree.Name(base_names[0], (0, 0), prefix=" ")
 
-        return tree.ImportFrom([
-            tree.Keyword("from", (0, 0), prefix=prefix),
-            base,
-            tree.Keyword("import", (0, 0), prefix=" "),
-            tree.Name(namespace_parts[-1], (0, 0), prefix=" "),
-        ])
+        return tree.ImportFrom(
+            [
+                tree.Keyword("from", (0, 0), prefix=prefix),
+                base,
+                tree.Keyword("import", (0, 0), prefix=" "),
+                tree.Name(namespace_parts[-1], (0, 0), prefix=" "),
+            ]
+        )
 
     def _add_new_import(node, new_namespace):
         """Add a new from-import of `new_namespace` as a sibling of `node`."""

@@ -53,10 +53,7 @@ def get_imports(graph, partial=False, namespaces=frozenset(), aliases=False):
             continue
 
         adapter = import_registry.get_import_data(
-            child,
-            partial=partial,
-            namespaces=namespaces,
-            aliases=aliases,
+            child, partial=partial, namespaces=namespaces, aliases=aliases
         )
 
         if adapter:

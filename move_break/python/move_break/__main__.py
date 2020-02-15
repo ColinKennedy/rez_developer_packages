@@ -7,8 +7,8 @@ import argparse
 import os
 import sys
 
-from .core import import_registry
 from . import cli
+from .core import import_registry
 
 _CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 
@@ -80,7 +80,7 @@ def _expand_namespaces(text):
             raise ValueError(
                 'Text "{text}" needs to have a comma to '
                 'separate the old and new namespace. Got "{line}".'
-                ''.format(text=text, line=line)
+                "".format(text=text, line=line)
             )
 
         output.add((old, new))
@@ -137,7 +137,11 @@ def main():
         raise ValueError(
             'Types "{remaining_types}" are not valid. '
             'Allowed types are "{allowed_import_types}".'
-            ''.format(remaining_types=remaining_types, allowed_import_types=allowed_import_types))
+            "".format(
+                remaining_types=remaining_types,
+                allowed_import_types=allowed_import_types,
+            )
+        )
 
     cli.move_imports(
         paths,

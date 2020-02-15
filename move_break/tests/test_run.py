@@ -474,19 +474,13 @@ class PartialImport(_Common):
     def test_multiple(self):
         """Don't split anything and keep it all in one import."""
         code = "import foo.blah, thing.another, fire.water"
-        namespaces = [
-            ("foo.blah", "new.blah"),
-            ("fire.water", "new.water"),
-        ]
+        namespaces = [("foo.blah", "new.blah"), ("fire.water", "new.water")]
         expected = "import new.blah, thing.another, new.water"
 
         self._test(expected, code, namespaces, partial=False)
         self._test(expected, code, namespaces, partial=True)
 
-        namespaces = [
-            ("foo.blah", "new.blah"),
-            ("fire.water", "something.water"),
-        ]
+        namespaces = [("foo.blah", "new.blah"), ("fire.water", "something.water")]
         expected = "import new.blah, thing.another, something.water"
 
         self._test(expected, code, namespaces, partial=False)

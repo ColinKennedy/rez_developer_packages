@@ -77,7 +77,9 @@ class ImportNameAdapter(base_.BaseAdapter):
         pairs = _get_pairs(node.children)
 
         if not pairs:
-            _replace_namespace(node.children, old_parts, new_parts, partial=self._partial)
+            _replace_namespace(
+                node.children, old_parts, new_parts, partial=self._partial
+            )
 
             return
 
@@ -89,7 +91,9 @@ class ImportNameAdapter(base_.BaseAdapter):
 
                 continue
 
-            _replace_namespace(nodes[0].children, old_parts, new_parts, partial=self._partial)
+            _replace_namespace(
+                nodes[0].children, old_parts, new_parts, partial=self._partial
+            )
 
     @staticmethod
     def is_valid(node):
@@ -216,6 +220,7 @@ def _replace_namespace(nodes, old_parts, new_parts, partial=False):
             The namespace to replace `node` with. e.g. ["foo", "bar"].
 
     """
+
     def _is_fully_defined_by(names, parts):
         for index, name in enumerate(names):
             try:
@@ -236,7 +241,9 @@ def _replace_namespace(nodes, old_parts, new_parts, partial=False):
         # There's nothing to replace, in this case
         return
 
-    if not partial and not _is_fully_defined_by([name.value for name in names], old_parts):
+    if not partial and not _is_fully_defined_by(
+        [name.value for name in names], old_parts
+    ):
         return
 
     new_nodes = import_helper.make_replacement_nodes(new_parts, prefix)

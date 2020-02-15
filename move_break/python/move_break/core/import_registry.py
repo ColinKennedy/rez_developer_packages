@@ -5,7 +5,6 @@
 
 from .parsers import import_adapter, import_from_adapter, import_name_adapter
 
-
 _OPTIONS = (
     import_from_adapter.ImportFromAdapter,
     import_name_adapter.ImportNameAdapter,

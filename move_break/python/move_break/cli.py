@@ -19,11 +19,7 @@ def _get_graph(path):
 
 
 def move_imports(
-    files,
-    namespaces,
-    partial=False,
-    import_types=frozenset(),
-    aliases=False,
+    files, namespaces, partial=False, import_types=frozenset(), aliases=False
 ):
     """Replace the imports of every given file.
 
@@ -65,20 +61,19 @@ def move_imports(
     output = set()
 
     if not namespaces:
-        raise ValueError('Namespaces cannot be empty.')
+        raise ValueError("Namespaces cannot be empty.")
 
     for old, new in namespaces:
         if old == new:
-            raise ValueError('Pair "{old}/{new}" cannot be the same.'.format(old=old, new=new))
+            raise ValueError(
+                'Pair "{old}/{new}" cannot be the same.'.format(old=old, new=new)
+            )
 
     for path in files:
         changed = False
         graph = _get_graph(path)
         imports = parser.get_imports(
-            graph,
-            partial=partial,
-            namespaces=namespaces,
-            aliases=aliases,
+            graph, partial=partial, namespaces=namespaces, aliases=aliases
         )
 
         for statement, (old, new) in itertools.product(imports, namespaces):
