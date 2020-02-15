@@ -15,7 +15,7 @@ from parso.python import tree
 from rez import package_serialise
 from rez.vendor.schema import schema
 
-from .. import convention, parso_helper
+from .. import convention, parso_utility
 from . import base as base_
 
 _LOGGER = logging.getLogger(__name__)
@@ -80,7 +80,7 @@ class TestsAdapter(base_.BaseAdapter):
         graph = copy.deepcopy(graph)
 
         try:
-            assignment = parso_helper.find_assignment_nodes("tests", graph)[-1]
+            assignment = parso_utility.find_assignment_nodes("tests", graph)[-1]
         except IndexError:
             _LOGGER.warning(
                 'Graph "%s" has no assignment. Tests will be appended instead of inserted.',
@@ -259,7 +259,7 @@ def _get_tests_data(graph):
     graph = copy.deepcopy(graph)
 
     try:
-        assignment = parso_helper.find_assignment_nodes("tests", graph)[-1]
+        assignment = parso_utility.find_assignment_nodes("tests", graph)[-1]
     except IndexError:
         return dict()
 

@@ -12,7 +12,7 @@ its best to put it somewhere in the middle, if it can.
 from parso_helper import node_seek
 from parso.python import tree
 
-from . import parso_helper
+from . import parso_utility
 
 _ATTRIBUTES = (
     "name",
@@ -101,7 +101,7 @@ def _find_nearest_node_index(nodes, attribute):
         attribute_to_find = _ATTRIBUTES[previous]
 
         for index, node in enumerate(nodes):
-            if parso_helper.find_assignment_nodes(
+            if parso_utility.find_assignment_nodes(
                 attribute_to_find, node, inclusive=True
             ):
                 output_index = index + 1

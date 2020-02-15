@@ -13,7 +13,7 @@ from parso.python import tree
 from rez import package_serialise
 from rez.vendor.schema import schema
 
-from .. import convention, parso_helper
+from .. import convention, parso_utility
 from . import base
 
 _DEFAULT_FALLBACK_KEY = "documentation"
@@ -168,7 +168,7 @@ class HelpAdapter(base.BaseAdapter):
 
         """
         try:
-            assignment = parso_helper.find_assignment_nodes("help", graph)[-1]
+            assignment = parso_utility.find_assignment_nodes("help", graph)[-1]
         except IndexError:
             assignment = None
 
