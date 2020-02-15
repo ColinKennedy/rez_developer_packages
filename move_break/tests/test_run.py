@@ -260,21 +260,20 @@ class Imports(_Common):
 
         self._test(expected, code, namespaces, partial=True)
 
-    # def test_from_comma_no_replace(self):
-    #     """Don't replace a from import completely because some namespaces are missing."""
-    #     code = "from foo import bar, another"
-    #     namespaces = [
-    #         ("foo.bar", "something.parse"),
-    #     ]
-    #     expected = textwrap.dedent(
-    #         """\
-    #         from foo import another
-    #         from something import parse
-    #         """
-    #     )
-    #
-    #     self._test(expected, code, namespaces, partial=True)
-    #
+    def test_from_comma_no_replace(self):
+        """Don't replace a from import completely because some namespaces are missing."""
+        code = "from foo import bar, another"
+        namespaces = [
+            ("foo.bar", "something.parse"),
+        ]
+        expected = textwrap.dedent(
+            """\
+            from something import parse
+            from foo import another"""
+        )
+
+        self._test(expected, code, namespaces)
+
     # def test_from_comma_replace(self):
     #     """Fully replace one namespace with another."""
     #     code = "from foo import bar, another"
