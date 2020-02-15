@@ -271,7 +271,7 @@ def _get_tail_children(nodes):
             children.extend(
                 [child for child in node.children if isinstance(child, tree.Name)]
             )
-        elif not isinstance(node, tree.Operator):
+        else:
             children.append(node)
 
     return children
