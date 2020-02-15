@@ -198,6 +198,7 @@ class Imports(_Common):
         self._test(expected, code, namespaces, partial=True)
 
     def test_complex(self):
+        """Replace imports even in a more complicated scenario."""
         code = textwrap.dedent(
             """\
             import thing.bar.more.items as thing
