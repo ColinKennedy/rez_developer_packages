@@ -50,7 +50,7 @@ def move_imports(files, namespaces, partial=False, import_types=frozenset()):
         imports = parser.get_imports(graph, partial=partial, namespaces=namespaces)
 
         for statement, (old, new) in itertools.product(imports, namespaces):
-            if import_types and statement.get_type() not in import_types:
+            if import_types and statement.get_import_type() not in import_types:
                 continue
 
             if old in statement:
