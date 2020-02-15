@@ -344,7 +344,7 @@ class Imports(_Common):
     #     expected = "from something import *"
     #
     #     self._test(expected, code, namespaces, partial=True)
-    #
+
     def test_complex_partial(self):
         """Check that difficult formatting still replaces the imports, correctly."""
         code = textwrap.dedent(
