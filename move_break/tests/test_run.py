@@ -283,7 +283,7 @@ class Imports(_Common):
             from foo import another"""
         )
 
-        self._test(expected, code, namespaces)
+        self._test(expected, code, namespaces, partial=False)
 
     # def test_from_comma_replace(self):
     #     """Fully replace one namespace with another."""
