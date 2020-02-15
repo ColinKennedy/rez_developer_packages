@@ -8,6 +8,7 @@ import copy
 import json
 
 import parso
+from parso_helper import node_seek
 from parso.python import tree
 from rez import package_serialise
 from rez.vendor.schema import schema
@@ -245,7 +246,7 @@ def _get_inner_list_entries(node):
     """
     entries = []
 
-    for child in parso_helper.iter_nested_children(node):
+    for child in node_seek.iter_nested_children(node):
         if not _is_list_root_definition(child):
             continue
 
@@ -272,7 +273,7 @@ def _get_list_root(node):
             The top of a list of list of strings, if any.
 
     """
-    for child in parso_helper.iter_nested_children(node):
+    for child in node_seek.iter_nested_children(node):
         if _is_list_root_definition(child):
             return child
 
@@ -292,7 +293,7 @@ def _get_str_root(node):
             The URL / file-path node, if any.
 
     """
-    for child in parso_helper.iter_nested_children(node):
+    for child in node_seek.iter_nested_children(node):
         if isinstance(child, tree.String):
             return child
 
@@ -322,13 +323,13 @@ def _apply_formatting(node):
         return True  # pragma: no cover
 
     def _iter_inner_entries(node):
-        for child in parso_helper.iter_nested_children(node):
+        for child in node_seek.iter_nested_children(node):
             if isinstance(child, tree.PythonNode) and child.type == "atom":
                 yield child
 
     node = copy.deepcopy(node)
 
-    for child in parso_helper.iter_nested_children(node):
+    for child in node_seek.iter_nested_children(node):
         if isinstance(child, tree.Operator) and child.value == ",":
             child.prefix = ""
         elif hasattr(child, "prefix") and _needs_space(child):

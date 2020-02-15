@@ -2,7 +2,7 @@
 
 name = "rez_industry"
 
-version = "0.2.1"
+version = "0.3.0"
 
 description = "A Rez package manufacturer. It's reliably modifies Rez package.py files."
 
@@ -16,6 +16,7 @@ build_command = "python -m rez_build_helper --items python"
 
 requires = [
     "parso-0.5+<1",
+    "parso_helper-1+<2"
     "python-2+<3",
     "rez-2.42+<3",
     "six-1.13+<2",

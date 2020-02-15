@@ -5,44 +5,8 @@
 
 import itertools
 
+from parso_helper import node_seek
 from parso.python import tree
-
-
-# TODO : This was copied from another package. Might be worth making a separate package?
-def iter_nested_children(node):
-    """Find every child node of the given `node`, recursively.
-
-    Note:
-        This function is **exclusive**, which means `node` is not
-        yielded as part of the output. Only its children are yielded.
-
-    Args:
-        node (:class:`parso.python.tree.PythonBaseNode`): The node to get children of.
-
-    Yields:
-        :class:`parso.python.tree.PythonBaseNode`: The found children.
-
-    """
-
-    def _iter_nested_children(node, seen=None):
-        if not seen:
-            seen = set()
-
-        if not hasattr(node, "children"):
-            return
-            yield  # pragma: no cover pylint: disable=unreachable
-
-        for child in node.children:
-            if child not in seen:
-                seen.add(child)
-
-                yield child
-
-                for subchild in _iter_nested_children(child, seen=seen):
-                    yield subchild
-
-    for child in _iter_nested_children(node):
-        yield child
 
 
 def find_assignment_nodes(attribute, graph, inclusive=False):
@@ -65,7 +29,7 @@ def find_assignment_nodes(attribute, graph, inclusive=False):
     """
     nodes = []
 
-    items = iter_nested_children(graph)
+    items = node_seek.iter_nested_children(graph)
 
     if inclusive:
         items = itertools.chain([graph], items)

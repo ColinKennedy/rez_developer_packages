@@ -10,6 +10,7 @@ import logging
 
 import parso
 import six
+from parso_helper import node_seek
 from parso.python import tree
 from rez import package_serialise
 from rez.vendor.schema import schema
@@ -130,7 +131,7 @@ def _is_empty_dict(node):
 
         return node.value == "("
 
-    for child in parso_helper.iter_nested_children(node):
+    for child in node_seek.iter_nested_children(node):
         if (
             isinstance(child, tree.PythonNode)
             and child.type == "atom"
@@ -199,7 +200,7 @@ def _get_dict_maker_root(node):
             Get the inner dict, if any exists in `node`.
 
     """
-    for child in parso_helper.iter_nested_children(node):
+    for child in node_seek.iter_nested_children(node):
         if isinstance(child, tree.PythonNode) and child.type == "dictorsetmaker":
             # If this happens, it means that `node` is a non-empty dict
             return child
@@ -490,7 +491,7 @@ def _flatten_node(node):
     if hasattr(node, "prefix"):
         node.prefix = ""
 
-    for child in parso_helper.iter_nested_children(node):
+    for child in node_seek.iter_nested_children(node):
         if hasattr(child, "prefix"):
             child.prefix = ""
 
