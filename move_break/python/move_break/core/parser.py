@@ -52,7 +52,12 @@ def get_imports(graph, partial=False, namespaces=frozenset(), aliases=False):
             # Make sure that if a parent of `child` was parsed to not try to parse `child`
             continue
 
-        adapter = import_registry.get_import_data(child, partial=partial, namespaces=namespaces)
+        adapter = import_registry.get_import_data(
+            child,
+            partial=partial,
+            namespaces=namespaces,
+            aliases=aliases,
+        )
 
         if adapter:
             imports.add(adapter)

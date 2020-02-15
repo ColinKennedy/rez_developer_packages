@@ -14,7 +14,9 @@ from python_compatibility.testing import common
 class _Common(common.Common):
     """A base clsas used by other test classes."""
 
-    def _test(self, expected, code, namespaces, partial=False, aliases=False):
+    def _test(  # pylint: disable=too-many-arguments
+        self, expected, code, namespaces, partial=False, aliases=False
+    ):
         """Make a temporary file to test with and delete it later.
 
         Args:

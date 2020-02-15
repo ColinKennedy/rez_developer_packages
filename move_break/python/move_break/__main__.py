@@ -38,7 +38,8 @@ def _parse_arguments(text):
         "-p",
         "--partial-matches",
         action="store_true",
-        help="If an import brings in multiple namespaces at a time, ""the user-provided namespaces don't need to match all of the import.",
+        help="If an import brings in multiple namespaces at a time, "
+        "the user-provided namespaces don't need to match all of the import.",
     )
 
     parser.add_argument(
@@ -129,7 +130,7 @@ def main():
     paths = _expand_paths(arguments.path)
     namespaces = _expand_namespaces(arguments.namespaces)
     import_types = _expand_types(arguments.types)
-    allowed_import_types = choices=import_registry.get_plugin_types()
+    allowed_import_types = import_registry.get_plugin_types()
     remaining_types = import_types - allowed_import_types
 
     if remaining_types:

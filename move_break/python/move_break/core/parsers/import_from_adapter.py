@@ -57,7 +57,9 @@ class ImportFromAdapter(base_.BaseAdapter):
 
         base_names[0].parent.children[start : end + 1] = new_nodes
 
-    def _replace_base_and_parts_of_tail(self, node, old_parts, new_parts, base_names, prefix):
+    def _replace_base_and_parts_of_tail(  # pylint: disable=too-many-arguments
+        self, node, old_parts, new_parts, base_names, prefix
+    ):
         """Replace the first half of a from-import and any part of the end, if possible.
 
         Args:
