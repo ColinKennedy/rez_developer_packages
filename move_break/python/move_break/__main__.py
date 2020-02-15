@@ -57,7 +57,7 @@ def _parse_arguments(text):
     parser.add_argument(
         "-t",
         "--types",
-        choices=import_registry.get_plugin_types(),
+        default="",
         help="A comma-separated list of allowed import statements to replace.",
     )
 
@@ -78,8 +78,16 @@ def _expand_namespaces(text):
     """
     output = set()
 
-    for line in text:
-        old, new = line.split(",")
+    for line in text.splitlines():
+        try:
+            old, new = line.split(",")
+        except ValueError:
+            raise ValueError(
+                'Text "{text}" needs to have a comma to '
+                'separate the old and new namespace. Got "{line}".'
+                ''.format(text=text, line=line)
+            )
+
         output.add((old, new))
 
     return output
@@ -107,23 +115,41 @@ def _expand_paths(path):
     if os.path.isfile(path):
         return {path}
 
-    files = set()
+    output = set()
 
-    for root, files, _ in os.walk(path):
+    for root, _, files in os.walk(path):
         for path_ in files:
-            if not path_.endswith(".py"):
-                files.add(os.path.join(root, path_))
+            if path_.endswith(".py"):
+                output.add(os.path.join(root, path_))
 
-    return files
+    return output
+
+
+def _expand_types(text):
+    return set(filter(None, text.split(",")))
 
 
 def main():
     """Run the main execution of the current script."""
     arguments = _parse_arguments(sys.argv[1:])
     paths = _expand_paths(arguments.path)
-    namespaces = _expand_namespaces(arguments.namespace)
+    namespaces = _expand_namespaces(arguments.namespaces)
+    import_types = _expand_types(arguments.types)
+    allowed_import_types = choices=import_registry.get_plugin_types()
+    remaining_types = import_types - allowed_import_types
 
-    cli.move_imports(paths, namespaces, partial=arguments.partial_matches)
+    if remaining_types:
+        raise ValueError(
+            'Types "{remaining_types}" are not valid. '
+            'Allowed types are "{allowed_import_types}".'
+            ''.format(remaining_types=remaining_types, allowed_import_types=allowed_import_types))
+
+    cli.move_imports(
+        paths,
+        namespaces,
+        partial=arguments.partial_matches,
+        import_types=arguments.types,
+    )
 
 
 if __name__ == "__main__":

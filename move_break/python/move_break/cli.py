@@ -18,7 +18,7 @@ def _get_graph(path):
     return parso.parse(code)
 
 
-def move_imports(files, namespaces, partial=False):
+def move_imports(files, namespaces, partial=False, import_types=frozenset()):
     """Replace the imports of every given file.
 
     Not every path in `files` will actually be overwritten. Because
@@ -50,6 +50,9 @@ def move_imports(files, namespaces, partial=False):
         imports = parser.get_imports(graph, partial=partial, namespaces=namespaces)
 
         for statement, (old, new) in itertools.product(imports, namespaces):
+            if import_types and statement.get_type() not in import_types:
+                continue
+
             if old in statement:
                 statement.replace(old, new)
                 changed = True
