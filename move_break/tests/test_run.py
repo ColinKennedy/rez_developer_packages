@@ -302,7 +302,7 @@ class Imports(_Common):
     # #         )
     # #         """
     # #     )
-    #
+
     # def test_star(self):
     #     code = "from foo import *"
     #     namespaces = [("foo.bar", "something.parse")]
@@ -310,32 +310,34 @@ class Imports(_Common):
     #
     #     self._test(expected, code, namespaces, partial=True)
     #
-    # def test_test_partial(self):
-    #     code = textwrap.dedent(
-    #         """\
-    #         from foo.more import (
-    #             blah as whatever, bazz,
-    #             etc,
-    #             another_line as thing,
-    #                 bad_formatting
-    #         )
-    #         """
-    #     )
-    #     namespaces = [
-    #         ("foo.more.another_line", "new.namespace.new_name"),
-    #         ("foo.more.etc", "new.namespace.etc"),
-    #     ]
-    #     expected = textwrap.dedent(
-    #         """\
-    #         from new.namespace import etc as more, new_name as thing
-    #         from foo.more import (
-    #             blah as whatever, bazz,
-    #                 bad_formatting
-    #         )
-    #         """
-    #     )
-    #
-    #     self._test(expected, code, namespaces, partial=True)
+    def test_complex_partial(self):
+        """Check that difficult formatting still replaces the imports, correctly."""
+        code = textwrap.dedent(
+            """\
+            from foo.more import (
+                blah as whatever, bazz,
+                etc,
+                another_line as thing,
+                    bad_formatting
+            )
+            """
+        )
+        namespaces = [
+            ("foo.more.another_line", "new.namespace.new_name"),
+            ("foo.more.etc", "new.namespace.etc"),
+        ]
+        expected = textwrap.dedent(
+            """\
+            from new.namespace import (
+                blah as whatever, bazz,
+                etc,
+                another_line as thing,
+                    bad_formatting
+            )
+            """
+        )
+
+        self._test(expected, code, namespaces, partial=True)
 
 
 class PartialFrom(_Common):
