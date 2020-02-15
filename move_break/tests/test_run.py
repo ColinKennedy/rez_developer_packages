@@ -4,8 +4,6 @@
 """Check that setting / replacing imports works as expected."""
 
 # TODO : need to have unittests where the imports AREN'T changed
-# TODO : Add unittests to make sure splits respect leading whitespace
-
 import tempfile
 import textwrap
 
@@ -16,7 +14,7 @@ from python_compatibility.testing import common
 class _Common(common.Common):
     """A base clsas used by other test classes."""
 
-    def _test(self, expected, code, namespaces, partial=False):
+    def _test(self, expected, code, namespaces, partial=False, aliases=False):
         """Make a temporary file to test with and delete it later.
 
         Args:
@@ -35,6 +33,11 @@ class _Common(common.Common):
                 doesn't provide 100% of the namespace. If False, they must
                 describe the entire import namespace before it can be
                 renamed. Default is False.
+            aliases (bool, optional):
+                If True and replacing a namespace would cause Python
+                statements to fail, auto-add an import alias to ensure
+                backwards compatibility If False, don't add aliases. Default
+                is False.
 
         """
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False) as handler:
@@ -42,7 +45,7 @@ class _Common(common.Common):
 
         self.delete_item_later(handler.name)
 
-        cli.move_imports({handler.name}, namespaces, partial=partial)
+        cli.move_imports({handler.name}, namespaces, partial=partial, aliases=aliases)
 
         with open(handler.name, "r") as handler:
             new_code = handler.read()

@@ -35,6 +35,62 @@ class ImportFromAdapter(base_.BaseAdapter):
 
         return namespaces
 
+    @staticmethod
+    def _partially_replace_namespace(base_names, old_parts, new_parts, prefix):
+        """Replace part (but not all) of a from-import.
+
+        Args:
+            base_names (iter[:class:`parso.python.tree.Name`]):
+                The nodes that represent some Python import namespace.
+            old_parts (iter[str]):
+                Some tokens that should match with all or part of `names`,
+                in the same order. This parameter is used to figure out if
+                any part of `names` will be overwritten by other functions.
+            new_parts (list[str]):
+                The namespace to replace `node` with. e.g. ["foo", "bar"].
+            prefix (str):
+                Leading whitespace that will be added to the new import nodes.
+
+        """
+        start, end = import_helper.get_replacement_indices(base_names, old_parts)
+        new_nodes = import_helper.make_replacement_nodes(new_parts, prefix)
+
+        base_names[0].parent.children[start : end + 1] = new_nodes
+
+    def _replace_base_and_parts_of_tail(self, node, old_parts, new_parts, base_names, prefix):
+        """Replace the first half of a from-import and any part of the end, if possible.
+
+        Args:
+            node (:class:`parso.python.tree.ImportFrom`):
+                A parso object that represents a Python from-import.
+            old_parts (iter[str]):
+                Some tokens that should match with all or part of `names`,
+                in the same order. This parameter is used to figure out if
+                any part of `names` will be overwritten by other functions.
+            new_parts (list[str]):
+                The namespace to replace `node` with. e.g. ["foo", "bar"].
+            base_names (iter[:class:`parso.python.tree.Name`]):
+                The nodes that represent some Python import namespace.
+            prefix (str):
+                Leading whitespace that will be added to the new import nodes.
+
+        """
+        old_namespaces = {old for old, _ in self._namespaces}
+
+        if not self._partial and not _has_fully_described_namespace(self._get_namespaces(node), old_namespaces):
+            # We need to split the import statement in two
+            new_nodes = import_helper.make_replacement_nodes(new_parts[:-1], prefix)
+            children = _get_tail_children(node.children[3:])
+            _adjust_imported_names(old_parts[-1], new_parts, children)
+
+            return
+
+        # Replace "from foo.bar.thing import something"
+        new_nodes = import_helper.make_replacement_nodes(new_parts[:-1], prefix)
+        _fully_replace_base(base_names, new_nodes)
+        children = _get_tail_children(node.children[3:])
+        _maybe_replace_imported_names(old_parts[-1], new_parts[-1], children)
+
     def _replace(self, node, old_parts, new_parts):
         """Change `node` from `old_parts` to `new_parts`.
 
@@ -72,31 +128,14 @@ class ImportFromAdapter(base_.BaseAdapter):
             return
 
         if _old_parts_exceeds_base(base_names, old_parts):
-            old_namespaces = {old for old, _ in self._namespaces}
-
-            if not self._partial and not _has_fully_described_namespace(self._get_namespaces(node), old_namespaces):
-                # We need to split the import statement in two
-                new_nodes = import_helper.make_replacement_nodes(new_parts[:-1], prefix)
-                children = _get_tail_children(node.children[3:])
-                _adjust_imported_names(old_parts[-1], new_parts, children)
-
-                return
-
-            # Replace "from foo.bar.thing import something"
-            new_nodes = import_helper.make_replacement_nodes(new_parts[:-1], prefix)
-            _fully_replace_base(base_names, new_nodes)
-            children = _get_tail_children(node.children[3:])
-            _maybe_replace_imported_names(old_parts[-1], new_parts[-1], children)
+            self._replace_base_and_parts_of_tail(node, old_parts, new_parts, base_names, prefix)
 
             return
 
         if not self._partial:
             return
 
-        start, end = import_helper.get_replacement_indices(base_names, old_parts)
-        new_nodes = import_helper.make_replacement_nodes(new_parts, prefix)
-
-        base_names[0].parent.children[start : end + 1] = new_nodes
+        self._partially_replace_namespace(base_names, old_parts, new_parts, prefix)
 
     @staticmethod
     def is_valid(node):
@@ -119,6 +158,25 @@ class ImportFromAdapter(base_.BaseAdapter):
 
 
 def _has_fully_described_namespace(required_namespaces, user_provided_namespaces):
+    """Check if every namespace that needs to exist is in another list of namespaces.
+
+    If the user is doing a non-partial replacement, that means every namespace
+    that the from-import adds must have some old / new pair to be replaced with.
+
+    Args:
+        required_namespaces (iter[str]):
+            The Python dot-separated namespaces that must exist. These
+            namspaces should be every import that from a from-import.
+            e.g. "from foo import bar, bazz", this would be
+            {"foo.bar", "foo.bazz"}.
+        user_provided_namespaces (set[str]):
+            The Python dot-separated namespaces that a person should
+            have provided to the :class:`ImportFromAdapter`.
+
+    Returns:
+        bool: If every namespace in `required_namespaces` is in `user_provided_namespaces`.
+
+    """
     for namespace in required_namespaces:
         if namespace not in user_provided_namespaces:
             return False
@@ -146,8 +204,20 @@ def _fully_replace_base(base_names, nodes):
     parent.children[start : end + 1] = nodes
 
 
-# TODO : Double check what this function does
 def _maybe_replace_imported_names(old, new, nodes):
+    """Replace every node in `nodes` with `new`, if its text is `old`.
+
+    Args:
+        old (str):
+            The name of an import namespace that may be inside `nodes`.
+        new (str):
+            The namespace to replace `old` with, if it exists.
+        nodes (iter[:parso.python.tree.Name`]):
+            The ends of a from-import to potentially replace.
+            e.g. with an import like "from foo import bar, thing",
+            this would be [tree.Name("bar"), tree.Name("thing")].
+
+    """
     for current_ending_node in nodes:
         if current_ending_node.value == old:
             current_ending_node.value = new
@@ -174,6 +244,20 @@ def _get_base_names(base):
 
 
 def _get_tail_children(nodes):
+    """Get the tail namespaces of a from-import.
+
+    In other words, from "from foo import bar, thing", get the "bar" and "thing".
+
+    Args:
+        nodes (iter[:class:`parso.python.tree.PythonBaseNode`]):
+            All parso objects that represent a Python from-import's
+            tail. It may contain commas and other syntax-specific parts.
+            But this will all be filtered out before being returned.
+
+    Returns:
+        list[:class:`parso.python.tree.PythonBaseNode`]: The found tail nodes.
+
+    """
     children = []
 
     for node in nodes:
@@ -225,6 +309,12 @@ def _old_parts_exceeds_base(base_names, parts):
 
 
 def _remove_comma(node):
+    """Delete a sibling comma, assuming that `node` comes from a from-import.
+
+    Args:
+        node (:class:`parso.python.tree.Name`): Some part of a Python from-import.
+
+    """
     parent = node.parent
     index = parent.children.index(node)
 
@@ -241,7 +331,19 @@ def _remove_comma(node):
 
 
 def _adjust_imported_names(old, new_namespace, nodes):
+    """Split a from-import into 2 separate import statements.
+
+    Args:
+        old (str):
+            The tail of a from-import which will be split into its own import.
+        new_namespace (list[str]):
+            The items to use for a new import e.g. ["foo", "bar"].
+        nodes (iter[:class:`parso.python.tree.Name`]):
+            The tail of a from-import whose import namespaces will be split.
+
+    """
     def _get_import_from(node):
+        """Get the :class:`parso.python.tree.ImportFrom` parent of `node`."""
         previous = None
 
         while previous != node:
@@ -254,6 +356,7 @@ def _adjust_imported_names(old, new_namespace, nodes):
         return None
 
     def _adjust_prefix(node):
+        """Put `node` on its own line but retain its original leading indent."""
         prefix_node = node_seek.get_node_with_first_prefix(node)
         original = prefix_node.prefix
         prefix_node.prefix = "\n{original}".format(original=original)
@@ -261,6 +364,18 @@ def _adjust_imported_names(old, new_namespace, nodes):
         return original
 
     def _make_import(namespace_parts, prefix=""):
+        """Make a new from-import node and insert it into an existing parso graph.
+
+        Args:
+            namespace_parts (list[str]):
+                The import that will be converted into a parso from-import node.
+            prefix (str, optional):
+                The leading whitespace (indentation) placed before the new import.
+
+        Returns:
+            :class:`parso.python.tree.ImportFrom`: A newly generated import statement.
+
+        """
         base_names = namespace_parts[:-1]
         base_count = len(base_names)
         base_nodes = []
@@ -286,6 +401,7 @@ def _adjust_imported_names(old, new_namespace, nodes):
         ])
 
     def _add_new_import(node, new_namespace):
+        """Add a new from-import of `new_namespace` as a sibling of `node`."""
         import_from = _get_import_from(node)
         parent = import_from.parent
         index = parent.children.index(import_from)
