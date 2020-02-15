@@ -70,6 +70,39 @@ class _Common(common.Common):
 #             self._test(expected, code, namespaces, partial=True)
 
 
+class Aliases(_Common):
+    """Add aliases to import statements."""
+
+    def test_from_001(self):
+        """Add an alias to a "nested" from-import."""
+        code = "from foo.bar import thing"
+        namespaces = [("foo.bar.thing", "something.parse.blah")]
+        expected = "from something.parse import blah as thing"
+
+        self._test(expected, code, namespaces, partial=True, aliases=True)
+
+    def test_from_002(self):
+        """Add an alias to a "flat" from-import."""
+        code = "from foo import thing"
+        namespaces = [("foo.thing", "something.parse")]
+        expected = "from something import parse as thing"
+
+        self._test(expected, code, namespaces, partial=True, aliases=True)
+
+    def test_from_003(self):
+        """Add an alias to a split from-import."""
+        code = "from foo.thing import another, one"
+        namespaces = [("foo.thing.another", "something.parse")]
+        expected = textwrap.dedent(
+            """\
+            from something import parse as another
+            from foo.thing import one
+            """
+        )
+
+        self._test(expected, code, namespaces, partial=True, aliases=True)
+
+
 class Imports(_Common):
     """A class to check if import replacement works correctly."""
 
