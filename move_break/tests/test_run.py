@@ -193,6 +193,42 @@ class Imports(_Common):
 
         self._test(expected, code, namespaces, partial=True)
 
+    def test_parentheses_import_001(self):
+        """Replace a single-namespace import that uses parentheses."""
+        code = "from thing.something import (parse as blah)"
+        namespaces = [("thing.something.parse", "another.jpeg.many.items")]
+        expected = "from another.jpeg.many import (items as blah)"
+
+        self._test(expected, code, namespaces, partial=True)
+
+    def test_parentheses_import_002(self):
+        """Replace a multi-namespace import that uses parentheses."""
+        code = "from thing.something import (parse as blah, more_items)"
+        namespaces = [("thing.something.parse", "another.jpeg.many.items")]
+        expected = "from another.jpeg.many import (items as blah, more_items)"
+
+        self._test(expected, code, namespaces, partial=True)
+
+    def test_parentheses_import_003(self):
+        """Replace a multi-namespace import that uses parentheses and whitespace."""
+        code = textwrap.dedent(
+            """\
+            from thing.something import (
+                parse as blah,
+                    more_items)
+            """
+        )
+        namespaces = [("thing.something.parse", "another.jpeg.many.items")]
+        expected = textwrap.dedent(
+            """\
+            from another.jpeg.many import (
+                items as blah,
+                    more_items)
+            """
+        )
+
+        self._test(expected, code, namespaces, partial=True)
+
     def test_commas(self):
         """Replace multiple imports at once."""
         code = "import something, lots.of.items, another, os.path, textwrap"
@@ -366,7 +402,7 @@ class Imports(_Common):
             from new.namespace import (
                 blah as whatever, bazz,
                 etc,
-                another_line as thing,
+                new_name as thing,
                     bad_formatting
             )
             """

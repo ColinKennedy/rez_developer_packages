@@ -190,6 +190,19 @@ def _has_fully_described_namespace(required_namespaces, user_provided_namespaces
     return True
 
 
+def _is_alias(node):
+    parent = node.parent
+    index = parent.children.index(node)
+    siblings = parent.children[:index]
+
+    if not siblings:
+        return False
+
+    keyword = siblings[-1]
+
+    return isinstance(keyword, tree.Keyword) and keyword.value == "as"
+
+
 def _fully_replace_base(base_names, nodes):
     """Replace ever node in `base_names` with a new Python namespace.
 
@@ -224,9 +237,28 @@ def _maybe_replace_imported_names(old, new, nodes):
             this would be [tree.Name("bar"), tree.Name("thing")].
 
     """
+
+    def _get_inner_children(node):
+        children = []
+
+        for child in node_seek.iter_nested_children(node):
+            if not _is_alias(child):
+                children.append(child)
+
+        return children
+
     for current_ending_node in nodes:
-        if current_ending_node.value == old:
-            current_ending_node.value = new
+        if isinstance(current_ending_node, tree.Name):
+            if current_ending_node.value == old:
+                current_ending_node.value = new
+
+            continue
+
+        children = _get_inner_children(current_ending_node)
+
+        for node in children:
+            if node.value == old:
+                node.value = new
 
 
 def _get_base_names(base):
@@ -267,12 +299,12 @@ def _get_tail_children(nodes):
     children = []
 
     for node in nodes:
-        if isinstance(node, tree.PythonNode) and node.type == "import_as_names":
-            children.extend(
-                [child for child in node.children if isinstance(child, tree.Name)]
-            )
-        else:
+        if isinstance(node, tree.Name):
             children.append(node)
+        else:
+            for child in node_seek.iter_nested_children(node):
+                if isinstance(child, tree.Name) and not _is_alias(child):
+                    children.append(child)
 
     return children
 
