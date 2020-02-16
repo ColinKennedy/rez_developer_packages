@@ -6,7 +6,7 @@
 import tempfile
 import textwrap
 
-from move_break import cli
+from move_break import mover
 from python_compatibility.testing import common
 
 
@@ -46,7 +46,7 @@ class _Common(common.Common):
 
         self.delete_item_later(handler.name)
 
-        cli.move_imports({handler.name}, namespaces, partial=partial, aliases=aliases)
+        mover.move_imports({handler.name}, namespaces, partial=partial, aliases=aliases)
 
         with open(handler.name, "r") as handler:
             new_code = handler.read()
