@@ -9,12 +9,16 @@ import unittest
 from python_compatibility.testing import common
 from rez_move_imports import cli
 
-# TODO : Add unittests that checks for bad arguments
-# TODO : Need 2 unittests for --use-pythonpath. One where it doesn't do a replace because the module isn't in the right spot and one that does
-
 
 class Integrations(common.Common):
+    """Make sure the CLI works as-expected."""
+
     def test_no_replace_and_no_deprecate(self):
+        """Don't replace any imports because none of the namespaces are found.
+
+        And since no namespaces were changed, the Rez package.py should, either.
+
+        """
         directory = tempfile.mkdtemp(suffix="_test_no_replace_and_no_deprecate")
         self.delete_item_later(directory)
 
@@ -58,6 +62,7 @@ class Integrations(common.Common):
         self.assertEqual(text, unchanged_code)
 
     def test_replace_and_deprecate(self):
+        """Replace the imports of the Python modules in a package and then change the package."""
         directory = tempfile.mkdtemp(suffix="_test_replace_and_deprecate")
         self.delete_item_later(directory)
 
@@ -143,6 +148,14 @@ class Integrations(common.Common):
         self.assertEqual(expected_code, code)
 
     def test_replace_and_no_deprecate(self):
+        """Replace the imports of the Python modules in a package but don't change the package.
+
+        We don't deprecate the original package because there
+        is still an import tied to the package that we tried to
+        deprecate in-use. And because it's there, we cannot replace
+        old_dependency_package.
+
+        """
         directory = tempfile.mkdtemp(suffix="_test_replace_and_no_deprecate")
         self.delete_item_later(directory)
 

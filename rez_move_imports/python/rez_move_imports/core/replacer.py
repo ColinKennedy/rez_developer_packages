@@ -70,7 +70,6 @@ def _remove_deprecated_packages(package, namespaces, deprecate):
         handler.write(new_code)
 
 
-# TODO : Move this to a separate module
 def replace(package, configuration, requirements, deprecate):
     # Replace Python imports in all of the paths in `configuration`
     overwritten_paths = move_break_api.move_imports(
