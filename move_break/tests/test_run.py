@@ -3,7 +3,6 @@
 
 """Check that setting / replacing imports works as expected."""
 
-# TODO : need to have unittests where the imports AREN'T changed
 import tempfile
 import textwrap
 

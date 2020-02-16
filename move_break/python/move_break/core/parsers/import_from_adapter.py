@@ -461,7 +461,6 @@ def _adjust_imported_names(old, new_namespace, nodes):
                 if not is_last:
                     base_nodes.append(tree.Operator(".", (0, 0)))
 
-            # TODO : Need a unittest for this block
             base_nodes[0].prefix = " "
             base = tree.PythonNode("dotted_name", base_nodes)
         else:
