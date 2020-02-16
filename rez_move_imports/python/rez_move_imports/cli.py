@@ -1,19 +1,30 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""The main module that parses the user's CLI input so ``rez_move_imports`` can work."""
+
 import argparse
 import collections
 import os
 import shlex
 
 from move_break import cli
-from rez import packages_
+from rez.vendor.version import requirement
 from rez_utilities import inspection
 
 from .core import replacer
 
 
 def _parse_arguments(text):
+    """Split the user-provided text into Python objects.
+
+    Args:
+        text (list[str]): The raw CLI input, split by spaces.
+
+    Returns:
+        :class:`argparse.Namespace`: The user's text, split into Python objects.
+
+    """
     parser = argparse.ArgumentParser(
         description="Change a Rez package's imports and then bump the require Rez version(s)."
     )
@@ -49,6 +60,18 @@ def _parse_arguments(text):
 
 
 def _split_package_and_namespaces(package_and_namespaces):
+    """Split a comma-separated list into non-empty sections.
+
+    Args:
+        package_and_namespaces (str):
+            A Rez package definition + the Python
+            dot-separated import namespaces.
+            e.g. "some_package-2,some_package.import_namespace.here,another.one".
+
+    Returns:
+        list[str]: The split items.
+
+    """
     parts = []
 
     for item in package_and_namespaces.split(","):
@@ -61,6 +84,21 @@ def _split_package_and_namespaces(package_and_namespaces):
 
 
 def _expand(items):
+    """Group every Rez and Python dot-separated Python namespaces.
+
+    Args:
+        items (iter[str]):
+            Each Rez package definition + the Python
+            dot-separated import namespaces.
+            e.g. ["some_package-2,some_package.import_namespace.here,another.one"].
+
+    Returns:
+        list[tuple[:class:`rez.vendor.version.requirement.Requirement`, set[str]]]:
+            Each user-provided Rez package and Python dot-separated
+            import namespaces that the user wants ``rez_move_imports``
+            to remember during the execution of the CLI.
+
+    """
     output = collections.defaultdict(set)
 
     for package_and_namespaces in items:
@@ -68,12 +106,24 @@ def _expand(items):
         package = parts[0]
         namespaces = parts[1:]
 
+        package = requirement.Requirement(package)
         output[package].update(namespaces)
 
     return list(output.items())
 
 
 def _make_absolute(path):
+    """Convert `path` into an absolute file path.
+
+    If `path` is a relative path, resolve it using the current working directory.
+
+    Args:
+        path (str): Some absolute or relative file / folder path to convert.
+
+    Returns:
+        str: An absolute file / folder path.
+
+    """
     if os.path.isabs(path):
         return path
 
@@ -83,15 +133,28 @@ def _make_absolute(path):
 
 
 def _clean(item):
+    """Remove any leading or trailing ""s from `item`."""
     return shlex.split(item)[0]
 
 
 def _clean_items(text):
+    """Remove any leading or trailing ""s from `text`."""
     return [_clean(item) for item in text]
 
 
 def main(text):
-    # """Run the main execution of the current script."""
+    """Run the main execution of the current script.
+
+    Args:
+        text (list[str]): The raw CLI input, split by spaces.
+
+    Raises:
+        ValueError:
+            If the user provides a directory to find a Rez package but
+            the directory doesn't exist or there isn't a Rez package in
+            the directory.
+
+    """
     arguments = _parse_arguments(text)
     requirements = _expand(_clean_items(arguments.requirements))
     deprecate = _expand(_clean_items(arguments.deprecate))
