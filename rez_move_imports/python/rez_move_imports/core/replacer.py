@@ -12,34 +12,6 @@ from python_compatibility import dependency_analyzer
 from rez_industry import api
 
 
-def _is_matching_namespace(part, options):
-    """Check if a Python namespace defines a parent namespace of `options`.
-
-    Args:
-        part (str):
-            Some Python dot-separated namespace like "foo.bar".
-        options (iter[str]):
-            More Python dot-separated namespaces that may include `part`
-            exactly like "foo.bar" or have a child namespace like
-            "foo.bar.thing".
-
-    Returns:
-        bool:
-            If `part` matches any namespace in `options` exactly or if
-            any namespace in `options` starts with `part`.
-
-    """
-    for option in options:
-        # Important, we add the trailing "." before running startswith
-        # because we don't want similarly-named packages from returning
-        # false-positives.
-        #
-        if part == option or part.startswith(option.rstrip(".") + "."):
-            return True
-
-    return False
-
-
 def _is_package_needed(user_namespaces, all_namespaces):
     """Check if a Rez package's Python imports have anything in common with `all_namespaces`.
 
@@ -63,7 +35,7 @@ def _is_package_needed(user_namespaces, all_namespaces):
 
     """
     for namespace in all_namespaces:
-        if _is_matching_namespace(namespace, user_namespaces):
+        if is_matching_namespace(namespace, user_namespaces):
             return True
 
     return False
@@ -165,7 +137,35 @@ def _remove_deprecated_packages(package, namespaces, deprecate):
         handler.write(new_code)
 
 
-def replace(package, configuration, requirements, deprecate):
+def is_matching_namespace(part, options):
+    """Check if a Python namespace defines a parent namespace of `options`.
+
+    Args:
+        part (str):
+            Some Python dot-separated namespace like "foo.bar".
+        options (iter[str]):
+            More Python dot-separated namespaces that may include `part`
+            exactly like "foo.bar" or have a child namespace like
+            "foo.bar.thing".
+
+    Returns:
+        bool:
+            If `part` matches any namespace in `options` exactly or if
+            any namespace in `options` starts with `part`.
+
+    """
+    for option in options:
+        # Important, we add the trailing "." before running startswith
+        # because we don't want similarly-named packages from returning
+        # false-positives.
+        #
+        if part == option or part.startswith(option.rstrip(".") + "."):
+            return True
+
+    return False
+
+
+def replace(package, configuration, deprecate, requirements):
     """Replace as many Rez packages listed in `deprecate` with those listed in `requirements`.
 
     These packages get added / removed from `package` and written
@@ -186,14 +186,14 @@ def replace(package, configuration, requirements, deprecate):
             The user-provided options to the `move_break` package. It
             controls which Python modules will get their imports changed
             and how the imports will be changed.
-        requirements (iter[tuple[:class:`rez.vendor.version.requirement.Requirement`, tuple[str]]]):
-            Each Rez package that we'd like to add as dependencies to
-            `package` followed by the Python dot-separated namespaces
-            that each Rez package defines.
         deprecate (iter[tuple[:class:`rez.vendor.version.requirement.Requirement`, tuple[str]]]):
             Each Rez package that is (assumed to already be) a
             dependency of `package` and the Python import namespaces
             that the package takes up.
+        requirements (iter[tuple[:class:`rez.vendor.version.requirement.Requirement`, tuple[str]]]):
+            Each Rez package that we'd like to add as dependencies to
+            `package` followed by the Python dot-separated namespaces
+            that each Rez package defines.
 
     """
     # Replace Python imports in all of the paths in `configuration`

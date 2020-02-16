@@ -12,7 +12,7 @@ from move_break import cli
 from rez.vendor.version import requirement
 from rez_utilities import inspection
 
-from .core import replacer
+from .core import exception, replacer
 
 
 def _parse_arguments(text):
@@ -142,6 +142,55 @@ def _clean_items(text):
     return [_clean(item) for item in text]
 
 
+def _check_namespaces(namespaces, deprecate, requirements):
+    """Make sure that every Python namespace is linked to a Rez package.
+
+    Args:
+        namespaces (list[tuple[str, str]]):
+            Python dot-separated namespaces that need to be changed.
+            Each tuple is the existing namespace and the namespace that
+            should replace it.
+        deprecate (iter[tuple[str]]):
+            The Python import namespaces of a Rez package that we are trying to remove.
+        requirements (iter[tuple[str]]):
+            The Python import namespaces of a Rez package that we are trying to add.
+
+    Raises:
+        :class:`.MissingNamespaces`:
+            If any Python dot-separated import in `namespaces` was missing
+            in `deprecate` or `requirements`.
+
+    """
+    def _is_included(namespace, namespaces):
+        for package_namespaces in namespaces:
+            if replacer.is_matching_namespace(namespace, package_namespaces):
+                return True
+
+        return False
+
+    missing_olds = set()
+    missing_news = set()
+
+    for old_namespace, new_namespace in namespaces:
+        if not _is_included(old_namespace, deprecate):
+            missing_olds.add(old_namespace)
+
+        if not _is_included(new_namespace, requirements):
+            missing_news.add(new_namespace)
+
+    if missing_olds:
+        raise exception.MissingNamespaces(
+            'Python namespaces "{namespaces}" are defined but not linked to a Rez package. '
+            'Please add them to --deprecate'.format(namespaces=sorted(missing_olds))
+        )
+
+    if missing_news:
+        raise exception.MissingNamespaces(
+            'Python namespaces "{namespaces}" are defined but not linked to a Rez package. '
+            'Please add them to --requirements'.format(namespaces=sorted(missing_olds))
+        )
+
+
 def main(text):
     """Run the main execution of the current script.
 
@@ -156,6 +205,7 @@ def main(text):
 
     """
     arguments = _parse_arguments(text)
+
     requirements = _expand(_clean_items(arguments.requirements))
     deprecate = _expand(_clean_items(arguments.deprecate))
     package_directory = _make_absolute(_clean(arguments.package_directory))
@@ -173,4 +223,11 @@ def main(text):
     #
     command = shlex.split(arguments.command)[0]
     command_configuration = cli.parse_arguments(shlex.split(command))
-    replacer.replace(package, command_configuration, requirements, deprecate)
+
+    _check_namespaces(
+        command_configuration.namespaces,
+        [namespaces for _, namespaces in deprecate],
+        [namespaces for _, namespaces in requirements],
+    )
+
+    replacer.replace(package, command_configuration, deprecate, requirements)
