@@ -229,6 +229,28 @@ class Imports(_Common):
 
         self._test(expected, code, namespaces, partial=True)
 
+    def test_parentheses_import_004(self):
+        """Replace a multi-namespace import that uses parentheses and whitespace."""
+        code = textwrap.dedent(
+            """\
+            from thing.something import (
+                parse as blah,
+                    more_items
+            )
+            """
+        )
+        namespaces = [("thing.something.parse", "another.jpeg.many.items")]
+        expected = textwrap.dedent(
+            """\
+            from another.jpeg.many import (
+                items as blah,
+                    more_items
+            )
+            """
+        )
+
+        self._test(expected, code, namespaces, partial=True)
+
     def test_commas(self):
         """Replace multiple imports at once."""
         code = "import something, lots.of.items, another, os.path, textwrap"
