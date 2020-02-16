@@ -16,7 +16,10 @@ _ADAPTERS = {
 
 def _validate(attribute, data, code):
     if not data:
-        raise ValueError('Object "{data}" cannot be empty.'.format(data=data))
+        raise ValueError(
+            'Data "{data}" cannot be empty. Attribute "{attribute}" will not be modified.'
+            ''.format(data=data, attribute=attribute)
+        )
 
     try:
         adapter_class = _ADAPTERS[attribute]

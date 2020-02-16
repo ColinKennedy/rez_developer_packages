@@ -178,6 +178,14 @@ def replace(package, configuration, requirements, deprecate):
     dependencies to `package`, either.
 
     Args:
+        package (:class:`rez.packges_.DeveloperPackage`):
+            Some Rez package whose requirements may change as a result
+            of this function getting ran. Requirements that originally
+            existed may be removed. New requirements may be added.
+        configuration (:attr:`move_break.cli.Configuration`):
+            The user-provided options to the `move_break` package. It
+            controls which Python modules will get their imports changed
+            and how the imports will be changed.
         requirements (iter[tuple[:class:`rez.vendor.version.requirement.Requirement`, tuple[str]]]):
             Each Rez package that we'd like to add as dependencies to
             `package` followed by the Python dot-separated namespaces
