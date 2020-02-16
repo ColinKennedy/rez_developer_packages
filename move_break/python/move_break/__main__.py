@@ -7,7 +7,7 @@ import argparse
 import os
 import sys
 
-from . import cli
+from . import mover
 from .core import import_registry
 
 _CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
@@ -125,9 +125,19 @@ def _expand_types(text):
     return set(filter(None, text.split(",")))
 
 
-def main():
-    """Run the main execution of the current script."""
-    arguments = _parse_arguments(sys.argv[1:])
+def main(text):
+    """Run the main execution of the current script.
+
+    Args:
+        text (list[str]):
+            The user-provided tokens from command-line. It's the user's
+            raw input but split by-spaces.
+
+    Raises:
+        ValueError: If the user gives an unsupported import type.
+
+    """
+    arguments = _parse_arguments(text)
     paths = set()
 
     for path in arguments.paths:
@@ -148,7 +158,7 @@ def main():
             )
         )
 
-    cli.move_imports(
+    mover.move_imports(
         paths,
         namespaces,
         partial=arguments.partial_matches,
@@ -158,4 +168,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])
