@@ -720,19 +720,19 @@ class PartialFrom(_Common):
         expected = "from blah import another as more, thing"
         self._test(expected, code, namespaces, partial=True)
 
-    # def test_alias_002(self):
-    #     """Split an aliases from-import into its own separate import."""
-    #     code = "from foo.block.items import another as more, thing"
-    #     namespaces = [("foo.block.items.another", "blah.something_else")]
-    #     expected = textwrap.dedent(
-    #         """\
-    #         from blah import something_else as more
-    #         from foo.block.items import thing"""
-    #     )
-    #
-    #     self._test(expected, code, namespaces, partial=False)
-    #     expected = "from blah import another as more, thing"
-    #     self._test(expected, code, namespaces, partial=True)
+    def test_alias_002(self):
+        """Split an aliases from-import into its own separate import."""
+        code = "from foo.block.items import another as more, thing"
+        namespaces = [("foo.block.items.another", "blah.something_else")]
+        expected = textwrap.dedent(
+            """\
+            from blah import something_else as more
+            from foo.block.items import thing"""
+        )
+
+        self._test(expected, code, namespaces, partial=False)
+        expected = "from blah import something_else as more, thing"
+        self._test(expected, code, namespaces, partial=True)
 
 
 class PartialImport(_Common):
