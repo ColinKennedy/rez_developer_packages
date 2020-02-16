@@ -162,6 +162,31 @@ class ImportFromAdapter(base_.BaseAdapter):
         """str: An identifier used to categorize instances of this class."""
         return "import_from"
 
+    def __contains__(self, namespace):
+        """Check if this instance defines a given Python dot-separated namespace.
+
+        If the node stored in this instance is a star import like "from
+        foo import *" then even if `namespace` only matches the base
+        (non-star) part then this method will return True.
+
+        Args:
+            namespace (str): A Python dot-separated import string. Such as "foo.bar".
+
+        Returns:
+            bool: If this instance contains `namespace`.
+
+        """
+        if super(ImportFromAdapter, self).__contains__(namespace):
+            return True
+
+        if not self._node.is_star_import():
+            return False
+
+        # Get the namespace but without the "*" at the end
+        base_namespace = ".".join(namespace.split(".")[:-1])
+
+        return base_namespace in self._get_namespaces(self._node)
+
 
 def _has_fully_described_namespace(required_namespaces, user_provided_namespaces):
     """Check if every namespace that needs to exist is in another list of namespaces.

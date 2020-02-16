@@ -463,50 +463,72 @@ class Imports(_Common):
     #     """Check that complicated whitespace still replaces imports correctly."""
     #     code = textwrap.dedent(
     #         """\
-    #         from foo import bar
-    #         from foo.bar import thing
-    #         from foo.thing.another import blah as whatever, bazz, etc as more \
-    #             another_line as thing, \
-    #                 bad_formatting
-    #         from something.parse import (
+    #         from something.parso import (
     #             blah as whatever, bazz,
     #             etc as more,
-    #             another_line as thing,
-    #                 bad_formatting
+    #                     another_line as thing,
+    #                 bad_formatting,
     #         )
     #         """
     #     )
     #
     #     namespaces = [
-    #         ("something.parse.blah", "a_new.namespace_here"),
+    #         ("something.parso.blah", "a_new.namespace_here"),
     #         ("something.parso.etc", "etc.dedicated.namespace"),
     #     ]
     #
     #     expected = textwrap.dedent(
     #         """\
-    #         from foo import bar
-    #         from foo.bar import thing
-    #         from foo.thing.another import blah as whatever, bazz, etc as more \
-    #             another_line as thing, \
-    #                 bad_formatting
     #         from a_new import namespace_here as whatever
     #         from etc.dedicated import namespace as more
-    #         from something.parse import (
+    #         from something.parso import (
     #             bazz,
-    #             another_line as thing,
-    #                 bad_formatting
+    #                     another_line as thing,
+    #                 bad_formatting,
     #         )
     #         """
     #     )
     #
     #     self._test(expected, code, namespaces, partial=False)
 
-    # def test_star(self):
-    #     code = "from foo import *"
-    #     namespaces = [("foo.bar", "something.parse")]
-    #     expected = "from something import *"
+    # def test_from_complex(self):
+    #     """Check that complicated whitespace still replaces imports correctly."""
+    #     code = textwrap.dedent(
+    #         """\
+    #         from something.parse import (
+    #             bazz,
+    #             etc as more,
+    #             another_line as thing,
+    #                 bad_formatting,
+    #         )
+    #         """
+    #     )
     #
-    #     self._test(expected, code, namespaces, partial=True)
+    #     namespaces = [
+    #         ("something.parse.etc", "etc.dedicated.namespace"),
+    #         ("something.parse.bad_formatting", "a_new.namespace_here"),
+    #     ]
+    #
+    #     expected = textwrap.dedent(
+    #         """\
+    #         from a_new import namespace_here as whatever
+    #         from etc.dedicated import namespace
+    #         from something.parse import (
+    #             bazz,
+    #             another_line as thing,
+    #         )
+    #         """
+    #     )
+    #
+    #     self._test(expected, code, namespaces, partial=False)
+
+    def test_star(self):
+        """Replace a star-import."""
+        code = "from foo import *"
+        namespaces = [("foo.bar", "something.parse")]
+        expected = "from something import *"
+
+        self._test(expected, code, namespaces, partial=True)
 
     def test_complex_partial(self):
         """Check that difficult formatting still replaces the imports, correctly."""
