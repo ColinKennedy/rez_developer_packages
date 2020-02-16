@@ -125,17 +125,17 @@ def _expand_types(text):
 
 
 def main(text):
-    """Run the main execution of the current script.
-
-    Args:
-        text (list[str]):
-            The user-provided tokens from command-line. It's the user's
-            raw input but split by-spaces.
-
-    Raises:
-        ValueError: If the user gives an unsupported import type.
-
-    """
+    # """Run the main execution of the current script.
+    #
+    # Args:
+    #     text (list[str]):
+    #         The user-provided tokens from command-line. It's the user's
+    #         raw input but split by-spaces.
+    #
+    # Raises:
+    #     ValueError: If the user gives an unsupported import type.
+    #
+    # """
     arguments = _parse_arguments(text)
     paths = set()
 
