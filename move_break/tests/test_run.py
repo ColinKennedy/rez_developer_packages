@@ -757,6 +757,40 @@ class PartialFrom(_Common):
 
         self._test(expected, code, namespaces, partial=True)
 
+    def test_replace_indentation(self):
+        """Make sure replacing import doesn't cause indentation issues."""
+        code = textwrap.dedent(
+            """\
+            if True:
+                from foo.block.items import another, thing
+
+                    if True:
+                        import foo.bar.bazz
+
+                if False:
+                    import something_else
+            """
+        )
+
+        namespaces = [
+            ("foo.block", "blah"),
+            ("something_else", "new"),
+        ]
+        expected = textwrap.dedent(
+            """\
+            if True:
+                from blah.items import another, thing
+
+                    if True:
+                        import foo.bar.bazz
+
+                if False:
+                    import new
+            """
+        )
+
+        self._test(expected, code, namespaces, partial=True)
+
     def test_split_001(self):
         """If you describe one namespace of an import but not the other, make another import."""
         code = "from foo.block.items import another, thing"
