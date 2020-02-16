@@ -3,7 +3,12 @@
 
 import argparse
 import collections
+import os
 import shlex
+
+from move_break import cli
+from rez import packages_
+from rez_utilities import inspection
 
 from .core import replacer
 
@@ -32,6 +37,12 @@ def _parse_arguments(text):
         "--use-pythonpath",
         action="store_true",
         help="Search for python files only within PYTHONPATH instead of the whole Rez package.",
+    )
+    parser.add_argument(
+        "-p",
+        "--package-directory",
+        default=".",
+        help="The path (relative to absolute) to the Rez package that will be modified.",
     )
 
     return parser.parse_args(text)
@@ -62,10 +73,41 @@ def _expand(items):
     return list(output.items())
 
 
+def _make_absolute(path):
+    if os.path.isabs(path):
+        return path
+
+    current = os.getcwd()
+
+    return os.path.normcase(os.path.join(current, path))
+
+
+def _clean(item):
+    return shlex.split(item)[0]
+
+
+def _clean_items(text):
+    return [_clean(item) for item in text]
+
+
 def main(text):
     # """Run the main execution of the current script."""
     arguments = _parse_arguments(text)
-    requirements = _expand(arguments.requirements)
-    deprecate = _expand(arguments.deprecate)
+    requirements = _expand(_clean_items(arguments.requirements))
+    deprecate = _expand(_clean_items(arguments.deprecate))
+    package_directory = _make_absolute(_clean(arguments.package_directory))
+    package = inspection.get_nearest_rez_package(package_directory)
 
-    replacer.replace(shlex.split(arguments.command), requirements, deprecate)
+    if not package:
+        raise ValueError(
+            'Directory "{package_directory}" does not define a Rez package.'
+            ''.format(package_directory=package_directory)
+        )
+
+    # We have to split `arguments.command` twice. Once to get rid of the
+    # surrounding ""s and the second time to actually split the tokens
+    # into pieces.
+    #
+    command = shlex.split(arguments.command)[0]
+    command_configuration = cli.parse_arguments(shlex.split(command))
+    replacer.replace(package, command_configuration, requirements, deprecate)
