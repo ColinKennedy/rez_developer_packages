@@ -222,6 +222,226 @@ class DontChange(_Common):
         self._test(expected, code, namespaces, partial=False)
 
 
+class Backslashes(_Common):
+    r"""Check that imports-with-"\"s still replace as expected."""
+
+    def test_001(self):
+        """Replace imports with backslashes."""
+        code = textwrap.dedent(
+            """\
+            import os.path, \\
+                textwrap
+            """
+        )
+
+        namespaces = [("textwrap", "another")]
+
+        expected = textwrap.dedent(
+            """\
+            import os.path, \\
+                another
+            """
+        )
+
+        self._test(expected, code, namespaces, partial=False)
+
+    def test_002(self):
+        """Replace imports with backslashes."""
+        code = textwrap.dedent(
+            """\
+            import os.path, \\
+                    textwrap
+            """
+        )
+
+        namespaces = [("os.path", "another")]
+
+        expected = textwrap.dedent(
+            """\
+            import another, \\
+                    textwrap
+            """
+        )
+
+        self._test(expected, code, namespaces, partial=False)
+
+    def test_003(self):
+        """Replace imports with backslashes."""
+        code = textwrap.dedent(
+            """\
+            import os.path, \\
+                    textwrap \\
+                another
+            """
+        )
+
+        namespaces = [("textwrap", "thing")]
+
+        expected = textwrap.dedent(
+            """\
+            import os.path, \\
+                    thing \\
+                another
+            """
+        )
+
+        self._test(expected, code, namespaces, partial=False)
+
+    def test_004(self):
+        """Replace imports with backslashes."""
+        code = textwrap.dedent(
+            """\
+            import os.path, \\
+                    textwrap
+            """
+        )
+
+        namespaces = [("os", "another")]
+
+        expected = textwrap.dedent(
+            """\
+            import another.path, \\
+                    textwrap
+            """
+        )
+
+        self._test(expected, code, namespaces, partial=True)
+
+    def test_from_001(self):
+        """Replace imports with backslashes."""
+        code = textwrap.dedent(
+            """\
+            from thing import path, \\
+                textwrap
+            """
+        )
+
+        namespaces = [("thing.textwrap", "blah.another")]
+
+        expected = textwrap.dedent(
+            """\
+            from blah import path, \\
+                another
+            """
+        )
+
+        self._test(expected, code, namespaces, partial=True)
+
+    def test_from_002(self):
+        """Replace imports with backslashes."""
+        code = textwrap.dedent(
+            """\
+            from blah import path, \\
+                    textwrap
+            """
+        )
+
+        namespaces = [("blah.path", "another.thingy")]
+
+        expected = textwrap.dedent(
+            """\
+            from another import thingy, \\
+                    textwrap
+            """
+        )
+
+        self._test(expected, code, namespaces, partial=True)
+
+        expected = textwrap.dedent(
+            """\
+            from another import thingy
+            from blah import \\
+                    textwrap
+            """
+        )
+
+        self._test(expected, code, namespaces, partial=False)
+
+    def test_from_003(self):
+        """Replace imports with backslashes."""
+        code = textwrap.dedent(
+            """\
+            from mit import path, \\
+                    textwrap \\
+                another
+            """
+        )
+
+        namespaces = [("mit.textwrap", "cornell.thing")]
+
+        expected = textwrap.dedent(
+            """\
+            from cornell import path, \\
+                    thing \\
+                another
+            """
+        )
+
+        self._test(expected, code, namespaces, partial=True)
+
+
+class Parentheses(_Common):
+    """Check that imports-with-()s still replace as expected."""
+
+    def test_001(self):
+        """Replace a single-namespace import that uses parentheses."""
+        code = "from thing.something import (parse as blah)"
+        namespaces = [("thing.something.parse", "another.jpeg.many.items")]
+        expected = "from another.jpeg.many import (items as blah)"
+
+        self._test(expected, code, namespaces, partial=True)
+
+    def test_002(self):
+        """Replace a multi-namespace import that uses parentheses."""
+        code = "from thing.something import (parse as blah, more_items)"
+        namespaces = [("thing.something.parse", "another.jpeg.many.items")]
+        expected = "from another.jpeg.many import (items as blah, more_items)"
+
+        self._test(expected, code, namespaces, partial=True)
+
+    def test_003(self):
+        """Replace a multi-namespace import that uses parentheses and whitespace."""
+        code = textwrap.dedent(
+            """\
+            from thing.something import (
+                parse as blah,
+                    more_items)
+            """
+        )
+        namespaces = [("thing.something.parse", "another.jpeg.many.items")]
+        expected = textwrap.dedent(
+            """\
+            from another.jpeg.many import (
+                items as blah,
+                    more_items)
+            """
+        )
+
+        self._test(expected, code, namespaces, partial=True)
+
+    def test_004(self):
+        """Replace a multi-namespace import that uses parentheses and whitespace."""
+        code = textwrap.dedent(
+            """\
+            from thing.something import (
+                parse as blah,
+                    more_items
+            )
+            """
+        )
+        namespaces = [("thing.something.parse", "another.jpeg.many.items")]
+        expected = textwrap.dedent(
+            """\
+            from another.jpeg.many import (
+                items as blah,
+                    more_items
+            )
+            """
+        )
+
+        self._test(expected, code, namespaces, partial=True)
+
+
 class Imports(_Common):
     """A class to check if import replacement works correctly."""
 
@@ -296,64 +516,6 @@ class Imports(_Common):
         code = "import something.parse as blah"
         namespaces = [("something.parse", "another.with.many.items")]
         expected = "import another.with.many.items as blah"
-
-        self._test(expected, code, namespaces, partial=True)
-
-    def test_parentheses_import_001(self):
-        """Replace a single-namespace import that uses parentheses."""
-        code = "from thing.something import (parse as blah)"
-        namespaces = [("thing.something.parse", "another.jpeg.many.items")]
-        expected = "from another.jpeg.many import (items as blah)"
-
-        self._test(expected, code, namespaces, partial=True)
-
-    def test_parentheses_import_002(self):
-        """Replace a multi-namespace import that uses parentheses."""
-        code = "from thing.something import (parse as blah, more_items)"
-        namespaces = [("thing.something.parse", "another.jpeg.many.items")]
-        expected = "from another.jpeg.many import (items as blah, more_items)"
-
-        self._test(expected, code, namespaces, partial=True)
-
-    def test_parentheses_import_003(self):
-        """Replace a multi-namespace import that uses parentheses and whitespace."""
-        code = textwrap.dedent(
-            """\
-            from thing.something import (
-                parse as blah,
-                    more_items)
-            """
-        )
-        namespaces = [("thing.something.parse", "another.jpeg.many.items")]
-        expected = textwrap.dedent(
-            """\
-            from another.jpeg.many import (
-                items as blah,
-                    more_items)
-            """
-        )
-
-        self._test(expected, code, namespaces, partial=True)
-
-    def test_parentheses_import_004(self):
-        """Replace a multi-namespace import that uses parentheses and whitespace."""
-        code = textwrap.dedent(
-            """\
-            from thing.something import (
-                parse as blah,
-                    more_items
-            )
-            """
-        )
-        namespaces = [("thing.something.parse", "another.jpeg.many.items")]
-        expected = textwrap.dedent(
-            """\
-            from another.jpeg.many import (
-                items as blah,
-                    more_items
-            )
-            """
-        )
 
         self._test(expected, code, namespaces, partial=True)
 
@@ -555,160 +717,6 @@ class Imports(_Common):
                 new_name as thing,
                     bad_formatting
             )
-            """
-        )
-
-        self._test(expected, code, namespaces, partial=True)
-
-    def test_backslash_001(self):
-        """Replace imports with backslashes."""
-        code = textwrap.dedent(
-            """\
-            import os.path, \\
-                textwrap
-            """
-        )
-
-        namespaces = [("textwrap", "another")]
-
-        expected = textwrap.dedent(
-            """\
-            import os.path, \\
-                another
-            """
-        )
-
-        self._test(expected, code, namespaces, partial=False)
-
-    def test_backslash_002(self):
-        """Replace imports with backslashes."""
-        code = textwrap.dedent(
-            """\
-            import os.path, \\
-                    textwrap
-            """
-        )
-
-        namespaces = [("os.path", "another")]
-
-        expected = textwrap.dedent(
-            """\
-            import another, \\
-                    textwrap
-            """
-        )
-
-        self._test(expected, code, namespaces, partial=False)
-
-    def test_backslash_003(self):
-        """Replace imports with backslashes."""
-        code = textwrap.dedent(
-            """\
-            import os.path, \\
-                    textwrap \\
-                another
-            """
-        )
-
-        namespaces = [("textwrap", "thing")]
-
-        expected = textwrap.dedent(
-            """\
-            import os.path, \\
-                    thing \\
-                another
-            """
-        )
-
-        self._test(expected, code, namespaces, partial=False)
-
-    def test_backslash_004(self):
-        """Replace imports with backslashes."""
-        code = textwrap.dedent(
-            """\
-            import os.path, \\
-                    textwrap
-            """
-        )
-
-        namespaces = [("os", "another")]
-
-        expected = textwrap.dedent(
-            """\
-            import another.path, \\
-                    textwrap
-            """
-        )
-
-        self._test(expected, code, namespaces, partial=True)
-
-    def test_from_backslash_001(self):
-        """Replace imports with backslashes."""
-        code = textwrap.dedent(
-            """\
-            from thing import path, \\
-                textwrap
-            """
-        )
-
-        namespaces = [("thing.textwrap", "blah.another")]
-
-        expected = textwrap.dedent(
-            """\
-            from blah import path, \\
-                another
-            """
-        )
-
-        self._test(expected, code, namespaces, partial=True)
-
-    def test_from_backslash_002(self):
-        """Replace imports with backslashes."""
-        code = textwrap.dedent(
-            """\
-            from blah import path, \\
-                    textwrap
-            """
-        )
-
-        namespaces = [("blah.path", "another.thingy")]
-
-        expected = textwrap.dedent(
-            """\
-            from another import thingy, \\
-                    textwrap
-            """
-        )
-
-        self._test(expected, code, namespaces, partial=True)
-
-        expected = textwrap.dedent(
-            """\
-            from another import thingy
-            from blah import \\
-                    textwrap
-            """
-        )
-
-        self._test(expected, code, namespaces, partial=False)
-
-    def test_from_backslash_003(self):
-        """Replace imports with backslashes."""
-        code = textwrap.dedent(
-            """\
-            from mit import path, \\
-                    textwrap \\
-                another
-            """
-        )
-
-        namespaces = [("mit.textwrap", "cornell.thing")]
-
-        expected = textwrap.dedent(
-            """\
-            from cornell import path, \\
-                    thing \\
-                another
             """
         )
 
