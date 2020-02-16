@@ -36,18 +36,17 @@ tests = {
     },
     "isort": {
         "command": "isort --recursive package.py python tests",
-        "requires": ["isort"],
+        "requires": ["isort-4.3+<5"],
     },
     "isort_check": {
         "command": "isort --check-only --diff --recursive package.py python tests",
-        "requires": ["isort"],
+        "requires": ["isort-4.3+<5"],
     },
     "pydocstyle": {
         # Need to disable D202 for now, until a new pydocstyle version is released
         # Reference: https://github.com/psf/black/issues/1159
         #
         "command": "rez-env pydocstyle -- pydocstyle --ignore=D213,D202,D203,D406,D407 python tests/*",
-        "requires": ["pydocstyle"],
     },
     "pylint": {
         "command": "pylint --disable=bad-continuation python/rez_industry",
