@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 
-from move_break import move_break_api, cli
+from move_break import cli, move_break_api
 from python_compatibility import dependency_analyzer
 from rez.vendor.version import requirement
 from rez_industry import api
@@ -84,6 +84,9 @@ def replace(package, configuration, requirements, deprecate):
     if not overwritten_paths:
         return
 
-    namespaces = {module.get_namespace() for module in dependency_analyzer.get_imported_namespaces(configuration.paths)}
+    namespaces = {
+        module.get_namespace()
+        for module in dependency_analyzer.get_imported_namespaces(configuration.paths)
+    }
     _remove_deprecated_packages(package, namespaces, deprecate)
     _add_new_requirement_packages(package, namespaces, requirements)

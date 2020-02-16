@@ -8,9 +8,7 @@ description = "Change a Rez package's imports and then bump the require Rez vers
 
 authors = ["Colin Kennedy (ColinKennedy)"]
 
-help = [
-    ["README", "README.md"],
-]
+help = [["README", "README.md"]]
 
 private_build_requires = ["rez_build_helper-1+<2"]
 
@@ -46,7 +44,7 @@ tests = {
         # Need to disable D202 for now, until a new pydocstyle version is released
         # Reference: https://github.com/psf/black/issues/1159
         #
-        "command": "rez-env pydocstyle -- pydocstyle --ignore=D213,D202,D203,D406,D407 python tests/*",
+        "command": "rez-env pydocstyle -- pydocstyle --ignore=D213,D202,D203,D406,D407 python tests/*"
     },
     "pylint": {
         "command": "pylint --disable=bad-continuation python/rez_move_imports tests",

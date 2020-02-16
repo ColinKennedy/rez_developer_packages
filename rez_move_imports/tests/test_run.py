@@ -6,8 +6,9 @@ import tempfile
 import textwrap
 import unittest
 
-from rez_move_imports import cli
 from python_compatibility.testing import common
+from rez_move_imports import cli
+
 # TODO : Add unittests that checks for bad arguments
 # TODO : Need 2 unittests for --use-pythonpath. One where it doesn't do a replace because the module isn't in the right spot and one that does
 
@@ -97,7 +98,7 @@ class Integrations(common.Common):
 
         command = [
             '"{directory} old_dependency.a_module,a_new_namespace.somewhere_else"'
-            ''.format(directory=directory),
+            "".format(directory=directory),
             '--requirements="a_new_package-2+<4,a_new_namespace"',
             '--deprecate="old_dependency_package,old_dependency"',
             '--package-directory="{directory}"'.format(directory=directory),
@@ -183,7 +184,7 @@ class Integrations(common.Common):
 
         command = [
             '"{directory} old_dependency.a_module,a_new_namespace.somewhere_else"'
-            ''.format(directory=directory),
+            "".format(directory=directory),
             '--requirements="a_new_package-2+<4,a_new_namespace"',
             '--deprecate="old_dependency_package,old_dependency"',
             '--package-directory="{directory}"'.format(directory=directory),

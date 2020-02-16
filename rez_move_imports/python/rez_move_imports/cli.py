@@ -15,7 +15,7 @@ from .core import replacer
 
 def _parse_arguments(text):
     parser = argparse.ArgumentParser(
-        description="Change a Rez package's imports and then bump the require Rez version(s).",
+        description="Change a Rez package's imports and then bump the require Rez version(s)."
     )
     parser.add_argument("command", help="The full command to pass to move_break.")
     parser.add_argument(
@@ -101,7 +101,7 @@ def main(text):
     if not package:
         raise ValueError(
             'Directory "{package_directory}" does not define a Rez package.'
-            ''.format(package_directory=package_directory)
+            "".format(package_directory=package_directory)
         )
 
     # We have to split `arguments.command` twice. Once to get rid of the
