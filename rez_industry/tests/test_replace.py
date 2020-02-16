@@ -456,6 +456,53 @@ class AddToAttributeHelp(unittest.TestCase):
         self._test(expected, original, overrides)
 
 
+class AddToAttributeRequires(unittest.TestCase):
+    """Make sure that :func:`rez_industry.api.add_to_attribute` works for Rez "requires"."""
+
+    def _test(self, expected, text, overrides, remove=False):
+        """Run a test and check if it makes the expected results.
+
+        Args:
+            expected (str):
+                The output of `text` mixed with `overrides`.
+            text (str):
+                The raw Rez package.py input.
+            overrides (str, optional):
+                The data that will append / remove / replace requires.
+                e.g. "some_package-2+<3".
+
+        """
+        results = api.add_to_attribute("requires", overrides, text)
+        self.assertEqual(expected, results)
+
+        if remove:
+            raise NotImplementedError()
+
+    def test_empty_001(self):
+        """Replace an empty list [] with a new requirement."""
+        pass
+
+    def test_empty_002(self):
+        """Replace an empty list list() with a new requirement."""
+        pass
+
+    def test_undefined(self):
+        """Add the `requires` attribute since it does not already exist."""
+        pass
+
+    def test_add_requirement(self):
+        """Add a completely new requirement to a list of requirements."""
+        pass
+
+    def test_remove_requirement(self):
+        """Remove a requirement completely from the list of requirements."""
+        self._test(remove=True)
+
+    def test_replace_requirement(self):
+        """Change the version information of an existing requirement."""
+        pass
+
+
 class AddToAttributeTests(unittest.TestCase):
     """Make sure that :func:`rez_industry.api.add_to_attribute` works for Rez "tests"."""
 
