@@ -467,7 +467,7 @@ class AddToAttributeRequires(unittest.TestCase):
                 The output of `text` mixed with `overrides`.
             text (str):
                 The raw Rez package.py input.
-            overrides (str, optional):
+            overrides (list[str], optional):
                 The data that will append / remove / replace requires.
                 e.g. "some_package-2+<3".
 
@@ -496,7 +496,7 @@ class AddToAttributeRequires(unittest.TestCase):
             ]
             """
         )
-        overrides = "new_requirement-2+<3"
+        overrides = ["new_requirement-2+<3"]
 
         self._test(expected, original, overrides)
 
@@ -518,7 +518,7 @@ class AddToAttributeRequires(unittest.TestCase):
             ]
             """
         )
-        overrides = "new_requirement-2+<3"
+        overrides = ["new_requirement-2+<3"]
 
         self._test(expected, original, overrides)
 
@@ -531,10 +531,9 @@ class AddToAttributeRequires(unittest.TestCase):
 
             requires = [
                 "new_requirement-2+<3",
-            ]
-            """
+            ]"""
         )
-        overrides = "new_requirement-2+<3"
+        overrides = ["new_requirement-2+<3"]
 
         self._test(expected, original, overrides)
 
@@ -563,7 +562,7 @@ class AddToAttributeRequires(unittest.TestCase):
             ]
             """
         )
-        overrides = "something_else==1.0.0"
+        overrides = ["something_else==1.0.0"]
 
         self._test(expected, original, overrides)
 
@@ -592,7 +591,7 @@ class AddToAttributeRequires(unittest.TestCase):
             ]
             """
         )
-        overrides = "some_requirement_to_remove"
+        overrides = ["some_requirement_to_remove"]
 
         self._test(expected, original, overrides, remove=True)
 
@@ -620,7 +619,7 @@ class AddToAttributeRequires(unittest.TestCase):
             ]
             """
         )
-        overrides = "another_requirement==1.0.0"
+        overrides = ["another_requirement==1.0.0"]
 
         self._test(expected, original, overrides)
 
@@ -635,7 +634,7 @@ class AddToAttributeRequires(unittest.TestCase):
             ]
             """
         )
-        overrides = "another_requirement-1+<2"
+        overrides = ["another_requirement-1+<2"]
 
         self._test(expected, original, overrides)
 
@@ -663,7 +662,7 @@ class AddToAttributeRequires(unittest.TestCase):
             ]
             """
         )
-        overrides = "another_requirement==1.0.0"
+        overrides = ["another_requirement==1.0.0"]
 
         self._test(expected, original, overrides)
 
@@ -678,7 +677,7 @@ class AddToAttributeRequires(unittest.TestCase):
             ]
             """
         )
-        overrides = "another_requirement-1+<2"
+        overrides = ["another_requirement-1+<2"]
 
         self._test(expected, original, overrides)
 
@@ -690,7 +689,7 @@ class AddToAttributeRequires(unittest.TestCase):
         with self.assertRaises(ValueError):
             api.add_to_attribute("requires", overrides, text)
 
-        overrides = ""
+        overrides = []
 
         with self.assertRaises(ValueError):
             api.add_to_attribute("requires", overrides, text)

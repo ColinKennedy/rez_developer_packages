@@ -5,10 +5,11 @@
 
 import parso
 
-from .adapters import help_adapter, tests_adapter
+from .adapters import help_adapter, requires_adapter, tests_adapter
 
 _ADAPTERS = {
     "help": help_adapter.HelpAdapter,
+    "requires": requires_adapter.RequiresAdapter,
     "tests": tests_adapter.TestsAdapter,
 }
 
