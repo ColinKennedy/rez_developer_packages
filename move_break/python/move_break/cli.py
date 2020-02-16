@@ -4,12 +4,17 @@
 """The main module that deals with command-line specific data."""
 
 import argparse
+import collections
 import os
 
 from . import mover
 from .core import import_registry
 
 _CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
+Configuration = collections.namedtuple(
+    "Configuration",
+    "paths namespaces partial_matches types aliases",
+)
 
 
 def _parse_arguments(text):
@@ -121,11 +126,12 @@ def _expand_paths(path):
 
 
 def _expand_types(text):
+    """Split `text`, a comma-separated string, into unique, non-empty strings."""
     return set(filter(None, text.split(",")))
 
 
-def main(text):
-    """Run the main execution of the current script.
+def parse_arguments(text):
+    """Convert user-provided CLI text into something that `move_break` can run with.
 
     Args:
         text (list[str]):
@@ -136,7 +142,9 @@ def main(text):
         ValueError: If the user gives an unsupported import type.
 
     Returns:
-        set[str]: The Python modules that were actually overwritten.
+        :attr:`move_break.cli.Configuration`:
+            A fully parsed and clean user input. This object provides
+            all the arguments needed to call :func:`.move_imports`.
 
     """
     arguments = _parse_arguments(text)
@@ -160,10 +168,27 @@ def main(text):
             )
         )
 
+    return Configuration(paths, namespaces, arguments.partial_matches, arguments.types, arguments.aliases)
+
+
+def main(text):
+    """Run the main execution of the current script.
+
+    Args:
+        text (list[str]):
+            The user-provided tokens from command-line. It's the user's
+            raw input but split by-spaces.
+
+    Returns:
+        set[str]: The Python modules that were actually overwritten.
+
+    """
+    configuration = parse_arguments(text)
+
     return mover.move_imports(
-        paths,
-        namespaces,
-        partial=arguments.partial_matches,
-        import_types=arguments.types,
-        aliases=arguments.aliases,
+        configuration.paths,
+        configuration.namespaces,
+        partial=configuration.partial_matches,
+        import_types=configuration.types,
+        aliases=configuration.aliases,
     )
