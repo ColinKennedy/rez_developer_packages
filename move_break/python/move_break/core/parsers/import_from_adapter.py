@@ -191,6 +191,16 @@ def _has_fully_described_namespace(required_namespaces, user_provided_namespaces
 
 
 def _is_alias(node):
+    """Check if a parso node is actually defining an alias, and not a import namespace.
+
+    Args:
+        node (:class:`parso.python.tree.Name`):
+            Some parso node that (presumably) is part of an import statement.
+
+    Returns:
+        bool: If `node` defines a user-provided name, not an actual Python namespace.
+
+    """
     parent = node.parent
     index = parent.children.index(node)
     siblings = parent.children[:index]
