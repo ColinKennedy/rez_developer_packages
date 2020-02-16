@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-
 import argparse
+import collections
 import shlex
 
-from move_break import cli
+from .core import replacer
 
 
 def _parse_arguments(text):
@@ -50,16 +50,16 @@ def _split_package_and_namespaces(package_and_namespaces):
 
 
 def _expand(items):
-    output = dict()
+    output = collections.defaultdict(set)
 
     for package_and_namespaces in items:
         parts = _split_package_and_namespaces(package_and_namespaces)
         package = parts[0]
         namespaces = parts[1:]
 
-        output[package] = namespaces
+        output[package].update(namespaces)
 
-    return output
+    return list(output.items())
 
 
 def main(text):
@@ -68,4 +68,4 @@ def main(text):
     requirements = _expand(arguments.requirements)
     deprecate = _expand(arguments.deprecate)
 
-    cli.main(shlex.split(arguments.command))
+    replacer.replace(shlex.split(arguments.command), requirements, deprecate)
