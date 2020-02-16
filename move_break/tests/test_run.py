@@ -75,7 +75,7 @@ class Inputs(_Common):
         with self.assertRaises(ValueError):
             self._test(expected, code, namespaces, partial=True)
 
-        namespaces = ['something']
+        namespaces = ["something"]
 
         with self.assertRaises(ValueError):
             self._test(expected, code, namespaces, partial=True)
@@ -600,9 +600,7 @@ class Imports(_Common):
     def test_from_comma_no_replace(self):
         """Don't replace a from import completely because some namespaces are missing."""
         code = "from foo import bar, another"
-        namespaces = [
-            ("foo.bar", "something.parse"),
-        ]
+        namespaces = [("foo.bar", "something.parse")]
         expected = textwrap.dedent(
             """\
             from something import parse
@@ -622,7 +620,8 @@ class Imports(_Common):
 
         self._test(expected, code, namespaces, partial=True)
 
-    # def test_from_complex(self):
+    # TODO : Finish
+    # def test_from_complex_001(self):
     #     """Check that complicated whitespace still replaces imports correctly."""
     #     code = textwrap.dedent(
     #         """\
@@ -654,7 +653,7 @@ class Imports(_Common):
     #
     #     self._test(expected, code, namespaces, partial=False)
 
-    # def test_from_complex(self):
+    # def test_from_complex_002(self):
     #     """Check that complicated whitespace still replaces imports correctly."""
     #     code = textwrap.dedent(
     #         """\
@@ -803,10 +802,7 @@ class PartialFrom(_Common):
             """
         )
 
-        namespaces = [
-            ("foo.block", "blah"),
-            ("something_else", "new"),
-        ]
+        namespaces = [("foo.block", "blah"), ("something_else", "new")]
         expected = textwrap.dedent(
             """\
             if True:

@@ -408,6 +408,7 @@ def _remove_comma(node):
         node (:class:`parso.python.tree.Name`): Some part of a Python from-import.
 
     """
+
     def _get_alias(node):
         parent = node.parent
 
@@ -494,7 +495,9 @@ def _adjust_imported_names(old, new_namespace, nodes):
         tail = tree.Name(namespace_parts[-1], (0, 0), prefix=" ")
 
         if alias:
-            tail = tree.PythonNode("import_as_name", [tail, tree.Keyword("as", (0, 0), prefix=" "), alias])
+            tail = tree.PythonNode(
+                "import_as_name", [tail, tree.Keyword("as", (0, 0), prefix=" "), alias]
+            )
 
         return tree.ImportFrom(
             [

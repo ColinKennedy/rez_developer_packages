@@ -29,7 +29,9 @@ def _parse_arguments(text):
         description="Replace any Python imports in a file or directory. It's useful for refactoring"
     )
 
-    parser.add_argument("paths", nargs="+", help="A file or folder to replace Python imports.")
+    parser.add_argument(
+        "paths", nargs="+", help="A file or folder to replace Python imports."
+    )
     parser.add_argument(
         "namespaces", help="A comma-separated list of old and new namespaces."
     )
