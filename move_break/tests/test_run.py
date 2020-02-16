@@ -54,21 +54,31 @@ class _Common(common.Common):
         self.assertEqual(expected, new_code)
 
 
-# class Inputs(_Common):
-#     def test_empty(self):
-#         code = "import something"
-#         namespaces = []
-#         expected = "import something"
-#
-#         self._test(expected, code, namespaces, partial=True)
-#
-#     def test_invalid(self):
-#         code = "import something"
-#         namespaces = None
-#         expected = "import something"
-#
-#         with self.assertRaises(ValueError):
-#             self._test(expected, code, namespaces, partial=True)
+class Inputs(_Common):
+    """Check that different text input behaves in predictable ways."""
+
+    def test_empty(self):
+        """Don't let someone input an import list of namespaces."""
+        code = "import something"
+        namespaces = []
+        expected = "import something"
+
+        with self.assertRaises(ValueError):
+            self._test(expected, code, namespaces, partial=True)
+
+    def test_invalid(self):
+        """If namespaces isn't a list of pairs, raise an exception."""
+        code = "import something"
+        namespaces = None
+        expected = "import something"
+
+        with self.assertRaises(ValueError):
+            self._test(expected, code, namespaces, partial=True)
+
+        namespaces = ['something']
+
+        with self.assertRaises(ValueError):
+            self._test(expected, code, namespaces, partial=True)
 
 
 # class Aliases(_Common):
