@@ -182,10 +182,11 @@ class Integrations(common.Common):
             )
 
         command = [
-            '"{directory}"'.format(directory=directory),
-            '--namespaces=old_dependency.a_module,a_new_namespace.somewhere_else',
+            '"{directory} old_dependency.a_module,a_new_namespace.somewhere_else"'
+            ''.format(directory=directory),
             '--requirements="a_new_package-2+<4,a_new_namespace"',
             '--deprecate="old_dependency_package,old_dependency"',
+            '--package-directory="{directory}"'.format(directory=directory),
         ]
 
         cli.main(command)
@@ -195,9 +196,9 @@ class Integrations(common.Common):
             name = "some_test_package"
 
             requires = [
+                "a_new_package-2+<4",
                 "something_more",
                 "old_dependency_package-1+<3",
-                "a_new_package-2+<4",
                 "python-2",
             ]
             """

@@ -16,15 +16,7 @@ def _is_matching_namespace(part, options):
     return False
 
 
-def _is_new_requirement_needed():
-    for namespace in all_namespaces:
-        if namespace.startswith(package_namespaces):
-            return True
-
-    return False
-
-
-def _is_package_still_needed(package_namespaces, all_namespaces):
+def _is_package_needed(package_namespaces, all_namespaces):
     for namespace in all_namespaces:
         if _is_matching_namespace(namespace, package_namespaces):
             return True
@@ -36,11 +28,15 @@ def _add_new_requirement_packages(package, namespaces, deprecate):
     packages_to_add = set()
 
     for package_, package_namespaces in deprecate:
-        if not _is_package_still_needed(tuple(package_namespaces), namespaces):
+        if not _is_package_needed(tuple(package_namespaces), namespaces):
             continue
 
         package_ = requirement.Requirement(package_)
         packages_to_add.add(str(package_))
+
+    if not packages_to_add:
+        # Nothing to do so exit early.
+        return
 
     with open(package.filepath, "r") as handler:
         code = handler.read()
@@ -55,11 +51,15 @@ def _remove_deprecated_packages(package, namespaces, deprecate):
     packages_to_remove = set()
 
     for package_, package_namespaces in deprecate:
-        if _is_package_still_needed(tuple(package_namespaces), namespaces):
+        if _is_package_needed(tuple(package_namespaces), namespaces):
             continue
 
         package_ = requirement.Requirement(package_)
         packages_to_remove.add(package_.name)
+
+    if not packages_to_remove:
+        # Nothing to do so exit early.
+        return
 
     with open(package.filepath, "r") as handler:
         code = handler.read()
