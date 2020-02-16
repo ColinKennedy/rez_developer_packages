@@ -91,38 +91,6 @@ def _module_has_attribute(module, namespace):
     return True
 
 
-def _get_imported_namespaces_at_directories(directories):
-    """Get every Pthon namespace dependency for every Python file in a set of folders.
-
-    Args:
-        directories (iter[str]):
-            The absolute paths to folders on-disk that contain Python
-            files. These Python files will be directly imported and
-            parsed for either namespace imports and returned.
-
-    Returns:
-        set[:class:`python_compatibility.import_parser.Module`]:
-            The dot-separated listing of every imported item.
-
-    """
-    namespaces = set()
-    names = set()
-
-    for directory in directories:
-        for path in packaging.iter_python_files(directory):
-            try:
-                for namespace in import_parser.get_namespaces_from_file(path):
-                    namespace_text = namespace.get_namespace()
-
-                    if namespace_text not in names:
-                        names.add(namespace_text)
-                        namespaces.add(namespace)
-            except SyntaxError:
-                _LOGGER.exception('Could not load "%s" due to a syntax error', path)
-
-    return namespaces
-
-
 def _get_module_normal_namespace(namespace):
     try:
         return __import__(namespace)
@@ -322,9 +290,41 @@ def get_dependency_paths(directories):
             'Paths "{missing}" are not valid directories.'.format(missing=missing)
         )
 
-    namespaces = _get_imported_namespaces_at_directories(directories)
+    namespaces = get_imported_namespaces(directories)
 
     return _get_source_paths(namespaces)
+
+
+def get_imported_namespaces(directories):
+    """Get every Pthon namespace dependency for every Python file in a set of folders.
+
+    Args:
+        directories (iter[str]):
+            The absolute paths to folders on-disk that contain Python
+            files. These Python files will be directly imported and
+            parsed for either namespace imports and returned.
+
+    Returns:
+        set[:class:`python_compatibility.import_parser.Module`]:
+            The dot-separated listing of every imported item.
+
+    """
+    namespaces = set()
+    names = set()
+
+    for directory in directories:
+        for path in packaging.iter_python_files(directory):
+            try:
+                for namespace in import_parser.get_namespaces_from_file(path):
+                    namespace_text = namespace.get_namespace()
+
+                    if namespace_text not in names:
+                        names.add(namespace_text)
+                        namespaces.add(namespace)
+            except SyntaxError:
+                _LOGGER.exception('Could not load "%s" due to a syntax error', path)
+
+    return namespaces
 
 
 def main(text):

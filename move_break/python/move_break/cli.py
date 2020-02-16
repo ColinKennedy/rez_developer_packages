@@ -157,7 +157,7 @@ def main(text):
             )
         )
 
-    mover.move_imports(
+    return mover.move_imports(
         paths,
         namespaces,
         partial=arguments.partial_matches,
