@@ -480,27 +480,220 @@ class AddToAttributeRequires(unittest.TestCase):
 
     def test_empty_001(self):
         """Replace an empty list [] with a new requirement."""
-        pass
+        original = textwrap.dedent(
+            """\
+            name = "some_package"
+
+            requires = []
+            """
+        )
+        expected = textwrap.dedent(
+            """\
+            name = "some_package"
+
+            requires = [
+                "new_requirement-2+<3",
+            ]
+            """
+        )
+        overrides = "new_requirement-2+<3"
+
+        self._test(expected, original, overrides)
 
     def test_empty_002(self):
-        """Replace an empty list list() with a new requirement."""
-        pass
+        """Replace an empty list [] with a new requirement."""
+        original = textwrap.dedent(
+            """\
+            name = "some_package"
+
+            requires = list()
+            """
+        )
+        expected = textwrap.dedent(
+            """\
+            name = "some_package"
+
+            requires = [
+                "new_requirement-2+<3",
+            ]
+            """
+        )
+        overrides = "new_requirement-2+<3"
+
+        self._test(expected, original, overrides)
 
     def test_undefined(self):
         """Add the `requires` attribute since it does not already exist."""
-        pass
+        original = 'name = "some_package"'
+        expected = textwrap.dedent(
+            """\
+            name = "some_package"
+
+            requires = [
+                "new_requirement-2+<3",
+            ]
+            """
+        )
+        overrides = "new_requirement-2+<3"
+
+        self._test(expected, original, overrides)
 
     def test_add_requirement(self):
         """Add a completely new requirement to a list of requirements."""
-        pass
+        original = textwrap.dedent(
+            """\
+            name = "some_package"
+
+            requires = [
+                "a_requirement",
+                    "another_requirement-2",
+                "z_requirement_end-3+<4",
+            ]
+            """
+        )
+        expected = textwrap.dedent(
+            """\
+            name = "some_package"
+
+            requires = [
+                "a_requirement",
+                    "another_requirement-2",
+                "something_else==1.0.0",
+                "z_requirement_end-3+<4",
+            ]
+            """
+        )
+        overrides = "something_else==1.0.0"
+
+        self._test(expected, original, overrides)
 
     def test_remove_requirement(self):
         """Remove a requirement completely from the list of requirements."""
-        self._test(remove=True)
+        original = textwrap.dedent(
+            """\
+            name = "some_package"
 
-    def test_replace_requirement(self):
+            requires = [
+                "a_requirement",
+                "another_one-2",
+                "some_requirement_to_remove-2",
+                "z_requirement_end-3+<4",
+            ]
+            """
+        )
+        expected = textwrap.dedent(
+            """\
+            name = "some_package"
+
+            requires = [
+                "a_requirement",
+                "another_one-2",
+                "z_requirement_end-3+<4",
+            ]
+            """
+        )
+        overrides = "some_requirement_to_remove"
+
+        self._test(expected, original, overrides, remove=True)
+
+    def test_replace_requirement_001(self):
         """Change the version information of an existing requirement."""
-        pass
+        original = textwrap.dedent(
+            """\
+            name = "some_package"
+
+            requires = [
+                "a_requirement-2",
+                "another_requirement",
+                "z_requirement_end-3+<4",
+            ]
+            """
+        )
+        expected = textwrap.dedent(
+            """\
+            name = "some_package"
+
+            requires = [
+                "a_requirement-2",
+                "another_requirement==1.0.0",
+                "z_requirement_end-3+<4",
+            ]
+            """
+        )
+        overrides = "another_requirement==1.0.0"
+
+        self._test(expected, original, overrides)
+
+        expected = textwrap.dedent(
+            """\
+            name = "some_package"
+
+            requires = [
+                "a_requirement-2",
+                "another_requirement-1+<2",
+                "z_requirement_end-3+<4",
+            ]
+            """
+        )
+        overrides = "another_requirement-1+<2"
+
+        self._test(expected, original, overrides)
+
+    def test_replace_requirement_002(self):
+        """Change the version information of an existing requirement."""
+        original = textwrap.dedent(
+            """\
+            name = "some_package"
+
+            requires = [
+                "a_requirement-2",
+                "another_requirement-2",
+                "z_requirement_end-3+<4",
+            ]
+            """
+        )
+        expected = textwrap.dedent(
+            """\
+            name = "some_package"
+
+            requires = [
+                "a_requirement-2",
+                "another_requirement==1.0.0",
+                "z_requirement_end-3+<4",
+            ]
+            """
+        )
+        overrides = "another_requirement==1.0.0"
+
+        self._test(expected, original, overrides)
+
+        expected = textwrap.dedent(
+            """\
+            name = "some_package"
+
+            requires = [
+                "a_requirement-2",
+                "another_requirement-1+<2",
+                "z_requirement_end-3+<4",
+            ]
+            """
+        )
+        overrides = "another_requirement-1+<2"
+
+        self._test(expected, original, overrides)
+
+    def test_invalid(self):
+        """Raise an exception if an invalid type or invalid input is given to `requires`."""
+        text = 'name = "some_package"'
+        overrides = None
+
+        with self.assertRaises(ValueError):
+            api.add_to_attribute("requires", overrides, text)
+
+        overrides = ""
+
+        with self.assertRaises(ValueError):
+            api.add_to_attribute("requires", overrides, text)
 
 
 class AddToAttributeTests(unittest.TestCase):
