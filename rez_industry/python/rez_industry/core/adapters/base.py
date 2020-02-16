@@ -44,3 +44,8 @@ class BaseAdapter(object):
 
         """
         pass
+
+    @staticmethod
+    @abc.abstractmethod
+    def remove_from_attribute(graph, data):  # pragma: no cover
+        pass

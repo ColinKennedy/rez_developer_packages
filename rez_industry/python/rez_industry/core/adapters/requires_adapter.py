@@ -65,22 +65,36 @@ class RequiresAdapter(base.BaseAdapter):
         existing_data = _get_entries(assignment)
         prefix = _get_prefix(assignment) or _DEFAULT_PREFIX
 
-        data_nodes = [
-            tree.String(
-                '"{requirement}"'.format(
-                    requirement=requirement.replace('"', '"')
-                ),
-                (0, 0),
-                prefix="\n{prefix}".format(prefix=prefix),
-            )
-            for requirement in data
-        ]
-
+        data_nodes = _make_nodes(data, prefix=prefix)
         final_data = _merge_list_entries(existing_data, data_nodes)
         node = _make_new_list(final_data)
         graph = convention.insert_or_append(node, graph, assignment, "requires")
 
         return graph.get_code()
+
+    @staticmethod
+    def remove_from_attribute(graph, data):  # pragma: no cover
+        try:
+            assignment = parso_utility.find_assignment_nodes("requires", graph)[-1]
+        except IndexError:
+            # If this happens, it just means that there's nothing to remove
+            return graph.get_code()
+
+        existing_data = _get_entries(assignment)
+        prefix = _get_prefix(assignment) or _DEFAULT_PREFIX
+
+        data_nodes = _make_nodes(data, prefix=prefix)
+        final_data = _remove_existing_entries(existing_data, data_nodes)
+
+        node = _make_new_list(final_data)
+        graph = convention.insert_or_append(node, graph, assignment, "requires")
+
+        return graph.get_code()
+
+
+def _is_list_root_definition(node):
+    """bool: If `node` defines the inner part of a list of "help" entries."""
+    return isinstance(node, tree.PythonNode) and node.type == "testlist_comp"
 
 
 def _get_entries(node):
@@ -97,23 +111,6 @@ def _get_entries(node):
                 entries.append(child)
 
     return entries
-
-
-def _get_prefix(node):
-    prefixes = set()
-
-    for child in _get_inner_list_entries(node):
-        prefix_node = node_seek.get_node_with_first_prefix(child)
-        prefixes.add(prefix_node.prefix)
-
-    counter = collections.Counter(prefixes)
-
-    try:
-        common = counter.most_common(1)[0]
-
-        return common[0].strip("\n")
-    except IndexError:
-        return ""
 
 
 # TODO : De-duplicate this
@@ -146,29 +143,21 @@ def _get_inner_list_entries(node):
     return entries
 
 
-def _is_list_root_definition(node):
-    """bool: If `node` defines the inner part of a list of "help" entries."""
-    return isinstance(node, tree.PythonNode) and node.type == "testlist_comp"
+def _get_prefix(node):
+    prefixes = set()
 
+    for child in _get_inner_list_entries(node):
+        prefix_node = node_seek.get_node_with_first_prefix(child)
+        prefixes.add(prefix_node.prefix)
 
-# def _get_list_root(node):
-#     """Find the first node that could be considered the root of a "help" attribute.
-#
-#     Args:
-#         node (:class:`parso.python.tree.ExprStmt`):
-#             A node that defines a "help" attribute and should contain a
-#             list of list of strings.
-#
-#     Returns:
-#         :class:`parso.python.tree.PythonNode` or NoneType:
-#             The top of a list of list of strings, if any.
-#
-#     """
-#     for child in node_seek.iter_nested_children(node):
-#         if _is_list_root_definition(child):
-#             return child
-#
-#     return None
+    counter = collections.Counter(prefixes)
+
+    try:
+        common = counter.most_common(1)[0]
+
+        return common[0].strip("\n")
+    except IndexError:
+        return ""
 
 
 def _escape(text):
@@ -193,6 +182,19 @@ def _make_new_list(requirements):
     )
 
 
+def _make_nodes(data, prefix=""):
+    return [
+        tree.String(
+            '"{requirement}"'.format(
+                requirement=requirement.replace('"', '"')
+            ),
+            (0, 0),
+            prefix="\n{prefix}".format(prefix=prefix),
+        )
+        for requirement in data
+    ]
+
+
 def _merge_list_entries(old, new):
     def _find_index(nodes, text):
         for index, node in enumerate(nodes):
@@ -204,30 +206,32 @@ def _merge_list_entries(old, new):
 
         return len(nodes)
 
-    def _remove_existing_entries(old, new):
-        # Since `requires` doesn't really play nice with duplicate entries,
-        # we will remove any existing requirements that match any entries in `new`.
-        #
-        for entry in reversed(new):
-            new_requirement = rez_requirement.Requirement(_escape(entry.value))
-            package_family = new_requirement.name
-
-            for requirement in reversed(old):
-                old_requirement = rez_requirement.Requirement(_escape(requirement.value))
-
-                if old_requirement.name == package_family:
-                    parent = requirement.parent
-                    index = old.index(requirement)
-
-                    del old[index]
-
-    old = copy.deepcopy(old)
-
-    _remove_existing_entries(old, new)
+    old = _remove_existing_entries(old, new)
 
     for entry in new:
         requirement = rez_requirement.Requirement(_escape(entry.value))
         index = _find_index(old, requirement.name)
         old.insert(index, entry)
+
+    return old
+
+
+def _remove_existing_entries(old, new):
+    old = copy.deepcopy(old)
+
+    # Since `requires` doesn't really play nice with duplicate entries,
+    # we will remove any existing requirements that match any entries in `new`.
+    #
+    for entry in reversed(new):
+        new_requirement = rez_requirement.Requirement(_escape(entry.value))
+        package_family = new_requirement.name
+
+        for requirement in reversed(old):
+            old_requirement = rez_requirement.Requirement(_escape(requirement.value))
+
+            if old_requirement.name == package_family:
+                index = old.index(requirement)
+
+                del old[index]
 
     return old

@@ -102,6 +102,10 @@ class TestsAdapter(base_.BaseAdapter):
 
         return graph.get_code()
 
+    @staticmethod
+    def remove_from_attribute(graph, data):  # pragma: no cover
+        raise NotImplementedError("This feature hasn't been added.")
+
 
 def _is_binding(node):
     """bool: Check if `node` is not an assigment. e.g. `foo = bar` returns False."""

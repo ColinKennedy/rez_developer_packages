@@ -472,11 +472,13 @@ class AddToAttributeRequires(unittest.TestCase):
                 e.g. "some_package-2+<3".
 
         """
+        if remove:
+            api.remove_from_attribute("requires", overrides, text)
+
+            return
+
         results = api.add_to_attribute("requires", overrides, text)
         self.assertEqual(expected, results)
-
-        if remove:
-            raise NotImplementedError()
 
     def test_empty_001(self):
         """Replace an empty list [] with a new requirement."""

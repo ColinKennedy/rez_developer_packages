@@ -225,6 +225,10 @@ class HelpAdapter(base.BaseAdapter):
 
         return graph.get_code()
 
+    @staticmethod
+    def remove_from_attribute(graph, data):  # pragma: no cover
+        raise NotImplementedError("This feature hasn't been added.")
+
 
 def _is_list_root_definition(node):
     """bool: If `node` defines the inner part of a list of "help" entries."""
