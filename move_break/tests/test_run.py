@@ -104,15 +104,109 @@ class _Common(common.Common):
 #         self._test(expected, code, namespaces, partial=True, aliases=True)
 
 
-# class DontChange(_Common):
-#     def test_import(self):
-#         pass
-#
-#     def test_from_import(self):
-#         pass
-#
-#     def test_mixed(self):
-#         pass
+class DontChange(_Common):
+    def test_import_001(self):
+        """Replace only one flat namespace import."""
+        code = textwrap.dedent(
+            """\
+            import something
+            import foo
+            """
+        )
+
+        namespaces = [("something", "another")]
+        expected = textwrap.dedent(
+            """\
+            import another
+            import foo
+            """
+        )
+
+        self._test(expected, code, namespaces, partial=False)
+
+    def test_import_002(self):
+        """Replace only one nested namespace import."""
+        code = textwrap.dedent(
+            """\
+            import something.parse
+            import foo.parse
+            """
+        )
+
+        namespaces = [("something", "another")]
+        expected = textwrap.dedent(
+            """\
+            import another.parse
+            import foo.parse
+            """
+        )
+
+        self._test(expected, code, namespaces, partial=False)
+
+    def test_from_import_001(self):
+        """Replace a flat from-import."""
+        code = textwrap.dedent(
+            """\
+            from foo import bar
+            from thing import another
+            """
+        )
+
+        namespaces = [("foo.bar", "bazz.something")]
+        expected = textwrap.dedent(
+            """\
+            from bazz import something
+            from thing import another
+            """
+        )
+
+        self._test(expected, code, namespaces, partial=False)
+
+    def test_from_import_002(self):
+        """Replace a nested from-import."""
+        code = textwrap.dedent(
+            """\
+            from foo.something import bar
+            from thing.more import another
+            """
+        )
+
+        namespaces = [("foo.something.bar", "bazz.something.else_here")]
+        expected = textwrap.dedent(
+            """\
+            from bazz.something import else_here
+            from thing.more import another
+            """
+        )
+
+        self._test(expected, code, namespaces, partial=False)
+
+    def test_mixed(self):
+        """Replace some imports but not everything."""
+        code = textwrap.dedent(
+            """\
+            from foo.something import bar
+            import something.parse
+            from thing.more import another
+            import foo.parse
+            """
+        )
+
+        namespaces = [
+            ("foo.something.bar", "bazz.something.else_here"),
+            ("something.parse", "another.parse"),
+        ]
+
+        expected = textwrap.dedent(
+            """\
+            from bazz.something import else_here
+            import another.parse
+            from thing.more import another
+            import foo.parse
+            """
+        )
+
+        self._test(expected, code, namespaces, partial=False)
 
 
 class Imports(_Common):
