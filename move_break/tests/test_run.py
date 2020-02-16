@@ -115,6 +115,8 @@ class Inputs(_Common):
 
 
 class DontChange(_Common):
+    """Make sure imports that shouldn't be changed aren't. But those that must change, do."""
+
     def test_import_001(self):
         """Replace only one flat namespace import."""
         code = textwrap.dedent(
