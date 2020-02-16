@@ -81,6 +81,7 @@ class Inputs(_Common):
             self._test(expected, code, namespaces, partial=True)
 
 
+# TODO : Finish?
 # class Aliases(_Common):
 #     """Add aliases to import statements."""
 #
