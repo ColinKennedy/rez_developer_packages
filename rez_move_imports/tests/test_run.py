@@ -32,7 +32,7 @@ class Invalids(common.Common):
                 pass
 
         _, stderr = output
-        expected = 'usage: python -m unittest [-h] -r REQUIREMENTS -d DEPRECATE [-u] [-p PACKAGE_DIRECTORY] command\npython -m unittest: error: argument -d/--deprecate is required\n'
+        expected = 'usage: python -m unittest [-h] -r REQUIREMENTS -d DEPRECATE [-n] [-p PACKAGE_DIRECTORY] command\npython -m unittest: error: argument -d/--deprecate is required\n'
 
         self.assertEqual(expected, stderr)
 
@@ -50,7 +50,7 @@ class Invalids(common.Common):
                 pass
 
         _, stderr = output
-        expected = 'usage: python -m unittest [-h] -r REQUIREMENTS -d DEPRECATE [-u] [-p PACKAGE_DIRECTORY] command\npython -m unittest: error: argument -r/--requirements is required\n'
+        expected = 'usage: python -m unittest [-h] -r REQUIREMENTS -d DEPRECATE [-n] [-p PACKAGE_DIRECTORY] command\npython -m unittest: error: argument -r/--requirements is required\n'
 
         self.assertEqual(expected, stderr)
 
