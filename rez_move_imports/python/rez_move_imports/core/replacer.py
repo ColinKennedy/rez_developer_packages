@@ -221,5 +221,5 @@ def replace(package, configuration, deprecate, requirements, bump=True):
     _remove_deprecated_packages(package, namespaces, deprecate)
     _add_new_requirement_packages(package, namespaces, requirements)
 
-    if bump:
+    if bump and package.version:
         rez_bump_api.bump(package, minor=1)
