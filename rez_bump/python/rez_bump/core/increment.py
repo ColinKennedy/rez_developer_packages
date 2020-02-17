@@ -5,11 +5,11 @@
 
 import copy
 
+import parso
+from parso.python import tree
 from rez.vendor.version import version as version_
 from rez_industry.core import convention, parso_utility
 from rez_utilities import inspection
-from parso.python import tree
-import parso
 
 
 def _write_package_to_disk(package, version):
@@ -63,6 +63,7 @@ def _bump_version(version, minor, absolute=False):
             The modified `version` but with a new minor.
 
     """
+
     def _bump(version, position, value, absolute=False):
         version = copy.deepcopy(version)
 
@@ -78,7 +79,7 @@ def _bump_version(version, minor, absolute=False):
 
             return version
 
-        raise NotImplementedError('Need to support non-minor bumps.')
+        raise NotImplementedError("Need to support non-minor bumps.")
 
     positions = set()
 
@@ -119,17 +120,21 @@ def bump(package, minor=0, absolute=False):
 
     """
     if not absolute and not minor:
-        raise ValueError('Nothing to do. No value was given to `minor`.')
+        raise ValueError("Nothing to do. No value was given to `minor`.")
 
     if absolute and minor < 0:
-        raise ValueError('Minor "{minor}" cannot be less than zero when absolute is True.'.format(minor=minor))
+        raise ValueError(
+            'Minor "{minor}" cannot be less than zero when absolute is True.'.format(
+                minor=minor
+            )
+        )
 
     version = package.version or ""
 
     if not version:
         raise RuntimeError(
             'No version exists so Package "{package}" could not be bumped.'
-            ''.format(package=package)
+            "".format(package=package)
         )
 
     version = _bump_version(version, minor, absolute=absolute)

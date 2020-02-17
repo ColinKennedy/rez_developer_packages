@@ -8,8 +8,8 @@ import tempfile
 import textwrap
 
 from python_compatibility.testing import common
-from rez_utilities import inspection
 from rez_bump import rez_bump_api
+from rez_utilities import inspection
 
 
 class Version(common.Common):

@@ -6,9 +6,7 @@ version = "1.0.0"
 
 description = "Control the version value of Rez packages"
 
-authors = [
-    "Colin Kennedy (ColinKennedy)",
-]
+authors = ["Colin Kennedy (ColinKennedy)"]
 
 requires = [
     "parso-0.6+<1",
@@ -56,10 +54,9 @@ tests = {
         "command": "pylint --disable=bad-continuation python/rez_industry",
         "requires": ["pylint-1.9+<2"],
     },
-    "unittest": {
-        "command": "python -m unittest discover",
-    },
+    "unittest": {"command": "python -m unittest discover"},
 }
+
 
 def commands():
     import os
