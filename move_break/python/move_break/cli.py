@@ -12,8 +12,7 @@ from .core import import_registry
 
 _CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 Configuration = collections.namedtuple(
-    "Configuration",
-    "paths namespaces partial_matches types aliases",
+    "Configuration", "paths namespaces partial_matches types aliases"
 )
 
 
@@ -168,7 +167,9 @@ def parse_arguments(text):
             )
         )
 
-    return Configuration(paths, namespaces, arguments.partial_matches, arguments.types, arguments.aliases)
+    return Configuration(
+        paths, namespaces, arguments.partial_matches, arguments.types, arguments.aliases
+    )
 
 
 def main(text):
