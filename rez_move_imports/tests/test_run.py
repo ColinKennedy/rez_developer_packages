@@ -151,6 +151,101 @@ class Invalids(common.Common):
             cli.main(command)
 
 
+class Options(common.Common):
+    """Check that different CLI options work as we expect."""
+
+    def test_deprecate_and_replace_multiple(self):
+        """Replace more than one package with more than one new package(s) at once."""
+        directory = tempfile.mkdtemp(suffix="_test_deprecate_and_replace_multiple")
+        self.delete_item_later(directory)
+
+        some_module = os.path.join(directory, "some_module_inside.py")
+        text = textwrap.dedent(
+            """\
+            # some module with stuff in it
+
+            import os
+            import textwrap
+
+            from another_thing.stuff import some_module
+            from old_dependency import a_module
+
+            def something():
+                pass
+            """
+        )
+
+        with open(some_module, "w") as handler:
+            handler.write(text)
+
+        package = os.path.join(directory, "package.py")
+
+        with open(package, "w") as handler:
+            handler.write(
+                textwrap.dedent(
+                    """\
+                    name = "some_test_package"
+
+                    requires = [
+                        "old_dependency_package-1+<3",
+                        "python-2",
+                        "some_another_package-2",
+                        "something_more",
+                    ]
+                    """
+                )
+            )
+
+        command = [
+            '"{directory} "old_dependency.a_module,a_new_namespace.somewhere_else\nanother_thing,second.location" --partial"'
+            "".format(directory=directory),
+            '--requirements="a_new_package-2+<4,a_new_namespace"',
+            '--requirements="second_new_package-1+<2,second.location"',
+            '--deprecate="old_dependency_package,old_dependency"',
+            '--deprecate="some_another_package,another_thing"',
+            '--package-directory="{directory}"'.format(directory=directory),
+        ]
+
+        cli.main(command)
+
+        expected_package = textwrap.dedent(
+            """\
+            name = "some_test_package"
+
+            requires = [
+                "a_new_package-2+<4",
+                "python-2",
+                "some_another_package-2",
+                "something_more",
+            ]
+            """
+        )
+
+        with open(package, "r") as handler:
+            code = handler.read()
+
+        self.assertEqual(expected_package, code)
+
+        expected_code = textwrap.dedent(
+            """\
+            # some module with stuff in it
+
+            import os
+            import textwrap
+
+            from a_new_namespace import somewhere_else
+
+            def something():
+                pass
+            """
+        )
+
+        with open(some_module, "r") as handler:
+            code = handler.read()
+
+        self.assertEqual(expected_code, code)
+
+
 class Integrations(common.Common):
     """Make sure the CLI works as-expected."""
 
