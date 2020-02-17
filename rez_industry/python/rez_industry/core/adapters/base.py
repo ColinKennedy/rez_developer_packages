@@ -48,4 +48,17 @@ class BaseAdapter(object):
     @staticmethod
     @abc.abstractmethod
     def remove_from_attribute(graph, data):  # pragma: no cover
+        """Delete `data` from `graph`, if it exists.
+
+        Args:
+            graph (:class:`parso.python.tree.Module`):
+                The parso node that will contains a "requires" attribute
+                that this function will modify.
+            data (object):
+                The Rez-attribute-specific information to remove.
+
+        Returns:
+            str: The original `graph` but as a result of the deleted content.
+
+        """
         pass

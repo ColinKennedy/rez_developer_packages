@@ -156,7 +156,7 @@ class HelpAdapter(base.BaseAdapter):
                 "tests". If "tests" assignment exists, it gets
                 overwritten. If no assignment exists then a new
                 assignment is appended to the end of the file.
-            data (dict[str, str or dict[str, str or list[str]]]):
+            data (list[list[str]] or str):
                 Any values that'd typically define a Rez "tests"
                 attribute. Basically anything is allowed, as long the
                 Rez package schema considers it valid.
@@ -231,7 +231,22 @@ class HelpAdapter(base.BaseAdapter):
         return graph.get_code()
 
     @staticmethod
-    def remove_from_attribute(graph, data):  # pragma: no cover
+    def remove_from_attribute(graph, data):
+        """Delete `data` from `graph`, if it exists.
+
+        Args:
+            graph (:class:`parso.python.tree.Module`):
+                The parso node that will contains a "help" attribute
+                that this function will modify.
+            data (list[list[str]] or str):
+                Any values that'd typically define a Rez "tests"
+                attribute. Basically anything is allowed, as long the
+                Rez package schema considers it valid.
+
+        Returns:
+            str: The original `graph` but as a result of the deleted content.
+
+        """
         raise NotImplementedError("This feature hasn't been added.")
 
 

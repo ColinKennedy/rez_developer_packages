@@ -5,9 +5,7 @@
 
 import collections
 import copy
-import json
 
-import parso
 from parso.python import tree
 from parso_helper import node_seek
 from rez import package_serialise

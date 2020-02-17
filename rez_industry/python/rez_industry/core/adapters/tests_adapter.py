@@ -103,7 +103,22 @@ class TestsAdapter(base_.BaseAdapter):
         return graph.get_code()
 
     @staticmethod
-    def remove_from_attribute(graph, data):  # pragma: no cover
+    def remove_from_attribute(graph, data):
+        """Delete `data` from `graph`, if it exists.
+
+        Args:
+            graph (:class:`parso.python.tree.Module`):
+                The parso node that will contains a "tests" attribute
+                that this function will modify.
+            data (dict[str, str or dict[str, str or list[str]]]):
+                Any values that'd typically define a Rez "tests"
+                attribute. Basically anything is allowed, as long the
+                Rez package schema considers it valid.
+
+        Returns:
+            str: The original `graph` but as a result of the deleted content.
+
+        """
         raise NotImplementedError("This feature hasn't been added.")
 
 
