@@ -45,7 +45,7 @@ class RezShellCommand(base.BaseCommand):
         return 'Updated "{package}".'.format(package=package)
 
     @staticmethod
-    def _get_pull_request_body(package):
+    def _get_pull_request_body(package, _):
         """str: Convert a Rez package into a description for pull requests from this class."""
         template = textwrap.dedent(
             """\
