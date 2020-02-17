@@ -81,11 +81,9 @@ The remaining arguments outside of the ""s are all things that
 
 
 # How To Automate
-By itself, rez_move_imports only works with single Rez packages. But
-wrap it into a rez_batch_process command and suddenly you've got a tool
+By itself, `rez_move_imports` only works with one Rez package at a time. But
+wrap it into a `rez_batch_process` command and suddenly you've got a tool
 that can automatically manage imports + dependencies of all of your Rez
 packages.
 
-
-# TODO
-- Update the command examples here. commands for this + a command for rez_batch_process
+TODO add example command here

@@ -32,7 +32,7 @@ class Invalids(common.Common):
                 pass
 
         _, stderr = output
-        expected = 'usage: python -m unittest [-h] -r REQUIREMENTS -d DEPRECATE [-n] [-p PACKAGE_DIRECTORY] command\npython -m unittest: error: argument -d/--deprecate is required\n'
+        expected = 'usage: python -m unittest [-h] -r REQUIREMENTS -d DEPRECATE [-n] [-p PACKAGE_DIRECTORY] command\npython -m unittest: error: argument -d/--deprecate is required\n'  # pylint: disable=line-too-long
 
         self.assertEqual(expected, stderr)
 
@@ -50,7 +50,7 @@ class Invalids(common.Common):
                 pass
 
         _, stderr = output
-        expected = 'usage: python -m unittest [-h] -r REQUIREMENTS -d DEPRECATE [-n] [-p PACKAGE_DIRECTORY] command\npython -m unittest: error: argument -r/--requirements is required\n'
+        expected = 'usage: python -m unittest [-h] -r REQUIREMENTS -d DEPRECATE [-n] [-p PACKAGE_DIRECTORY] command\npython -m unittest: error: argument -r/--requirements is required\n'  # pylint: disable=line-too-long
 
         self.assertEqual(expected, stderr)
 
@@ -199,7 +199,7 @@ class Options(common.Common):
             )
 
         command = [
-            r'"{directory} "old_dependency.a_module,a_new_namespace.somewhere_else\nanother_thing,second.location" --partial"'
+            r'"{directory} "old_dependency.a_module,a_new_namespace.somewhere_else\nanother_thing,second.location" --partial"'  # pylint: disable=line-too-long
             "".format(directory=directory),
             '--requirements="a_new_package-2+<4,a_new_namespace"',
             '--requirements="second_new_package-1+<2,second.location"',
@@ -674,7 +674,7 @@ class Integrations(common.Common):
         self.assertEqual(expected_code, code)
 
     def test_replace_same_family(self):
-        """If --deprecate and --requirements specify the same package, always replace with --requirements.
+        """If --deprecate and --requirements specify the same package, replace with --requirements.
 
         The reason why we do this is for a very specific scenario.
         If you have a Rez package whose version must be bumped to a later version

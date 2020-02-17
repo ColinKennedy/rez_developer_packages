@@ -219,7 +219,8 @@ def main(text):
 
     if not os.path.isdir(package_directory):
         raise exception.MissingDirectory(
-            'Directory "{package_directory}" does not exist.'.format(package_directory=package_directory),
+            'Directory "{package_directory}" does not exist.'
+            ''.format(package_directory=package_directory),
         )
 
     package = inspection.get_nearest_rez_package(package_directory)
