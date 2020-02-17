@@ -4,8 +4,8 @@ from __future__ import print_function
 
 import sys
 
-from .core import exception
 from . import cli
+from .core import exception
 
 if __name__ == "__main__":
     _KNOWN_EXCEPTIONS = (

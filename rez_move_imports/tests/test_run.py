@@ -32,7 +32,7 @@ class Invalids(common.Common):
                 pass
 
         _, stderr = output
-        expected = 'usage: python -m unittest [-h] -r REQUIREMENTS -d DEPRECATE [-n] [-p PACKAGE_DIRECTORY] command\npython -m unittest: error: argument -d/--deprecate is required\n'  # pylint: disable=line-too-long
+        expected = "usage: python -m unittest [-h] -r REQUIREMENTS -d DEPRECATE [-n] [-p PACKAGE_DIRECTORY] command\npython -m unittest: error: argument -d/--deprecate is required\n"  # pylint: disable=line-too-long
 
         self.assertEqual(expected, stderr)
 
@@ -50,7 +50,7 @@ class Invalids(common.Common):
                 pass
 
         _, stderr = output
-        expected = 'usage: python -m unittest [-h] -r REQUIREMENTS -d DEPRECATE [-n] [-p PACKAGE_DIRECTORY] command\npython -m unittest: error: argument -r/--requirements is required\n'  # pylint: disable=line-too-long
+        expected = "usage: python -m unittest [-h] -r REQUIREMENTS -d DEPRECATE [-n] [-p PACKAGE_DIRECTORY] command\npython -m unittest: error: argument -r/--requirements is required\n"  # pylint: disable=line-too-long
 
         self.assertEqual(expected, stderr)
 
@@ -128,7 +128,7 @@ class Invalids(common.Common):
             '"{directory} something,new_thing"'.format(directory=directory),
             '--requirements="some_package,new_thing"',
             '--deprecate="another_package,a_namespace_that_should_have_been_something"',
-            '--package-directory',
+            "--package-directory",
             '"{directory}"'.format(directory=directory),
         ]
 
@@ -143,7 +143,7 @@ class Invalids(common.Common):
             '"{directory} something,new_thing"'.format(directory=directory),
             '--requirements="some_package,new_thing"',
             '--deprecate="another_package,a_namespace_that_should_have_been_something"',
-            '--package-directory',
+            "--package-directory",
             '"{directory}"'.format(directory=directory),
         ]
 
@@ -298,7 +298,7 @@ class Options(common.Common):
             '--requirements="a_new_package-2+<4,a_new_namespace"',
             '--deprecate="old_dependency_package,old_dependency"',
             '--package-directory="{directory}"'.format(directory=directory),
-            '--no-bump',
+            "--no-bump",
         ]
 
         cli.main(command)

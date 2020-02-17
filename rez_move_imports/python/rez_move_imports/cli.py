@@ -109,8 +109,8 @@ def _expand(items):
         if not namespaces:
             raise exception.InvalidInput(
                 'Text "{package_and_namespaces}" '
-                'must be a list of Rez package + at least one Python namespace.'
-                ''.format(package_and_namespaces=package_and_namespaces)
+                "must be a list of Rez package + at least one Python namespace."
+                "".format(package_and_namespaces=package_and_namespaces)
             )
 
         package = requirement.Requirement(package)
@@ -168,6 +168,7 @@ def _check_namespaces(namespaces, deprecate, requirements):
             in `deprecate` or `requirements`.
 
     """
+
     def _is_included(namespace, namespaces):
         for package_namespaces in namespaces:
             if replacer.is_matching_namespace(namespace, package_namespaces):
@@ -188,13 +189,13 @@ def _check_namespaces(namespaces, deprecate, requirements):
     if missing_olds:
         raise exception.MissingNamespaces(
             'Python namespaces "{namespaces}" are defined but not linked to a Rez package. '
-            'Please add them to --deprecate'.format(namespaces=sorted(missing_olds))
+            "Please add them to --deprecate".format(namespaces=sorted(missing_olds))
         )
 
     if missing_news:
         raise exception.MissingNamespaces(
             'Python namespaces "{namespaces}" are defined but not linked to a Rez package. '
-            'Please add them to --requirements'.format(namespaces=sorted(missing_olds))
+            "Please add them to --requirements".format(namespaces=sorted(missing_olds))
         )
 
 
@@ -220,7 +221,7 @@ def main(text):
     if not os.path.isdir(package_directory):
         raise exception.MissingDirectory(
             'Directory "{package_directory}" does not exist.'
-            ''.format(package_directory=package_directory),
+            "".format(package_directory=package_directory)
         )
 
     package = inspection.get_nearest_rez_package(package_directory)
