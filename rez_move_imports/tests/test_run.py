@@ -672,3 +672,109 @@ class Integrations(common.Common):
             code = handler.read()
 
         self.assertEqual(expected_code, code)
+
+    def test_replace_same_family(self):
+        """If --deprecate and --requirements specify the same package, always replace with --requirements.
+
+        The reason why we do this is for a very specific scenario.
+        If you have a Rez package whose version must be bumped to a later version
+        in response to some recent changes.
+
+        Maybe package_a-2.0 has functions moved to package_b so you want
+        to replace the imports of package_c, which depends on package_a,
+        to use package_a-2.0 (which was originally on package_a-1.3) and
+        replace any old package_a-1.3 imports with its new location in
+        package_b.
+
+        """
+        directory = tempfile.mkdtemp(suffix="_test_replace_and_no_deprecate")
+        self.delete_item_later(directory)
+
+        some_module = os.path.join(directory, "some_module_inside.py")
+        text = textwrap.dedent(
+            """\
+            # some module with stuff in it
+
+            import os
+            import textwrap
+
+            from old_dependency import a_module
+            from old_dependency import another_import
+
+            def something():
+                pass
+            """
+        )
+
+        with open(some_module, "w") as handler:
+            handler.write(text)
+
+        package = os.path.join(directory, "package.py")
+
+        with open(package, "w") as handler:
+            handler.write(
+                textwrap.dedent(
+                    """\
+                    name = "some_test_package"
+
+                    version = "1.0.0"
+
+                    requires = [
+                        "something_more",
+                        "old_dependency_package-1+<3",
+                        "python-2",
+                    ]
+                    """
+                )
+            )
+
+        command = [
+            '"{directory} old_dependency.a_module,a_new_namespace.somewhere_else"'
+            "".format(directory=directory),
+            '--requirements="a_new_package-2+<4,a_new_namespace"',
+            '--requirements="old_dependency_package-2+<4,old_dependency"',
+            '--deprecate="old_dependency_package,old_dependency"',
+            '--package-directory="{directory}"'.format(directory=directory),
+        ]
+
+        cli.main(command)
+
+        expected_package = textwrap.dedent(
+            """\
+            name = "some_test_package"
+
+            version = "1.1.0"
+
+            requires = [
+                "a_new_package-2+<4",
+                "old_dependency_package-2+<4",
+                "something_more",
+                "python-2",
+            ]
+            """
+        )
+
+        with open(package, "r") as handler:
+            code = handler.read()
+
+        self.assertEqual(expected_package, code)
+
+        expected_code = textwrap.dedent(
+            """\
+            # some module with stuff in it
+
+            import os
+            import textwrap
+
+            from a_new_namespace import somewhere_else
+            from old_dependency import another_import
+
+            def something():
+                pass
+            """
+        )
+
+        with open(some_module, "r") as handler:
+            code = handler.read()
+
+        self.assertEqual(expected_code, code)

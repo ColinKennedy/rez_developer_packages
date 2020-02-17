@@ -89,4 +89,3 @@ packages.
 
 # TODO
 - Update the command examples here. commands for this + a command for rez_batch_process
-- Need to be able to replace a --deprecate if a requirements is the **same family**
