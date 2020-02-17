@@ -1,5 +1,5 @@
 rez_move_imports is a very basic tool that deals with a very
-"Rez-specific" problem. Imagine you need to move modules from one Rez package 
+"Rez-specific" problem. Imagine you need to move modules from one Rez package
 to another, or a class or function or whatever. Traditional Python refactoring
 tools aren't going to cut it in many cases, especially when each Rez package
 lives in a separate git repository.
@@ -28,10 +28,10 @@ like a sentence, the previous command says
 From the current directory of some Rez package
 - Replace all Python imports "foo" with "another".
 - If, after the replacement, there are no more imports that still refer to "foo",
-  remove the Rez package called "old_package_foo" from the list 
+  remove the Rez package called "old_package_foo" from the list
   of required packages because it's been deprecated.
     - The Rez package.py in your current working directory is the one that gets modified.
-- If any imports are replaced with "another", 
+- If any imports are replaced with "another",
   add "some_package_another-2+<3" as a new dependency.
 
 
