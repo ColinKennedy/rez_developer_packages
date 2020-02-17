@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import argparse
+import textwrap
 
 from rez_batch_process.core.plugins import command
 
@@ -10,9 +11,10 @@ class RezShellCommand(command.RezShellCommand):
     @staticmethod
     def _get_pull_request_body(package):
         """str: Convert a Rez package into a description for pull requests from this class."""
+        # TODO : Change URL to the master branch (or a commit) just before merging
         template = textwrap.dedent(
             """\
-            This PR converts package.yaml files into package.py files.
+            This PR converts the package.yaml of ``{package.name}`` into a package.py file.
 
             ## Why
 
@@ -25,16 +27,13 @@ class RezShellCommand(command.RezShellCommand):
 
             and much more.
 
-            Also, all Rez package examples online, including every style guide
-            use package.py as a standard.
+            It's also pretty easy to convert package.yaml to package.py
+            so there's basically no reason not to.
 
             ## How
 
-            This PR was generated automatically, using [rez_batch_plugins]()
-
-            Hello, World!
-
-            This PR was created automatically.
+            This PR was generated automatically, using
+            [``rez_batch_plugins``](https://github.com/ColinKennedy/rez_developer_packages/tree/add_rez_batch_plugins/rez_batch_plugins)
 
             ## Who this PR is for
 
@@ -47,6 +46,7 @@ class RezShellCommand(command.RezShellCommand):
         )
 
         return template.format(package=package)
+
     @staticmethod
     def parse_arguments(text):
         parser = argparse.ArgumentParser(
@@ -117,4 +117,3 @@ class RezShellCommand(command.RezShellCommand):
         )
 
         return ""
-
