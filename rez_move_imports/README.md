@@ -89,8 +89,4 @@ packages.
 
 # TODO
 - Update the command examples here. commands for this + a command for rez_batch_process
-
-- add an option to NOT bump the Rez package after making the needed changes
-- need to be be able to bump the minor of a the original Rez package, after the change
-    - And if there's no version, skip the bump
-- Need to be able to less a --deprecate be changed if a requirements is the **same family**
+- Need to be able to replace a --deprecate if a requirements is the **same family**
