@@ -730,7 +730,7 @@ class AddToAttributeTests(unittest.TestCase):
 
         overrides = {
             "bar": {"command": "thing", "run_on": "explicit"},
-            "foo": {"command": "another thing", "requires": ["blah-1"],},
+            "foo": {"command": "another thing", "requires": ["blah-1"]},
         }
 
         expected = textwrap.dedent(
@@ -793,10 +793,10 @@ class AddToAttributeTests(unittest.TestCase):
             """
         )
         overrides = {
-            "another": {"command": "more", "requires": ["information"],},
-            "bar": {"command": "thing", "requires": ["whatever-1"],},
+            "another": {"command": "more", "requires": ["information"]},
+            "bar": {"command": "thing", "requires": ["whatever-1"]},
             "foo": "thing",
-            "second_thing": {"command": "and more", "requires": ["information"],},
+            "second_thing": {"command": "and more", "requires": ["information"]},
         }
 
         self._test(expected, original, overrides)
@@ -860,10 +860,10 @@ class AddToAttributeTests(unittest.TestCase):
             """
         )
         overrides = {
-            "another": {"command": "more", "requires": ["information"],},
-            "bar": {"command": "thing", "requires": ["whatever-1"],},
+            "another": {"command": "more", "requires": ["information"]},
+            "bar": {"command": "thing", "requires": ["whatever-1"]},
             "foo": "thing",
-            "second_thing": {"command": "and more", "requires": ["information"],},
+            "second_thing": {"command": "and more", "requires": ["information"]},
         }
 
         self._test(expected, original, overrides)
@@ -872,10 +872,10 @@ class AddToAttributeTests(unittest.TestCase):
         """Add a new assignment for "tests" if it doesn't already exist."""
         original = "name = 'thing'"
         overrides = {
-            "another": {"command": "more", "requires": ["information"],},
-            "bar": {"command": "thing", "requires": ["whatever-1"],},
+            "another": {"command": "more", "requires": ["information"]},
+            "bar": {"command": "thing", "requires": ["whatever-1"]},
             "foo": "thing",
-            "second_thing": {"command": "and more", "requires": ["information"],},
+            "second_thing": {"command": "and more", "requires": ["information"]},
         }
 
         expected = textwrap.dedent(
@@ -919,10 +919,10 @@ class AddToAttributeTests(unittest.TestCase):
             """
         )
         overrides = {
-            "another": {"command": "more", "requires": ["information"],},
-            "bar": {"command": "thing", "requires": ["whatever-1"],},
+            "another": {"command": "more", "requires": ["information"]},
+            "bar": {"command": "thing", "requires": ["whatever-1"]},
             "foo": "thing",
-            "second_thing": {"command": "and more", "requires": ["information"],},
+            "second_thing": {"command": "and more", "requires": ["information"]},
         }
 
         expected = textwrap.dedent(
@@ -976,9 +976,7 @@ class AddToAttributeTests(unittest.TestCase):
             }
             """
         )
-        overrides = {
-            "foo": {"command": "more", "requires": ["information"]},
-        }
+        overrides = {"foo": {"command": "more", "requires": ["information"]}}
 
         self._test(expected, original, overrides)
 
@@ -990,9 +988,7 @@ class AddToAttributeTests(unittest.TestCase):
             """
         )
 
-        overrides = {
-            "thing": {"command": "thing", "run_on": "explicit"},
-        }
+        overrides = {"thing": {"command": "thing", "run_on": "explicit"}}
 
         expected = textwrap.dedent(
             """\
@@ -1027,9 +1023,7 @@ class AddToAttributeTests(unittest.TestCase):
             """
         )
 
-        overrides = {
-            "thing": {"command": "thing", "run_on": "explicit"},
-        }
+        overrides = {"thing": {"command": "thing", "run_on": "explicit"}}
 
         expected = textwrap.dedent(
             """\
@@ -1068,9 +1062,7 @@ class AddToAttributeTests(unittest.TestCase):
             """
         )
 
-        overrides = {
-            "thing": {"command": "thing", "run_on": "explicit"},
-        }
+        overrides = {"thing": {"command": "thing", "run_on": "explicit"}}
 
         expected = textwrap.dedent(
             """\

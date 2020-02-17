@@ -6,9 +6,7 @@ version = "1.0.0"
 
 description = "A Rez package manufacturer. It's reliably modifies Rez package.py files."
 
-help = [
-    ["README", "README.md"],
-]
+help = [["README", "README.md"]]
 
 private_build_requires = ["rez_build_helper-1+<2"]
 
@@ -46,7 +44,7 @@ tests = {
         # Need to disable D202 for now, until a new pydocstyle version is released
         # Reference: https://github.com/psf/black/issues/1159
         #
-        "command": "rez-env pydocstyle -- pydocstyle --ignore=D213,D202,D203,D406,D407 python tests/*",
+        "command": "rez-env pydocstyle -- pydocstyle --ignore=D213,D202,D203,D406,D407 python tests/*"
     },
     "pylint": {
         "command": "pylint --disable=bad-continuation python/rez_industry",
@@ -55,7 +53,7 @@ tests = {
     "unittest": {
         "command": "python -m unittest discover",
         "requires": [
-            "rez-2.52.1+<3",  # The tests use newer features than what is required by the package
+            "rez-2.52.1+<3"  # The tests use newer features than what is required by the package
         ],
     },
 }

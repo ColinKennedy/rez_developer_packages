@@ -36,7 +36,7 @@ def _validate(attribute, data, code):
     if not data:
         raise ValueError(
             'Data "{data}" cannot be empty. Attribute "{attribute}" will not be modified.'
-            ''.format(data=data, attribute=attribute)
+            "".format(data=data, attribute=attribute)
         )
 
     try:

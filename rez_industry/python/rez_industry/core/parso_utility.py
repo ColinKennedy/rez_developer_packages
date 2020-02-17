@@ -5,8 +5,8 @@
 
 import itertools
 
-from parso_helper import node_seek
 from parso.python import tree
+from parso_helper import node_seek
 
 
 def find_assignment_nodes(attribute, graph, inclusive=False):

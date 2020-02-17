@@ -5,7 +5,4 @@
 
 from .core.parser import add_to_attribute, remove_from_attribute
 
-__all__ = [
-    "add_to_attribute",
-    "remove_from_attribute",
-]
+__all__ = ["add_to_attribute", "remove_from_attribute"]

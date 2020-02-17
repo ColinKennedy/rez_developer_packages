@@ -9,8 +9,8 @@ its best to put it somewhere in the middle, if it can.
 
 """
 
-from parso_helper import node_seek
 from parso.python import tree
+from parso_helper import node_seek
 
 from . import parso_utility
 

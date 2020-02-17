@@ -10,8 +10,8 @@ import logging
 
 import parso
 import six
-from parso_helper import node_seek
 from parso.python import tree
+from parso_helper import node_seek
 from rez import package_serialise
 from rez.vendor.schema import schema
 
@@ -433,10 +433,7 @@ def _make_dict_nodes(data, prefix=""):
                 tree.Operator(":", (0, 0)),
                 tree.PythonNode(
                     "atom",
-                    [
-                        tree.String(item, (0, 0), prefix=" "),
-                        tree.Operator(",", (0, 0)),
-                    ],
+                    [tree.String(item, (0, 0), prefix=" "), tree.Operator(",", (0, 0))],
                 ),
             ]
         ),

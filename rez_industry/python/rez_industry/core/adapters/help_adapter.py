@@ -8,8 +8,8 @@ import copy
 import json
 
 import parso
-from parso_helper import node_seek
 from parso.python import tree
+from parso_helper import node_seek
 from rez import package_serialise
 from rez.vendor.schema import schema
 
@@ -62,7 +62,7 @@ class HelpAdapter(base.BaseAdapter):
             [
                 tree.String(
                     '"{_DEFAULT_FALLBACK_KEY}"'.format(
-                        _DEFAULT_FALLBACK_KEY=_DEFAULT_FALLBACK_KEY,
+                        _DEFAULT_FALLBACK_KEY=_DEFAULT_FALLBACK_KEY
                     ),
                     (0, 0),
                 ),

@@ -10,9 +10,9 @@ import json
 import parso
 from parso.python import tree
 from parso_helper import node_seek
-from rez.vendor.version import requirement as rez_requirement
 from rez import package_serialise
 from rez.vendor.schema import schema
+from rez.vendor.version import requirement as rez_requirement
 
 from .. import convention, parso_utility
 from . import base
@@ -225,7 +225,9 @@ def _make_new_list(requirements):
 
     return tree.PythonNode(
         "atom",
-        [tree.Operator("[", (0, 0))] + nodes + [tree.Operator("]", (0, 0), prefix=prefix)],
+        [tree.Operator("[", (0, 0))]
+        + nodes
+        + [tree.Operator("]", (0, 0), prefix=prefix)],
     )
 
 
@@ -242,9 +244,7 @@ def _make_nodes(data, prefix=""):
     """
     return [
         tree.String(
-            '"{requirement}"'.format(
-                requirement=requirement.replace('"', '\"')
-            ),
+            '"{requirement}"'.format(requirement=requirement.replace('"', '"')),
             (0, 0),
             prefix="\n{prefix}".format(prefix=prefix),
         )
@@ -265,6 +265,7 @@ def _merge_list_entries(old, new):
         list[:class:`parso.python.tree.String`]: The merge of `old` and `new`.
 
     """
+
     def _find_index(nodes, text):
         for index, node in enumerate(nodes):
             requirement = _escape(node.value)
