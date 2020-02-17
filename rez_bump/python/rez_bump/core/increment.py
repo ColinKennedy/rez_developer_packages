@@ -6,29 +6,66 @@
 import copy
 
 from rez.vendor.version import version as version_
-from rez import serialise
-from six.moves import io
+from rez_industry.core import convention, parso_utility
+from rez_utilities import inspection
+from parso.python import tree
+import parso
 
-from . import inspection
 
-
-def _write_package_to_disk(package, serializer=serialise.FileFormat.py):
+def _write_package_to_disk(package, version):
     """Update a Rez package on-disk with its new contents.
 
     Args:
         package (:class:`rez.packages_.DeveloperPackage`):
             Some package on-disk to write out.
-        serializer (:attr:`rez.serialise.FileFormat`):
-            A supported file format to write the package out to.
-            By default, it will be written out as a package.py file.
+        version (str):
+            The new semantic version that will be written to-disk.
 
     """
-    stream = io.StringIO()
-    package.print_info(buf=stream, format_=serializer)
-    source_code = stream.getvalue()
+    with open(package, "r") as handler:
+        code = handler.read()
 
-    with open(package.filepath, "w") as handler:
-        handler.write(source_code)
+    graph = parso.parse(code)
+
+    try:
+        assignment = parso_utility.find_assignment_nodes("version", graph)[-1]
+    except IndexError:
+        assignment = None
+
+    prefix = " "
+
+    if assignment:
+        prefix = assignment.children[0].prefix.strip("\n") or prefix
+
+    node = tree.String('"{version}"'.format(version=version), (0, 0), prefix=prefix)
+    graph = convention.insert_or_append(node, graph, assignment, "version")
+
+    with open(package, "w") as handler:
+        handler.write(graph.get_code())
+
+
+def _bump_version(version, minor):
+    def _bump(version, position, value):
+        version = copy.deepcopy(version)
+
+        if position == "minor":
+            new_value = int(str(version.minor)) + value
+            new_token = version_.NumericToken(str(new_value))
+            version.tokens[1] = new_token
+
+            return version
+
+        raise NotImplementedError('Need to support non-minor bumps.')
+
+    positions = set()
+
+    if minor:
+        positions.add(("minor", minor))
+
+    for position, value in positions:
+        version = _bump(version, position, value)
+
+    return version
 
 
 def bump(package, minor=0, absolute=False):
@@ -55,19 +92,6 @@ def bump(package, minor=0, absolute=False):
             `minor` is negative when `absolute` is True.
 
     """
-
-    def _bump(version, position, value):
-        version = copy.deepcopy(version)
-
-        if position == "minor":
-            new_value = int(str(version.minor)) + value
-            new_token = version_.NumericToken(str(new_value))
-            version.tokens[1] = new_token
-
-            return
-
-        raise NotImplementedError("Need to write support for this")
-
     if not absolute and not minor:
         raise ValueError('Nothing to do. No value was given to `minor`.')
 
@@ -82,17 +106,10 @@ def bump(package, minor=0, absolute=False):
             ''.format(package=package)
         )
 
-    positions = set()
+    if not absolute:
+        version = _bump_version(version, minor)
 
-    if minor:
-        positions.add(("minor", minor))
-
-    for position, value in positions:
-        version = _bump(version, position, value)
-
-    # package.version = version
-    _write_package_to_disk(package)
-
+    _write_package_to_disk(package.filepath, version)
     root = inspection.get_package_root(package)
 
     return inspection.get_nearest_rez_package(root)
