@@ -386,7 +386,7 @@ class Integrations(common.Common):
         self.assertEqual(expected_code, code)
 
     def test_allow_weird_input(self):
-        """Even if the --deprecate optin is given weird input, it should still work."""
+        """Make sure --deprecate works, even if it is accidentally given version information."""
         directory = tempfile.mkdtemp(suffix="_test_replace_and_deprecate")
         self.delete_item_later(directory)
 
