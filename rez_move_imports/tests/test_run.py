@@ -147,11 +147,10 @@ class Invalids(common.Common):
             '"{directory}"'.format(directory=directory),
         ]
 
-        with self.assertRaises(exception.MissingDirectory):
+        with self.assertRaises(exception.InvalidDirectory):
             cli.main(command)
 
 
-# TODO : Add test to make sure --deprecate allows (but ignores) version input information
 class Integrations(common.Common):
     """Make sure the CLI works as-expected."""
 
