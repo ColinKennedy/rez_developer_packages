@@ -69,13 +69,12 @@ def _bump_version(version, minor, absolute=False):
 
         if position == "minor":
             if absolute:
-                raise NotImplementedError()
-                # new_token = version_.NumericToken(str(new_value))
-                # version.tokens[1] = new_token
+                new_value = value
             else:
                 new_value = int(str(version.minor)) + value
-                new_token = version_.NumericToken(str(new_value))
-                version.tokens[1] = new_token
+
+            new_token = version_.NumericToken(str(new_value))
+            version.tokens[1] = new_token
 
             return version
 
