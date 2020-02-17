@@ -8,7 +8,7 @@ from .core import exception
 from . import cli
 
 if __name__ == "__main__":
-    known_exceptions = (
+    _KNOWN_EXCEPTIONS = (
         exception.InvalidDirectory,
         exception.InvalidInput,
         exception.MissingDirectory,
@@ -17,6 +17,6 @@ if __name__ == "__main__":
 
     try:
         cli.main(sys.argv[1:])
-    except known_exceptions as error:
+    except _KNOWN_EXCEPTIONS as error:
         print(str(error), file=sys.stderr)
         sys.exit(exception.MissingNamespaces.error_code)
