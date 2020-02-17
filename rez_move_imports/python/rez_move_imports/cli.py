@@ -234,7 +234,7 @@ def main(text):
     # surrounding ""s and the second time to actually split the tokens
     # into pieces.
     #
-    command = shlex.split(arguments.command)[0]
+    command = arguments.command.strip('"').strip("'")
     command_configuration = cli.parse_arguments(shlex.split(command))
 
     _check_namespaces(

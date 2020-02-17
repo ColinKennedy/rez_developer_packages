@@ -197,7 +197,7 @@ class Options(common.Common):
             )
 
         command = [
-            '"{directory} "old_dependency.a_module,a_new_namespace.somewhere_else\nanother_thing,second.location" --partial"'
+            r'"{directory} "old_dependency.a_module,a_new_namespace.somewhere_else\nanother_thing,second.location" --partial"'
             "".format(directory=directory),
             '--requirements="a_new_package-2+<4,a_new_namespace"',
             '--requirements="second_new_package-1+<2,second.location"',
@@ -215,7 +215,7 @@ class Options(common.Common):
             requires = [
                 "a_new_package-2+<4",
                 "python-2",
-                "some_another_package-2",
+                "second_new_package-1+<2",
                 "something_more",
             ]
             """
@@ -233,6 +233,7 @@ class Options(common.Common):
             import os
             import textwrap
 
+            from second.location.stuff import some_module
             from a_new_namespace import somewhere_else
 
             def something():
