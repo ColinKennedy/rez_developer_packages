@@ -14,6 +14,7 @@ import os
 import sys
 
 import six
+from python_compatibility import imports, wrapping
 from rez.config import config
 from rez_utilities import inspection
 
@@ -545,8 +546,21 @@ def _parse_arguments(text):
     return arguments, command_arguments
 
 
+@wrapping.run_once
+def _register_plugins():
+    for namespace in os.getenv("REZ_BATCH_PROCESS_PLUGINS").split(os.pathsep):
+        namespace = namespace.strip()
+
+        if not namespace:
+            continue
+
+        imports.import_nearest_module(namespace)
+
+
 def main(text):
     """Run the main execution of the current script."""
+    _register_plugins()
+
     arguments, command_arguments = _parse_arguments(text)
 
     if arguments.verbose:
