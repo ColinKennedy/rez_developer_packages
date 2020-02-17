@@ -106,6 +106,13 @@ def _expand(items):
         package = parts[0]
         namespaces = parts[1:]
 
+        if not namespaces:
+            raise exception.InvalidInput(
+                'Text "{package_and_namespaces}" '
+                'must be a list of Rez package + at least one Python namespace.'
+                ''.format(package_and_namespaces=package_and_namespaces)
+            )
+
         package = requirement.Requirement(package)
         output[package].update(namespaces)
 
@@ -209,10 +216,16 @@ def main(text):
     requirements = _expand(_clean_items(arguments.requirements))
     deprecate = _expand(_clean_items(arguments.deprecate))
     package_directory = _make_absolute(_clean(arguments.package_directory))
+
+    if not os.path.isdir(package_directory):
+        raise exception.MissingDirectory(
+            'Directory "{package_directory}" does not exist.'.format(package_directory=package_directory),
+        )
+
     package = inspection.get_nearest_rez_package(package_directory)
 
     if not package:
-        raise ValueError(
+        raise exception.InvalidDirectory(
             'Directory "{package_directory}" does not define a Rez package.'
             "".format(package_directory=package_directory)
         )

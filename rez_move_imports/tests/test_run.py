@@ -4,6 +4,7 @@
 """A series of unittests for the CLI of ``rez_move_imports``."""
 
 import os
+import shutil
 import tempfile
 import textwrap
 
@@ -116,14 +117,38 @@ class Invalids(common.Common):
         with self.assertRaises(exception.MissingNamespaces):
             cli.main(command)
 
-    # TODO : Finish
-    # def test_missing_directory(self):
-    #     """If a package directory is given and it doesn't exist, fail early."""
-    #     pass
-    #
-    # def test_invalid_directory(self):
-    #     """If an existing package directory is given but has no Rez package."""
-    #     pass
+    def test_missing_directory(self):
+        """If a package directory is given and it doesn't exist, fail early."""
+        directory = tempfile.mkdtemp(suffix="_test_missing_directory")
+        self.delete_item_later(directory)
+
+        shutil.rmtree(directory)
+
+        command = [
+            '"{directory} something,new_thing"'.format(directory=directory),
+            '--requirements="some_package,new_thing"',
+            '--deprecate="another_package,a_namespace_that_should_have_been_something"',
+            '--package-directory',
+            '"{directory}"'.format(directory=directory),
+        ]
+
+        with self.assertRaises(exception.MissingDirectory):
+            cli.main(command)
+
+    def test_invalid_directory(self):
+        """If an existing package directory is given but has no Rez package."""
+        directory = tempfile.mkdtemp(suffix="_test_missing_directory")
+
+        command = [
+            '"{directory} something,new_thing"'.format(directory=directory),
+            '--requirements="some_package,new_thing"',
+            '--deprecate="another_package,a_namespace_that_should_have_been_something"',
+            '--package-directory',
+            '"{directory}"'.format(directory=directory),
+        ]
+
+        with self.assertRaises(exception.MissingDirectory):
+            cli.main(command)
 
 
 # TODO : Add test to make sure --deprecate allows (but ignores) version input information

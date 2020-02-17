@@ -8,11 +8,15 @@ from .core import exception
 from . import cli
 
 if __name__ == "__main__":
+    known_exceptions = (
+        exception.InvalidDirectory,
+        exception.InvalidInput,
+        exception.MissingDirectory,
+        exception.MissingNamespaces,
+    )
+
     try:
         cli.main(sys.argv[1:])
-    except exception.MissingNamespaces as error:
+    except known_exceptions as error:
         print(str(error), file=sys.stderr)
         sys.exit(exception.MissingNamespaces.error_code)
-    except exception.InvalidInput as error:
-        print(str(error), file=sys.stderr)
-        sys.exit(exception.InvalidInput.error_code)

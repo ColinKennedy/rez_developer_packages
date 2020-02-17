@@ -3,6 +3,13 @@
 
 """All exceptions used to make the user's CLI experience as smooth as possible."""
 
+
+class InvalidDirectory(Exception):
+    """If the user provides a directory for a Rez package but no Rez package exists."""
+
+    error_code = 6
+
+
 class InvalidInput(Exception):
     """A variant of `ValueError`, but for the CLI.
 
@@ -15,6 +22,12 @@ class InvalidInput(Exception):
     """
 
     error_code = 4
+
+
+class MissingDirectory(Exception):
+    """If the user provides a non-existent directory for a Rez package."""
+
+    error_code = 5
 
 
 class MissingNamespaces(Exception):
