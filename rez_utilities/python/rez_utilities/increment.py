@@ -31,6 +31,9 @@ def _write_package_to_disk(package, serializer=serialise.FileFormat.py):
 def bump(package, minor=0, absolute=False):
     """Change the version of `package`.
 
+    Reference:
+        https://semver.org
+
     Args:
         package (:class:`rez.packages_.DeveloperPackage`):
             Some Rez file on-disk that can be changed and re-written.
