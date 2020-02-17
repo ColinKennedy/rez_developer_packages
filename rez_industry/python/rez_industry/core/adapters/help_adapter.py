@@ -160,6 +160,11 @@ class HelpAdapter(base.BaseAdapter):
                 Any values that'd typically define a Rez "tests"
                 attribute. Basically anything is allowed, as long the
                 Rez package schema considers it valid.
+            append (bool, optional):
+                If False, anything in `data` will override the objects
+                in `graph` if there are any conflicts between the two.
+                If True, the conflicts are ignored and `data` is just
+                added to `graph` is if no conflict exists. Default is False.
 
         Returns:
             str:

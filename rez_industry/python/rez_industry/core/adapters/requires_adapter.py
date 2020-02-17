@@ -40,23 +40,21 @@ class RequiresAdapter(base.BaseAdapter):
 
     @staticmethod
     def modify_with_existing(graph, data):
-        # """Add `data` to a parso node `graph`.
-        #
-        # Args:
-        #     graph (:class:`parso.python.Tree.PythonBaseNode`):
-        #         Some node that will either be appended to or have some
-        #         of its contents overwritten and returned.
-        #     data (object):
-        #         Whatever data will be added to `graph`. It's up to
-        #         subclasses to figure out what kind of data is needed and
-        #         how it will be added.
-        #
-        # Returns:
-        #     str:
-        #         The modified Python source code. It should resemble the
-        #         source code of `graph` plus any serialized `data`.
-        #
-        # """
+        """Add `data` to a parso node `graph`.
+
+        Args:
+            graph (:class:`parso.python.tree.Module`):
+                Some node that will either be appended to or have some
+                of its contents overwritten and returned.
+            data (list[str]):
+                Rez requirements to convert to parso nodes and added to `graph`.
+
+        Returns:
+            str:
+                The modified Python source code. It should resemble the
+                source code of `graph` plus any serialized `data`.
+
+        """
         try:
             assignment = parso_utility.find_assignment_nodes("requires", graph)[-1]
         except IndexError:
@@ -73,7 +71,20 @@ class RequiresAdapter(base.BaseAdapter):
         return graph.get_code()
 
     @staticmethod
-    def remove_from_attribute(graph, data):  # pragma: no cover
+    def remove_from_attribute(graph, data):
+        """Delete `data` from `graph`, if it exists.
+
+        Args:
+            graph (:class:`parso.python.tree.Module`):
+                The parso node that will contains a "requires" attribute
+                that this function will modify.
+            data (list[str]):
+                The requirements that may exist in `graph` and will be elimnated.
+
+        Returns:
+            str: The original `graph` but as a result of the deleted content.
+
+        """
         try:
             assignment = parso_utility.find_assignment_nodes("requires", graph)[-1]
         except IndexError:
@@ -98,6 +109,17 @@ def _is_list_root_definition(node):
 
 
 def _get_entries(node):
+    """Get the existing "requires" assignment parso nodes.
+
+    Args:
+        node (:class:`parso.python.tree.ExprStmt`):
+            A parso assignment node that defines "requires".
+            e.g. Imagine "requires = ["foo-1"]", but as a single Python node.
+
+    Returns:
+        list[:class:`parso.python.tree.String`]: The existing requirements in `node`.
+
+    """
     root_entries = _get_inner_list_entries(node)
 
     if not root_entries:
@@ -115,7 +137,7 @@ def _get_entries(node):
 
 # TODO : De-duplicate this
 def _get_inner_list_entries(node):
-    """Find the literal "help" entries of a node.
+    """Find the literal "requires" entries of a node.
 
     Args:
         node (:class:`parso.python.tree.PythonBaseNode`):
@@ -124,7 +146,7 @@ def _get_inner_list_entries(node):
 
     Returns:
         list[:class:`parso.python.tree.PythonNode`]:
-            The found key / value "help" attribute entries, if any.
+            The found key / value "requires" attribute entries, if any.
 
     """
     entries = []
@@ -144,6 +166,18 @@ def _get_inner_list_entries(node):
 
 
 def _get_prefix(node):
+    """Find the indentation used by `node`.
+
+    This function ignores newlines and just gets the spaces / tabs used.
+
+    Args:
+        node (:class:`parso.python.tree.PythonBaseNode`):
+            A parso object that is assumed to define a "requires" attribute.
+
+    Returns:
+        str: The leading indentation found, if any.
+
+    """
     prefixes = set()
 
     for child in _get_inner_list_entries(node):
@@ -161,10 +195,23 @@ def _get_prefix(node):
 
 
 def _escape(text):
+    """str: Remove double-quotes around text."""
     return text.strip('"')
 
 
 def _make_new_list(requirements):
+    """Make a flat Python list, using parso nodes.
+
+    Args:
+        requirements (iter[:class:`parso.python.tree.String`]):
+            The Rez requirements that'll be used to generate the new
+            list. No nodes related to punctuation should be used here.
+            Just requirements.
+
+    Returns:
+        :class:`parso.python.tree.PythonNode`: The generated list.
+
+    """
     nodes = []
 
     for requirement in requirements:
@@ -183,10 +230,20 @@ def _make_new_list(requirements):
 
 
 def _make_nodes(data, prefix=""):
+    """Make basic parso nodes to describe `data`.
+
+    Args:
+        data (iter[str]): Some Rez requirement objects to convert into parso nodes.
+        prefix (str, optional): Leading indentation for each generated node. Default: "".
+
+    Returns:
+        list[:class:`parso.python.tree.String`]: The parso nodes which represent the given `data`.
+
+    """
     return [
         tree.String(
             '"{requirement}"'.format(
-                requirement=requirement.replace('"', '"')
+                requirement=requirement.replace('"', '\"')
             ),
             (0, 0),
             prefix="\n{prefix}".format(prefix=prefix),
@@ -196,6 +253,18 @@ def _make_nodes(data, prefix=""):
 
 
 def _merge_list_entries(old, new):
+    """Apply `new` onto `old`.
+
+    Args:
+        old (list[:class:`parso.python.tree.String`]):
+            The Rez requirements that will be modified.
+        new (list[:class:`parso.python.tree.String`]):
+            New (or existing) Rez requirements to add on top of `old`.
+
+    Returns:
+        list[:class:`parso.python.tree.String`]: The merge of `old` and `new`.
+
+    """
     def _find_index(nodes, text):
         for index, node in enumerate(nodes):
             requirement = _escape(node.value)
@@ -217,6 +286,19 @@ def _merge_list_entries(old, new):
 
 
 def _remove_existing_entries(old, new):
+    """Remove any entries of `old` that also exist in `new`.
+
+    Args:
+        old (list[:class:`parso.python.tree.String`]):
+            The Rez requirements that may be removed.
+        new (list[:class:`parso.python.tree.String`]):
+            Any Rez requirements that should be removed from `old`.
+
+    Returns:
+        list[:class:`parso.python.tree.String`]:
+            A modified version of `old` that doesn't contain anything from `new`.
+
+    """
     old = copy.deepcopy(old)
 
     # Since `requires` doesn't really play nice with duplicate entries,
