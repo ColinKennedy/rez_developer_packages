@@ -106,7 +106,7 @@ class RezShellCommand(base.BaseCommand):
         if stderr:
             message = (
                 'Package "{package.name}" raised an error when '
-                '"{command}" command was run. Documentation may '
+                '"{command}" command was run. The command may '
                 "not have been added correctly.".format(
                     package=package, command=command
                 )
@@ -194,11 +194,11 @@ class RezShellCommand(base.BaseCommand):
             configuration=configuration, package=package,
         )
         # TODO : Change this spot to actually use the repository's default branch
-        body = cls._get_pull_request_body(package)
+        body = cls._get_pull_request_body(package, configuration)
         commit_message = cls._get_commit_message(package.name)
 
         branch_template = (
-            "{configuration.pull_request_prefix}_{package.name}_add_documentation"
+            "{configuration.pull_request_prefix}_{package.name}_run_command"
             "".format(configuration=configuration, package=package,)
         )
         new_branch_name = _get_unique_branch(repository, branch_template)
@@ -256,13 +256,11 @@ class RezShellCommand(base.BaseCommand):
 
         """
         parser = argparse.ArgumentParser(
-            description="Get the shell command to run. This command will "
-            "generate the user's documentation."
+            description="Run some command on Rez packages.",
         )
         parser.add_argument(
             "command",
-            help="The shell command that creates the Rez package documentation. "
-            'e.g. "create-documentation"',
+            help="The shell command that will be run while cd'ed into every Rez package.",
         )
         parser.add_argument(
             "pull_request_prefix",
@@ -276,7 +274,7 @@ class RezShellCommand(base.BaseCommand):
             "-e",
             "--exit-on-error",
             action="store_true",
-            help="If adding documentation to a package raises an exception "
+            help="If running the command on a package raises an exception "
             "and this flag is added, this class will bail out early.",
         )
         parser.add_argument(
