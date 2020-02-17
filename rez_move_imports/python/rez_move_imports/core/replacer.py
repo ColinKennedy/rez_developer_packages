@@ -9,6 +9,7 @@ Both Python files and Rez package modules are manipulatable, using this module.
 
 from move_break import move_break_api
 from python_compatibility import dependency_analyzer
+from rez_bump import rez_bump_api
 from rez_industry import api
 
 
@@ -165,7 +166,7 @@ def is_matching_namespace(part, options):
     return False
 
 
-def replace(package, configuration, deprecate, requirements):
+def replace(package, configuration, deprecate, requirements, bump=True):
     """Replace as many Rez packages listed in `deprecate` with those listed in `requirements`.
 
     These packages get added / removed from `package` and written
@@ -194,6 +195,11 @@ def replace(package, configuration, deprecate, requirements):
             Each Rez package that we'd like to add as dependencies to
             `package` followed by the Python dot-separated namespaces
             that each Rez package defines.
+        bump (bool, optional):
+            If True and `package` or its contents are modified,
+            increment the minor version of `package` to reflect the new
+            changes. If False, don't change the minor version of the Rez
+            package even after new changes were made. Default is True.
 
     """
     # Replace Python imports in all of the paths in `configuration`
@@ -214,3 +220,6 @@ def replace(package, configuration, deprecate, requirements):
     }
     _remove_deprecated_packages(package, namespaces, deprecate)
     _add_new_requirement_packages(package, namespaces, requirements)
+
+    if bump:
+        rez_bump_api.bump(package, minor=1)

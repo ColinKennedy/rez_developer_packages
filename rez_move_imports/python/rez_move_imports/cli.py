@@ -44,10 +44,10 @@ def _parse_arguments(text):
         help="A requirement of the current package and namespace(s) to possibly remove.",
     )
     parser.add_argument(
-        "-u",
-        "--use-pythonpath",
+        "-n",
+        "--no-bump",
         action="store_true",
-        help="Search for python files only within PYTHONPATH instead of the whole Rez package.",
+        help="If added, don't bump the minor version of the Rez package, even if it was modified.",
     )
     parser.add_argument(
         "-p",
@@ -243,4 +243,10 @@ def main(text):
         [namespaces for _, namespaces in requirements],
     )
 
-    replacer.replace(package, command_configuration, deprecate, requirements)
+    replacer.replace(
+        package,
+        command_configuration,
+        deprecate,
+        requirements,
+        bump=not arguments.no_bump,
+    )

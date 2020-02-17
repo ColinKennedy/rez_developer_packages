@@ -186,6 +186,8 @@ class Options(common.Common):
                     """\
                     name = "some_test_package"
 
+                    version = "1.1.0"
+
                     requires = [
                         "old_dependency_package-1+<3",
                         "python-2",
@@ -211,6 +213,8 @@ class Options(common.Common):
         expected_package = textwrap.dedent(
             """\
             name = "some_test_package"
+
+            version = "1.2.0"
 
             requires = [
                 "a_new_package-2+<4",
@@ -329,6 +333,8 @@ class Integrations(common.Common):
                     """\
                     name = "some_test_package"
 
+                    version = "3.2.build_13"
+
                     requires = [
                         "something_more",
                         "old_dependency_package-1+<3",
@@ -351,6 +357,8 @@ class Integrations(common.Common):
         expected_package = textwrap.dedent(
             """\
             name = "some_test_package"
+
+            version = "3.3.build_13"
 
             requires = [
                 "a_new_package-2+<4",
@@ -423,6 +431,8 @@ class Integrations(common.Common):
                     """\
                     name = "some_test_package"
 
+                    version = "1.0.0"
+
                     requires = [
                         "something_more",
                         "old_dependency_package-1+<3",
@@ -445,6 +455,8 @@ class Integrations(common.Common):
         expected_package = textwrap.dedent(
             """\
             name = "some_test_package"
+
+            version = "1.1.0"
 
             requires = [
                 "a_new_package-2+<4",
@@ -511,6 +523,8 @@ class Integrations(common.Common):
                     """\
                     name = "some_test_package"
 
+                    version = "99.98.99"
+
                     requires = [
                         "something_more",
                         "old_dependency_package-1+<3",
@@ -533,6 +547,8 @@ class Integrations(common.Common):
         expected_package = textwrap.dedent(
             """\
             name = "some_test_package"
+
+            version = "99.99.99"
 
             requires = [
                 "a_new_package-2+<4",
