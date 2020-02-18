@@ -11,9 +11,12 @@ import textwrap
 import git
 from python_compatibility.testing import common
 from rez import packages_
+from rezplugins.package_repository import filesystem
 from rez_batch_process.core import registry, worker
 from rez_batch_process.core.plugins import conditional
 from rez_utilities import creator, inspection
+from rez import exceptions as rez_exceptions
+from rez_batch_process.core import exceptions
 from six.moves import mock
 
 
@@ -25,15 +28,15 @@ class Tests(common.Common):
         """Add some generic plugins so that tests have something to work with."""
         super(Tests, cls).setUpClass()
 
-        registry.register_plugin("non_python_package", conditional.NonPythonPackage)
-        registry.register_plugin("has_documentation", conditional.HasDocumentation)
+        registry.clear_plugin("shell")
+        registry.register_plugin("shell", _get_missing_documentation_packages)
 
     @classmethod
     def tearDownClass(cls):
         """Remove all stored plugins."""
         super(Tests, cls).tearDownClass()
 
-        for name in registry.get_skip_plugins_keys():
+        for name in registry.get_plugin_keys():
             registry.clear_plugin(name)
 
     def _test(self, expected, packages, paths=None):
@@ -65,14 +68,18 @@ class Tests(common.Common):
                 example. Default is None.
 
         Returns:
-            The output of :func:`rez_batch_process.core.worker.fix`.
+            The output of :func:`rez_batch_process.core.worker.run`.
 
         """
         arguments = mock.MagicMock()
         arguments.command = "echo 'foo'"
         arguments.pull_request_prefix = "ticket-name"
         arguments.exit_on_error = True
-        _, unfixed, invalids, skips = worker.fix(packages, arguments, paths=paths)
+        finder = registry.get_package_finder("shell")
+        packages, invalid_packages, skips = finder(paths=paths)
+        _, unfixed, invalids = worker.run(packages, arguments, paths=paths)
+
+        invalids.extend(invalid_packages)
 
         return (unfixed, invalids, skips)
 
@@ -119,6 +126,75 @@ def _make_python_rezbuild(path):
                 '''
             )
         )
+
+
+def _run_and_catch(function, package):
+    known_issues = (
+        # :func:`is_not_a_python_package` can potentially raise any of these exceptions
+        rez_exceptions.PackageNotFoundError,
+        rez_exceptions.ResolvedContextError,
+        filesystem.PackageDefinitionFileMissing,
+        # :func:`has_documentation` raises this exception
+        exceptions.NoGitRepository,
+    )
+
+    try:
+        return function(package), []
+    except known_issues as error:
+        path = inspection.get_package_root(package)
+
+        return False, [exceptions.InvalidPackage(package, path, str(error))]
+    except Exception as error:  # pylint: disable=broad-except
+        path, message = worker.handle_generic_exception(error, package)
+
+        return False, [
+            exceptions.InvalidPackage(
+                package, path, "Generic error: " + message, full_message=str(error)
+            )
+        ]
+
+
+def _get_missing_documentation_packages(paths=None):
+    packages, invalids, skips = conditional.get_default_latest_packages(paths=paths)
+    invalids = []
+    output = []
+
+    for package in packages:
+        result, invalids_ = _run_and_catch(conditional.is_not_a_python_package, package)
+
+        if result:
+            skips.append(worker.Skip(
+                package,
+                inspection.get_package_root(package),
+                "Rez Package does not define Python packges / modules.",
+            ))
+
+            continue
+
+        if invalids_:
+            invalids.extend(invalids_)
+
+            continue
+
+        result, invalids_ = _run_and_catch(conditional.has_documentation, package)
+
+        if result:
+            skips.append(worker.Skip(
+                package,
+                inspection.get_package_root(package),
+                "Python package already has documentation.",
+            ))
+
+            continue
+
+        if invalids_:
+            invalids.extend(invalids_)
+
+            continue
+
+        output.append(package)
+
+    return output, invalids, skips
 
 
 def make_build_python_package(text, name, version, root):
@@ -304,6 +380,8 @@ def make_source_python_package(text, name, version, root):
         handler.write(
             textwrap.dedent(
                 """
+                version = "1.0.0"
+
                 build_command = "python {root}/rezbuild.py {install}"
 
                 def commands():

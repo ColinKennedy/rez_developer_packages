@@ -31,7 +31,7 @@ class Add(common.Common):
     def _test_package(self, packages):
         """Make sure that the given `packages` get "fixed" properly.
 
-        This method works by setting the "fix" command to create a file
+        This method works by setting the "run" command to create a file
         in the user's source Rez package. If the file exists, it ran
         successfully. If it doesn't, then the command must have failed.
 
@@ -47,11 +47,11 @@ class Add(common.Common):
             "rez_batch_process.core.gitter.git_registry.get_remote_adapter"
         ) as patch:
             patch.create_pull_request = lambda *args, **kwargs: None
-            fixed, unfixed, invalids, skips = worker.fix(packages, arguments)
+            ran, un_ran, invalids = worker.run(packages, arguments)
 
-        self.assertEqual((set(), [], []), (unfixed, invalids, skips))
+        self.assertEqual((set(), []), (un_ran, invalids))
 
-        package = next(iter(fixed))
+        package = next(iter(ran))
         package_root = inspection.get_package_root(package)
         git_repository_root = os.path.dirname(package_root)
         git_repository = git.Repo(git_repository_root)

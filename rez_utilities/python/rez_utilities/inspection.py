@@ -161,7 +161,12 @@ def is_built_package(package):
             'Input "{package}" is not a valid Rez package.'.format(package=package)
         )
 
-    return str(package.version) == os.path.basename(parent_folder)
+    version = str(package.version)
+
+    if not version:
+        return False
+
+    return version == os.path.basename(parent_folder)
 
 
 def has_python_package(package, paths=None, allow_build=True, allow_current_context=False):

@@ -29,7 +29,6 @@ def __report(arguments, _):
 
     This function prints out
 
-    - Packages that need documentation
     - Packages that were found as "invalid"
     - Packages that were skipped automatically
     - Packages that were ignored explicitly (by the user)
@@ -47,19 +46,26 @@ def __report(arguments, _):
         arguments.search_packages_path,
     )
     rez_packages = set(arguments.rez_packages)
-    latest_packages = inspection.iter_latest_packages(
-        paths=packages_path, packages=rez_packages,
-    )
+
+    package_finder = registry.get_package_finder(arguments.command)
+
+    if rez_packages:
+        found_packages, invalid_packages, skips = [package for package in package_finder(paths=packages_path) if package.name in rez_packages]
+    else:
+        found_packages, invalid_packages, skips = list(package_finder(paths=packages_path))
+
     ignored_packages, other_packages = _split_the_ignored_packages(
-        latest_packages, ignore_patterns
+        found_packages, ignore_patterns,
     )
 
-    packages, invalids, skips = worker.report(
+    packages, invalids = worker.report(
         other_packages,
         maximum_repositories=arguments.maximum_repositories,
         maximum_rez_packages=arguments.maximum_rez_packages,
         paths=packages_path + search_packages_path,
     )
+
+    invalids.extend(invalid_packages)
 
     _print_ignored(ignored_packages)
     print("\n")
@@ -72,8 +78,8 @@ def __report(arguments, _):
     sys.exit(0)
 
 
-def __fix(arguments, command_arguments):
-    """Add documentation to any package that needs it.
+def __run(arguments, command_arguments):
+    """Execute a plugin command on any package that needs it.
 
     Args:
         arguments (:class:`argparse.Namespace`):
@@ -82,21 +88,27 @@ def __fix(arguments, command_arguments):
             The registered command's parsed arguments.
 
     """
+    raise ValueError('Need to update this function')
     ignore_patterns, packages_path, search_packages_path = _resolve_arguments(
         arguments.ignore_patterns,
         arguments.packages_path,
         arguments.search_packages_path,
     )
     rez_packages = set(arguments.rez_packages)
-    latest_packages = inspection.iter_latest_packages(
-        paths=packages_path, packages=rez_packages,
-    )
+
+    package_finder = registry.get_package_finder(arguments.command)
+
+    if rez_packages:
+        found_packages, invalid_packages, skips = [package for package in package_finder(paths=packages_path) if package.name in rez_packages]
+    else:
+        found_packages, invalid_packages, skips = list(package_finder(paths=packages_path))
+
     ignored_packages, other_packages = _split_the_ignored_packages(
-        latest_packages, ignore_patterns
+        found_packages, ignore_patterns
     )
     print("TODO need to print the ignored packages")
 
-    packages, unfixed, invalids, skips = worker.fix(
+    packages, un_ran, invalids = worker.run(
         other_packages,
         command_arguments,
         maximum_repositories=arguments.maximum_repositories,
@@ -105,6 +117,8 @@ def __fix(arguments, command_arguments):
         keep_temporary_files=arguments.keep_temporary_files,
         temporary_directory=arguments.temporary_directory,
     )
+
+    invalids.extend(invalid_packages)
 
     # TODO : Change `Skip` into a class and make it the same interface as an exception
     # so that I can easily print both types at the same time, here
@@ -116,17 +130,17 @@ def __fix(arguments, command_arguments):
         print("\n")
         print(bads)
 
-    if unfixed:
-        print("These packages could not be given documentation:")
+    if un_ran:
+        print("These packages could not be run on:")
 
-        for package, error in sorted(unfixed, key=_get_package_name):
+        for package, error in sorted(un_ran, key=_get_package_name):
             print(
                 "{package.name}: {error}".format(
                     package=package, error=str(error) or "No found error message"
                 )
             )
 
-        sys.exit(cli_constant.UNFIXED_PACKAGES_FOUND)
+        sys.exit(cli_constant.UN_RAN_PACKAGES_FOUND)
 
     if packages:
         print("These packages were modified successfully:")
@@ -198,13 +212,13 @@ def _resolve_arguments(patterns, packages_path, search_packages_path):
             be paths to files on-disk that contain glob expressions
             (one-expression-by-line).
         packages_path (str or list[str]):
-            The Rez package directories that "fix" or "report" will run
+            The Rez package directories that "run" or "report" will run
             on. It could be a path-separated string like "/foo:/bar" or
             a list of strings, like ["/foo", "/bar"].
         search_packages_path (str or list[str]):
             Extra Rez package directories that will be used to help
             resolve packages found in `packages_path`. The Rez packages
-            found here will not be processed using "fix" or "report".
+            found here will not be processed using "run" or "report".
 
     Returns:
         tuple[set[str], list[str]]:
@@ -286,8 +300,8 @@ def _print_invalids(invalids, verbose):
 
     """
     if not invalids:
-        print('## Every found Rez package was marked as "valid"!')
-        print("No data found")
+        print('## No Rez package was set as invalid.')
+        print("Nothing is invalid. Which is a good thing!")
 
         return
 
@@ -313,7 +327,7 @@ def _print_invalids(invalids, verbose):
 
 
 def _print_missing(packages, verbose):
-    """Print all Rez packages that have missing documentation.
+    """Print all Rez packages that should be run on.
 
     Args:
         packages (iter[:class:`rez.packages`]): The Rez packages that
@@ -323,12 +337,12 @@ def _print_missing(packages, verbose):
 
     """
     if not packages:
-        print("## No Rez package is missing Sphinx documentation.")
+        print("## No Rez packages were found.")
         print("No data found")
 
         return
 
-    print("## These Rez packages are missing Sphinx documentation.")
+    print("## Your command affects these Rez packages.")
 
     template = "{package.name}"
 
@@ -346,11 +360,10 @@ def _print_skips(skips, verbose):
     """Print the Rez packages that were skipped automatically by this tool.
 
     Skipped packages differ from "invalid" packages in that they are
-    "valid Rez packages but just not the kind of Rez packages that
-    are missing documentation." Ignored packages are Rez packages
-    that the user explicitly said to not process. Skipped packages
-    are packages that the user may have meant to process but this
-    tool could not (for some reason or another).
+    "valid Rez packages but just don't need the command run on". Ignored
+    packages are Rez packages that the user explicitly said to not
+    process. Skipped packages are packages that the user may have meant
+    to process but this tool could not (for some reason or another).
 
     Args:
         skips (:attr:`.Skip`): A collection of Rez package, path on-disk, and a
@@ -361,11 +374,11 @@ def _print_skips(skips, verbose):
     """
     if not skips:
         print("## No packages were skipped")
-        print("No data found")
+        print("Every found Rez package can be processed by the command.")
 
         return
 
-    print("## Packages were skipped. Here's the full list:")
+    print("## Packages were skipped from running a command. Here's the full list:")
 
     template = "{issue.package.name}: {issue.reason}"
 
@@ -385,12 +398,18 @@ def _add_arguments(parser):
 
     """
     parser.add_argument(
+        "command",
+        help='The plugin to run. e.g. "shell".',
+        choices=sorted(registry.get_command_keys()),
+    )
+
+    parser.add_argument(
         "-x",
         "--maximum-repositories",
         default=sys.maxint,
         type=int,
-        help='If this a value of `2` is used, it means "Only search 2 repositories '
-        'for missing documentation, at most".',
+        help='If a value of `2` is used, it means "Only search 2 repositories '
+        'for Rez packages to run on, at most".',
     )
 
     parser.add_argument(
@@ -398,15 +417,15 @@ def _add_arguments(parser):
         "--maximum-rez-packages",
         default=sys.maxint,
         type=int,
-        help='If this a value of `2` is used, it means "Only search 2 Rez packages '
-        'for missing documentation, at most".',
+        help='If a value of `2` is used, it means "Only search for 2 Rez packages '
+        'to run some comm on, at most".',
     )
 
     parser.add_argument(
         "-p",
         "--packages-path",
         default=[config.release_packages_path],  # pylint: disable=no-member
-        help="A `{os.pathsep}` separated list of paths that report/fix will be run on. "
+        help="A `{os.pathsep}` separated list of paths that report/run will be run on. "
         "If not defined, `rez.config.config.release_packages_path` is used, instead.".format(
             os=os
         ),
@@ -429,7 +448,7 @@ def _add_arguments(parser):
         nargs="*",
         help="A set of glob expressions or a file to a set of glob expressions. "
         "If a Rez package name matches one of "
-        "these, it will not be checked for documentation.",
+        "these, it will not be run on.",
     )
 
     parser.add_argument(
@@ -463,16 +482,16 @@ def _process_help(text):
     Imagine you have 3 calls to ``rez_batch_process``
 
     python -m rez_batch_process --help
-    python -m rez_batch_process fix --help
-    python -m rez_batch_process fix shell --help
+    python -m rez_batch_process run --help
+    python -m rez_batch_process run shell --help
 
-    The first should print the choices "check" and "fix".
-    The second should print the arguments for "fix".
+    The first should print the choices "report" and "run".
+    The second should print the arguments for "run".
     The third should print the arguments for the dynamic plugin for "shell".
 
     Unfortunately, that's not how it works. If the "--help" flag is
-    listed anywhere after the ``python -m rez_batch_process fix`` part,
-    it prints the help message for fix. The help message for "shell" is
+    listed anywhere after the ``python -m rez_batch_process run`` part,
+    it prints the help message for run. The help message for "shell" is
     never shown.
 
     This function fixes this problem, by detecting the user's intent and
@@ -501,9 +520,9 @@ def _process_help(text):
         return text, False
 
     try:
-        subparser_index = text.index("check")
+        subparser_index = text.index("report")
     except ValueError:
-        subparser_index = text.index("fix")
+        subparser_index = text.index("run")
 
     if text.index(found_text) - 1 > subparser_index:
         text.remove(found_text)
@@ -512,7 +531,7 @@ def _process_help(text):
 
 
 def _parse_arguments(text):
-    """Add commands such as "check" and "fix" which can detect / add documentation.
+    """Add commands such as "report" and "run" which can detect / run.
 
     Returns:
         tuple[:class:`argparse.Namespace`, :class:`argparse.Namespace`]:
@@ -523,7 +542,7 @@ def _parse_arguments(text):
     text, needs_subparser_help = _process_help(text)
 
     parser = argparse.ArgumentParser(
-        description="Find Rez packages that are missing Sphinx documentation."
+        description="Find Rez packages to change using a command."
     )
     parser.add_argument(
         "-v",
@@ -540,14 +559,9 @@ def _parse_arguments(text):
     reporter.set_defaults(execute=__report)
     _add_arguments(reporter)
 
-    fixer = sub_parsers.add_parser("fix")
-    fixer.set_defaults(execute=__fix)
-    fixer.add_argument(
-        "command",
-        help='The plugin to run. e.g. "shell".',
-        choices=sorted(registry.get_command_keys()),
-    )
-    _add_arguments(fixer)
+    runner = sub_parsers.add_parser("run")
+    runner.set_defaults(execute=__run)
+    _add_arguments(runner)
 
     git_users_command = sub_parsers.add_parser("make-git-users")
     git_users_command.set_defaults(execute=__make_git_users)

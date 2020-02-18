@@ -86,37 +86,3 @@ class BaseCommand(object):
 
         """
         raise NotImplementedError("Implement the run logic in a sub-class")
-
-
-@six.add_metaclass(abc.ABCMeta)
-class BaseCondition(object):
-    """The class that all registered plugins should subclass and implement.
-
-    Each plugin, ideally, should only check one issue at at time.
-
-    """
-
-    @staticmethod
-    @abc.abstractmethod
-    def has_issue(package, paths=None):
-        """Check if the given Rez package has a problem.
-
-        Args:
-            package (:class:`rez.packages_.Package`):
-                The Rez package that will be used to check for a problem.
-            paths (list[str], optional): The locations on-disk
-                that will be used to any Rez-environment-related work.
-                Some plugins need these paths for resolving a context,
-                for example. Default is None.
-
-        Return:
-            bool: If a problem was found for the given package.
-
-        """
-        return True
-
-    @staticmethod
-    @abc.abstractmethod
-    def get_message():
-        """str: Report the issue that this plugin class checks for."""
-        return ""

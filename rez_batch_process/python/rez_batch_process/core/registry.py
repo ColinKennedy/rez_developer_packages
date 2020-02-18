@@ -10,10 +10,12 @@ a Python package or already has documentation.
 
 import collections
 
+from rez_utilities import inspection
+
 from .plugins import command, conditional
 
 _COMMANDS = {"shell": command.RezShellCommand}
-_PLUGINS = collections.OrderedDict()
+_PLUGINS = {"shell": conditional.get_default_latest_packages}
 
 
 def get_command(name):
@@ -34,24 +36,26 @@ def get_command_keys():
     return set(_COMMANDS.keys())
 
 
-def get_skip_plugins():
-    """Find the objects that determine whether to skip a Rez package.
-
-    By default, the registered plugins will skip a Rez package if it is
-    not a Python package or already has documentation.
-
-    Returns:
-        list[:class:`.BasePlugin`]:
-            The plugins that will be used to find out if the Rez package
-            needs documentation.
-
-    """
-    return list(_PLUGINS.values())
-
-
-def get_skip_plugins_keys():
-    """set[str]: Find every plugin that is currently registerd to ``rez_batch_process``."""
+def get_plugin_keys():
     return set(_PLUGINS.keys())
+
+
+def get_package_finder(name):
+    # """Find the objects that determine whether to skip a Rez package.
+    #
+    # By default, the registered plugins will skip a Rez package if it is
+    # not a Python package or already has documentation.
+    #
+    # Returns:
+    #     list[:class:`.BasePlugin`]:
+    #         The plugins that will be used to find out if the Rez package
+    #         needs documentation.
+    #
+    # """
+    if name not in _PLUGINS:
+        raise ValueError('Command "{name}" has no registered package function.'.format(name=name))
+
+    return _PLUGINS[name]
 
 
 def clear_command(name):
@@ -136,7 +140,7 @@ def register_plugin(name, plugin, override=False):
             not set to True.
 
     """
-    if not override and name in _COMMANDS:
+    if not override and name in _PLUGINS:
         raise ValueError('Name "{name}" is already registered.'.format(name=name))
 
     _PLUGINS[name] = plugin

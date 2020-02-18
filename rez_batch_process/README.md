@@ -50,7 +50,7 @@ python -m rez_batch_process check {command-name} {command-arguments}
 2. Run the command
 
 ```sh
-python -m rez_batch_process fix {command-name} {command-arguments}
+python -m rez_batch_process run {command-name} {command-arguments}
 ```
 
 3. Create a JSON cache of GitHub users which can be used for the
@@ -77,11 +77,11 @@ The basic steps that ``rez_batch_process`` are:
 
 # Features
 
-``rez_batch_process`` comes with 2 commands. "check" and "fix".
+``rez_batch_process`` comes with 2 commands. "report" and "run".
 
-"fix" is the "do it" command that actually modifies Rez packages and makes pull requests.
-"check" lets you preview the packages that would be changed by your command before it runs.
-"check" is basically a dry-run of "fix".
+"run" is the "do it" command that actually modifies Rez packages and makes pull requests.
+"report" lets you preview the packages that would be changed by your command before it runs.
+"report" is basically a dry-run of "run".
 
 
 # Example Command
@@ -94,7 +94,7 @@ becomes more understandable.
 ## Basic Command
 
 ```sh
-python -m rez_batch_process fix "touch test_file.txt" AS-1234 git-token
+python -m rez_batch_process run "touch test_file.txt" AS-1234 git-token
 ```
 
 The above command adds a file called "test_file.txt" to every released
@@ -112,7 +112,7 @@ Here's a command that adds "test_file.txt" to a Rez package called
 
 TODO implement this
 ```sh
-python -m rez_batch_process fix --keep-temporary-files --clone-directory /tmp/repository_clones/attempt_1 --packages rez_batch_process --search-packages-path `rez-config release_packages_path`:$REZ_PACKAGES_PATH "touch test_file.txt" --temporary-directory /tmp/foo/bar shell AS-1234 git-token --base-url https://github-enterprise.com
+python -m rez_batch_process run --keep-temporary-files --clone-directory /tmp/repository_clones/attempt_1 --packages rez_batch_process --search-packages-path `rez-config release_packages_path`:$REZ_PACKAGES_PATH "touch test_file.txt" --temporary-directory /tmp/foo/bar shell AS-1234 git-token --base-url https://github-enterprise.com
 ```
 
 This is an example of most parameters that ``rez_batch_process`` comes with by default.
@@ -134,5 +134,9 @@ It could be extended to make pull requests in bitbucket. If that's the
 case, add an issue here and it can be added.
 
 - do more unittest. Variants class
--  make sure fix / reporting works with source packages that contain variants
+-  make sure run / reporting works with source packages that contain variants
  - and built packages
+
+
+TODO make sure that pull requests are only created if anything was actually changed
+- Make unittest for filtering / skipping packages. Make sure that stuff works

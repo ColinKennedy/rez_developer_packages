@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""The main module that reports / fixes Rez package documentation.
+"""The main module that reports / runs some plugin command.
 
 "__main__.py" basically wraps this module with command-line-specific
 details. This module does the actual work.
@@ -43,8 +43,8 @@ def _find_package_definitions(directory, name):
     return matches
 
 
-def _handle_generic_exception(error, package):
-    # The :class:`.NonPythonPackage` can potentially raise basically any exception
+def handle_generic_exception(error, package):
+    # Plugin functions can raise any exception so they must be caught, here
     path = inspection.get_package_root(package)
 
     if hasattr(error, "message"):
@@ -103,13 +103,12 @@ def report(
     repositories = []
     packages = []
     invalids = []
-    skips = []
     known_issues = (
-        # The :class:`.NonPythonPackage` can potentially raise any of these exceptions
+        # :func:`is_not_a_python_package` can potentially raise any of these exceptions
         rez_exceptions.PackageNotFoundError,
         rez_exceptions.ResolvedContextError,
         filesystem.PackageDefinitionFileMissing,
-        # The :class:`.HasDocumentation` may raise this
+        # :func:`has_documentation` raises this exception
         exceptions.NoGitRepository,
     )
 
@@ -135,37 +134,14 @@ def report(
 
             continue
 
-        try:
-            reason = finder.get_skip_reason(package, paths=paths)
-        except known_issues as error:
-            path = inspection.get_package_root(package)
-            invalids.append(exceptions.InvalidPackage(package, path, str(error)))
-
-            continue
-        except Exception as error:  # pylint: disable=broad-except
-            path, message = _handle_generic_exception(error, package)
-
-            invalids.append(
-                exceptions.InvalidPackage(
-                    package, path, "Generic error: " + message, full_message=str(error)
-                )
-            )
-
-            continue
-
-        if reason:
-            skips.append(Skip(package, inspection.get_package_root(package), reason))
-
-            continue
-
         repositories.append(repository)
         packages.append(package)
 
-    return packages, invalids, skips
+    return packages, invalids
 
 
-def fix(  # pylint: disable=too-many-arguments,too-many-locals
-    packages_to_fix,
+def run(  # pylint: disable=too-many-arguments,too-many-locals
+    packages_to_run,
     command_arguments,
     maximum_repositories=sys.maxint,
     maximum_rez_packages=sys.maxint,
@@ -176,7 +152,7 @@ def fix(  # pylint: disable=too-many-arguments,too-many-locals
     """Add documentation to the given Rez packages.
 
     Args:
-        packages_to_fix (iter[:class:`rez.packages_.Package`]):
+        packages_to_run (iter[:class:`rez.packages_.Package`]):
             The Rez packages to run a command on. e.g. adding documentation.
         maximum_repositories (int, optional):
             The number of unique repositories to check for packages.
@@ -207,7 +183,7 @@ def fix(  # pylint: disable=too-many-arguments,too-many-locals
             list[:class:`.InvalidPackage`],
             list[:attr:`Skip`],
         ]:
-            Every Rez package that was successfully "fixed" by the
+            Every Rez package that was successfully "ran" by the
             command. Every Rez package did not get documentation added
             onto them. Followed by Rez packages that couldn't be checked
             if they need documentation because something is wrong with
@@ -225,15 +201,15 @@ def fix(  # pylint: disable=too-many-arguments,too-many-locals
 
         return output.items()
 
-    packages, invalids, skips = report(
-        packages_to_fix,
+    packages, invalids = report(
+        packages_to_run,
         maximum_repositories=maximum_repositories,
         maximum_rez_packages=maximum_rez_packages,
         paths=paths,
     )
 
-    fixed = set()
-    unfixed = set()
+    ran = set()
+    un_ran = set()
 
     for repository_url, packages in _group_by_repository(packages):
         # TODO : Add thing to make this more quiet, if needed
@@ -269,7 +245,7 @@ def fix(  # pylint: disable=too-many-arguments,too-many-locals
             definitions = list(_find_package_definitions(repository_root, package.name))
 
             if not definitions:
-                unfixed.add(
+                un_ran.add(
                     package,
                     'Could not find "{package.name}" in repository "{repository_root}".'
                     "".format(package=package, repository_root=repository_root),
@@ -278,7 +254,7 @@ def fix(  # pylint: disable=too-many-arguments,too-many-locals
                 continue
             elif len(definitions) > 1:
                 # TODO : Finish the report logic for this one
-                unfixed.add(
+                un_ran.add(
                     list(definitions),
                     'More than one package definition "{package.name}" was found '
                     'in repository "{repository_root}".'
@@ -292,13 +268,13 @@ def fix(  # pylint: disable=too-many-arguments,too-many-locals
             try:
                 error = command.run(inner_repository_package, command_arguments)
             except exceptions.CoreException as error:  # pylint: disable=broad-except
-                unfixed.add((inner_repository_package, error))
+                un_ran.add((inner_repository_package, error))
 
                 continue
 
             if error:
-                unfixed.add((inner_repository_package, error))
+                un_ran.add((inner_repository_package, error))
             else:
-                fixed.add(inner_repository_package)
+                ran.add(inner_repository_package)
 
-    return fixed, unfixed, invalids, skips
+    return ran, un_ran, invalids

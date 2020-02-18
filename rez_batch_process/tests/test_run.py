@@ -7,8 +7,7 @@
 
 """
 
-# TODO : Add tests for skipping. Very important!
-
+import contextlib
 import logging
 import os
 import tempfile
@@ -67,7 +66,11 @@ class Fix(package_common.Tests):
         self.delete_item_later(repository.working_dir)
         self.delete_item_later(remote_root)
 
-        self._test((set(), [], []), packages)
+        paths = [repository.working_dir]
+
+        with _patch_config_packages_path(paths):
+            self._test((set(), [], []), packages, paths=paths)
+
         self.assertEqual(1, run_command.call_count)
 
     @mock.patch("rez_batch_process.core.plugins.command.RezShellCommand.run")
@@ -598,6 +601,17 @@ class Bad(package_common.Tests):
         self._test(expected, packages)
 
 
+@contextlib.contextmanager
+def _patch_config_packages_path(paths):
+    original = list(config.packages_path)
+    config.packages_path[:] = paths
+
+    try:
+        yield
+    finally:
+        config.packages_path[:] = original
+
+
 def _release_packages(packages, search_paths=None):
     """Release 1+ Rez packages.
 
@@ -643,7 +657,7 @@ def _release_packages(packages, search_paths=None):
         'Releasing the fake package "%s" to a temporary directory.', package.name
     )
 
-    temporary_path = tempfile.mkdtemp()
+    temporary_path = tempfile.mkdtemp(suffix="_release_path_test")
 
     # Rez prints a lot of text to console during release so we'll silence it all
     with wurlitzer.pipes():
