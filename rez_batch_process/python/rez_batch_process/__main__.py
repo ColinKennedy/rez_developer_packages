@@ -18,6 +18,7 @@ from python_compatibility import imports, wrapping
 from rez.config import config
 from rez_utilities import inspection
 
+from .core.gitter import github_user
 from .core import cli_constant, registry, worker
 
 _LOGGER = logging.getLogger(__name__)
@@ -132,6 +133,27 @@ def __fix(arguments, command_arguments):
 
         for package in sorted(packages, key=operator.attrgetter("name")):
             print(package.name)
+
+
+def __make_git_users(arguments):
+    """Write a cache of GitHub users to-disk.
+
+    Args:
+        arguments (:class:`argparse.Namespace`):
+            The GitHub token, path to write to disk, and any other important details.
+
+    """
+    github_user.write_cache(
+        arguments.path,
+        arguments.token,
+        base_url=arguments.base_url,
+        verify=arguments.ssl_no_verify,
+        maximum=arguments.maximum_users,
+    )
+
+    print('GitHub users were written to "{arguments.path}" successfully.'.format(arguments=arguments))
+
+    sys.exit(0)
 
 
 def _split_the_ignored_packages(packages, patterns):
@@ -527,7 +549,44 @@ def _parse_arguments(text):
     )
     _add_arguments(fixer)
 
+    git_users_command = sub_parsers.add_parser("make-git-users")
+    git_users_command.set_defaults(execute=__make_git_users)
+    git_users_command.add_argument(
+        "token",
+        help="The authentication token to the remote git repository (GitHub, bitbucket, etc).",
+    )
+    git_users_command.add_argument(
+        "path",
+        help="The found users will be written to this JSON file path.",
+    )
+    git_users_command.add_argument(
+        "-m",
+        "--maximum-users",
+        default=sys.maxint,
+        type=int,
+        help="This integer represents that maximum number of users to query. "
+        "Set this value low to avoid long wait times.",
+    )
+    git_users_command.add_argument(
+        "-b",
+        "--base-url",
+        help="If you are authenticating to a non-standard remote "
+        "(e.g. GitHub enterprise), use this flag to provide the URL.",
+    )
+    git_users_command.add_argument(
+        "-s",
+        "--ssl-no-verify",
+        action="store_false",
+        help="Disable SSL verification",
+    )
+
     arguments, unknown_arguments = parser.parse_known_args(text)
+
+    if arguments.execute == __make_git_users:
+        arguments.execute(arguments)
+
+        return
+
     command_parser = registry.get_command(arguments.command)
 
     if not command_parser:

@@ -18,6 +18,7 @@ manually. But it does it all in a single execution.
 
 Any shell command that you need to run on Rez packages, ``rez_batch_process`` can do.
 
+
 # Example Use Cases
 
 ``rez_batch_process`` is very flexible with its built-in plug-in system.
@@ -25,18 +26,42 @@ And even without using it, you can do many complex tasks automatically.
 Here's some examples of things you could do with ``rez_batch_process``,
 out of box.
 
-- Add documentation to every Rez python package
 - Bump cmake 2.8 to cmake 3 on every package that uses it
-- Mark packages as deprecated
-- Find every package that is affected by a new major version and refactor them with the latest change
+- Move imports and deprecate Rez packages
 - Add CI ``rez-test`` related checks onto packages
+- Add documentation to every Rez python package
 - Modify the structure of Rez packages
 
 As long as you've got a shell command that runs from a Rez package root,
 any of these tasks are possible without extending ``rez_batch_process``.
 
+For examples of ``rez_batch_process`` in-use, see
+[``rez_batch_plugins``](../rez_batch_plugins).
 
-## How It Works
+
+# Example Commands
+
+1. Check which packages would be affected by a given command
+
+```sh
+python -m rez_batch_process check {command-name} {command-arguments}
+```
+
+2. Run the command
+
+```sh
+python -m rez_batch_process fix {command-name} {command-arguments}
+```
+
+3. Create a JSON cache of GitHub users which can be used for the
+   "--cached-users" flag for other commands.
+
+```sh
+python -m rez_batch_process make-git-users
+```
+
+
+# How It Works
 
 The basic steps that ``rez_batch_process`` are:
 

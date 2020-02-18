@@ -8,6 +8,7 @@ import itertools
 import json
 import logging
 import re
+import sys
 import tempfile
 
 import github
@@ -195,7 +196,7 @@ class GithubAdapter(base_adapter.BaseAdapter):
 
         """
         if not user_data:
-            user_data = _get_all_users(self._token, self._base_url, verify=self._verify)
+            user_data = get_all_users(self._token, self._base_url, verify=self._verify, write=True)
         else:
             user_data = _read_users_from_cache(user_data)
 
@@ -266,61 +267,6 @@ def _convert_to_github_user_names(package_authors, github_users):
     return output
 
 
-@lru_cache()
-def _get_all_users(token, base_url="", verify=True):
-    """Find every GitHub user.
-
-    Warning:
-        This function is cached but it can be VERY slow to run. Exercise
-        caution. Use "cached_users" instead of querying from this
-        function, whenever possible.
-
-    See Also:
-        :func:`_read_users_from_cache`
-
-    Args:
-        token (str):
-            The GitHub authentication token that will be used to get user data.
-        base_url (str, optional):
-            The API URL that goes with the given `token`. If you're not
-            using GitHub Enterprise, just leave this parameter blank.
-        verify (bool, optional):
-            If True, require a valid SSL certificate in private If
-            networks. If False, accept all external SSL certificates.
-            Default is True.
-
-    Returns:
-        list[:attr:`_User`]: The found, public GitHub users.
-
-    """
-    if base_url:
-        accessor = github.Github(login_or_token=token, base_url=base_url, verify=verify)
-    else:
-        accessor = github.Github(login_or_token=token, verify=verify)
-
-    users = list(
-        itertools.islice(accessor.get_users(), 5)
-    )  # TODO : This value could probably made a bit higher once this is all confirmed working
-    output = []
-
-    for user in users:
-        output.append(
-            {
-                "email": user.email or "",
-                "bio": user.bio or "",
-                "login": user.login,
-                "name": user.name or "",
-            }
-        )
-
-    _write_user_data_cache(output)
-
-    return [
-        _User(data["login"], data["name"], data["email"], data["bio"])
-        for data in output
-    ]
-
-
 def _get_github_url_data(url):
     """Find information such as repository owner, repository name, etc from a GitHub URL.
 
@@ -349,14 +295,14 @@ def _read_users_from_cache(path):
     """Parse a set of "cached_users" representing GitHub login data and return them.
 
     See Also:
-        :func:`_get_all_users`
+        :func:`get_all_users`
 
     Args:
         path (str):
             An absolute path to a JSON file to read from. It must
             contain 4 keys, "login", "name", "email", and "bio".
             All things that can be queried and retrieved using
-            :func:`_get_all_users`.
+            :func:`get_all_users`.
 
 
     Returns:
@@ -395,6 +341,63 @@ def _write_user_data_cache(users):
         handler.name,
         handler.name,
     )
+
+
+@lru_cache()
+def get_all_users(token, base_url="", verify=True, maximum=sys.maxint, write=False):
+    """Find every GitHub user.
+
+    Warning:
+        This function is cached but it can be VERY slow to run. Exercise
+        caution. Use "cached_users" instead of querying from this
+        function, whenever possible.
+
+    Reference:
+        https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line
+
+    See Also:
+        :func:`_read_users_from_cache`
+
+    Args:
+        token (str):
+            The GitHub authentication token that will be used to get user data.
+        base_url (str, optional):
+            The API URL that goes with the given `token`. If you're not
+            using GitHub Enterprise, just leave this parameter blank.
+        verify (bool, optional):
+            If True, require a valid SSL certificate in private If
+            networks. If False, accept all external SSL certificates.
+            Default is True.
+
+    Returns:
+        list[:attr:`_User`]: The found, public GitHub users.
+
+    """
+    if base_url:
+        accessor = github.Github(login_or_token=token, base_url=base_url, verify=verify)
+    else:
+        accessor = github.Github(login_or_token=token, verify=verify)
+
+    users = list(itertools.islice(accessor.get_users(), maximum))
+    output = []
+
+    for user in users:
+        output.append(
+            {
+                "email": user.email or "",
+                "bio": user.bio or "",
+                "login": user.login,
+                "name": user.name or "",
+            }
+        )
+
+    if write:
+        _write_user_data_cache(output)
+
+    return [
+        _User(data["login"], data["name"], data["email"], data["bio"])
+        for data in output
+    ]
 
 
 @lru_cache()
