@@ -607,7 +607,7 @@ def _parse_arguments(text):
 
 @wrapping.run_once
 def _register_plugins():
-    for namespace in os.getenv("REZ_BATCH_PROCESS_PLUGINS").split(os.pathsep):
+    for namespace in os.getenv("REZ_BATCH_PROCESS_PLUGINS", "").split(os.pathsep):
         namespace = namespace.strip()
 
         if not namespace:
