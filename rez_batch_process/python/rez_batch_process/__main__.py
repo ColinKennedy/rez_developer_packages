@@ -522,10 +522,16 @@ def _process_help(text):
     if not found_text:
         return text, False
 
-    try:
-        subparser_index = text.index("report")
-    except ValueError:
-        subparser_index = text.index("run")
+    subparser_index = -1
+
+    for key in ("report", "run", "make-git-users"):
+        try:
+            subparser_index = text.index(key)
+        except ValueError:
+            pass
+
+    if subparser_index == -1:
+        raise RuntimeError('Text "{text}" is not a registered command.'.format(text=text))
 
     if text.index(found_text) - 1 > subparser_index:
         text.remove(found_text)
@@ -600,6 +606,13 @@ def _parse_arguments(text):
     arguments, unknown_arguments = parser.parse_known_args(text)
 
     if arguments.execute == __make_git_users:
+        if needs_subparser_help:
+            # display the help message for make-git-users
+            parser.parse_known_args(text + ["--help"])
+
+            return
+
+        # Run make-git-users
         arguments.execute(arguments)
 
         return
