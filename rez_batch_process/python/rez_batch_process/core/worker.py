@@ -119,7 +119,13 @@ def report(
         try:
             repository = rez_git.get_repository_url(package)
         except (exceptions.InvalidPackage, exceptions.NoRepositoryRemote) as error:
-            invalids.append(error)
+            invalids.append(
+                exceptions.InvalidPackage(
+                    package,
+                    inspection.get_package_root(package),
+                    str(error),
+                ),
+            )
 
             continue
         except filesystem.PackageDefinitionFileMissing as error:
@@ -128,7 +134,13 @@ def report(
                 package,
                 exc_info=True,
             )
-            invalids.append(exceptions.InvalidPackage(package, "", str(error)))
+            invalids.append(
+                exceptions.InvalidPackage(
+                    package,
+                    inspection.get_package_root(package),
+                    str(error),
+                ),
+            )
 
             continue
 
