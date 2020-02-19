@@ -173,7 +173,7 @@ class Fix(package_common.Tests):
             packages,
             paths=[release_path],
         )
-        self.assertEqual(2, run_command.call_count)
+        self.assertEqual(1, run_command.call_count)
 
     @mock.patch("rez_batch_process.core.plugins.command.RezShellCommand.run")
     def test_multiple(self, run_command):
@@ -243,7 +243,7 @@ class Fix(package_common.Tests):
                 (set(), [], [],), packages_b, paths=[release_path_b, release_path_a],
             )
 
-        self.assertEqual(5, run_command.call_count)
+        self.assertEqual(7, run_command.call_count)
 
 
 # TODO : This class assumes that build Rez packages are in git
@@ -457,7 +457,7 @@ class Bad(package_common.Tests):
     """A series of scenarios where a bad environment or bad input is given."""
 
     @staticmethod
-    def _make_source_package_with_no_remote(text, name, _, root):
+    def _make_source_with_no_remote(text, name, _, root):
         """Make a source Rez package with a repository that has no remote destination.
 
         Args:
@@ -475,7 +475,7 @@ class Bad(package_common.Tests):
             repository.index.add(".")
             repository.index.commit("initial commit")
 
-        path = package_common.make_source_package(text, name, None, root)
+        path = package_common.make_source_python_package(text, name, None, root)
         _make_fake_git_repository_at_directory(root)
 
         return path
@@ -487,7 +487,7 @@ class Bad(package_common.Tests):
         self.delete_item_later(root)
 
         package = package_common.make_package(
-            "project_a", root, self._make_source_package_with_no_remote
+            "project_a", root, self._make_source_with_no_remote
         )
 
         invalids = [
@@ -498,15 +498,17 @@ class Bad(package_common.Tests):
             )
         ]
 
-        unfixed, invalids, skips = self._test_unhandled([package])
+        paths = [inspection.get_packages_path_from_package(package)]
+
+        with _patch_config_packages_path(paths):
+            unfixed, invalids, skips = self._test_unhandled([package])
 
         self.assertEqual(set(), unfixed)
         self.assertEqual([], skips)
 
         invalid = next(iter(invalids))
 
-        self.assertEqual(exceptions.NoRepositoryRemote, type(invalid))
-        self.assertTrue(str(invalid).startswith("No remote origin could be found for"))
+        self.assertTrue(str(invalid).startswith("Generic error: No remote origin could be found for"))
 
     def test_no_repository(self):
         """Check that a fix will not run if the package has no destination repository."""
@@ -570,20 +572,23 @@ class Bad(package_common.Tests):
 
         package = packages[1]
         package_root = inspection.get_package_root(package)
-        self._test(
-            (
-                set(),
-                [
-                    exceptions.InvalidPackage(
-                        package,
-                        package_root,
-                        "Package could not be found: project_a-1+<2",
-                    )
-                ],
-                [],
-            ),
-            packages,
-        )
+
+        with _patch_config_packages_path([repository.working_dir]):
+            self._test(
+                (
+                    set(),
+                    [
+                        exceptions.InvalidPackage(
+                            package,
+                            package_root,
+                            "Package could not be found: project_a-1+<2",
+                        )
+                    ],
+                    [],
+                ),
+                packages,
+            )
+
         self.assertEqual(1, run_command.call_count)
 
     def test_skip(self):
@@ -609,11 +614,13 @@ class Bad(package_common.Tests):
                 worker.Skip(
                     package,
                     os.path.join(repository.working_dir, "project_a"),
-                    "not a Python package",
+                    "Rez Package does not define Python packages / modules.",
                 )
             ],
         )
-        self._test(expected, packages)
+
+        with _patch_config_packages_path([repository.working_dir]):
+            self._test(expected, packages)
 
 
 @contextlib.contextmanager

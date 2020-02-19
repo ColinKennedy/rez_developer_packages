@@ -28,7 +28,9 @@ class Tests(common.Common):
         """Add some generic plugins so that tests have something to work with."""
         super(Tests, cls).setUpClass()
 
-        registry.clear_plugin("shell")
+        if "shell" in registry.get_plugin_keys():
+            registry.clear_plugin("shell")
+
         registry.register_plugin("shell", _get_missing_documentation_packages)
 
     @classmethod
@@ -87,8 +89,10 @@ class Tests(common.Common):
         arguments.pull_request_prefix = "ticket-name"
         arguments.exit_on_error = True
         finder = registry.get_package_finder("shell")
-        _, _, skips = finder(paths=paths)
-        _, unfixed, invalids = worker.run(packages, arguments, paths=paths)
+        valid_packages, invalid_packages, skips = finder(paths=paths)
+        _, unfixed, invalids = worker.run(valid_packages, arguments, paths=paths)
+
+        invalids.extend(invalid_packages)
 
         return (unfixed, invalids, skips)
 
@@ -152,7 +156,7 @@ def _run_and_catch(function, package):
     except known_issues as error:
         path = inspection.get_package_root(package)
 
-        return False, [exceptions.InvalidPackage(package, path, str(error))]
+        return False, [exceptions.InvalidPackage(package, os.path.normpath(path), str(error))]
     except Exception as error:  # pylint: disable=broad-except
         path, message = worker.handle_generic_exception(error, package)
 
@@ -174,7 +178,7 @@ def _get_missing_documentation_packages(paths=None):
         if result:
             skips.append(worker.Skip(
                 package,
-                inspection.get_package_root(package),
+                os.path.normpath(inspection.get_package_root(package)),
                 "Rez Package does not define Python packages / modules.",
             ))
 
