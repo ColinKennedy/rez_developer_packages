@@ -71,17 +71,17 @@ def report(
 
     Args:
         packages_to_report (iter[:class:`rez.packages_.Package`]):
-            The Rez packages to check for documentation.
+            The Rez packages to check for a command.
         maximum_repositories (int, optional):
             The number of unique repositories to check for packages.
             If the queried packages live in more repositories than
             this given parameter, then this function will exit early.
             Default: :attr:`sys.maxint`.
         maximum_rez_packages (int, optional):
-            The number of unique Rez packages to check for
-            documentation. If the queried packages live in more
-            repositories than this given parameter, then this function
-            will exit early. Default: :attr:`sys.maxint`.
+            The number of unique Rez packages to potentially report.
+            If the queried packages live in more repositories than
+            this given parameter, then this function will exit early.
+            Default: :attr:`sys.maxint`.
         paths (list[str], optional):
             The locations on-disk that will be used to any
             Rez-environment-related work. Some plugins need these
@@ -91,13 +91,11 @@ def report(
         tuple[
             list[:class:`rez.packages_.Package`],
             list[:class:`.InvalidPackage`],
-            list[:attr:`Skip`],
         ]:
-            Every package that needs documentation, followed by Rez
-            packages that couldn't be checked if they need documentation
-            because something is wrong with the package, and lastly
-            any packages that were skipped (because they already have
-            documentation or some other reason).
+            Every package that needs to have a command run on them
+            followed by Rez packages that couldn't be checked if they
+            need the command because something is wrong with the
+            package.
 
     """
     repositories = []
@@ -149,7 +147,7 @@ def run(  # pylint: disable=too-many-arguments,too-many-locals
     keep_temporary_files=False,
     temporary_directory="",
 ):
-    """Add documentation to the given Rez packages.
+    """Run a command on the given Rez packages.
 
     Args:
         packages_to_run (iter[:class:`rez.packages_.Package`]):
@@ -160,10 +158,10 @@ def run(  # pylint: disable=too-many-arguments,too-many-locals
             this given parameter, then this function will exit early.
             Default: :attr:`sys.maxint`.
         maximum_rez_packages (int, optional):
-            The number of unique Rez packages to check for
-            documentation. If the queried packages live in more
-            repositories than this given parameter, then this function
-            will exit early. Default: :attr:`sys.maxint`.
+            The number of unique Rez packages to run the command onto.
+            If the queried packages live in more repositories than
+            this given parameter, then this function will exit early.
+            Default: :attr:`sys.maxint`.
         paths (list[str], optional):
             The locations on-disk that will be used to any
             Rez-environment-related work. Some plugins need these
@@ -181,15 +179,11 @@ def run(  # pylint: disable=too-many-arguments,too-many-locals
             set[:class:`rez.packages_.Package`],
             set[tuple[:class:`rez.packages_.Package`, :class:`.CoreException`]],
             list[:class:`.InvalidPackage`],
-            list[:attr:`Skip`],
         ]:
             Every Rez package that was successfully "ran" by the
-            command. Every Rez package did not get documentation added
-            onto them. Followed by Rez packages that couldn't be checked
-            if they need documentation because something is wrong with
-            the package, and lastly any packages that were skipped
-            (because they already have documentation or some other
-            reason).
+            command, every Rez package did not get run for some reason,
+            and every Rez package that had some kind of issue with the
+            package so no command could be run.
 
     """
 
