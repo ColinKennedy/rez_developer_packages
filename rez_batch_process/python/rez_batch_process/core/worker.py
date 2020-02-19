@@ -201,7 +201,7 @@ def run(  # pylint: disable=too-many-arguments,too-many-locals
 
         return output.items()
 
-    packages, invalids = report(
+    filtered_packages, invalids = report(
         packages_to_run,
         maximum_repositories=maximum_repositories,
         maximum_rez_packages=maximum_rez_packages,
@@ -211,7 +211,7 @@ def run(  # pylint: disable=too-many-arguments,too-many-locals
     ran = set()
     un_ran = set()
 
-    for repository_url, packages in _group_by_repository(packages):
+    for repository_url, packages in _group_by_repository(filtered_packages):
         # TODO : Add thing to make this more quiet, if needed
         if not temporary_directory:
             clone_directory = tempfile.mkdtemp(

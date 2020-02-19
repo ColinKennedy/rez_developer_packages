@@ -30,7 +30,8 @@ class Fix(package_common.Tests):
 
     def test_empty(self):
         """Check that zero packages does not error."""
-        self._test((set(), [], []), [])
+        with _patch_config_packages_path([]):
+            self._test((set(), [], []), [])
 
     @mock.patch("rez_batch_process.core.plugins.command.RezShellCommand.run")
     def test_one(self, run_command):
@@ -155,7 +156,7 @@ class Fix(package_common.Tests):
         release_path = _release_packages(packages)
         self.delete_item_later(release_path)
 
-        package = next(package for package in packages if package.name == "project_a")
+        package = inspection.get_nearest_rez_package(os.path.join(release_path, "project_a", "1.0.0"))
 
         self._test(
             (
@@ -165,14 +166,14 @@ class Fix(package_common.Tests):
                     worker.Skip(
                         package,
                         inspection.get_package_root(package),
-                        "not a Python package",
+                        "Rez Package does not define Python packages / modules.",
                     )
                 ],
             ),
             packages,
             paths=[release_path],
         )
-        self.assertEqual(1, run_command.call_count)
+        self.assertEqual(2, run_command.call_count)
 
     @mock.patch("rez_batch_process.core.plugins.command.RezShellCommand.run")
     def test_multiple(self, run_command):
@@ -234,9 +235,13 @@ class Fix(package_common.Tests):
         self._test(
             (set(), [], [],), packages_a, paths=[release_path_a],
         )
-        self._test(
-            (set(), [], [],), packages_b, paths=[release_path_b, release_path_a],
-        )
+
+        self.assertEqual(2, run_command.call_count)
+
+        with _patch_config_packages_path([release_path_b, release_path_a]):
+            self._test(
+                (set(), [], [],), packages_b, paths=[release_path_b, release_path_a],
+            )
 
         self.assertEqual(5, run_command.call_count)
 
@@ -335,7 +340,7 @@ class Variations(package_common.Tests):
             for package in packages
         ]
 
-        self._test((set(), [], []), packages)
+        self._test((set(), [], []), packages, paths=[release_path])
         self.assertEqual(1, run_command.call_count)
 
     @mock.patch("rez_batch_process.core.plugins.command.RezShellCommand.run")
@@ -352,7 +357,9 @@ class Variations(package_common.Tests):
         packages = self._setup_test(
             run_command, package_common.make_build_python_package,
         )
-        self._test((set(), [], []), packages)
+        path_root = inspection.get_packages_path_from_package(packages[0])
+
+        self._test((set(), [], []), packages, paths=[path_root])
         self.assertEqual(1, run_command.call_count)
 
     @mock.patch("rez_batch_process.core.plugins.command.RezShellCommand.run")
@@ -371,7 +378,9 @@ class Variations(package_common.Tests):
             package_common.make_build_python_package,
             variants=[["python-2.7"]],
         )
-        self._test((set(), [], []), packages)
+        path_root = inspection.get_packages_path_from_package(packages[0])
+
+        self._test((set(), [], []), packages, paths=[path_root])
         self.assertEqual(1, run_command.call_count)
 
     @mock.patch("rez_batch_process.core.plugins.command.RezShellCommand.run")
@@ -419,7 +428,9 @@ class Variations(package_common.Tests):
         packages = self._setup_test(
             run_command, package_common.make_source_python_package,
         )
-        self._test((set(), [], []), packages)
+        path_root = inspection.get_packages_path_from_package(packages[0])
+
+        self._test((set(), [], []), packages, paths=[path_root])
         self.assertEqual(1, run_command.call_count)
 
     @mock.patch("rez_batch_process.core.plugins.command.RezShellCommand.run")
@@ -436,7 +447,9 @@ class Variations(package_common.Tests):
         packages = self._setup_test(
             run_command, package_common.make_source_variant_python_package,
         )
-        self._test((set(), [], []), packages)
+        path_root = inspection.get_packages_path_from_package(packages[0])
+
+        self._test((set(), [], []), packages, paths=[path_root])
         self.assertEqual(1, run_command.call_count)
 
 
@@ -603,13 +616,13 @@ class Bad(package_common.Tests):
 
 @contextlib.contextmanager
 def _patch_config_packages_path(paths):
-    original = list(config.packages_path)
-    config.packages_path[:] = paths
+    original = list(config.packages_path)  # pylint: disable=no-member
+    config.packages_path[:] = paths  # pylint: disable=no-member
 
     try:
         yield
     finally:
-        config.packages_path[:] = original
+        config.packages_path[:] = original  # pylint: disable=no-member
 
 
 def _release_packages(packages, search_paths=None):

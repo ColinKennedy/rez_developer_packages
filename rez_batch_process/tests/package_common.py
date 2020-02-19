@@ -53,7 +53,13 @@ class Tests(common.Common):
 
         """
         unfixed, invalids, skips = self._test_unhandled(packages, paths=paths)
-        self.assertEqual(expected, (unfixed, invalids, skips))
+        expected_unfixed, expected_invalids, expected_skips = expected
+        reduced_skips = [(skip.path, skip.reason) for skip in skips]
+        expected_reduced_skips = [(skip.path, skip.reason) for skip in expected_skips]
+
+        self.assertEqual(expected_unfixed, unfixed)
+        self.assertEqual(expected_invalids, invalids)
+        self.assertEqual(expected_reduced_skips, reduced_skips)
 
     @staticmethod
     def _test_unhandled(packages, paths=None):
@@ -76,7 +82,7 @@ class Tests(common.Common):
         arguments.pull_request_prefix = "ticket-name"
         arguments.exit_on_error = True
         finder = registry.get_package_finder("shell")
-        packages, invalid_packages, skips = finder(paths=paths)
+        _, invalid_packages, skips = finder(paths=paths)
         _, unfixed, invalids = worker.run(packages, arguments, paths=paths)
 
         invalids.extend(invalid_packages)
@@ -166,7 +172,7 @@ def _get_missing_documentation_packages(paths=None):
             skips.append(worker.Skip(
                 package,
                 inspection.get_package_root(package),
-                "Rez Package does not define Python packges / modules.",
+                "Rez Package does not define Python packages / modules.",
             ))
 
             continue
