@@ -24,7 +24,7 @@ Any shell command that you need to run on Rez packages, ``rez_batch_process`` ca
 1. Check which packages would be affected by a given command
 
 ```sh
-python -m rez_batch_process check {command-name} {command-arguments}
+python -m rez_batch_process report {command-name} {command-arguments}
 ```
 
 2. Run the command
@@ -34,10 +34,11 @@ python -m rez_batch_process run {command-name} {command-arguments}
 ```
 
 3. Create a JSON cache of GitHub users which can be used for the
-   "--cached-users" flag for other commands.
+   "--cached-users" flag for other commands. (Including --cached-users
+   makes the command run much faster).
 
 ```sh
-python -m rez_batch_process make-git-users
+python -m rez_batch_process make-git-users git-token /tmp/output.json
 ```
 
 

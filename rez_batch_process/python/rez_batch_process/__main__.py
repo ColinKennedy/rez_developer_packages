@@ -501,6 +501,9 @@ def _process_help(text):
     Args:
         text (list[str]): User provided arguments (that will be modified).
 
+    Raises:
+        RuntimeError: If somehow `text` is invalid.
+
     Returns:
         tuple[list[str], bool]:
             The modified text + a True / False, which represents whether
