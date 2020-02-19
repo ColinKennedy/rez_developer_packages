@@ -54,11 +54,16 @@ class Tests(common.Common):
         """
         unfixed, invalids, skips = self._test_unhandled(packages, paths=paths)
         expected_unfixed, expected_invalids, expected_skips = expected
+
+        reduced_invalids = [(invalid.get_path(), str(invalid))
+                            for invalid in invalids]
+        expected_reduced_invalids = [(invalid.get_path(), str(invalid))
+                                     for invalid in expected_invalids]
         reduced_skips = [(skip.path, skip.reason) for skip in skips]
         expected_reduced_skips = [(skip.path, skip.reason) for skip in expected_skips]
 
         self.assertEqual(expected_unfixed, unfixed)
-        self.assertEqual(expected_invalids, invalids)
+        self.assertEqual(expected_reduced_invalids, reduced_invalids)
         self.assertEqual(expected_reduced_skips, reduced_skips)
 
     @staticmethod
@@ -82,10 +87,8 @@ class Tests(common.Common):
         arguments.pull_request_prefix = "ticket-name"
         arguments.exit_on_error = True
         finder = registry.get_package_finder("shell")
-        _, invalid_packages, skips = finder(paths=paths)
+        _, _, skips = finder(paths=paths)
         _, unfixed, invalids = worker.run(packages, arguments, paths=paths)
-
-        invalids.extend(invalid_packages)
 
         return (unfixed, invalids, skips)
 

@@ -512,7 +512,7 @@ class Bad(package_common.Tests):
         """Check that a fix will not run if the package has no destination repository."""
 
         def _make_package_with_no_repository(text, name, version, root):
-            return package_common.make_source_package(text, name, None, root)
+            return package_common.make_source_python_package(text, name, None, root)
 
         root = os.path.join(tempfile.mkdtemp(), "test_folder")
         os.makedirs(root)
@@ -526,11 +526,13 @@ class Bad(package_common.Tests):
             exceptions.NoGitRepository(
                 package,
                 os.path.join(root, "project_a"),
-                "Package could not be found: project_a==1.0.0",
+                "is not in a Git repository.",
             )
         ]
         expected = (set(), invalids, [])
-        self._test(expected, [package])
+
+        with _patch_config_packages_path([root]):
+            self._test(expected, [package], paths=[root])
 
     @mock.patch("rez_batch_process.core.plugins.command.RezShellCommand.run")
     def test_released_dependency_missing(self, run_command):
