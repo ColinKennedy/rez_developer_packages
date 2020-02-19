@@ -5,7 +5,7 @@ it's hard to make broad changes to many Rez packages at once.
 
 That's where ``rez_batch_process`` comes in.
 
-``rez-batch-process`` is a command-line tool that finds Rez packages
+``rez_batch_process`` is a command-line tool that finds Rez packages
 and runs an arbitrary command on the Rez package. After the command
 finishes, the change is applied as a new git branch and then submitted
 as a pull request.
@@ -17,26 +17,6 @@ manually. But it does it all in a single execution.
 # What can rez_batch_process do
 
 Any shell command that you need to run on Rez packages, ``rez_batch_process`` can do.
-
-
-# Example Use Cases
-
-``rez_batch_process`` is very flexible with its built-in plug-in system.
-And even without using it, you can do many complex tasks automatically.
-Here's some examples of things you could do with ``rez_batch_process``,
-out of box.
-
-- Bump cmake 2.8 to cmake 3 on every package that uses it
-- Move imports and deprecate Rez packages
-- Add CI ``rez-test`` related checks onto packages
-- Add documentation to every Rez python package
-- Modify the structure of Rez packages
-
-As long as you've got a shell command that runs from a Rez package root,
-any of these tasks are possible without extending ``rez_batch_process``.
-
-For examples of ``rez_batch_process`` in-use, see
-[``rez_batch_plugins``](../rez_batch_plugins).
 
 
 # Example Commands
@@ -59,6 +39,45 @@ python -m rez_batch_process run {command-name} {command-arguments}
 ```sh
 python -m rez_batch_process make-git-users
 ```
+
+
+``rez_batch_process`` comes with one command, "shell", by default.
+It lets you run shell commands on all of your Rez packages. But
+``rez_batch_process`` lets you customize both the command that you want
+to run and the packages that the command will be run on, with a little
+bit of set-up.
+
+
+```sh
+python -m rez_batch_process run "touch test_file.txt" AS-1234 git-token
+```
+
+The above command adds a file called "test_file.txt" to every released
+package. The only thing that you would need to change, if following
+along, is ``git-token``. See this guide on
+[how to create your own git token](https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line).
+Replace the "git-token" text with your own personal access token so that
+git pull requests will work with GitHub / GitHub enterprise.
+
+
+# Example Use Cases
+
+``rez_batch_process`` is very flexible with its built-in plug-in system.
+And even without using it, you can do many complex tasks automatically.
+Here's some examples of things you could do with ``rez_batch_process``,
+out of box.
+
+- Bump cmake 2.8 to cmake 3 on every package that uses it
+- Move imports and deprecate Rez packages
+- Add CI ``rez-test`` related checks onto packages
+- Add documentation to every Rez python package
+- Modify the structure of Rez packages
+
+As long as you've got a shell command that runs from a Rez package root,
+any of these tasks are possible without extending ``rez_batch_process``.
+
+For examples of ``rez_batch_process`` in-use, see
+[``rez_batch_plugins``](../rez_batch_plugins).
 
 
 # How It Works
@@ -89,20 +108,6 @@ The basic steps that ``rez_batch_process`` are:
 Now for the bad news. ``rez_batch_process`` is great. But its syntax is
 a bit intense. This section breaks down the command line options so it
 becomes more understandable.
-
-
-## Basic Command
-
-```sh
-python -m rez_batch_process run "touch test_file.txt" AS-1234 git-token
-```
-
-The above command adds a file called "test_file.txt" to every released
-package. The only thing that you would need to change, if following
-along, is ``git-token``. See this guide on
-[how to create your own git token](https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line).
-Replace the "git-token" text with your own personal access token so that
-git pull requests will work with GitHub / GitHub enterprise.
 
 
 ## Advanced Command
