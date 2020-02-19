@@ -428,6 +428,6 @@ def make_source_variant_python_package(text, name, version, root):
     package = make_source_python_package(text, name, version, root)
 
     with open(package, "a") as handler:
-        handler.write('\nvariants = [["python-2.7"]]')
+        handler.write('\nvariants = [["project_b-1"]]')
 
     return package

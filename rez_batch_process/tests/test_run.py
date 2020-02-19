@@ -10,6 +10,7 @@
 import contextlib
 import logging
 import os
+import textwrap
 import tempfile
 
 import git
@@ -297,8 +298,9 @@ class Variations(package_common.Tests):
         self.delete_item_later(root)
 
         packages = [
-            package_common.make_package("project_a", root, builder, variants=variants)
+            package_common.make_package("project_a", root, builder, variants=variants),
         ]
+
         path_root = inspection.get_packages_path_from_package(packages[0])
         repository, packages, remote_root = package_common.make_fake_repository(
             packages, path_root
@@ -433,8 +435,9 @@ class Variations(package_common.Tests):
         self._test((set(), [], []), packages, paths=[path_root])
         self.assertEqual(1, run_command.call_count)
 
+    @mock.patch("rez_batch_process.core.plugins.conditional.has_documentation")
     @mock.patch("rez_batch_process.core.plugins.command.RezShellCommand.run")
-    def test_source_variant(self, run_command):
+    def test_source_variant(self, run_command, has_documentation):
         """Create a source (non-built) Rez package that has 1+ variants and run a command on it.
 
         Args:
@@ -444,12 +447,55 @@ class Variations(package_common.Tests):
                 this function gets run, we know that this test passes.
 
         """
+        has_documentation.side_effect = [False, True]
+
         packages = self._setup_test(
             run_command, package_common.make_source_variant_python_package,
         )
-        path_root = inspection.get_packages_path_from_package(packages[0])
+        roots = list(set(inspection.get_packages_path_from_package(package) for package in packages))
 
-        self._test((set(), [], []), packages, paths=[path_root])
+        directory = tempfile.mkdtemp(suffix="_some_build_location")
+        self.delete_item_later(directory)
+
+        build_package = package_common.make_build_python_package(
+            textwrap.dedent(
+                """\
+                name = "project_b"
+                version = "2.0.0"
+
+                revision = {
+                    "push_url": "fake_git_repo",
+                }
+                """
+            ),
+            "project_b",
+            "2.0.0",
+            directory,
+        )
+        build_package = inspection.get_nearest_rez_package(os.path.join(build_package))
+        build_root = inspection.get_packages_path_from_package(build_package)
+        paths = roots + [build_root]
+
+        with _patch_config_packages_path(paths):
+            self._test(
+                (
+                    set(),
+                    [],
+                    [
+                        # Important note: "project_b" doesn't actually already
+                        # have documentation. It's a result of `side_effect`, above.
+                        #
+                        worker.Skip(
+                            build_package,
+                            inspection.get_package_root(build_package),
+                            "Python package already has documentation.",
+                        )
+                    ],
+                ),
+                packages,
+                paths=paths,
+            )
+
         self.assertEqual(1, run_command.call_count)
 
 
