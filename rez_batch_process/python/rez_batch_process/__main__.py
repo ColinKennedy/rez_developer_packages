@@ -623,12 +623,12 @@ def _parse_arguments(text):
             # display the help message for make-git-users
             parser.parse_known_args(text + ["--help"])
 
-            return
+            sys.exit(0)
 
         # Run make-git-users
         arguments.execute(arguments)
 
-        return
+        sys.exit(0)
 
     command_parser = registry.get_command(arguments.command)
 
