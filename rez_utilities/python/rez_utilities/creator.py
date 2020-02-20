@@ -12,6 +12,7 @@ from rez.cli import build as build_
 from rez.cli import release as release_
 from rez.config import config
 
+from . import inspection
 from . import rez_configuration
 
 _LOGGER = logging.getLogger(__name__)
@@ -48,6 +49,9 @@ def build(package, install_path, packages_path=None):
         #
         package = copy.deepcopy(package)
         package.config.packages_path[:] = packages_path
+
+    if isinstance(package, packages_.Package):
+        package = inspection.get_nearest_rez_package(inspection.get_package_root(package))
 
     directory = os.path.dirname(package.filepath)
 

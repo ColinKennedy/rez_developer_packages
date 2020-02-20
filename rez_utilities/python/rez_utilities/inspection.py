@@ -29,8 +29,6 @@ from python_compatibility import filer, imports
 from rez import exceptions, packages_, resolved_context
 from rez.config import config
 
-from . import creator
-
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -205,6 +203,8 @@ def has_python_package(package, paths=None, allow_build=True, allow_current_cont
         bool: If a Python package is detected.
 
     """
+    from . import creator  # Avoiding a cyclic import
+
     if not hasattr(package, "name") or not hasattr(package, "version"):
         raise ValueError(
             'Object "{package}" is not a valid Rez package.'.format(package=package)
