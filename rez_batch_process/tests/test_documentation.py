@@ -77,7 +77,7 @@ class Add(common.Common):
         root = tempfile.mkdtemp(suffix="_source_root")
         self.delete_item_later(root)
         package = package_common.make_package(
-            "package_name", root, package_common.make_source_python_package,
+            "package_name", root, package_common.make_source_python_package
         )
         package_root = inspection.get_package_root(package)
         rezbuild_file = os.path.join(package_root, "rezbuild.py")

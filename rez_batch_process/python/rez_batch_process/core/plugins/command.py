@@ -17,7 +17,7 @@ from . import base
 
 _LOGGER = logging.getLogger(__name__)
 Configuration = collections.namedtuple(
-    "Configuration", "command token pull_request_prefix ssl_no_verify",
+    "Configuration", "command token pull_request_prefix ssl_no_verify"
 )
 
 
@@ -191,7 +191,7 @@ class RezShellCommand(base.BaseCommand):
             )
 
         title = 'Ran command "{configuration.command}" on Rez package "{package.name}".'.format(
-            configuration=configuration, package=package,
+            configuration=configuration, package=package
         )
         # TODO : Change this spot to actually use the repository's default branch
         body = cls._get_pull_request_body(package, configuration)
@@ -199,7 +199,7 @@ class RezShellCommand(base.BaseCommand):
 
         branch_template = (
             "{configuration.pull_request_prefix}_{package.name}_run_command"
-            "".format(configuration=configuration, package=package,)
+            "".format(configuration=configuration, package=package)
         )
         new_branch_name = _get_unique_branch(repository, branch_template)
         new_branch = repository.create_head(new_branch_name)
@@ -256,7 +256,7 @@ class RezShellCommand(base.BaseCommand):
 
         """
         parser = argparse.ArgumentParser(
-            description="Run some command on Rez packages.",
+            description="Run some command on Rez packages."
         )
         parser.add_argument(
             "command",

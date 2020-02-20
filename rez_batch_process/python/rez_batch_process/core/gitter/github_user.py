@@ -9,13 +9,7 @@ import sys
 from . import github_link
 
 
-def write_cache(
-    path,
-    token,
-    base_url="",
-    verify=False,
-    maximum=sys.maxint,
-):
+def write_cache(path, token, base_url="", verify=False, maximum=sys.maxint):
     """Serialize a list of GitHub users to-disk.
 
     Reference:
@@ -38,11 +32,7 @@ def write_cache(
 
     """
     users = github_link.get_all_users(
-        token,
-        base_url=base_url,
-        verify=verify,
-        maximum=maximum,
-        write=False,
+        token, base_url=base_url, verify=verify, maximum=maximum, write=False
     )
 
     data = []

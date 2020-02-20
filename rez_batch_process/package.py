@@ -10,9 +10,7 @@ description = (
 
 authors = ["ColinKennedy (colinvfx@gmail.com)"]
 
-help = [
-    ["README", "README.md"],
-]
+help = [["README", "README.md"]]
 
 private_build_requires = ["rez_build_helper-1+<2"]
 

@@ -10,8 +10,8 @@
 import contextlib
 import logging
 import os
-import textwrap
 import tempfile
+import textwrap
 
 import git
 import wurlitzer
@@ -138,7 +138,7 @@ class Fix(package_common.Tests):
 
         packages = [
             package_common.make_package(
-                "project_a", root, package_common.make_source_package,
+                "project_a", root, package_common.make_source_package
             ),
             package_common.make_package(
                 "project_b",
@@ -157,7 +157,9 @@ class Fix(package_common.Tests):
         release_path = _release_packages(packages)
         self.delete_item_later(release_path)
 
-        package = inspection.get_nearest_rez_package(os.path.join(release_path, "project_a", "1.0.0"))
+        package = inspection.get_nearest_rez_package(
+            os.path.join(release_path, "project_a", "1.0.0")
+        )
 
         self._test(
             (
@@ -195,7 +197,7 @@ class Fix(package_common.Tests):
         repository_a, packages_a, remote_root = package_common.make_fake_repository(
             [
                 package_common.make_package(
-                    "project_a", root, package_common.make_source_python_package,
+                    "project_a", root, package_common.make_source_python_package
                 ),
                 package_common.make_package(
                     "project_b",
@@ -214,7 +216,7 @@ class Fix(package_common.Tests):
         repository_b, packages_b, remote_root = package_common.make_fake_repository(
             [
                 package_common.make_package(
-                    "project_c", root, package_common.make_source_python_package,
+                    "project_c", root, package_common.make_source_python_package
                 ),
                 package_common.make_package(
                     "project_d",
@@ -223,7 +225,7 @@ class Fix(package_common.Tests):
                     dependencies={"project_a-1+<2"},
                 ),
                 package_common.make_package(
-                    "project_e", root, package_common.make_source_python_package,
+                    "project_e", root, package_common.make_source_python_package
                 ),
             ],
             root,
@@ -233,15 +235,13 @@ class Fix(package_common.Tests):
         release_path_b = _release_packages(packages_b, search_paths=[release_path_a])
         self.delete_item_later(release_path_b)
 
-        self._test(
-            (set(), [], [],), packages_a, paths=[release_path_a],
-        )
+        self._test((set(), [], []), packages_a, paths=[release_path_a])
 
         self.assertEqual(2, run_command.call_count)
 
         with _patch_config_packages_path([release_path_b, release_path_a]):
             self._test(
-                (set(), [], [],), packages_b, paths=[release_path_b, release_path_a],
+                (set(), [], []), packages_b, paths=[release_path_b, release_path_a]
             )
 
         self.assertEqual(7, run_command.call_count)
@@ -298,7 +298,7 @@ class Variations(package_common.Tests):
         self.delete_item_later(root)
 
         packages = [
-            package_common.make_package("project_a", root, builder, variants=variants),
+            package_common.make_package("project_a", root, builder, variants=variants)
         ]
 
         path_root = inspection.get_packages_path_from_package(packages[0])
@@ -353,7 +353,8 @@ class Variations(package_common.Tests):
 
         release_path = _release_packages(
             packages,
-            search_paths=build_paths + config.packages_path,  # pylint: disable=no-member
+            search_paths=build_paths
+            + config.packages_path,  # pylint: disable=no-member
         )
         self.delete_item_later(release_path)
 
@@ -397,7 +398,7 @@ class Variations(package_common.Tests):
 
         """
         packages = self._setup_test(
-            run_command, package_common.make_build_python_package,
+            run_command, package_common.make_build_python_package
         )
         path_root = inspection.get_packages_path_from_package(packages[0])
 
@@ -480,7 +481,7 @@ class Variations(package_common.Tests):
 
         """
         packages = self._setup_test(
-            run_command, package_common.make_source_python_package,
+            run_command, package_common.make_source_python_package
         )
         path_root = inspection.get_packages_path_from_package(packages[0])
         paths = [path_root]
@@ -505,9 +506,14 @@ class Variations(package_common.Tests):
         has_documentation.side_effect = [False, True]
 
         packages = self._setup_test(
-            run_command, package_common.make_source_variant_python_package,
+            run_command, package_common.make_source_variant_python_package
         )
-        roots = list(set(inspection.get_packages_path_from_package(package) for package in packages))
+        roots = list(
+            set(
+                inspection.get_packages_path_from_package(package)
+                for package in packages
+            )
+        )
 
         directory = tempfile.mkdtemp(suffix="_some_build_location")
         self.delete_item_later(directory)
@@ -609,7 +615,11 @@ class Bad(package_common.Tests):
 
         invalid = next(iter(invalids))
 
-        self.assertTrue(str(invalid).startswith("Generic error: No remote origin could be found for"))
+        self.assertTrue(
+            str(invalid).startswith(
+                "Generic error: No remote origin could be found for"
+            )
+        )
 
     def test_no_repository(self):
         """Check that a fix will not run if the package has no destination repository."""
@@ -627,9 +637,7 @@ class Bad(package_common.Tests):
 
         invalids = [
             exceptions.NoGitRepository(
-                package,
-                os.path.join(root, "project_a"),
-                "is not in a Git repository.",
+                package, os.path.join(root, "project_a"), "is not in a Git repository."
             )
         ]
         expected = (set(), invalids, [])

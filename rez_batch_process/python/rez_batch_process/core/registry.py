@@ -56,7 +56,9 @@ def get_package_finder(name):
 
     """
     if name not in _PLUGINS:
-        raise ValueError('Command "{name}" has no registered package function.'.format(name=name))
+        raise ValueError(
+            'Command "{name}" has no registered package function.'.format(name=name)
+        )
 
     return _PLUGINS[name]
 

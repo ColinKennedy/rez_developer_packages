@@ -10,13 +10,12 @@ import textwrap
 
 import git
 from python_compatibility.testing import common
+from rez import exceptions as rez_exceptions
 from rez import packages_
-from rezplugins.package_repository import filesystem
-from rez_batch_process.core import registry, worker
+from rez_batch_process.core import exceptions, registry, worker
 from rez_batch_process.core.plugins import conditional
 from rez_utilities import creator, inspection
-from rez import exceptions as rez_exceptions
-from rez_batch_process.core import exceptions
+from rezplugins.package_repository import filesystem
 from six.moves import mock
 
 
@@ -57,10 +56,10 @@ class Tests(common.Common):
         unfixed, invalids, skips = self._test_unhandled(packages, paths=paths)
         expected_unfixed, expected_invalids, expected_skips = expected
 
-        reduced_invalids = [(invalid.get_path(), str(invalid))
-                            for invalid in invalids]
-        expected_reduced_invalids = [(invalid.get_path(), str(invalid))
-                                     for invalid in expected_invalids]
+        reduced_invalids = [(invalid.get_path(), str(invalid)) for invalid in invalids]
+        expected_reduced_invalids = [
+            (invalid.get_path(), str(invalid)) for invalid in expected_invalids
+        ]
         reduced_skips = [(skip.path, skip.reason) for skip in skips]
         expected_reduced_skips = [(skip.path, skip.reason) for skip in expected_skips]
 
@@ -156,15 +155,21 @@ def _run_and_catch(function, package):
     except known_issues as error:
         path = inspection.get_package_root(package)
 
-        return False, [exceptions.InvalidPackage(package, os.path.normpath(path), str(error))]
+        return (
+            False,
+            [exceptions.InvalidPackage(package, os.path.normpath(path), str(error))],
+        )
     except Exception as error:  # pylint: disable=broad-except
         path, message = worker.handle_generic_exception(error, package)
 
-        return False, [
-            exceptions.InvalidPackage(
-                package, path, "Generic error: " + message, full_message=str(error)
-            )
-        ]
+        return (
+            False,
+            [
+                exceptions.InvalidPackage(
+                    package, path, "Generic error: " + message, full_message=str(error)
+                )
+            ],
+        )
 
 
 def _get_missing_documentation_packages(paths=None):
@@ -176,11 +181,13 @@ def _get_missing_documentation_packages(paths=None):
         result, invalids_ = _run_and_catch(conditional.is_not_a_python_package, package)
 
         if result:
-            skips.append(worker.Skip(
-                package,
-                os.path.normpath(inspection.get_package_root(package)),
-                "Rez Package does not define Python packages / modules.",
-            ))
+            skips.append(
+                worker.Skip(
+                    package,
+                    os.path.normpath(inspection.get_package_root(package)),
+                    "Rez Package does not define Python packages / modules.",
+                )
+            )
 
             continue
 
@@ -192,11 +199,13 @@ def _get_missing_documentation_packages(paths=None):
         result, invalids_ = _run_and_catch(conditional.has_documentation, package)
 
         if result:
-            skips.append(worker.Skip(
-                package,
-                inspection.get_package_root(package),
-                "Python package already has documentation.",
-            ))
+            skips.append(
+                worker.Skip(
+                    package,
+                    inspection.get_package_root(package),
+                    "Python package already has documentation.",
+                )
+            )
 
             continue
 

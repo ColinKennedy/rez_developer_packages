@@ -18,8 +18,8 @@ from python_compatibility import imports, wrapping
 from rez.config import config
 from rez_utilities import inspection
 
-from .core.gitter import github_user
 from .core import cli_constant, registry, worker
+from .core.gitter import github_user
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -50,12 +50,18 @@ def __report(arguments, _):
     package_finder = registry.get_package_finder(arguments.command)
 
     if rez_packages:
-        found_packages, invalid_packages, skips = [package for package in package_finder(paths=packages_path) if package.name in rez_packages]
+        found_packages, invalid_packages, skips = [
+            package
+            for package in package_finder(paths=packages_path)
+            if package.name in rez_packages
+        ]
     else:
-        found_packages, invalid_packages, skips = list(package_finder(paths=packages_path))
+        found_packages, invalid_packages, skips = list(
+            package_finder(paths=packages_path)
+        )
 
     ignored_packages, other_packages = _split_the_ignored_packages(
-        found_packages, ignore_patterns,
+        found_packages, ignore_patterns
     )
 
     packages, invalids = worker.report(
@@ -78,7 +84,7 @@ def __report(arguments, _):
     sys.exit(0)
 
 
-def __run(arguments, command_arguments):
+def __run(arguments, command_arguments):  # pylint: disable=too-many-locals
     """Execute a plugin command on any package that needs it.
 
     Args:
@@ -99,9 +105,15 @@ def __run(arguments, command_arguments):
     package_finder = registry.get_package_finder(arguments.command)
 
     if rez_packages:
-        found_packages, invalid_packages, skips = [package for package in package_finder(paths=packages_path) if package.name in rez_packages]
+        found_packages, invalid_packages, skips = [
+            package
+            for package in package_finder(paths=packages_path)
+            if package.name in rez_packages
+        ]
     else:
-        found_packages, invalid_packages, skips = list(package_finder(paths=packages_path))
+        found_packages, invalid_packages, skips = list(
+            package_finder(paths=packages_path)
+        )
 
     ignored_packages, other_packages = _split_the_ignored_packages(
         found_packages, ignore_patterns
@@ -165,7 +177,10 @@ def __make_git_users(arguments):
         maximum=arguments.maximum_users,
     )
 
-    print('GitHub users were written to "{arguments.path}" successfully.'.format(arguments=arguments))
+    print(
+        'GitHub users were written to "{arguments.path}" successfully.'
+        "".format(arguments=arguments)
+    )
 
     sys.exit(0)
 
@@ -300,7 +315,7 @@ def _print_invalids(invalids, verbose):
 
     """
     if not invalids:
-        print('## No Rez package was set as invalid.')
+        print("## No Rez package was set as invalid.")
         print("Nothing is invalid. Which is a good thing!")
 
         return
@@ -531,7 +546,9 @@ def _process_help(text):
             pass
 
     if subparser_index == -1:
-        raise RuntimeError('Text "{text}" is not a registered command.'.format(text=text))
+        raise RuntimeError(
+            'Text "{text}" is not a registered command.'.format(text=text)
+        )
 
     if text.index(found_text) - 1 > subparser_index:
         text.remove(found_text)
@@ -579,8 +596,7 @@ def _parse_arguments(text):
         help="The authentication token to the remote git repository (GitHub, bitbucket, etc).",
     )
     git_users_command.add_argument(
-        "path",
-        help="The found users will be written to this JSON file path.",
+        "path", help="The found users will be written to this JSON file path."
     )
     git_users_command.add_argument(
         "-m",
@@ -597,10 +613,7 @@ def _parse_arguments(text):
         "(e.g. GitHub enterprise), use this flag to provide the URL.",
     )
     git_users_command.add_argument(
-        "-s",
-        "--ssl-no-verify",
-        action="store_false",
-        help="Disable SSL verification",
+        "-s", "--ssl-no-verify", action="store_false", help="Disable SSL verification"
     )
 
     arguments, unknown_arguments = parser.parse_known_args(text)

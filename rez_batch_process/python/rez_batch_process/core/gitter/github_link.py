@@ -196,7 +196,9 @@ class GithubAdapter(base_adapter.BaseAdapter):
 
         """
         if not user_data:
-            user_data = get_all_users(self._token, self._base_url, verify=self._verify, write=True)
+            user_data = get_all_users(
+                self._token, self._base_url, verify=self._verify, write=True
+            )
         else:
             user_data = _read_users_from_cache(user_data)
 
@@ -207,9 +209,7 @@ class GithubAdapter(base_adapter.BaseAdapter):
             self._package.authors or [], user_data
         )
         reviewers = self._get_reviewers(
-            repository,
-            package_maintainers,
-            fallback_reviewers=self._fallback_reviewers,
+            repository, package_maintainers, fallback_reviewers=self._fallback_reviewers
         )
 
         current_user_login = self._user.me().login

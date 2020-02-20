@@ -139,10 +139,8 @@ def report(
         except (exceptions.InvalidPackage, exceptions.NoRepositoryRemote) as error:
             invalids.append(
                 exceptions.InvalidPackage(
-                    package,
-                    inspection.get_package_root(package),
-                    str(error),
-                ),
+                    package, inspection.get_package_root(package), str(error)
+                )
             )
 
             continue
@@ -154,10 +152,8 @@ def report(
             )
             invalids.append(
                 exceptions.InvalidPackage(
-                    package,
-                    inspection.get_package_root(package),
-                    str(error),
-                ),
+                    package, inspection.get_package_root(package), str(error)
+                )
             )
 
             continue
