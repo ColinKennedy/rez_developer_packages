@@ -71,7 +71,7 @@ class Fix(package_common.Tests):
         paths = [repository.working_dir]
 
         with _patch_config_packages_path(paths):
-            self._test((set(), [], []), packages, paths=paths)
+            self._test((set(), [], []), paths)
 
         self.assertEqual(1, run_command.call_count)
 
@@ -117,7 +117,7 @@ class Fix(package_common.Tests):
         release_path = _release_packages(packages)
         self.delete_item_later(release_path)
 
-        self._test((set(), [], []), packages, paths=[release_path])
+        self._test((set(), [], []), [release_path])
         self.assertEqual(2, run_command.call_count)
 
     @mock.patch("rez_batch_process.core.plugins.command.RezShellCommand.run")
@@ -173,8 +173,7 @@ class Fix(package_common.Tests):
                     )
                 ],
             ),
-            packages,
-            paths=[release_path],
+            [release_path],
         )
         self.assertEqual(1, run_command.call_count)
 
@@ -235,23 +234,18 @@ class Fix(package_common.Tests):
         release_path_b = _release_packages(packages_b, search_paths=[release_path_a])
         self.delete_item_later(release_path_b)
 
-        self._test((set(), [], []), packages_a, paths=[release_path_a])
+        self._test((set(), [], []), [release_path_a])
 
         self.assertEqual(2, run_command.call_count)
 
         with _patch_config_packages_path([release_path_b, release_path_a]):
             self._test(
-                (set(), [], []), packages_b, paths=[release_path_b, release_path_a]
+                (set(), [], []), [release_path_b, release_path_a]
             )
 
         self.assertEqual(7, run_command.call_count)
 
 
-# TODO : This class assumes that build Rez packages are in git
-# repositories. Which is never the case I need actual unittests for when
-# the build packages are NOT in a git repository but instead point to a
-# source directory that does have them
-#
 class Variations(package_common.Tests):
     """Check that different types of Rez packages execute correctly.
 
@@ -380,8 +374,7 @@ class Variations(package_common.Tests):
                         )
                     ],
                 ),
-                packages,
-                paths=paths,
+                paths,
             )
 
         self.assertEqual(1, run_command.call_count)
@@ -402,7 +395,7 @@ class Variations(package_common.Tests):
         )
         path_root = inspection.get_packages_path_from_package(packages[0])
 
-        self._test((set(), [], []), packages, paths=[path_root])
+        self._test((set(), [], []), [path_root])
         self.assertEqual(1, run_command.call_count)
 
     @mock.patch("rez_batch_process.core.plugins.command.RezShellCommand.run")
@@ -423,7 +416,7 @@ class Variations(package_common.Tests):
         )
         path_root = inspection.get_packages_path_from_package(packages[0])
 
-        self._test((set(), [], []), packages, paths=[path_root])
+        self._test((set(), [], []), [path_root])
         self.assertEqual(1, run_command.call_count)
 
     @mock.patch("rez_batch_process.core.plugins.conditional.has_documentation")
@@ -487,7 +480,7 @@ class Variations(package_common.Tests):
         paths = [path_root]
 
         with _patch_config_packages_path(paths):
-            self._test((set(), [], []), packages, paths=[path_root])
+            self._test((set(), [], []), [path_root])
 
         self.assertEqual(1, run_command.call_count)
 
@@ -553,8 +546,7 @@ class Variations(package_common.Tests):
                         )
                     ],
                 ),
-                packages,
-                paths=paths,
+                paths,
             )
 
         self.assertEqual(1, run_command.call_count)
@@ -624,7 +616,7 @@ class Bad(package_common.Tests):
     def test_no_repository(self):
         """Check that a fix will not run if the package has no destination repository."""
 
-        def _make_package_with_no_repository(text, name, version, root):
+        def _make_package_with_no_repository(text, name, _, root):
             return package_common.make_source_python_package(text, name, None, root)
 
         root = os.path.join(tempfile.mkdtemp(), "test_folder")
@@ -643,7 +635,7 @@ class Bad(package_common.Tests):
         expected = (set(), invalids, [])
 
         with _patch_config_packages_path([root]):
-            self._test(expected, [package], paths=[root])
+            self._test(expected, [root])
 
     @mock.patch("rez_batch_process.core.plugins.command.RezShellCommand.run")
     def test_released_dependency_missing(self, run_command):
@@ -695,7 +687,7 @@ class Bad(package_common.Tests):
                     ],
                     [],
                 ),
-                packages,
+                [repository.working_dir],
             )
 
         self.assertEqual(1, run_command.call_count)
@@ -729,7 +721,7 @@ class Bad(package_common.Tests):
         )
 
         with _patch_config_packages_path([repository.working_dir]):
-            self._test(expected, packages)
+            self._test(expected)
 
 
 @contextlib.contextmanager

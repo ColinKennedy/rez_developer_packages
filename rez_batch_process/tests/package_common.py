@@ -40,7 +40,7 @@ class Tests(common.Common):
         for name in registry.get_plugin_keys():
             registry.clear_plugin(name)
 
-    def _test(self, expected, packages, paths=None):
+    def _test(self, expected, paths=None):
         """Check that `packages`, when processed, equals `expected`.
 
         Args:
@@ -53,7 +53,7 @@ class Tests(common.Common):
                 example. Default is None.
 
         """
-        unfixed, invalids, skips = self._test_unhandled(packages, paths=paths)
+        unfixed, invalids, skips = self._test_unhandled(paths=paths)
         expected_unfixed, expected_invalids, expected_skips = expected
 
         reduced_invalids = [(invalid.get_path(), str(invalid)) for invalid in invalids]
@@ -68,12 +68,10 @@ class Tests(common.Common):
         self.assertEqual(expected_reduced_skips, reduced_skips)
 
     @staticmethod
-    def _test_unhandled(packages, paths=None):
-        """Get the conditions for a test (but don't actually test the packages).
+    def _test_unhandled(paths=None):
+        """Get the conditions for a test (but don't actually run unittest.
 
         Args:
-            packages (:class:`rez.developer_package.DeveloperPackage`):
-                The Rez packages that will be processed.
             paths (list[str], optional): The locations on-disk that
                 will be used to any Rez-environment-related work. Some
                 plugins need these paths for resolving a context, for
@@ -89,7 +87,7 @@ class Tests(common.Common):
         arguments.exit_on_error = True
         finder = registry.get_package_finder("shell")
         valid_packages, invalid_packages, skips = finder(paths=paths)
-        _, unfixed, invalids = worker.run(valid_packages, arguments, paths=paths)
+        _, unfixed, invalids = worker.run(valid_packages, arguments)
 
         invalids.extend(invalid_packages)
 
