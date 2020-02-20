@@ -12,7 +12,7 @@ import textwrap
 from rez_utilities import inspection
 
 from .. import exceptions, rez_git
-from ..gitter import git_link, git_registry
+from ..gitter import base_adapter, git_link, git_registry
 from . import base
 
 _LOGGER = logging.getLogger(__name__)
@@ -216,11 +216,13 @@ class RezShellCommand(base.BaseCommand):
             )
 
             adapter.create_pull_request(
-                url,
                 title,
                 body,
-                new_branch.name,
-                current_branch.name,
+                base_adapter.PullRequestDetails(
+                    url,
+                    new_branch.name,
+                    current_branch.name,
+                ),
                 user_data=cached_users,
                 verify=configuration.ssl_no_verify,
             )

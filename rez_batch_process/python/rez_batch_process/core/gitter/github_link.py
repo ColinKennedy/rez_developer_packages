@@ -177,22 +177,22 @@ class GithubAdapter(base_adapter.BaseAdapter):
 
         return "github" in link.base.lower()
 
-    def create_pull_request(self, url, title, body, source, destination, user_data=""):
+    def create_pull_request(self, title, body, pull_request_data, user_data=""):
         """Make a pull request to GitHub, using the given information.
 
         It's recommended to always provide `user_data` because querying
         data from external sites like GitHub can be extremely slow.
 
         Args:
-            url (str): The URL to the repository that a pull request will be made for.
             title (str): The subject line of the pull request.
             body (str): A description of the pull request's changes. Make it good!
-            source (str): (Usually) A feature branch that will merge into master.
-            destination (str): The branch to merge into. Usually "master" or "develop".
-            user_data (str, optional): A file path that is used to
-                read cached GitHub login, e-mail, and name information.
-                If no information is given then it is queried directly
-                from GitHub.
+            pull_request_data (:attr:`.PullRequestDetails`):
+                The URL to a hosted Git repository, the source (feature)
+                branch to use for the pull request and the destination
+                branch (usually master) for it to merge into.
+            user_data (str, optional): A file path that is used to read cached user login,
+                e-mail, and name information. If no information is given
+                then it is queried before pull requests are created.
 
         """
         if not user_data:
@@ -202,7 +202,7 @@ class GithubAdapter(base_adapter.BaseAdapter):
         else:
             user_data = _read_users_from_cache(user_data)
 
-        data = _get_github_url_data(url)
+        data = _get_github_url_data(pull_request_data.url)
         repository = self._user.repository(data.owner, data.name)
 
         package_maintainers = _convert_to_github_user_names(
@@ -217,7 +217,12 @@ class GithubAdapter(base_adapter.BaseAdapter):
         if current_user_login in reviewers:
             reviewers.remove(current_user_login)
 
-        pull_request = repository.create_pull(title, destination, source, body)
+        pull_request = repository.create_pull(
+            title,
+            pull_request_data.destination,
+            pull_request_data.source,
+            body,
+        )
         # This next line adds the reviewers to the already-created-pull
         # request. It's an awkward syntax but oh well.
         #
