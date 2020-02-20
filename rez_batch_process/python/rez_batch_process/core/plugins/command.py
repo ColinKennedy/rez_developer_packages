@@ -120,7 +120,7 @@ class RezShellCommand(base.BaseCommand):
         return ""
 
     @classmethod
-    def _create_pull_request(
+    def _create_pull_request(  # pylint: disable=too-many-arguments,too-many-locals
         cls,
         package,
         configuration,
