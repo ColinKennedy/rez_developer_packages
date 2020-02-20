@@ -600,7 +600,7 @@ class Bad(package_common.Tests):
         paths = [inspection.get_packages_path_from_package(package)]
 
         with _patch_config_packages_path(paths):
-            unfixed, invalids, skips = self._test_unhandled([package])
+            unfixed, invalids, skips = self._test_unhandled()
 
         self.assertEqual(set(), unfixed)
         self.assertEqual([], skips)
