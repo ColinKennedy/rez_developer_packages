@@ -22,8 +22,6 @@ from six.moves import mock
 
 from . import package_common
 
-# TODO : Add unittests for when a package does not need documentation
-
 
 class Add(common.Common):
     """Check that :class:`.RezShellCommand` can run a command on different types of Rez packages."""

@@ -8,10 +8,6 @@ a Python package or already has documentation.
 
 """
 
-import collections
-
-from rez_utilities import inspection
-
 from .plugins import command, conditional
 
 _COMMANDS = {"shell": command.RezShellCommand}

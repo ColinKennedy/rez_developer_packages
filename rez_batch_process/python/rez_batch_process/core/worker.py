@@ -16,7 +16,6 @@ import sys
 import tempfile
 
 import git
-from rez import exceptions as rez_exceptions
 from rez import packages_
 from rez_utilities import inspection, rez_configuration
 from rezplugins.package_repository import filesystem
