@@ -52,12 +52,12 @@ def __report(arguments, _):
     if rez_packages:
         found_packages, invalid_packages, skips = [
             package
-            for package in package_finder(paths=packages_path)
+            for package in package_finder(paths=packages_path + search_packages_path)
             if package.name in rez_packages
         ]
     else:
         found_packages, invalid_packages, skips = list(
-            package_finder(paths=packages_path)
+            package_finder(paths=packages_path + search_packages_path)
         )
 
     ignored_packages, other_packages = _split_the_ignored_packages(
@@ -68,7 +68,6 @@ def __report(arguments, _):
         other_packages,
         maximum_repositories=arguments.maximum_repositories,
         maximum_rez_packages=arguments.maximum_rez_packages,
-        paths=packages_path + search_packages_path,
     )
 
     invalids.extend(invalid_packages)
@@ -94,7 +93,6 @@ def __run(arguments, command_arguments):  # pylint: disable=too-many-locals
             The registered command's parsed arguments.
 
     """
-    raise ValueError('Need to update this function')
     ignore_patterns, packages_path, search_packages_path = _resolve_arguments(
         arguments.ignore_patterns,
         arguments.packages_path,
@@ -107,12 +105,12 @@ def __run(arguments, command_arguments):  # pylint: disable=too-many-locals
     if rez_packages:
         found_packages, invalid_packages, skips = [
             package
-            for package in package_finder(paths=packages_path)
+            for package in package_finder(paths=packages_path + search_packages_path)
             if package.name in rez_packages
         ]
     else:
         found_packages, invalid_packages, skips = list(
-            package_finder(paths=packages_path)
+            package_finder(paths=packages_path + search_packages_path)
         )
 
     ignored_packages, other_packages = _split_the_ignored_packages(
@@ -125,7 +123,6 @@ def __run(arguments, command_arguments):  # pylint: disable=too-many-locals
         command_arguments,
         maximum_repositories=arguments.maximum_repositories,
         maximum_rez_packages=arguments.maximum_rez_packages,
-        paths=packages_path + search_packages_path,
         keep_temporary_files=arguments.keep_temporary_files,
         temporary_directory=arguments.temporary_directory,
     )

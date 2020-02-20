@@ -91,7 +91,6 @@ def report(
     packages_to_report,
     maximum_repositories=sys.maxint,
     maximum_rez_packages=sys.maxint,
-    paths=None,
 ):
     """Check Rez packages for missing documentation and return them all.
 
@@ -108,10 +107,6 @@ def report(
             If the queried packages live in more repositories than
             this given parameter, then this function will exit early.
             Default: :attr:`sys.maxint`.
-        paths (list[str], optional):
-            The locations on-disk that will be used to any
-            Rez-environment-related work. Some plugins need these
-            paths for resolving a context, for example. Default is None.
 
     Returns:
         tuple[
@@ -169,7 +164,6 @@ def run(  # pylint: disable=too-many-arguments,too-many-locals
     command_arguments,
     maximum_repositories=sys.maxint,
     maximum_rez_packages=sys.maxint,
-    paths=None,
     keep_temporary_files=False,
     temporary_directory="",
 ):
@@ -188,10 +182,6 @@ def run(  # pylint: disable=too-many-arguments,too-many-locals
             If the queried packages live in more repositories than
             this given parameter, then this function will exit early.
             Default: :attr:`sys.maxint`.
-        paths (list[str], optional):
-            The locations on-disk that will be used to any
-            Rez-environment-related work. Some plugins need these
-            paths for resolving a context, for example. Default is None.
         keep_temporary_files (bool, optional):
             If False, delete any folders used to clone local git
             If repositories. True, don't delete them. Default is False.
@@ -225,7 +215,6 @@ def run(  # pylint: disable=too-many-arguments,too-many-locals
         packages_to_run,
         maximum_repositories=maximum_repositories,
         maximum_rez_packages=maximum_rez_packages,
-        paths=paths,
     )
 
     ran = set()
