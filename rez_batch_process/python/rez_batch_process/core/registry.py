@@ -37,21 +37,24 @@ def get_command_keys():
 
 
 def get_plugin_keys():
+    """set[str]: All of the functions, by-name, that are used to find Rez packages."""
     return set(_PLUGINS.keys())
 
 
 def get_package_finder(name):
-    # """Find the objects that determine whether to skip a Rez package.
-    #
-    # By default, the registered plugins will skip a Rez package if it is
-    # not a Python package or already has documentation.
-    #
-    # Returns:
-    #     list[:class:`.BasePlugin`]:
-    #         The plugins that will be used to find out if the Rez package
-    #         needs documentation.
-    #
-    # """
+    """Get a function that's used to find Rez packages.
+
+    Raises:
+        ValueError: If `name` is not registered.
+
+    Returns:
+        callable[list[str]] -> tuple[:class:`rez.packages_.Package`, list, list]:
+            A function that takes Rez package paths as its only argument
+            and returns a list of Rez packages that will be processed by ``rez_batch_process``,
+            any package that's invalid, and any package that should be skipped
+            (and thus, not processed).
+
+    """
     if name not in _PLUGINS:
         raise ValueError('Command "{name}" has no registered package function.'.format(name=name))
 

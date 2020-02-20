@@ -124,28 +124,23 @@ def is_not_a_python_package(package):
 
 
 def get_default_latest_packages(paths=None):
+    """Get the latest version of every Rez package family.
+
+    Args:
+        paths (list[str], optional):
+            The directories to search for Rez package families,
+            Default: :attr:`rez.config.config.packages_path`.
+
+    Returns:
+        tuple[:class:`rez.packages_.Package`, list, list]:
+            All of the found Rez packages and a list of any Rez package
+            that was considered invalid or any Rez packages that were
+            valid but must be skipped, for some reason.
+
+    """
     packages = []
 
     for package in inspection.iter_latest_packages(paths=paths):
         packages.append(package)
 
     return packages, [], []
-
-    # TODO : Make this stuff work?
-    # try:
-    #     finder.get_skip_reason(package, paths=paths)
-    # except known_issues as error:
-    #     path = inspection.get_package_root(package)
-    #     invalids.append(exceptions.InvalidPackage(package, path, str(error)))
-    #
-    #     continue
-    # except Exception as error:  # pylint: disable=broad-except
-    #     path, message = _handle_generic_exception(error, package)
-    #
-    #     invalids.append(
-    #         exceptions.InvalidPackage(
-    #             package, path, "Generic error: " + message, full_message=str(error)
-    #         )
-    #     )
-    #
-    #     continue

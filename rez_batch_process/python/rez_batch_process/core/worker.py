@@ -21,15 +21,27 @@ from rez import packages_
 from rez_utilities import inspection, rez_configuration
 from rezplugins.package_repository import filesystem
 
-from . import exceptions, finder, registry, rez_git
+from . import exceptions, registry, rez_git
 from .gitter import git_link
 
 Skip = collections.namedtuple("Skip", "package path reason")
 _LOGGER = logging.getLogger(__name__)
 
 
-# TODO : Add docstring
 def _find_package_definitions(directory, name):
+    """Find every Rez package matching some name in a folder on-disk.
+
+    Args:
+        directory (str): An absolute path to a folder that has Rez packages in it.
+        name (str): The name of the Rez package to search for.
+
+    Returns:
+        set[:class:`rez.packages_.DeveloperPackage`]:
+            The found packages. Usually, this will only ever have
+            one package if found or empty, if not found. But if any
+            duplicate packages are found, those will get returned, too.
+
+    """
     matches = set()
 
     for root, _, files in os.walk(directory):
@@ -44,6 +56,20 @@ def _find_package_definitions(directory, name):
 
 
 def handle_generic_exception(error, package):
+    """Get a printable strin for an error get the path to the Rez package that triggered it.
+
+    This function is mainly used for handling exceptions.
+
+    Args:
+        error (:class:`Exception`):
+            Some Python exception.
+        package (:class:`rez.packages_.DeveloperPackage`):
+            The package that triggered the error.
+
+    Returns:
+        tuple[str, str]: The found path and the exception message.
+
+    """
     # Plugin functions can raise any exception so they must be caught, here
     path = inspection.get_package_root(package)
 
@@ -101,14 +127,6 @@ def report(
     repositories = []
     packages = []
     invalids = []
-    known_issues = (
-        # :func:`is_not_a_python_package` can potentially raise any of these exceptions
-        rez_exceptions.PackageNotFoundError,
-        rez_exceptions.ResolvedContextError,
-        filesystem.PackageDefinitionFileMissing,
-        # :func:`has_documentation` raises this exception
-        exceptions.NoGitRepository,
-    )
 
     for package in packages_to_report:
         if len(repositories) > maximum_repositories:
