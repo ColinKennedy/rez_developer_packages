@@ -106,7 +106,7 @@ def _expand_paths(path):
 
     """
     if not os.path.isabs(path):
-        path = os.path.normpath(os.path.join(_CURRENT_DIRECTORY, path))
+        path = os.path.normpath(os.path.join(os.getcwd(), path))
 
     if not os.path.exists(path):
         raise ValueError('Path "{path}" is not a file or folder.'.format(path=path))
