@@ -44,25 +44,15 @@ class Yaml2Py(common.Common):
         """Add some generic plugins so that tests have something to work with."""
         super(Yaml2Py, cls).setUpClass()
 
-        for name in registry.get_plugin_keys():
-            registry.clear_plugin(name)
-
-        for name in registry.get_command_keys():
-            registry.clear_command(name)
-
-        registry.register_plugin("yaml2py", yaml2py._get_non_python_packages)
-        registry.register_command("yaml2py", yaml2py.Yaml2Py)
+        _clear_registry()
+        yaml2py.main()
 
     @classmethod
     def tearDownClass(cls):
         """Remove all stored plugins."""
         super(Yaml2Py, cls).tearDownClass()
 
-        for name in registry.get_plugin_keys():
-            registry.clear_plugin(name)
-
-        for name in registry.get_command_keys():
-            registry.clear_command(name)
+        _clear_registry()
 
     def _make_fake_released_packages(self, other_package):
         """Create 2 basic Rez packages to use for testing.
@@ -150,35 +140,6 @@ class Yaml2Py(common.Common):
 
         return release_path
 
-    @staticmethod
-    def _test_unhandled(paths=None):
-        """Get the conditions for a test (but don't actually run unittest.
-
-        Args:
-            paths (list[str], optional): The locations on-disk that
-                will be used to any Rez-environment-related work. Some
-                plugins need these paths for resolving a context, for
-                example. Default is None.
-
-        Returns:
-            The output of :func:`rez_batch_process.core.worker.run`.
-
-        """
-        arguments = mock.MagicMock()
-
-        finder = registry.get_package_finder("yaml2py")
-        valid_packages, invalid_packages, skips = finder(paths=paths)
-
-        command = registry.get_command("yaml2py")
-
-        _, unfixed, invalids = worker.run(
-            functools.partial(command.run, arguments=arguments), valid_packages
-        )
-
-        invalids.extend(invalid_packages)
-
-        return (unfixed, invalids, skips)
-
     @mock.patch(
         "rez_batch_process.core.plugins.command.RezShellCommand._create_pull_request"
     )
@@ -190,7 +151,7 @@ class Yaml2Py(common.Common):
         sys.argv[1:] = text
 
         with rez_configuration.patch_release_packages_path(release_path):
-            unfixed, invalids, skips = self._test_unhandled()
+            unfixed, invalids, skips = _get_test_results("yaml2py")
 
         self.assertEqual(set(), unfixed)
         self.assertEqual([], invalids)
@@ -215,7 +176,7 @@ class Yaml2Py(common.Common):
         sys.argv[1:] = text
 
         with rez_configuration.patch_release_packages_path(release_path):
-            unfixed, invalids, skips = self._test_unhandled()
+            unfixed, invalids, skips = _get_test_results("yaml2py")
 
         self.assertEqual(set(), unfixed)
         self.assertEqual([], invalids)
@@ -225,6 +186,14 @@ class Yaml2Py(common.Common):
         )
 
         self.assertEqual(1, _create_pull_request.call_count)
+
+
+def _clear_registry():
+    for name in registry.get_plugin_keys():
+        registry.clear_plugin(name)
+
+    for name in registry.get_command_keys():
+        registry.clear_command(name)
 
 
 def _make_fake_release_data():
@@ -242,6 +211,41 @@ def _make_fake_release_data():
     parser.prog = "rez release"
 
     return options, parser
+
+
+def _make_package_with_modules(name, modules, root):
+    template = textwrap.dedent(
+        """\
+        name = "{name}"
+
+        version = "1.2.0"
+
+        build_command = "echo 'foo'"
+
+        def commands():
+            import os
+
+            env.PYTHONPATH.append(os.path.join("{{root}}", "python"))
+        """
+    )
+
+    directory = os.path.join(root, name)
+    os.makedirs(directory)
+
+    with open(os.path.join(directory, "package.py"), "w") as handler:
+        handler.write(template.format(name=name))
+
+    for path, text in modules:
+        full_path = os.path.join(root, path)
+        path_directory = os.path.dirname(full_path)
+
+        if path_directory and not os.path.isdir(path_directory):
+            os.makedirs(path_directory)
+
+        with open(full_path, "w") as handler:
+            handler.write(text)
+
+    return inspection.get_nearest_rez_package(directory)
 
 
 def _make_rez_package(name, package_name, text, root):
@@ -264,3 +268,36 @@ def _make_rez_package(name, package_name, text, root):
         handler.write(text)
 
     return inspection.get_nearest_rez_package(directory)
+
+
+def _get_test_results(command_text, paths=None):
+    """Get the conditions for a test (but don't actually run unittest.
+
+    Args:
+        command_text (str):
+            Usually "shell", "yaml2py", "move_imports", etc. This string
+            will find and modify Rez packages based on some registered
+            plugin.
+        paths (list[str], optional):
+            The locations on-disk that will be used to any
+            Rez-environment-related work. Some plugins need these paths
+            for resolving a context, for example. Default is None.
+
+    Returns:
+        The output of :func:`rez_batch_process.core.worker.run`.
+
+    """
+    arguments = mock.MagicMock()
+
+    finder = registry.get_package_finder(command_text)
+    valid_packages, invalid_packages, skips = finder(paths=paths)
+
+    command = registry.get_command(command_text)
+
+    _, unfixed, invalids = worker.run(
+        functools.partial(command.run, arguments=arguments), valid_packages
+    )
+
+    invalids.extend(invalid_packages)
+
+    return (unfixed, invalids, skips)
