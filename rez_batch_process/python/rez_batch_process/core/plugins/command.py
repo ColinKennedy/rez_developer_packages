@@ -7,6 +7,8 @@ import argparse
 import collections
 import contextlib
 import logging
+import os
+import shlex
 import subprocess
 import textwrap
 
@@ -118,6 +120,10 @@ class RezShellCommand(base.BaseCommand):
                 raise exceptions.CoreException(message)
 
             return message
+
+        if not has_changes(package):
+            return 'Command "{arguments.command}" ran but nothing on-disk changed. ' \
+                'No PR is needed!'.format(arguments=arguments)
 
         return ""
 
@@ -310,6 +316,28 @@ class RezShellCommand(base.BaseCommand):
         )
 
         return ""
+
+
+def has_changes(package):
+    """Check if a Rez package is part of a git repository that has uncommitted or untracked changes.
+
+    Reference:
+        https://unix.stackexchange.com/a/155077
+
+    Args:
+        package (:class:`rez.packages_.Package`):
+            The object that should either have a git repository defined
+            or is itself inside of a git repository.
+
+    Returns:
+        bool: If `package` has no changes.
+
+    """
+    repository = rez_git.get_repository(package)
+    relative_path = os.path.relpath(inspection.get_package_root(package), repository.working_dir)
+    command = shlex.split('git status --porcelain -- "{relative_path}"'.format(relative_path=relative_path))
+
+    return bool(repository.git.execute(command))
 
 
 def add_git_arguments(parser):

@@ -86,6 +86,7 @@ class Tests(common.Common):
         arguments.command = "echo 'foo'"
         arguments.pull_request_prefix = "ticket-name"
         arguments.exit_on_error = True
+
         finder = registry.get_package_finder("shell")
         valid_packages, invalid_packages, skips = finder(paths=paths)
 

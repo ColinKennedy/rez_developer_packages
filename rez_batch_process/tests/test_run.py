@@ -7,7 +7,6 @@
 
 """
 
-import contextlib
 import logging
 import os
 import tempfile
@@ -244,6 +243,36 @@ class Fix(package_common.Tests):
             )
 
         self.assertEqual(7, run_command.call_count)
+
+    @mock.patch("rez_batch_process.core.plugins.command.RezShellCommand._create_pull_request")
+    def test_no_change(self, _create_pull_request):
+        """Successfully run a command but have that command do nothing.
+
+        In this case, no PR should be submitted (because nothing was changed).
+
+        """
+        root = os.path.join(tempfile.mkdtemp(), "test_folder")
+        os.makedirs(root)
+        self.delete_item_later(root)
+
+        packages = [
+            package_common.make_package(
+                "project_a", root, package_common.make_source_python_package
+            )
+        ]
+        repository, packages, remote_root = package_common.make_fake_repository(
+            packages, root
+        )
+        self.delete_item_later(repository.working_dir)
+        self.delete_item_later(remote_root)
+
+        paths = [repository.working_dir]
+
+        with rez_configuration.patch_packages_path(paths):
+            unfixed, invalids, skips = self._test_unhandled(paths=paths)
+            self.assertEqual(["project_a"], [package.name for package, _ in unfixed])
+            self.assertEqual([], invalids)
+            self.assertEqual([], skips)
 
 
 class Variations(package_common.Tests):
