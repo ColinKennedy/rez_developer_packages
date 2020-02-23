@@ -5,13 +5,12 @@ import os
 import subprocess
 import tempfile
 import textwrap
-import git
 
+import git
+from python_compatibility.testing import common
 from rez_utilities import creator, inspection
 from rez_utilities_git import testify
-from python_compatibility.testing import common
 from six.moves import mock
-
 
 # class AddToAttribute(unittest.TestCase):
 #     pass
@@ -113,7 +112,6 @@ def _make_fake_release_data():
 
     parser = mock.MagicMock()
     parser.prog = "rez release"
-
 
     return options, parser
 

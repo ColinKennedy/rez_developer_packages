@@ -49,18 +49,13 @@ tests = {
         # Need to disable D202 for now, until a new pydocstyle version is released
         # Reference: https://github.com/psf/black/issues/1159
         #
-        "command": "rez-env pydocstyle -- pydocstyle --ignore=D213,D202,D203,D406,D407 python tests/*",
+        "command": "rez-env pydocstyle -- pydocstyle --ignore=D213,D202,D203,D406,D407 python tests/*"
     },
     "pylint": {
         "command": "pylint --disable=bad-continuation python/rez_batch_plugins tests",
         "requires": ["pylint-1.9+<2"],
     },
-    "unittest": {
-        "command": "python -m unittest discover",
-        "requires": [
-            "mock-3+<4",
-        ] ,
-    }
+    "unittest": {"command": "python -m unittest discover", "requires": ["mock-3+<4"]},
 }
 
 

@@ -11,16 +11,15 @@ import sys
 import tempfile
 import textwrap
 
-from rez import packages_, serialise
+import git
 from rez import exceptions as rez_exceptions
+from rez import packages_, serialise
 from rez_batch_process import cli
 from rez_batch_process.core import exceptions, registry, worker
 from rez_batch_process.core.plugins import command, conditional
-from rez_utilities_git import gitter
 from rez_utilities import inspection
+from rez_utilities_git import gitter
 from six.moves import io
-import git
-
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -118,7 +117,7 @@ class Yaml2Py(command.RezShellCommand):
     @staticmethod
     def parse_arguments(text):
         parser = argparse.ArgumentParser(
-            description="Run rez-yaml2py on all package.yaml files.",
+            description="Run rez-yaml2py on all package.yaml files."
         )
         parser.add_argument(
             "pull_request_prefix",
@@ -236,7 +235,7 @@ def _get_non_python_packages(paths=None):
                     package,
                     inspection.get_package_root(package),
                     "already has a package.py file.",
-                ),
+                )
             )
 
             continue
@@ -275,7 +274,9 @@ def _get_repository(package):
 def _get_temporary_directory():
     arguments, _ = cli.parse_arguments(sys.argv[1:])
 
-    return arguments.temporary_directory or tempfile.mkdtemp(suffix="_some_location_to_clone_repositories")
+    return arguments.temporary_directory or tempfile.mkdtemp(
+        suffix="_some_location_to_clone_repositories"
+    )
 
 
 def main():

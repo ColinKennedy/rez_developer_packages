@@ -1,13 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""A class that automatically refactors moved Python modules."""
+
 import argparse
 import textwrap
 
 from rez_batch_process.core.plugins import command
 
 
-class RezShellCommand(command.RezShellCommand):
+class MoveImports(command.RezShellCommand):
+    """A class that automatically refactors moved Python modules."""
+
     @staticmethod
     def _get_pull_request_body(package, configuration):
         """str: Convert a Rez package into a description for pull requests from this class."""
@@ -53,8 +57,17 @@ class RezShellCommand(command.RezShellCommand):
 
     @staticmethod
     def parse_arguments(text):
+        """Parse user-provided CLI text into inputs that this class understands.
+
+        Args:
+            text (list[str]): The user provided input, separated by spaces.
+
+        Returns:
+            :class:`argparse.Namespace`: The parsed output.
+
+        """
         parser = argparse.ArgumentParser(
-            description="Replace Python imports for Rez packages.",
+            description="Replace Python imports for Rez packages."
         )
         parser.add_argument(
             "pull_request_prefix",
@@ -101,7 +114,7 @@ class RezShellCommand(command.RezShellCommand):
 
     @staticmethod
     def _run_command(package, arguments):
-        raise NotImplementedError('Need to implement this')
+        raise NotImplementedError("Need to implement this")
 
     @classmethod
     def run(cls, package, arguments):
