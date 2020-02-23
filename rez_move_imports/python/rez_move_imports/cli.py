@@ -136,7 +136,7 @@ def _make_absolute(path):
 
     current = os.getcwd()
 
-    return os.path.normcase(os.path.join(current, path))
+    return os.path.normpath(os.path.join(current, path))
 
 
 def _clean(item):
