@@ -50,10 +50,18 @@ class Bugs(common.Common):
             handler.write(
                 textwrap.dedent(
                     """\
-                    name = "some_test_package"
+                    # -*- coding: utf-8 -*-
 
-                    version = "3.2.build_13"
+                    name = "a_package_here"
 
+                    version = "1.3.0"
+
+                    build_command = "echo 'foo'"
+
+                    def commands():
+                        import os
+
+                        env.PYTHONPATH.append('asdf')
                     """
                 )
             )
@@ -70,13 +78,23 @@ class Bugs(common.Common):
 
         expected_package = textwrap.dedent(
             """\
-            name = "some_test_package"
+            # -*- coding: utf-8 -*-
 
-            version = "3.3.build_13"
+            name = "a_package_here"
+
+            version = "1.4.0"
 
             requires = [
                 "a_new_package-2+<4",
-            ]"""
+            ]
+
+            build_command = "echo 'foo'"
+
+            def commands():
+                import os
+
+                env.PYTHONPATH.append('asdf')
+            """
         )
 
         with open(package, "r") as handler:
