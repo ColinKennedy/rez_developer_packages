@@ -22,11 +22,11 @@ def get_context():
 
 
 @contextlib.contextmanager
-def patch_package_paths(paths):
+def patch_packages_path(paths):
     """Replace the paths that Rez uses to search for packages with `paths`.
 
     Example:
-        with patch_package_paths(["/some/path"]):
+        with patch_packages_path(["/some/path"]):
             print('The paths are different now')
 
     Args:

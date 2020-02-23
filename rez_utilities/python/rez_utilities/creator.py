@@ -162,7 +162,7 @@ def release(directory, options, parser, new_release_path, search_paths=None, qui
     else:
         context = _null_context
 
-    with rez_configuration.patch_package_paths([new_release_path] + search_paths):
+    with rez_configuration.patch_packages_path([new_release_path] + search_paths):
         with rez_configuration.patch_release_packages_paths(new_release_path):
             os.chdir(directory)
 
