@@ -653,7 +653,10 @@ def _register_plugins():
         if not namespace:
             continue
 
-        imports.import_nearest_module(namespace)
+        module = imports.import_nearest_module(namespace)
+
+        if hasattr(module, "main"):
+            module.main()
 
 
 def main(text):
