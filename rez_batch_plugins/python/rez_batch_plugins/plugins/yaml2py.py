@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# pylint: disable=line-too-long
+"""A class that converts Rez package.yaml to package.py files."""
+
 import argparse
 import atexit
 import functools
@@ -25,10 +28,11 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class Yaml2Py(command.RezShellCommand):
+    """A class that converts Rez package.yaml to package.py files."""
+
     @staticmethod
     def _get_pull_request_body(package, _):
         """str: Convert a Rez package into a description for pull requests from this class."""
-        # TODO : Change URL to the master branch (or a commit) just before merging
         template = textwrap.dedent(
             """\
             This PR converts the package.yaml of ``{package.name}`` into a package.py file.
@@ -50,7 +54,7 @@ class Yaml2Py(command.RezShellCommand):
             ## How
 
             This PR was generated automatically, using
-            [``rez_batch_plugins``](https://github.com/ColinKennedy/rez_developer_packages/tree/add_rez_batch_plugins/rez_batch_plugins)
+            [``rez_batch_plugins``](https://github.com/ColinKennedy/rez_developer_packages/tree/master/rez_batch_plugins)
 
             ## Who this PR is for
 
@@ -65,32 +69,22 @@ class Yaml2Py(command.RezShellCommand):
         return template.format(package=package)
 
     @staticmethod
-    def _run_command(package, arguments):
-        # """Run the user-provided command on the given Rez package.
-        #
-        # Args:
-        #     package (:class:`rez.developer_package.DeveloperPackage`):
-        #         The Rez package that will be used changed. Any command
-        #         run by this function will do so while cd'ed into the
-        #         directory of this package.
-        #     arguments (:class:`argparse.Namespace`):
-        #         The user-provided, plug-in specific arguments.
-        #         Specifically, this should bring in
-        #
-        #         - The command that the user wants to run, per-package
-        #         - The name of the ticket that will be used for git branches
-        #         - The option to "raise an exception if any error occurs"
-        #           or whether it's OK to continue.
-        #
-        # Raises:
-        #     :class:`.CoreException`:
-        #         If ``exit_on_error`` is enabled and the user-provided
-        #         command fails, for any reason.
-        #
-        # Returns:
-        #     str: Any error message that occurred from this command, if any.
-        #
-        # """
+    def _run_command_on_package(package):
+        """Run the user-provided command on the given Rez package.
+
+        Args:
+            package (:class:`rez.developer_package.DeveloperPackage`):
+                The Rez package that presumably is a package.yaml file
+                that needs to be changed.
+
+        Raises:
+            :class:`.InvalidPackage:
+                If `package` is not a package.yaml file.
+
+        Returns:
+            str: Any error message that occurred from this command, if any.
+
+        """
         if not package.filepath.endswith(".yaml"):
             raise exceptions.InvalidPackage(
                 package,
@@ -116,6 +110,15 @@ class Yaml2Py(command.RezShellCommand):
 
     @staticmethod
     def parse_arguments(text):
+        """Parse the user-provided text into something that this class understands.
+
+        Args:
+            text (list[str]): The space-separated flags that the user provided.
+
+        Returns:
+            :class:`argparse.Namespace`: The user-provided text, converted to Python objects.
+
+        """
         parser = argparse.ArgumentParser(
             description="Run rez-yaml2py on all package.yaml files."
         )
@@ -165,7 +168,20 @@ class Yaml2Py(command.RezShellCommand):
 
     @classmethod
     def run(cls, package, arguments):
-        error = cls._run_command(package, arguments)
+        """Run `rez-yaml2py` and then submit a pull request.
+
+        Args:
+            package (:class:`rez.packages_.Package`):
+                Some Rez package to process.
+            arguments (:class:`argparse.Namespace`):
+                The plug-in specific arguments that were given by the
+                user to help this function do its work.
+
+        Returns:
+            str: If any error was found while the function was executed.
+
+        """
+        error = cls._run_command_on_package(package)
 
         if error:
             return error
@@ -189,17 +205,28 @@ class Yaml2Py(command.RezShellCommand):
 
 
 def _is_keep_temporary_files_enabled():
+    """bool: Check if the user asked to not delete auto-generated files."""
     arguments, _ = cli.parse_arguments(sys.argv[1:])
 
     return arguments.keep_temporary_files
 
 
-def _is_python_definition(package):
+def _is_yaml_definition(package):
+    """Check if the given package defines a package.py file or something else.
+
+    Args:
+        package (:class:`rez.packages_.DeveloperPackage`):
+            A package on-disk that will be verified.
+
+    Returns:
+        bool: If `package` defines a package.py, return True. Otherwise, return False.
+
+    """
     if not inspection.is_built_package(package):
         path = inspection.get_package_root(package)
 
         try:
-            packages_.get_developer_package(path, format=serialise.FileFormat.py)
+            packages_.get_developer_package(path, format=serialise.FileFormat.yaml)
         except rez_exceptions.PackageMetadataError:
             return False
 
@@ -208,10 +235,22 @@ def _is_python_definition(package):
     repository = _get_repository(package)
     repository_package = _get_package(repository.working_dir, package.name)
 
-    return _is_python_definition(repository_package)
+    return _is_yaml_definition(repository_package)
 
 
 def _get_package(directory, name):
+    """Find the Rez package within some directory matching the given name.
+
+    Args:
+        directory (str):
+            The absolute path to some folder on-disk which contains Rez packages.
+        name (str):
+            A Rez package family that will be searched.
+
+    Returns:
+        :class:`rez.packages_.DeveloperPackage` or NoneType: The found package, if any.
+
+    """
     for package in inspection.get_all_packages(directory):
         if package.name == name:
             return package
@@ -220,21 +259,32 @@ def _get_package(directory, name):
 
 
 def _get_non_python_packages(paths=None):
+    """Find every Rez package that defines a package.yaml file.
+
+    Args:
+        paths (list[str], optional):
+            The directories used to search for Rez packages. If no paths
+            are given, :attr:`rez.config.config.packages_path` will be
+            used instead.
+
+    Returns:
+        tuple[:class:`rez.packages_.Package`, list, list]:
+            All of the found Rez packages and a list of any Rez package
+            that was considered invalid or any Rez packages that were
+            valid but must be skipped, for some reason.
+
+    """
     output = []
 
     packages, invalids, skips = conditional.get_default_latest_packages(paths=paths)
 
     for package in packages:
-        if not package.name == "some_package":
-            # TODO : Remove this part later
-            continue
-
-        if _is_python_definition(package):
+        if not _is_yaml_definition(package):
             skips.append(
                 worker.Skip(
                     package,
                     inspection.get_package_root(package),
-                    "already has a package.py file.",
+                    "is not a package.yaml file.",
                 )
             )
 
@@ -246,6 +296,7 @@ def _get_non_python_packages(paths=None):
 
 
 def _get_repository_name(uri):
+    """str: Get the name that a Git repository will be called once it's cloned to-disk."""
     base = uri.split("/")[-1]
 
     if base.endswith(".git"):
@@ -255,6 +306,15 @@ def _get_repository_name(uri):
 
 
 def _get_repository(package):
+    """Clone the git repository of a Rez package to-disk and return it.
+
+    Args:
+        package (:class:`rez.packages_.DeveloperPackage`): A package to clone.
+
+    Returns:
+        :class:`git.Repo`: The cloned location that contained `package`.
+
+    """
     directory = _get_temporary_directory()
     uri = gitter.get_repository_url(package)
     name = _get_repository_name(uri)
@@ -272,6 +332,7 @@ def _get_repository(package):
 
 
 def _get_temporary_directory():
+    """str: Get the directory used for cloning Rez repositories to-disk."""
     arguments, _ = cli.parse_arguments(sys.argv[1:])
 
     return arguments.temporary_directory or tempfile.mkdtemp(
@@ -280,6 +341,11 @@ def _get_temporary_directory():
 
 
 def main():
-    """Run the main execution of the current script."""
+    """Run the main execution of the current script.
+
+    This function will be called by ``rez_batch_process`` once the user
+    calls it from command-line.
+
+    """
     registry.register_plugin("yaml2py", _get_non_python_packages)
     registry.register_command("yaml2py", Yaml2Py)

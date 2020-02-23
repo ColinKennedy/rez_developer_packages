@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""Check that the plugin commands the ``rez_batch_plugins`` defines work as-expected."""
+
 import os
 import subprocess
 import tempfile
