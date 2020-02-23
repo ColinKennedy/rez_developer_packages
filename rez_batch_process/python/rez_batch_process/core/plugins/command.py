@@ -272,6 +272,7 @@ class RezShellCommand(base.BaseCommand):
             help="If running the command on a package raises an exception "
             "and this flag is added, this class will bail out early.",
         )
+        add_git_arguments(parser)
 
         return parser.parse_args(text)
 
