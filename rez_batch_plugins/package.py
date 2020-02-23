@@ -19,6 +19,7 @@ requires = [
     "python-2+<3",
     "rez-2.47+<3",
     "rez_batch_process-0+<1",
+    "rez_move_imports-0+<1",
     "rez_utilities-1.3+<2",
     "rez_utilities_git-1+<2",
     "six-1.13+<2",

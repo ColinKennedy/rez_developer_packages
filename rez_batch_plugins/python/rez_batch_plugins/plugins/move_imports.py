@@ -6,7 +6,8 @@
 import argparse
 import textwrap
 
-from rez_batch_process.core.plugins import command
+from rez_batch_process.core import registry
+from rez_batch_process.core.plugins import command, conditional
 
 
 class MoveImports(command.RezShellCommand):
@@ -75,13 +76,29 @@ class MoveImports(command.RezShellCommand):
             required=True,
             help="Explain what imports you're changing and why you're changing them.",
         )
+        parser.add_argument(
+            "-a",
+            "--arguments",
+            required=True,
+            help="The code that'll be sent directly to rez_move_imports",
+        )
+        parser.add_argument(
+            "-e",
+            "--exit-on-error",
+            action="store_true",
+            help="If running the command on a package raises an exception "
+            "and this flag is added, this class will bail out early.",
+        )
+
         command.add_git_arguments(parser)
 
         return parser.parse_args(text)
 
-    @staticmethod
-    def _run_command(package, arguments):
-        raise NotImplementedError("Need to implement this")
+    @classmethod
+    def _run_command(cls, package, arguments):
+        arguments.command = "python -m rez_move_imports " + arguments.arguments
+
+        super(MoveImports, cls)._run_command(package, arguments)
 
     @classmethod
     def run(cls, package, arguments):
@@ -101,3 +118,9 @@ class MoveImports(command.RezShellCommand):
         )
 
         return ""
+
+
+def main():
+    """Add :class:`.MoveImports` to ``rez_batch_process``."""
+    registry.register_plugin("move_imports", conditional.get_default_latest_packages)
+    registry.register_command("move_imports", MoveImports)
