@@ -14,6 +14,96 @@ from rez_move_imports import cli
 from rez_move_imports.core import exception
 
 
+class Bugs(common.Common):
+    """A series of tests for any unexpected bugs that come up while using ``rez_move_imports``."""
+
+    def test_replace_from_no_requirements(self):
+        """When the original Rez package has no requirements, it causes Rez to fail.
+
+        This test makes sure that doesn't cause problems for ``rez_move_imports``.
+
+        """
+        directory = tempfile.mkdtemp(suffix="_test_replace_and_deprecate")
+        self.delete_item_later(directory)
+
+        some_module = os.path.join(directory, "some_module_inside.py")
+        text = textwrap.dedent(
+            """\
+            # some module with stuff in it
+
+            import os
+            import textwrap
+
+            from old_dependency import a_module
+
+            def something():
+                pass
+            """
+        )
+
+        with open(some_module, "w") as handler:
+            handler.write(text)
+
+        package = os.path.join(directory, "package.py")
+
+        with open(package, "w") as handler:
+            handler.write(
+                textwrap.dedent(
+                    """\
+                    name = "some_test_package"
+
+                    version = "3.2.build_13"
+
+                    """
+                )
+            )
+
+        command = [
+            '"{directory} old_dependency.a_module,a_new_namespace.somewhere_else"'
+            "".format(directory=directory),
+            '--requirements="a_new_package-2+<4,a_new_namespace"',
+            '--deprecate="old_dependency_package,old_dependency"',
+            '--package-directory="{directory}"'.format(directory=directory),
+        ]
+
+        cli.main(command)
+
+        expected_package = textwrap.dedent(
+            """\
+            name = "some_test_package"
+
+            version = "3.3.build_13"
+
+            requires = [
+                "a_new_package-2+<4",
+            ]"""
+        )
+
+        with open(package, "r") as handler:
+            code = handler.read()
+
+        self.assertEqual(expected_package, code)
+
+        expected_code = textwrap.dedent(
+            """\
+            # some module with stuff in it
+
+            import os
+            import textwrap
+
+            from a_new_namespace import somewhere_else
+
+            def something():
+                pass
+            """
+        )
+
+        with open(some_module, "r") as handler:
+            code = handler.read()
+
+        self.assertEqual(expected_code, code)
+
+
 class Invalids(common.Common):
     """Check that different CLI options fail in predictable ways."""
 
