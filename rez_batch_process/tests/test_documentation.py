@@ -8,6 +8,7 @@ This "add documentation" test is done to make sure that
 
 """
 
+import functools
 import os
 import tempfile
 import textwrap
@@ -16,7 +17,7 @@ import uuid
 import git
 from python_compatibility.testing import common
 from rez import exceptions
-from rez_batch_process.core import worker
+from rez_batch_process.core import registry, worker
 from rez_utilities import creator, inspection
 from six.moves import mock
 
@@ -40,12 +41,14 @@ class Add(common.Common):
         """
         name = "{base}.txt".format(base=uuid.uuid4())
         arguments = _make_arguments(name)
+        command = registry.get_command("shell")
+        runner = functools.partial(command.run, arguments=arguments)
 
         with mock.patch(
             "rez_batch_process.core.gitter.git_registry.get_remote_adapter"
         ) as patch:
             patch.create_pull_request = lambda *args, **kwargs: None
-            ran, un_ran, invalids = worker.run(packages, arguments)
+            ran, un_ran, invalids = worker.run(runner, packages)
 
         self.assertEqual((set(), []), (un_ran, invalids))
 
