@@ -40,7 +40,7 @@ Of course, if you have a complicated Rez package that defines more than
 one Python namespace, you can handle all that too. Just add more commas.
 
 ```sh
-rez-env rez_move_imports -- python -m rez_move_imports ". foo,another --partial" --requirements some_package_another-2+<3,another --deprecate old_package_foo,foo,something_else,more.namespaces
+rez-env rez_move_imports -- python -m rez_move_imports ". foo,another --partial" --requirements "some_package_another-2+<3,another" --deprecate old_package_foo,foo,something_else,more.namespaces
 ```
 
 This one means the exact same thing as before but instead we're saying
