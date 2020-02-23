@@ -214,13 +214,6 @@ class Yaml2Py(common.Common):
         self.assertEqual(1, _create_pull_request.call_count)
 
 
-# def _get_package_files(root):
-#     # root is a remote repository
-#     root =
-#     git.Repo.clone
-#     atexit =
-
-
 def _make_fake_release_data():
     options = mock.MagicMock()
     options.cmd = "release"
