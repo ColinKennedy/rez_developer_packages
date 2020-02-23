@@ -18,7 +18,7 @@ import wurlitzer
 from rez import packages_
 from rez.config import config
 from rez_batch_process.core import exceptions, worker
-from rez_utilities import creator, inspection
+from rez_utilities import creator, inspection, rez_configuration
 from six.moves import mock
 
 from . import package_common
@@ -31,7 +31,7 @@ class Fix(package_common.Tests):
 
     def test_empty(self):
         """Check that zero packages does not error."""
-        with _patch_config_packages_path([]):
+        with rez_configuration.patch_packages_path([]):
             self._test((set(), [], []), [])
 
     @mock.patch("rez_batch_process.core.plugins.command.RezShellCommand.run")
@@ -70,7 +70,7 @@ class Fix(package_common.Tests):
 
         paths = [repository.working_dir]
 
-        with _patch_config_packages_path(paths):
+        with rez_configuration.patch_packages_path(paths):
             self._test((set(), [], []), paths)
 
         self.assertEqual(1, run_command.call_count)
@@ -238,7 +238,7 @@ class Fix(package_common.Tests):
 
         self.assertEqual(2, run_command.call_count)
 
-        with _patch_config_packages_path([release_path_b, release_path_a]):
+        with rez_configuration.patch_packages_path([release_path_b, release_path_a]):
             self._test(
                 (set(), [], []), [release_path_b, release_path_a]
             )
@@ -361,7 +361,7 @@ class Variations(package_common.Tests):
 
         paths = build_paths + [release_path]
 
-        with _patch_config_packages_path(paths):
+        with rez_configuration.patch_packages_path(paths):
             self._test(
                 (
                     set(),
@@ -479,7 +479,7 @@ class Variations(package_common.Tests):
         path_root = inspection.get_packages_path_from_package(packages[0])
         paths = [path_root]
 
-        with _patch_config_packages_path(paths):
+        with rez_configuration.patch_packages_path(paths):
             self._test((set(), [], []), [path_root])
 
         self.assertEqual(1, run_command.call_count)
@@ -530,7 +530,7 @@ class Variations(package_common.Tests):
         build_root = inspection.get_packages_path_from_package(build_package)
         paths = roots + [build_root]
 
-        with _patch_config_packages_path(paths):
+        with rez_configuration.patch_packages_path(paths):
             self._test(
                 (
                     set(),
@@ -599,7 +599,7 @@ class Bad(package_common.Tests):
 
         paths = [inspection.get_packages_path_from_package(package)]
 
-        with _patch_config_packages_path(paths):
+        with rez_configuration.patch_packages_path(paths):
             unfixed, invalids, skips = self._test_unhandled()
 
         self.assertEqual(set(), unfixed)
@@ -634,7 +634,7 @@ class Bad(package_common.Tests):
         ]
         expected = (set(), invalids, [])
 
-        with _patch_config_packages_path([root]):
+        with rez_configuration.patch_packages_path([root]):
             self._test(expected, [root])
 
     @mock.patch("rez_batch_process.core.plugins.command.RezShellCommand.run")
@@ -674,7 +674,7 @@ class Bad(package_common.Tests):
         package = packages[1]
         package_root = inspection.get_package_root(package)
 
-        with _patch_config_packages_path([repository.working_dir]):
+        with rez_configuration.patch_packages_path([repository.working_dir]):
             self._test(
                 (
                     set(),
@@ -720,19 +720,8 @@ class Bad(package_common.Tests):
             ],
         )
 
-        with _patch_config_packages_path([repository.working_dir]):
+        with rez_configuration.patch_packages_path([repository.working_dir]):
             self._test(expected)
-
-
-@contextlib.contextmanager
-def _patch_config_packages_path(paths):
-    original = list(config.packages_path)  # pylint: disable=no-member
-    config.packages_path[:] = paths  # pylint: disable=no-member
-
-    try:
-        yield
-    finally:
-        config.packages_path[:] = original  # pylint: disable=no-member
 
 
 def _release_packages(packages, search_paths=None):
