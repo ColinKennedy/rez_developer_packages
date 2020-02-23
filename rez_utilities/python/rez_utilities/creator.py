@@ -4,6 +4,7 @@
 """A module that's devoted to building and "creating" Rez packages."""
 
 import copy
+import contextlib
 import logging
 import os
 
@@ -89,7 +90,7 @@ def build(package, install_path, packages_path=None):
     )
 
 
-def release(directory, options, parser, new_release_path, search_paths=None):
+def release(directory, options, parser, new_release_path, search_paths=None, quiet=False):
     """Release a package located at `directory` to the `new_release_path` folder.
 
     Args:
@@ -111,6 +112,9 @@ def release(directory, options, parser, new_release_path, search_paths=None):
         search_paths (list[str], optional):
             The directories on-disk that can be used to help find extra
             dependencies that a Rez package might require. Default is None.
+        quiet (bool, optional):
+            If True, don't print out anything to stdout while the
+            package is being made. Default is False.
 
     Raises:
         ValueError: If `directory` is not a folder on-disk.
@@ -124,6 +128,10 @@ def release(directory, options, parser, new_release_path, search_paths=None):
 
     """
 
+    @contextlib.contextmanager
+    def _null_context():
+        yield
+
     def _clear_rez_get_current_developer_package_cache():
         # Reference: https://github.com/nerdvegas/rez/blob/master/src/rez/cli/build.py#L9-L29
         build_._package = None  # pylint: disable=protected-access
@@ -136,33 +144,34 @@ def release(directory, options, parser, new_release_path, search_paths=None):
     if not search_paths:
         search_paths = []
 
-    current_directory = os.getcwd()
-    release_path = config.release_packages_path
-    packages_path = list(config.packages_path)  # pylint: disable=no-member
     _clear_rez_get_current_developer_package_cache()
 
-    try:
-        # The paths changed here serve 2 purposes
-        #
-        # 1. release_packages_path gets changed so that the released
-        #    package goes to `new_release_path` and not to the regular
-        #    release path.
-        # 2. packages_path needs to be given the release path + any
-        #    other paths needed to resolve the package (e.g. folders were
-        #    dependencies may live.
-        #
-        config.release_packages_path = new_release_path
-        config.packages_path[:] = [  # pylint: disable=no-member
-            new_release_path
-        ] + search_paths
-        os.chdir(directory)
+    # The paths changed here serve 2 purposes
+    #
+    # 1. release_packages_path gets changed so that the released
+    #    package goes to `new_release_path` and not to the regular
+    #    release path.
+    # 2. packages_path needs to be given the release path + any
+    #    other paths needed to resolve the package (e.g. folders were
+    #    dependencies may live.
+    #
+    current_directory = os.getcwd()
 
-        release_.command(options, parser)
-    except Exception:
-        raise
-    finally:
-        config.release_packages_path = release_path
-        config.packages_path[:] = packages_path  # pylint: disable=no-member
-        os.chdir(current_directory)
+    if quiet:
+        context = rez_configuration.get_context
+    else:
+        context = _null_context
+
+    with rez_configuration.patch_package_paths([new_release_path] + search_paths):
+        with rez_configuration.patch_release_packages_paths(new_release_path):
+            os.chdir(directory)
+
+            with context():
+                try:
+                    release_.command(options, parser)
+                except Exception:
+                    raise
+                finally:
+                    os.chdir(current_directory)
 
     return new_release_path

@@ -15,8 +15,13 @@ private_build_requires = ["rez_build_helper-1+<2"]
 build_command = "python -m rez_build_helper --items python"
 
 requires = [
+    "GitPython-2.1+<3",
     "python-2+<3",
+    "rez-2.47+<3",
     "rez_batch_process-0+<1",
+    "rez_utilities-1.3+<2",
+    "rez_utilities_git-1+<2",
+    "six-1.13+<2",
 ]
 
 tests = {
@@ -47,12 +52,15 @@ tests = {
         "command": "rez-env pydocstyle -- pydocstyle --ignore=D213,D202,D203,D406,D407 python tests/*",
     },
     "pylint": {
-        "command": "pylint --disable=bad-continuation python/rez_batch_process tests",
+        "command": "pylint --disable=bad-continuation python/rez_batch_plugins tests",
         "requires": ["pylint-1.9+<2"],
     },
     "unittest": {
         "command": "python -m unittest discover",
-    },
+        "requires": [
+            "mock-3+<4",
+        ] ,
+    }
 }
 
 

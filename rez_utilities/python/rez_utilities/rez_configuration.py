@@ -3,7 +3,10 @@
 
 """Configurable functions to control the output of functions from this package."""
 
+import contextlib
+
 import wurlitzer
+from rez.config import config
 from rez import serialise
 
 REZ_PACKAGE_NAMES = frozenset(
@@ -16,3 +19,45 @@ REZ_PACKAGE_NAMES = frozenset(
 def get_context():
     """:class:`contextlib.GeneratorContextManager`: Silence all C-level stdout messages."""
     return wurlitzer.pipes()
+
+
+@contextlib.contextmanager
+def patch_package_paths(paths):
+    """Replace the paths that Rez uses to search for packages with `paths`.
+
+    Example:
+        with patch_package_paths(["/some/path"]):
+            print('The paths are different now')
+
+    Args:
+        paths (list[str]): Directories on-disk to where to look for Rez package.
+
+    """
+    original = config.packages_path  # pylint: disable=no-member
+    config.packages_path[:] = paths  # pylint: disable=no-member
+
+    try:
+        yield
+    finally:
+        config.packages_path[:] = original  # pylint: disable=no-member
+
+
+@contextlib.contextmanager
+def patch_release_packages_paths(path):
+    """Replace the paths that Rez uses to search for released packages with `path`.
+
+    Example:
+        with patch_release_packages_paths("/some/path"):
+            print('The paths are different now')
+
+    Args:
+        path (str): The directory on-disk to where to look for Rez package.
+
+    """
+    original = config.release_packages_path
+    config.release_packages_path = path
+
+    try:
+        yield
+    finally:
+        config.release_packages_path = original
