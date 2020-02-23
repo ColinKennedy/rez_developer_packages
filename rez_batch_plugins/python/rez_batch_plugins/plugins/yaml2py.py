@@ -110,6 +110,7 @@ class Yaml2Py(command.RezShellCommand):
             handler.write(code)
 
         _LOGGER.info('Now removing the old "%s".', package.filepath)
+
         os.remove(package.filepath)
 
         return ""

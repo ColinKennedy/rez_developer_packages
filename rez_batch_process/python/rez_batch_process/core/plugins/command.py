@@ -5,11 +5,13 @@
 
 import argparse
 import collections
+import contextlib
 import logging
 import subprocess
 import textwrap
 
 from rez_utilities import inspection
+import wurlitzer
 
 from .. import exceptions, rez_git
 from ..gitter import base_adapter, git_link, git_registry
@@ -168,12 +170,6 @@ class RezShellCommand(base.BaseCommand):
 
         repository = rez_git.get_repository(package)
         current_branch = repository.active_branch
-        repository.head.reset(  # Make sure there are no uncommitted changes
-            index=True, working_tree=True
-        )
-
-        origin = repository.remote(name="origin")
-        origin.pull(current_branch)
 
         url = rez_git.get_repository_url_from_repository(repository)
         adapter = git_registry.get_remote_adapter(
@@ -201,19 +197,32 @@ class RezShellCommand(base.BaseCommand):
             "{configuration.pull_request_prefix}_{package.name}_run_command"
             "".format(configuration=configuration, package=package)
         )
-        new_branch_name = _get_unique_branch(repository, branch_template)
-        new_branch = repository.create_head(new_branch_name)
-        new_branch.checkout()
 
-        try:
+        with _reset_repository_state(repository, current_branch):
+            origin = repository.remote(name="origin")
+            origin.pull(current_branch)
+
+            new_branch_name = _get_unique_branch(repository, branch_template)
+            new_branch = repository.create_head(new_branch_name)
+            new_branch.checkout()
+
             git_link.add_everything_in_repository(repository)
             repository.index.commit(commit_message)
             origin = repository.remote(name="origin")
-            origin.push(
-                refspec="{new_branch.name}:{new_branch.name}".format(
-                    new_branch=new_branch
+
+            with wurlitzer.pipes() as pipes:
+                origin.push(
+                    refspec="{new_branch.name}:{new_branch.name}".format(
+                        new_branch=new_branch
+                    )
                 )
-            )
+
+            stdout, stderr = pipes
+
+            if "error: failed to push some refs to " in stdout.read():
+                raise RuntimeError('Could not push to "{new_branch}".'.format(new_branch=new_branch))
+            elif stderr.read():
+                raise RuntimeError(stderr)
 
             adapter.create_pull_request(
                 title,
@@ -225,13 +234,6 @@ class RezShellCommand(base.BaseCommand):
                 ),
                 user_data=cached_users,
             )
-        except Exception:  # pylint: disable=broad-except
-            _LOGGER.exception("No pull request could be created")
-
-            raise
-        finally:
-            # Revert back to the previous branch
-            current_branch.checkout()
 
     @staticmethod
     def parse_arguments(text):
@@ -374,3 +376,15 @@ def _get_unique_branch(repository, base_branch_name):
         index += 1
 
     return branch
+
+
+@contextlib.contextmanager
+def _reset_repository_state(repository, branch):
+    try:
+        yield
+    finally:
+        repository.head.reset(  # Make sure there are no uncommitted changes
+            index=True, working_tree=True
+        )
+        repository.git.clean('-df')  # Delete all untracked files and folders
+        branch.checkout()

@@ -23,6 +23,7 @@ requires = [
     "rez-2.47+<3",
     "rez_utilities-1+<2",
     "six-1.13+<2",
+    "wurlitzer-2+<3",  # Used to silence calls to `rez-release` and git cloning
 ]
 
 build_command = "python -m rez_build_helper --items python"
@@ -37,7 +38,6 @@ tests = {
         "requires": [
             "coverage",
             "mock-3+<4",
-            "wurlitzer-2+<3",  # Used to silence calls to `rez-release`
         ],
     },
     "isort": {
@@ -63,7 +63,6 @@ tests = {
         "command": "python -m unittest discover",
         "requires": [
             "mock-3+<4",
-            "wurlitzer-2+<3",  # Used to silence calls to `rez-release`
         ],
     },
 }
