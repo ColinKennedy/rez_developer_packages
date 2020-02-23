@@ -158,6 +158,10 @@ def get_parent_module(namespace):
 def import_nearest_module(namespace):
     """Find a suitable module for some Python namespace.
 
+    Reference:
+        https://stackoverflow.com/a/8719100/3626104
+        https://stackoverflow.com/a/2725668/3626104
+
     Args:
         namespace (str):
             A dot-separated string that could be pointing to a Python
