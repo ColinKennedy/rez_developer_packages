@@ -412,7 +412,6 @@ class Variations(package_common.Tests):
         packages = self._setup_test(
             run_command,
             package_common.make_build_python_package,
-            variants=[["python-2.7"]],
         )
         path_root = inspection.get_packages_path_from_package(packages[0])
 
