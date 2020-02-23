@@ -105,8 +105,7 @@ def get_repository_url_from_repository(repository):
             The repository that, presumably, has a remote URL / file path.
 
     Raises:
-        :class:`exceptions.NoRepositoryRemote:
-            The given repository has no remote URL.
+        RuntimeError: The given repository has no remote URL.
 
     Returns:
         str: The found URL.
@@ -117,7 +116,7 @@ def get_repository_url_from_repository(repository):
     try:
         origin = remotes.origin
     except AttributeError:
-        raise exceptions.NoRepositoryRemote(
+        raise RuntimeError(
             'No remote origin could be found for "{repository}".'.format(
                 repository=repository
             )
