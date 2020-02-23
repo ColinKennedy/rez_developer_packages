@@ -114,9 +114,6 @@ def bump(package, minor=0, absolute=False):
             If `minor` is undefined when `absolute` is False or if
             `minor` is negative when `absolute` is True.
 
-    Returns:
-        :class:`rez.packages_.DeveloperPackage`: The copy of `package` but with a new version.
-
     """
     if not absolute and not minor:
         raise ValueError("Nothing to do. No value was given to `minor`.")
@@ -139,6 +136,3 @@ def bump(package, minor=0, absolute=False):
     version = _bump_version(version, minor, absolute=absolute)
 
     _write_package_to_disk(package.filepath, version)
-    root = inspection.get_package_root(package)
-
-    return inspection.get_nearest_rez_package(root)
