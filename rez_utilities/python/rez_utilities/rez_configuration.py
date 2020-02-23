@@ -43,11 +43,11 @@ def patch_packages_path(paths):
 
 
 @contextlib.contextmanager
-def patch_release_packages_paths(path):
+def patch_release_packages_path(path):
     """Replace the paths that Rez uses to search for released packages with `path`.
 
     Example:
-        with patch_release_packages_paths("/some/path"):
+        with patch_release_packages_path("/some/path"):
             print('The paths are different now')
 
     Args:
