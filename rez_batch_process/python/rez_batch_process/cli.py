@@ -6,6 +6,7 @@
 from __future__ import print_function
 
 import argparse
+import functools
 import copy
 import fnmatch
 import logging
@@ -118,9 +119,11 @@ def __run(arguments, command_arguments):  # pylint: disable=too-many-locals
     )
     print("TODO need to print the ignored packages")
 
+    command = registry.get_command(arguments.command)
+
     packages, un_ran, invalids = worker.run(
+        functools.partial(command.run, arguments=command_arguments),
         other_packages,
-        command_arguments,
         maximum_repositories=arguments.maximum_repositories,
         maximum_rez_packages=arguments.maximum_rez_packages,
         keep_temporary_files=arguments.keep_temporary_files,
@@ -553,7 +556,7 @@ def _process_help(text):
     return text, True
 
 
-def _parse_arguments(text):
+def parse_arguments(text):
     """Add commands such as "report" and "run" which can detect / run.
 
     Returns:
@@ -663,14 +666,9 @@ def main(text):
     """Run the main execution of the current script."""
     _register_plugins()
 
-    arguments, command_arguments = _parse_arguments(text)
+    arguments, command_arguments = parse_arguments(text)
 
     if arguments.verbose:
         _LOGGER.setLevel(logging.DEBUG)
 
     arguments.execute(arguments, command_arguments)
-
-
-if __name__ == "__main__":
-    logging.basicConfig(stream=sys.stdout, level=logging.INFO)
-    main(sys.argv[1:])

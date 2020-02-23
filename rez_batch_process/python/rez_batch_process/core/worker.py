@@ -159,8 +159,8 @@ def report(
 
 
 def run(  # pylint: disable=too-many-arguments,too-many-locals
+    runner,
     packages_to_run,
-    command_arguments,
     maximum_repositories=sys.maxint,
     maximum_rez_packages=sys.maxint,
     keep_temporary_files=False,
@@ -247,8 +247,6 @@ def run(  # pylint: disable=too-many-arguments,too-many-locals
         if not keep_temporary_files:
             git_link.add_directory_to_delete(repository_root)
 
-        command = registry.get_command("shell")
-
         for package in packages:
             definitions = list(_find_package_definitions(repository_root, package.name))
 
@@ -274,7 +272,7 @@ def run(  # pylint: disable=too-many-arguments,too-many-locals
             inner_repository_package = definitions[0]
 
             try:
-                error = command.run(inner_repository_package, command_arguments)
+                error = runner(inner_repository_package)
             except exceptions.CoreException as error:  # pylint: disable=broad-except
                 un_ran.add((inner_repository_package, error))
 

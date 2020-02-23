@@ -330,6 +330,22 @@ def get_package_python_paths(package, paths):
     return output
 
 
+def get_all_packages(directory):
+    paths = set()
+    packages = []
+
+    for root, _, _ in os.walk(directory):
+        if any(filer.in_directory(root, directory_) for directory_ in paths):
+            continue
+
+        package = get_nearest_rez_package(root)
+
+        if package:
+            packages.append(package)
+
+    return packages
+
+
 def get_nearest_rez_package(directory):
     """Assuming that `directory` is on or inside a Rez package, find the nearest Rez package.
 

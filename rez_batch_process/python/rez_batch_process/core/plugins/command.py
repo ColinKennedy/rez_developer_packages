@@ -224,7 +224,6 @@ class RezShellCommand(base.BaseCommand):
                     current_branch.name,
                 ),
                 user_data=cached_users,
-                verify=configuration.ssl_no_verify,
             )
         except Exception:  # pylint: disable=broad-except
             _LOGGER.exception("No pull request could be created")

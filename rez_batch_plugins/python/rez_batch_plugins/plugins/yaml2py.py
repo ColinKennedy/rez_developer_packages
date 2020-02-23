@@ -2,14 +2,32 @@
 # -*- coding: utf-8 -*-
 
 import argparse
+import atexit
+import functools
+import logging
+import os
+import shutil
+import sys
+import tempfile
 import textwrap
 
-from rez_batch_process.core.plugins import command
+from rez import packages_, serialise
+from rez import exceptions as rez_exceptions
+from rez_batch_process import cli
+from rez_batch_process.core import exceptions, registry, worker
+from rez_batch_process.core.plugins import command, conditional
+from rez_utilities_git import gitter
+from rez_utilities import inspection
+from six.moves import io
+import git
 
 
-class RezShellCommand(command.RezShellCommand):
+_LOGGER = logging.getLogger(__name__)
+
+
+class Yaml2Py(command.RezShellCommand):
     @staticmethod
-    def _get_pull_request_body(package):
+    def _get_pull_request_body(package, _):
         """str: Convert a Rez package into a description for pull requests from this class."""
         # TODO : Change URL to the master branch (or a commit) just before merging
         template = textwrap.dedent(
@@ -46,6 +64,55 @@ class RezShellCommand(command.RezShellCommand):
         )
 
         return template.format(package=package)
+
+    @staticmethod
+    def _run_command(package, arguments):
+        # """Run the user-provided command on the given Rez package.
+        #
+        # Args:
+        #     package (:class:`rez.developer_package.DeveloperPackage`):
+        #         The Rez package that will be used changed. Any command
+        #         run by this function will do so while cd'ed into the
+        #         directory of this package.
+        #     arguments (:class:`argparse.Namespace`):
+        #         The user-provided, plug-in specific arguments.
+        #         Specifically, this should bring in
+        #
+        #         - The command that the user wants to run, per-package
+        #         - The name of the ticket that will be used for git branches
+        #         - The option to "raise an exception if any error occurs"
+        #           or whether it's OK to continue.
+        #
+        # Raises:
+        #     :class:`.CoreException`:
+        #         If ``exit_on_error`` is enabled and the user-provided
+        #         command fails, for any reason.
+        #
+        # Returns:
+        #     str: Any error message that occurred from this command, if any.
+        #
+        # """
+        if not package.filepath.endswith(".yaml"):
+            raise exceptions.InvalidPackage(
+                package,
+                inspection.get_package_root(package),
+                'Package "{package}" is not a YAML file.'.format(package=package),
+            )
+
+        buffer_ = io.StringIO()
+        package.print_info(format_=serialise.FileFormat.py, buf=buffer_)
+        code = buffer_.getvalue()
+
+        path = os.path.join(inspection.get_package_root(package), "package.py")
+        _LOGGER.info('Now creating "%s".', path)
+
+        with open(path, "w") as handler:
+            handler.write(code)
+
+        _LOGGER.info('Now removing the old "%s".', package.filepath)
+        os.remove(package.filepath)
+
+        return ""
 
     @staticmethod
     def parse_arguments(text):
@@ -116,4 +183,101 @@ class RezShellCommand(command.RezShellCommand):
             base_url=arguments.base_url,
         )
 
+        _LOGGER.info('Pull request posted for "%s".', package.name)
+
         return ""
+
+
+def _is_keep_temporary_files_enabled():
+    arguments, _ = cli.parse_arguments(sys.argv[1:])
+
+    return arguments.keep_temporary_files
+
+
+def _is_python_definition(package):
+    if not inspection.is_built_package(package):
+        path = inspection.get_package_root(package)
+
+        try:
+            packages_.get_developer_package(path, format=serialise.FileFormat.py)
+        except rez_exceptions.PackageMetadataError:
+            return False
+
+        return True
+
+    repository = _get_repository(package)
+    repository_package = _get_package(repository.working_dir, package.name)
+
+    return _is_python_definition(repository_package)
+
+
+def _get_package(directory, name):
+    for package in inspection.get_all_packages(directory):
+        if package.name == name:
+            return package
+
+    return None
+
+
+def _get_non_python_packages(paths=None):
+    output = []
+
+    packages, invalids, skips = conditional.get_default_latest_packages(paths=paths)
+
+    for package in packages:
+        if not package.name == "some_package":
+            # TODO : Remove this part later
+            continue
+
+        if _is_python_definition(package):
+            skips.append(
+                worker.Skip(
+                    package,
+                    inspection.get_package_root(package),
+                    "already has a package.py file.",
+                ),
+            )
+
+            continue
+
+        output.append(package)
+
+    return output, invalids, skips
+
+
+def _get_repository_name(uri):
+    base = uri.split("/")[-1]
+
+    if base.endswith(".git"):
+        base = base[: -1 * len(".git")]
+
+    return base
+
+
+def _get_repository(package):
+    directory = _get_temporary_directory()
+    uri = gitter.get_repository_url(package)
+    name = _get_repository_name(uri)
+    destination = os.path.join(directory, name)
+
+    if os.path.isdir(destination):
+        repository = git.Repo(destination)
+    else:
+        repository = git.Repo.clone_from(uri, destination)
+
+    if not _is_keep_temporary_files_enabled():
+        atexit.register(functools.partial(shutil.rmtree, repository.working_dir))
+
+    return repository
+
+
+def _get_temporary_directory():
+    arguments, _ = cli.parse_arguments(sys.argv[1:])
+
+    return arguments.temporary_directory or tempfile.mkdtemp(suffix="_some_location_to_clone_repositories")
+
+
+def main():
+    """Run the main execution of the current script."""
+    registry.register_plugin("yaml2py", _get_non_python_packages)
+    registry.register_command("yaml2py", Yaml2Py)
