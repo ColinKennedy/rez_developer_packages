@@ -172,7 +172,7 @@ def import_nearest_module(namespace):
 
     """
     try:
-        return __import__(namespace)
+        return __import__(namespace, fromlist=[""])
     except ImportError:
         # Usually happens if the namespace is actually "foo.MyClass" or "foo.my_attribute"
         pass
@@ -187,7 +187,7 @@ def import_nearest_module(namespace):
         new_namespace = ".".join(parent)
 
         try:
-            return __import__(new_namespace)
+            return __import__(new_namespace, fromlist=[""])
         except ImportError:
             pass
 
