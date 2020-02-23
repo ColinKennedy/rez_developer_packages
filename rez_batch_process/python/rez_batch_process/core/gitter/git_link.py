@@ -168,15 +168,16 @@ def has_package_conf(repository, package, directory="", keep=False):
 def add_everything_in_repository(repository):
     """Update the git repository with every modified file.
 
+    Reference:
+        https://stackoverflow.com/a/572660/3626104
+
     Args:
         repository (:class:`git.Repo`):
             The repository that may or may not contain files with
             un-added/un-committed changes.
 
     """
-    repository.index.add(
-        [item for item in os.listdir(repository.working_dir) if item != ".git"]
-    )
+    repository.git.add(A=True)
 
 
 def add_directory_to_delete(directory):
