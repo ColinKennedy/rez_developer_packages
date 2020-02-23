@@ -195,7 +195,7 @@ def _check_namespaces(namespaces, deprecate, requirements):
     if missing_news:
         raise exception.MissingNamespaces(
             'Python namespaces "{namespaces}" are defined but not linked to a Rez package. '
-            "Please add them to --requirements".format(namespaces=sorted(missing_olds))
+            "Please add them to --requirements".format(namespaces=sorted(missing_news))
         )
 
 
