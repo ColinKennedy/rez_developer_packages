@@ -266,45 +266,11 @@ class RezShellCommand(base.BaseCommand):
             help="The shell command that will be run while cd'ed into every Rez package.",
         )
         parser.add_argument(
-            "pull_request_prefix",
-            help="When new git branches are created, their names will start with this string.",
-        )
-        parser.add_argument(
-            "token",
-            help="The authentication token to the remote git repository (GitHub, bitbucket, etc).",
-        )
-        parser.add_argument(
             "-e",
             "--exit-on-error",
             action="store_true",
             help="If running the command on a package raises an exception "
             "and this flag is added, this class will bail out early.",
-        )
-        parser.add_argument(
-            "-f",
-            "--fallback-reviewers",
-            nargs="+",
-            default=[],
-            help="If a git repository doesn't have many maintainers, "
-            "this list of GitHub/Bitbucket users will review the PRs, instead.",
-        )
-        parser.add_argument(
-            "-c",
-            "--cached-users",
-            help="A file that contains GitHub/bitbucket/etc usernames, "
-            "emails, and login info. Must be a JSON file.",
-        )
-        parser.add_argument(
-            "-b",
-            "--base-url",
-            help="If you are authenticating to a non-standard remote "
-            "(e.g. GitHub enterprise), use this flag to provide the URL.",
-        )
-        parser.add_argument(
-            "-s",
-            "--ssl-no-verify",
-            action="store_false",
-            help="Disable SSL verification",
         )
 
         return parser.parse_args(text)
@@ -343,6 +309,43 @@ class RezShellCommand(base.BaseCommand):
         )
 
         return ""
+
+
+def add_git_arguments(parser):
+    parser.add_argument(
+        "pull_request_prefix",
+        help="When new git branches are created, their names will start with this string.",
+    )
+    parser.add_argument(
+        "token",
+        help="The authentication token to the remote git repository (GitHub, bitbucket, etc).",
+    )
+    parser.add_argument(
+        "-f",
+        "--fallback-reviewers",
+        nargs="+",
+        default=[],
+        help="If a git repository doesn't have many maintainers, "
+        "this list of GitHub/Bitbucket users will review the PRs, instead.",
+    )
+    parser.add_argument(
+        "-c",
+        "--cached-users",
+        help="A file that contains GitHub/bitbucket/etc usernames, "
+        "emails, and login info. Must be a JSON file.",
+    )
+    parser.add_argument(
+        "-b",
+        "--base-url",
+        help="If you are authenticating to a non-standard remote "
+        "(e.g. GitHub enterprise), use this flag to provide the URL.",
+    )
+    parser.add_argument(
+        "-s",
+        "--ssl-no-verify",
+        action="store_false",
+        help="Disable SSL verification",
+    )
 
 
 def _get_unique_branch(repository, base_branch_name):

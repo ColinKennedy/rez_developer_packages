@@ -70,45 +70,12 @@ class MoveImports(command.RezShellCommand):
             description="Replace Python imports for Rez packages."
         )
         parser.add_argument(
-            "pull_request_prefix",
-            help="When new git branches are created, their names will start with this string.",
-        )
-        parser.add_argument(
-            "token",
-            help="The authentication token to the remote git repository (GitHub, bitbucket, etc).",
-        )
-        parser.add_argument(
             "-w",
             "--why",
             required=True,
             help="Explain what imports you're changing and why you're changing them.",
         )
-        parser.add_argument(
-            "-f",
-            "--fallback-reviewers",
-            nargs="+",
-            default=[],
-            help="If a git repository doesn't have many maintainers, "
-            "this list of GitHub/Bitbucket users will review the PRs, instead.",
-        )
-        parser.add_argument(
-            "-c",
-            "--cached-users",
-            help="A file that contains GitHub/bitbucket/etc usernames, "
-            "emails, and login info. Must be a JSON file.",
-        )
-        parser.add_argument(
-            "-b",
-            "--base-url",
-            help="If you are authenticating to a non-standard remote "
-            "(e.g. GitHub enterprise), use this flag to provide the URL.",
-        )
-        parser.add_argument(
-            "-s",
-            "--ssl-no-verify",
-            action="store_false",
-            help="Disable SSL verification",
-        )
+        command.add_git_arguments(parser)
 
         return parser.parse_args(text)
 
