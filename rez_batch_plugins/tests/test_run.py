@@ -125,5 +125,4 @@ def _make_rez_package(name, text, root):
     with open(os.path.join(directory, "package.yaml"), "w") as handler:
         handler.write(text)
 
-    print('DIR', directory)
     return inspection.get_nearest_rez_package(directory)
