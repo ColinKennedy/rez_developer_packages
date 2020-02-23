@@ -3,6 +3,7 @@
 
 """A set of functions to make creating Rez packages / repositories in unittests easier."""
 
+import functools
 import os
 import shutil
 import tempfile
@@ -87,7 +88,13 @@ class Tests(common.Common):
         arguments.exit_on_error = True
         finder = registry.get_package_finder("shell")
         valid_packages, invalid_packages, skips = finder(paths=paths)
-        _, unfixed, invalids = worker.run(valid_packages, arguments)
+
+        command = registry.get_command("shell")
+
+        _, unfixed, invalids = worker.run(
+            functools.partial(command.run, arguments=arguments),
+            valid_packages,
+        )
 
         invalids.extend(invalid_packages)
 
