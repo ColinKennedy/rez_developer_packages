@@ -37,6 +37,8 @@ from six.moves import mock
 
 
 class Yaml2Py(common.Common):
+    """Check that the :mod:`rez_batch_plugins.plugins.yaml2py` plugin works correctly."""
+
     @classmethod
     def setUpClass(cls):
         """Add some generic plugins so that tests have something to work with."""
@@ -63,6 +65,18 @@ class Yaml2Py(common.Common):
             registry.clear_command(name)
 
     def _make_fake_released_packages(self, other_package):
+        """Create 2 basic Rez packages to use for testing.
+
+        Args:
+            other_package (str):
+                If "yaml", one of the packages created will be a
+                package.yaml file. Otherwise, it gets added as a
+                package.py file.
+
+        Returns:
+            str: The path where all of the created packages will go to.
+
+        """
         root = tempfile.mkdtemp(suffix="_test_replace_yaml")
         self.delete_item_later(root)
 
@@ -214,6 +228,7 @@ class Yaml2Py(common.Common):
 
 
 def _make_fake_release_data():
+    """Make the required arguments needed for rez-release to work."""
     options = mock.MagicMock()
     options.cmd = "release"
     options.debug = False
@@ -230,6 +245,18 @@ def _make_fake_release_data():
 
 
 def _make_rez_package(name, package_name, text, root):
+    """Create a package.py or package.yaml Rez package file.
+
+    Args:
+        name (str): The Rez package family name.
+        package_name (str): Use "package.py" or "package.yaml" here.
+        text (str): The contents of the created file.
+        root (str): A directory where the newly created file will be written to.
+
+    Returns:
+        :class:`rez.packages_.DeveloperPackage`: The generated Rez package.
+
+    """
     directory = os.path.join(root, name)
     os.makedirs(directory)
 
