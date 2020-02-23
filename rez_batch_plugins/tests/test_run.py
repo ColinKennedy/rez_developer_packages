@@ -3,20 +3,16 @@
 
 """Check that the plugin commands the ``rez_batch_plugins`` defines work as-expected."""
 
+import functools
 import os
-import subprocess
-import sys
 import shlex
-from rez_batch_process import cli
+import sys
 import tempfile
 import textwrap
 
-import functools
-from rez_batch_process.core import registry, worker
-
-import git
-from rez_batch_plugins.plugins import yaml2py
 from python_compatibility.testing import common
+from rez_batch_plugins.plugins import yaml2py
+from rez_batch_process.core import registry, worker
 from rez_utilities import creator, inspection, rez_configuration
 from rez_utilities_git import testify
 from six.moves import mock
@@ -83,7 +79,7 @@ class Yaml2Py(common.Common):
                     """
                 ),
                 root,
-            ),
+            )
         ]
 
         if other_package == "yaml":
@@ -162,15 +158,16 @@ class Yaml2Py(common.Common):
         command = registry.get_command("yaml2py")
 
         _, unfixed, invalids = worker.run(
-            functools.partial(command.run, arguments=arguments),
-            valid_packages,
+            functools.partial(command.run, arguments=arguments), valid_packages
         )
 
         invalids.extend(invalid_packages)
 
         return (unfixed, invalids, skips)
 
-    @mock.patch("rez_batch_process.core.plugins.command.RezShellCommand._create_pull_request")
+    @mock.patch(
+        "rez_batch_process.core.plugins.command.RezShellCommand._create_pull_request"
+    )
     def test_no_replace(self, _create_pull_request):
         """Don't replace anything because no package is package.yaml."""
         release_path = self._make_fake_released_packages("py")
@@ -193,7 +190,9 @@ class Yaml2Py(common.Common):
 
         self.assertEqual(0, _create_pull_request.call_count)
 
-    @mock.patch("rez_batch_process.core.plugins.command.RezShellCommand._create_pull_request")
+    @mock.patch(
+        "rez_batch_process.core.plugins.command.RezShellCommand._create_pull_request"
+    )
     def test_replace_yaml(self, _create_pull_request):
         """Replace one package.yaml with package.py and don't touch the other package."""
         release_path = self._make_fake_released_packages("yaml")
