@@ -18,12 +18,14 @@ class Common(unittest.TestCase):
 
         self._items = set()
         self._sys_path = []
+        self._argv = []
 
     def setUp(self):
         """Save any temporary file(s)/folder(s) and delete them once the test is over."""
         self._items.clear()
         self._sys_path = sys.path[:]
         self._environment = os.environ.copy()
+        self._argv = sys.argv[:]
 
     def tearDown(self):
         """Delete any file(s)/folder(s) that were created."""
@@ -33,6 +35,7 @@ class Common(unittest.TestCase):
             elif os.path.isdir(item):
                 shutil.rmtree(item)
 
+        sys.argv = self._argv
         sys.path[:] = self._sys_path
         os.environ.clear()
         os.environ.update(self._environment)

@@ -17,6 +17,11 @@ build_command = "python -m rez_build_helper --items python"
 requires = [
     "GitPython-2.1+<3",
     "python-2+<3",
+    # Later versions of python_compatibility save and restore sys.argv
+    # and some of this package's tests mess with sys.argv. So we need a
+    # recent version of python_compatibility to prevent side-effects
+    #
+    "python_compatibility-2.2+<3",
     "rez-2.47+<3",
     "rez_batch_process-0+<1",
     "rez_move_imports-0+<1",
