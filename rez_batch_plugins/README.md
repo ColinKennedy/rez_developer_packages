@@ -1,4 +1,9 @@
-move_imports doesn't clone stuff correctly. Fix this!
+- move_imports doesn't clone stuff correctly. Fix this!
+- Add docstrings
+- Documenat this file, properly
+- Check all modified packages
+    - All tests must pass
+    - CI everything
 
 
 # Example Commands
