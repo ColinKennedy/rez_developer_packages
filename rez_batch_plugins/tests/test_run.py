@@ -3,6 +3,7 @@
 
 """Check that the plugin commands the ``rez_batch_plugins`` defines work as-expected."""
 
+import collections
 import functools
 import os
 import shlex
@@ -10,8 +11,9 @@ import sys
 import tempfile
 import textwrap
 
+from python_compatibility import pathrip
 from python_compatibility.testing import common
-from rez_batch_plugins.plugins import yaml2py
+from rez_batch_plugins.plugins import move_imports, yaml2py
 from rez_batch_process.core import registry, worker
 from rez_utilities import creator, inspection, rez_configuration
 from rez_utilities_git import testify
@@ -151,7 +153,7 @@ class Yaml2Py(common.Common):
         sys.argv[1:] = text
 
         with rez_configuration.patch_release_packages_path(release_path):
-            unfixed, invalids, skips = _get_test_results("yaml2py")
+            _, unfixed, invalids, skips = _get_test_results("yaml2py")
 
         self.assertEqual(set(), unfixed)
         self.assertEqual([], invalids)
@@ -176,7 +178,7 @@ class Yaml2Py(common.Common):
         sys.argv[1:] = text
 
         with rez_configuration.patch_release_packages_path(release_path):
-            unfixed, invalids, skips = _get_test_results("yaml2py")
+            _, unfixed, invalids, skips = _get_test_results("yaml2py")
 
         self.assertEqual(set(), unfixed)
         self.assertEqual([], invalids)
@@ -214,13 +216,28 @@ def _make_fake_release_data():
 
 
 def _make_package_with_modules(name, modules, root):
+    def _add_init(directory):
+        open(os.path.join(directory, "__init__.py"), "a").close()
+
+    def _make_parent_python_folders(directory, root):
+        paths = []
+
+        for token in pathrip.split_os_path_asunder(directory):
+            paths.append(token)
+
+            folder = os.path.join(root, *paths)
+
+            if not os.path.isdir(folder):
+                os.makedirs(folder)
+                _add_init(folder)
+
     template = textwrap.dedent(
         """\
         name = "{name}"
 
         version = "1.2.0"
 
-        build_command = "echo 'foo'"
+        build_command = "python {{root}}/rezbuild.py"
 
         def commands():
             import os
@@ -235,12 +252,34 @@ def _make_package_with_modules(name, modules, root):
     with open(os.path.join(directory, "package.py"), "w") as handler:
         handler.write(template.format(name=name))
 
-    for path, text in modules:
-        full_path = os.path.join(root, path)
-        path_directory = os.path.dirname(full_path)
+    with open(os.path.join(directory, "rezbuild.py"), "w") as handler:
+        handler.write(
+            textwrap.dedent(
+                """\
+                import shutil
+                import os
 
-        if path_directory and not os.path.isdir(path_directory):
-            os.makedirs(path_directory)
+                def main(source, install):
+                    shutil.copytree(os.path.join(source, "python"), os.path.join(install, "python"))
+
+                if __name__ == "__main__":
+                    main(
+                        os.environ["REZ_BUILD_SOURCE_PATH"],
+                        os.environ["REZ_BUILD_INSTALL_PATH"],
+                    )
+                """
+            )
+        )
+
+    python_root = os.path.join(directory, "python")
+    os.makedirs(python_root)
+
+    _add_init(python_root)
+
+    for path, text in modules:
+        full_path = os.path.join(python_root, path)
+        path_directory = os.path.dirname(full_path)
+        _make_parent_python_folders(path_directory, python_root)
 
         with open(full_path, "w") as handler:
             handler.write(text)
@@ -270,7 +309,7 @@ def _make_rez_package(name, package_name, text, root):
     return inspection.get_nearest_rez_package(directory)
 
 
-def _get_test_results(command_text, paths=None):
+def _get_test_results(command_text, paths=None, arguments=None):
     """Get the conditions for a test (but don't actually run unittest.
 
     Args:
@@ -287,17 +326,18 @@ def _get_test_results(command_text, paths=None):
         The output of :func:`rez_batch_process.core.worker.run`.
 
     """
-    arguments = mock.MagicMock()
+    if not arguments:
+        arguments = mock.MagicMock()
 
     finder = registry.get_package_finder(command_text)
     valid_packages, invalid_packages, skips = finder(paths=paths)
 
     command = registry.get_command(command_text)
 
-    _, unfixed, invalids = worker.run(
-        functools.partial(command.run, arguments=arguments), valid_packages
+    final_packages, unfixed, invalids = worker.run(
+        functools.partial(command.run, arguments=arguments), valid_packages, keep_temporary_files=True,
     )
 
     invalids.extend(invalid_packages)
 
-    return (unfixed, invalids, skips)
+    return (final_packages, unfixed, invalids, skips)

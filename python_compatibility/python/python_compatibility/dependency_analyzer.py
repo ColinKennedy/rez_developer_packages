@@ -296,7 +296,7 @@ def get_dependency_paths(directories):
 
 
 def get_imported_namespaces(directories):
-    """Get every Pthon namespace dependency for every Python file in a set of folders.
+    """Get every Python namespace dependency for every Python file in a set of folders.
 
     Args:
         directories (iter[str]):

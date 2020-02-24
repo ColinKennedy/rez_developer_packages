@@ -199,6 +199,14 @@ def _check_namespaces(namespaces, deprecate, requirements):
         )
 
 
+def get_user_namespaces(text):
+    arguments = _parse_arguments(text)
+    command = arguments.command.strip('"').strip("'")
+    command_configuration = cli.parse_arguments(shlex.split(command))
+
+    return command_configuration.namespaces
+
+
 def main(text):
     """Run the main execution of the current script.
 

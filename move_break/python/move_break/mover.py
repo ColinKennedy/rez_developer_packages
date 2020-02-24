@@ -5,17 +5,8 @@
 
 import itertools
 
-import parso
-
+from . import finder
 from .core import parser
-
-
-def _get_graph(path):
-    """:class:`parso.python.tree.Module`: Convert a file path into a parso graph."""
-    with open(path, "r") as handler:
-        code = handler.read()
-
-    return parso.parse(code)
 
 
 def move_imports(
@@ -69,9 +60,10 @@ def move_imports(
                 'Pair "{old}/{new}" cannot be the same.'.format(old=old, new=new)
             )
 
+
     for path in files:
         changed = False
-        graph = _get_graph(path)
+        graph = finder.get_graph(path)
         imports = parser.get_imports(
             graph, partial=partial, namespaces=namespaces, aliases=aliases
         )

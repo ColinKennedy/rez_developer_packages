@@ -7,7 +7,7 @@ import argparse
 import collections
 import os
 
-from . import mover
+from . import finder, mover
 from .core import import_registry
 
 _CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
@@ -92,38 +92,6 @@ def _expand_namespaces(text):
     return output
 
 
-def _expand_paths(path):
-    """Find every Python file in `path`.
-
-    Args:
-        path (str): An absolute or relative path to a Python file or folder on-disk.
-
-    Raises:
-        ValueError: If `path` is not a valid file or folder on-disk.
-
-    Returns:
-        set[str]: The found Python files.
-
-    """
-    if not os.path.isabs(path):
-        path = os.path.normpath(os.path.join(os.getcwd(), path))
-
-    if not os.path.exists(path):
-        raise ValueError('Path "{path}" is not a file or folder.'.format(path=path))
-
-    if os.path.isfile(path):
-        return {path}
-
-    output = set()
-
-    for root, _, files in os.walk(path):
-        for path_ in files:
-            if path_.endswith(".py"):
-                output.add(os.path.join(root, path_))
-
-    return output
-
-
 def _expand_types(text):
     """Split `text`, a comma-separated string, into unique, non-empty strings."""
     return set(filter(None, text.split(",")))
@@ -149,8 +117,10 @@ def parse_arguments(text):
     arguments = _parse_arguments(text)
     paths = set()
 
+    fallback_directory = os.getcwd()
+
     for path in arguments.paths:
-        paths.update(_expand_paths(path))
+        paths.update(finder.expand_paths(path, fallback_directory))
 
     namespaces = _expand_namespaces(arguments.namespaces)
     import_types = _expand_types(arguments.types)

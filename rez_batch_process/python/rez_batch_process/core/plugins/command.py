@@ -117,7 +117,7 @@ class RezShellCommand(base.BaseCommand):
             )
 
             if arguments.exit_on_error:
-                raise exceptions.CoreException(message)
+                raise exceptions.CoreException(message + "\n\n" + stderr)
 
             return message
 

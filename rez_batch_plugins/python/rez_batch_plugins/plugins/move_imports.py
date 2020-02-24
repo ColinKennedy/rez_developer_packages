@@ -4,10 +4,20 @@
 """A class that automatically refactors moved Python modules."""
 
 import argparse
+import shlex
+import sys
 import textwrap
 
-from rez_batch_process.core import registry
+from rez import serialise
+from python_compatibility import dependency_analyzer
+from rez_batch_process import cli as rez_batch_process_cli
+from rez_batch_process.core import registry, worker
 from rez_batch_process.core.plugins import command, conditional
+from move_break import move_break_api
+from rez_move_imports import cli as rez_move_imports_cli
+from rez_utilities import inspection
+
+from .. import repository_area
 
 
 class MoveImports(command.RezShellCommand):
@@ -98,7 +108,7 @@ class MoveImports(command.RezShellCommand):
     def _run_command(cls, package, arguments):
         arguments.command = "python -m rez_move_imports " + arguments.arguments
 
-        super(MoveImports, cls)._run_command(package, arguments)
+        return super(MoveImports, cls)._run_command(package, arguments)
 
     @classmethod
     def run(cls, package, arguments):
@@ -120,7 +130,92 @@ class MoveImports(command.RezShellCommand):
         return ""
 
 
+def _needs_replacement(package, user_namespaces):
+    """Figure out if the Rez package has Python files in it that :class:`MoveImports` can act upon.
+
+    The logic goes like this:
+
+    - A Rez source python package is assumed to have all its files available
+        - Return whether namespaces are found
+    - If the Rez python package is a released package though, we can't just assume all Python files are available.
+        - The built Rez package may output an .egg or .whl file, for example
+        - So if namespaces are found, then return True
+        - If no namespaces are found, clone the package's repository and try again
+
+    Args:
+        package (:class:`rez.packages_.Package`):
+            Some Rez package (source or released package) to check for Python imports.
+
+    Returns:
+        bool:
+            If any of the user-provided Python namespaces were found
+            inside of the given `package`.
+
+    """
+    root = inspection.get_package_root(package)
+    package = inspection.get_nearest_rez_package(root)
+
+    namespaces = set()
+
+    for path in move_break_api.expand_paths(root):
+        if path == package.filepath:
+            continue
+
+        namespaces.update(move_break_api.get_namespaces(path))
+
+    if namespaces.intersection(user_namespaces):
+        return True
+
+    if not inspection.is_built_package(package):
+        return False
+
+    repository = repository_area.get_repository(package)
+    repository_package = repository_area.get_package(repository.working_dir, package.name)
+
+    return _needs_replacement(repository_package, user_namespaces)
+
+
+def _get_user_provided_namespaces():
+    _, arguments = rez_batch_process_cli.parse_arguments(sys.argv[1:])
+
+    return rez_move_imports_cli.get_user_namespaces(shlex.split(arguments.arguments))
+
+
+def _get_packages_which_must_be_changed(paths=None):
+    packages, invalids, skips = conditional.get_default_latest_packages(paths=paths)
+    user_provided_namespaces = _get_user_provided_namespaces()
+    expected_existing_namespaces = {old for old, _ in user_provided_namespaces}
+    output = []
+
+    for package in packages:
+        if not repository_area.is_python_definition(package, serialise.FileFormat.py):
+            skips.append(
+                worker.Skip(
+                    package,
+                    inspection.get_package_root(package),
+                    "does not define a package.py file."
+                )
+            )
+
+            continue
+
+        if not _needs_replacement(package, expected_existing_namespaces):
+            skips.append(
+                worker.Skip(
+                    package,
+                    inspection.get_package_root(package),
+                    "No namespaces need to be replaced.",
+                )
+            )
+
+            continue
+
+        output.append(package)
+
+    return output, invalids, skips
+
+
 def main():
     """Add :class:`.MoveImports` to ``rez_batch_process``."""
-    registry.register_plugin("move_imports", conditional.get_default_latest_packages)
+    registry.register_plugin("move_imports", _get_packages_which_must_be_changed)
     registry.register_command("move_imports", MoveImports)

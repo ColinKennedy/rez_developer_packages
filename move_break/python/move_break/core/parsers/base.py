@@ -153,3 +153,7 @@ class BaseAdapter(object):
             for namespace_ in namespaces
             if namespace_.startswith(namespace + ".")
         )
+
+
+def get_namespaces(adapter):
+    return adapter._get_namespaces(adapter._node)
