@@ -27,15 +27,158 @@ from six.moves import mock
 #     pass
 
 
-# class MoveImports(unittest.TestCase):
-#     def test_no_change(self):
-#         pass
-#
-#     def test_single_change(self):
-#         pass
-#
-#     def test_multiple_change(self):
-#         pass
+class MoveImports(common.Common):
+    """Check that the :mod:`rez_batch_plugins.plugins.move_imports` plugin works correctly."""
+
+    @classmethod
+    def setUpClass(cls):
+        """Add some generic plugins so that tests have something to work with."""
+        super(MoveImports, cls).setUpClass()
+
+        _clear_registry()
+        move_imports.main()
+
+    @classmethod
+    def tearDownClass(cls):
+        """Remove all stored plugins."""
+        super(MoveImports, cls).tearDownClass()
+
+        _clear_registry()
+
+    # TODO : Finish this
+    # def test_no_change(self):
+    #     """Don't change the imports of any Rez package or file."""
+    #     pass
+
+    @mock.patch(
+        "rez_batch_process.core.plugins.command.RezShellCommand._create_pull_request"
+    )
+    def test_single_change(self, _create_pull_request):
+        """Change only one package."""
+        class _Arguments(object):
+            def __init__(self, arguments, command):
+                super(_Arguments, self).__init__()
+
+                self.token = "github-token-here"
+                self.pull_request_name = "some_git_branch_name"
+                self.ssl_no_verify = False
+                self.cached_users = ""
+                self.fallback_reviewers = ""
+                self.base_url = ""
+                self.arguments = arguments
+                self.command = command
+                self.exit_on_error = True
+
+        root = tempfile.mktemp(suffix="_test_single_change_source_packages")
+        self.delete_item_later(root)
+
+        packages = [
+            _make_package_with_modules(  # This package will end up getting changed
+                "some_package",
+                [
+                    (
+                        os.path.join("in", "folder", "some_module.py"),
+                        textwrap.dedent(
+                            """\
+                            if True:
+                                from some.namespace import here, there, everywhere
+                            """
+                        )
+                    )
+                ],
+                root,
+            ),
+            _make_package_with_modules(  # This package won't be changed
+                "a_unchanging_package",
+                [
+                    (
+                        os.path.join("in", "folder", "some_module.py"),
+                        textwrap.dedent(
+                            """\
+                            import os
+                            import textwrap
+
+                            def foo():
+                                import shlex
+                            """
+                        ),
+                    ),
+                    (
+                        "another_file.py",
+                        "",
+                    ),
+                    (
+                        "more_files.py",
+                        textwrap.dedent(
+                            """\
+                            import custom.namespace
+                            from blah import here, there, everywhere
+                            """
+                        ),
+                    ),
+                ],
+                root,
+            ),
+        ]
+
+        repository, packages, remote_root = testify.make_fake_repository(packages, root)
+        self.delete_item_later(repository.working_dir)
+        self.delete_item_later(remote_root)
+
+        release_path = tempfile.mkdtemp(suffix="_a_release_location_for_testing")
+        options, parser = _make_fake_release_data()
+
+        for package in packages:
+            creator.release(
+                inspection.get_package_root(package),
+                options,
+                parser,
+                release_path,
+                search_paths=[repository.working_dir],
+                quiet=True,
+            )
+
+        move_imports_arguments = "'. some.namespace.here,a.new.space.somewhere' --deprecate 'original_requirement-1,some.namespace' --requirements 'a_new_package-3.1+<4,a.new.space'"
+        text = 'run move_imports --arguments "{move_imports_arguments}" pr_prefix github-token --why "Because we must"'.format(move_imports_arguments=move_imports_arguments)
+
+        text = shlex.split(text)
+        sys.argv[1:] = text
+
+        arguments = _Arguments(move_imports_arguments, text)
+
+        with rez_configuration.patch_release_packages_path(release_path):
+            processed_packages, unfixed, invalids, skips = _get_test_results("move_imports", arguments=arguments)
+
+        self.assertEqual(set(), unfixed)
+        self.assertEqual([], invalids)
+        self.assertEqual(
+            [("a_unchanging_package", "No namespaces need to be replaced.")],
+            [(skip.package.name, skip.reason) for skip in skips],
+        )
+
+        cloned_package = inspection.get_package_root(next(iter(processed_packages)))
+        path = os.path.join(cloned_package, "python", "in", "folder", "some_module.py")
+
+        if not os.path.isfile(path):
+            raise RuntimeError('Path "{path}" does not exist.'.format(path=path))
+
+        with open(path, "r") as handler:
+            code = handler.read()
+
+        expected = textwrap.dedent(
+            """\
+            if True:
+                from a.new.space import somewhere
+                from some.namespace import there, everywhere
+            """
+        )
+
+        self.assertEqual(expected, code)
+        self.assertEqual(1, _create_pull_request.call_count)
+
+    # def test_multiple_change(self):
+    #     """Change 2+ packages at once."""
+    #     pass
 
 
 class Yaml2Py(common.Common):
