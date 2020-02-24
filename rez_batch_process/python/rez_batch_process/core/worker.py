@@ -46,7 +46,18 @@ def _find_package_definitions(directory, name):
     for root, _, files in os.walk(directory):
         for name_ in files:
             if name_ in rez_configuration.REZ_PACKAGE_NAMES:
-                package = packages_.get_developer_package(root)
+                try:
+                    package = packages_.get_developer_package(root)
+                except IndexError:
+                    # You can't access a Rez package after modifying it
+                    # so if we encounter a package that was already modified
+                    # in the same repository, just ignore this error.
+                    #
+                    # Reference: https://github.com/nerdvegas/rez/issues/857
+                    #
+                    # TODO : If the issue above is ever solved, remove this try/except
+                    #
+                    continue
 
                 if package.name == name:
                     matches.add(package)
