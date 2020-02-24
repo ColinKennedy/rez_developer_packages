@@ -132,7 +132,9 @@ def in_valid_context(package):
             calling from :mod:`subprocess` should work.
 
     """
-    return os.getenv("REZ_{name}_VERSION".format(name=package.name.upper())) == str(package.version)
+    return os.getenv("REZ_{name}_VERSION".format(name=package.name.upper())) == str(
+        package.version
+    )
 
 
 def is_built_package(package):
@@ -167,7 +169,9 @@ def is_built_package(package):
     return version == os.path.basename(parent_folder)
 
 
-def has_python_package(package, paths=None, allow_build=True, allow_current_context=False):
+def has_python_package(
+    package, paths=None, allow_build=True, allow_current_context=False
+):
     """Check if the given Rez package has at least one Python package inside of it.
 
     Note:

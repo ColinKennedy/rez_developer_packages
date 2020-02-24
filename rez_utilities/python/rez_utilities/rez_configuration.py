@@ -7,12 +7,15 @@ import contextlib
 import itertools
 
 import wurlitzer
-from rez.config import config
 from rez import serialise
+from rez.config import config
 
 REZ_PACKAGE_NAMES = frozenset(
     name + "." + extension.lstrip(".")
-    for name, format_ in itertools.product(config.plugins.package_repository.filesystem.package_filenames, serialise.FileFormat)
+    for name, format_ in itertools.product(
+        config.plugins.package_repository.filesystem.package_filenames,
+        serialise.FileFormat,
+    )
     for extension in format_.value
 )
 

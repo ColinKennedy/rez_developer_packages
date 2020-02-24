@@ -295,9 +295,13 @@ class HasPythonPackage(common.Common):
         package = inspection.get_nearest_rez_package(_CURRENT_DIRECTORY)
         inspection.in_valid_context = _check_called(inspection.in_valid_context)
 
-        self.assertTrue(inspection.has_python_package(package, allow_current_context=False))
+        self.assertTrue(
+            inspection.has_python_package(package, allow_current_context=False)
+        )
         self.assertFalse(inspection.in_valid_context.was_run)
-        self.assertTrue(inspection.has_python_package(package, allow_current_context=True))
+        self.assertTrue(
+            inspection.has_python_package(package, allow_current_context=True)
+        )
         self.assertTrue(inspection.in_valid_context.was_run)
 
 
@@ -408,8 +412,7 @@ class GetPackagePythonFiles(common.Common):
         )
 
         paths = inspection.get_package_python_paths(
-            package,
-            context.get_environ().get("PYTHONPATH", "").split(os.pathsep),
+            package, context.get_environ().get("PYTHONPATH", "").split(os.pathsep)
         )
 
         return paths, root
@@ -557,8 +560,7 @@ class GetPackagePythonFiles(common.Common):
         )
 
         python_files = inspection.get_package_python_paths(
-            package,
-            context.get_environ().get("PYTHONPATH", "").split(os.pathsep),
+            package, context.get_environ().get("PYTHONPATH", "").split(os.pathsep)
         )
 
         self.assertEqual(
@@ -590,7 +592,8 @@ class GetPackagePythonFiles(common.Common):
         build_package = creator.build(
             package,
             install_path,
-            packages_path=dependencies + config.packages_path,  # pylint: disable=no-member
+            packages_path=dependencies
+            + config.packages_path,  # pylint: disable=no-member
         )
 
         context = resolved_context.ResolvedContext(
@@ -601,8 +604,7 @@ class GetPackagePythonFiles(common.Common):
         )
 
         python_files = inspection.get_package_python_paths(
-            build_package,
-            context.get_environ().get("PYTHONPATH", "").split(os.pathsep),
+            build_package, context.get_environ().get("PYTHONPATH", "").split(os.pathsep)
         )
 
         self.assertEqual(

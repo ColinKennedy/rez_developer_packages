@@ -117,7 +117,7 @@ class Release(common.Common):
 
         with wurlitzer.pipes():
             creator.release(
-                inspection.get_package_root(package), options, parser, release_path,
+                inspection.get_package_root(package), options, parser, release_path
             )
 
         release_package = packages_.get_developer_package(

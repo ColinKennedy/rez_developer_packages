@@ -3,8 +3,8 @@
 
 """A module that's devoted to building and "creating" Rez packages."""
 
-import copy
 import contextlib
+import copy
 import logging
 import os
 
@@ -13,8 +13,7 @@ from rez.cli import build as build_
 from rez.cli import release as release_
 from rez.config import config
 
-from . import inspection
-from . import rez_configuration
+from . import inspection, rez_configuration
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -52,7 +51,9 @@ def build(package, install_path, packages_path=None):
         package.config.packages_path[:] = packages_path
 
     if isinstance(package, packages_.Package):
-        package = inspection.get_nearest_rez_package(inspection.get_package_root(package))
+        package = inspection.get_nearest_rez_package(
+            inspection.get_package_root(package)
+        )
 
     directory = os.path.dirname(package.filepath)
 
@@ -90,7 +91,9 @@ def build(package, install_path, packages_path=None):
     )
 
 
-def release(directory, options, parser, new_release_path, search_paths=None, quiet=False):
+def release(
+    directory, options, parser, new_release_path, search_paths=None, quiet=False
+):
     """Release a package located at `directory` to the `new_release_path` folder.
 
     Args:

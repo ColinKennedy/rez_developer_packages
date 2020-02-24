@@ -26,7 +26,7 @@ build_command = "python -m rez_build_helper --items python"
 
 tests = {
     "black_diff": {"command": "rez-env black-19.10+ -- black --diff --check python tests"},
-    "black": {"command": "rez-env black-19.10+ -- black python tests"},
+    "black": {"command": "rez-env black-18+ -- black python tests"},
     "coverage": {
         "command": "coverage erase && coverage run --parallel-mode --include=python/* -m unittest discover && coverage combine --append && coverage html",
         "requires": [
