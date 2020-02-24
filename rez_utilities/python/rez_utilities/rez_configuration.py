@@ -4,14 +4,15 @@
 """Configurable functions to control the output of functions from this package."""
 
 import contextlib
+import itertools
 
 import wurlitzer
 from rez.config import config
 from rez import serialise
 
 REZ_PACKAGE_NAMES = frozenset(
-    "package." + extension.lstrip(".")
-    for format_ in serialise.FileFormat
+    name + "." + extension.lstrip(".")
+    for name, format_ in itertools.product(config.plugins.package_repository.filesystem.package_filenames, serialise.FileFormat)
     for extension in format_.value
 )
 
