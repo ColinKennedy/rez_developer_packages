@@ -133,7 +133,7 @@ def release(directory, options, parser, new_release_path, search_paths=None, qui
         yield
 
     def _clear_rez_get_current_developer_package_cache():
-        # Reference: https://github.com/nerdvegas/rez/blob/master/src/rez/cli/build.py#L9-L29
+        # Reference: https://github.com/nerdvegas/rez/blob/49cae49a9dd4376b9efb6d571713b716d315b32b/src/rez/cli/build.py#L13-L29
         build_._package = None  # pylint: disable=protected-access
 
     if not os.path.isdir(directory):
