@@ -151,7 +151,7 @@ class Yaml2Py(command.RezShellCommand):
             command.Configuration(
                 "rez-yaml2py",
                 arguments.token,
-                arguments.pull_request_prefix,
+                arguments.pull_request_name,
                 arguments.ssl_no_verify,
             ),
             cached_users=arguments.cached_users,
