@@ -58,7 +58,7 @@ class Add(common.Common):
         git_repository = git.Repo(git_repository_root)
 
         for branch in git_repository.branches:
-            if branch.name.startswith(arguments.pull_request_prefix):
+            if branch.name.startswith(arguments.pull_request_name):
                 branch.checkout()
 
                 break
@@ -238,7 +238,7 @@ def _make_arguments(name):
     """
     arguments = mock.MagicMock()
     arguments.command = "touch " + name
-    arguments.pull_request_prefix = "ticket-name"
+    arguments.pull_request_name = "ticket-name"
     arguments.exit_on_error = True
 
     return arguments

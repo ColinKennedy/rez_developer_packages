@@ -84,7 +84,7 @@ class Tests(common.Common):
         """
         arguments = mock.MagicMock()
         arguments.command = "echo 'foo'"
-        arguments.pull_request_prefix = "ticket-name"
+        arguments.pull_request_name = "ticket-name"
         arguments.exit_on_error = True
 
         finder = registry.get_package_finder("shell")

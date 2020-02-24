@@ -21,7 +21,7 @@ from . import base
 
 _LOGGER = logging.getLogger(__name__)
 Configuration = collections.namedtuple(
-    "Configuration", "command token pull_request_prefix ssl_no_verify"
+    "Configuration", "command token pull_request_name ssl_no_verify"
 )
 
 
@@ -199,10 +199,7 @@ class RezShellCommand(base.BaseCommand):
         body = cls._get_pull_request_body(package, configuration)
         commit_message = cls._get_commit_message(package.name)
 
-        branch_template = (
-            "{configuration.pull_request_prefix}_{package.name}_run_command"
-            "".format(configuration=configuration, package=package)
-        )
+        branch_template = configuration.pull_request_name.format(package=package)
 
         with _reset_repository_state(repository, current_branch):
             origin = repository.remote(name="origin")
@@ -307,7 +304,7 @@ class RezShellCommand(base.BaseCommand):
             Configuration(
                 arguments.command,
                 arguments.token,
-                arguments.pull_request_prefix,
+                arguments.pull_request_name,
                 arguments.ssl_no_verify,
             ),
             cached_users=arguments.cached_users,
@@ -342,8 +339,8 @@ def has_changes(package):
 
 def add_git_arguments(parser):
     parser.add_argument(
-        "pull_request_prefix",
-        help="When new git branches are created, their names will start with this string.",
+        "pull_request_name",
+        help="The name of the pull request + git branch. Include {}s to query stuff about the package. e.g. {package.name}",
     )
     parser.add_argument(
         "token",
