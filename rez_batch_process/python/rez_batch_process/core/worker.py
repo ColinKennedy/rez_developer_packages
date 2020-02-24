@@ -20,7 +20,7 @@ from rez import packages_
 from rez_utilities import inspection, rez_configuration
 from rezplugins.package_repository import filesystem
 
-from . import exceptions, registry, rez_git
+from . import exceptions, rez_git
 from .gitter import git_link
 
 Skip = collections.namedtuple("Skip", "package path reason")
