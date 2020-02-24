@@ -24,13 +24,13 @@ Any shell command that you need to run on Rez packages, ``rez_batch_process`` ca
 1. Check which packages would be affected by a given command
 
 ```sh
-python -m rez_batch_process report {command-name} {command-arguments}
+python -m rez_batch_process report shell {command-name} {command-arguments}
 ```
 
 2. Run the command
 
 ```sh
-python -m rez_batch_process run {command-name} {command-arguments}
+python -m rez_batch_process run shell {command-name} {command-arguments}
 ```
 
 3. Create a JSON cache of GitHub users which can be used for the
@@ -50,7 +50,7 @@ bit of set-up.
 
 
 ```sh
-python -m rez_batch_process run "touch test_file.txt" AS-1234 git-token
+python -m rez_batch_process run shell "touch test_file.txt" AS-1234 git-token
 ```
 
 The above command adds a file called "test_file.txt" to every released
@@ -116,7 +116,7 @@ website (not the standard GitHub site, which is the default for
 ``rez_batch_process``).
 
 ```sh
-python -m rez_batch_process run --keep-temporary-files --clone-directory /tmp/repository_clones/attempt_1 --packages rez_batch_process --search-packages-path `rez-config release_packages_path`:$REZ_PACKAGES_PATH "touch test_file.txt" --temporary-directory /tmp/foo/bar shell AS-1234 git-token --base-url https://github-enterprise.com --cached-users /tmp/some_users.json
+python -m rez_batch_process run shell --keep-temporary-files --clone-directory /tmp/repository_clones/attempt_1 --packages rez_batch_process --search-packages-path `rez-config release_packages_path`:$REZ_PACKAGES_PATH "touch test_file.txt" --temporary-directory /tmp/foo/bar shell AS-1234 git-token --base-url https://github-enterprise.com --cached-users /tmp/some_users.json
 ```
 
 Wow - the "advanced" command is huge! Let's break it down to make it more understandable.
