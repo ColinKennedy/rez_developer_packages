@@ -19,13 +19,6 @@ from rez_utilities import creator, inspection, rez_configuration
 from rez_utilities_git import testify
 from six.moves import mock
 
-# class AddToAttribute(unittest.TestCase):
-#     pass
-#
-#
-# class Bump(unittest.TestCase):
-#     pass
-
 
 class MoveImports(common.Common):
     """Check that the :mod:`rez_batch_plugins.plugins.move_imports` plugin works correctly."""

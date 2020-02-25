@@ -69,7 +69,5 @@ def commands():
     import os
 
     env.PYTHONPATH.append(os.path.join("{root}", "python"))
-    env.REZ_BATCH_PROCESS_PLUGINS.append("rez_batch_plugins.plugins.add_to_attribute")
-    env.REZ_BATCH_PROCESS_PLUGINS.append("rez_batch_plugins.plugins.bump")
     env.REZ_BATCH_PROCESS_PLUGINS.append("rez_batch_plugins.plugins.move_imports")
     env.REZ_BATCH_PROCESS_PLUGINS.append("rez_batch_plugins.plugins.yaml2py")
