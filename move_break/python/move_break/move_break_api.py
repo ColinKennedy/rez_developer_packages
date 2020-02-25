@@ -6,8 +6,4 @@
 from .finder import expand_paths, get_namespaces
 from .mover import move_imports
 
-__all__ = [
-    "expand_paths",
-    "get_namespaces",
-    "move_imports",
-]
+__all__ = ["expand_paths", "get_namespaces", "move_imports"]

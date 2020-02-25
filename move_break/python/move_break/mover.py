@@ -60,7 +60,6 @@ def move_imports(
                 'Pair "{old}/{new}" cannot be the same.'.format(old=old, new=new)
             )
 
-
     for path in files:
         changed = False
         graph = finder.get_graph(path)
