@@ -9,7 +9,6 @@ import sys
 import textwrap
 
 from rez import serialise
-from python_compatibility import dependency_analyzer
 from rez_batch_process import cli as rez_batch_process_cli
 from rez_batch_process.core import registry, worker
 from rez_batch_process.core.plugins import command, conditional
@@ -106,12 +105,52 @@ class MoveImports(command.RezShellCommand):
 
     @classmethod
     def _run_command(cls, package, arguments):
+        """Run ``rez_move_imports`` on a Rez package.
+
+        Args:
+            package (:class:`rez.developer_package.DeveloperPackage`):
+                The Rez package that will be used changed. Any command
+                run by this function will do so while cd'ed into the
+                directory of this package.
+            arguments (:class:`argparse.Namespace`):
+                The user-provided, plug-in specific arguments.
+                Specifically, this should bring in
+
+                - The command that the user wants to run, per-package
+                - The name of the ticket that will be used for git branches
+                - The option to "raise an exception if any error occurs"
+                  or whether it's OK to continue.
+
+        Returns:
+            str: Any error message that occurred from this command, if any.
+
+        """
         arguments.command = "python -m rez_move_imports " + arguments.arguments
 
         return super(MoveImports, cls)._run_command(package, arguments)
 
     @classmethod
     def run(cls, package, arguments):
+        """Run a command on a package and create a pull request.
+
+        Args:
+            package (:class:`rez.developer_package.DeveloperPackage`):
+                The Rez package that will be used changed. Any command
+                run by this function will do so while cd'ed into the
+                directory of this package.
+            arguments (:class:`argparse.Namespace`):
+                The user-provided, plug-in specific arguments.
+                Specifically, this should bring in
+
+                - The command that the user wants to run, per-package
+                - The name of the ticket that will be used for git branches
+                - The option to "raise an exception if any error occurs"
+                  or whether it's OK to continue.
+
+        Returns:
+            str: Any error message that occurred from this command, if any.
+
+        """
         cls._run_command(package, arguments)
 
         cls._create_pull_request(
@@ -145,6 +184,11 @@ def _needs_replacement(package, user_namespaces):
     Args:
         package (:class:`rez.packages_.Package`):
             Some Rez package (source or released package) to check for Python imports.
+        user_namespaces (set[str]):
+            Python dot-separated namespaces which a user is trying to
+            replace. If any of the found namespaces match these then
+            it means `package` must have at least one of its modules
+            replaced.
 
     Returns:
         bool:
@@ -176,12 +220,27 @@ def _needs_replacement(package, user_namespaces):
 
 
 def _get_user_provided_namespaces():
+    """set[tuple[str, str]]: Find the dot-separated namespaces to replace + their replacements."""
     _, arguments = rez_batch_process_cli.parse_arguments(sys.argv[1:])
 
     return rez_move_imports_cli.get_user_namespaces(shlex.split(arguments.arguments))
 
 
 def _get_packages_which_must_be_changed(paths=None):
+    """Get every Rez package that has imports to replace.
+
+    Args:
+        paths (list[str], optional):
+            The directories to search for Rez package families,
+            Default: :attr:`rez.config.config.packages_path`.
+
+    Returns:
+        tuple[:class:`rez.packages_.Package`, list, list]:
+            All of the found Rez packages and a list of any Rez package
+            that was considered invalid or any Rez packages that were
+            valid but must be skipped, for some reason.
+
+    """
     packages, invalids, skips = conditional.get_default_latest_packages(paths=paths)
     user_provided_namespaces = _get_user_provided_namespaces()
     expected_existing_namespaces = {old for old, _ in user_provided_namespaces}

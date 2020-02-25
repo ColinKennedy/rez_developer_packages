@@ -1,6 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""Some small wunctions for cloning temporary git repositories.
+
+Plugins in this package tend to need to make git repositories either
+for querying the Rez package data inside of them or for actually making
+changes. This module helps with cloning and querying.
+
+"""
+
 import atexit
 import functools
 import os
