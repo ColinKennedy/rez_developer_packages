@@ -3,7 +3,6 @@
 
 """Check that the plugin commands the ``rez_batch_plugins`` defines work as-expected."""
 
-import collections
 import functools
 import os
 import shlex
@@ -47,7 +46,7 @@ class MoveImports(common.Common):
 
     @mock.patch(
         "rez_batch_process.core.plugins.command.RezShellCommand._create_pull_request"
-    )
+    )  # pylint: disable=too-many-locals
     def test_no_change(self, _create_pull_request):
         """Don't change the imports of any Rez package or file."""
         root = tempfile.mktemp(suffix="_test_single_change_source_packages")
@@ -101,10 +100,7 @@ class MoveImports(common.Common):
                 quiet=True,
             )
 
-        move_imports_arguments = "'. some.namespace.here,a.new.space.somewhere' --deprecate 'original_requirement-1,some.namespace' --requirements 'a_new_package-3.1+<4,a.new.space'"
-        text = 'run move_imports --arguments "{move_imports_arguments}" pr_prefix github-token --why "Because we must"'.format(
-            move_imports_arguments=move_imports_arguments
-        )
+        move_imports_arguments, text = _get_test_commands()
 
         text = shlex.split(text)
         sys.argv[1:] = text
@@ -127,7 +123,7 @@ class MoveImports(common.Common):
 
     @mock.patch(
         "rez_batch_process.core.plugins.command.RezShellCommand._create_pull_request"
-    )
+    )  # pylint: disable=too-many-locals
     def test_single_change(self, _create_pull_request):
         """Change only one package.
 
@@ -201,10 +197,7 @@ class MoveImports(common.Common):
                 quiet=True,
             )
 
-        move_imports_arguments = "'. some.namespace.here,a.new.space.somewhere' --deprecate 'original_requirement-1,some.namespace' --requirements 'a_new_package-3.1+<4,a.new.space'"
-        text = 'run move_imports --arguments "{move_imports_arguments}" pr_prefix github-token --why "Because we must"'.format(
-            move_imports_arguments=move_imports_arguments
-        )
+        move_imports_arguments, text = _get_test_commands()
 
         text = shlex.split(text)
         sys.argv[1:] = text
@@ -245,7 +238,7 @@ class MoveImports(common.Common):
 
     @mock.patch(
         "rez_batch_process.core.plugins.command.RezShellCommand._create_pull_request"
-    )
+    )  # pylint: disable=too-many-locals
     def test_multiple_changes(self, _create_pull_request):
         """Change 2+ packages at once."""
         root = tempfile.mktemp(suffix="_test_single_change_source_packages")
@@ -310,10 +303,7 @@ class MoveImports(common.Common):
                 quiet=True,
             )
 
-        move_imports_arguments = "'. some.namespace.here,a.new.space.somewhere' --deprecate 'original_requirement-1,some.namespace' --requirements 'a_new_package-3.1+<4,a.new.space'"
-        text = 'run move_imports --arguments "{move_imports_arguments}" pr_prefix github-token --why "Because we must"'.format(
-            move_imports_arguments=move_imports_arguments
-        )
+        move_imports_arguments, text = _get_test_commands()
 
         text = shlex.split(text)
         sys.argv[1:] = text
@@ -520,7 +510,7 @@ class Yaml2Py(common.Common):
         self.assertEqual(1, _create_pull_request.call_count)
 
 
-class _Arguments(object):  # pylint: disable-too-many-instance-attributes,line-too-long
+class _Arguments(object):  # pylint: disable=too-many-instance-attributes,too-few-public-methods
     def __init__(self, arguments, command):
         super(_Arguments, self).__init__()
 
@@ -652,6 +642,15 @@ def _make_rez_package(name, package_name, text, root):
         handler.write(text)
 
     return inspection.get_nearest_rez_package(directory)
+
+
+def _get_test_commands():
+    move_imports_arguments = "'. some.namespace.here,a.new.space.somewhere' --deprecate 'original_requirement-1,some.namespace' --requirements 'a_new_package-3.1+<4,a.new.space'"  # pylint: disable=line-too-long
+    text = 'run move_imports --arguments "{move_imports_arguments}" pr_prefix github-token --why "Because we must"'.format(  # pylint: disable=line-too-long
+        move_imports_arguments=move_imports_arguments
+    )
+
+    return move_imports_arguments, text
 
 
 def _get_test_results(command_text, paths=None, arguments=None):

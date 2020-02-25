@@ -176,7 +176,8 @@ def _needs_replacement(package, user_namespaces):
 
     - A Rez source python package is assumed to have all its files available
         - Return whether namespaces are found
-    - If the Rez python package is a released package though, we can't just assume all Python files are available.
+    - If the Rez python package is a released package though,
+      we can't just assume all Python files are available.
         - The built Rez package may output an .egg or .whl file, for example
         - So if namespaces are found, then return True
         - If no namespaces are found, clone the package's repository and try again
