@@ -16,12 +16,12 @@ import shutil
 import sys
 import tempfile
 
+import git
+from rez import exceptions as rez_exceptions
+from rez import packages_
 from rez_batch_process import cli
 from rez_utilities import inspection
 from rez_utilities_git import gitter
-from rez import packages_
-from rez import exceptions as rez_exceptions
-import git
 
 
 def _is_keep_temporary_files_enabled():

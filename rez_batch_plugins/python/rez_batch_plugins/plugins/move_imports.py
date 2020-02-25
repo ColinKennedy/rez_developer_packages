@@ -8,11 +8,11 @@ import shlex
 import sys
 import textwrap
 
+from move_break import move_break_api
 from rez import serialise
 from rez_batch_process import cli as rez_batch_process_cli
 from rez_batch_process.core import registry, worker
 from rez_batch_process.core.plugins import command, conditional
-from move_break import move_break_api
 from rez_move_imports import cli as rez_move_imports_cli
 from rez_utilities import inspection
 
@@ -214,7 +214,9 @@ def _needs_replacement(package, user_namespaces):
         return False
 
     repository = repository_area.get_repository(package)
-    repository_package = repository_area.get_package(repository.working_dir, package.name)
+    repository_package = repository_area.get_package(
+        repository.working_dir, package.name
+    )
 
     return _needs_replacement(repository_package, user_namespaces)
 
@@ -252,7 +254,7 @@ def _get_packages_which_must_be_changed(paths=None):
                 worker.Skip(
                     package,
                     inspection.get_package_root(package),
-                    "does not define a package.py file."
+                    "does not define a package.py file.",
                 )
             )
 

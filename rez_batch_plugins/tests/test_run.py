@@ -50,20 +50,6 @@ class MoveImports(common.Common):
     )
     def test_no_change(self, _create_pull_request):
         """Don't change the imports of any Rez package or file."""
-        class _Arguments(object):
-            def __init__(self, arguments, command):
-                super(_Arguments, self).__init__()
-
-                self.token = "github-token-here"
-                self.pull_request_name = "some_git_branch_name"
-                self.ssl_no_verify = False
-                self.cached_users = ""
-                self.fallback_reviewers = ""
-                self.base_url = ""
-                self.arguments = arguments
-                self.command = command
-                self.exit_on_error = True
-
         root = tempfile.mktemp(suffix="_test_single_change_source_packages")
         self.delete_item_later(root)
 
@@ -83,10 +69,7 @@ class MoveImports(common.Common):
                             """
                         ),
                     ),
-                    (
-                        "another_file.py",
-                        "",
-                    ),
+                    ("another_file.py", ""),
                     (
                         "more_files.py",
                         textwrap.dedent(
@@ -98,7 +81,7 @@ class MoveImports(common.Common):
                     ),
                 ],
                 root,
-            ),
+            )
         ]
 
         repository, packages, remote_root = testify.make_fake_repository(packages, root)
@@ -119,7 +102,9 @@ class MoveImports(common.Common):
             )
 
         move_imports_arguments = "'. some.namespace.here,a.new.space.somewhere' --deprecate 'original_requirement-1,some.namespace' --requirements 'a_new_package-3.1+<4,a.new.space'"
-        text = 'run move_imports --arguments "{move_imports_arguments}" pr_prefix github-token --why "Because we must"'.format(move_imports_arguments=move_imports_arguments)
+        text = 'run move_imports --arguments "{move_imports_arguments}" pr_prefix github-token --why "Because we must"'.format(
+            move_imports_arguments=move_imports_arguments
+        )
 
         text = shlex.split(text)
         sys.argv[1:] = text
@@ -127,7 +112,9 @@ class MoveImports(common.Common):
         arguments = _Arguments(move_imports_arguments, text)
 
         with rez_configuration.patch_release_packages_path(release_path):
-            _, unfixed, invalids, skips = _get_test_results("move_imports", arguments=arguments)
+            _, unfixed, invalids, skips = _get_test_results(
+                "move_imports", arguments=arguments
+            )
 
         self.assertEqual(set(), unfixed)
         self.assertEqual([], invalids)
@@ -148,20 +135,6 @@ class MoveImports(common.Common):
             RuntimeError: If an expected cloned file does not exist.
 
         """
-        class _Arguments(object):
-            def __init__(self, arguments, command):
-                super(_Arguments, self).__init__()
-
-                self.token = "github-token-here"
-                self.pull_request_name = "some_git_branch_name"
-                self.ssl_no_verify = False
-                self.cached_users = ""
-                self.fallback_reviewers = ""
-                self.base_url = ""
-                self.arguments = arguments
-                self.command = command
-                self.exit_on_error = True
-
         root = tempfile.mktemp(suffix="_test_single_change_source_packages")
         self.delete_item_later(root)
 
@@ -176,7 +149,7 @@ class MoveImports(common.Common):
                             if True:
                                 from some.namespace import here, there, everywhere
                             """
-                        )
+                        ),
                     )
                 ],
                 root,
@@ -196,10 +169,7 @@ class MoveImports(common.Common):
                             """
                         ),
                     ),
-                    (
-                        "another_file.py",
-                        "",
-                    ),
+                    ("another_file.py", ""),
                     (
                         "more_files.py",
                         textwrap.dedent(
@@ -232,7 +202,9 @@ class MoveImports(common.Common):
             )
 
         move_imports_arguments = "'. some.namespace.here,a.new.space.somewhere' --deprecate 'original_requirement-1,some.namespace' --requirements 'a_new_package-3.1+<4,a.new.space'"
-        text = 'run move_imports --arguments "{move_imports_arguments}" pr_prefix github-token --why "Because we must"'.format(move_imports_arguments=move_imports_arguments)
+        text = 'run move_imports --arguments "{move_imports_arguments}" pr_prefix github-token --why "Because we must"'.format(
+            move_imports_arguments=move_imports_arguments
+        )
 
         text = shlex.split(text)
         sys.argv[1:] = text
@@ -240,7 +212,9 @@ class MoveImports(common.Common):
         arguments = _Arguments(move_imports_arguments, text)
 
         with rez_configuration.patch_release_packages_path(release_path):
-            processed_packages, unfixed, invalids, skips = _get_test_results("move_imports", arguments=arguments)
+            processed_packages, unfixed, invalids, skips = _get_test_results(
+                "move_imports", arguments=arguments
+            )
 
         self.assertEqual(set(), unfixed)
         self.assertEqual([], invalids)
@@ -274,20 +248,6 @@ class MoveImports(common.Common):
     )
     def test_multiple_changes(self, _create_pull_request):
         """Change 2+ packages at once."""
-        class _Arguments(object):
-            def __init__(self, arguments, command):
-                super(_Arguments, self).__init__()
-
-                self.token = "github-token-here"
-                self.pull_request_name = "some_git_branch_name"
-                self.ssl_no_verify = False
-                self.cached_users = ""
-                self.fallback_reviewers = ""
-                self.base_url = ""
-                self.arguments = arguments
-                self.command = command
-                self.exit_on_error = True
-
         root = tempfile.mktemp(suffix="_test_single_change_source_packages")
         self.delete_item_later(root)
 
@@ -302,7 +262,7 @@ class MoveImports(common.Common):
                             if True:
                                 from some.namespace import here, there, everywhere
                             """
-                        )
+                        ),
                     )
                 ],
                 root,
@@ -318,10 +278,7 @@ class MoveImports(common.Common):
                             """
                         ),
                     ),
-                    (
-                        "another_file.py",
-                        "",
-                    ),
+                    ("another_file.py", ""),
                     (
                         "more_files.py",
                         textwrap.dedent(
@@ -354,7 +311,9 @@ class MoveImports(common.Common):
             )
 
         move_imports_arguments = "'. some.namespace.here,a.new.space.somewhere' --deprecate 'original_requirement-1,some.namespace' --requirements 'a_new_package-3.1+<4,a.new.space'"
-        text = 'run move_imports --arguments "{move_imports_arguments}" pr_prefix github-token --why "Because we must"'.format(move_imports_arguments=move_imports_arguments)
+        text = 'run move_imports --arguments "{move_imports_arguments}" pr_prefix github-token --why "Because we must"'.format(
+            move_imports_arguments=move_imports_arguments
+        )
 
         text = shlex.split(text)
         sys.argv[1:] = text
@@ -362,7 +321,9 @@ class MoveImports(common.Common):
         arguments = _Arguments(move_imports_arguments, text)
 
         with rez_configuration.patch_release_packages_path(release_path):
-            processed_packages, unfixed, invalids, skips = _get_test_results("move_imports", arguments=arguments)
+            processed_packages, unfixed, invalids, skips = _get_test_results(
+                "move_imports", arguments=arguments
+            )
 
         self.assertEqual(set(), unfixed)
         self.assertEqual([], invalids)
@@ -559,6 +520,21 @@ class Yaml2Py(common.Common):
         self.assertEqual(1, _create_pull_request.call_count)
 
 
+class _Arguments(object):  # pylint: disable-too-many-instance-attributes,line-too-long
+    def __init__(self, arguments, command):
+        super(_Arguments, self).__init__()
+
+        self.token = "github-token-here"
+        self.pull_request_name = "some_git_branch_name"
+        self.ssl_no_verify = False
+        self.cached_users = ""
+        self.fallback_reviewers = ""
+        self.base_url = ""
+        self.arguments = arguments
+        self.command = command
+        self.exit_on_error = True
+
+
 def _clear_registry():
     for name in registry.get_plugin_keys():
         registry.clear_plugin(name)
@@ -704,7 +680,9 @@ def _get_test_results(command_text, paths=None, arguments=None):
     command = registry.get_command(command_text)
 
     final_packages, unfixed, invalids = worker.run(
-        functools.partial(command.run, arguments=arguments), valid_packages, keep_temporary_files=True,
+        functools.partial(command.run, arguments=arguments),
+        valid_packages,
+        keep_temporary_files=True,
     )
 
     invalids.extend(invalid_packages)
