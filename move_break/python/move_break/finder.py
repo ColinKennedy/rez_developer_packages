@@ -1,6 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""A module for finding Python files name import namespaces.
+
+These functions tend to be used by other packages, which is why they're included
+as part of this package's API.
+
+"""
+
 import os
 
 import parso
@@ -10,18 +17,24 @@ from .core.parsers import base
 
 
 def expand_paths(path, fallback=""):
-    # """Find every Python file in `path`.
-    #
-    # Args:
-    #     path (str): An absolute or relative path to a Python file or folder on-disk.
-    #
-    # Raises:
-    #     ValueError: If `path` is not a valid file or folder on-disk.
-    #
-    # Returns:
-    #     set[str]: The found Python files.
-    #
-    # """
+    """Find every Python file in `path`.
+
+    Args:
+        path (str):
+            An absolute or relative path to a Python file or folder on-disk.
+        fallback (str, optional):
+            A directory on-disk used to resolve `path`, if `path` is
+            relative. This path must exist. Default: "".
+
+    Raises:
+        ValueError:
+            If `path` is not a valid file or folder on-disk or if
+            `fallback` is not provided but `path` is relative.
+
+    Returns:
+        set[str]: The found Python files.
+
+    """
     if not os.path.isabs(path):
         if not fallback:
             raise ValueError('Path "{path}" cannot be relative if no fallback is given.'.format(path=path))
@@ -48,6 +61,15 @@ def expand_paths(path, fallback=""):
 
 
 def get_namespaces(path):
+    """Get every Python dot-separated import from some Python file.
+
+    Args:
+        path (str): Some Python file on-disk to parse and get imports from.
+
+    Returns:
+        set[str]: The found imports. e.g. {"os.path", "foo.bar", "some_custom_module"}.
+
+    """
     graph = get_graph(path)
     imports = parser.get_imports(graph, partial=True)
 
