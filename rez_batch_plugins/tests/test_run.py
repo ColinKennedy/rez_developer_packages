@@ -4,6 +4,7 @@
 """Check that the plugin commands the ``rez_batch_plugins`` defines work as-expected."""
 
 import functools
+import operator
 import os
 import shlex
 import sys
@@ -319,8 +320,8 @@ class MoveImports(common.Common):
         self.assertEqual([], invalids)
         self.assertEqual([], skips)
 
-        processed_packages = list(processed_packages)
-        cloned_package = inspection.get_package_root(processed_packages[0])
+        processed_packages = sorted(processed_packages, key=operator.attrgetter("name"))
+        cloned_package = inspection.get_package_root(processed_packages[1])
         path = os.path.join(cloned_package, "python", "in", "folder", "some_module.py")
 
         if not os.path.isfile(path):
@@ -337,7 +338,7 @@ class MoveImports(common.Common):
             """
         )
 
-        cloned_package = inspection.get_package_root(processed_packages[1])
+        cloned_package = inspection.get_package_root(processed_packages[0])
         path = os.path.join(cloned_package, "python", "a_folder", "a_file.py")
 
         if not os.path.isfile(path):
