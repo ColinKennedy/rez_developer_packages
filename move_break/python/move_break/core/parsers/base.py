@@ -166,4 +166,4 @@ def get_namespaces(adapter):
         set[str]: Dot-separated namespaces such as {"foo.bar.bazz"}.
 
     """
-    return adapter._get_namespaces(adapter._node)
+    return adapter._get_namespaces(adapter._node)  # pylint: disable=protected-access
