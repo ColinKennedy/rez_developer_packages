@@ -25,7 +25,6 @@ Configuration = collections.namedtuple(
 )
 
 
-# TODO : Add unittest to make sure this plugin thing works
 class RezShellCommand(base.BaseCommand):
     """The main class runs 1 command once per-Rez-package to create a pull request.
 
