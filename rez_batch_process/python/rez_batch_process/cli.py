@@ -25,20 +25,17 @@ from .core.gitter import github_user
 _LOGGER = logging.getLogger(__name__)
 
 
-def __report(arguments, _):
-    """Print out every package and its status information.
-
-    This function prints out
-
-    - Packages that were found as "invalid"
-    - Packages that were skipped automatically
-    - Packages that were ignored explicitly (by the user)
+def __gather_package_data(arguments):
+    """Use the user-provided CLI arguments to find Rez packages.
 
     Args:
-        arguments (:class:`argparse.Namespace`):
-            The base user-provided arguments from command-line.
-        _ (:class:`argparse.Namespace`):
-            An un-used argument for this function.
+        arguments (:class:`argparse.ArgumentParser`):
+            The packages to ignore, paths to search for packages,
+            the command to use for searching, and other important
+            searching-related details.
+
+    Returns:
+        All of the data needed for the `__report` and `__run` functions.
 
     """
     ignore_patterns, packages_path, search_packages_path = _resolve_arguments(
@@ -64,6 +61,27 @@ def __report(arguments, _):
     ignored_packages, other_packages = _split_the_ignored_packages(
         found_packages, ignore_patterns
     )
+
+    return ignored_packages, other_packages, invalid_packages, skips
+
+
+def __report(arguments, _):
+    """Print out every package and its status information.
+
+    This function prints out
+
+    - Packages that were found as "invalid"
+    - Packages that were skipped automatically
+    - Packages that were ignored explicitly (by the user)
+
+    Args:
+        arguments (:class:`argparse.Namespace`):
+            The base user-provided arguments from command-line.
+        _ (:class:`argparse.Namespace`):
+            An un-used argument for this function.
+
+    """
+    ignored_packages, other_packages, invalid_packages, skips = __gather_package_data(arguments)
 
     packages, invalids = worker.report(
         other_packages,
@@ -94,30 +112,7 @@ def __run(arguments, command_arguments):  # pylint: disable=too-many-locals
             The registered command's parsed arguments.
 
     """
-    ignore_patterns, packages_path, search_packages_path = _resolve_arguments(
-        arguments.ignore_patterns,
-        arguments.packages_path,
-        arguments.search_packages_path,
-    )
-    rez_packages = set(arguments.rez_packages)
-
-    package_finder = registry.get_package_finder(arguments.command)
-
-    if rez_packages:
-        found_packages, invalid_packages, skips = [
-            package
-            for package in package_finder(paths=packages_path + search_packages_path)
-            if package.name in rez_packages
-        ]
-    else:
-        found_packages, invalid_packages, skips = list(
-            package_finder(paths=packages_path + search_packages_path)
-        )
-
-    ignored_packages, other_packages = _split_the_ignored_packages(
-        found_packages, ignore_patterns
-    )
-    print("TODO need to print the ignored packages")
+    ignored_packages, other_packages, invalid_packages, skips = __gather_package_data(arguments)
 
     command = registry.get_command(arguments.command)
 
