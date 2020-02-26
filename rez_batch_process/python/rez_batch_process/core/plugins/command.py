@@ -337,6 +337,14 @@ def has_changes(package):
 
 
 def add_git_arguments(parser):
+    """Add the required and optional user arguments to make `parser` connect to a git service.
+
+    In this case "git service" as in "GitHub" or a similar one.
+
+    Args:
+        parser (:class:`argparse.ArgumentParser`): An object used to get user input from command-line.
+
+    """
     parser.add_argument(
         "pull_request_name",
         help="The name of the pull request + git branch. Include {}s to query stuff about the package. e.g. {package.name}",
