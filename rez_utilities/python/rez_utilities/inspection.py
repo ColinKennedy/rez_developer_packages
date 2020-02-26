@@ -335,6 +335,17 @@ def get_package_python_paths(package, paths):
 
 
 def get_all_packages(directory):
+    """Find every Rez package in the given directory.
+
+    Args:
+        directory (str):
+            An absolute path to a folder on-disk. y package on or below
+            this path will be returned.
+
+    Returns:
+        list[:class:`rez.packages_.DeveloperPackage`]: The found packages.
+
+    """
     paths = set()
     packages = []
 
