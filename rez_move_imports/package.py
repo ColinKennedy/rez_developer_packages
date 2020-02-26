@@ -19,7 +19,7 @@ requires = [
     "rez-2.42+<3",
     "rez_bump-1.0.1+<2",
     "rez_industry-1+<2",
-    "rez_utilities-1.3+<2",
+    "rez_utilities-1.4+<2",
 ]
 
 build_command = "python -m rez_build_helper --items python"

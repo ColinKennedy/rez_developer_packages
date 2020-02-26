@@ -13,7 +13,7 @@ requires = [
     "python-2+<3",
     "rez-2.42+<3",
     "rez_industry-1+<2",
-    "rez_utilities-1.3+<2",
+    "rez_utilities-1.4+<2",
 ]
 
 help = [["README", "README.md"]]
