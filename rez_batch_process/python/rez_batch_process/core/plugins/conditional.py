@@ -138,9 +138,6 @@ def get_default_latest_packages(paths=None):
             valid but must be skipped, for some reason.
 
     """
-    packages = []
-
-    for package in inspection.iter_latest_packages(paths=paths):
-        packages.append(package)
+    packages = list(inspection.iter_latest_packages(paths=paths))
 
     return packages, [], []
