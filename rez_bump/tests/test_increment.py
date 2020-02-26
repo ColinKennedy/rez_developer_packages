@@ -31,7 +31,7 @@ class Version(common.Common):
             )
 
         package = inspection.get_nearest_rez_package(directory)
-        package = rez_bump_api.bump(package, minor=3)
+        rez_bump_api.bump(package, minor=3)
 
         with open(package.filepath, "r") as handler:
             code = handler.read()
@@ -61,7 +61,7 @@ class Version(common.Common):
             )
 
         package = inspection.get_nearest_rez_package(directory)
-        package = rez_bump_api.bump(package, minor=-4)
+        rez_bump_api.bump(package, minor=-4)
 
         with open(package.filepath, "r") as handler:
             code = handler.read()
@@ -91,7 +91,7 @@ class Version(common.Common):
             )
 
         package = inspection.get_nearest_rez_package(directory)
-        package = rez_bump_api.bump(package, minor=3, absolute=True)
+        rez_bump_api.bump(package, minor=3, absolute=True)
 
         with open(package.filepath, "r") as handler:
             code = handler.read()
@@ -159,7 +159,7 @@ class Version(common.Common):
             )
 
         package = inspection.get_nearest_rez_package(directory)
-        package = rez_bump_api.bump(package, minor=3)
+        rez_bump_api.bump(package, minor=3)
 
         with open(package.filepath, "r") as handler:
             code = handler.read()
@@ -229,7 +229,7 @@ class Version(common.Common):
         package = inspection.get_nearest_rez_package(directory)
 
         with self.assertRaises(ValueError):
-            package = rez_bump_api.bump(package)
+            rez_bump_api.bump(package)
 
     def test_invalid_absolute_decrement_minor(self):
         """Don't set the minor version, explicitly because it is a negative value."""
