@@ -200,6 +200,7 @@ def _check_namespaces(namespaces, deprecate, requirements):
 
 
 def get_user_namespaces(text):
+    """set[tuple[str, str]]: The old Python dot-separated namespace to replace + the new one."""
     arguments = _parse_arguments(text)
     command = arguments.command.strip('"').strip("'")
     command_configuration = cli.parse_arguments(shlex.split(command))
