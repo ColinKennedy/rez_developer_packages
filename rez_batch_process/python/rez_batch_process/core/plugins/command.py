@@ -409,6 +409,23 @@ def _get_unique_branch(repository, base_branch_name):
 
 @contextlib.contextmanager
 def _reset_repository_state(repository, branch):
+    """Make sure a given git repository has no uncommitted or WIP changes.
+
+    Example:
+        >>> with _reset_repository_state(repository, branch):
+        >>>     new_branch = repository.create_head("some_branch_name")
+        >>>     new_branch.checkout()
+
+        >>> # At this point, `repository` will check `branch` back out again
+
+    Args:
+        repository (:class:`git.Repo`): A cloned git repository on-disk to revert.
+        branch (:class:`git.Head`): The default (usually master) branch of `repository`.
+
+    Yields:
+        NoneType: Return the state of this context back to the user.
+
+    """
     try:
         yield
     finally:
