@@ -148,19 +148,6 @@ def report(
             )
 
             continue
-        except filesystem.PackageDefinitionFileMissing as error:
-            _LOGGER.exception(
-                'A damaged Rez package "%s" was found. Please fix or remove it.',
-                package,
-                exc_info=True,
-            )
-            invalids.append(
-                exceptions.InvalidPackage(
-                    package, inspection.get_package_root(package), str(error)
-                )
-            )
-
-            continue
 
         repositories.append(repository)
         packages.append(package)

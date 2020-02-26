@@ -16,7 +16,6 @@ from rez import packages_
 from rez_batch_process.core import exceptions, registry, worker
 from rez_batch_process.core.plugins import conditional
 from rez_utilities import creator, inspection
-from rezplugins.package_repository import filesystem
 from six.moves import mock
 
 
@@ -151,7 +150,6 @@ def _run_and_catch(function, package):
         # :func:`is_not_a_python_package` can potentially raise any of these exceptions
         rez_exceptions.PackageNotFoundError,
         rez_exceptions.ResolvedContextError,
-        filesystem.PackageDefinitionFileMissing,
         # :func:`has_documentation` raises this exception
         exceptions.NoGitRepository,
     )
