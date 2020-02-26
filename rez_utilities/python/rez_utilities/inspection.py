@@ -235,6 +235,11 @@ def has_python_package(
 
     paths = get_package_python_paths(package, environment)
 
+    # All zipped .egg files as valid Python "packages"
+    for path in paths:
+        if path.endswith(".egg") and os.path.isfile(path):
+            return True
+
     for root_path in paths:
         for _, _, files in os.walk(root_path):
             for file_path in files:
