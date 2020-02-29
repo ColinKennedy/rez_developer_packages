@@ -10,6 +10,7 @@ details. This module does the actual work.
 
 import collections
 import logging
+import operator
 import os
 import shutil
 import sys
@@ -247,37 +248,29 @@ def run(  # pylint: disable=too-many-arguments,too-many-locals
         for package in packages:
             definitions = list(_find_package_definitions(repository_root, package.name))
 
-            if not definitions:
+            try:
+                latest = sorted(definitions, key=operator.attrgetter("version"))[-1]
+            except IndexError:
                 un_ran.add(
-                    package,
-                    'Could not find "{package.name}" in repository "{repository_root}".'
-                    "".format(package=package, repository_root=repository_root),
+                    (
+                        package,
+                        'Could not find "{package.name}" in repository "{repository_root}".'
+                        "".format(package=package, repository_root=repository_root),
+                    )
                 )
 
                 continue
-            elif len(definitions) > 1:
-                # TODO : Finish the report logic for this one
-                un_ran.add(
-                    list(definitions),
-                    'More than one package definition "{package.name}" was found '
-                    'in repository "{repository_root}".'
-                    "".format(package=package, repository_root=repository_root),
-                )
-
-                continue
-
-            inner_repository_package = definitions[0]
 
             try:
-                error = runner(inner_repository_package)
+                error = runner(latest)
             except exceptions.CoreException as error:  # pylint: disable=broad-except
-                un_ran.add((inner_repository_package, error))
+                un_ran.add((latest, error))
 
                 continue
 
             if error:
-                un_ran.add((inner_repository_package, error))
+                un_ran.add((latest, error))
             else:
-                ran.add(inner_repository_package)
+                ran.add(latest)
 
     return ran, un_ran, invalids

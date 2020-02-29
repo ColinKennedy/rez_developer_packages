@@ -579,6 +579,123 @@ class Variations(package_common.Tests):
 
         self.assertEqual(1, run_command.call_count)
 
+    @mock.patch("rez_batch_process.core.plugins.command.RezShellCommand.run")
+    def test_versioned_source(self, run_command):
+        def _make_version_package(path, text):
+            directory = os.path.dirname(path)
+
+            if not os.path.isdir(directory):
+                os.makedirs(directory)
+
+            with open(path, "w") as handler:
+                handler.write(text)
+
+            os.makedirs(os.path.join(directory, "python"))
+            open(os.path.join(directory, "python", "some_module.py"), "a").close()
+
+            with open(os.path.join(directory, "rezbuild.py"), "w") as handler:
+                handler.write(
+                    textwrap.dedent(
+                        """\
+                        import os
+                        import shutil
+
+                        def main(source, install):
+                            shutil.copytree(
+                                os.path.join(source, "python"),
+                                os.path.join(install, "python"),
+                            )
+
+                        main(
+                            os.environ["REZ_BUILD_SOURCE_PATH"],
+                            os.environ["REZ_BUILD_INSTALL_PATH"],
+                        )
+                        """
+                    ))
+
+            return inspection.get_nearest_rez_package(directory)
+
+        run_command.return_value = ""
+        root = os.path.join(tempfile.mkdtemp(), "test_versioned_source")
+
+        packages = [
+            _make_version_package(
+                os.path.join(root, "rez_package_a", "1.2.0", "package.py"),
+                textwrap.dedent(
+                    """\
+                    name = "rez_package_a"
+
+                    version = "1.2.0"
+
+                    build_command = "python {root}/rezbuild.py"
+
+
+                    def commands():
+                        import os
+
+                        env.PYTHONPATH.append(os.path.join("{root}", "python"))
+                    """
+                ),
+            ),
+            _make_version_package(
+                os.path.join(root, "rez_package_a", "1.3.0", "package.py"),
+                textwrap.dedent(
+                    """\
+                    name = "rez_package_a"
+
+                    version = "1.3.0"
+
+                    build_command = "python {root}/rezbuild.py"
+
+
+                    def commands():
+                        import os
+
+                        env.PYTHONPATH.append(os.path.join("{root}", "python"))
+                    """
+                ),
+            ),
+            _make_version_package(
+                os.path.join(root, "rez_package_b", "2", "package.py"),
+                textwrap.dedent(
+                    """\
+                    name = "rez_package_b"
+
+                    version = "2.5.0"
+
+                    build_command = "python {root}/rezbuild.py"
+
+
+                    def commands():
+                        import os
+
+                        env.PYTHONPATH.append(os.path.join("{root}", "python"))
+                    """
+                ),
+            ),
+        ]
+
+        repository, packages, remote_root = package_common.make_fake_repository(packages, root)
+        self.delete_item_later(repository.working_dir)
+        self.delete_item_later(remote_root)
+
+        release_path = _release_packages(packages)
+        self.delete_item_later(release_path)
+
+        paths = [release_path]
+
+        with rez_configuration.patch_packages_path(paths):
+            self._test(
+                (
+                    set(),
+                    [],
+                    [],
+                ),
+                paths,
+            )
+
+        self.assertEqual(2, run_command.call_count)
+
 
 class Bad(package_common.Tests):
     """A series of scenarios where a bad environment or bad input is given."""
