@@ -53,16 +53,7 @@ _User = collections.namedtuple("_User", "login name email bio")
 
 
 class GithubAdapter(base_adapter.BaseAdapter):
-    """The class that submits pull requests to GitHub.
-
-    Attributes:
-        _expected_minimum_reviewers (int):
-            This class will always try to get 3+ reviewers onto each
-            pull request.
-
-    """
-
-    _expected_minimum_reviewers = 3
+    """The class that submits pull requests to GitHub."""
 
     def __init__(
         self, package, token, fallback_reviewers=None, base_url="", verify=True
@@ -146,10 +137,7 @@ class GithubAdapter(base_adapter.BaseAdapter):
             if login not in authors:
                 authors.append(login)
 
-        if len(authors) < self._expected_minimum_reviewers:
-            authors += fallback_reviewers[
-                : self._expected_minimum_reviewers - len(authors)
-            ]
+        authors += fallback_reviewers
 
         return authors
 
