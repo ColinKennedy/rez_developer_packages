@@ -40,7 +40,9 @@ def _parse_arguments(text):
         help="If True, symlink back to the source Rez package, instead of creating new files.",
     )
 
-    return parser.parse_args(text)
+    known, _ = parser.parse_known_args(text)
+
+    return known
 
 
 def main(text):
