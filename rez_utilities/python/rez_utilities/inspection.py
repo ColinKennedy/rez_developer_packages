@@ -28,6 +28,7 @@ import tempfile
 from python_compatibility import filer, imports
 from rez import exceptions, packages_, resolved_context
 from rez.config import config
+from rez.vendor.schema import schema
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -389,8 +390,13 @@ def get_nearest_rez_package(directory):
 
         try:
             return packages_.get_developer_package(directory)
-        except exceptions.PackageMetadataError:
-            pass
+        except (
+            # This happens if the package in `directory` is missing required data
+            exceptions.PackageMetadataError,
+            # This happens if the package in `directory` is written incorrectly
+            schema.SchemaError,
+        ):
+            _LOGGER.warning('Directory "%s" found an invalid Rez package.', directory)
 
         directory = os.path.dirname(directory)
 
