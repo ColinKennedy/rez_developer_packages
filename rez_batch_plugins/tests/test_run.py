@@ -13,11 +13,49 @@ import textwrap
 
 from python_compatibility import pathrip
 from python_compatibility.testing import common
+from rez_batch_plugins import repository_area
 from rez_batch_plugins.plugins import move_imports, yaml2py
+from rez import serialise
 from rez_batch_process.core import registry, worker
 from rez_utilities import creator, inspection, rez_configuration
 from rez_utilities_git import testify
 from six.moves import mock
+
+
+class Bugs(common.Common):
+    """Fix bugs that have come up while searching through Rez packages."""
+
+    @mock.patch("rez_batch_plugins.repository_area._is_keep_temporary_files_enabled")
+    @mock.patch("rez_batch_plugins.repository_area._get_temporary_directory")
+    def test_is_definition_build_package(self, _get_temporary_directory, _is_keep_temporary_files_enabled):
+        """Fix an issue where git repositories with "built" Rez packages cause cyclic loops."""
+        def _make_built_package(root):
+            directory = os.path.join(root, "1.0.0")
+            os.makedirs(directory)
+
+            with open(os.path.join(directory, "package.py"), "w") as handler:
+                handler.write(
+                    textwrap.dedent(
+                        """\
+                        name = "something"
+                        version = "1.0.0"
+                        """
+                    )
+                )
+
+            return inspection.get_nearest_rez_package(directory)
+
+        _is_keep_temporary_files_enabled.return_value = False
+        _get_temporary_directory.return_value = tempfile.mkdtemp(suffix="_temporary_directory")
+        root = tempfile.mkdtemp(suffix="_test_is_definition_build_package")
+        self.delete_item_later(root)
+
+        package = _make_built_package(root)
+        repository, packages, remote_root = testify.make_fake_repository([package], root)
+        self.delete_item_later(repository.working_dir)
+        self.delete_item_later(remote_root)
+
+        self.assertFalse(repository_area.is_definition(packages[0], serialise.FileFormat.yaml))
 
 
 class MoveImports(common.Common):

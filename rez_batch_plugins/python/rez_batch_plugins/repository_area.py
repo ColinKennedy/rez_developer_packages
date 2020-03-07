@@ -69,20 +69,33 @@ def is_definition(package, format_):
         bool: If `package` defines a package.py, return True. Otherwise, return False.
 
     """
-    if not inspection.is_built_package(package):
-        path = inspection.get_package_root(package)
+    def _is_definition(package, format_, search=True):
+        """Check for if a package defines a Rez package file.
 
-        try:
-            packages_.get_developer_package(path, format=format_)
-        except rez_exceptions.PackageMetadataError:
+        Except if we've already checked the Rez package's repository
+        and still haven't found a good answer, stop searching and just
+        return False, to avoid a cyclic loop.
+
+        """
+        if not inspection.is_built_package(package):
+            path = inspection.get_package_root(package)
+
+            try:
+                packages_.get_developer_package(path, format=format_)
+            except rez_exceptions.PackageMetadataError:
+                return False
+
+            return True
+
+        if not search:
             return False
 
-        return True
+        repository = get_repository(package)
+        repository_package = get_package(repository.working_dir, package.name)
 
-    repository = get_repository(package)
-    repository_package = get_package(repository.working_dir, package.name)
+        return _is_definition(repository_package, format_=format_, search=False)
 
-    return is_definition(repository_package, format_=format_)
+    return _is_definition(package, format_, search=True)
 
 
 def get_package(directory, name):
