@@ -25,18 +25,18 @@ private_build_requires = ['rez_build_helper-1+<2']
 build_command = "python -m rez_build_helper --items python"
 
 tests = {
-    "black_diff": {"command": "rez-env black-19.10+ -- black --diff --check python tests"},
-    "black": {"command": "rez-env black-19.10+ -- black python tests"},
-    "isort": {"command": "isort --recursive python tests", "requires": ["isort"]},
+    "black_diff": {"command": "rez-env black-19.10+ -- black --diff --check python"},
+    "black": {"command": "rez-env black-19.10+ -- black python"},
+    "isort": {"command": "isort --recursive python", "requires": ["isort"]},
     "isort_check": {
-        "command": "isort --check-only --diff --recursive python tests",
+        "command": "isort --check-only --diff --recursive python",
         "requires": ["isort-4.3+<5"],
     },
     "pydocstyle": {
         # Need to disable D202 for now, until a new pydocstyle version is released
         # Reference: https://github.com/psf/black/issues/1159
         #
-        "command": "pydocstyle --ignore=D213,D202,D203,D406,D407 python tests/*",
+        "command": "pydocstyle --ignore=D213,D202,D203,D406,D407 python",
         "requires": ["pydocstyle-3+"],
     },
     "pylint": {

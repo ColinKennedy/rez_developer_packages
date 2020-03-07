@@ -1,17 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os
 import atexit
 import contextlib
+import os
 import shutil
 import tempfile
 
-from rez.config import config
-from rez import packages_
-from rez_utilities import inspection
 import git
-
+from rez import packages_
+from rez.config import config
+from rez_utilities import inspection
 
 _REMOTES = set()
 
