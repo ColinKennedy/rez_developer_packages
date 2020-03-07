@@ -50,8 +50,8 @@ def _get_temporary_directory():
     )
 
 
-def is_python_definition(package, format_):
-    """Check if the given package defines a package.py file or something else.
+def is_definition(package, format_):
+    """Check if the given package defines a Rez package file.
 
     Args:
         package (:class:`rez.packages_.DeveloperPackage`):
@@ -78,7 +78,7 @@ def is_python_definition(package, format_):
     repository = get_repository(package)
     repository_package = get_package(repository.working_dir, package.name)
 
-    return is_python_definition(repository_package, format_=format_)
+    return is_definition(repository_package, format_=format_)
 
 
 def get_package(directory, name):

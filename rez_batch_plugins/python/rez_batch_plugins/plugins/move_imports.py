@@ -250,7 +250,7 @@ def _get_packages_which_must_be_changed(paths=None):
     output = []
 
     for package in packages:
-        if not repository_area.is_python_definition(package, serialise.FileFormat.py):
+        if not repository_area.is_definition(package, serialise.FileFormat.py):
             skips.append(
                 worker.Skip(
                     package,
