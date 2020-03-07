@@ -2,7 +2,7 @@
 
 name = "rez_utilities_git"
 
-version = "1.0.0"
+version = "1.0.1"
 
 description = "A collection of Rez / git functions. Mostly useful for unittests."
 
