@@ -24,7 +24,6 @@ from rez_batch_process import cli
 from rez_utilities import inspection
 from rez_utilities_git import gitter
 
-
 _LOGGER = logging.getLogger(__name__)
 
 

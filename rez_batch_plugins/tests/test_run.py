@@ -13,9 +13,9 @@ import textwrap
 
 from python_compatibility import pathrip
 from python_compatibility.testing import common
+from rez import serialise
 from rez_batch_plugins import repository_area
 from rez_batch_plugins.plugins import move_imports, yaml2py
-from rez import serialise
 from rez_batch_process.core import registry, worker
 from rez_utilities import creator, inspection, rez_configuration
 from rez_utilities_git import testify
