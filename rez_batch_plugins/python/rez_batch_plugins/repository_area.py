@@ -11,6 +11,7 @@ changes. This module helps with cloning and querying.
 
 import atexit
 import functools
+import logging
 import os
 import shutil
 import sys
@@ -22,6 +23,9 @@ from rez import packages_
 from rez_batch_process import cli
 from rez_utilities import inspection
 from rez_utilities_git import gitter
+
+
+_LOGGER = logging.getLogger(__name__)
 
 
 def _is_keep_temporary_files_enabled():
@@ -94,11 +98,29 @@ def get_package(directory, name):
         :class:`rez.packages_.DeveloperPackage` or NoneType: The found package, if any.
 
     """
-    for package in inspection.get_all_packages(directory):
-        if package.name == name:
-            return package
+    def _get_version(package):
+        try:
+            return package.version
+        except Exception:  # pylint: disable=broad-except
+            return -1
 
-    return None
+    definitions = set()
+
+    for package in inspection.get_all_packages(directory):
+        try:
+            name_ = package.name
+        except Exception:  # pylint: disable=broad-except
+            _LOGGER.warning('Package "%s" has no name.', package)
+
+            continue
+
+        if name_ == name:
+            definitions.add(package)
+
+    try:
+        return sorted(definitions, key=_get_version)[-1]
+    except IndexError:
+        return None
 
 
 def get_repository(package):
