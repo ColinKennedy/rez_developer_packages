@@ -2,7 +2,7 @@
 
 name = "rez_batch_plugins"
 
-version = "1.0.0"
+version = "2.0.0"
 
 description = "Several plugins to demonstrate the use of `rez_batch_process` and its plugin system."
 
