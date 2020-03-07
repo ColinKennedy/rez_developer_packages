@@ -94,7 +94,11 @@ def get_repository(package):
             RuntimeError,
             exc.InvalidGitRepositoryError,  # pylint: disable=no-member
         ):
-            raise ValueError('Package "{package}" is not in a Git repository.')
+            raise ValueError(
+                'Package "{package}" in "{path}" has no Git repository.'.format(
+                    package=package, path=path
+                )
+            )
 
 
 def get_repository_url_from_repository(repository):
