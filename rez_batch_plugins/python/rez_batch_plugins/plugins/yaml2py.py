@@ -178,7 +178,7 @@ def _get_non_python_packages(paths=None):
     packages, invalids, skips = conditional.get_default_latest_packages(paths=paths)
 
     for package in packages:
-        if not repository_area.is_python_definition(package, serialise.FileFormat.yaml):
+        if not repository_area.is_definition(package, serialise.FileFormat.yaml):
             skips.append(
                 worker.Skip(
                     package,
