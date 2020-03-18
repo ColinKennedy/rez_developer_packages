@@ -6,7 +6,9 @@
 import textwrap
 import argparse
 
-from rez_batch_process.core.plugins import command
+from rez import package_search
+from rez_batch_process.core import registry
+from rez_batch_process.core.plugins import command, conditional
 
 
 class Bump(command.RezShellCommand):
@@ -115,8 +117,6 @@ class Bump(command.RezShellCommand):
         """
         raise NotImplementedError('asdfasd')
 
-        return super(Bump, cls)._run_command(package, arguments)
-
     @classmethod
     def run(cls, package, arguments):
         """Run a command on a package and create a pull request.
@@ -155,3 +155,56 @@ class Bump(command.RezShellCommand):
         )
 
         return ""
+
+
+def _get_user_provided_packages():
+    """set[str]: Every package/version whose downstream dependencies must be bumped."""
+    raise NotImplementedError()
+
+
+def _get_packages_which_must_be_changed(paths=None):
+    """Get every Rez package that has dependencies to replace.
+
+    The user may have provided 1+ packages at once. Each package will
+    be used as the "root" and downstream packages that depend on this
+    package will be searched and returned, here.
+
+    Args:
+        paths (list[str], optional):
+            The directories to search for Rez package families,
+            Default: :attr:`rez.config.config.packages_path`.
+
+    Returns:
+        tuple[:class:`rez.packages_.Package`, list, list]:
+            All of the found Rez packages and a list of any Rez package
+            that was considered invalid or any Rez packages that were
+            valid but must be skipped, for some reason.
+
+    """
+    packages, invalids, skips = conditional.get_default_latest_packages(paths=paths)
+    downstream = set()
+
+    for package in _get_user_provided_packages():
+        downstream_package_names, _ = package_search.get_reverse_dependency_tree(
+            package_name=package,
+            depth=1,
+            paths=paths,
+        )
+
+        # According to the documenatation in
+        # :func:`rez.package_search.get_reverse_dependency_tree` The
+        # first list always contains `package` by itself. We don't need
+        # this so we discard it here.
+        #
+        downstream_package_names = downstream_package_names[1:]
+        downstream.update(name for packages_ in downstream_package_names for name in packages_)
+
+    output_packages_to_change = [package for package in packages if package.name in downstream]
+
+    return output_packages_to_change, invalids, skips
+
+
+def main():
+    """Add :class:`Bump` to ``rez_batch_process``."""
+    registry.register_plugin("bump", _get_packages_which_must_be_changed)
+    registry.register_command("bump", Bump)
