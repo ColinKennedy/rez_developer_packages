@@ -75,6 +75,7 @@ def _bump_version(version, minor, absolute=False):
 
             new_token = version_.NumericToken(str(new_value))
             version.tokens[1] = new_token
+            version._str = None  # Force `version` to update by deleting its internal cache
 
             return version
 
