@@ -542,6 +542,103 @@ class Yaml2Py(common.Common):
         self.assertEqual(1, _create_pull_request.call_count)
 
 
+class Bump(common.Common):
+    """Check that the :mod:`rez_batch_plugins.plugins.bump` plugin works correctly."""
+
+    # def test_source(self):
+    #     """Bump a source Rez package."""
+    #     pass
+    #
+    # def test_built_symlink(self):
+    #     """Bump a built Rez package that is symlinked to a Rez package within a git repository."""
+    #     pass
+    #
+    # def test_released(self):
+    #     """Bump a released Rez package that points to a git repository."""
+    #     pass
+
+    def test_egg(self):
+        """Bump a released Rez package which only contains a single zipped .egg file."""
+        def _create_package(root):
+            with open(os.path.join(root, "package.py"), "w") as handler:
+                handler.write(
+                    textwrap.dedent(
+                        """\
+                        name = "another_package"
+                        version = "1.2.0"
+                        description = "A package.py Rez package that won't be converted."
+                        build_command = "python {root}/rezbuild.py"
+
+                        def commands():
+                            import os
+
+                            env.PYTHONPATH.append(os.path.join("{root}", "python", "collection.egg"))
+                        """
+                    )
+                )
+
+            with open(os.path.join(root, "rezbuild.py"), "w") as handler:
+                handler.write(
+                    textwrap.dedent(
+                        """\
+                        import os
+                        import shutil
+                        import zipfile
+
+                        def main():
+                            source = os.environ["REZ_BUILD_SOURCE_PATH"]
+                            build = os.environ["REZ_BUILD_PATH"]
+
+                            with zipfile.ZipFile(os.path.join(build, "collection.egg"), "w") as handler:
+                                handler.write(os.path.join(source))
+
+                            shutil.copy2(
+                                handler.filename,
+                                os.path.join(os.environ["REZ_BUILD_INSTALL_PATH"], os.path.basename(handler.filename)),
+                            )
+
+
+                        if __name__ == "__main__":
+                            main()
+                        """
+                    )
+                )
+            os.makedirs(os.path.join(root, "python"))
+
+        def _make_package_with_contents(root, name, create_package):
+            directory = os.path.join(root, name)
+            os.makedirs(directory)
+
+            create_package(directory)
+
+            return inspection.get_nearest_rez_package(directory)
+
+        root = tempfile.mkdtemp(suffix="_test_is_definition_build_package")
+        self.delete_item_later(root)
+
+        packages = [
+            _make_package_with_contents(root, "some_package", _create_package)
+        ]
+
+        repository, packages, remote_root = testify.make_fake_repository(packages, root)
+        self.delete_item_later(repository.working_dir)
+        self.delete_item_later(remote_root)
+
+        release_path = tempfile.mkdtemp(suffix="_a_release_location_for_testing")
+        self.delete_item_later(release_path)
+        options, parser = _make_fake_release_data()
+
+        for package in packages:
+            creator.release(
+                inspection.get_package_root(package),
+                options,
+                parser,
+                release_path,
+                search_paths=[repository.working_dir],
+                # quiet=True,
+            )
+
+
 class _Arguments(object):  # pylint: disable=too-many-instance-attributes,too-few-public-methods
     def __init__(self, arguments, command):
         super(_Arguments, self).__init__()

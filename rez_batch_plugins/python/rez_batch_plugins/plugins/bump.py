@@ -4,15 +4,29 @@
 """A tool which specializes in bumping Rez package dependencies."""
 
 import textwrap
+import logging
 import argparse
+import os
+import collections
 
+from python_compatibility import wrapping
 from rez import package_search
+from rez import build_process_, build_system, package_test
+from rez_utilities import inspection
 from rez_batch_process.core import registry
 from rez_batch_process.core.plugins import command, conditional
+
+_Configuration = collections.namedtuple(
+    "_Configuration", "command token pull_request_name ssl_no_verify results"
+)
+_LOGGER = logging.getLogger(__name__)
+_Results = collections.namedtuple("_Results", "pre_bump_build pre_bump_test post_bump_build post_bump_test")
 
 
 class Bump(command.RezShellCommand):
     """A class that forces downstream Rez packages to accept a new Rez package version."""
+
+    _bump_choices = frozenset(("major", "minor", "patch"))
 
     @staticmethod
     def _get_pull_request_body(package, configuration):
@@ -32,12 +46,12 @@ class Bump(command.RezShellCommand):
 
             ## Testing
             ### Pre-Bump
-            Does it build? {configuration.pre_bump_build}
-            Does testing pass? {configuration.pre_bump_test}
+            Does it build? {configuration.results.pre_bump_build}
+            Does testing pass? {configuration.results.pre_bump_test}
 
             ### Post-Bump
-            Does it build? **{configuration.post_bump_build}**
-            Does testing pass? **{configuration.post_bump_test}**
+            Does it build? **{configuration.results.post_bump_build}**
+            Does testing pass? **{configuration.results.post_bump_test}**
 
             ## Reviewer Expectations
             Please review this PR to ensure
@@ -54,8 +68,8 @@ class Bump(command.RezShellCommand):
 
         return template.format(package=package, configuration=configuration)
 
-    @staticmethod
-    def parse_arguments(text):
+    @classmethod
+    def parse_arguments(cls, text):
         """Parse user-provided CLI text into inputs that this class understands.
 
         Args:
@@ -68,8 +82,15 @@ class Bump(command.RezShellCommand):
         parser = argparse.ArgumentParser(
             description="Find downstream packages affected by a new package's version."
         )
-        raise NotImplementedError('Need to make sure --packages creates a list')
         parser.add_argument(
+            "-n",
+            "--new",
+            required=True,
+            help="Specify whether to bump with a new major, minor, or patch.",
+            choices=cls._bump_choices,
+        )
+        parser.add_argument(
+            "-p",
             "--packages",
             required=True,
             help="The name of the package/version that will be bumped in all downstream packages.",
@@ -91,7 +112,7 @@ class Bump(command.RezShellCommand):
         return parser.parse_args(text)
 
     @classmethod
-    def _run_command(cls, package, arguments):
+    def _run_command_with_results(cls, package, arguments):
         """Run the main bump command on a Rez package.
 
         Args:
@@ -115,7 +136,25 @@ class Bump(command.RezShellCommand):
             str: Any error message that occurred from this command, if any.
 
         """
-        raise NotImplementedError('asdfasd')
+        pre_bump_build = _run_build(package, paths=arguments.search_paths)
+        pre_bump_tests = _run_test(package, paths=arguments.search_paths)
+
+        error = ""
+        post_bump_build = "Not run"
+        post_bump_tests = "Not run"
+
+        try:
+            _bump(package, arguments.new, arguments.packages)
+        except Exception:
+            error = 'Bumping package "{package.name}" failed.'.format(package=package)
+            _LOGGER.warning('Package "%s" bump failed.', package)
+        else:
+            post_bump_build = _run_build(package, paths=arguments.search_paths)
+            post_bump_tests = _run_test(package, paths=arguments.search_paths)
+
+        results = _Results(pre_bump_build, pre_bump_tests, post_bump_build, post_bump_tests)
+
+        return error, results
 
     @classmethod
     def run(cls, package, arguments):
@@ -139,15 +178,19 @@ class Bump(command.RezShellCommand):
             str: Any error message that occurred from this command, if any.
 
         """
-        cls._run_command(package, arguments)
+        error, results = cls._run_command_with_results(package, arguments)
+
+        if error:
+            return error
 
         cls._create_pull_request(
             package,
-            command.Configuration(
+            _Configuration(
                 "bump",
                 arguments.token,
                 arguments.pull_request_name,
                 arguments.ssl_no_verify,
+                results,
             ),
             cached_users=arguments.cached_users,
             fallback_reviewers=arguments.fallback_reviewers,
@@ -202,6 +245,84 @@ def _get_packages_which_must_be_changed(paths=None):
     output_packages_to_change = [package for package in packages if package.name in downstream]
 
     return output_packages_to_change, invalids, skips
+
+
+def _run_build(package, paths=None):
+    raise ValueError('figure out where to add paths')
+    root = inspection.get_package_root(package)
+
+    system = build_system.create_build_system(root, package=package, verbose=True)
+
+    # create and execute build process
+    builder = build_process_.create_build_process(
+        "local",  # See :func:`rez.build_process_.get_build_process_types` for possible values
+        root,
+        build_system=system,
+        verbose=True,
+    )
+
+    try:
+        builder.build(clean=True, install=True)
+    except Exception:
+        return False
+
+    return True
+
+
+def _run_rez_test(package, paths=None):
+    """Build and run the tests for every given Rez package.
+
+    Args:
+        packages (:class:`rez.developer_package.DeveloperPackage`):
+            The Rez package whose tests will be run.
+        paths (list[str], optional):
+            All paths to search for Rez packages. Default is
+            :attr:`rez.config.packages_path`.
+
+    Returns:
+        dict[str, int]: The name of each test that ran and its test results.
+
+    """
+    runner = package_test.PackageTestRunner(
+        package_request="",  # This argument doesn't matter because we assign the package in the next line
+        package_paths=paths,
+        verbose=True,
+    )
+    runner.package = package
+
+    # TODO : Once this issue is merged and closed, this may need to account for "run_on"
+    #
+    # Reference: https://github.com/nerdvegas/rez/issues/665
+    #
+    tests = runner.get_test_names()
+
+    if not tests:
+        uri = runner.get_package().uri
+        _LOGGER.warning('No tests found "%s".', uri)
+
+    has_fails = False
+
+    for name in tests:
+        test_status = runner.run_test(name)
+
+        if test_status:
+            has_fails = True
+
+            break  # No need to keep testing since we know there's at least one failure
+
+    return has_fails
+
+
+def _run_test(package, paths=None):
+    with wrapping.keep_cwd(os.getcwd()):
+        # Many Rez tests are run assuming that the user is cd'ed
+        # into the Rez package so we need to change directory here.
+        #
+        return _run_rez_test(package, paths=paths)
+
+
+def _bump(package, version, new_dependencies=frozenset()):
+    raise NotImplementedError('need to write this')
 
 
 def main():
