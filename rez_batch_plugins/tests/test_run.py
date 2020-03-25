@@ -3,6 +3,7 @@
 
 """Check that the plugin commands the ``rez_batch_plugins`` defines work as-expected."""
 
+import collections
 import functools
 import operator
 import os
@@ -15,7 +16,7 @@ from python_compatibility import pathrip
 from python_compatibility.testing import common
 from rez import serialise
 from rez_batch_plugins import repository_area
-from rez_batch_plugins.plugins import move_imports, yaml2py
+from rez_batch_plugins.plugins import bump, move_imports, yaml2py
 from rez_batch_process.core import registry, worker
 from rez_utilities import creator, inspection, rez_configuration
 from rez_utilities_git import testify
@@ -545,6 +546,21 @@ class Yaml2Py(common.Common):
 class Bump(common.Common):
     """Check that the :mod:`rez_batch_plugins.plugins.bump` plugin works correctly."""
 
+    @classmethod
+    def setUpClass(cls):
+        """Add some generic plugins so that tests have something to work with."""
+        super(Bump, cls).setUpClass()
+
+        _clear_registry()
+        bump.main()
+
+    @classmethod
+    def tearDownClass(cls):
+        """Remove all stored plugins."""
+        super(Bump, cls).tearDownClass()
+
+        _clear_registry()
+
     # def test_source(self):
     #     """Bump a source Rez package."""
     #     pass
@@ -559,38 +575,64 @@ class Bump(common.Common):
 
     def test_egg(self):
         """Bump a released Rez package which only contains a single zipped .egg file."""
-        def _create_package(root):
+        class _Arguments(object):
+            instructions = "Do something!"
+            new = "minor"
+            packages = ["another_package"]
+            pull_request_name = "PR"
+            token = "github-token"
+            additional_paths = []
+
+        def _create_package(root, name, requirements=None):
+            text = textwrap.dedent(
+                """\
+                name = "{name}"
+                version = "1.2.0"
+                description = "A package.py Rez package that won't be converted."
+                build_command = "python {{root}}/rezbuild.py"
+
+                def commands():
+                    import os
+
+                    env.PYTHONPATH.append(os.path.join("{{root}}", "python.egg"))
+                """
+            )
+
+            text = text.format(name=name)
+
+            if requirements:
+                text += "\nrequires = {requirements!r}".format(requirements=requirements)
+
             with open(os.path.join(root, "package.py"), "w") as handler:
-                handler.write(
-                    textwrap.dedent(
-                        """\
-                        name = "another_package"
-                        version = "1.2.0"
-                        description = "A package.py Rez package that won't be converted."
-                        build_command = "python {root}/rezbuild.py"
-
-                        def commands():
-                            import os
-
-                            env.PYTHONPATH.append(os.path.join("{root}", "python", "collection.egg"))
-                        """
-                    )
-                )
+                handler.write(text)
 
             with open(os.path.join(root, "rezbuild.py"), "w") as handler:
                 handler.write(
                     textwrap.dedent(
                         """\
+                        #!/usr/bin/env python
+                        # -*- coding: utf-8 -*-
+
                         import os
                         import shutil
                         import zipfile
+
 
                         def main():
                             source = os.environ["REZ_BUILD_SOURCE_PATH"]
                             build = os.environ["REZ_BUILD_PATH"]
 
-                            with zipfile.ZipFile(os.path.join(build, "collection.egg"), "w") as handler:
-                                handler.write(os.path.join(source))
+                            python_directory = os.path.join(source, "python")
+
+                            with zipfile.ZipFile(os.path.join(build, "python.egg"), "w") as handler:
+                                for root, folders, files in os.walk(python_directory):
+                                    relative_root = os.path.relpath(root, python_directory)
+
+                                    for folder in folders:
+                                        handler.write(os.path.join(root, folder), os.path.join(relative_root, folder))
+
+                                    for file_ in files:
+                                        handler.write(os.path.join(root, file_), os.path.join(relative_root, file_))
 
                             shutil.copy2(
                                 handler.filename,
@@ -635,7 +677,17 @@ class Bump(common.Common):
                 parser,
                 release_path,
                 search_paths=[repository.working_dir],
-                # quiet=True,
+                quiet=True,
+            )
+
+        text = 'PR github-token --packages another_package --instructions "Do it!" --new minor'
+
+        text = shlex.split(text)
+        sys.argv[1:] = text
+
+        with rez_configuration.patch_release_packages_path(release_path):
+            _, unfixed, invalids, skips = _get_test_results(
+                "bump", arguments=_Arguments
             )
 
 
