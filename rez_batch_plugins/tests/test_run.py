@@ -575,19 +575,16 @@ class Bump(common.Common):
 
     def test_egg(self):
         """Bump a released Rez package which only contains a single zipped .egg file."""
-        class _Arguments(object):
-            instructions = "Do something!"
-            new = "minor"
-            packages = ["another_package"]
-            pull_request_name = "PR"
-            token = "github-token"
-            additional_paths = []
+        _Arguments = collections.namedtuple(
+            "_Arguments",
+            "additional_paths instructions new packages pull_request_name token",
+        )
 
-        def _create_package(root, name, requirements=None):
+        def _create_package(root, name, version, requirements=None):
             text = textwrap.dedent(
                 """\
                 name = "{name}"
-                version = "1.2.0"
+                version = "{version}"
                 description = "A package.py Rez package that won't be converted."
                 build_command = "python {{root}}/rezbuild.py"
 
@@ -598,7 +595,7 @@ class Bump(common.Common):
                 """
             )
 
-            text = text.format(name=name)
+            text = text.format(name=name, version=version)
 
             if requirements:
                 text += "\nrequires = {requirements!r}".format(requirements=requirements)
@@ -645,29 +642,54 @@ class Bump(common.Common):
                         """
                     )
                 )
-            os.makedirs(os.path.join(root, "python"))
 
-        def _make_package_with_contents(root, name, create_package):
+            python_root = os.path.join(root, "python")
+            os.makedirs(python_root)
+
+            common.make_files(
+                {
+                    "something": {
+                        "__init__.py": None,
+                        "inner_folder": {
+                            "__init__.py": None,
+                        },
+                    },
+                    "some_other_package_folder": {
+                        "__init__.py": None,
+                        "some_module.py": None,
+                    },
+                },
+                python_root,
+            )
+
+        def _make_package_with_contents(root, name, version, create_package):
             directory = os.path.join(root, name)
             os.makedirs(directory)
 
-            create_package(directory)
+            create_package(directory, name, version)
 
             return inspection.get_nearest_rez_package(directory)
 
         root = tempfile.mkdtemp(suffix="_test_is_definition_build_package")
-        self.delete_item_later(root)
+        # self.delete_item_later(root)
 
         packages = [
-            _make_package_with_contents(root, "some_package", _create_package)
+            _make_package_with_contents(root, "another_package", "1.2.0", _create_package),
+            _make_package_with_contents(
+                root,
+                "some_package",
+                "1.2.0",
+                functools.partial(_create_package, requirements=["another_package-1"]),
+            ),
         ]
 
         repository, packages, remote_root = testify.make_fake_repository(packages, root)
-        self.delete_item_later(repository.working_dir)
-        self.delete_item_later(remote_root)
+        # self.delete_item_later(repository.working_dir)
+        # self.delete_item_later(remote_root)
 
         release_path = tempfile.mkdtemp(suffix="_a_release_location_for_testing")
-        self.delete_item_later(release_path)
+        # self.delete_item_later(release_path)
+
         options, parser = _make_fake_release_data()
 
         for package in packages:
@@ -680,14 +702,31 @@ class Bump(common.Common):
                 quiet=True,
             )
 
-        text = 'PR github-token --packages another_package --instructions "Do it!" --new minor'
+        text = 'PR github-token --packages another_package-1.1 --instructions "Do it!" --new minor'
 
         text = shlex.split(text)
         sys.argv[1:] = text
 
+        # Simulate the act of a user with a locally built package that
+        # they want to test against other existing releases.
+        #
+        source_root = tempfile.mkdtemp(suffix="_another_source_root")
+        source_package = _make_package_with_contents(source_root, "another_package", "1.3.0", _create_package)
+        install_path = tempfile.mkdtemp(suffix="_install_path")
+        local_built_package = creator.build(source_package, install_path)
+
+        arguments = _Arguments(
+            additional_paths=[inspection.get_packages_path_from_package(local_built_package)],
+            instructions="Do something!",
+            new="minor",
+            packages=["another_package-1.3"],
+            pull_request_name="PR",
+            token="github-token",
+        )
+
         with rez_configuration.patch_release_packages_path(release_path):
             _, unfixed, invalids, skips = _get_test_results(
-                "bump", arguments=_Arguments
+                "bump", arguments=arguments,
             )
 
 

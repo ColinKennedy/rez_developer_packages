@@ -14,10 +14,12 @@ import textwrap
 from python_compatibility import wrapping
 from rez.utils import formatting
 from rez_utilities import creator
+from rez_industry import api
 from rez import package_search, packages_
 from rez import build_process_, build_system, package_test
 from rez_utilities import inspection
 from rez_batch_process.core import registry
+from rez_bump import rez_bump_api
 from rez_batch_process.core.plugins import command, conditional
 
 _Configuration = collections.namedtuple(
@@ -126,7 +128,7 @@ class Bump(command.RezShellCommand):
         post_bump_tests = "Not run"
 
         try:
-            _bump(package, arguments.new, arguments.packages)
+            package = _bump(package, arguments.new, arguments.packages)
         except Exception:
             error = 'Bumping package "{package.name}" failed.'.format(package=package)
             _LOGGER.warning('Package "%s" bump failed.', package)
@@ -135,8 +137,8 @@ class Bump(command.RezShellCommand):
             post_bump_build = True
 
             try:
-                creator.build(package, build_path, packages_path=build_path + arguments.additional_paths)
-            except RuntimeError:
+                creator.build(package, build_path, packages_path=arguments.additional_paths)
+            except Exception:
                 post_bump_build = False
 
             post_bump_tests = _run_test(package, paths=arguments.additional_paths)
@@ -232,7 +234,6 @@ def _get_packages_which_must_be_changed(paths=None):
         # this so we discard it here and just get the "depth 1" packages.
         #
         downstream_package_names = downstream_package_names[1]
-        downstream_package_names = _filter_downstream_packages_within_range(downstream_package_names, package)
 
         downstream.update(downstream_package_names)
 
@@ -241,22 +242,39 @@ def _get_packages_which_must_be_changed(paths=None):
     return packages_to_change, invalids, skips
 
 
-def _filter_downstream_packages_within_range(names, package):
-    packages = []
+def _get_parser():
+    parser = argparse.ArgumentParser(
+        description="Find downstream packages affected by a new package's version."
+    )
+    parser.add_argument(
+        "-n",
+        "--new",
+        required=True,
+        help="Specify whether to bump with a new major, minor, or patch.",
+        choices=_BUMP_CHOICES,
+    )
+    parser.add_argument(
+        "-p",
+        "--packages",
+        required=True,
+        nargs="+",
+        help="The name of the package/version that will be bumped in all downstream packages.",
+    )
+    parser.add_argument(
+        "-i",
+        "--instructions",
+        required=True,
+        help="Explain any other special notes that you want PR reviewers to know.",
+    )
+    parser.add_argument(
+        "-a",
+        "--additional-paths",
+        help="An optional set of paths to include while resolving Rez packages.",
+    )
 
-    for name in names:
-        latest = packages_.get_latest_package(name)
+    command.add_git_arguments(parser)
 
-        for requirement in latest.requires or []:
-            if requirement.name != package.name:
-                continue
-
-            if package.range in requirement.range:
-                packages.append(name)
-
-                break
-
-    return packages
+    return parser
 
 
 def _run_build(package, paths=None):
@@ -336,43 +354,20 @@ def _run_test(package, paths=None):
         return _run_rez_test(package, paths=paths)
 
 
-def _get_parser():
-    parser = argparse.ArgumentParser(
-        description="Find downstream packages affected by a new package's version."
-    )
-    parser.add_argument(
-        "-n",
-        "--new",
-        required=True,
-        help="Specify whether to bump with a new major, minor, or patch.",
-        choices=_BUMP_CHOICES,
-    )
-    parser.add_argument(
-        "-p",
-        "--packages",
-        required=True,
-        nargs="+",
-        help="The name of the package/version that will be bumped in all downstream packages.",
-    )
-    parser.add_argument(
-        "-i",
-        "--instructions",
-        required=True,
-        help="Explain any other special notes that you want PR reviewers to know.",
-    )
-    parser.add_argument(
-        "-a",
-        "--additional-paths",
-        help="An optional set of paths to include while resolving Rez packages.",
-    )
+def _bump(package, increment, new_dependencies):
+    rez_bump_api.bump(package, **{increment: 1})
 
-    command.add_git_arguments(parser)
+    with open(package.filepath, "r") as handler:
+        code = handler.read()
 
-    return parser
+    new_code = api.add_to_attribute("requires", new_dependencies, code)
 
+    with open(package.filepath, "w") as handler:
+        handler.write(new_code)
 
-def _bump(package, version, new_dependencies=frozenset()):
-    raise NotImplementedError('need to write this')
+    root = inspection.get_package_root(package)
+
+    return inspection.get_nearest_rez_package(root)
 
 
 def main():
