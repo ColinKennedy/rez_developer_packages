@@ -16,10 +16,12 @@ $ python -m rez_batch_process run move_imports pr_prefix github-token --temporar
 
 # TODO : Add unittest to changing multiple packages at once
 # TODO : ensure the user provides a valid package/package+version. Make a unittest for it
+# TODO : Add pre/post build/test functionality
 # TODO : need unittest to deal with non-semantic versions
+# TODO : Make sure packages can be limited by their major version
 
 ```sh
-$ python -m rez_batch_process run bump pr_prefix github-token --temporary-directory /tmp/place3 --keep-temporary-files --packages my_package-1+<2 --instructions `cat instructions.txt` --search-paths /some/path/that/includes/my_package/here
+$ python -m rez_batch_process run bump pr_prefix github-token --temporary-directory /tmp/place3 --keep-temporary-files --packages my_package-1+<2 --new minor --instructions `cat instructions.txt` --search-paths /some/path/that/includes/my_package/here
 ```
 
 

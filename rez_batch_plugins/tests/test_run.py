@@ -573,11 +573,14 @@ class Bump(common.Common):
     #     """Bump a released Rez package that points to a git repository."""
     #     pass
 
-    def test_egg(self):
+    @mock.patch(
+        "rez_batch_process.core.plugins.command.RezShellCommand._create_pull_request"
+    )
+    def test_egg(self, _create_pull_request):
         """Bump a released Rez package which only contains a single zipped .egg file."""
         _Arguments = collections.namedtuple(
             "_Arguments",
-            "additional_paths instructions new packages pull_request_name token",
+            "additional_paths instructions new packages pull_request_name token ssl_no_verify cached_users fallback_reviewers base_url",
         )
 
         def _create_package(root, name, version, requirements=None):
@@ -722,6 +725,10 @@ class Bump(common.Common):
             packages=["another_package-1.3"],
             pull_request_name="PR",
             token="github-token",
+            ssl_no_verify=False,
+            cached_users="",
+            fallback_reviewers=None,
+            base_url="",
         )
 
         with rez_configuration.patch_release_packages_path(release_path):
@@ -729,6 +736,8 @@ class Bump(common.Common):
                 "bump", arguments=arguments,
             )
 
+        self.assertEqual((set(), [], []), (unfixed, invalids, skips))
+        self.assertEqual(1, _create_pull_request.call_count)
 
 class _Arguments(object):  # pylint: disable=too-many-instance-attributes,too-few-public-methods
     def __init__(self, arguments, command):
