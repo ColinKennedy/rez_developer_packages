@@ -142,7 +142,6 @@ class Bump(command.RezShellCommand):
             post_bump_tests = _run_test(package, paths=arguments.additional_paths)
 
         results = _Results(pre_bump_build, pre_bump_tests, post_bump_build, post_bump_tests)
-        raise ValueError(results)
 
         return error, results
 
