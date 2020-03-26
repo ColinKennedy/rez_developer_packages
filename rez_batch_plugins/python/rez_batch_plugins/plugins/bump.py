@@ -12,15 +12,13 @@ import tempfile
 import textwrap
 
 from python_compatibility import wrapping
+from rez import build_process_, build_system, package_search, package_test, packages_
 from rez.utils import formatting
-from rez_utilities import creator
-from rez_industry import api
-from rez import package_search, packages_
-from rez import build_process_, build_system, package_test
-from rez_utilities import inspection
 from rez_batch_process.core import registry
-from rez_bump import rez_bump_api
 from rez_batch_process.core.plugins import command, conditional
+from rez_bump import rez_bump_api
+from rez_industry import api
+from rez_utilities import creator, inspection
 
 _Configuration = collections.namedtuple(
     "_Configuration", "command token pull_request_name ssl_no_verify results"
