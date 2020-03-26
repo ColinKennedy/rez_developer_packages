@@ -12,7 +12,7 @@ import tempfile
 import textwrap
 
 from python_compatibility import wrapping
-from rez import build_process_, build_system, package_search, package_test, packages_
+from rez import build_process_, build_system, package_search, package_test
 from rez.utils import formatting
 from rez_batch_process.core import registry
 from rez_batch_process.core.plugins import command, conditional

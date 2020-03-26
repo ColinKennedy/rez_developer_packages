@@ -654,14 +654,23 @@ class Bump(common.Common):
                                     relative_root = os.path.relpath(root, python_directory)
 
                                     for folder in folders:
-                                        handler.write(os.path.join(root, folder), os.path.join(relative_root, folder))
+                                        handler.write(
+                                            os.path.join(root, folder),
+                                            os.path.join(relative_root, folder),
+                                        )
 
                                     for file_ in files:
-                                        handler.write(os.path.join(root, file_), os.path.join(relative_root, file_))
+                                        handler.write(
+                                            os.path.join(root, file_),
+                                            os.path.join(relative_root, file_),
+                                        )
 
                             shutil.copy2(
                                 handler.filename,
-                                os.path.join(os.environ["REZ_BUILD_INSTALL_PATH"], os.path.basename(handler.filename)),
+                                os.path.join(
+                                    os.environ["REZ_BUILD_INSTALL_PATH"],
+                                    os.path.basename(handler.filename)
+                                ),
                             )
 
 
