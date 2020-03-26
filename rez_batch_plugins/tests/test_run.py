@@ -25,16 +25,18 @@ from six.moves import mock
 _BumpArguments = collections.namedtuple(
     "_BumpArguments",
     " ".join(
-        "additional_paths",
-        "instructions",
-        "new",
-        "packages",
-        "pull_request_name",
-        "token",
-        "ssl_no_verify",
-        "cached_users",
-        "fallback_reviewers",
-        "base_url",
+        [
+            "additional_paths",
+            "instructions",
+            "new",
+            "packages",
+            "pull_request_name",
+            "token",
+            "ssl_no_verify",
+            "cached_users",
+            "fallback_reviewers",
+            "base_url",
+        ],
     ),
 )
 
