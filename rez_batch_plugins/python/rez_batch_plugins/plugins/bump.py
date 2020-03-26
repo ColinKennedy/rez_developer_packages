@@ -27,7 +27,9 @@ _Configuration = collections.namedtuple(
 )
 _LOGGER = logging.getLogger(__name__)
 _BUMP_CHOICES = frozenset(("major", "minor", "patch"))
-_Results = collections.namedtuple("_Results", "pre_bump_build pre_bump_test post_bump_build post_bump_test")
+_Results = collections.namedtuple(
+    "_Results", "pre_bump_build pre_bump_test post_bump_build post_bump_test"
+)
 
 
 class Bump(command.RezShellCommand):
@@ -126,13 +128,17 @@ class Bump(command.RezShellCommand):
             post_bump_build = True
 
             try:
-                creator.build(package, build_path, packages_path=arguments.additional_paths)
+                creator.build(
+                    package, build_path, packages_path=arguments.additional_paths
+                )
             except Exception:
                 post_bump_build = False
 
             post_bump_tests = _run_test(package, paths=arguments.additional_paths)
 
-        results = _Results(pre_bump_build, pre_bump_tests, post_bump_build, post_bump_tests)
+        results = _Results(
+            pre_bump_build, pre_bump_tests, post_bump_build, post_bump_tests
+        )
 
         return error, results
 
@@ -227,9 +233,7 @@ def _get_packages_which_must_be_changed(paths=None):
 
     for package in _get_user_provided_packages():
         downstream_package_names, _ = package_search.get_reverse_dependency_tree(
-            package_name=package.name,
-            depth=1,
-            paths=paths,
+            package_name=package.name, depth=1, paths=paths,
         )
 
         # According to the documenatation in

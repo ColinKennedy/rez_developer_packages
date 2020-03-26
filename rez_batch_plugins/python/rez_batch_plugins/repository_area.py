@@ -68,6 +68,7 @@ def is_definition(package, format_):
         bool: If `package` defines a package.py, return True. Otherwise, return False.
 
     """
+
     def _is_definition(package, format_, search=True):
         """Check for if a package defines a Rez package file.
 
@@ -110,6 +111,7 @@ def get_package(directory, name):
         :class:`rez.packages_.DeveloperPackage` or NoneType: The found package, if any.
 
     """
+
     def _get_version(package):
         try:
             return package.version

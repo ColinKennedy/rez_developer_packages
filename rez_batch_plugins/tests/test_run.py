@@ -28,8 +28,11 @@ class Bugs(common.Common):
 
     @mock.patch("rez_batch_plugins.repository_area._is_keep_temporary_files_enabled")
     @mock.patch("rez_batch_plugins.repository_area._get_temporary_directory")
-    def test_is_definition_build_package(self, _get_temporary_directory, _is_keep_temporary_files_enabled):
+    def test_is_definition_build_package(
+        self, _get_temporary_directory, _is_keep_temporary_files_enabled
+    ):
         """Fix an issue where git repositories with "built" Rez packages cause cyclic loops."""
+
         def _make_built_package(root):
             directory = os.path.join(root, "1.0.0")
             os.makedirs(directory)
@@ -47,16 +50,22 @@ class Bugs(common.Common):
             return inspection.get_nearest_rez_package(directory)
 
         _is_keep_temporary_files_enabled.return_value = False
-        _get_temporary_directory.return_value = tempfile.mkdtemp(suffix="_temporary_directory")
+        _get_temporary_directory.return_value = tempfile.mkdtemp(
+            suffix="_temporary_directory"
+        )
         root = tempfile.mkdtemp(suffix="_test_is_definition_build_package")
         self.delete_item_later(root)
 
         package = _make_built_package(root)
-        repository, packages, remote_root = testify.make_fake_repository([package], root)
+        repository, packages, remote_root = testify.make_fake_repository(
+            [package], root
+        )
         self.delete_item_later(repository.working_dir)
         self.delete_item_later(remote_root)
 
-        self.assertFalse(repository_area.is_definition(packages[0], serialise.FileFormat.yaml))
+        self.assertFalse(
+            repository_area.is_definition(packages[0], serialise.FileFormat.yaml)
+        )
 
 
 class MoveImports(common.Common):
@@ -601,7 +610,9 @@ class Bump(common.Common):
             text = text.format(name=name, version=version)
 
             if requirements:
-                text += "\nrequires = {requirements!r}".format(requirements=requirements)
+                text += "\nrequires = {requirements!r}".format(
+                    requirements=requirements
+                )
 
             with open(os.path.join(root, "package.py"), "w") as handler:
                 handler.write(text)
@@ -653,9 +664,7 @@ class Bump(common.Common):
                 {
                     "something": {
                         "__init__.py": None,
-                        "inner_folder": {
-                            "__init__.py": None,
-                        },
+                        "inner_folder": {"__init__.py": None,},
                     },
                     "some_other_package_folder": {
                         "__init__.py": None,
@@ -677,7 +686,9 @@ class Bump(common.Common):
         self.delete_item_later(root)
 
         packages = [
-            _make_package_with_contents(root, "another_package", "1.2.0", _create_package),
+            _make_package_with_contents(
+                root, "another_package", "1.2.0", _create_package
+            ),
             _make_package_with_contents(
                 root,
                 "some_package",
@@ -714,12 +725,16 @@ class Bump(common.Common):
         # they want to test against other existing releases.
         #
         source_root = tempfile.mkdtemp(suffix="_another_source_root")
-        source_package = _make_package_with_contents(source_root, "another_package", "1.3.0", _create_package)
+        source_package = _make_package_with_contents(
+            source_root, "another_package", "1.3.0", _create_package
+        )
         install_path = tempfile.mkdtemp(suffix="_install_path")
         local_built_package = creator.build(source_package, install_path)
 
         arguments = _Arguments(
-            additional_paths=[inspection.get_packages_path_from_package(local_built_package)],
+            additional_paths=[
+                inspection.get_packages_path_from_package(local_built_package)
+            ],
             instructions="Do something!",
             new="minor",
             packages=["another_package-1.3"],
@@ -762,7 +777,10 @@ class Bump(common.Common):
         self.assertEqual((set(), [], []), (unfixed, invalids, skips))
         self.assertEqual(1, _create_pull_request.call_count)
 
-class _Arguments(object):  # pylint: disable=too-many-instance-attributes,too-few-public-methods
+
+class _Arguments(
+    object
+):  # pylint: disable=too-many-instance-attributes,too-few-public-methods
     def __init__(self, arguments, command):
         super(_Arguments, self).__init__()
 
