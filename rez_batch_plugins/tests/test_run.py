@@ -22,6 +22,22 @@ from rez_utilities import creator, inspection, rez_configuration
 from rez_utilities_git import testify
 from six.moves import mock
 
+_BumpArguments = collections.namedtuple(
+    "_BumpArguments",
+    " ".join(
+        "additional_paths",
+        "instructions",
+        "new",
+        "packages",
+        "pull_request_name",
+        "token",
+        "ssl_no_verify",
+        "cached_users",
+        "fallback_reviewers",
+        "base_url",
+    ),
+)
+
 
 class Bugs(common.Common):
     """Fix bugs that have come up while searching through Rez packages."""
@@ -587,10 +603,6 @@ class Bump(common.Common):
     )
     def test_egg(self, _create_pull_request):
         """Bump a released Rez package which only contains a single zipped .egg file."""
-        _Arguments = collections.namedtuple(
-            "_Arguments",
-            "additional_paths instructions new packages pull_request_name token ssl_no_verify cached_users fallback_reviewers base_url",
-        )
 
         def _create_package(root, name, version, requirements=None):
             text = textwrap.dedent(
@@ -731,7 +743,7 @@ class Bump(common.Common):
         install_path = tempfile.mkdtemp(suffix="_install_path")
         local_built_package = creator.build(source_package, install_path)
 
-        arguments = _Arguments(
+        arguments = _BumpArguments(
             additional_paths=[
                 inspection.get_packages_path_from_package(local_built_package)
             ],
