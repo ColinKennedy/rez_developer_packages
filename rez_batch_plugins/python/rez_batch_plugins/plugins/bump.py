@@ -73,20 +73,9 @@ class Bump(command.RezShellCommand):
 
         return template.format(package=package, configuration=configuration)
 
-    @classmethod
-    def parse_arguments(cls, text):
-        """Parse user-provided CLI text into inputs that this class understands.
-
-        Args:
-            text (list[str]): The user provided input, separated by spaces.
-
-        Returns:
-            :class:`argparse.Namespace`: The parsed output.
-
-        """
-        parser = _get_parser()
-
-        return parser.parse_args(text)
+    @staticmethod
+    def _bump(package, increment, new_dependencies):
+        return _bump(package, increment, new_dependencies)
 
     @classmethod
     def _run_command_with_results(cls, package, arguments):
@@ -128,7 +117,7 @@ class Bump(command.RezShellCommand):
         post_bump_tests = "Not run"
 
         try:
-            package = _bump(package, arguments.new, arguments.packages)
+            package = cls._bump(package, arguments.new, arguments.packages)
         except Exception:
             error = 'Bumping package "{package.name}" failed.'.format(package=package)
             _LOGGER.warning('Package "%s" bump failed.', package)
@@ -146,6 +135,21 @@ class Bump(command.RezShellCommand):
         results = _Results(pre_bump_build, pre_bump_tests, post_bump_build, post_bump_tests)
 
         return error, results
+
+    @classmethod
+    def parse_arguments(cls, text):
+        """Parse user-provided CLI text into inputs that this class understands.
+
+        Args:
+            text (list[str]): The user provided input, separated by spaces.
+
+        Returns:
+            :class:`argparse.Namespace`: The parsed output.
+
+        """
+        parser = _get_parser()
+
+        return parser.parse_args(text)
 
     @classmethod
     def run(cls, package, arguments):

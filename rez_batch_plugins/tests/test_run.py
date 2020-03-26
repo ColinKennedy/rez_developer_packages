@@ -732,10 +732,33 @@ class Bump(common.Common):
         )
 
         with rez_configuration.patch_release_packages_path(release_path):
-            _, unfixed, invalids, skips = _get_test_results(
+            ran_packages, unfixed, invalids, skips = _get_test_results(
                 "bump", arguments=arguments,
             )
 
+        package_file = next(iter(ran_packages)).filepath
+
+        with open(package_file, "r") as handler:
+            text = handler.read()
+
+        expected = textwrap.dedent(
+            """\
+            name = "some_package"
+            version = "1.3.0"
+            description = "A package.py Rez package that won't be converted."
+            build_command = "python {root}/rezbuild.py"
+
+            def commands():
+                import os
+
+                env.PYTHONPATH.append(os.path.join("{root}", "python.egg"))
+
+            requires = [
+                "another_package-1.3",
+            ]"""
+        )
+
+        self.assertEqual(expected, text)
         self.assertEqual((set(), [], []), (unfixed, invalids, skips))
         self.assertEqual(1, _create_pull_request.call_count)
 
