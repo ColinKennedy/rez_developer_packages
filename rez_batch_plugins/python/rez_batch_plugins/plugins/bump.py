@@ -118,7 +118,7 @@ class Bump(command.RezShellCommand):
 
         try:
             package = cls._bump(package, arguments.new, arguments.packages)
-        except Exception:
+        except Exception:  # pylint: disable=broad-except
             error = 'Bumping package "{package.name}" failed.'.format(package=package)
             _LOGGER.warning('Package "%s" bump failed.', package)
         else:
@@ -129,7 +129,7 @@ class Bump(command.RezShellCommand):
                 creator.build(
                     package, build_path, packages_path=arguments.additional_paths
                 )
-            except Exception:
+            except Exception:  # pylint: disable=broad-except
                 post_bump_build = False
 
             post_bump_tests = _run_test(package, paths=arguments.additional_paths)
@@ -299,7 +299,7 @@ def _run_build(package, paths=None):
 
     try:
         builder.build(clean=True, install=True)
-    except Exception:
+    except Exception:  # pylint: disable=broad-except
         return False
 
     return True
@@ -319,10 +319,9 @@ def _run_rez_test(package, paths=None):
     #     dict[str, int]: The name of each test that ran and its test results.
     #
     # """
+    # `package_request` is given an empty string and later defined, below
     runner = package_test.PackageTestRunner(
-        package_request="",  # This argument doesn't matter because we assign the package in the next line
-        package_paths=paths,
-        verbose=True,
+        package_request="", package_paths=paths, verbose=True,
     )
     runner.package = package
 
@@ -338,7 +337,6 @@ def _run_rez_test(package, paths=None):
 
         return "No tests were found"
 
-    has_fails = False
     status = "Succeeded"
 
     for name in tests:
