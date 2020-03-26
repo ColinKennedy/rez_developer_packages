@@ -9,7 +9,6 @@ import parso
 from parso.python import tree
 from rez.vendor.version import version as version_
 from rez_industry.core import convention, parso_utility
-from rez_utilities import inspection
 
 
 def _write_package_to_disk(package, version):
@@ -75,7 +74,8 @@ def _bump_version(version, minor, absolute=False):
 
             new_token = version_.NumericToken(str(new_value))
             version.tokens[1] = new_token
-            version._str = None  # Force `version` to update by deleting its internal cache
+            # Force `version` to update by deleting its internal cache
+            version._str = None  # pylint: disable=protected-access
 
             return version
 
