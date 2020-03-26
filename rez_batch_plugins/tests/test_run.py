@@ -674,7 +674,7 @@ class Bump(common.Common):
             return inspection.get_nearest_rez_package(directory)
 
         root = tempfile.mkdtemp(suffix="_test_is_definition_build_package")
-        # self.delete_item_later(root)
+        self.delete_item_later(root)
 
         packages = [
             _make_package_with_contents(root, "another_package", "1.2.0", _create_package),
@@ -687,11 +687,11 @@ class Bump(common.Common):
         ]
 
         repository, packages, remote_root = testify.make_fake_repository(packages, root)
-        # self.delete_item_later(repository.working_dir)
-        # self.delete_item_later(remote_root)
+        self.delete_item_later(repository.working_dir)
+        self.delete_item_later(remote_root)
 
         release_path = tempfile.mkdtemp(suffix="_a_release_location_for_testing")
-        # self.delete_item_later(release_path)
+        self.delete_item_later(release_path)
 
         options, parser = _make_fake_release_data()
 
