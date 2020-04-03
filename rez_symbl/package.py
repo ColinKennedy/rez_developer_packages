@@ -2,7 +2,9 @@ name = "rez_symbl"
 
 version = "1.0.0"
 
-description = "Collect Rez requests into a single folder (for use with REZ_PACKAGES_PATH)"
+description = (
+    "Collect Rez requests into a single folder (for use with REZ_PACKAGES_PATH)"
+)
 
 authors = [
     "Colin Kennedy",

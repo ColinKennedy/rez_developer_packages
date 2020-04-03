@@ -31,7 +31,9 @@ def _bake_from_current_environment(arguments):
             "output_directory" as attributes.
 
     """
-    linker.bake_from_current_environment(arguments.output_directory, force=arguments.force)
+    linker.bake_from_current_environment(
+        arguments.output_directory, force=arguments.force
+    )
 
 
 def _add_common_arguments(parser):
@@ -42,8 +44,18 @@ def _add_common_arguments(parser):
             Some CLI text parser which will be modified by this function.
 
     """
-    parser.add_argument("-o", "--output-directory", required=True, help="The location on-disk where all of the symlinks will be created.")
-    parser.add_argument("-f", "--force", action="store_true", help="Delete symlinks if they already exist")
+    parser.add_argument(
+        "-o",
+        "--output-directory",
+        required=True,
+        help="The location on-disk where all of the symlinks will be created.",
+    )
+    parser.add_argument(
+        "-f",
+        "--force",
+        action="store_true",
+        help="Delete symlinks if they already exist",
+    )
 
 
 def _parse_arguments(text):
@@ -57,15 +69,22 @@ def _parse_arguments(text):
         :class:`argparse.Namespace`: The found user input.
 
     """
-    parser = argparse.ArgumentParser(description="Bake A Rez resolve into an external directory")
+    parser = argparse.ArgumentParser(
+        description="Bake A Rez resolve into an external directory"
+    )
     subparsers = parser.add_subparsers(description="subparsers")
 
     bake_from_request = subparsers.add_parser("bake-from-request")
-    bake_from_request.add_argument("request", help="What you'd normally put in a rez-env command. e.g. `rez-env foo`")
+    bake_from_request.add_argument(
+        "request",
+        help="What you'd normally put in a rez-env command. e.g. `rez-env foo`",
+    )
     _add_common_arguments(bake_from_request)
     bake_from_request.set_defaults(execute=_bake_from_request)
 
-    bake_from_current_environment = subparsers.add_parser("bake-from-current-environment")
+    bake_from_current_environment = subparsers.add_parser(
+        "bake-from-current-environment"
+    )
     _add_common_arguments(bake_from_current_environment)
     bake_from_current_environment.set_defaults(execute=_bake_from_current_environment)
 

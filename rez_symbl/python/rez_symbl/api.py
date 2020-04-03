@@ -3,4 +3,4 @@
 
 import shlex
 
-from .core.linker import make_symlinks, bake_from_request, bake_from_current_environment
+from .core.linker import bake_from_current_environment, bake_from_request, make_symlinks
