@@ -35,7 +35,7 @@ def bake_from_current_environment(directory, force=False):
 
     if not paths:
         raise EnvironmentError(
-            'bake_from_current_environment cannot be run because you are not in a Rez environment.'
+            "bake_from_current_environment cannot be run because you are not in a Rez environment."
         )
 
     make_symlinks(paths, directory, force=force)

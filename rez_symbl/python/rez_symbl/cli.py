@@ -24,11 +24,17 @@ def _bake_from_request(arguments):
     request = shlex.split(arguments.request)
 
     try:
-        linker.bake_from_request(request, arguments.output_directory, force=arguments.force)
+        linker.bake_from_request(
+            request, arguments.output_directory, force=arguments.force
+        )
     except ValueError:
-        print('Request "{arguments.request}" contains one-or-more missing Rez packages.', sys.stderr)
+        print(
+            'Request "{arguments.request}" contains one-or-more missing Rez packages.',
+            sys.stderr,
+        )
 
         sys.exit(constants.CANNOT_BAKE_FROM_REQUEST)
+
 
 def _bake_from_current_environment(arguments):
     """Generate symlinks to reproduce the current environment.

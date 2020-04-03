@@ -16,8 +16,7 @@ class Api(common.Common):
         """If the user provides 1+ packages which don't exist, raise a ValueError."""
         with self.assertRaises(ValueError):
             linker.bake_from_request(
-                ["some_package_that_does_not_exist"],
-                "/some/folder",
+                ["some_package_that_does_not_exist"], "/some/folder",
             )
 
     def test_not_in_rez_environment(self):
