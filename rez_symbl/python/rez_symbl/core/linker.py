@@ -3,12 +3,15 @@
 
 """The main module which controls symlink baking."""
 
+import logging
 import os
 
-from rez import resolved_context
+from rez import exceptions, resolved_context
 from rez_utilities import inspection
 
 from . import pather
+
+_LOGGER = logging.getLogger(__name__)
 
 
 def bake_from_current_environment(directory, force=False):
@@ -24,8 +27,17 @@ def bake_from_current_environment(directory, force=False):
             If False and symlinks exist, normal exceptions will be raised.
             Default is False.
 
+    Raises:
+        EnvironmentError: If the user is not in a Rez-resolved environment.
+
     """
     paths = pather.get_paths_from_environment(os.environ.items())
+
+    if not paths:
+        raise EnvironmentError(
+            'bake_from_current_environment cannot be run because you are not in a Rez environment.'
+        )
+
     make_symlinks(paths, directory, force=force)
 
 
@@ -44,8 +56,17 @@ def bake_from_request(request, directory, force=False):
             If False and symlinks exist, normal exceptions will be raised.
             Default is False.
 
+    Raises:
+        ValueError: If `request` contains 1+ package that does not exist.
+
     """
-    context = resolved_context.ResolvedContext(request)
+    try:
+        context = resolved_context.ResolvedContext(request)
+    except exceptions.PackageFamilyNotFoundError:
+        _LOGGER.exception('Request "%s" was not found.', request)
+
+        raise ValueError('Request "{request}" was not found.'.format(request=request))
+
     paths = pather.get_paths_from_environment(context.get_environ().items())
     make_symlinks(paths, directory, force=force)
 

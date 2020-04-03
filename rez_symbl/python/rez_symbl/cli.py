@@ -1,12 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""The main ."""
+"""The main module that has almost all command-line specific logic."""
+
+from __future__ import print_function
 
 import argparse
 import shlex
+import sys
 
-from .core import linker
+from .core import constants, linker
 
 
 def _bake_from_request(arguments):
@@ -19,8 +22,13 @@ def _bake_from_request(arguments):
 
     """
     request = shlex.split(arguments.request)
-    linker.bake_from_request(request, arguments.output_directory, force=arguments.force)
 
+    try:
+        linker.bake_from_request(request, arguments.output_directory, force=arguments.force)
+    except ValueError:
+        print('Request "{arguments.request}" contains one-or-more missing Rez packages.', sys.stderr)
+
+        sys.exit(constants.CANNOT_BAKE_FROM_REQUEST)
 
 def _bake_from_current_environment(arguments):
     """Generate symlinks to reproduce the current environment.
@@ -31,9 +39,17 @@ def _bake_from_current_environment(arguments):
             "output_directory" as attributes.
 
     """
-    linker.bake_from_current_environment(
-        arguments.output_directory, force=arguments.force
-    )
+    try:
+        linker.bake_from_current_environment(
+            arguments.output_directory, force=arguments.force
+        )
+    except EnvironmentError:
+        print(
+            "You are not in an Rez-resolved environment. Cannot bake the current environment.",
+            sys.stderr,
+        )
+
+        sys.exit(constants.CANNOT_BAKE_FROM_CURRENT_ENVIRONMENT)
 
 
 def _add_common_arguments(parser):
