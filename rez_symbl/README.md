@@ -20,7 +20,7 @@ There's also a variation which bakes using your current environment
 (assuming you're already inside of a Rez resolve).
 
 ```sh
-rez-env rez_syml -- python -m rez_symbl bake-from-current-environment --output-directory /tmp/location3 --force /tmp/location 
+rez-env rez_syml -- python -m rez_symbl bake-from-current-environment --output-directory /tmp/location3 --force /tmp/location
 ```
 
 Using either command will generate symlinks to /tmp/location.
