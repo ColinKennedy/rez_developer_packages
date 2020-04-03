@@ -13,14 +13,14 @@ lightweight and lightning fast to resolve.
 - To make a "bake" of "python-2" and "a version of arch"
 
 ```sh
-rez-env rez_symbl -- python -m rez_symbl bake-from-request "rez_utilities" --output-directory /tmp/location --force
+rez-env rez_symbl -- python -m rez_symbl bake-from-request "rez_utilities" --output-directory /tmp/location
 ```
 
 There's also a variation which bakes using your current environment
 (assuming you're already inside of a Rez resolve).
 
 ```sh
-rez-env rez_syml -- python -m rez_symbl bake-from-current-environment --output-directory /tmp/location3 --force /tmp/location
+rez-env rez_syml -- python -m rez_symbl bake-from-current-environment --output-directory /tmp/location2
 ```
 
 Using either command will generate symlinks to /tmp/location.
