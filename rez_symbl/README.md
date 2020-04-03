@@ -9,21 +9,15 @@ rez_symbl aims to make known, "pre-baked" Rez resolves which are
 lightweight and lightning fast to resolve.
 
 ## How To Use
+### Building Symlinks From A Rez Request
 
 - To make a "bake" of "python-2" and "a version of arch"
 
 ```sh
-rez-env rez_symbl -- python -m rez_symbl bake-from-request "rez_utilities" --output-directory /tmp/location
+rez-env rez_symbl -- python -m rez_symbl bake-from-request "python-2 arch" --output-directory /tmp/location
 ```
 
-There's also a variation which bakes using your current environment
-(assuming you're already inside of a Rez resolve).
-
-```sh
-rez-env rez_syml -- python -m rez_symbl bake-from-current-environment --output-directory /tmp/location2
-```
-
-Using either command will generate symlinks to /tmp/location.
+This command generates symlinks to /tmp/location.
 You can now rez-env using /tmp/location e.g.
 
 ```sh
@@ -31,3 +25,12 @@ REZ_PACKAGES_PATH=/tmp/location rez-env python-2 arch
 ```
 
 Now you're resolved into the same environment but at a fraction of the time.
+
+### Building Symlinks From The Current Environment
+
+There's also a variation which bakes using your current environment
+(assuming you're already inside of a Rez resolve).
+
+```sh
+rez-env rez_syml -- python -m rez_symbl bake-from-current-environment --output-directory /tmp/location2
+```
