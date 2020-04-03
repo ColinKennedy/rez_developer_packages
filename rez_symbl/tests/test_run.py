@@ -21,7 +21,7 @@ class Api(common.Common):
             )
 
     def test_not_in_rez_environment(self):
-        """If the user is not in ."""
+        """If the user is not in a Rez-resolved environment."""
         os.environ.clear()
 
         with self.assertRaises(EnvironmentError):
