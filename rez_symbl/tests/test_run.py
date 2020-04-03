@@ -10,6 +10,8 @@ from rez_symbl.core import linker
 
 
 class Api(common.Common):
+    """Check that functions in :mod:`rez_symbl.api` work as expected."""
+
     def test_bad_resolve(self):
         """If the user provides 1+ packages which don't exist, raise a ValueError."""
         with self.assertRaises(ValueError):
@@ -24,8 +26,3 @@ class Api(common.Common):
 
         with self.assertRaises(EnvironmentError):
             linker.bake_from_current_environment("/some/folder")
-
-
-class Cli(common.Common):
-    def test_basic(self):
-        raise ValueError()
