@@ -30,7 +30,7 @@ def _bake_from_request(arguments):
     except ValueError:
         print(
             'Request "{arguments.request}" contains one-or-more missing Rez packages.',
-            sys.stderr,
+            file=sys.stderr,
         )
 
         sys.exit(constants.CANNOT_BAKE_FROM_REQUEST)
@@ -52,7 +52,7 @@ def _bake_from_current_environment(arguments):
     except EnvironmentError:
         print(
             "You are not in an Rez-resolved environment. Cannot bake the current environment.",
-            sys.stderr,
+            file=sys.stderr,
         )
 
         sys.exit(constants.CANNOT_BAKE_FROM_CURRENT_ENVIRONMENT)
