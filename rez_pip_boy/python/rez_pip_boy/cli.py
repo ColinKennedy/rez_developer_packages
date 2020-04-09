@@ -10,7 +10,7 @@ from rez import pip
 from rez.cli import pip as cli_pip
 from rez_utilities import inspection
 
-from .core import exceptions, filer
+from .core import builder, exceptions, filer
 
 
 def _parse_arguments(text):
@@ -26,12 +26,6 @@ def _parse_arguments(text):
     parser.add_argument(
         "destination",
         help="The absolute folder path on-disk to place this source package (usually a sub-folder in a git repository).",
-    )
-
-    parser.add_argument(
-        "--tar-location",
-        default=os.getenv("REZ_PIP_BOY_TAR_LOCATION", ""),
-        help="The directory on-disk to place the compressed, variant data that each install creates.",
     )
 
     return parser.parse_args(text)
@@ -51,67 +45,6 @@ def _parse_rez_pip_arguments(text):
     cli_pip.setup_parser(temporary_parser)
 
     return temporary_parser.parse_args(text)
-
-
-# TODO : Remove?
-def _prepare_install_path(tokens, path):
-    def _get_index(tokens):
-        try:
-            return tokens.index("-p")
-        except ValueError:
-            pass
-
-        try:
-            return tokens.index("-prefix")
-        except ValueError:
-            pass
-
-        return -1
-
-    output = []
-
-    index = _get_index(output)
-
-    if index != -1:
-        raise ValueError(
-            'Tokens "{tokens}" contains -p/--prefix. Please remove it.'.format(tokens=tokens)
-        )
-
-    output.extend(tokens)
-    output.extend(["--prefix", path])
-
-    return output
-
-
-def _get_common_folder(paths):
-    prefix = os.path.commonprefix(paths)
-
-    # `prefix` isn't guaranteed to be an actual folder so we must split the end off
-    return prefix.rpartition(os.path.sep)[0]
-
-
-def _get_common_variant_folder(root):
-    # """Find the folder which marks the start of an installed variant.
-    #
-    # Args:
-    #     root (str): The directory of some Rez package to """
-    paths = {
-        os.path.join(root_, name)
-        for root_, _, files in os.walk(root)
-        for name in files
-    }
-
-    try:
-        paths.remove(os.path.join(root, "package.py"))
-    except KeyError:
-        pass
-
-    try:
-        paths.remove(os.path.join(root, "package.yaml"))
-    except KeyError:
-        pass
-
-    return _get_common_folder(paths)
 
 
 def main(text):
@@ -138,7 +71,7 @@ def main(text):
         extra_args=rez_pip_arguments.extra)
 
     for installed_variant in installed_variants:
-        installed_variant.install(arguments.destination)
+        destination_package = installed_variant.install(arguments.destination)
         root = inspection.get_package_root(installed_variant)
-        variant_root = os.path.join(root, installed_variant._non_shortlinked_subpath)
-        filer.transfer(variant_root, arguments.destination)
+        filer.transfer(installed_variant)
+        builder.add_build_command(destination_package)

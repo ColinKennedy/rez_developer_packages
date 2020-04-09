@@ -5,4 +5,3 @@ import unittest
 
 
 class Pip(unittest.TestCase):
-    pass

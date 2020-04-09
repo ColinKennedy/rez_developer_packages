@@ -18,6 +18,7 @@ requires = [
     "python-2+<3",
     "rez-2.47+<3",
     "rez_utilities-1.4+<2",
+    "six-1.14+<2",
 ]
 
 
