@@ -194,7 +194,7 @@ def _get_prefix(node):
 
 def _escape(text):
     """str: Remove double-quotes around text."""
-    return text.strip('"')
+    return text.strip('"').strip("'")
 
 
 def _make_new_list(requirements):
