@@ -4,16 +4,13 @@
 import argparse
 import os
 import shlex
-import sys
 import tempfile
 
 from rez import pip
 from rez.cli import pip as cli_pip
-from rez import packages_
-from rez import package_maker
 from rez_utilities import inspection
 
-from .core import exceptions
+from .core import exceptions, filer
 
 
 def _parse_arguments(text):
@@ -31,10 +28,22 @@ def _parse_arguments(text):
         help="The absolute folder path on-disk to place this source package (usually a sub-folder in a git repository).",
     )
 
+    parser.add_argument(
+        "--tar-location",
+        default=os.getenv("REZ_PIP_BOY_TAR_LOCATION", ""),
+        help="The directory on-disk to place the compressed, variant data that each install creates.",
+    )
+
     return parser.parse_args(text)
 
 
 def _parse_rez_pip_arguments(text):
+    """Process `text` as if it was sent to the `rez-pip` command and send the data back.
+
+    Returns:
+        :class:`argparse.Namespace`: All of the parsed arguments from `text`.
+
+    """
     temporary_parser = argparse.ArgumentParser(
         description="A temporary parser to communicate with rez-pip's API.",
     )
@@ -44,6 +53,7 @@ def _parse_rez_pip_arguments(text):
     return temporary_parser.parse_args(text)
 
 
+# TODO : Remove?
 def _prepare_install_path(tokens, path):
     def _get_index(tokens):
         try:
@@ -73,20 +83,35 @@ def _prepare_install_path(tokens, path):
     return output
 
 
-def _graft_package(variant, path):
-    package_ = variant.parent
-    # We must not try to copy "config" from the Rez package. If we do, Rez raises a SchemaError
-    allowed_keys = package_.keys - {"config"}
+def _get_common_folder(paths):
+    prefix = os.path.commonprefix(paths)
 
-    with package_maker.make_package(variant.name, path) as pkg:
-        for attribute in allowed_keys:
-            value = getattr(variant, attribute)
-            setattr(pkg, attribute, value)
+    # `prefix` isn't guaranteed to be an actual folder so we must split the end off
+    return prefix.rpartition(os.path.sep)[0]
 
 
-def _copy_data(variant, path):
-    pass
-    # raise NotImplementedError('Need to write')
+def _get_common_variant_folder(root):
+    # """Find the folder which marks the start of an installed variant.
+    #
+    # Args:
+    #     root (str): The directory of some Rez package to """
+    paths = {
+        os.path.join(root_, name)
+        for root_, _, files in os.walk(root)
+        for name in files
+    }
+
+    try:
+        paths.remove(os.path.join(root, "package.py"))
+    except KeyError:
+        pass
+
+    try:
+        paths.remove(os.path.join(root, "package.yaml"))
+    except KeyError:
+        pass
+
+    return _get_common_folder(paths)
 
 
 def main(text):
@@ -101,6 +126,7 @@ def main(text):
     prefix = tempfile.mkdtemp(prefix="rez_pip_boy_", suffix="_temporary_build_folder")
 
     # TODO : Remove --prefix from `parser`
+    # TODO : Make sur that temporary files are cleaned up on-exit
     rez_pip_arguments = _parse_rez_pip_arguments(shlex.split(arguments.command))
 
     installed_variants, _ = pip.pip_install_package(
@@ -112,5 +138,7 @@ def main(text):
         extra_args=rez_pip_arguments.extra)
 
     for installed_variant in installed_variants:
-        _graft_package(installed_variant, arguments.destination)
-        _copy_data(installed_variant, arguments.destination)
+        installed_variant.install(arguments.destination)
+        root = inspection.get_package_root(installed_variant)
+        variant_root = os.path.join(root, installed_variant._non_shortlinked_subpath)
+        filer.transfer(variant_root, arguments.destination)
