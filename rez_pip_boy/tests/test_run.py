@@ -9,7 +9,6 @@ import inspect
 import os
 import shlex
 import shutil
-import subprocess
 import tempfile
 import unittest
 
@@ -34,7 +33,9 @@ class Integrations(unittest.TestCase):
                 All Rez variations to take into account. e.g. [["python-2.7"]].
 
         """
-        rezbuild = os.path.join(directory, cli._BUILD_FILE_NAME)
+        rezbuild = os.path.join(
+            directory, cli._BUILD_FILE_NAME  # pylint: disable=protected-access
+        )
 
         with open(rezbuild, "r") as handler:
             rezbuild_code = handler.read()
@@ -122,7 +123,7 @@ class Integrations(unittest.TestCase):
         atexit.register(functools.partial(shutil.rmtree, directory))
 
         _run_command(
-            'rez_pip_boy "--install importlib_metadata==1.6.0 --python-version=2.7" {directory}'.format(
+            'rez_pip_boy "--install importlib_metadata==1.6.0 --python-version=2.7" {directory}'.format(  # pylint: disable=line-too-long
                 directory=directory
             )
         )
@@ -134,7 +135,7 @@ class Integrations(unittest.TestCase):
         self.assertFalse(os.path.isfile(os.path.join(dependency, "package.py")))
 
         _run_command(
-            'rez_pip_boy "--install importlib_metadata==1.6.0 --python-version=2.7" {directory}'.format(
+            'rez_pip_boy "--install importlib_metadata==1.6.0 --python-version=2.7" {directory}'.format(  # pylint: disable=line-too-long
                 directory=directory
             )
         )
@@ -148,7 +149,8 @@ class Integrations(unittest.TestCase):
         )
         self._verify_installed_package(source_directory)
 
-    def test_make_folders(self):
+    @staticmethod
+    def test_make_folders():
         """Make a destination folder if it doesn't exist."""
         directory = tempfile.mkdtemp(prefix="rez_pip_boy_", suffix="_test_make_folder")
         shutil.rmtree(directory)
@@ -202,7 +204,7 @@ class Invalid(unittest.TestCase):
 
         with self.assertRaises(exceptions.MissingDestination):
             _run_command(
-                'rez_pip_boy "--install six==1.14.0 --python-version=2.7" {directory} --no-make-folders'.format(
+                'rez_pip_boy "--install six==1.14.0 --python-version=2.7" {directory} --no-make-folders'.format(  # pylint: disable=line-too-long
                     directory=directory
                 )
             )
