@@ -4,6 +4,7 @@
 """Check to make sure ``rez_pip_boy`` makes "source" Rez pip packages as we expect."""
 
 import atexit
+import shlex
 import functools
 import shutil
 import tempfile
@@ -13,7 +14,8 @@ import os
 import unittest
 
 from rez_utilities import creator, inspection
-from rez_pip_boy.core import _build_command
+from rez_pip_boy import cli
+from rez_pip_boy.core import _build_command, exceptions
 
 _BUILD_COMMAND_CODE = inspect.getsource(_build_command)
 
@@ -73,7 +75,7 @@ class Integrations(unittest.TestCase):
 
     def test_recurring(self):
         """Install a package and then install the same package again."""
-        directory = tempfile.mkdtemp(prefix="rez_pip_boy_", suffix="_test_simple")
+        directory = tempfile.mkdtemp(prefix="rez_pip_boy_", suffix="_test_recurring")
         atexit.register(functools.partial(shutil.rmtree, directory))
 
         _run_command('rez_pip_boy "--install six==1.14.0 --python-version=3.7" {directory}'.format(directory=directory))
@@ -85,7 +87,7 @@ class Integrations(unittest.TestCase):
 
     def test_partial_install(self):
         """Install a package, delete one of its depedencies, and then install it again."""
-        directory = tempfile.mkdtemp(prefix="rez_pip_boy_", suffix="_test_simple")
+        directory = tempfile.mkdtemp(prefix="rez_pip_boy_", suffix="_test_partial_install")
         atexit.register(functools.partial(shutil.rmtree, directory))
 
         _run_command('rez_pip_boy "--install importlib_metadata==1.6.0 --python-version=3.7" {directory}'.format(directory=directory))
@@ -104,6 +106,13 @@ class Integrations(unittest.TestCase):
         self._verify_source_package(source_directory)
         self._verify_installed_package(source_directory)
 
+    def test_make_folder(self):
+        """Make a destination folder if it doesn't exist."""
+        directory = tempfile.mkdtemp(prefix="rez_pip_boy_", suffix="_test_make_folder")
+        shutil.rmtree(directory)
+
+        _run_command('rez_pip_boy "--install six==1.14.0 --python-version=3.7" {directory} --make-folders'.format(directory=directory))
+
     # def test_hashed_variants(self):
     #     """Make sure hashed variants work."""
     #     pass
@@ -111,8 +120,43 @@ class Integrations(unittest.TestCase):
     # def test_regular_variants(self):
     #     """Make sure non-hashed variants work."""
     #     pass
+    #
+    def test_combine_variants(self):
+        """Install 2 different variants and ensure the result package.py is correct."""
+        directory = tempfile.mkdtemp(prefix="rez_pip_boy_", suffix="_test_simple")
+        atexit.register(functools.partial(shutil.rmtree, directory))
+
+        _run_command('rez_pip_boy "--install six==1.14.0 --python-version=3.7" {directory}'.format(directory=directory))
+        _run_command('rez_pip_boy "--install six==1.14.0 --python-version=2.7" {directory}'.format(directory=directory))
+
+        source_directory = os.path.join(directory, "six", "1.14.0")
+        self._verify_source_package(source_directory)
+        self._verify_installed_package(source_directory)
+
+        package = inspection.get_nearest_rez_package(source_directory)
+
+        expected = [["python-3.7"], ["python-2.7"]]
+        variants = [map(str, variant) for variant in package.variants or []]
+        self.assertEquals(expected, variants)
+
+
+class Invalid(unittest.TestCase):
+    """Test that invalid input is caught correctly."""
+
+    def test_missing_folder(self):
+        """The destination directory must exist."""
+        directory = tempfile.mkdtemp(prefix="rez_pip_boy_", suffix="_test_missing_folder")
+        shutil.rmtree(directory)
+
+        with self.assertRaises(exceptions.MissingDestination):
+            _run_command('rez_pip_boy "--install six==1.14.0 --python-version=3.7" {directory}'.format(directory=directory))
 
 
 def _run_command(command):
     """Syntax sugar. Run `command` silently."""
-    subprocess.call(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    items = shlex.split(command)
+
+    if items[0] == "rez_pip_boy":
+        items = items[1:]
+
+    cli.main(items)

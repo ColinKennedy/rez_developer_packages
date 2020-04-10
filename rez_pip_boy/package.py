@@ -30,8 +30,9 @@ tests = {
         "run_on": "explicit",
     },
     "coverage": {
-        "command": "coverage run --parallel-mode --include=python/* -m unittest discover && coverage combine --append && coverage html",
+        "command": "coverage run --parallel-mode -m unittest discover && coverage combine --append && coverage html",
         # "requires": ["python-3.6"],  # Several tests assume Python 3 is installed
+        "requires": ["coverage-5+<6"],
         "run_on": "explicit",
     },
     "isort": {
