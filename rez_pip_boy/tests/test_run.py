@@ -12,6 +12,7 @@ import inspect
 import os
 import unittest
 
+from rez_utilities import creator, inspection
 from rez_pip_boy.core import _build_command
 
 _BUILD_COMMAND_CODE = inspect.getsource(_build_command)
@@ -20,9 +21,10 @@ _BUILD_COMMAND_CODE = inspect.getsource(_build_command)
 class Integrations(unittest.TestCase):
     """Build source Rez packages, using Rez-generated pip packages."""
 
-    def _verify_source_package(self, installed_directory):
-        package = os.path.join(installed_directory, "package.py")
-        rezbuild = os.path.join(installed_directory, "rezbuild.py")
+    def _verify_source_package(self, directory):
+        """Make sure the the Rez package which ``rez_pip_boy`` converted has the expected files."""
+        package = os.path.join(directory, "package.py")
+        rezbuild = os.path.join(directory, "rezbuild.py")
 
         with open(rezbuild, "r") as handler:
             rezbuild_code = handler.read()
@@ -33,6 +35,23 @@ class Integrations(unittest.TestCase):
         self.assertEqual(_BUILD_COMMAND_CODE, rezbuild_code)
         self.assertIn("build_command = 'python {root}/rezbuild.py'\n", package_code)
 
+    def _verify_installed_package(self, directory):
+        """Build a Rez package and make sure it builds correctly.
+
+        Args:
+            directory (str): The absolute path where a Rez source package is defined.
+
+        """
+        install_directory = tempfile.mkdtemp(prefix="rez_pip_boy_", suffix="_verify_installed_package")
+        atexit.register(functools.partial(shutil.rmtree, install_directory))
+
+        package = inspection.get_nearest_rez_package(directory)
+        creator.build(package, install_directory)
+
+        installed_package_directory = os.path.join(install_directory, package.name, str(package.version))
+        self.assertTrue(os.path.isfile(os.path.join(installed_package_directory, "package.py")))
+        self.assertFalse(os.path.isfile(os.path.join(installed_package_directory, "rezbuild.py")))
+
     def test_simple(self):
         """Install a really simple pip package (a package with no dependencies)."""
         directory = tempfile.mkdtemp(prefix="rez_pip_boy_", suffix="_test_simple")
@@ -40,8 +59,9 @@ class Integrations(unittest.TestCase):
 
         _run_command('rez_pip_boy "--install six==1.14.0 --python-version=2.7" {directory}'.format(directory=directory))
 
-        installed_directory = os.path.join(directory, "six", "1.14.0")
-        self._verify_source_package(installed_directory)
+        source_directory = os.path.join(directory, "six", "1.14.0")
+        self._verify_source_package(source_directory)
+        self._verify_installed_package(source_directory)
 
     def test_complex_001(self):
         """Install a package with many dependencies and make sure each one is installed."""
@@ -69,4 +89,5 @@ class Integrations(unittest.TestCase):
 
 
 def _run_command(command):
+    """Syntax sugar. Run `command` silently."""
     subprocess.call(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
