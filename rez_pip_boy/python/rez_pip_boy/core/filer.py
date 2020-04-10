@@ -57,7 +57,7 @@ def transfer(variant):
     destination = _get_transfer_path(variant)
     destination_directory = os.path.dirname(destination)
 
-    if not os.path.isdir(destination_directory):
+    if not os.path.isdir(destination_directory):  # pragma: no cover
         os.makedirs(destination_directory)
 
     with tarfile.open(destination, "w:gz") as handler:

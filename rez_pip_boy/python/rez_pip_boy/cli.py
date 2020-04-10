@@ -135,7 +135,7 @@ def main(text):
             extra_args=rez_pip_arguments.extra,
         )
 
-    if arguments.verbose:
+    if arguments.verbose:  # pragma: no cover
         stdout = stdout.read()
         if stdout:
             _LOGGER.info("Found stdout from a rez-pip install.")
