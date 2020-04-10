@@ -12,9 +12,9 @@ import shlex
 import shutil
 import tempfile
 
+import wurlitzer
 from rez import pip
 from rez.cli import pip as cli_pip
-import wurlitzer
 
 from .core import builder, exceptions, filer
 
@@ -159,7 +159,9 @@ def main(text):
 
             continue
 
-        build_command = "python {{root}}/{_BUILD_FILE_NAME}".format(_BUILD_FILE_NAME=_BUILD_FILE_NAME)
+        build_command = "python {{root}}/{_BUILD_FILE_NAME}".format(
+            _BUILD_FILE_NAME=_BUILD_FILE_NAME
+        )
         destination_package = installed_variant.install(
             arguments.destination, overrides={"build_command": build_command},
         )

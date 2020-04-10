@@ -15,11 +15,14 @@ private_build_requires = ["rez_build_helper-1+<2"]
 build_command = "python -m rez_build_helper --items bin python"
 
 requires = [
-    "python-2+<4",
     "rez-2.47+<3",
     "rez_utilities-1.4+<2",
     "six-1.14+<2",
     "wurlitzer-2+<3",
+]
+
+variants = [
+    ["python-2.7"],
 ]
 
 tests = {

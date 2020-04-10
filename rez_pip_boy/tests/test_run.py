@@ -4,18 +4,18 @@
 """Check to make sure ``rez_pip_boy`` makes "source" Rez pip packages as we expect."""
 
 import atexit
-import shlex
 import functools
-import shutil
-import tempfile
-import subprocess
 import inspect
 import os
+import shlex
+import shutil
+import subprocess
+import tempfile
 import unittest
 
-from rez_utilities import creator, inspection
 from rez_pip_boy import cli
 from rez_pip_boy.core import _build_command, exceptions
+from rez_utilities import creator, inspection
 
 _BUILD_COMMAND_CODE = inspect.getsource(_build_command)
 
@@ -53,22 +53,34 @@ class Integrations(unittest.TestCase):
             directory (str): The absolute path where a Rez source package is defined.
 
         """
-        install_directory = tempfile.mkdtemp(prefix="rez_pip_boy_", suffix="_verify_installed_package")
+        install_directory = tempfile.mkdtemp(
+            prefix="rez_pip_boy_", suffix="_verify_installed_package"
+        )
         atexit.register(functools.partial(shutil.rmtree, install_directory))
 
         package = inspection.get_nearest_rez_package(directory)
         creator.build(package, install_directory)
 
-        installed_package_directory = os.path.join(install_directory, package.name, str(package.version))
-        self.assertTrue(os.path.isfile(os.path.join(installed_package_directory, "package.py")))
-        self.assertFalse(os.path.isfile(os.path.join(installed_package_directory, "rezbuild.py")))
+        installed_package_directory = os.path.join(
+            install_directory, package.name, str(package.version)
+        )
+        self.assertTrue(
+            os.path.isfile(os.path.join(installed_package_directory, "package.py"))
+        )
+        self.assertFalse(
+            os.path.isfile(os.path.join(installed_package_directory, "rezbuild.py"))
+        )
 
     def test_simple(self):
         """Install a really simple pip package (a package with no dependencies)."""
         directory = tempfile.mkdtemp(prefix="rez_pip_boy_", suffix="_test_simple")
         atexit.register(functools.partial(shutil.rmtree, directory))
 
-        _run_command('rez_pip_boy "--install six==1.14.0 --python-version=2.7" {directory}'.format(directory=directory))
+        _run_command(
+            'rez_pip_boy "--install six==1.14.0 --python-version=2.7" {directory}'.format(
+                directory=directory
+            )
+        )
 
         source_directory = os.path.join(directory, "six", "1.14.0")
         self._verify_source_package(source_directory, [["python-2.7"]])
@@ -87,8 +99,16 @@ class Integrations(unittest.TestCase):
         directory = tempfile.mkdtemp(prefix="rez_pip_boy_", suffix="_test_recurring")
         atexit.register(functools.partial(shutil.rmtree, directory))
 
-        _run_command('rez_pip_boy "--install six==1.14.0 --python-version=2.7" {directory}'.format(directory=directory))
-        _run_command('rez_pip_boy "--install six==1.14.0 --python-version=2.7" {directory}'.format(directory=directory))
+        _run_command(
+            'rez_pip_boy "--install six==1.14.0 --python-version=2.7" {directory}'.format(
+                directory=directory
+            )
+        )
+        _run_command(
+            'rez_pip_boy "--install six==1.14.0 --python-version=2.7" {directory}'.format(
+                directory=directory
+            )
+        )
 
         source_directory = os.path.join(directory, "six", "1.14.0")
         self._verify_source_package(source_directory, [["python-2.7"]])
@@ -96,10 +116,16 @@ class Integrations(unittest.TestCase):
 
     def test_partial_install(self):
         """Install a package, delete one of its depedencies, and then install it again."""
-        directory = tempfile.mkdtemp(prefix="rez_pip_boy_", suffix="_test_partial_install")
+        directory = tempfile.mkdtemp(
+            prefix="rez_pip_boy_", suffix="_test_partial_install"
+        )
         atexit.register(functools.partial(shutil.rmtree, directory))
 
-        _run_command('rez_pip_boy "--install importlib_metadata==1.6.0 --python-version=2.7" {directory}'.format(directory=directory))
+        _run_command(
+            'rez_pip_boy "--install importlib_metadata==1.6.0 --python-version=2.7" {directory}'.format(
+                directory=directory
+            )
+        )
 
         source_directory = os.path.join(directory, "importlib_metadata", "1.6.0")
         dependency = os.path.join(directory, "zipp", "1.2.0")
@@ -107,12 +133,19 @@ class Integrations(unittest.TestCase):
         shutil.rmtree(dependency)
         self.assertFalse(os.path.isfile(os.path.join(dependency, "package.py")))
 
-        _run_command('rez_pip_boy "--install importlib_metadata==1.6.0 --python-version=2.7" {directory}'.format(directory=directory))
+        _run_command(
+            'rez_pip_boy "--install importlib_metadata==1.6.0 --python-version=2.7" {directory}'.format(
+                directory=directory
+            )
+        )
         self.assertTrue(os.path.isfile(os.path.join(dependency, "package.py")))
 
         self._verify_source_package(dependency, [["python-2.7", "contextlib2"]])
         self._verify_installed_package(dependency)
-        self._verify_source_package(source_directory, [["python-2.7"]])
+        self._verify_source_package(
+            source_directory,
+            [["python-2.7", "contextlib2", "configparser-3.5+", "pathlib2"]],
+        )
         self._verify_installed_package(source_directory)
 
     def test_make_folders(self):
@@ -120,7 +153,11 @@ class Integrations(unittest.TestCase):
         directory = tempfile.mkdtemp(prefix="rez_pip_boy_", suffix="_test_make_folder")
         shutil.rmtree(directory)
 
-        _run_command('rez_pip_boy "--install six==1.14.0 --python-version=2.7" {directory}'.format(directory=directory))
+        _run_command(
+            'rez_pip_boy "--install six==1.14.0 --python-version=2.7" {directory}'.format(
+                directory=directory
+            )
+        )
 
     # def test_hashed_variants(self):
     #     """Make sure hashed variants work."""
@@ -135,12 +172,20 @@ class Integrations(unittest.TestCase):
         directory = tempfile.mkdtemp(prefix="rez_pip_boy_", suffix="_test_simple")
         atexit.register(functools.partial(shutil.rmtree, directory))
 
-        _run_command('rez_pip_boy "--install six==1.14.0 --python-version=3.6" {directory}'.format(directory=directory))
+        _run_command(
+            'rez_pip_boy "--install six==1.14.0 --python-version=3.6" {directory}'.format(
+                directory=directory
+            )
+        )
         source_directory = os.path.join(directory, "six", "1.14.0")
 
         self._verify_source_package(source_directory, [["python-3.6"]])
 
-        _run_command('rez_pip_boy "--install six==1.14.0 --python-version=2.7" {directory}'.format(directory=directory))
+        _run_command(
+            'rez_pip_boy "--install six==1.14.0 --python-version=2.7" {directory}'.format(
+                directory=directory
+            )
+        )
 
         self._verify_source_package(source_directory, [["python-3.6"], ["python-2.7"]])
 
@@ -150,11 +195,17 @@ class Invalid(unittest.TestCase):
 
     def test_missing_folder(self):
         """The destination directory must exist."""
-        directory = tempfile.mkdtemp(prefix="rez_pip_boy_", suffix="_test_missing_folder")
+        directory = tempfile.mkdtemp(
+            prefix="rez_pip_boy_", suffix="_test_missing_folder"
+        )
         shutil.rmtree(directory)
 
         with self.assertRaises(exceptions.MissingDestination):
-            _run_command('rez_pip_boy "--install six==1.14.0 --python-version=2.7" {directory} --no-make-folders'.format(directory=directory))
+            _run_command(
+                'rez_pip_boy "--install six==1.14.0 --python-version=2.7" {directory} --no-make-folders'.format(
+                    directory=directory
+                )
+            )
 
 
 def _run_command(command):
