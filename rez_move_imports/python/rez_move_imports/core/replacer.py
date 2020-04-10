@@ -222,4 +222,4 @@ def replace(package, configuration, deprecate, requirements, bump=True):
     _add_new_requirement_packages(package, namespaces, requirements)
 
     if bump and package.version:
-        rez_bump_api.bump(package, minor=1)
+        rez_bump_api.bump(package, minor=1, normalize=True)
