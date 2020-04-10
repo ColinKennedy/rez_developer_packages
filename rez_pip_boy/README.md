@@ -7,8 +7,8 @@ definitely use that. But if you desire a way to build and modify Rez-pip
 packages as a "source" Rez package then ``rez_pip_boy`` may help.
 
 Also note: The Rez team has a road-map item for making
-repository locations for Rez packages, described 
-[in this issue](https://github.com/nerdvegas/rez/issues/673). 
+repository locations for Rez packages, described
+[in this issue](https://github.com/nerdvegas/rez/issues/673).
 If it is implemented, it'll basically deprecate the need for
 ``rez_pip_boy`` completely. But in the meantime, something else needs to
 fill the gap.
