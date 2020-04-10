@@ -19,6 +19,7 @@ requires = [
     "rez-2.47+<3",
     "rez_utilities-1.4+<2",
     "six-1.14+<2",
+    "wurlitzer-2+<3",
 ]
 
 tests = {

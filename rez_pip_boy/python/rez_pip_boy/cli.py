@@ -14,6 +14,7 @@ import tempfile
 
 from rez import pip
 from rez.cli import pip as cli_pip
+import wurlitzer
 
 from .core import builder, exceptions, filer
 
@@ -47,10 +48,10 @@ def _parse_arguments(text):
     )
 
     parser.add_argument(
-        "--make-folders",
+        "--no-make-folders",
         action="store_true",
-        help="When included, folders will be automatically created for you. "
-        "Otherwise, if a found doesn't exist, the script exits.",
+        help="When included, folders will not be automatically created for you. "
+        "If a folder doesn't exist, the script exits.",
     )
 
     parser.add_argument(
@@ -58,6 +59,12 @@ def _parse_arguments(text):
         action="store_true",
         help="When included, no files will be automatically cleaned up. "
         "You'll be responsible for deleting them.",
+    )
+
+    parser.add_argument(
+        "--verbose",
+        action="store_true",
+        help="When included, rez-pip output will be printed to the terminal.",
     )
 
     return parser.parse_args(text)
@@ -102,7 +109,7 @@ def main(text):
     arguments = _parse_arguments(text)
 
     if not os.path.isdir(arguments.destination):
-        if not arguments.make_folders:
+        if arguments.no_make_folders:
             # TODO : Add unittest for this
             raise exceptions.MissingDestination(
                 'Path "{arguments.destination}" is not a directory. Please create it and try again.'
@@ -120,14 +127,27 @@ def main(text):
     # TODO : Make sur that temporary files are cleaned up on-exit
     rez_pip_arguments = _parse_rez_pip_arguments(shlex.split(arguments.command))
 
-    installed_variants, _ = pip.pip_install_package(
-        rez_pip_arguments.PACKAGE,
-        pip_version=rez_pip_arguments.pip_ver,
-        python_version=rez_pip_arguments.py_ver,
-        release=rez_pip_arguments.release,
-        prefix=prefix,
-        extra_args=rez_pip_arguments.extra,
-    )
+    with wurlitzer.pipes() as (stdout, stderr):
+        installed_variants, _ = pip.pip_install_package(
+            rez_pip_arguments.PACKAGE,
+            pip_version=rez_pip_arguments.pip_ver,
+            python_version=rez_pip_arguments.py_ver,
+            release=rez_pip_arguments.release,
+            prefix=prefix,
+            extra_args=rez_pip_arguments.extra,
+        )
+
+    if arguments.verbose:
+        stdout = stdout.read()
+        if stdout:
+            _LOGGER.info("Found stdout from a rez-pip install.")
+            _LOGGER.info(stdout)
+
+        stderr = stderr.read()
+
+        if stderr:
+            _LOGGER.error("Found stderr from a rez-pip install.")
+            _LOGGER.error(stderr)
 
     for installed_variant in installed_variants:
         variant = installed_variant.install(arguments.destination, dry_run=True)
