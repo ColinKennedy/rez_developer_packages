@@ -137,7 +137,7 @@ class Integrations(unittest.TestCase):
 
         expected = [["python-3.7"], ["python-2.7"]]
         variants = [map(str, variant) for variant in package.variants or []]
-        self.assertEquals(expected, variants)
+        self.assertEqual(expected, variants)
 
 
 class Invalid(unittest.TestCase):
