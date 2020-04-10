@@ -12,7 +12,7 @@ help = [["README", "README.md"]]
 
 private_build_requires = ["rez_build_helper-1+<2"]
 
-build_command = "python -m rez_build_helper --items python"
+build_command = "python -m rez_build_helper --items bin python"
 
 requires = [
     "python-2+<3",
