@@ -77,7 +77,7 @@ def _expand_namespaces(text):
     """
     output = set()
 
-    for line in text.split(r"\n"):
+    for line in text.split(":"):
         try:
             old, new = line.split(",")
         except ValueError:
