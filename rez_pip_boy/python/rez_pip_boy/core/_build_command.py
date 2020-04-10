@@ -59,20 +59,30 @@ def _extract_all(path, destination):
     }
 
 
-def _copy(paths, directory):
+def _copy(paths, directory, overwrite=True):
     """Copy every file and folder from `paths` into `directory`.
 
     Args:
         paths (iter[str]): All files and folders which came from the unpacked tar.
         directory (str): The chosen install directory for the Rez package.
+        overwrite (bool, optional): If True, delete files / folders before copying. Default is True.
+
+    Raises:
+        RuntimeError: If a destination file already exists but `overwrite` is not set to True.
 
     """
     for path in paths:
         destination = os.path.join(directory, os.path.basename(path))
 
         if os.path.isdir(path):
+            if overwrite and os.path.isdir(destination):
+                shutil.rmtree(destination)
+
             shutil.copytree(path, destination)
         elif os.path.isfile(path):
+            if not overwrite and os.path.isfile(destination):
+                raise RuntimeError('Cannot copy file. Path "{destination}" exists.'.format(destination=destination))
+
             shutil.copy2(path, destination)
 
 

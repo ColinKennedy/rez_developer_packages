@@ -4,6 +4,9 @@
 """The main parser module which creates Rez pip packages."""
 
 import argparse
+import functools
+import atexit
+import shutil
 import os
 import shlex
 import tempfile
@@ -38,6 +41,20 @@ def _parse_arguments(text):
     parser.add_argument(
         "destination",
         help="The absolute folder path on-disk to place this source package (usually a sub-folder in a git repository).",
+    )
+
+    parser.add_argument(
+        "--make-folders",
+        action="store_true",
+        help="When included, folders will be automatically created for you. "
+        "Otherwise, if a found doesn't exist, the script exits.",
+    )
+
+    parser.add_argument(
+        "--keep-temporary-files",
+        action="store_true",
+        help="When included, no files will be automatically cleaned up. "
+        "You'll be responsible for deleting them.",
     )
 
     return parser.parse_args(text)
@@ -82,13 +99,19 @@ def main(text):
     arguments = _parse_arguments(text)
 
     if not os.path.isdir(arguments.destination):
-        # TODO : Add unittest for this
-        raise exceptions.MissingDestination(
-            'Path "{arguments.destination}" is not a directory. Please create it and try again.'
-            "".format(arguments=arguments)
-        )
+        if not arguments.make_folders:
+            # TODO : Add unittest for this
+            raise exceptions.MissingDestination(
+                'Path "{arguments.destination}" is not a directory. Please create it and try again.'
+                "".format(arguments=arguments)
+            )
+
+        os.makedirs(arguments.destination)
 
     prefix = tempfile.mkdtemp(prefix="rez_pip_boy_", suffix="_temporary_build_folder")
+
+    if not arguments.keep_temporary_files:
+        atexit.register(functools.partial(shutil.rmtree, prefix))
 
     # TODO : Remove --prefix from `parser`
     # TODO : Make sur that temporary files are cleaned up on-exit
@@ -104,7 +127,19 @@ def main(text):
     )
 
     for installed_variant in installed_variants:
-        destination_package = installed_variant.install(arguments.destination)
-        root = inspection.get_package_root(installed_variant)
+        variant = installed_variant.install(arguments.destination, dry_run=True)
+
+        if variant:
+            # TODO : Replace with log
+            print('Variant is already installed. Skipping')
+
+            continue
+
+        build_file_name = "rezbuild.py"
+        build_command = "python {{root}}/{name}".format(name="rezbuild.py")
+        destination_package = installed_variant.install(
+            arguments.destination,
+            overrides={"build_command": build_command},
+        )
         filer.transfer(installed_variant)
-        builder.add_build_command(destination_package)
+        builder.add_build_command(destination_package, build_file_name)
