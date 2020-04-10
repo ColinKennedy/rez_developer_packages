@@ -4,6 +4,8 @@
 """Check to make sure ``rez_pip_boy`` makes "source" Rez pip packages as we expect."""
 
 import atexit
+import collections
+from rez import package_maker
 import functools
 import inspect
 import os
@@ -11,10 +13,12 @@ import shlex
 import shutil
 import tempfile
 import unittest
+import copy
 
 from rez_pip_boy import cli
 from rez_pip_boy.core import _build_command, exceptions
 from rez_utilities import creator, inspection
+from six.moves import mock
 
 _BUILD_COMMAND_CODE = inspect.getsource(_build_command)
 
@@ -161,13 +165,41 @@ class Integrations(unittest.TestCase):
             )
         )
 
-    # def test_hashed_variants(self):
-    #     """Make sure hashed variants work."""
-    #     pass
-    #
-    # def test_regular_variants(self):
-    #     """Make sure non-hashed variants work."""
-    #     pass
+    def test_regular_variants(self):
+        """Make sure non-hashed variants work."""
+        # Simulate a call to rez-pip where the user had written hashed_variants = False
+        normal_rez_pip_arguments = {
+            'commands': "env.PYTHONPATH.append('{root}/python')",
+            'help': [['Home Page', u'https://github.com/jaraco/zipp']],
+            'hashed_variants': True,
+            'description': u'Backport of pathlib-compatible object wrapper for zip files',
+            'is_pure_python': True,
+            'from_pip': True,
+            'version': '1.2.0',
+            'authors': [u'Jason R. Coombs (jaraco@jaraco.com)'],
+            'variants': [['python-2.7', 'contextlib2']],
+            'pip_name': u'zipp (1.2.0)',
+            'name': u'zipp',
+        }
+
+        mocked_rez_pip_arguments = copy.copy(normal_rez_pip_arguments)
+        mocked_rez_pip_arguments["hashed_variants"] = False
+
+        with mock.patch("rez.package_maker.PackageMaker._get_data") as patcher:
+            patcher.return_value = mocked_rez_pip_arguments
+
+            directory = tempfile.mkdtemp(prefix="rez_pip_boy_", suffix="_test_regular_variants")
+            atexit.register(functools.partial(shutil.rmtree, directory))
+
+            _run_command(
+                'rez_pip_boy "--install zipp==1.2.0 --python-version=2.7" {directory}'.format(
+                    directory=directory
+                )
+            )
+
+        source_directory = os.path.join(directory, "zipp", "1.2.0")
+        self._verify_source_package(source_directory, [["python-2.7", "contextlib2"]])
+        self._verify_installed_package(source_directory)
 
     def test_combine_variants(self):
         """Install 2 different variants and ensure the result package.py is correct."""

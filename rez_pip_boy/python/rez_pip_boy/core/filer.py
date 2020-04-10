@@ -26,8 +26,11 @@ def _get_transfer_path(variant):
         str: The generated path to the .tar.gz.
 
     """
-    tar_name = "{variant.name}-{variant.version}-{variant._non_shortlinked_subpath}.tar.gz".format(
-        variant=variant
+    subpath = variant._non_shortlinked_subpath.replace("/", "_").replace("\\", "_").replace(" ", "_")
+    tar_name = "{variant.name}-{variant.version}-{subpath}.tar.gz".format(
+        variant=variant,
+        subpath=subpath,
+
     )
 
     return os.path.join(_ROOT, variant.name, tar_name)
