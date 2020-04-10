@@ -78,4 +78,4 @@ def commands():
         if any(platform.win32_ver()):
             env.PIP_BOY_TAR_LOCATION.set(os.path.join("C:", "tarred_rez_packages"))
         else:
-            env.PIP_BOY_TAR_LOCATION.set(os.path.join("/tmp", "tarred_rez_packages")
+            env.PIP_BOY_TAR_LOCATION.set(os.path.join("/tmp", "tarred_rez_packages"))
