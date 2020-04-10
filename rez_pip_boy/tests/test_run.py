@@ -31,7 +31,7 @@ class Integrations(unittest.TestCase):
                 The path leading to a source Rez package. It should
                 contain one rezbuild.py file and one package.py file.
             variants (list[list[str]]):
-                All Rez variations to take into account. e.g. [["python-3.7"]].
+                All Rez variations to take into account. e.g. [["python-2.7"]].
 
         """
         rezbuild = os.path.join(directory, cli._BUILD_FILE_NAME)
@@ -68,10 +68,10 @@ class Integrations(unittest.TestCase):
         directory = tempfile.mkdtemp(prefix="rez_pip_boy_", suffix="_test_simple")
         atexit.register(functools.partial(shutil.rmtree, directory))
 
-        _run_command('rez_pip_boy "--install six==1.14.0 --python-version=3.7" {directory}'.format(directory=directory))
+        _run_command('rez_pip_boy "--install six==1.14.0 --python-version=2.7" {directory}'.format(directory=directory))
 
         source_directory = os.path.join(directory, "six", "1.14.0")
-        self._verify_source_package(source_directory, [["python-3.7"]])
+        self._verify_source_package(source_directory, [["python-2.7"]])
         self._verify_installed_package(source_directory)
 
     # def test_complex_001(self):
@@ -87,11 +87,11 @@ class Integrations(unittest.TestCase):
         directory = tempfile.mkdtemp(prefix="rez_pip_boy_", suffix="_test_recurring")
         atexit.register(functools.partial(shutil.rmtree, directory))
 
-        _run_command('rez_pip_boy "--install six==1.14.0 --python-version=3.7" {directory}'.format(directory=directory))
-        _run_command('rez_pip_boy "--install six==1.14.0 --python-version=3.7" {directory}'.format(directory=directory))
+        _run_command('rez_pip_boy "--install six==1.14.0 --python-version=2.7" {directory}'.format(directory=directory))
+        _run_command('rez_pip_boy "--install six==1.14.0 --python-version=2.7" {directory}'.format(directory=directory))
 
         source_directory = os.path.join(directory, "six", "1.14.0")
-        self._verify_source_package(source_directory, [["python-3.7"]])
+        self._verify_source_package(source_directory, [["python-2.7"]])
         self._verify_installed_package(source_directory)
 
     def test_partial_install(self):
@@ -99,7 +99,7 @@ class Integrations(unittest.TestCase):
         directory = tempfile.mkdtemp(prefix="rez_pip_boy_", suffix="_test_partial_install")
         atexit.register(functools.partial(shutil.rmtree, directory))
 
-        _run_command('rez_pip_boy "--install importlib_metadata==1.6.0 --python-version=3.7" {directory}'.format(directory=directory))
+        _run_command('rez_pip_boy "--install importlib_metadata==1.6.0 --python-version=2.7" {directory}'.format(directory=directory))
 
         source_directory = os.path.join(directory, "importlib_metadata", "1.6.0")
         dependency = os.path.join(directory, "zipp", "1.2.0")
@@ -107,12 +107,12 @@ class Integrations(unittest.TestCase):
         shutil.rmtree(dependency)
         self.assertFalse(os.path.isfile(os.path.join(dependency, "package.py")))
 
-        _run_command('rez_pip_boy "--install importlib_metadata==1.6.0 --python-version=3.7" {directory}'.format(directory=directory))
+        _run_command('rez_pip_boy "--install importlib_metadata==1.6.0 --python-version=2.7" {directory}'.format(directory=directory))
         self.assertTrue(os.path.isfile(os.path.join(dependency, "package.py")))
 
-        self._verify_source_package(dependency, [["python-3.7"]])
+        self._verify_source_package(dependency, [["python-2.7", "contextlib2"]])
         self._verify_installed_package(dependency)
-        self._verify_source_package(source_directory, [["python-3.7"]])
+        self._verify_source_package(source_directory, [["python-2.7"]])
         self._verify_installed_package(source_directory)
 
     def test_make_folders(self):
@@ -120,7 +120,7 @@ class Integrations(unittest.TestCase):
         directory = tempfile.mkdtemp(prefix="rez_pip_boy_", suffix="_test_make_folder")
         shutil.rmtree(directory)
 
-        _run_command('rez_pip_boy "--install six==1.14.0 --python-version=3.7" {directory}'.format(directory=directory))
+        _run_command('rez_pip_boy "--install six==1.14.0 --python-version=2.7" {directory}'.format(directory=directory))
 
     # def test_hashed_variants(self):
     #     """Make sure hashed variants work."""
@@ -133,7 +133,7 @@ class Integrations(unittest.TestCase):
     def test_combine_variants(self):
         """Install 2 different variants and ensure the result package.py is correct."""
         directory = tempfile.mkdtemp(prefix="rez_pip_boy_", suffix="_test_simple")
-        # atexit.register(functools.partial(shutil.rmtree, directory))
+        atexit.register(functools.partial(shutil.rmtree, directory))
 
         _run_command('rez_pip_boy "--install six==1.14.0 --python-version=3.6" {directory}'.format(directory=directory))
         source_directory = os.path.join(directory, "six", "1.14.0")
@@ -154,7 +154,7 @@ class Invalid(unittest.TestCase):
         shutil.rmtree(directory)
 
         with self.assertRaises(exceptions.MissingDestination):
-            _run_command('rez_pip_boy "--install six==1.14.0 --python-version=3.7" {directory} --no-make-folders'.format(directory=directory))
+            _run_command('rez_pip_boy "--install six==1.14.0 --python-version=2.7" {directory} --no-make-folders'.format(directory=directory))
 
 
 def _run_command(command):
