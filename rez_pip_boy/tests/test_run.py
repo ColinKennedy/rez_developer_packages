@@ -57,28 +57,53 @@ class Integrations(unittest.TestCase):
         directory = tempfile.mkdtemp(prefix="rez_pip_boy_", suffix="_test_simple")
         atexit.register(functools.partial(shutil.rmtree, directory))
 
-        _run_command('rez_pip_boy "--install six==1.14.0 --python-version=2.7" {directory}'.format(directory=directory))
+        _run_command('rez_pip_boy "--install six==1.14.0 --python-version=3.7" {directory}'.format(directory=directory))
 
         source_directory = os.path.join(directory, "six", "1.14.0")
         self._verify_source_package(source_directory)
         self._verify_installed_package(source_directory)
 
-    def test_complex_001(self):
-        """Install a package with many dependencies and make sure each one is installed."""
-        pass
-
+    # def test_complex_001(self):
+    #     """Install a package with many dependencies and make sure each one is installed."""
+    #     pass
+    #
     # def test_complex_002(self):
     #     """Install another package."""
     #     pass
-    #
-    # def test_recurring(self):
-    #     """Install a package and then install the same package again."""
-    #     pass
-    #
-    # def test_partial_install(self):
-    #     """Install a package, delete one of its depedencies, and then install it again."""
-    #     pass
-    #
+
+    def test_recurring(self):
+        """Install a package and then install the same package again."""
+        directory = tempfile.mkdtemp(prefix="rez_pip_boy_", suffix="_test_simple")
+        atexit.register(functools.partial(shutil.rmtree, directory))
+
+        _run_command('rez_pip_boy "--install six==1.14.0 --python-version=3.7" {directory}'.format(directory=directory))
+        _run_command('rez_pip_boy "--install six==1.14.0 --python-version=3.7" {directory}'.format(directory=directory))
+
+        source_directory = os.path.join(directory, "six", "1.14.0")
+        self._verify_source_package(source_directory)
+        self._verify_installed_package(source_directory)
+
+    def test_partial_install(self):
+        """Install a package, delete one of its depedencies, and then install it again."""
+        directory = tempfile.mkdtemp(prefix="rez_pip_boy_", suffix="_test_simple")
+        atexit.register(functools.partial(shutil.rmtree, directory))
+
+        _run_command('rez_pip_boy "--install importlib_metadata==1.6.0 --python-version=3.7" {directory}'.format(directory=directory))
+
+        source_directory = os.path.join(directory, "importlib_metadata", "1.6.0")
+        dependency = os.path.join(directory, "zipp", "1.2.0")
+        self.assertTrue(os.path.isfile(os.path.join(dependency, "package.py")))
+        shutil.rmtree(dependency)
+        self.assertFalse(os.path.isfile(os.path.join(dependency, "package.py")))
+
+        _run_command('rez_pip_boy "--install importlib_metadata==1.6.0 --python-version=3.7" {directory}'.format(directory=directory))
+        self.assertTrue(os.path.isfile(os.path.join(dependency, "package.py")))
+
+        self._verify_source_package(dependency)
+        self._verify_installed_package(dependency)
+        self._verify_source_package(source_directory)
+        self._verify_installed_package(source_directory)
+
     # def test_hashed_variants(self):
     #     """Make sure hashed variants work."""
     #     pass

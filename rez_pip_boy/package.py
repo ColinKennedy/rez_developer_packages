@@ -15,7 +15,7 @@ private_build_requires = ["rez_build_helper-1+<2"]
 build_command = "python -m rez_build_helper --items bin python"
 
 requires = [
-    "python-2+<3",
+    "python-2+<4",
     "rez-2.47+<3",
     "rez_utilities-1.4+<2",
     "six-1.14+<2",
@@ -52,7 +52,10 @@ tests = {
         "command": "pylint --disable=bad-continuation python/rez_pip_boy tests",
         "requires": ["pylint-1.9+<2"],
     },
-    "unittest": {"command": "python -m unittest discover"},
+    "unittest": {
+        "command": "python -m unittest discover",
+        "requires": ["python-3.7"],  # Several tests assume Python 3 is installed
+    },
 }
 
 
