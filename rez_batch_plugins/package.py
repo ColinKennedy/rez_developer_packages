@@ -2,7 +2,7 @@
 
 name = "rez_batch_plugins"
 
-version = "2.1.0"
+version = "2.1.1"
 
 description = "Several plugins to demonstrate the use of `rez_batch_process` and its plugin system."
 
@@ -16,6 +16,7 @@ build_command = "python -m rez_build_helper --items python"
 
 requires = [
     "GitPython-2.1+<3",
+    "move_break-2+<3",
     "python-2+<3",
     # Later versions of python_compatibility save and restore sys.argv
     # and some of this package's tests mess with sys.argv. So we need a
