@@ -28,7 +28,10 @@ tests = {
     "black_diff": {
         "command": "rez-env black -- black --diff --check package.py python tests"
     },
-    "black": {"command": "rez-env black -- black package.py python tests"},
+    "black": {
+        "command": "rez-env black -- black package.py python tests",
+        "run_on": "explicit",
+    },
     "coverage": {
         "command": "coverage run --parallel-mode --include=python/* -m unittest discover && coverage combine --append && coverage html",
         "requires": ["coverage-5+<6"],
@@ -36,6 +39,7 @@ tests = {
     "isort": {
         "command": "isort --recursive package.py python tests",
         "requires": ["isort-4.3+<5"],
+        "run_on": "explicit",
     },
     "isort_check": {
         "command": "isort --check-only --diff --recursive package.py python tests",
