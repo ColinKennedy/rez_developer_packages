@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""Generic "file path" specific funcions."""
+
 import os
 import tarfile
 
@@ -14,6 +16,17 @@ _ROOT = os.environ["REZ_PIP_BOY_TAR_LOCATION"]
 
 
 def _get_transfer_path(variant):
+    """Get the recommended file path to the archived .tar.gz file.
+
+    Args:
+        variant (:class:`rez.packages.Variant`):
+            The specification of a Rez package which will be archived
+            and later unpacked.
+
+    Returns:
+        str: The generated path to the .tar.gz.
+
+    """
     tar_name = "{variant.name}-{variant.version}-{variant._non_shortlinked_subpath}.tar.gz".format(
         variant=variant)
 
@@ -21,6 +34,16 @@ def _get_transfer_path(variant):
 
 
 def transfer(variant):
+    """Archive a Rez variant into a .tar.gz file.
+
+    The .tar.gz file later is used to unpack and install the Rez package.
+
+    Args:
+        variant (:class:`rez.packages.Variant`):
+            The specification of a Rez package which will be archived
+            and later unpacked.
+
+    """
     source_root = inspection.get_package_root(variant)
 
     # TODO : Double-check that this works with non-hashed variants

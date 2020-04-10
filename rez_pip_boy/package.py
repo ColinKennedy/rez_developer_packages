@@ -21,6 +21,40 @@ requires = [
     "six-1.14+<2",
 ]
 
+tests = {
+    "black_diff": {
+        "command": "rez-env black -- black --diff --check package.py python tests"
+    },
+    "black": {
+        "command": "rez-env black -- black package.py python tests",
+        "run_on": "explicit",
+    },
+    "coverage": {
+        "command": "coverage run --parallel-mode --include=python/* -m unittest discover && coverage combine --append && coverage html",
+        "run_on": "explicit",
+    },
+    "isort": {
+        "command": "isort --recursive package.py python tests",
+        "requires": ["isort-4.3+<5"],
+        "run_on": "explicit",
+    },
+    "isort_check": {
+        "command": "isort --check-only --diff --recursive package.py python tests",
+        "requires": ["isort-4.3+<5"],
+    },
+    "pydocstyle": {
+        # Need to disable D202 for now, until a new pydocstyle version is released
+        # Reference: https://github.com/psf/black/issues/1159
+        #
+        "command": "rez-env pydocstyle -- pydocstyle --ignore=D202,D203,D213,D406,D407 python tests/*"
+    },
+    "pylint": {
+        "command": "pylint --disable=bad-continuation python/rez_batch_plugins tests",
+        "requires": ["pylint-1.9+<2"],
+    },
+    "unittest": {"command": "python -m unittest discover"},
+}
+
 
 def commands():
     import os

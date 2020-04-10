@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""The main parser module which creates Rez pip packages."""
+
 import argparse
 import os
 import shlex
@@ -13,7 +15,17 @@ from rez_utilities import inspection
 from .core import builder, exceptions, filer
 
 
+# TODO : Consider letting the user define their own root path?
 def _parse_arguments(text):
+    """Get the ``rez-pip`` command arguments + the directory where installed files should go.
+
+    Args:
+        text (list[str]): User-provided arguments, split by spaces.
+
+    Returns:
+        :class:`argparse.Namespace`: The parsed arguments.
+
+    """
     parser = argparse.ArgumentParser(
         description="A thin wrapper around ``rez-pip`` to transform an installed package back into a source package.",
     )
@@ -34,6 +46,12 @@ def _parse_arguments(text):
 def _parse_rez_pip_arguments(text):
     """Process `text` as if it was sent to the `rez-pip` command and send the data back.
 
+    Args:
+        text (list[str]):
+            User-provided arguments, split by spaces. These values
+            should be whatever you'd normally pass to rez-pip.
+            e.g. "--install black --python-version=3.7"
+
     Returns:
         :class:`argparse.Namespace`: All of the parsed arguments from `text`.
 
@@ -48,9 +66,23 @@ def _parse_rez_pip_arguments(text):
 
 
 def main(text):
+    """Install the user's requested Python package as source Rez packages.
+
+    Args:
+        text (list[str]):
+            User-provided arguments, split by spaces. These values
+            should be whatever you'd normally pass to rez-pip as well as
+            the folder where they'd like to put the generated packages.
+            e.g. '"--install black --python-version=3.7" --destination /tmp/foo'.
+
+    Raises:
+        :class:`.MissingDestination`: If the given directory doesn't exist.
+
+    """
     arguments = _parse_arguments(text)
 
     if not os.path.isdir(arguments.destination):
+        # TODO : Add unittest for this
         raise exceptions.MissingDestination(
             'Path "{arguments.destination}" is not a directory. Please create it and try again.'
             ''.format(arguments=arguments)

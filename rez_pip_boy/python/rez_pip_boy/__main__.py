@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""The entry point of ``rez_pip_boy``. Run this module to execute the CLI."""
+
 import sys
 
 from . import cli
