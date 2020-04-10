@@ -4,7 +4,6 @@
 """Check to make sure ``rez_pip_boy`` makes "source" Rez pip packages as we expect."""
 
 import atexit
-import collections
 import copy
 import functools
 import inspect
@@ -14,7 +13,6 @@ import shutil
 import tempfile
 import unittest
 
-from rez import package_maker
 from rez_pip_boy import cli
 from rez_pip_boy.core import _build_command, exceptions
 from rez_utilities import creator, inspection

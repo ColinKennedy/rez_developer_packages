@@ -67,6 +67,15 @@ tests = {
 
 def commands():
     import os
+    import platform
 
     env.PATH.append(os.path.join("{root}", "bin"))
     env.PYTHONPATH.append(os.path.join("{root}", "python"))
+
+    tar_location = os.getenv("PIP_BOY_TAR_LOCATION", "")
+
+    if not tar_location:
+        if any(platform.win32_ver()):
+            env.PIP_BOY_TAR_LOCATION.set(os.path.join("C:", "tarred_rez_packages"))
+        else:
+            env.PIP_BOY_TAR_LOCATION.set(os.path.join("/tmp", "tarred_rez_packages")

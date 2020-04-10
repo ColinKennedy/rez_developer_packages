@@ -7,9 +7,6 @@ import os
 import shutil
 import tarfile
 
-# TODO : Remove this later
-os.environ["REZ_PIP_BOY_TAR_LOCATION"] = "/tmp/some/spot"
-
 
 def _get_tar_path():
     """Find the path on-disk where an installed Rez variant package lives.

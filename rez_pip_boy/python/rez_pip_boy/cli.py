@@ -21,7 +21,7 @@ from .core import builder, exceptions, filer
 _BUILD_FILE_NAME = "rezbuild.py"
 _LOGGER = logging.getLogger(__name__)
 
-# TODO : Consider letting the user define their own root path?
+
 def _parse_arguments(text):
     """Get the ``rez-pip`` command arguments + the directory where installed files should go.
 
@@ -111,7 +111,6 @@ def main(text):
 
     if not os.path.isdir(arguments.destination):
         if arguments.no_make_folders:
-            # TODO : Add unittest for this
             raise exceptions.MissingDestination(
                 'Path "{arguments.destination}" is not a directory. Please create it and try again.'
                 "".format(arguments=arguments)
@@ -124,8 +123,6 @@ def main(text):
     if not arguments.keep_temporary_files:
         atexit.register(functools.partial(shutil.rmtree, prefix))
 
-    # TODO : Remove --prefix from `parser`
-    # TODO : Make sur that temporary files are cleaned up on-exit
     rez_pip_arguments = _parse_rez_pip_arguments(shlex.split(arguments.command))
 
     with wurlitzer.pipes() as (stdout, stderr):
@@ -154,7 +151,6 @@ def main(text):
         variant = installed_variant.install(arguments.destination, dry_run=True)
 
         if variant:
-            # TODO : Replace with log
             _LOGGER.info('Variant "%s" is already installed. Skipping.', variant)
 
             continue

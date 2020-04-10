@@ -8,9 +8,6 @@ import tarfile
 
 from rez_utilities import inspection
 
-# TODO : Remove this later. It's just for testing
-os.environ["REZ_PIP_BOY_TAR_LOCATION"] = "/tmp/some/spot"
-
 _ROOT = os.environ["REZ_PIP_BOY_TAR_LOCATION"]
 
 
@@ -27,7 +24,9 @@ def _get_transfer_path(variant):
 
     """
     subpath = (
-        variant._non_shortlinked_subpath.replace("/", "_")
+        variant._non_shortlinked_subpath.replace(  # pylint: disable=protected-access
+            "/", "_"
+        )
         .replace("\\", "_")
         .replace(" ", "_")
     )
@@ -51,7 +50,6 @@ def transfer(variant):
     """
     source_root = inspection.get_package_root(variant)
 
-    # TODO : Double-check that this works with non-hashed variants
     source = os.path.join(
         source_root,
         variant._non_shortlinked_subpath,  # pylint: disable=protected-access
