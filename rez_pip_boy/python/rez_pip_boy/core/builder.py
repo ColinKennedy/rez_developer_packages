@@ -68,7 +68,9 @@ def _update_package(package):
     package_path = _get_package_full_path(inspection.get_package_root(package))
 
     if not package_path:
-        raise RuntimeError('Package "{package}" has no path on-disk'.format(package=package))
+        raise RuntimeError(
+            'Package "{package}" has no path on-disk'.format(package=package)
+        )
 
     package_name = os.path.basename(package_path)
     format_ = _FORMATS[package_name]

@@ -28,7 +28,8 @@ def _get_transfer_path(variant):
 
     """
     tar_name = "{variant.name}-{variant.version}-{variant._non_shortlinked_subpath}.tar.gz".format(
-        variant=variant)
+        variant=variant
+    )
 
     return os.path.join(_ROOT, variant.name, tar_name)
 

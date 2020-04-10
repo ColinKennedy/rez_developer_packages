@@ -85,7 +85,7 @@ def main(text):
         # TODO : Add unittest for this
         raise exceptions.MissingDestination(
             'Path "{arguments.destination}" is not a directory. Please create it and try again.'
-            ''.format(arguments=arguments)
+            "".format(arguments=arguments)
         )
 
     prefix = tempfile.mkdtemp(prefix="rez_pip_boy_", suffix="_temporary_build_folder")
@@ -100,7 +100,8 @@ def main(text):
         python_version=rez_pip_arguments.py_ver,
         release=rez_pip_arguments.release,
         prefix=prefix,
-        extra_args=rez_pip_arguments.extra)
+        extra_args=rez_pip_arguments.extra,
+    )
 
     for installed_variant in installed_variants:
         destination_package = installed_variant.install(arguments.destination)

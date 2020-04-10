@@ -25,10 +25,7 @@ def _get_tar_path():
     """
     package_name = os.environ["REZ_BUILD_PROJECT_NAME"]
 
-    tar_directory = os.path.join(
-        os.environ["REZ_PIP_BOY_TAR_LOCATION"],
-        package_name,
-    )
+    tar_directory = os.path.join(os.environ["REZ_PIP_BOY_TAR_LOCATION"], package_name,)
 
     tar_name = "{package_name}-{version}-{variant}.tar.gz".format(
         package_name=package_name,
@@ -55,7 +52,11 @@ def _extract_all(path, destination):
         members = handler.getmembers()
         handler.extractall(path=destination)
 
-    return {os.path.join(destination, member.path) for member in members if os.sep not in member.path}
+    return {
+        os.path.join(destination, member.path)
+        for member in members
+        if os.sep not in member.path
+    }
 
 
 def _copy(paths, directory):
@@ -102,6 +103,5 @@ def main(build, install):
 
 if __name__ == "__main__":
     main(
-        os.environ["REZ_BUILD_PATH"],
-        os.environ["REZ_BUILD_INSTALL_PATH"],
+        os.environ["REZ_BUILD_PATH"], os.environ["REZ_BUILD_INSTALL_PATH"],
     )
