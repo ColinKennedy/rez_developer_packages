@@ -5,7 +5,7 @@
 
 import atexit
 import collections
-from rez import package_maker
+import copy
 import functools
 import inspect
 import os
@@ -13,8 +13,8 @@ import shlex
 import shutil
 import tempfile
 import unittest
-import copy
 
+from rez import package_maker
 from rez_pip_boy import cli
 from rez_pip_boy.core import _build_command, exceptions
 from rez_utilities import creator, inspection
@@ -169,17 +169,17 @@ class Integrations(unittest.TestCase):
         """Make sure non-hashed variants work."""
         # Simulate a call to rez-pip where the user had written hashed_variants = False
         normal_rez_pip_arguments = {
-            'commands': "env.PYTHONPATH.append('{root}/python')",
-            'help': [['Home Page', u'https://github.com/jaraco/zipp']],
-            'hashed_variants': True,
-            'description': u'Backport of pathlib-compatible object wrapper for zip files',
-            'is_pure_python': True,
-            'from_pip': True,
-            'version': '1.2.0',
-            'authors': [u'Jason R. Coombs (jaraco@jaraco.com)'],
-            'variants': [['python-2.7', 'contextlib2']],
-            'pip_name': u'zipp (1.2.0)',
-            'name': u'zipp',
+            "commands": "env.PYTHONPATH.append('{root}/python')",
+            "help": [["Home Page", u"https://github.com/jaraco/zipp"]],
+            "hashed_variants": True,
+            "description": u"Backport of pathlib-compatible object wrapper for zip files",
+            "is_pure_python": True,
+            "from_pip": True,
+            "version": "1.2.0",
+            "authors": [u"Jason R. Coombs (jaraco@jaraco.com)"],
+            "variants": [["python-2.7", "contextlib2"]],
+            "pip_name": u"zipp (1.2.0)",
+            "name": u"zipp",
         }
 
         mocked_rez_pip_arguments = copy.copy(normal_rez_pip_arguments)
@@ -188,7 +188,9 @@ class Integrations(unittest.TestCase):
         with mock.patch("rez.package_maker.PackageMaker._get_data") as patcher:
             patcher.return_value = mocked_rez_pip_arguments
 
-            directory = tempfile.mkdtemp(prefix="rez_pip_boy_", suffix="_test_regular_variants")
+            directory = tempfile.mkdtemp(
+                prefix="rez_pip_boy_", suffix="_test_regular_variants"
+            )
             atexit.register(functools.partial(shutil.rmtree, directory))
 
             _run_command(
