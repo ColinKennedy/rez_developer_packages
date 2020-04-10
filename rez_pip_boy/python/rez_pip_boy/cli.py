@@ -6,6 +6,7 @@
 import argparse
 import atexit
 import functools
+import logging
 import os
 import shlex
 import shutil
@@ -13,10 +14,10 @@ import tempfile
 
 from rez import pip
 from rez.cli import pip as cli_pip
-from rez_utilities import inspection
 
 from .core import builder, exceptions, filer
 
+_LOGGER = logging.getLogger(__name__)
 
 # TODO : Consider letting the user define their own root path?
 def _parse_arguments(text):
@@ -30,7 +31,8 @@ def _parse_arguments(text):
 
     """
     parser = argparse.ArgumentParser(
-        description="A thin wrapper around ``rez-pip`` to transform an installed package back into a source package.",
+        description="A thin wrapper around ``rez-pip`` to transform an installed package "
+        "back into a source package.",
     )
 
     parser.add_argument(
@@ -40,7 +42,8 @@ def _parse_arguments(text):
 
     parser.add_argument(
         "destination",
-        help="The absolute folder path on-disk to place this source package (usually a sub-folder in a git repository).",
+        help="The absolute folder path on-disk to place this source package "
+        "(usually a sub-folder in a git repository).",
     )
 
     parser.add_argument(
@@ -131,7 +134,7 @@ def main(text):
 
         if variant:
             # TODO : Replace with log
-            print("Variant is already installed. Skipping")
+            _LOGGER.info('Variant "%s" is already installed. Skipping.', variant)
 
             continue
 
@@ -141,4 +144,4 @@ def main(text):
             arguments.destination, overrides={"build_command": build_command},
         )
         filer.transfer(installed_variant)
-        builder.add_build_command(destination_package, build_file_name)
+        builder.add_build_file(destination_package, build_file_name)

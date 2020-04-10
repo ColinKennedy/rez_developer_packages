@@ -47,7 +47,10 @@ def transfer(variant):
     source_root = inspection.get_package_root(variant)
 
     # TODO : Double-check that this works with non-hashed variants
-    source = os.path.join(source_root, variant._non_shortlinked_subpath)
+    source = os.path.join(
+        source_root,
+        variant._non_shortlinked_subpath,  # pylint: disable=protected-access
+    )
     destination = _get_transfer_path(variant)
     destination_directory = os.path.dirname(destination)
 
