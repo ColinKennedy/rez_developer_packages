@@ -18,6 +18,7 @@ import wurlitzer
 
 from .core import builder, exceptions, filer
 
+_BUILD_FILE_NAME = "rezbuild.py"
 _LOGGER = logging.getLogger(__name__)
 
 # TODO : Consider letting the user define their own root path?
@@ -158,10 +159,9 @@ def main(text):
 
             continue
 
-        build_file_name = "rezbuild.py"
-        build_command = "python {{root}}/{name}".format(name="rezbuild.py")
+        build_command = "python {{root}}/{_BUILD_FILE_NAME}".format(_BUILD_FILE_NAME=_BUILD_FILE_NAME)
         destination_package = installed_variant.install(
             arguments.destination, overrides={"build_command": build_command},
         )
         filer.transfer(installed_variant)
-        builder.add_build_file(destination_package, build_file_name)
+        builder.add_build_file(destination_package, _BUILD_FILE_NAME)
