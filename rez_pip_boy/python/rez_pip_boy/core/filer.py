@@ -8,7 +8,7 @@ import tarfile
 
 from rez_utilities import inspection
 
-_ROOT = os.environ["REZ_PIP_BOY_TAR_LOCATION"]
+_ROOT = os.environ["PIP_BOY_TAR_LOCATION"]
 
 
 def _get_transfer_path(variant):

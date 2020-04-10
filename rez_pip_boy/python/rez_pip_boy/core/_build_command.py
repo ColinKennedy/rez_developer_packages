@@ -22,7 +22,7 @@ def _get_tar_path():
     """
     package_name = os.environ["REZ_BUILD_PROJECT_NAME"]
 
-    tar_directory = os.path.join(os.environ["REZ_PIP_BOY_TAR_LOCATION"], package_name,)
+    tar_directory = os.path.join(os.environ["PIP_BOY_TAR_LOCATION"], package_name,)
     subpath = (
         os.environ["REZ_BUILD_VARIANT_SUBPATH"]
         .replace("/", "_")
