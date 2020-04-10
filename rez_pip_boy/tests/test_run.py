@@ -89,14 +89,6 @@ class Integrations(unittest.TestCase):
         self._verify_source_package(source_directory, [["python-2.7"]])
         self._verify_installed_package(source_directory)
 
-    # def test_complex_001(self):
-    #     """Install a package with many dependencies and make sure each one is installed."""
-    #     pass
-    #
-    # def test_complex_002(self):
-    #     """Install another package."""
-    #     pass
-
     def test_recurring(self):
         """Install a package and then install the same package again."""
         directory = tempfile.mkdtemp(prefix="rez_pip_boy_", suffix="_test_recurring")
