@@ -59,4 +59,5 @@ tests = {
 def commands():
     import os
 
+    env.PATH.append(os.path.join("{root}", "bin"))
     env.PYTHONPATH.append(os.path.join("{root}", "python"))
