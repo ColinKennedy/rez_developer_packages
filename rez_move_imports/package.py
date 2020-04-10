@@ -2,7 +2,7 @@
 
 name = "rez_move_imports"
 
-version = "1.0.0"
+version = "1.1.0"
 
 description = "Change a Rez package's imports and then bump the require Rez version(s)"
 
@@ -13,7 +13,7 @@ help = [["README", "README.md"]]
 private_build_requires = ["rez_build_helper-1+<2"]
 
 requires = [
-    "move_break-1.1+<2",
+    "move_break-2+<3",
     "python-2+<3",
     "python_compatibility-2.1+<3",
     "rez-2.42+<3",
@@ -28,7 +28,10 @@ tests = {
     "black_diff": {
         "command": "rez-env black -- black --diff --check package.py python tests"
     },
-    "black": {"command": "rez-env black -- black package.py python tests"},
+    "black": {
+        "command": "rez-env black -- black package.py python tests",
+        "run_on": "explicit",
+    },
     "coverage": {
         "command": "coverage run --parallel-mode --include=python/* -m unittest discover && coverage combine --append && coverage html",
         "requires": ["coverage-5+<6"],
@@ -36,6 +39,7 @@ tests = {
     "isort": {
         "command": "isort --recursive package.py python tests",
         "requires": ["isort-4.3+<5"],
+        "run_on": "explicit",
     },
     "isort_check": {
         "command": "isort --check-only --diff --recursive package.py python tests",

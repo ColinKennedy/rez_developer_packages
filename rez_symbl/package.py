@@ -1,6 +1,6 @@
 name = "rez_symbl"
 
-version = "1.0.0"
+version = "1.0.1"
 
 description = (
     "Collect Rez requests into a single folder (for use with REZ_PACKAGES_PATH)"
@@ -15,6 +15,7 @@ private_build_requires = ["rez_build_helper-1+<2"]
 build_command = "python -m rez_build_helper --items python"
 
 requires = [
+    "python-2",
     "rez-2.40+",
     "rez_utilities-1.4+<2",
 ]

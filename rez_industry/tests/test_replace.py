@@ -696,6 +696,32 @@ class AddToAttributeRequires(unittest.TestCase):
         with self.assertRaises(ValueError):
             api.add_to_attribute("requires", overrides, text)
 
+    def test_single_quotes_bug(self):
+        """Fix an issue where Rez raises a syntax error when ''s are used."""
+        original = textwrap.dedent(
+            """\
+            name = "some_package"
+
+            requires = [
+                "another_requirement-2",
+                'some_requirement-3.1.2.24+<4',
+            ]
+            """
+        )
+        expected = textwrap.dedent(
+            """\
+            name = "some_package"
+
+            requires = [
+                "another_requirement==1.0.0",
+                'some_requirement-3.1.2.24+<4',
+            ]
+            """
+        )
+        overrides = ["another_requirement==1.0.0"]
+
+        self._test(expected, original, overrides)
+
 
 class AddToAttributeTests(unittest.TestCase):
     """Make sure that :func:`rez_industry.api.add_to_attribute` works for Rez "tests"."""

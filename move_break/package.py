@@ -2,7 +2,7 @@
 
 name = "move_break"
 
-version = "1.2.0"
+version = "2.0.0"
 
 description = "Change, replace, and move Python imports"
 
@@ -22,14 +22,19 @@ tests = {
     "black_diff": {
         "command": "rez-env black -- black --diff --check package.py python tests"
     },
-    "black": {"command": "rez-env black -- black package.py python tests"},
+    "black": {
+        "command": "rez-env black -- black package.py python tests",
+        "run_on": "explicit",
+    },
     "coverage": {
         "command": "coverage run --parallel-mode --include=python/* -m unittest discover && coverage combine --append && coverage html",
         "requires": ["coverage"],
+        "run_on": "explicit",
     },
     "isort": {
         "command": "isort --recursive package.py python tests",
         "requires": ["isort"],
+        "run_on": "explicit",
     },
     "isort_check": {
         "command": "isort --check-only --diff --recursive package.py python tests",
