@@ -18,7 +18,6 @@ from six.moves import io
 
 from . import _build_command
 
-
 _FORMATS = {"package." + item.name: item for item in serialise.FileFormat}
 
 

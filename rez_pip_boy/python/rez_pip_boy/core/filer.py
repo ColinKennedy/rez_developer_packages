@@ -8,7 +8,6 @@ import tarfile
 
 from rez_utilities import inspection
 
-
 # TODO : Remove this later. It's just for testing
 os.environ["REZ_PIP_BOY_TAR_LOCATION"] = "/tmp/some/spot"
 
