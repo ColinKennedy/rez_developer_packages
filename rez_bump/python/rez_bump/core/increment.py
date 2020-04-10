@@ -43,7 +43,7 @@ def _write_package_to_disk(package, version):
         handler.write(graph.get_code())
 
 
-def _bump_version(version, minor, absolute=False):
+def _bump_version(version, minor, absolute=False, normalize=False):
     """Bump the Rez package version minor.
 
     Args:
@@ -55,6 +55,10 @@ def _bump_version(version, minor, absolute=False):
             If True, instead of adding to an existing version number,
             the given version information will be replaced with whatever
             number is given. If False, the value is added, instead.
+            Default is False.
+        normalize (bool, optional):
+            If True, all values below the minor will be reset to 0.
+            If False, the values below the minor keep their original values.
             Default is False.
 
     Returns:
@@ -81,18 +85,34 @@ def _bump_version(version, minor, absolute=False):
 
         raise NotImplementedError("Need to support non-minor bumps.")
 
-    positions = set()
+    def _normalize(version, position):
+        version = copy.deepcopy(version)
+
+        version.tokens[position + 1 :] = [
+            version_.NumericToken("0") if str(token).isdigit() else token
+            for token in version.tokens[position + 1 :]
+        ]
+
+        # Force `version` to update by deleting its internal cache
+        version._str = None  # pylint: disable=protected-access
+
+        return version
+
+    positions = []
 
     if minor:
-        positions.add(("minor", minor))
+        positions.append(("minor", minor))
 
     for position, value in positions:
         version = _bump(version, position, value, absolute=absolute)
 
+    if normalize:
+        version = _normalize(version, positions[-1][1])
+
     return version
 
 
-def bump(package, minor=0, absolute=False):
+def bump(package, minor=0, absolute=False, normalize=False):
     """Change the version of `package`.
 
     Reference:
@@ -108,6 +128,10 @@ def bump(package, minor=0, absolute=False):
             If True, instead of adding to an existing version number,
             the given version information will be replaced with whatever
             number is given. If False, the value is added, instead.
+            Default is False.
+        normalize (bool, optional):
+            If True, all values below the minor will be reset to 0.
+            If False, the values below the minor keep their original values.
             Default is False.
 
     Raises:
@@ -134,6 +158,6 @@ def bump(package, minor=0, absolute=False):
             "".format(package=package)
         )
 
-    version = _bump_version(version, minor, absolute=absolute)
+    version = _bump_version(version, minor, absolute=absolute, normalize=normalize)
 
     _write_package_to_disk(package.filepath, version)

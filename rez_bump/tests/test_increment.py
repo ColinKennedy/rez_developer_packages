@@ -250,3 +250,63 @@ class Version(common.Common):
 
         with self.assertRaises(ValueError):
             rez_bump_api.bump(package, minor=-4, absolute=True)
+
+    def test_normalize_and_increment_001(self):
+        """Reset all of the number tokens below whatever was incremented."""
+        directory = tempfile.mkdtemp(suffix="_test_normalize_and_increment")
+        self.delete_item_later(directory)
+
+        with open(os.path.join(directory, "package.py"), "w") as handler:
+            handler.write(
+                textwrap.dedent(
+                    """\
+                    name = "foo"
+                    version = "12.5.7"
+                    """
+                )
+            )
+
+        package = inspection.get_nearest_rez_package(directory)
+        rez_bump_api.bump(package, minor=1, normalize=True)
+
+        with open(package.filepath, "r") as handler:
+            code = handler.read()
+
+        expected = textwrap.dedent(
+            """\
+            name = "foo"
+            version = "12.6.0"
+            """
+        )
+
+        self.assertEquals(expected, code)
+
+    def test_normalize_and_increment_002(self):
+        """Reset all of the number tokens below whatever was incremented."""
+        directory = tempfile.mkdtemp(suffix="_test_normalize_and_increment")
+        self.delete_item_later(directory)
+
+        with open(os.path.join(directory, "package.py"), "w") as handler:
+            handler.write(
+                textwrap.dedent(
+                    """\
+                    name = "foo"
+                    version = "12.5.beta.7"
+                    """
+                )
+            )
+
+        package = inspection.get_nearest_rez_package(directory)
+        rez_bump_api.bump(package, minor=1, normalize=True)
+
+        with open(package.filepath, "r") as handler:
+            code = handler.read()
+
+        expected = textwrap.dedent(
+            """\
+            name = "foo"
+            version = "12.6.beta.0"
+            """
+        )
+
+        self.assertEquals(expected, code)
