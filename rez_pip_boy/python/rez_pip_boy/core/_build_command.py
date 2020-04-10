@@ -81,7 +81,11 @@ def _copy(paths, directory, overwrite=True):
             shutil.copytree(path, destination)
         elif os.path.isfile(path):
             if not overwrite and os.path.isfile(destination):
-                raise RuntimeError('Cannot copy file. Path "{destination}" exists.'.format(destination=destination))
+                raise RuntimeError(
+                    'Cannot copy file. Path "{destination}" exists.'.format(
+                        destination=destination
+                    )
+                )
 
             shutil.copy2(path, destination)
 

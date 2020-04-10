@@ -4,11 +4,11 @@
 """The main parser module which creates Rez pip packages."""
 
 import argparse
-import functools
 import atexit
-import shutil
+import functools
 import os
 import shlex
+import shutil
 import tempfile
 
 from rez import pip
@@ -131,15 +131,14 @@ def main(text):
 
         if variant:
             # TODO : Replace with log
-            print('Variant is already installed. Skipping')
+            print("Variant is already installed. Skipping")
 
             continue
 
         build_file_name = "rezbuild.py"
         build_command = "python {{root}}/{name}".format(name="rezbuild.py")
         destination_package = installed_variant.install(
-            arguments.destination,
-            overrides={"build_command": build_command},
+            arguments.destination, overrides={"build_command": build_command},
         )
         filer.transfer(installed_variant)
         builder.add_build_command(destination_package, build_file_name)
