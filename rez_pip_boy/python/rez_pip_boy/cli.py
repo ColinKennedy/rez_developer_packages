@@ -109,7 +109,8 @@ def _pip_install(arguments, prefix):
 
     Args:
         arguments (:class:`argparse.Namespace`):
-            The arguments coming from ``rez-pip``'s parser. Not the parsed arguments from ``rez_pip_boy``.
+            The arguments coming from ``rez-pip``'s parser. Not the
+            parsed arguments from ``rez_pip_boy``.
         prefix (str):
             An absolute path to a directory on-disk. This location is
             where the packages will be installed to.
