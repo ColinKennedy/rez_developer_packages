@@ -180,6 +180,8 @@ def main(text):
 
     installed_variants, stdout, stderr = _pip_install(rez_pip_arguments, prefix)
 
+    _LOGGER.debug('Found variants "%s".', installed_variants)
+
     if arguments.verbose:  # pragma: no cover
         stdout = stdout.read()
         if stdout:
@@ -193,6 +195,11 @@ def main(text):
             _LOGGER.error(stderr)
 
     for installed_variant in installed_variants:
+        _LOGGER.info(
+            'Now installing variant "%s" to "%s" folder.',
+            installed_variant,
+            destination,
+        )
         variant = installed_variant.install(destination, dry_run=True)
 
         if variant:
