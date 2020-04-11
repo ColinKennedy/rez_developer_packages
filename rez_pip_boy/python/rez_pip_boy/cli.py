@@ -15,6 +15,7 @@ import tempfile
 import wurlitzer
 from rez import pip
 from rez.cli import pip as cli_pip
+from rez_utilities import rez_configuration
 
 from .core import builder, exceptions, filer
 
@@ -93,6 +94,57 @@ def _parse_rez_pip_arguments(text):
     return temporary_parser.parse_args(text)
 
 
+def _is_older_rez(arguments):
+    """bool: Check if the ``rez-pip`` parsed arguments represent an older Rez version (2.47-ish)."""
+    try:
+        arguments.extra
+    except AttributeError:
+        return True
+
+    return False
+
+
+def _pip_install(arguments, prefix):
+    """Install the given ``rez-pip`` arguments to the ``prefix`` folder.
+
+    Args:
+        arguments (:class:`argparse.Namespace`):
+            The arguments coming from ``rez-pip``'s parser. Not the parsed arguments from ``rez_pip_boy``.
+        prefix (str):
+            An absolute path to a directory on-disk. This location is
+            where the packages will be installed to.
+
+    Returns:
+        tuple[:class:`rez.packages.Variant`, str, str]:
+            The installed variants and any print messages and error
+            messages which were found during installation.
+
+    """
+    with wurlitzer.pipes() as (stdout, stderr):
+        if not _is_older_rez(arguments):
+            installed_variants, _ = pip.pip_install_package(
+                arguments.PACKAGE,
+                pip_version=arguments.pip_version,
+                python_version=arguments.python_version,
+                release=arguments.release,
+                prefix=arguments.prefix,
+                extra_args=arguments.extra,
+            )
+        else:
+            # Older Rez versions don't have the `prefix` or `extra_args` parameters
+            # So we need to do more to get it to work.
+            #
+            with rez_configuration.patch_local_packages_path(prefix):
+                installed_variants, _ = pip.pip_install_package(
+                    arguments.PACKAGE,
+                    pip_version=arguments.pip_ver,
+                    python_version=arguments.py_ver,
+                    release=False,
+                )
+
+        return installed_variants, stdout, stderr
+
+
 def main(text):
     """Install the user's requested Python package as source Rez packages.
 
@@ -125,15 +177,7 @@ def main(text):
 
     rez_pip_arguments = _parse_rez_pip_arguments(shlex.split(arguments.command))
 
-    with wurlitzer.pipes() as (stdout, stderr):
-        installed_variants, _ = pip.pip_install_package(
-            rez_pip_arguments.PACKAGE,
-            pip_version=rez_pip_arguments.pip_ver,
-            python_version=rez_pip_arguments.py_ver,
-            release=rez_pip_arguments.release,
-            prefix=prefix,
-            extra_args=rez_pip_arguments.extra,
-        )
+    installed_variants, stdout, stderr = _pip_install(rez_pip_arguments, prefix)
 
     if arguments.verbose:  # pragma: no cover
         stdout = stdout.read()
