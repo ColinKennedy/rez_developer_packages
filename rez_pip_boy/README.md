@@ -1,5 +1,6 @@
 ``rez_pip_boy`` is a small wrapper around [rez-pip](https://github.com/nerdvegas/rez/blob/a9f61980a9cebcf67df09023cccdcbf1b9edea66/wiki/pages/Pip.md).
 
+(rez_pip_boy comes from the name "Pip-Boy 2000", a reference to the game Fallout)
 ![image](https://user-images.githubusercontent.com/10103049/79014221-4a5c7f80-7b1f-11ea-8855-d726654d709b.png)
 
 If you're working with a pipeline that natively supports rez-pip then
