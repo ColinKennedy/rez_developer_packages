@@ -124,10 +124,10 @@ def _pip_install(arguments, prefix):
         if not _is_older_rez(arguments):
             installed_variants, _ = pip.pip_install_package(
                 arguments.PACKAGE,
-                pip_version=arguments.pip_version,
-                python_version=arguments.python_version,
+                pip_version=arguments.pip_ver,
+                python_version=arguments.py_ver,
                 release=arguments.release,
-                prefix=arguments.prefix,
+                prefix=prefix,
                 extra_args=arguments.extra,
             )
         else:
@@ -160,15 +160,16 @@ def main(text):
 
     """
     arguments = _parse_arguments(text)
+    destination = os.path.expanduser(arguments.destination)
 
-    if not os.path.isdir(arguments.destination):
+    if not os.path.isdir(destination):
         if arguments.no_make_folders:
             raise exceptions.MissingDestination(
-                'Path "{arguments.destination}" is not a directory. Please create it and try again.'
-                "".format(arguments=arguments)
+                'Path "{destination}" is not a directory. Please create it and try again.'
+                "".format(destination=destination)
             )
 
-        os.makedirs(arguments.destination)
+        os.makedirs(destination)
 
     prefix = tempfile.mkdtemp(prefix="rez_pip_boy_", suffix="_temporary_build_folder")
 
@@ -192,7 +193,7 @@ def main(text):
             _LOGGER.error(stderr)
 
     for installed_variant in installed_variants:
-        variant = installed_variant.install(arguments.destination, dry_run=True)
+        variant = installed_variant.install(destination, dry_run=True)
 
         if variant:
             _LOGGER.info('Variant "%s" is already installed. Skipping.', variant)
@@ -203,7 +204,7 @@ def main(text):
             _BUILD_FILE_NAME=_BUILD_FILE_NAME
         )
         destination_package = installed_variant.install(
-            arguments.destination, overrides={"build_command": build_command},
+            destination, overrides={"build_command": build_command},
         )
         filer.transfer(installed_variant)
         builder.add_build_file(destination_package, _BUILD_FILE_NAME)

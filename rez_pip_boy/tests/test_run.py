@@ -8,6 +8,7 @@ import copy
 import functools
 import inspect
 import os
+import platform
 import shlex
 import shutil
 import tempfile
@@ -24,6 +25,15 @@ _BUILD_COMMAND_CODE = inspect.getsource(_build_command)
 class Integrations(unittest.TestCase):
     """Build source Rez packages, using Rez-generated pip packages."""
 
+    def setUp(self):
+        """Keep track of the user's current environment so it can be restored, later."""
+        self._environment = os.environ.copy()
+
+    def tearDown(self):
+        """Restore the user's old environment."""
+        os.environ.clear()
+        os.environ.update(self._environment)
+
     def _verify_source_package(self, directory, variants):
         """Make sure the the Rez package which ``rez_pip_boy`` converted has the expected files.
 
@@ -35,6 +45,7 @@ class Integrations(unittest.TestCase):
                 All Rez variations to take into account. e.g. [["python-2.7"]].
 
         """
+        directory = os.path.expanduser(directory)
         rezbuild = os.path.join(
             directory, cli._BUILD_FILE_NAME  # pylint: disable=protected-access
         )
@@ -43,6 +54,7 @@ class Integrations(unittest.TestCase):
             rezbuild_code = handler.read()
 
         package = inspection.get_nearest_rez_package(directory)
+        self.assertIsNotNone(package)
 
         self.assertEqual(_BUILD_COMMAND_CODE, rezbuild_code)
         package_variants = [map(str, variant) for variant in package.variants or []]
@@ -232,6 +244,50 @@ class Integrations(unittest.TestCase):
         source_directory = os.path.join(directory, "six", "1.14.0")
         self._verify_source_package(source_directory, [["python-2.7"]])
         self._verify_installed_package(source_directory)
+
+    def test_expanded_paths(self):
+        """Ensure ~ paths will work."""
+        directory = tempfile.mkdtemp(prefix="rez_pip_boy_", suffix="_test_simple")
+
+        if platform.system() == "Windows":
+            directory = (os.sep).join(directory.split(os.sep)[1:])
+            directory = os.path.join("%USER%", directory)
+        else:
+            directory = "~" + directory
+
+        atexit.register(functools.partial(shutil.rmtree, os.path.expanduser(directory)))
+
+        _run_command(
+            'rez_pip_boy "--install six==1.14.0 --python-version=2.7" {directory}'.format(
+                directory=directory
+            )
+        )
+
+        source_directory = os.path.join(directory, "six", "1.14.0")
+        self._verify_source_package(source_directory, [["python-2.7"]])
+
+    def test_environment_variables(self):
+        """Ensure $STUFF environment variable paths will work."""
+        directory = tempfile.mkdtemp(prefix="rez_pip_boy_", suffix="_test_simple")
+
+        if platform.system() == "Windows":
+            os.environ["STUFF"] = "C:"
+            directory = (os.sep).join(directory.split(os.sep)[1:])
+            directory = os.path.join("%STUFF%", directory)
+        else:
+            os.environ["STUFF"] = "~"
+            directory = "$STUFF" + directory
+
+        atexit.register(functools.partial(shutil.rmtree, os.path.expanduser(directory)))
+
+        _run_command(
+            'rez_pip_boy "--install six==1.14.0 --python-version=2.7" {directory}'.format(
+                directory=directory
+            )
+        )
+
+        source_directory = os.path.join(directory, "six", "1.14.0")
+        self._verify_source_package(source_directory, [["python-2.7"]])
 
 
 class Invalid(unittest.TestCase):
