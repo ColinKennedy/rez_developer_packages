@@ -203,10 +203,15 @@ def make_repository_folder(directory, url):
         str: The child folder.
 
     """
-    # url = "https://github.com/foo/bar.git"
+    # url = "https://github.com/foo/bar.git" or "https://github.com/foo/bar"
     repository = url.split("/")[-1]
-    # repository = "bar.git"
-    name = ".".join(repository.split(".")[:-1])
+    # repository = "bar.git" or "bar"
+
+    if "." in repository:
+        name = ".".join(repository.split(".")[:-1])
+    else:
+        name = repository
+
     # name = "bar"
 
     return os.path.join(directory, name)
