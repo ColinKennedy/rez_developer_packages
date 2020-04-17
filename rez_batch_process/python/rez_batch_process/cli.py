@@ -47,11 +47,14 @@ def __gather_package_data(arguments):
 
     package_finder = registry.get_package_finder(arguments.command)
 
-    found_packages, invalid_packages, skips = [
-        package
-        for package in package_finder(paths=packages_path + search_packages_path)
-        if not rez_packages or (package.name in rez_packages)
-    ]
+    found_packages = []
+    packages, invalid_packages, skips = package_finder(paths=packages_path + search_packages_path)
+
+    for package in packages:
+        if rez_packages and package.name not in rez_packages:
+            skips.append(package)
+        else:
+            found_packages.append(package)
 
     ignored_packages, other_packages = _split_the_ignored_packages(
         found_packages, ignore_patterns
