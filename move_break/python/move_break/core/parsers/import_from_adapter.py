@@ -420,6 +420,12 @@ def _remove_comma(node):
 
         return parent.children[-1]
 
+    def _remove_trailing_node(nodes):
+        node = nodes[-1]
+
+        if isinstance(node, tree.Operator) and node.value == ",":
+            del node.parent.children[-1]
+
     parent = _get_parents_up_to_import_from(node)[-2]
     alias = _get_alias(node)
 
@@ -437,7 +443,7 @@ def _remove_comma(node):
 
     # We must be at the beginning or somewhere in the middle of the import.
     del parent.children[index]  # Remove the name
-    del parent.children[index]  # Remove the trailing ","
+    _remove_trailing_node(parent.children)
 
     return alias
 

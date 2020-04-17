@@ -721,6 +721,35 @@ class Imports(_Common):
 
         self._test(expected, code, namespaces, partial=True)
 
+    def test_trailing_from_001(self):
+        """Make sure replacing the last name in an import works."""
+        code = "from foo.bar import thing, another"
+        namespaces = [("foo.bar.another", "ttt.stuff")]
+        expected = textwrap.dedent(
+            """\
+            from ttt import stuff
+            from foo.bar import thing"""
+        )
+
+        self._test(expected, code, namespaces)
+        expected = "from ttt import thing, stuff"
+        self._test(expected, code, namespaces, partial=True)
+
+    def test_trailing_from_002(self):
+        """Make sure replacing the last name in an import works."""
+        code = "from foo.bar import thing, another"
+        namespaces = [("foo.bar.another", "thing.stuff.blah")]
+        expected = textwrap.dedent(
+            """\
+            from thing.stuff import blah
+            from foo.bar import thing"""
+        )
+
+        self._test(expected, code, namespaces)
+
+        expected = "from thing.stuff import thing, blah"
+        self._test(expected, code, namespaces, partial=True)
+
 
 class PartialFrom(_Common):
     """Control when and how "from X import Y" imports are replaced."""
