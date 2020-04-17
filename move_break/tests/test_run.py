@@ -81,10 +81,44 @@ class Inputs(_Common):
             self._test(expected, code, namespaces, partial=True)
 
 
-# TODO : Finish?
-# class Aliases(_Common):
-#     """Add aliases to import statements."""
-#
+class Aliases(_Common):
+    """Add aliases to import statements."""
+
+    def test_trailing(self):
+        """Make sure replacing the last aliased import name can be replaced."""
+        code = "import ttt.fff, foo.bar.another as alias"
+        namespaces = [("foo.bar.another", "thing.stuff.blah")]
+        expected = "import ttt.fff, thing.stuff.blah as alias"
+
+        self._test(expected, code, namespaces, aliases=True)
+
+        # TODO : Add this later
+        # expected = textwrap.dedent(
+        #     """\
+        #     from thing.stuff import blah
+        #     from foo.bar import thing"""
+        # )
+        # self._test(expected, code, namespaces, aliases=True)
+
+        namespaces = [("foo.bar", "thing.stuff.blah")]
+        expected = "import ttt.fff, thing.stuff.blah.another as alias"
+        self._test(expected, code, namespaces, partial=True, aliases=True)
+
+    # def test_trailing_from(self):
+    #     """Make sure replacing the last aliased import name can be replaced."""
+    #     code = "from foo.bar import thing, another as alias"
+    #     namespaces = [("foo.bar.another", "thing.stuff.blah")]
+    #     expected = textwrap.dedent(
+    #         """\
+    #         from thing.stuff import blah as alias
+    #         from foo.bar import thing"""
+    #     )
+    #
+    #     self._test(expected, code, namespaces)
+    #
+    #     expected = "from thing.stuff import thing, blah as alias"
+    #     self._test(expected, code, namespaces, partial=True)
+
 #     def test_from_001(self):
 #         """Add an alias to a "nested" from-import."""
 #         code = "from foo.bar import thing"

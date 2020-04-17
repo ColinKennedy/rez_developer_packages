@@ -199,7 +199,10 @@ def _collapse_namespace(nodes):
     items = []
 
     for child in nodes:
-        items.append(child.value)
+        if hasattr(child, "children"):
+            items.append(_collapse_namespace(child.children))
+        else:
+            items.append(child.value)
 
     return "".join(items)
 
