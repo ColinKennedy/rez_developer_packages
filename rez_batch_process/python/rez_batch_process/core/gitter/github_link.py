@@ -380,6 +380,14 @@ def get_all_users(token, base_url="", verify=True, maximum=sys.maxint, write=Fal
 
     """
     if base_url:
+        # PyGitHub expects a URL to end with a special suffix
+        # Reference: https://pygithub.readthedocs.io/en/latest/introduction.html#very-short-tutorial
+        #
+        enterprise_suffix = "/api/v3"
+
+        if not base_url.endswith(enterprise_suffix):
+            base_url = base_url.rstrip("/") + enterprise_suffix
+
         accessor = github.Github(login_or_token=token, base_url=base_url, verify=verify)
     else:
         accessor = github.Github(login_or_token=token, verify=verify)
