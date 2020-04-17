@@ -11,6 +11,7 @@ import re
 import sys
 import tempfile
 
+from github3 import exceptions as github3_exceptions
 import github
 import github3
 
@@ -200,12 +201,29 @@ class GithubAdapter(base_adapter.BaseAdapter):
             repository, package_maintainers, fallback_reviewers=self._fallback_reviewers
         )
 
-        pull_request = repository.create_pull(
-            title,
-            pull_request_data.destination,
-            pull_request_data.source,
-            body,
-        )
+        try:
+            pull_request = repository.create_pull(
+                title,
+                pull_request_data.destination,
+                pull_request_data.source,
+                body,
+            )
+        except github3_exceptions.UnprocessableEntity:
+            _LOGGER.warning(
+                'Pull request failed. This may happen if "%s" already has a pull request '
+                'but fould happen for basically any reason. Check output "%s" for details.',
+                pull_request_data.source,
+                errors.errors,
+            )
+
+            if error.code != 422:
+                _LOGGER.exception(
+                    'Pull request was prevented because of this error, "%s".',
+                    error,
+                )
+
+                raise
+
         # This next line adds the reviewers to the already-created-pull
         # request. It's an awkward syntax but oh well.
         #

@@ -12,6 +12,7 @@ import shlex
 import subprocess
 import textwrap
 
+from github3 import exceptions as github3_exceptions
 from rez_utilities import inspection
 import wurlitzer
 
@@ -226,16 +227,22 @@ class RezShellCommand(base.BaseCommand):
             elif stderr.read():
                 raise RuntimeError(stderr)
 
-            adapter.create_pull_request(
-                title,
-                body,
-                base_adapter.PullRequestDetails(
-                    url,
-                    new_branch.name,
-                    current_branch.name,
-                ),
-                user_data=cached_users,
-            )
+            try:
+                adapter.create_pull_request(
+                    title,
+                    body,
+                    base_adapter.PullRequestDetails(
+                        url,
+                        new_branch.name,
+                        current_branch.name,
+                    ),
+                    user_data=cached_users,
+                )
+            except github3_exceptions.UnprocessableEntity as error:
+                _LOGGER.exception(
+                    "Pull request could not be completed. It's ususally a permissions error."
+                )
+                _LOGGER.exception('Error "%s".', error)
 
     @staticmethod
     def parse_arguments(text):
