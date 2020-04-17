@@ -199,7 +199,12 @@ class RezShellCommand(base.BaseCommand):
         body = cls._get_pull_request_body(package, configuration)
         commit_message = cls._get_commit_message(package.name)
 
-        branch_template = configuration.pull_request_name.format(package=package)
+        pull_request = configuration.pull_request_name
+
+        if "{package" not in pull_request_name:
+            pull_request_name += "_{package.name}"
+
+        branch_template = pull_request_name.format(package=package)
 
         with _reset_repository_state(repository, current_branch):
             origin = repository.remote(name="origin")
