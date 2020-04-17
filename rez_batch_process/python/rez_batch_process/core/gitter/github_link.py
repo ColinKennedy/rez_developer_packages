@@ -437,4 +437,6 @@ def get_user(token, url="", verify=True):
         accessor = github3.enterprise_login(token=token, url=url)
         accessor.session.verify = verify
 
+        return accessor
+
     return github3.login(token=token)
