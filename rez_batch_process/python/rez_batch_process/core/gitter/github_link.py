@@ -200,11 +200,6 @@ class GithubAdapter(base_adapter.BaseAdapter):
             repository, package_maintainers, fallback_reviewers=self._fallback_reviewers
         )
 
-        current_user_login = self._user.me().login
-
-        if current_user_login in reviewers:
-            reviewers.remove(current_user_login)
-
         pull_request = repository.create_pull(
             title,
             pull_request_data.destination,
