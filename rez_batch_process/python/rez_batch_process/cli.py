@@ -130,7 +130,7 @@ def __run(arguments, command_arguments):  # pylint: disable=too-many-locals
     if bads:
         print("Some packages are invalid or had to be skipped.")
         print("\n")
-        print(bads)
+        print(sorted(package.name for package in bads))
 
     if un_ran:
         print("These packages could not be run on:")
