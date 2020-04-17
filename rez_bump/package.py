@@ -2,7 +2,7 @@
 
 name = "rez_bump"
 
-version = "1.0.2"
+version = "1.1.0"
 
 description = "Control the version value of Rez packages"
 

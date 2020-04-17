@@ -307,7 +307,7 @@ class Options(common.Common):
             )
 
         command = [
-            r'"{directory} "old_dependency.a_module,a_new_namespace.somewhere_else\nanother_thing,second.location" --partial"'  # pylint: disable=line-too-long
+            r'"{directory} "old_dependency.a_module,a_new_namespace.somewhere_else:another_thing,second.location" --partial"'  # pylint: disable=line-too-long
             "".format(directory=directory),
             '--requirements="a_new_package-2+<4,a_new_namespace"',
             '--requirements="second_new_package-1+<2,second.location"',
@@ -747,7 +747,7 @@ class Integrations(common.Common):
             """\
             name = "some_test_package"
 
-            version = "99.99.99"
+            version = "99.99.0"
 
             requires = [
                 "a_new_package-2+<4",
