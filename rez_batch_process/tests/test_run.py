@@ -588,6 +588,7 @@ class Variations(package_common.Tests):
         correctly.
 
         """
+
         def _make_version_package(path, text):
             directory = os.path.dirname(path)
 

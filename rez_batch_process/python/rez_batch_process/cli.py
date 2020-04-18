@@ -6,9 +6,9 @@
 from __future__ import print_function
 
 import argparse
-import functools
 import copy
 import fnmatch
+import functools
 import logging
 import operator
 import os
@@ -48,7 +48,9 @@ def __gather_package_data(arguments):
     package_finder = registry.get_package_finder(arguments.command)
 
     found_packages = []
-    packages, invalid_packages, skips = package_finder(paths=packages_path + search_packages_path)
+    packages, invalid_packages, skips = package_finder(
+        paths=packages_path + search_packages_path
+    )
 
     for package in packages:
         if rez_packages and package.name not in rez_packages:
