@@ -2,7 +2,7 @@
 
 name = "rez_batch_process"
 
-version = "1.0.4"
+version = "1.1.0"
 
 description = (
     "Check for Rez packages that need Sphinx documentation and automatically add it."
