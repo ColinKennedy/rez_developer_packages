@@ -10,7 +10,12 @@ from .core import parser
 
 
 def move_imports(
-    files, namespaces, partial=False, import_types=frozenset(), aliases=False, continue_on_syntax_error=False
+    files,
+    namespaces,
+    partial=False,
+    import_types=frozenset(),
+    aliases=False,
+    continue_on_syntax_error=False,
 ):
     """Replace the imports of every given file.
 

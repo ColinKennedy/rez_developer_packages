@@ -21,6 +21,7 @@ _ALLOWED_ERROR_CODES = (
     903,  # IndentationError << This package can handle indentation issues, no problem
 )
 
+
 def expand_paths(path, fallback=""):
     """Find every Python file in `path`.
 
@@ -102,6 +103,7 @@ def get_graph(path):
         :class:`parso.python.tree.Module`: The parsed `code`, as a parso object.
 
     """
+
     def _get_errors(code):
         grammar = parso.load_grammar()
         module = grammar.parse(code)
@@ -121,7 +123,9 @@ def get_graph(path):
 
     if errors:
         raise RuntimeError(
-            'Path "{path}" cannot be loaded as a graph. It has syntax errors.'.format(path=path)
+            'Path "{path}" cannot be loaded as a graph. It has syntax errors.'.format(
+                path=path
+            )
         )
 
     return parso.parse(code)

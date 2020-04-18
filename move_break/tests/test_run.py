@@ -14,7 +14,13 @@ class _Common(common.Common):
     """A base clsas used by other test classes."""
 
     def _test(  # pylint: disable=too-many-arguments
-        self, expected, code, namespaces, partial=False, aliases=False, continue_on_syntax_error=False
+        self,
+        expected,
+        code,
+        namespaces,
+        partial=False,
+        aliases=False,
+        continue_on_syntax_error=False,
     ):
         """Make a temporary file to test with and delete it later.
 
@@ -50,7 +56,13 @@ class _Common(common.Common):
 
         self.delete_item_later(handler.name)
 
-        mover.move_imports({handler.name}, namespaces, partial=partial, aliases=aliases, continue_on_syntax_error=continue_on_syntax_error)
+        mover.move_imports(
+            {handler.name},
+            namespaces,
+            partial=partial,
+            aliases=aliases,
+            continue_on_syntax_error=continue_on_syntax_error,
+        )
 
         with open(handler.name, "r") as handler:
             new_code = handler.read()
@@ -801,9 +813,7 @@ class ImportFrom(_Common):
             """
         )
 
-        namespaces = [
-            ("foo.bar", "thing.another"),
-        ]
+        namespaces = [("foo.bar", "thing.another")]
 
         with self.assertRaises(RuntimeError):
             self._test("", code, namespaces)
