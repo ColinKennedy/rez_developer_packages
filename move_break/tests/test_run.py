@@ -119,6 +119,7 @@ class Aliases(_Common):
     #     expected = "from thing.stuff import thing, blah as alias"
     #     self._test(expected, code, namespaces, partial=True)
 
+
 #     def test_from_001(self):
 #         """Add an alias to a "nested" from-import."""
 #         code = "from foo.bar import thing"
