@@ -580,6 +580,14 @@ class Variations(package_common.Tests):
 
     @mock.patch("rez_batch_process.core.plugins.command.RezShellCommand.run")
     def test_versioned_source(self, run_command):
+        """Make sure a Rez source package directory which resembles an installed Rez package works.
+
+        Basically if the source Rez package has a parent version folder
+        BUT the version folder isn't an exact match to what is written
+        in the package.py file then we need to handle that scenario
+        correctly.
+
+        """
         def _make_version_package(path, text):
             directory = os.path.dirname(path)
 
