@@ -215,10 +215,9 @@ def replace(package, configuration, deprecate, requirements, bump=True):
     if not overwritten_paths:
         return
 
-    namespaces = {
-        module.get_namespace()
-        for module in dependency_analyzer.get_imported_namespaces(configuration.paths)
-    }
+    imported_namespaces = dependency_analyzer.get_imported_namespaces(configuration.paths, convert_relative_imports=False)
+    namespaces = {module.get_namespace() for module in imported_namespaces}
+
     _remove_deprecated_packages(package, namespaces, deprecate)
     _add_new_requirement_packages(package, namespaces, requirements)
 

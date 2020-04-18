@@ -121,6 +121,128 @@ class Bugs(common.Common):
 
         self.assertEqual(expected_code, code)
 
+    def test_relative_imports_without_context(self):
+        """Try to handle relative imports, if possible, even without a proper Python environment.
+
+        Ideally :mod:`rez_move_imports` should only be run in a context
+        where all paths are available on the PYTHONPATH. Sometimes you
+        can't do that though (either for speed or complexity reasons).
+        Because if this isn't the case, relative imports cannot be resolved
+        into absolute imports.
+
+        But if you can't get everything available in the PYTHONPATH then
+        a fallback mechanism can be used to "guess" the import structure
+        based on the other found Python files.
+
+        Important:
+            This fallback assumes that the Rez package only defines one
+            common root path for all Python files (it's a big assumption
+            but almost always this is the case).
+
+        """
+        directory = tempfile.mkdtemp(suffix="_test_relative_imports_without_context")
+        self.delete_item_later(directory)
+
+        some_module = os.path.join(directory, "some_module_inside.py")
+        text = textwrap.dedent(
+            """\
+            # some module with stuff in it
+
+            import os
+            import textwrap
+
+            from old_dependency import a_module
+
+            from . import another_module
+
+            def something():
+                pass
+            """
+        )
+
+        with open(some_module, "w") as handler:
+            handler.write(text)
+
+        package = os.path.join(directory, "package.py")
+
+        with open(package, "w") as handler:
+            handler.write(
+                textwrap.dedent(
+                    """\
+                    # -*- coding: utf-8 -*-
+
+                    name = "a_package_here"
+
+                    version = "1.3.0"
+
+                    build_command = "echo 'foo'"
+
+                    def commands():
+                        import os
+
+                        env.PYTHONPATH.append('asdf')
+                    """
+                )
+            )
+
+        command = [
+            '"{directory} old_dependency.a_module,a_new_namespace.somewhere_else"'
+            "".format(directory=directory),
+            '--requirements="a_new_package-2+<4,a_new_namespace"',
+            '--deprecate="old_dependency_package,old_dependency"',
+            '--package-directory="{directory}"'.format(directory=directory),
+        ]
+
+        cli.main(command)
+
+        expected_package = textwrap.dedent(
+            """\
+            # -*- coding: utf-8 -*-
+
+            name = "a_package_here"
+
+            version = "1.4.0"
+
+            requires = [
+                "a_new_package-2+<4",
+            ]
+
+            build_command = "echo 'foo'"
+
+            def commands():
+                import os
+
+                env.PYTHONPATH.append('asdf')
+            """
+        )
+
+        with open(package, "r") as handler:
+            code = handler.read()
+
+        self.assertEqual(expected_package, code)
+
+        expected_code = textwrap.dedent(
+            """\
+            # some module with stuff in it
+
+            import os
+            import textwrap
+
+            from a_new_namespace import somewhere_else
+
+            from . import another_module
+
+            def something():
+                pass
+            """
+        )
+
+        with open(some_module, "r") as handler:
+            code = handler.read()
+
+        self.assertEqual(expected_code, code)
+
+
 
 class Invalids(common.Common):
     """Check that different CLI options fail in predictable ways."""

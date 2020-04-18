@@ -295,7 +295,7 @@ def get_dependency_paths(directories):
     return _get_source_paths(namespaces)
 
 
-def get_imported_namespaces(directories):
+def get_imported_namespaces(directories, convert_relative_imports=True):
     """Get every Python namespace dependency for every Python file in a set of folders.
 
     Args:
@@ -303,6 +303,11 @@ def get_imported_namespaces(directories):
             The absolute paths to folders on-disk that contain Python
             files. These Python files will be directly imported and
             parsed for either namespace imports and returned.
+        convert_relative_imports (bool, optional):
+            If True, force relative paths into absolute paths and
+            return those "resolved" namespaces as part of the output.
+            Otherwise, don't return any relative import namespaces.
+            Default is True.
 
     Returns:
         set[:class:`python_compatibility.import_parser.Module`]:
@@ -315,8 +320,14 @@ def get_imported_namespaces(directories):
     for directory in directories:
         for path in packaging.iter_python_files(directory):
             try:
-                for namespace in import_parser.get_namespaces_from_file(path):
+                for namespace in import_parser.get_namespaces_from_file(
+                    path,
+                    absolute=convert_relative_imports,
+                ):
                     namespace_text = namespace.get_namespace()
+
+                    if not convert_relative_imports and namespace_text.startswith("."):
+                        continue
 
                     if namespace_text not in names:
                         names.add(namespace_text)
