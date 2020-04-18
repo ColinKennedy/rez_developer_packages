@@ -592,6 +592,47 @@ class Imports(_Common):
 
         self._test(expected, code, namespaces, partial=True)
 
+    def test_star(self):
+        """Replace a star-import."""
+        code = "from foo import *"
+        namespaces = [("foo.bar", "something.parse")]
+        expected = "from something import *"
+
+        self._test(expected, code, namespaces, partial=True)
+
+    def test_complex_partial(self):
+        """Check that difficult formatting still replaces the imports, correctly."""
+        code = textwrap.dedent(
+            """\
+            from foo.more import (
+                blah as whatever, bazz,
+                etc,
+                another_line as thing,
+                    bad_formatting
+            )
+            """
+        )
+        namespaces = [
+            ("foo.more.another_line", "new.namespace.new_name"),
+            ("foo.more.etc", "new.namespace.etc"),
+        ]
+        expected = textwrap.dedent(
+            """\
+            from new.namespace import (
+                blah as whatever, bazz,
+                etc,
+                new_name as thing,
+                    bad_formatting
+            )
+            """
+        )
+
+        self._test(expected, code, namespaces, partial=True)
+
+
+class ImportFrom(_Common):
+    """A series of tests for `from X import Y` style imports."""
+
     def test_from_001(self):
         """Replace a from import with a different nested namespace."""
         code = "from foo.bar import thing"
@@ -653,6 +694,35 @@ class Imports(_Common):
         ]
         expected = "from something import parse, another"
 
+        self._test(expected, code, namespaces, partial=True)
+
+    def test_trailing_from_001(self):
+        """Make sure replacing the last name in an import works."""
+        code = "from foo.bar import thing, another"
+        namespaces = [("foo.bar.another", "ttt.stuff")]
+        expected = textwrap.dedent(
+            """\
+            from ttt import stuff
+            from foo.bar import thing"""
+        )
+
+        self._test(expected, code, namespaces)
+        expected = "from ttt import thing, stuff"
+        self._test(expected, code, namespaces, partial=True)
+
+    def test_trailing_from_002(self):
+        """Make sure replacing the last name in an import works."""
+        code = "from foo.bar import thing, another"
+        namespaces = [("foo.bar.another", "thing.stuff.blah")]
+        expected = textwrap.dedent(
+            """\
+            from thing.stuff import blah
+            from foo.bar import thing"""
+        )
+
+        self._test(expected, code, namespaces)
+
+        expected = "from thing.stuff import thing, blah"
         self._test(expected, code, namespaces, partial=True)
 
     # TODO : Finish
@@ -718,72 +788,6 @@ class Imports(_Common):
     #     )
     #
     #     self._test(expected, code, namespaces, partial=False)
-
-    def test_star(self):
-        """Replace a star-import."""
-        code = "from foo import *"
-        namespaces = [("foo.bar", "something.parse")]
-        expected = "from something import *"
-
-        self._test(expected, code, namespaces, partial=True)
-
-    def test_complex_partial(self):
-        """Check that difficult formatting still replaces the imports, correctly."""
-        code = textwrap.dedent(
-            """\
-            from foo.more import (
-                blah as whatever, bazz,
-                etc,
-                another_line as thing,
-                    bad_formatting
-            )
-            """
-        )
-        namespaces = [
-            ("foo.more.another_line", "new.namespace.new_name"),
-            ("foo.more.etc", "new.namespace.etc"),
-        ]
-        expected = textwrap.dedent(
-            """\
-            from new.namespace import (
-                blah as whatever, bazz,
-                etc,
-                new_name as thing,
-                    bad_formatting
-            )
-            """
-        )
-
-        self._test(expected, code, namespaces, partial=True)
-
-    def test_trailing_from_001(self):
-        """Make sure replacing the last name in an import works."""
-        code = "from foo.bar import thing, another"
-        namespaces = [("foo.bar.another", "ttt.stuff")]
-        expected = textwrap.dedent(
-            """\
-            from ttt import stuff
-            from foo.bar import thing"""
-        )
-
-        self._test(expected, code, namespaces)
-        expected = "from ttt import thing, stuff"
-        self._test(expected, code, namespaces, partial=True)
-
-    def test_trailing_from_002(self):
-        """Make sure replacing the last name in an import works."""
-        code = "from foo.bar import thing, another"
-        namespaces = [("foo.bar.another", "thing.stuff.blah")]
-        expected = textwrap.dedent(
-            """\
-            from thing.stuff import blah
-            from foo.bar import thing"""
-        )
-
-        self._test(expected, code, namespaces)
-
-        expected = "from thing.stuff import thing, blah"
-        self._test(expected, code, namespaces, partial=True)
 
 
 class PartialFrom(_Common):
