@@ -98,9 +98,7 @@ def handle_generic_exception(error, package):
 
 
 def report(
-    packages_to_report,
-    maximum_repositories=sys.maxint,
-    maximum_rez_packages=sys.maxint,
+    packages_to_report, maximum_repositories=sys.maxint, maximum_rez_packages=sys.maxint
 ):
     """Check Rez packages for missing documentation and return them all.
 

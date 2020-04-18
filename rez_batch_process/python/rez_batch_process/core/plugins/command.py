@@ -12,9 +12,9 @@ import shlex
 import subprocess
 import textwrap
 
+import wurlitzer
 from github3 import exceptions as github3_exceptions
 from rez_utilities import inspection
-import wurlitzer
 
 from .. import exceptions, rez_git
 from ..gitter import base_adapter, git_link, git_registry
@@ -122,8 +122,10 @@ class RezShellCommand(base.BaseCommand):
             return message
 
         if not has_changes(package):
-            return 'Command "{arguments.command}" ran but nothing on-disk changed. ' \
-                'No PR is needed!'.format(arguments=arguments)
+            return (
+                'Command "{arguments.command}" ran but nothing on-disk changed. '
+                "No PR is needed!".format(arguments=arguments)
+            )
 
         return ""
 
@@ -228,7 +230,9 @@ class RezShellCommand(base.BaseCommand):
             stdout, stderr = pipes
 
             if "error: failed to push some refs to " in stdout.read():
-                raise RuntimeError('Could not push to "{new_branch}".'.format(new_branch=new_branch))
+                raise RuntimeError(
+                    'Could not push to "{new_branch}".'.format(new_branch=new_branch)
+                )
             elif stderr.read():
                 raise RuntimeError(stderr)
 
@@ -237,9 +241,7 @@ class RezShellCommand(base.BaseCommand):
                     title,
                     body,
                     base_adapter.PullRequestDetails(
-                        url,
-                        new_branch.name,
-                        current_branch.name,
+                        url, new_branch.name, current_branch.name
                     ),
                     user_data=cached_users,
                 )
@@ -342,8 +344,14 @@ def has_changes(package):
 
     """
     repository = rez_git.get_repository(package)
-    relative_path = os.path.relpath(inspection.get_package_root(package), repository.working_dir)
-    command = shlex.split('git status --porcelain -- "{relative_path}"'.format(relative_path=relative_path))
+    relative_path = os.path.relpath(
+        inspection.get_package_root(package), repository.working_dir
+    )
+    command = shlex.split(
+        'git status --porcelain -- "{relative_path}"'.format(
+            relative_path=relative_path
+        )
+    )
 
     return bool(repository.git.execute(command))
 
@@ -386,10 +394,7 @@ def add_git_arguments(parser):
         "(e.g. GitHub enterprise), use this flag to provide the URL.",
     )
     parser.add_argument(
-        "-s",
-        "--ssl-no-verify",
-        action="store_false",
-        help="Disable SSL verification",
+        "-s", "--ssl-no-verify", action="store_false", help="Disable SSL verification"
     )
 
 
@@ -451,5 +456,5 @@ def _reset_repository_state(repository, branch):
         repository.head.reset(  # Make sure there are no uncommitted changes
             index=True, working_tree=True
         )
-        repository.git.clean('-df')  # Delete all untracked files and folders
+        repository.git.clean("-df")  # Delete all untracked files and folders
         branch.checkout()

@@ -79,7 +79,9 @@ def __report(arguments, _):
             An un-used argument for this function.
 
     """
-    ignored_packages, other_packages, invalid_packages, skips = __gather_package_data(arguments)
+    ignored_packages, other_packages, invalid_packages, skips = __gather_package_data(
+        arguments
+    )
 
     packages, invalids = worker.report(
         other_packages,
@@ -110,7 +112,9 @@ def __run(arguments, command_arguments):  # pylint: disable=too-many-locals
             The registered command's parsed arguments.
 
     """
-    ignored_packages, other_packages, invalid_packages, skips = __gather_package_data(arguments)
+    ignored_packages, other_packages, invalid_packages, skips = __gather_package_data(
+        arguments
+    )
 
     command = registry.get_command(arguments.command)
 

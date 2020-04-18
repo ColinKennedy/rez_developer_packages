@@ -11,9 +11,9 @@ import re
 import sys
 import tempfile
 
-from github3 import exceptions as github3_exceptions
 import github
 import github3
+from github3 import exceptions as github3_exceptions
 
 from . import base_adapter
 

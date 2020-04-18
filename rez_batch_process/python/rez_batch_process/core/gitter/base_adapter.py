@@ -6,7 +6,9 @@
 import abc
 import collections
 
-PullRequestDetails = collections.namedtuple("PullRequestDetails", "url source destination")
+PullRequestDetails = collections.namedtuple(
+    "PullRequestDetails", "url source destination"
+)
 
 
 class BaseAdapter(object):

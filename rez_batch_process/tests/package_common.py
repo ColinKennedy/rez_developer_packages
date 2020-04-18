@@ -92,8 +92,7 @@ class Tests(common.Common):
         command = registry.get_command("shell")
 
         _, unfixed, invalids = worker.run(
-            functools.partial(command.run, arguments=arguments),
-            valid_packages,
+            functools.partial(command.run, arguments=arguments), valid_packages
         )
 
         invalids.extend(invalid_packages)

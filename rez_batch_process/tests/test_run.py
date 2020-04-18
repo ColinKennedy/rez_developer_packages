@@ -238,13 +238,13 @@ class Fix(package_common.Tests):
         self.assertEqual(2, run_command.call_count)
 
         with rez_configuration.patch_packages_path([release_path_b, release_path_a]):
-            self._test(
-                (set(), [], []), [release_path_b, release_path_a]
-            )
+            self._test((set(), [], []), [release_path_b, release_path_a])
 
         self.assertEqual(7, run_command.call_count)
 
-    @mock.patch("rez_batch_process.core.plugins.command.RezShellCommand._create_pull_request")
+    @mock.patch(
+        "rez_batch_process.core.plugins.command.RezShellCommand._create_pull_request"
+    )
     def test_no_change(self, _create_pull_request):
         """Successfully run a command but have that command do nothing.
 
@@ -439,8 +439,7 @@ class Variations(package_common.Tests):
 
         """
         packages = self._setup_test(
-            run_command,
-            package_common.make_build_python_package,
+            run_command, package_common.make_build_python_package
         )
         path_root = inspection.get_packages_path_from_package(packages[0])
 
@@ -611,7 +610,8 @@ class Variations(package_common.Tests):
                             os.environ["REZ_BUILD_INSTALL_PATH"],
                         )
                         """
-                    ))
+                    )
+                )
 
             return inspection.get_nearest_rez_package(directory)
 
@@ -675,7 +675,9 @@ class Variations(package_common.Tests):
             ),
         ]
 
-        repository, packages, remote_root = package_common.make_fake_repository(packages, root)
+        repository, packages, remote_root = package_common.make_fake_repository(
+            packages, root
+        )
         self.delete_item_later(repository.working_dir)
         self.delete_item_later(remote_root)
 
@@ -685,14 +687,7 @@ class Variations(package_common.Tests):
         paths = [release_path]
 
         with rez_configuration.patch_packages_path(paths):
-            self._test(
-                (
-                    set(),
-                    [],
-                    [],
-                ),
-                paths,
-            )
+            self._test((set(), [], []), paths)
 
         self.assertEqual(2, run_command.call_count)
 
