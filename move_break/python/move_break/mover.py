@@ -9,7 +9,7 @@ from . import finder
 from .core import parser
 
 
-def move_imports(
+def move_imports(  # pylint: disable=too-many-arguments
     files,
     namespaces,
     partial=False,
