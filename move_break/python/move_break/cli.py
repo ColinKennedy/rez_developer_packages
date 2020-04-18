@@ -12,7 +12,8 @@ from .core import import_registry
 
 _CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 Configuration = collections.namedtuple(
-    "Configuration", "paths namespaces partial_matches types aliases"
+    "Configuration",
+    "paths namespaces partial_matches types aliases continue_on_syntax_error",
 )
 
 
@@ -64,7 +65,7 @@ def _parse_arguments(text):
         "-c",
         "--continue-on-syntax-error",
         action="store_true",
-        help="If one or more discovered files has a syntax errors, don't modify it or exit the script."
+        help="If one or more discovered files has a syntax errors, don't modify it or exit the script.",
     )
 
     return parser.parse_args(text)
@@ -145,7 +146,12 @@ def parse_arguments(text):
         )
 
     return Configuration(
-        paths, namespaces, arguments.partial_matches, arguments.types, arguments.aliases
+        paths,
+        namespaces,
+        arguments.partial_matches,
+        arguments.types,
+        arguments.aliases,
+        arguments.continue_on_syntax_error,
     )
 
 
