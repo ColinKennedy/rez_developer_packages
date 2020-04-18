@@ -16,7 +16,6 @@ import parso
 from .core import parser
 from .core.parsers import base
 
-
 _ALLOWED_ERROR_CODES = (
     903,  # IndentationError << This package can handle indentation issues, no problem
 )
