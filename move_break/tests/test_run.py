@@ -14,7 +14,7 @@ class _Common(common.Common):
     """A base clsas used by other test classes."""
 
     def _test(  # pylint: disable=too-many-arguments
-        self, expected, code, namespaces, partial=False, aliases=False
+        self, expected, code, namespaces, partial=False, aliases=False, continue_on_syntax_error=False
     ):
         """Make a temporary file to test with and delete it later.
 
@@ -39,6 +39,10 @@ class _Common(common.Common):
                 statements to fail, auto-add an import alias to ensure
                 backwards compatibility If False, don't add aliases. Default
                 is False.
+            continue_on_syntax_error (bool, optional):
+                If True and a path in `files` is an invalid Python module
+                and otherwise cannot be parsed then skip the file and keep
+                going. Otherwise, raise an exception. Default is False.
 
         """
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False) as handler:
@@ -46,7 +50,7 @@ class _Common(common.Common):
 
         self.delete_item_later(handler.name)
 
-        mover.move_imports({handler.name}, namespaces, partial=partial, aliases=aliases)
+        mover.move_imports({handler.name}, namespaces, partial=partial, aliases=aliases, continue_on_syntax_error=continue_on_syntax_error)
 
         with open(handler.name, "r") as handler:
             new_code = handler.read()
@@ -305,7 +309,7 @@ class Backslashes(_Common):
         code = textwrap.dedent(
             """\
             import os.path, \\
-                    textwrap \\
+                    textwrap, \\
                 another
             """
         )
@@ -315,7 +319,7 @@ class Backslashes(_Common):
         expected = textwrap.dedent(
             """\
             import os.path, \\
-                    thing \\
+                    thing, \\
                 another
             """
         )
@@ -397,7 +401,7 @@ class Backslashes(_Common):
         code = textwrap.dedent(
             """\
             from mit import path, \\
-                    textwrap \\
+                    textwrap, \\
                 another
             """
         )
@@ -407,7 +411,7 @@ class Backslashes(_Common):
         expected = textwrap.dedent(
             """\
             from cornell import path, \\
-                    thing \\
+                    thing, \\
                 another
             """
         )
@@ -788,6 +792,23 @@ class ImportFrom(_Common):
     #     )
     #
     #     self._test(expected, code, namespaces, partial=False)
+
+    def test_syntax_error(self):
+        """Don't replace the file if the file has a syntax error."""
+        code = textwrap.dedent(
+            """\
+            from foo import, bar
+            """
+        )
+
+        namespaces = [
+            ("foo.bar", "thing.another"),
+        ]
+
+        with self.assertRaises(RuntimeError):
+            self._test("", code, namespaces)
+
+        self._test(code, code, namespaces, continue_on_syntax_error=True)
 
 
 class PartialFrom(_Common):

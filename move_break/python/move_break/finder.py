@@ -8,6 +8,7 @@ as part of this package's API.
 
 """
 
+import copy
 import os
 
 import parso
@@ -15,6 +16,10 @@ import parso
 from .core import parser
 from .core.parsers import base
 
+
+_ALLOWED_ERROR_CODES = (
+    903,  # IndentationError << This package can handle indentation issues, no problem
+)
 
 def expand_paths(path, fallback=""):
     """Find every Python file in `path`.
@@ -85,8 +90,38 @@ def get_namespaces(path):
 
 
 def get_graph(path):
-    """:class:`parso.python.tree.Module`: Convert a file path into a parso graph."""
+    """Convert a file path into a parso graph.
+
+    Args:
+        path (str): An absolute path to a file on-disk to load.
+
+    Raises:
+        RuntimeError: If `path` has some errors which prevent it from being loaded.
+
+    Returns:
+        :class:`parso.python.tree.Module`: The parsed `code`, as a parso object.
+
+    """
+    def _get_errors(code):
+        grammar = parso.load_grammar()
+        module = grammar.parse(code)
+
+        errors = list(grammar.iter_errors(module))
+
+        for error in copy.copy(errors):
+            if error.code in _ALLOWED_ERROR_CODES:
+                errors.remove(error)
+
+        return errors
+
     with open(path, "r") as handler:
         code = handler.read()
+
+    errors = _get_errors(code)
+
+    if errors:
+        raise RuntimeError(
+            'Path "{path}" cannot be loaded as a graph. It has syntax errors.'.format(path=path)
+        )
 
     return parso.parse(code)
