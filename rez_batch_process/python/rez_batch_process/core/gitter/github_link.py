@@ -203,23 +203,19 @@ class GithubAdapter(base_adapter.BaseAdapter):
 
         try:
             pull_request = repository.create_pull(
-                title,
-                pull_request_data.destination,
-                pull_request_data.source,
-                body,
+                title, pull_request_data.destination, pull_request_data.source, body
             )
-        except github3_exceptions.UnprocessableEntity:
+        except github3_exceptions.UnprocessableEntity as error:
             _LOGGER.warning(
                 'Pull request failed. This may happen if "%s" already has a pull request '
                 'but fould happen for basically any reason. Check output "%s" for details.',
                 pull_request_data.source,
-                errors.errors,
+                error.errors,
             )
 
             if error.code != 422:
                 _LOGGER.exception(
-                    'Pull request was prevented because of this error, "%s".',
-                    error,
+                    'Pull request was prevented because of this error, "%s".', error
                 )
 
                 raise

@@ -201,7 +201,7 @@ class RezShellCommand(base.BaseCommand):
         body = cls._get_pull_request_body(package, configuration)
         commit_message = cls._get_commit_message(package.name)
 
-        pull_request = configuration.pull_request_name
+        pull_request_name = configuration.pull_request_name
 
         if "{package" not in pull_request_name:
             pull_request_name += "_{package.name}"
