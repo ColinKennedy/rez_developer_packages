@@ -10,7 +10,6 @@ import sys
 
 from . import cli
 
-
 if __name__ == "__main__":
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
     cli.main(sys.argv[1:])
