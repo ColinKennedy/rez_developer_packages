@@ -60,12 +60,7 @@ tests = {
         "command": "pylint --disable=bad-continuation python/rez_batch_process tests",
         "requires": ["pylint-1.9+<2"],
     },
-    "unittest": {
-        "command": "python -m unittest discover",
-        "requires": [
-            "mock-3+<4",
-        ],
-    },
+    "unittest": {"command": "python -m unittest discover", "requires": ["mock-3+<4"]},
 }
 
 
