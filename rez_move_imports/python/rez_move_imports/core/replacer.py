@@ -209,6 +209,7 @@ def replace(package, configuration, deprecate, requirements, bump=True):
         partial=configuration.partial_matches,
         import_types=configuration.types,
         aliases=configuration.aliases,
+        continue_on_syntax_error=configuration.continue_on_syntax_error,
     )
 
     if not overwritten_paths:

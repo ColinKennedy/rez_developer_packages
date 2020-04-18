@@ -60,6 +60,13 @@ def _parse_arguments(text):
         help="A comma-separated list of allowed import statements to replace.",
     )
 
+    parser.add_argument(
+        "-c",
+        "--continue-on-syntax-error",
+        action="store_true",
+        help="If one or more discovered files has a syntax errors, don't modify it or exit the script."
+    )
+
     return parser.parse_args(text)
 
 
@@ -162,4 +169,5 @@ def main(text):
         partial=configuration.partial_matches,
         import_types=configuration.types,
         aliases=configuration.aliases,
+        continue_on_syntax_error=configuration.continue_on_syntax_error,
     )
