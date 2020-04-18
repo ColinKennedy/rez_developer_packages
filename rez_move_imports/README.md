@@ -78,6 +78,10 @@ The remaining arguments outside of the ""s are all things that
 
 ## Caveats
 - This package assumes that you've defined your Rez package as a package.py file.
+- Also this package cannot replace relative imports, currently.
+   - Relative imports require the user to be in an environment with a defined PYTHONPATH
+     but this is a big requirement that would considerably slow down rez_move_imports.
+	 So it's not currently supported.
 
 
 # How To Automate
