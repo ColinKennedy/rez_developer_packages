@@ -420,9 +420,12 @@ def _remove_comma(node):
 
         return parent.children[-1]
 
-    def _remove_trailing_node(nodes):
-        node = nodes[-1]
+    def _remove_leading_node(node):
+        if isinstance(node, tree.Operator) and node.value == ",":
+            index = node.parent.children.index(node)
+            del node.parent.children[index]
 
+    def _remove_trailing_node(node):
         if isinstance(node, tree.Operator) and node.value == ",":
             del node.parent.children[-1]
 
@@ -443,7 +446,11 @@ def _remove_comma(node):
 
     # We must be at the beginning or somewhere in the middle of the import.
     del parent.children[index]  # Remove the name
-    _remove_trailing_node(parent.children)
+    children = parent.children
+
+    if children:
+        _remove_leading_node(children[0])
+        _remove_trailing_node(children[-1])
 
     return alias
 
