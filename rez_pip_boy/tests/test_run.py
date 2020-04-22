@@ -152,12 +152,10 @@ class Integrations(unittest.TestCase):
         self.assertTrue(os.path.isfile(os.path.join(dependency, "package.py")))
 
         self._verify_source_package(dependency, [["python-2.7", "contextlib2"]])
-        self._verify_installed_package(dependency)
         self._verify_source_package(
             source_directory,
             [["python-2.7", "contextlib2", "configparser-3.5+", "pathlib2"]],
         )
-        self._verify_installed_package(source_directory)
 
     @staticmethod
     def test_make_folders():
@@ -207,7 +205,6 @@ class Integrations(unittest.TestCase):
 
         source_directory = os.path.join(directory, "zipp", "1.2.0")
         self._verify_source_package(source_directory, [["python-2.7", "contextlib2"]])
-        self._verify_installed_package(source_directory)
 
     def test_combine_variants(self):
         """Install 2 different variants and ensure the result package.py is correct."""
@@ -230,6 +227,7 @@ class Integrations(unittest.TestCase):
         )
 
         self._verify_source_package(source_directory, [["python-3.6"], ["python-2.7"]])
+        self._verify_installed_package(source_directory)
 
     def test_older_rez_versions(self):
         """Make sure installation still works, even with older versions of Rez."""
@@ -296,7 +294,10 @@ class Integrations(unittest.TestCase):
     def test_hashed_variants(self):
         """Install a Rez package using encoded (hashed) variant names."""
         directory = tempfile.mkdtemp(prefix="rez_pip_boy_", suffix="_test_hashed_variants")
-        # atexit.register(functools.partial(shutil.rmtree, directory))
+        atexit.register(functools.partial(shutil.rmtree, directory))
+
+        os.environ["PIP_BOY_TAR_LOCATION"] = tempfile.mkdtemp(prefix="rez_pip_boy_", suffix="_test_no_hashed_variants_tar_location")
+        atexit.register(functools.partial(shutil.rmtree, os.environ["PIP_BOY_TAR_LOCATION"]))
 
         _run_command(
             'rez_pip_boy "--install six==1.14.0 --python-version=2.7" {directory} --hashed-variants'.format(
@@ -306,15 +307,12 @@ class Integrations(unittest.TestCase):
 
         source_directory = os.path.join(directory, "six", "1.14.0")
         package = self._verify_source_package(source_directory, [["python-2.7"]])
+        self._verify_installed_package(source_directory)
+        self.assertTrue(package.hashed_variants)
 
-        from rez_utilities import inspection
-        directory = inspection.get_package_root(package)
-        package_file = os.path.join(directory, "package.py")
+        tar_directory = os.path.join(os.environ["PIP_BOY_TAR_LOCATION"], "six")
 
-        with open(package_file, "r") as handler:
-            print(handler.read())
-
-        raise ValueError(package)
+        self.assertTrue(os.path.isfile(os.path.join(tar_directory, "six-1.14.0-ff5a17a870e473adea6d65972631222d54a381e6.tar.gz")))
 
     def test_no_hashed_variants(self):
         """Install a Rez package but keep each variant as a named folder."""
@@ -332,7 +330,9 @@ class Integrations(unittest.TestCase):
 
         source_directory = os.path.join(directory, "six", "1.14.0")
         package = self._verify_source_package(source_directory, [["python-2.7"]])
+        self._verify_installed_package(source_directory)
         self.assertFalse(package.hashed_variants)
+
         tar_directory = os.path.join(os.environ["PIP_BOY_TAR_LOCATION"], "six")
 
         self.assertTrue(os.path.isfile(os.path.join(tar_directory, "six-1.14.0-python-2.7.tar.gz")))

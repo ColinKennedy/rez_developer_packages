@@ -11,7 +11,6 @@ control over variant again, we have to get a bit creative and force
 """
 
 import contextlib
-import functools
 
 from rez import package_maker
 
@@ -29,7 +28,6 @@ def _modified_get_data(function):
         callable: The wrapped command, which creates un-hashed variant Rez pip packages.
 
     """
-    @functools.wraps(function)
     def wrapper(*args, **kwargs):
         output = function(*args, **kwargs)
         output["hashed_variants"] = False
