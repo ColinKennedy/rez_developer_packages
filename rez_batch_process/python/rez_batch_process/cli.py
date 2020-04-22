@@ -526,11 +526,14 @@ def _process_help(text):
     """
     text = copy.copy(text)
 
+    found_index = -1
     found_text = ""
 
     if "--help" in text:
+        found_index = text.index("--help")
         found_text = "--help"
     elif "-h" in text:
+        found_index = text.index("--h")
         found_text = "-h"
 
     if not found_text:
@@ -544,7 +547,7 @@ def _process_help(text):
         except ValueError:
             pass
 
-    if subparser_index == -1:
+    if found_index != 0 and subparser_index == -1:
         raise RuntimeError(
             'Text "{text}" is not a registered command.'.format(text=text)
         )
