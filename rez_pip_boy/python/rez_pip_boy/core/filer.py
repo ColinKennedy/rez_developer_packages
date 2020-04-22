@@ -8,8 +8,6 @@ import tarfile
 
 from rez_utilities import inspection
 
-_ROOT = os.environ["PIP_BOY_TAR_LOCATION"]
-
 
 def _get_transfer_path(variant):
     """Get the recommended file path to the archived .tar.gz file.
@@ -23,6 +21,8 @@ def _get_transfer_path(variant):
         str: The generated path to the .tar.gz.
 
     """
+    root = os.environ["PIP_BOY_TAR_LOCATION"]
+
     subpath = (
         variant._non_shortlinked_subpath.replace(  # pylint: disable=protected-access
             "/", "_"
@@ -34,7 +34,7 @@ def _get_transfer_path(variant):
         variant=variant, subpath=subpath,
     )
 
-    return os.path.join(_ROOT, variant.name, tar_name)
+    return os.path.join(root, variant.name, tar_name)
 
 
 def transfer(variant):

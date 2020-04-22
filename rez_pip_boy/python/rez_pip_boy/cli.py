@@ -17,7 +17,7 @@ from rez import pip
 from rez.cli import pip as cli_pip
 from rez_utilities import rez_configuration
 
-from .core import builder, exceptions, filer
+from .core import builder, hashed_variant, exceptions, filer
 
 _BUILD_FILE_NAME = "rezbuild.py"
 _LOGGER = logging.getLogger(__name__)
@@ -42,11 +42,16 @@ def _parse_arguments(text):
         "command",
         help='The raw rez-pip command. e.g. "--install black --python-version=3.6".',
     )
-
     parser.add_argument(
         "destination",
         help="The absolute folder path on-disk to place this source package "
         "(usually a sub-folder in a git repository).",
+    )
+
+    parser.add_argument(
+        "--hashed-variants",
+        action="store_true",
+        help="Install Rez packages using a hashed variant folder names.",
     )
 
     parser.add_argument(
@@ -102,6 +107,25 @@ def _is_older_rez(arguments):
         return True
 
     return False
+
+
+def _get_install_context(arguments):
+    """Create a Python context object for running the main shell command.
+
+    This context will help us implement Rez package installs which use
+    hashed variants as well as un-hashed variants.
+
+    Args:
+        arguments (:class:`argparse.ArgumentParser`): The user-parsed arguments.
+
+    Returns:
+        callable: Some callable Python object which is later used as a Python context.
+
+    """
+    if arguments.hashed_variants:
+        return hashed_variant.do_nothing
+
+    return hashed_variant.force_unhashed_variants
 
 
 def _pip_install(arguments, prefix):
@@ -179,7 +203,10 @@ def main(text):
 
     rez_pip_arguments = _parse_rez_pip_arguments(shlex.split(arguments.command))
 
-    installed_variants, stdout, stderr = _pip_install(rez_pip_arguments, prefix)
+    context = _get_install_context(arguments)
+
+    with context():
+        installed_variants, stdout, stderr = _pip_install(rez_pip_arguments, prefix)
 
     _LOGGER.debug('Found variants "%s".', installed_variants)
 
