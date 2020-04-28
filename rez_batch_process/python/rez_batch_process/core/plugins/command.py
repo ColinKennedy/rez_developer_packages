@@ -13,6 +13,7 @@ import subprocess
 import textwrap
 
 import wurlitzer
+from git import exc
 from github3 import exceptions as github3_exceptions
 from rez_utilities import inspection
 
@@ -115,6 +116,9 @@ class RezShellCommand(base.BaseCommand):
                     package=package, command=command
                 )
             )
+
+            _LOGGER.error('Found error.')
+            _LOGGER.error(stderr)
 
             if arguments.exit_on_error:
                 raise exceptions.CoreException(message + "\n\n" + stderr)
@@ -221,11 +225,26 @@ class RezShellCommand(base.BaseCommand):
             origin = repository.remote(name="origin")
 
             with wurlitzer.pipes() as pipes:
-                origin.push(
-                    refspec="{new_branch.name}:{new_branch.name}".format(
-                        new_branch=new_branch
+                try:
+                    origin.push(
+                        refspec="{new_branch.name}:{new_branch.name}".format(
+                            new_branch=new_branch
+                        )
                     )
-                )
+                except exc.GitCommandError as error:
+                    if error.status == 128:
+                        _LOGGER.exception('Package "%s" could not be pushed.', package)
+                        _LOGGER.error('Check to make sure you have access to "%s".', url)
+
+                        raise
+                    if error.status != 403:  # Some other error other than a permissions error
+                        raise
+
+                    # Push was forbidden
+                    # TODO : Do something better than just a log + return here`
+                    _LOGGER.exception('Package "%s" could not be pushed.', package)
+
+                    return
 
             stdout, stderr = pipes
 

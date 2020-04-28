@@ -155,7 +155,18 @@ def get_repository_url(package):
         # If the package was released, it should have a URL
         if url:
             return url
-    except (AttributeError, TypeError):
+    except KeyError:
+        # Very old Rez packages don't have push information
+        raise exceptions.InvalidPackage(
+            package,
+            inspection.get_package_root(package),
+            'Package "{package}" has no repository URL.'.format(package=package),
+        )
+    except (
+        # Happens when `package` is not the expected type
+        AttributeError,
+        TypeError,
+    ):
         pass
 
     repository = get_repository(package)
