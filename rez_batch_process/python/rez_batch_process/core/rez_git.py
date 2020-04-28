@@ -76,7 +76,7 @@ def get_repository(package):
     Raises:
         :class:`.InvalidPackage`:
             If the given `package` is somehow broken.
-        :class:`exceptions.NoGitRepository:
+        :class:`.exceptions.NoGitRepository:
             If `package` is not from a git repository. This usually
             happens when you install a Rez package using ``rez-pip`` or
             another automated process.
