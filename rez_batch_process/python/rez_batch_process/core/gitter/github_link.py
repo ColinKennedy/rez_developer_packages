@@ -30,7 +30,7 @@ _CONVENTIONS = frozenset(
             r"""
             (?:(?P<protocol>http|https)://)?
             (?:www\.)?
-            (?P<base>.+)/(?P<owner>\w+)/(?P<repository_name>\w+)
+            (?P<base>.+)/(?P<owner>[\w\-_]+)/(?P<repository_name>[\w\-_]+)
             (?:\.git)?$
             """,
             re.VERBOSE,
@@ -39,7 +39,7 @@ _CONVENTIONS = frozenset(
         re.compile(
             r"""
             (?P<protocol>git)@
-            (?P<base>.+):(?P<owner>\w+)/(?P<repository_name>\w+)
+            (?P<base>.+):(?P<owner>[\w\-_]+)/(?P<repository_name>[\w\-_]+)
             (?:\.git)?$
             """,
             re.VERBOSE,
