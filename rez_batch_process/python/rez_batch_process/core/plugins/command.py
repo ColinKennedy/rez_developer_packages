@@ -1,7 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""The module that contains extensible commands for modifying Rez packages."""
+"""The module that contains extensible commands for modifying Rez packages.
+
+Important:
+    Unfortunately, GitPython doesn't support authentication
+    for push / pull. So you have to do it using vanilla Git.
+    https://stackoverflow.com/a/53082758/3626104
+
+"""
 
 import argparse
 import collections
