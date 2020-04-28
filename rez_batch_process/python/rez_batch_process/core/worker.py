@@ -16,8 +16,10 @@ import shutil
 import sys
 import tempfile
 
+from git import exc
 import git
-from rez import packages_
+from rez.vendor.schema import schema
+from rez import exceptions as rez_exceptions, packages_
 from rez_utilities import inspection, rez_configuration
 
 from . import exceptions, rez_git
@@ -58,6 +60,27 @@ def _find_package_definitions(directory, name):
                     # TODO : If the issue above is ever solved, remove this try/except
                     #
                     continue
+                except schema.SchemaError:
+                    # The package is invalid. Just skip it
+                    _LOGGER.warning(
+                        'Package "%s" at "%s" folder is invalid.',
+                        package.name,
+                        inspection.get_package_root(package),
+                    )
+                    continue
+                except rez_exceptions.PackageMetadataError:
+                    # This happens in one of two scenarios:
+                    # 1. The Rez package file found is invalid
+                    # 2. There's a package.py file in the Rez package itself
+                    #    and is being parsed as if it's a Rez package file, even though it isn't.
+                    #
+                    # There's not a lot that can be done about either case. So just ignore it.
+                    _LOGGER.warning(
+                        'Package "%s" at the "%s" folder has some broken metadata. '
+                        'Maybe it\'s not a Rez package?',
+                        package.name,
+                        inspection.get_package_root(root),
+                    )
 
                 if package.name == name:
                     matches.add(package)
@@ -140,6 +163,17 @@ def report(
         try:
             repository = rez_git.get_repository_url(package)
         except (exceptions.InvalidPackage, exceptions.NoRepositoryRemote) as error:
+            invalids.append(
+                exceptions.InvalidPackage(
+                    package, inspection.get_package_root(package), str(error)
+                )
+            )
+
+            continue
+        except exc.NoSuchPathError as error:
+            # If a USD is found for `package` but it points to a file
+            # location on-disk and that path does not exist.
+            #
             invalids.append(
                 exceptions.InvalidPackage(
                     package, inspection.get_package_root(package), str(error)
@@ -234,7 +268,25 @@ def run(  # pylint: disable=too-many-arguments,too-many-locals
 
         if not os.path.isdir(clone_directory):
             os.makedirs(clone_directory)
-            repository = git.Repo.clone_from(repository_url, clone_directory)
+
+            # TODO : Replace this with ls-remote or something
+            #
+            # Reference: https://stackoverflow.com/a/27668138/3626104
+            #
+            # git ls-remote git@github.com:foo/bar.git
+            # git ls-remote http://github.com/foo/bar
+            #
+            try:
+                repository = git.Repo.clone_from(repository_url, clone_directory)
+            except exc.GitCommandError as error:
+                if error.status != 128:
+                    # Note a permissions issue
+                    raise
+
+                for package in packages:
+                    un_ran.add((package, 'The Git repository "{repository_url}" failed to clone.'.format(repository_url=repository_url)))
+
+                continue
         else:
             repository = git.Repo(clone_directory)
 
@@ -262,6 +314,14 @@ def run(  # pylint: disable=too-many-arguments,too-many-locals
             try:
                 error = runner(latest)
             except exceptions.CoreException as error:  # pylint: disable=broad-except
+                un_ran.add((latest, error))
+
+                continue
+            except exc.GitCommandError as error:
+                if error.status != 128:
+                    # Not a permissions issue
+                    raise
+
                 un_ran.add((latest, error))
 
                 continue
