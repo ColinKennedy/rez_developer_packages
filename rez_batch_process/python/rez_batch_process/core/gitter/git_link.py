@@ -191,6 +191,9 @@ def add_directory_to_delete(directory):
     _DIRECTORIES_TO_DELETE.add(directory)
 
 
+# TODO : Change this function to allow nested folders.
+#  e.g. take from "ColinKennedy/rez_developer_packages" not just "rez_developer_packages"
+#
 def make_repository_folder(directory, url):
     """Recommend a child directory within `directory` for a git repository to live in.
 
