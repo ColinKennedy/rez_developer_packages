@@ -62,6 +62,8 @@ def __gather_package_data(arguments):
         found_packages, ignore_patterns
     )
 
+    other_packages = sorted(other_packages, key=operator.attrgetter("name"))
+
     return ignored_packages, other_packages, invalid_packages, skips
 
 
