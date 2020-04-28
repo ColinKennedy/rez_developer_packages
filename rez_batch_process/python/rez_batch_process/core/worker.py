@@ -16,10 +16,11 @@ import shutil
 import sys
 import tempfile
 
-from git import exc
 import git
+from git import exc
+from rez import exceptions as rez_exceptions
+from rez import packages_
 from rez.vendor.schema import schema
-from rez import exceptions as rez_exceptions, packages_
 from rez_utilities import inspection, rez_configuration
 
 from . import exceptions, rez_git
@@ -77,7 +78,7 @@ def _find_package_definitions(directory, name):
                     # There's not a lot that can be done about either case. So just ignore it.
                     _LOGGER.warning(
                         'Package "%s" at the "%s" folder has some broken metadata. '
-                        'Maybe it\'s not a Rez package?',
+                        "Maybe it's not a Rez package?",
                         package.name,
                         inspection.get_package_root(root),
                     )
@@ -284,7 +285,14 @@ def run(  # pylint: disable=too-many-arguments,too-many-locals
                     raise
 
                 for package in packages:
-                    un_ran.add((package, 'The Git repository "{repository_url}" failed to clone.'.format(repository_url=repository_url)))
+                    un_ran.add(
+                        (
+                            package,
+                            'The Git repository "{repository_url}" failed to clone.'.format(
+                                repository_url=repository_url
+                            ),
+                        )
+                    )
 
                 continue
         else:

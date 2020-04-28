@@ -117,7 +117,7 @@ class RezShellCommand(base.BaseCommand):
                 )
             )
 
-            _LOGGER.error('Found error.')
+            _LOGGER.error("Found error.")
             _LOGGER.error(stderr)
 
             if arguments.exit_on_error:
@@ -234,10 +234,14 @@ class RezShellCommand(base.BaseCommand):
                 except exc.GitCommandError as error:
                     if error.status == 128:
                         _LOGGER.exception('Package "%s" could not be pushed.', package)
-                        _LOGGER.error('Check to make sure you have access to "%s".', url)
+                        _LOGGER.error(
+                            'Check to make sure you have access to "%s".', url
+                        )
 
                         raise
-                    if error.status != 403:  # Some other error other than a permissions error
+                    if (
+                        error.status != 403
+                    ):  # Some other error other than a permissions error
                         raise
 
                     # Push was forbidden
