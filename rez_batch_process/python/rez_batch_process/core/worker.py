@@ -68,6 +68,7 @@ def _find_package_definitions(directory, name):
                         package.name,
                         inspection.get_package_root(package),
                     )
+
                     continue
                 except rez_exceptions.PackageMetadataError:
                     # This happens in one of two scenarios:
@@ -82,6 +83,8 @@ def _find_package_definitions(directory, name):
                         package.name,
                         inspection.get_package_root(root),
                     )
+
+                    continue
 
                 if package.name == name:
                     matches.add(package)
