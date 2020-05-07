@@ -275,7 +275,7 @@ def run(  # pylint: disable=too-many-arguments,too-many-locals
         for package in packages:
             output[rez_git.get_repository_url(package)].add(package)
 
-        return output.items()
+        return sorted(output.items(), key=operator.itemgetter(0))
 
     filtered_packages, invalids = report(
         packages_to_run,
@@ -287,6 +287,8 @@ def run(  # pylint: disable=too-many-arguments,too-many-locals
     un_ran = set()
 
     for repository_url, packages in _group_by_repository(filtered_packages):
+        packages = sorted(packages, key=operator.attrgetter("name"))
+
         # TODO : Add thing to make this more quiet, if needed
         if not temporary_directory:
             clone_directory = tempfile.mkdtemp(
