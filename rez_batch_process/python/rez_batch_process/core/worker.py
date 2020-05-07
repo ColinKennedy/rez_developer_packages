@@ -332,6 +332,20 @@ def run(  # pylint: disable=too-many-arguments,too-many-locals
                 )
 
             continue
+        except exc.InvalidGitRepositoryError:
+            _LOGGER.error('Directory "%s" is not a valid Git repository.', clone_directory)
+
+            for package in packages:
+                un_ran.add(
+                    (
+                        package,
+                        'The Git repository "{repository_url}" failed to clone.'.format(
+                            repository_url=repository_url
+                        )
+                    )
+                )
+
+            continue
 
         repository_root = repository.working_dir
 
