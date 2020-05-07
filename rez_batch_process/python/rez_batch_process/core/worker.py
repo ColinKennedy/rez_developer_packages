@@ -30,6 +30,33 @@ Skip = collections.namedtuple("Skip", "package path reason")
 _LOGGER = logging.getLogger(__name__)
 
 
+def _clone(url, directory):
+    """Clone a Git repository listed at `url` to to some folder, `directory`.
+
+    If `directory` is already a Git repository then load it. But if the
+    directory is an invalid Git repository then re-initialize everything
+    from scratch.
+
+    Args:
+        url (str):
+            Some address to a Git repository or path to a local git repository.
+            e.g. https://github.com/ColinKennedy/rez_developer_packages or
+            git@github.com:ColinKennedy/rez_developer_packages.git or
+            /some/path/to/a/cloned/rez_developer_packages.git
+
+    Returns:
+        :class:`git.Repo`: The created repository.
+
+    """
+    if os.path.isdir(directory):
+        try:
+            return git.Repo(directory)
+        except exc.InvalidGitRepositoryError:
+            _LOGGER.warning('Could not clone URL "%s" to directory "%s".', url, directory)
+
+    return git.Repo.clone_from(url, directory)
+
+
 def _find_package_definitions(directory, name):
     """Find every Rez package matching some name in a folder on-disk.
 
@@ -270,36 +297,31 @@ def run(  # pylint: disable=too-many-arguments,too-many-locals
                 temporary_directory, repository_url
             )
 
-        if not os.path.isdir(clone_directory):
-            os.makedirs(clone_directory)
+        # TODO : Replace this with ls-remote or something
+        #
+        # Reference: https://stackoverflow.com/a/27668138/3626104
+        #
+        # git ls-remote git@github.com:foo/bar.git
+        # git ls-remote http://github.com/foo/bar
+        #
+        try:
+            repository = _clone(repository_url, clone_directory)
+        except exc.GitCommandError as error:
+            if error.status != 128:
+                # Note a permissions issue
+                raise
 
-            # TODO : Replace this with ls-remote or something
-            #
-            # Reference: https://stackoverflow.com/a/27668138/3626104
-            #
-            # git ls-remote git@github.com:foo/bar.git
-            # git ls-remote http://github.com/foo/bar
-            #
-            try:
-                repository = git.Repo.clone_from(repository_url, clone_directory)
-            except exc.GitCommandError as error:
-                if error.status != 128:
-                    # Note a permissions issue
-                    raise
-
-                for package in packages:
-                    un_ran.add(
-                        (
-                            package,
-                            'The Git repository "{repository_url}" failed to clone.'.format(
-                                repository_url=repository_url
-                            ),
-                        )
+            for package in packages:
+                un_ran.add(
+                    (
+                        package,
+                        'The Git repository "{repository_url}" failed to clone.'.format(
+                            repository_url=repository_url
+                        ),
                     )
+                )
 
-                continue
-        else:
-            repository = git.Repo(clone_directory)
+            continue
 
         repository_root = repository.working_dir
 
