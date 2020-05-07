@@ -52,7 +52,9 @@ def _clone(url, directory):
         try:
             return git.Repo(directory)
         except exc.InvalidGitRepositoryError:
-            _LOGGER.warning('Could not clone URL "%s" to directory "%s".', url, directory)
+            _LOGGER.warning(
+                'Could not clone URL "%s" to directory "%s".', url, directory
+            )
 
     return git.Repo.clone_from(url, directory)
 
