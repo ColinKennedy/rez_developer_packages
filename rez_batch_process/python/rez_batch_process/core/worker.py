@@ -364,6 +364,11 @@ def run(  # pylint: disable=too-many-arguments,too-many-locals
                 un_ran.add((latest, error))
 
                 continue
+            except NotImplementedError as error:
+                _LOGGER.error('Package "%s" couldn\'t be run.', latest.name)
+                un_ran.add((latest, error))
+
+                continue
 
             if error:
                 un_ran.add((latest, error))
