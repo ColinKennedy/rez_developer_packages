@@ -90,11 +90,7 @@ def _find_package_definitions(directory, name):
                     continue
                 except schema.SchemaError:
                     # The package is invalid. Just skip it
-                    _LOGGER.warning(
-                        'Package "%s" at "%s" folder is invalid.',
-                        package.name,
-                        inspection.get_package_root(package),
-                    )
+                    _LOGGER.warning('Folder "%s" has an invalid Rez package.', root)
 
                     continue
                 except rez_exceptions.PackageMetadataError:
@@ -105,13 +101,23 @@ def _find_package_definitions(directory, name):
                     #
                     # There's not a lot that can be done about either case. So just ignore it.
                     _LOGGER.warning(
-                        'Package "%s" at the "%s" folder has some broken metadata. '
+                        'Folder "%s" thought it found a Rez package but it has broken metadata. '
                         "Maybe it's not a Rez package?",
-                        package.name,
-                        inspection.get_package_root(root),
+                        root,
                     )
 
                     continue
+                except rez_exceptions.ResourceError:
+                    # This happens when there's a file like package.py
+                    # but it's not actually a Rez package. An error
+                    # occurs because there's some kind of import in the
+                    # file which Rez cannot load.
+                    #
+                    _LOGGER.warning(
+                        'Folder "%s" contains a Rez package file which can\'t be imported. '
+                        "Maybe it's not a Rez package?",
+                        root,
+                    )
 
                 if package.name == name:
                     matches.add(package)
