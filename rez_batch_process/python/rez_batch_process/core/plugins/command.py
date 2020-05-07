@@ -252,7 +252,7 @@ class RezShellCommand(base.BaseCommand):
                         raise
 
                     # Push was forbidden
-                    # TODO : Do something better than just a log + return here`
+                    # TODO : Do something better than just a log + return here
                     _LOGGER.exception('Package "%s" could not be pushed.', package)
 
                     return

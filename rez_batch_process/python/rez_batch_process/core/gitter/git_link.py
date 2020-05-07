@@ -192,7 +192,7 @@ def add_directory_to_delete(directory):
 
 
 # TODO : Change this function to allow nested folders.
-#  e.g. take from "ColinKennedy/rez_developer_packages" not just "rez_developer_packages"
+# e.g. take from "ColinKennedy/rez_developer_packages" not just "rez_developer_packages"
 #
 def make_repository_folder(directory, url):
     """Recommend a child directory within `directory` for a git repository to live in.
@@ -200,7 +200,7 @@ def make_repository_folder(directory, url):
     Args:
         directory (str): The root URL that will be used to generate a child folder.
         url (str): The website address that contains the git repository name as a suffix.
-        e.g. "https://github.com/foo/bar.git" or "https://github.com/foo/bar".
+            e.g. "https://github.com/foo/bar.git" or "https://github.com/foo/bar".
 
     Returns:
         str: The child folder.
