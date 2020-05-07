@@ -280,6 +280,11 @@ class RezShellCommand(base.BaseCommand):
                     "Pull request could not be completed. It's ususally a permissions error."
                 )
                 _LOGGER.exception('Error "%s".', error)
+            except github3_exceptions.ConnectionError:
+                # Example github3.exceptions.ConnectionError: <class 'requests.exceptions.ConnectionError'>: A connection-level exception occurred: ('Connection aborted.', BadStatusLine("''",))
+                # Reference: https://github.com/psf/issues/2364
+                #
+                _LOGGER.exception("Connection was interrupted.")
 
     @staticmethod
     def parse_arguments(text):
