@@ -28,6 +28,7 @@ def _modified_get_data(function):
         callable: The wrapped command, which creates un-hashed variant Rez pip packages.
 
     """
+
     def wrapper(*args, **kwargs):
         output = function(*args, **kwargs)
         output["hashed_variants"] = False

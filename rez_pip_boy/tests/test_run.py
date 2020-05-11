@@ -14,8 +14,8 @@ import shutil
 import tempfile
 import unittest
 
-from rez_pip_boy import cli
 from rez import packages
+from rez_pip_boy import cli
 from rez_pip_boy.core import _build_command, exceptions
 from rez_utilities import creator, inspection
 from six.moves import mock
@@ -34,8 +34,12 @@ class Integrations(unittest.TestCase):
     def setUp(self):
         """Keep track of the user's current environment so it can be restored, later."""
         self._environment = os.environ.copy()
-        os.environ["PIP_BOY_TAR_LOCATION"] = tempfile.mkdtemp(prefix="rez_pip_boy_", suffix="_tar_location")
-        atexit.register(functools.partial(shutil.rmtree, os.environ["PIP_BOY_TAR_LOCATION"]))
+        os.environ["PIP_BOY_TAR_LOCATION"] = tempfile.mkdtemp(
+            prefix="rez_pip_boy_", suffix="_tar_location"
+        )
+        atexit.register(
+            functools.partial(shutil.rmtree, os.environ["PIP_BOY_TAR_LOCATION"])
+        )
 
     def tearDown(self):
         """Restore the user's old environment."""
@@ -216,10 +220,15 @@ class Integrations(unittest.TestCase):
         source_directory = os.path.join(directory, "zipp", "1.2.0")
         self._verify_source_package(source_directory, [["python-2.7", "contextlib2"]])
 
-    @unittest.skipIf(_is_missing_python_version("2.7") or _is_missing_python_version("3.6"), "Rez is missing Python 2.7 or 3.6")
+    @unittest.skipIf(
+        _is_missing_python_version("2.7") or _is_missing_python_version("3.6"),
+        "Rez is missing Python 2.7 or 3.6",
+    )
     def test_combine_variants(self):
         """Install 2 different variants and ensure the result package.py is correct."""
-        directory = tempfile.mkdtemp(prefix="rez_pip_boy_", suffix="_test_combine_variants")
+        directory = tempfile.mkdtemp(
+            prefix="rez_pip_boy_", suffix="_test_combine_variants"
+        )
         atexit.register(functools.partial(shutil.rmtree, directory))
 
         _run_command(
@@ -243,7 +252,9 @@ class Integrations(unittest.TestCase):
     @unittest.skipIf(_is_missing_python_version("2.7"), "Rez is missing Python 2.7")
     def test_older_rez_versions(self):
         """Make sure installation still works, even with older versions of Rez."""
-        directory = tempfile.mkdtemp(prefix="rez_pip_boy_", suffix="_test_older_rez_versions")
+        directory = tempfile.mkdtemp(
+            prefix="rez_pip_boy_", suffix="_test_older_rez_versions"
+        )
         atexit.register(functools.partial(shutil.rmtree, directory))
 
         with mock.patch("rez_pip_boy.cli._is_older_rez") as patcher:
@@ -262,7 +273,9 @@ class Integrations(unittest.TestCase):
     @unittest.skipIf(_is_missing_python_version("2.7"), "Rez is missing Python 2.7")
     def test_expanded_paths(self):
         """Ensure ~ paths will work."""
-        directory = tempfile.mkdtemp(prefix="rez_pip_boy_", suffix="_test_expanded_paths")
+        directory = tempfile.mkdtemp(
+            prefix="rez_pip_boy_", suffix="_test_expanded_paths"
+        )
 
         if platform.system() == "Windows":
             directory = (os.sep).join(directory.split(os.sep)[1:])
@@ -284,7 +297,9 @@ class Integrations(unittest.TestCase):
     @unittest.skipIf(_is_missing_python_version("2.7"), "Rez is missing Python 2.7")
     def test_environment_variables(self):
         """Ensure $STUFF environment variable paths will work."""
-        directory = tempfile.mkdtemp(prefix="rez_pip_boy_", suffix="_test_environment_variables")
+        directory = tempfile.mkdtemp(
+            prefix="rez_pip_boy_", suffix="_test_environment_variables"
+        )
 
         if platform.system() == "Windows":
             os.environ["STUFF"] = "C:"
@@ -308,11 +323,17 @@ class Integrations(unittest.TestCase):
     @unittest.skipIf(_is_missing_python_version("2.7"), "Rez is missing Python 2.7")
     def test_hashed_variants(self):
         """Install a Rez package using encoded (hashed) variant names."""
-        directory = tempfile.mkdtemp(prefix="rez_pip_boy_", suffix="_test_hashed_variants")
+        directory = tempfile.mkdtemp(
+            prefix="rez_pip_boy_", suffix="_test_hashed_variants"
+        )
         atexit.register(functools.partial(shutil.rmtree, directory))
 
-        os.environ["PIP_BOY_TAR_LOCATION"] = tempfile.mkdtemp(prefix="rez_pip_boy_", suffix="_test_no_hashed_variants_tar_location")
-        atexit.register(functools.partial(shutil.rmtree, os.environ["PIP_BOY_TAR_LOCATION"]))
+        os.environ["PIP_BOY_TAR_LOCATION"] = tempfile.mkdtemp(
+            prefix="rez_pip_boy_", suffix="_test_no_hashed_variants_tar_location"
+        )
+        atexit.register(
+            functools.partial(shutil.rmtree, os.environ["PIP_BOY_TAR_LOCATION"])
+        )
 
         _run_command(
             'rez_pip_boy "--install six==1.14.0 --python-version=2.7" {directory} --hashed-variants'.format(
@@ -327,16 +348,29 @@ class Integrations(unittest.TestCase):
 
         tar_directory = os.path.join(os.environ["PIP_BOY_TAR_LOCATION"], "six")
 
-        self.assertTrue(os.path.isfile(os.path.join(tar_directory, "six-1.14.0-ff5a17a870e473adea6d65972631222d54a381e6.tar.gz")))
+        self.assertTrue(
+            os.path.isfile(
+                os.path.join(
+                    tar_directory,
+                    "six-1.14.0-ff5a17a870e473adea6d65972631222d54a381e6.tar.gz",
+                )
+            )
+        )
 
     @unittest.skipIf(_is_missing_python_version("2.7"), "Rez is missing Python 2.7")
     def test_no_hashed_variants(self):
         """Install a Rez package but keep each variant as a named folder."""
-        directory = tempfile.mkdtemp(prefix="rez_pip_boy_", suffix="_test_hashed_variants")
+        directory = tempfile.mkdtemp(
+            prefix="rez_pip_boy_", suffix="_test_hashed_variants"
+        )
         atexit.register(functools.partial(shutil.rmtree, directory))
 
-        os.environ["PIP_BOY_TAR_LOCATION"] = tempfile.mkdtemp(prefix="rez_pip_boy_", suffix="_test_no_hashed_variants_tar_location")
-        atexit.register(functools.partial(shutil.rmtree, os.environ["PIP_BOY_TAR_LOCATION"]))
+        os.environ["PIP_BOY_TAR_LOCATION"] = tempfile.mkdtemp(
+            prefix="rez_pip_boy_", suffix="_test_no_hashed_variants_tar_location"
+        )
+        atexit.register(
+            functools.partial(shutil.rmtree, os.environ["PIP_BOY_TAR_LOCATION"])
+        )
 
         _run_command(
             'rez_pip_boy "--install six==1.14.0 --python-version=2.7" {directory}'.format(
@@ -351,7 +385,9 @@ class Integrations(unittest.TestCase):
 
         tar_directory = os.path.join(os.environ["PIP_BOY_TAR_LOCATION"], "six")
 
-        self.assertTrue(os.path.isfile(os.path.join(tar_directory, "six-1.14.0-python-2.7.tar.gz")))
+        self.assertTrue(
+            os.path.isfile(os.path.join(tar_directory, "six-1.14.0-python-2.7.tar.gz"))
+        )
 
 
 class Invalid(unittest.TestCase):

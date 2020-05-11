@@ -17,7 +17,7 @@ from rez import pip
 from rez.cli import pip as cli_pip
 from rez_utilities import rez_configuration
 
-from .core import builder, hashed_variant, exceptions, filer
+from .core import builder, exceptions, filer, hashed_variant
 
 _BUILD_FILE_NAME = "rezbuild.py"
 _LOGGER = logging.getLogger(__name__)
