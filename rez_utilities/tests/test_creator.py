@@ -38,7 +38,7 @@ class Build(common.Common):
         self.delete_item_later(another_root)
 
         with self.assertRaises(exceptions.BuildSystemError):
-            creator.build(build_package, another_root)
+            creator.build(build_package, another_root, quiet=True)
 
     def test_build_source(self):
         """Build a regular source Rez package."""
@@ -68,7 +68,7 @@ class Build(common.Common):
         self.delete_item_later(root)
 
         with self.assertRaises(exceptions.BuildSystemError):
-            creator.build(package, root)
+            creator.build(package, root, quiet=True)
 
 
 class Release(common.Common):
@@ -143,4 +143,4 @@ def _build_source_that_has_build_method(root):
     package = packages_.get_developer_package(root)
     build_root = tempfile.mkdtemp(suffix="_build_test")
 
-    return creator.build(package, build_root), build_root
+    return creator.build(package, build_root, quiet=True), build_root

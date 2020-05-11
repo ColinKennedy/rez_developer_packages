@@ -268,7 +268,7 @@ class HasPythonPackage(common.Common):
         install_root = tempfile.mkdtemp(suffix="_installed_rez_package")
         self.delete_item_later(install_root)
 
-        build_package = creator.build(package, install_root)
+        build_package = creator.build(package, install_root, quiet=True)
 
         self.assertTrue(
             inspection.has_python_package(
@@ -594,6 +594,7 @@ class GetPackagePythonFiles(common.Common):
             install_path,
             packages_path=dependencies
             + config.packages_path,  # pylint: disable=no-member
+            quiet=True,
         )
 
         context = resolved_context.ResolvedContext(
