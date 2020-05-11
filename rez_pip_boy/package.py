@@ -16,7 +16,7 @@ build_command = "python -m rez_build_helper --items bin python"
 
 requires = [
     "rez-2.47+<3",
-    "rez_utilities-1.5+<2",
+    "rez_utilities-1.6+<2",
     "wurlitzer-2+<3",
 ]
 

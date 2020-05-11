@@ -84,7 +84,7 @@ class Integrations(unittest.TestCase):
         atexit.register(functools.partial(shutil.rmtree, install_directory))
 
         package = inspection.get_nearest_rez_package(directory)
-        creator.build(package, install_directory)
+        creator.build(package, install_directory, quiet=True)
 
         installed_package_directory = os.path.join(
             install_directory, package.name, str(package.version)
