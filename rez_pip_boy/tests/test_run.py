@@ -50,9 +50,8 @@ class Integrations(unittest.TestCase):
         """Make sure the the Rez package which ``rez_pip_boy`` converted has the expected files.
 
         Args:
-            directory (str):
-                The path leading to a source Rez package. It should
-                contain one rezbuild.py file and one package.py file.
+            directory (str): The path leading to a source Rez package.
+                It should contain one rezbuild.py file and one package.py file.
             variants (list[list[str]]): All Rez variations to take into account.
                 e.g. [["python-2.7"]].
 
