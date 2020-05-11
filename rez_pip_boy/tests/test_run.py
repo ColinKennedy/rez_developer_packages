@@ -336,7 +336,7 @@ class Integrations(unittest.TestCase):
         )
 
         _run_command(
-            'rez_pip_boy "--install six==1.14.0 --python-version=2.7" {directory} --hashed-variants'.format(
+            'rez_pip_boy "--install six==1.14.0 --python-version=2.7" {directory} --hashed-variants'.format(  # pylint: disable=line-too-long
                 directory=directory
             )
         )
