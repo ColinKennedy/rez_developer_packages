@@ -99,6 +99,7 @@ class Integrations(unittest.TestCase):
             os.path.isfile(os.path.join(installed_package_directory, "rezbuild.py"))
         )
 
+    @unittest.skipIf(_is_missing_python_version("2.7"), "Rez is missing Python 2.7")
     def test_simple(self):
         """Install a really simple pip package (a package with no dependencies)."""
         directory = tempfile.mkdtemp(prefix="rez_pip_boy_", suffix="_test_simple")
