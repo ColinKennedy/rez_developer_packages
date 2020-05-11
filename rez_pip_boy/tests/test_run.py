@@ -250,27 +250,6 @@ class Integrations(unittest.TestCase):
         self._verify_installed_package(source_directory)
 
     @unittest.skipIf(_is_missing_python_version("2.7"), "Rez is missing Python 2.7")
-    def test_older_rez_versions(self):
-        """Make sure installation still works, even with older versions of Rez."""
-        directory = tempfile.mkdtemp(
-            prefix="rez_pip_boy_", suffix="_test_older_rez_versions"
-        )
-        atexit.register(functools.partial(shutil.rmtree, directory))
-
-        with mock.patch("rez_pip_boy.cli._is_older_rez") as patcher:
-            patcher.return_value = True
-
-            _run_command(
-                'rez_pip_boy "--install six==1.14.0 --python-version=2.7" {directory}'.format(
-                    directory=directory
-                )
-            )
-
-        source_directory = os.path.join(directory, "six", "1.14.0")
-        self._verify_source_package(source_directory, [["python-2.7"]])
-        self._verify_installed_package(source_directory)
-
-    @unittest.skipIf(_is_missing_python_version("2.7"), "Rez is missing Python 2.7")
     def test_expanded_paths(self):
         """Ensure ~ paths will work."""
         directory = tempfile.mkdtemp(
