@@ -53,8 +53,8 @@ class Integrations(unittest.TestCase):
             directory (str):
                 The path leading to a source Rez package. It should
                 contain one rezbuild.py file and one package.py file.
-            variants (list[list[str]]):
-                All Rez variations to take into account. e.g. [["python-2.7"]].
+            variants (list[list[str]]): All Rez variations to take into account.
+                e.g. [["python-2.7"]].
 
         """
         directory = os.path.expanduser(directory)

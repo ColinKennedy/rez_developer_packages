@@ -30,6 +30,7 @@ def _modified_get_data(function):
     """
 
     def wrapper(*args, **kwargs):
+        """Change any returned data to force "hashed_variants" to False."""
         output = function(*args, **kwargs)
         output["hashed_variants"] = False
 

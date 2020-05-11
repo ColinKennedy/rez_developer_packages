@@ -32,8 +32,8 @@ def add_build_file(package, name):
     Args:
         package (:class:`rez.packages_.Package`):
             A rez-pip generated Rez package which will be modified.
-        name (str):
-            The name which will be used for the build file. Usually this is "rezbuild.py".
+        name (str): The name which will be used for the build file.
+            Usually this is "rezbuild.py".
 
     """
     root = inspection.get_package_root(package)
