@@ -103,7 +103,7 @@ def _is_older_rez(arguments):
     """bool: Check if the ``rez-pip`` parsed arguments represent an older Rez version (2.47-ish)."""
     try:
         arguments.extra
-    except AttributeError:
+    except AttributeError:  # pragma: no cover
         return True
 
     return False
