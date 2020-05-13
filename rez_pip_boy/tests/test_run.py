@@ -56,7 +56,7 @@ class Integrations(unittest.TestCase):
                 e.g. [["python-2.7"]].
 
         """
-        directory = os.path.expanduser(directory)
+        directory = os.path.expanduser(os.path.expandvars(directory))
         rezbuild = os.path.join(
             directory, cli._BUILD_FILE_NAME  # pylint: disable=protected-access
         )
@@ -288,11 +288,15 @@ class Integrations(unittest.TestCase):
             os.environ["STUFF"] = "~"
             directory = "$STUFF" + directory
 
-        atexit.register(functools.partial(shutil.rmtree, os.path.expanduser(directory)))
-
         _run_command(
             'rez_pip_boy "--install six==1.14.0 --python-version=2.7" {directory}'.format(
                 directory=directory
+            )
+        )
+
+        atexit.register(
+            functools.partial(
+                shutil.rmtree, os.path.expanduser(os.path.expandvars(directory))
             )
         )
 

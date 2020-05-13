@@ -185,7 +185,7 @@ def main(text):
 
     """
     arguments = _parse_arguments(text)
-    destination = os.path.expanduser(arguments.destination)
+    destination = os.path.expanduser(os.path.expandvars(arguments.destination))
 
     if not os.path.isdir(destination):
         if arguments.no_make_folders:
