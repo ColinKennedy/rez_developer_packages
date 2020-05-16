@@ -1,0 +1,3 @@
+[submodule "rpm2cpio/src"]
+	path = rpm2cpio/src
+	url = git@github.com:ruda/rpm2cpio.git

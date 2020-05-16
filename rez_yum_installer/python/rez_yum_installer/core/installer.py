@@ -12,7 +12,7 @@ from six.moves import urllib
 from rez import package_maker
 from rez.config import config
 
-from . import textmate
+from . import rpm_source_helper, textmate
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -21,13 +21,19 @@ _YUM_DATABASE.setCacheDir(force=True, tmpdir=tempfile.mkdtemp(prefix="rez_yum_in
 
 
 def _download(name):
+    directory = _get_rpm_temporary_directory()
+    _get_built_rpm(name, directory)
+
+    return rpm_source_helper.download_rpm_spec(name, directory)
+
+
+def _get_built_rpm(name, directory):
     results = _YUM_DATABASE.pkgSack.returnNewestByNameArch(patterns=[name])
 
     if not results:
         # TODO : Replace with API exception
         raise RuntimeError('Name "{name}" could not be found in Yum.'.format(name=name))
 
-    directory = _get_rpm_temporary_directory()
     url = results[0].remote_url
     name = url.split("/")[-1]
     destination = os.path.join(directory, name)
