@@ -30,6 +30,14 @@ Skip = collections.namedtuple("Skip", "package path reason")
 _LOGGER = logging.getLogger(__name__)
 
 
+def _is_permissions_issue(error):
+    if error.status != 128:
+        return False
+
+    # Reference: https://en.wikipedia.org/wiki/HTTP_403
+    return error.stderr.endswith("403'")
+
+
 def _clone(url, directory):
     """Clone a Git repository listed at `url` to to some folder, `directory`.
 
@@ -95,7 +103,7 @@ def _find_package_definitions(directory, name):
                     _LOGGER.warning('Folder "%s" has an invalid Rez package.', root)
 
                     continue
-                except rez_exceptions.PackageMetadataError:
+                except (rez_packages.InvalidPackageError, rez_exceptions.PackageMetadataError):
                     # This happens in one of two scenarios:
                     # 1. The Rez package file found is invalid
                     # 2. There's a package.py file in the Rez package itself
@@ -221,6 +229,7 @@ def report(
 
             continue
 
+
         repositories.append(repository)
         packages.append(package)
 
@@ -271,6 +280,16 @@ def run(  # pylint: disable=too-many-arguments,too-many-locals
 
     """
 
+    def _is_not_found(error):
+        if error.status != 128:
+            # It cannot be a "not found" if it is not a 128 error
+            return False
+
+        # Note: There's probably a better way to do this...
+        message = str(error).rstrip("'\"").rstrip()
+
+        return message.endswith(" not found")
+
     def _group_by_repository(packages):
         output = collections.defaultdict(set)
 
@@ -317,9 +336,31 @@ def run(  # pylint: disable=too-many-arguments,too-many-locals
         try:
             repository = _clone(repository_url, clone_directory)
         except exc.GitCommandError as error:
-            if error.status != 128:
-                # Note a permissions issue
-                raise
+            if _is_permissions_issue(error):
+                for package in packages:
+                    un_ran.add(
+                        (
+                            package,
+                            'The Git repository "{repository_url}" failed to push/pull.'.format(
+                                repository_url=repository_url
+                            ),
+                        )
+                    )
+
+                continue
+
+            if _is_not_found(error):
+                for package in packages:
+                    un_ran.add(
+                        (
+                            package,
+                            'The Git repository "{repository_url}" was not found.'.format(
+                                repository_url=repository_url
+                            ),
+                        )
+                    )
+
+                continue
 
             for package in packages:
                 un_ran.add(
@@ -375,9 +416,17 @@ def run(  # pylint: disable=too-many-arguments,too-many-locals
 
                 continue
             except exc.GitCommandError as error:
-                if error.status != 128:
-                    # Not a permissions issue
-                    raise
+                if not _is_permissions_issue(error):
+                    _LOGGER.exception("Uncaught exception. Not sure what to do!")
+                    un_ran.add((latest, error))
+
+                    continue
+
+                _LOGGER.warning(
+                    'Package "%s" tried to interact with git but got error "%s".',
+                    latest.name,
+                    error,
+                )
 
                 un_ran.add((latest, error))
 
