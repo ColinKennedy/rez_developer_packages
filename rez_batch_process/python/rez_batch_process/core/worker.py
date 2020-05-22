@@ -103,7 +103,7 @@ def _find_package_definitions(directory, name):
                     _LOGGER.warning('Folder "%s" has an invalid Rez package.', root)
 
                     continue
-                except (rez_packages.InvalidPackageError, rez_exceptions.PackageMetadataError):
+                except (rez_exceptions.InvalidPackageError, rez_exceptions.PackageMetadataError):
                     # This happens in one of two scenarios:
                     # 1. The Rez package file found is invalid
                     # 2. There's a package.py file in the Rez package itself
