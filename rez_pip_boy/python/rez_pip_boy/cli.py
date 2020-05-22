@@ -17,7 +17,7 @@ from rez import pip
 from rez.cli import pip as cli_pip
 from rez_utilities import rez_configuration
 
-from .core import builder, hashed_variant, exceptions, filer
+from .core import builder, exceptions, filer, hashed_variant
 
 _BUILD_FILE_NAME = "rezbuild.py"
 _LOGGER = logging.getLogger(__name__)
@@ -103,7 +103,7 @@ def _is_older_rez(arguments):
     """bool: Check if the ``rez-pip`` parsed arguments represent an older Rez version (2.47-ish)."""
     try:
         arguments.extra
-    except AttributeError:
+    except AttributeError:  # pragma: no cover
         return True
 
     return False
@@ -185,7 +185,7 @@ def main(text):
 
     """
     arguments = _parse_arguments(text)
-    destination = os.path.expanduser(arguments.destination)
+    destination = os.path.expanduser(os.path.expandvars(arguments.destination))
 
     if not os.path.isdir(destination):
         if arguments.no_make_folders:

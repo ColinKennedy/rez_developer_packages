@@ -37,7 +37,7 @@ def patch_local_packages_path(paths):
         paths (list[str]): Directories on-disk to where to look for Rez package.
 
     """
-    original = config.local_packages_path  # pylint: disable=no-member
+    original = list(config.local_packages_path)  # pylint: disable=no-member
     config.local_packages_path = paths  # pylint: disable=no-member
 
     try:
@@ -58,7 +58,7 @@ def patch_packages_path(paths):
         paths (list[str]): Directories on-disk to where to look for Rez package.
 
     """
-    original = config.packages_path  # pylint: disable=no-member
+    original = list(config.packages_path)  # pylint: disable=no-member
     config.packages_path[:] = paths  # pylint: disable=no-member
 
     try:
@@ -79,7 +79,7 @@ def patch_release_packages_path(path):
         path (str): The directory on-disk to where to look for Rez package.
 
     """
-    original = config.release_packages_path
+    original = list(config.release_packages_path)
     config.release_packages_path = path
 
     try:

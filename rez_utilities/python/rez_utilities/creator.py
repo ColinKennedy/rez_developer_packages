@@ -18,7 +18,13 @@ from . import inspection, rez_configuration
 _LOGGER = logging.getLogger(__name__)
 
 
-def build(package, install_path, packages_path=None):
+@contextlib.contextmanager
+def _null_context():
+    """Do nothing."""
+    yield
+
+
+def build(package, install_path, packages_path=None, quiet=False):
     """Build the given Rez `package` to the given `install_path`.
 
     Args:
@@ -34,6 +40,9 @@ def build(package, install_path, packages_path=None):
             building. This is usually to make it easier to find package
             dependencies. If `packages_path` is not defined, Rez will
             use its default paths. Default is None.
+        quiet (bool, optional):
+            If True, Rez won't print anything to the terminal while
+            If building. False, print everything. Default is False.
 
     Raises:
         RuntimeError: If the package fails to build for any reason.
@@ -68,7 +77,12 @@ def build(package, install_path, packages_path=None):
 
     _LOGGER.info('Now building package "%s".', package)
 
-    with rez_configuration.get_context():
+    if quiet:
+        context = rez_configuration.get_context()
+    else:
+        context = _null_context()
+
+    with context:
         number_of_variants_visited = builder.build(
             clean=True, install=True, install_path=install_path
         )
@@ -130,10 +144,6 @@ def release(
             temporary directory.
 
     """
-
-    @contextlib.contextmanager
-    def _null_context():
-        yield
 
     def _clear_rez_get_current_developer_package_cache():
         # Reference: https://github.com/nerdvegas/rez/blob/49cae49a9dd4376b9efb6d571713b716d315b32b/src/rez/cli/build.py#L13-L29

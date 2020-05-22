@@ -260,7 +260,7 @@ def has_python_package(
     # package.
     #
     build_directory = tempfile.mkdtemp(suffix="_some_temporary_rez_build_package")
-    build_package = creator.build(package, build_directory)
+    build_package = creator.build(package, build_directory, quiet=True)
 
     # Reference: https://stackoverflow.com/questions/3850261/doing-something-before-program-exit
     atexit.register(functools.partial(shutil.rmtree, build_directory))
