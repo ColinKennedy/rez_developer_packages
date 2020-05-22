@@ -143,6 +143,11 @@ def get_repository_url(package):
             The object that should either have a git repository defined
             or is itself inside of a git repository.
 
+    Raises:
+        :class:`.exceptions.NoRepositoryRemote`:
+            If `package` is a valid Rez package but doesn't point to a
+            remote repository.
+
     Returns:
         str:
             The git repository url, if found. Usually, this function
