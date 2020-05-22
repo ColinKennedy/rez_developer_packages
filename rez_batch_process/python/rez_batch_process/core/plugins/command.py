@@ -30,7 +30,7 @@ from . import base
 
 _LOGGER = logging.getLogger(__name__)
 Configuration = collections.namedtuple(
-    "Configuration", "command token pull_request_name ssl_no_verify"
+    "Configuration", "command token pull_request_name ssl_no_verify assignee"
 )
 
 
@@ -274,6 +274,7 @@ class RezShellCommand(base.BaseCommand):
                         url, new_branch.name, current_branch.name
                     ),
                     user_data=cached_users,
+                    assignee=configuration.assignee,
                 )
             except github3_exceptions.UnprocessableEntity as error:
                 _LOGGER.exception(
@@ -317,6 +318,12 @@ class RezShellCommand(base.BaseCommand):
             help="The shell command that will be run while cd'ed into every Rez package.",
         )
         parser.add_argument(
+            "-a",
+            "--assignee",
+            default="",
+            help="The username which will be added to every created pull request.",
+        )
+        parser.add_argument(
             "-e",
             "--exit-on-error",
             action="store_true",
@@ -354,6 +361,7 @@ class RezShellCommand(base.BaseCommand):
                 arguments.token,
                 arguments.pull_request_name,
                 arguments.ssl_no_verify,
+                arguments.assignee,
             ),
             cached_users=arguments.cached_users,
             fallback_reviewers=arguments.fallback_reviewers,

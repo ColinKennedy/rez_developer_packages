@@ -39,7 +39,7 @@ class BaseAdapter(object):
 
     @staticmethod
     @abc.abstractmethod
-    def create_pull_request(title, body, pull_request_data, user_data=""):
+    def create_pull_request(title, body, pull_request_data, user_data="", assignee=""):
         """Make a pull request to the remote, using the given information.
 
         It's recommended to always provide `user_data` because querying
@@ -55,6 +55,8 @@ class BaseAdapter(object):
             user_data (str, optional): A file path that is used to read cached user login,
                 e-mail, and name information. If no information is given
                 then it is queried before pull requests are created.
+            assignee (str, optional):
+                The name of a GitHub user to add to created PRs. Default: "".
 
         """
         pass

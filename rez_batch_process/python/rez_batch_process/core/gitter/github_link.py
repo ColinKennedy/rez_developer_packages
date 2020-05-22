@@ -166,7 +166,7 @@ class GithubAdapter(base_adapter.BaseAdapter):
 
         return "github" in link.base.lower()
 
-    def create_pull_request(self, title, body, pull_request_data, user_data=""):
+    def create_pull_request(self, title, body, pull_request_data, user_data="", assignee=""):
         """Make a pull request to GitHub, using the given information.
 
         It's recommended to always provide `user_data` because querying
@@ -182,6 +182,8 @@ class GithubAdapter(base_adapter.BaseAdapter):
             user_data (str, optional): A file path that is used to read cached user login,
                 e-mail, and name information. If no information is given
                 then it is queried before pull requests are created.
+            assignee (str, optional):
+                The name of a GitHub user to add to created PRs. Default: "".
 
         """
         if not user_data:
@@ -219,6 +221,15 @@ class GithubAdapter(base_adapter.BaseAdapter):
                 )
 
                 raise
+
+        # Add another parameter for an optional assignee, here
+        if assignee:
+            try:
+                assignee_ = next(user for user in user_data if user.login == assignee)
+            except StopIteration:
+                _LOGGER.exception('No user could be found for "%s".', assignee)
+            else:
+                pull_request.assignees = [assignee_]
 
         # This next line adds the reviewers to the already-created-pull
         # request. It's an awkward syntax but oh well.
