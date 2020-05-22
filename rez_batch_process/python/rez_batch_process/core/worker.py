@@ -128,6 +128,13 @@ def _find_package_definitions(directory, name):
                         "Maybe it's not a Rez package?",
                         root,
                     )
+                except rez_exceptions.RezError:
+                    _LOGGER.exception(
+                        'Folder "%s" found a package file but it raised a Rez error.',
+                        root,
+                    )
+
+                    continue
 
                 if package.name == name:
                     matches.add(package)
@@ -433,6 +440,14 @@ def run(  # pylint: disable=too-many-arguments,too-many-locals
                 continue
             except NotImplementedError as error:
                 _LOGGER.error('Package "%s" couldn\'t be run.', latest.name)
+                un_ran.add((latest, error))
+
+                continue
+            except Exception as error:
+                _LOGGER.exception(
+                    'An unknown, general exception was found. "%s" cannot be run.',
+                    latest.name,
+                )
                 un_ran.add((latest, error))
 
                 continue
