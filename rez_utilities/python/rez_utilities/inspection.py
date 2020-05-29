@@ -396,7 +396,7 @@ def get_nearest_rez_package(directory):
             # This happens if the package in `directory` is written incorrectly
             schema.SchemaError,
         ):
-            _LOGGER.warning('Directory "%s" found an invalid Rez package.', directory)
+            _LOGGER.debug('Directory "%s" found an invalid Rez package.', directory)
 
         directory = os.path.dirname(directory)
 
