@@ -3,7 +3,11 @@
 
 """Check that different Rez packages with missing or in-complete data behave as expected."""
 
+import atexit
+import functools
 import os
+import shutil
+import tempfile
 import textwrap
 
 from rez_lint import cli
@@ -39,7 +43,7 @@ class InvalidPackages(packaging.BasePackaging):
 
         cli.lint(directory)
 
-    def test_schema_issue(self):
+    def test_schema(self):
         """Stop linting on a package if it's invalid."""
         code = textwrap.dedent(
             """\
@@ -60,3 +64,55 @@ class InvalidPackages(packaging.BasePackaging):
         ]
 
         self.assertNotEqual([], issues)
+
+    def test_schema_recursive(self):
+        """Stop linting on a package if it's invalid."""
+        files = [
+            # Invalid Rez packages
+            textwrap.dedent(
+                """\
+                name = "my_package"
+                version = "1.0.0"
+                build_command = "echo 'foo'"
+                uuid = 8
+                """
+            ),
+            textwrap.dedent(
+                """\
+                name = "my_package"
+                version = "1.0.0"
+                build_command = "echo 'foo'"
+                uuid = 8
+                """
+            ),
+
+            # A valid Rez package
+            textwrap.dedent(
+                """\
+                name = "my_package"
+                version = "1.0.0"
+                build_command = "echo 'foo'"
+                uuid = "54f0a93c-a9db-4026-b856-def2d0b6e956"
+                """
+            ),
+        ]
+
+        directory = tempfile.mkdtemp(prefix="rez_lint_InvalidPackages_test_schema_recursive_")
+        # atexit.register(functools.partial(shutil.rmtree, directory))
+
+        for index, code in enumerate(files):
+            destination = os.path.join(directory, "folder_{index}".format(index=index))
+            os.makedirs(destination)
+
+            with open(os.path.join(destination, "package.py"), "w") as handler:
+                handler.write(code)
+
+        results = cli.lint(directory, recursive=True)
+
+        issues = [
+            description
+            for description in results
+            if description.get_code().long_name == "invalid-schema"
+        ]
+
+        self.assertEqual(2, len(issues))

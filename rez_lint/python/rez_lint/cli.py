@@ -78,16 +78,18 @@ def _find_rez_packages(directory, recursive=False):
         :class:`.NoPackageFound`: If No Rez package could be found.
 
     Returns:
-        set[tuple[:class:`rez.packages_.Package`], str]:
+        tuple[set[:class:`rez.packages_.Package`], set[str]]:
             The found Rez package(s). If a directory encounters an
             invalid Rez package, those are returned, too.
 
     """
     def _get_safe_package(path):
         try:
-            return {packages_.get_developer_package(path)}
+            return {packages_.get_developer_package(path)}, set()
         except rez_exceptions.PackageMetadataError:
-            return {}
+            return set(), set()
+        except schema.SchemaError:
+            return set(), {path}
 
     if not recursive:
         try:
@@ -97,20 +99,22 @@ def _find_rez_packages(directory, recursive=False):
 
         return {package}, set()
 
-    packages = _get_safe_package(directory)
+    packages, invalids = _get_safe_package(directory)
 
     for root, folders, _ in os.walk(directory):
         for folder in folders:
             path = os.path.join(root, folder)
-            packages.update(_get_safe_package(path))
+            inner_packages, invalids_ = _get_safe_package(path)
+            packages.update(inner_packages)
+            invalids.update(invalids_)
 
-    if not packages:
+    if not packages and not invalids:
         raise exceptions.NoPackageFound(
             'Directory "{directory}" and its sub-folders '
             "do not define any Rez packages.".format(directory=directory)
         )
 
-    return packages, set()
+    return packages, invalids
 
 
 @wrapping.run_once
