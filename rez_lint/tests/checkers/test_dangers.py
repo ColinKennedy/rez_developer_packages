@@ -1543,9 +1543,6 @@ class NoUuid(unittest.TestCase):
 
         self.assertEqual([], issues)
 
-    def test_full_text(self):
-        raise ValueError()
-
 
 class TooManyDependencies(packaging.BasePackaging):
     """Test that the :class:`rez_lint.plugins.checkers.dangers.TooManyDependencies.` class works."""

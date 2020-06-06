@@ -18,7 +18,7 @@ class Generic(unittest.TestCase):
     def test_not_recursive(self):
         """Make sure that getting plugins from a given directory works."""
         package = inspection.get_nearest_rez_package(_CURRENT_DIRECTORY)
-        found = cli._find_rez_packages(  # pylint: disable=protected-access
+        found, invalids = cli._find_rez_packages(  # pylint: disable=protected-access
             inspection.get_package_root(package), recursive=False,
         )
         found_package = next(iter((found)))
@@ -28,11 +28,12 @@ class Generic(unittest.TestCase):
         self.assertEqual(found_package.name, package.name)
         self.assertEqual(found_package.filepath, package.filepath)
         self.assertEqual(found_package.version, package.version)
+        self.assertEqual(set(), invalids)
 
     def test_recursive(self):
         """Make sure that getting plugins recursively works."""
         package = inspection.get_nearest_rez_package(_CURRENT_DIRECTORY)
-        found = cli._find_rez_packages(  # pylint: disable=protected-access
+        found, invalids = cli._find_rez_packages(  # pylint: disable=protected-access
             inspection.get_package_root(package), recursive=True,
         )
         found_package = next(iter((found)))
@@ -42,3 +43,4 @@ class Generic(unittest.TestCase):
         self.assertEqual(found_package.name, package.name)
         self.assertEqual(found_package.filepath, package.filepath)
         self.assertEqual(found_package.version, package.version)
+        self.assertEqual(set(), invalids)
