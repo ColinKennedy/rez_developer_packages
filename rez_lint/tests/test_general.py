@@ -38,3 +38,25 @@ class InvalidPackages(packaging.BasePackaging):
         self.delete_item_later(os.path.dirname(directory))
 
         cli.lint(directory)
+
+    def test_schema_issue(self):
+        """Stop linting on a package if it's invalid."""
+        code = textwrap.dedent(
+            """\
+            name = "my_package"
+            version = "1.0.0"
+            build_command = "echo 'foo'"
+            uuid = 8
+            """
+        )
+        directory = packaging.make_fake_source_package("my_package", code)
+
+        results = cli.lint(directory)
+
+        issues = [
+            description
+            for description in results
+            if description.get_code().long_name == "invalid-schema"
+        ]
+
+        self.assertNotEqual([], issues)
