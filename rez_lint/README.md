@@ -65,13 +65,14 @@ rez_lint --disable=no-change-log,lower-bounds-missing
 
 |               Code               |                                            Description                                            |
 |----------------------------------|---------------------------------------------------------------------------------------------------|
-| duplicate-build-requires         | The ``build_requires`` attribute cannot list othe same Rez package family more than once.         |
+| duplicate-build-requires         | The ``build_requires`` attribute cannot list the same Rez package family more than once.          |
 | duplicate-private-build-requires | The ``private_build_requires`` attribute cannot list othe same Rez package family more than once. |
 | duplicate-requires               | The ``requires`` attribute cannot list othe same Rez package family more than once.               |
 | improper-requirements            | Adding Requirements to a Rez package that should be re-located                                    |
 | lower-bounds-missing             | Rez requirements should define lower bounds, to keep Rez resolves fast                            |
 | missing-requirements             | Auto-detected package requirements that aren't in the Rez package's ``requires`` list             |
 | no-rez-test                      | Define tests for the Rez package. This goes without saying                                        |
+| no-uuid                          | The package must define a ``uuid`` so that it doesn't overwrite another package by accident.      |
 | not-python-definition            | Using anything other than a package.py to define a Rez package                                    |
 | requirements-not-sorted          | Rez requirements need to be in alphabetical order                                                 |
 | too-many-dependencies            | When a Rez package has more dependencies that necessary                                           |
@@ -360,6 +361,36 @@ tests using the package's
 attribute.
 
 
+## no-uuid
+
+For Rez, a UUID is its failsafe to make sure your package isn't
+overwritten accidentally by another user. For example, say person A and
+person B both make a package called "my_package" which have nothing to
+do with each other. If B releases after A, all of the work A did could
+be lost.
+
+But if A and B both add UUIDs, when B releases their package, Rez will
+prevent B's accidental release.
+
+A UUID can be any string, but it's recommended to use an actual UUID so
+there isn't a chance that 2 chosen UUIDs will ever accidentally be the
+same.
+
+### Create a UUID
+```sh
+python -c "import uuid;print(uuid.uuid4())"
+```
+
+### Add a UUID to your package
+```python
+name = "my_package"
+
+# ... more package details ...
+
+uuid = "3b65e850-dc18-4b1c-a2ba-1447c782673d"
+```
+
+
 ## not-python-definition
 
 Rez definition files should be package.py. Though other standards
@@ -417,7 +448,7 @@ requires = [
 ```
 
 If they sorted the list above, it'd be plain as day that a requirement
-was posted twice. n this case, "dependency_here" has 2 entries, when
+was posted twice. In this case, "dependency_here" has 2 entries, when
 there should only be one.
 
 ```python

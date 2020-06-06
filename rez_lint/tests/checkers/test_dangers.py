@@ -5,6 +5,7 @@
 """Test all of the checkers in "dangers.py"."""
 
 import os
+import unittest
 import shutil
 import tempfile
 import textwrap
@@ -1492,6 +1493,55 @@ class NoRezTest(packaging.BasePackaging):
         ]
 
         self.assertEqual([], issues)
+
+
+class NoUuid(unittest.TestCase):
+    def test_missing(self):
+        code = textwrap.dedent(
+            """\
+            name = "my_package"
+            version = "1.0.0"
+            build_command = "echo 'foo'"
+            """
+        ),
+        directory = packaging.make_fake_source_package("my_package", code)
+
+        results = cli.lint(directory)
+
+        issues = [
+            description
+            for description in results
+            if description.get_code() == "no-uuid"
+        ]
+
+        self.assertEqual([], issues)
+
+    def test_found(self):
+        code = textwrap.dedent(
+            """\
+            name = "my_package"
+            version = "1.0.0"
+            build_command = "echo 'foo'"
+            uuid = "2203ed86-37d4-46fb-9a8e-43bd957acb51"
+            """
+        ),
+        directory = packaging.make_fake_source_package("my_package", code)
+
+        results = cli.lint(directory)
+
+        issues = [
+            description
+            for description in results
+            if description.get_code() == "no-uuid"
+        ]
+
+        self.assertEqual([], issues)
+
+    def test_full_text(self):
+        raise ValueError()
+
+    def test_invalid(self):
+        raise ValueError()
 
 
 class TooManyDependencies(packaging.BasePackaging):

@@ -17,6 +17,7 @@ from . import base_checker
 _LOGGER = logging.getLogger(__name__)
 
 
+
 class _DuplicateListAttribute(base_checker.BaseChecker):
     """The base class that will be used to make sure list Rez requirements are correct."""
 
@@ -674,6 +675,41 @@ class NoRezTest(base_checker.BaseChecker):
         location = message_description.Location(
             path=package.filepath, row=0, column=0, text="",
         )
+
+        return [
+            message_description.Description([summary], location, code=code, full=full),
+        ]
+
+
+class NoUuid(base_checker.BaseChecker):
+    @staticmethod
+    def get_long_code():
+        return "no-uuid"
+
+    @classmethod
+    def run(cls, package):
+        if package.uuid:
+            return []
+
+        summary = "The package is missing a `uuid` attribute."
+
+        if os.name == "nt":
+            variable = "%REZ_REZ_LINT_ROOT%"
+        else:
+            variable = "$REZ_REZ_LINT_ROOT"
+
+        full = [
+            summary,
+            "To prevent accidentally releasing your package over someone ",
+            "else's or someone releasing over yours, always define a ",
+            "UUID. See {variable}{os.sep}README.md for details.".format(
+                variable=variable, os=os)
+        ]
+
+        location = message_description.Location(
+            path=package.filepath, row=0, column=0, text="",
+        )
+        code = base_checker.Code(short_name="D", long_name=cls.get_long_code())
 
         return [
             message_description.Description([summary], location, code=code, full=full),
