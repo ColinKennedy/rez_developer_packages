@@ -69,6 +69,7 @@ rez_lint --disable=no-change-log,lower-bounds-missing
 | duplicate-private-build-requires | The ``private_build_requires`` attribute cannot list othe same Rez package family more than once. |
 | duplicate-requires               | The ``requires`` attribute cannot list othe same Rez package family more than once.               |
 | improper-requirements            | Adding Requirements to a Rez package that should be re-located                                    |
+| invalid-schema                   | Your package definition isn't a valid Rez package                                                 |
 | lower-bounds-missing             | Rez requirements should define lower bounds, to keep Rez resolves fast                            |
 | missing-requirements             | Auto-detected package requirements that aren't in the Rez package's ``requires`` list             |
 | no-rez-test                      | Define tests for the Rez package. This goes without saying                                        |
@@ -189,6 +190,13 @@ requires = [
 ```
 
 If "dependency-1" also uses ``private_build_requires``, there'd be no problems.
+
+
+## invalid-schema
+
+If your package has an issue which would prevent Rez from reading it,
+that error is pointed out by rez-lint. The error isn't one specific
+issue, it could be anything.
 
 
 ## lower-bounds-missing

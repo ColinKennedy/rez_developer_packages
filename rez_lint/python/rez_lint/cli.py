@@ -11,9 +11,10 @@ import os
 
 from python_compatibility import wrapping
 from rez import exceptions as rez_exceptions
+from rez.vendor.schema import schema
 from rez import packages_
 
-from .core import exceptions, registry
+from .core import exceptions, registry, message_description
 from .plugins import check_context
 from .plugins.checkers import (
     base_checker,
@@ -77,10 +78,11 @@ def _find_rez_packages(directory, recursive=False):
         :class:`.NoPackageFound`: If No Rez package could be found.
 
     Returns:
-        set[:class:`rez.packages_.Package`]: The found Rez package.
+        set[tuple[:class:`rez.packages_.Package`], str]:
+            The found Rez package(s). If a directory encounters an
+            invalid Rez package, those are returned, too.
 
     """
-
     def _get_safe_package(path):
         try:
             return {packages_.get_developer_package(path)}
@@ -88,7 +90,12 @@ def _find_rez_packages(directory, recursive=False):
             return {}
 
     if not recursive:
-        return {_search_current_folder(directory)}
+        try:
+            package = _search_current_folder(directory)
+        except schema.SchemaError:
+            return set(), {directory}
+
+        return {package}, set()
 
     packages = _get_safe_package(directory)
 
@@ -103,7 +110,7 @@ def _find_rez_packages(directory, recursive=False):
             "do not define any Rez packages.".format(directory=directory)
         )
 
-    return packages
+    return packages, set()
 
 
 @wrapping.run_once
@@ -157,6 +164,7 @@ def _register_internal_plugins():
     registry.register_checker(dangers.ImproperVariants)
     registry.register_checker(dangers.MissingRequirements)
     registry.register_checker(dangers.NoRezTest)
+    registry.register_checker(dangers.NoUuid)
     registry.register_checker(dangers.NotPythonDefinition)
     registry.register_checker(dangers.RequirementLowerBoundsMissing)
     registry.register_checker(dangers.RequirementsNotSorted)
@@ -204,7 +212,8 @@ def lint(
     _register_internal_plugins()
     _register_external_plugins()
 
-    packages = _find_rez_packages(directory, recursive=recursive)
+    packages, invalids = _find_rez_packages(directory, recursive=recursive)
+
     output = set()
     processed_packages = []
 
@@ -242,5 +251,15 @@ def lint(
             output.update(results)
 
         processed_packages.append(package)
+
+    for directory_ in invalids:
+        location = message_description.Location(
+            path=directory_, row=-1, column=-1, text="",
+        )
+        code = base_checker.Code(short_name="D", long_name="invalid-schema")
+
+        output.add(
+            message_description.Description(["TODO write"], location, code=code, full="TODO write here")
+         )
 
     return sorted(output)
