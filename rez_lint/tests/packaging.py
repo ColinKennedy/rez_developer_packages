@@ -42,7 +42,7 @@ class BasePackaging(common.Common):
 
         package = packages_.get_developer_package(directory)
         new_package = creator.build(
-            package, tempfile.mkdtemp(), packages_path=packages_path
+            package, tempfile.mkdtemp(), packages_path=packages_path, quiet=True
         )
 
         self.delete_item_later(os.path.dirname(directory))

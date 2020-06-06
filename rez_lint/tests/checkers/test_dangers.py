@@ -861,6 +861,7 @@ class MissingRequirements(packaging.BasePackaging):
         creator.build(
             packages_.get_developer_package(dependency1_directory),
             dependency1_build_path,
+            quiet=True,
         )
 
         code = textwrap.dedent(
@@ -896,6 +897,7 @@ class MissingRequirements(packaging.BasePackaging):
             dependency2_build_path,
             packages_path=[dependency1_build_path]
             + config.packages_path,  # pylint: disable=no-member
+            quiet=True,
         )
 
         return [dependency1_build_path, dependency2_build_path]
