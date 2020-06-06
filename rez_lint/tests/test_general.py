@@ -98,7 +98,7 @@ class InvalidPackages(packaging.BasePackaging):
         ]
 
         directory = tempfile.mkdtemp(prefix="rez_lint_InvalidPackages_test_schema_recursive_")
-        # atexit.register(functools.partial(shutil.rmtree, directory))
+        atexit.register(functools.partial(shutil.rmtree, directory))
 
         for index, code in enumerate(files):
             destination = os.path.join(directory, "folder_{index}".format(index=index))
