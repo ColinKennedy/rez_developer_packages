@@ -682,12 +682,24 @@ class NoRezTest(base_checker.BaseChecker):
 
 
 class NoUuid(base_checker.BaseChecker):
+    """Check for a defined ``uuid`` attribute for a Rez package."""
+
     @staticmethod
     def get_long_code():
+        """str: The string used to refer to this class or disable it."""
         return "no-uuid"
 
     @classmethod
-    def run(cls, package):
+    def run(cls, package, _):
+        """Check the package for ``uuid`` and report an error if it isn't there.
+
+        Args:
+            package (:class:`rez.packages.Package`): The package to check.
+
+        Returns:
+            list[:class:`.Description`]: If `package` has no ``uuid`` attribute.
+
+        """
         if package.uuid:
             return []
 
