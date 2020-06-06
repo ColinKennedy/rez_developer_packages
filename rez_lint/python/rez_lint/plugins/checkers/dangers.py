@@ -17,7 +17,6 @@ from . import base_checker
 _LOGGER = logging.getLogger(__name__)
 
 
-
 class _DuplicateListAttribute(base_checker.BaseChecker):
     """The base class that will be used to make sure list Rez requirements are correct."""
 
@@ -715,7 +714,8 @@ class NoUuid(base_checker.BaseChecker):
             "To prevent accidentally releasing your package over someone ",
             "else's or someone releasing over yours, always define a ",
             "UUID. See {variable}{os.sep}README.md for details.".format(
-                variable=variable, os=os)
+                variable=variable, os=os
+            ),
         ]
 
         location = message_description.Location(

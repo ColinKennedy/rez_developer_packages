@@ -36,9 +36,7 @@ class HasPythonPackage(base_context.BaseContext):
         """
         try:
             has_package = inspection.has_python_package(
-                package,
-                allow_build=False,
-                allow_current_context=True,
+                package, allow_build=False, allow_current_context=True,
             )
         except exceptions.PackageFamilyNotFoundError:
             _LOGGER.warning(
@@ -83,7 +81,9 @@ class SourceResolvedContext(base_context.BaseContext):
             except exceptions.RezError:
                 _LOGGER.exception('Package "%s" could not be resolved.', package)
 
-            dependency_paths = _get_dependency_paths_using_context(python_paths, rez_context)
+            dependency_paths = _get_dependency_paths_using_context(
+                python_paths, rez_context
+            )
 
         packages = _get_root_rez_packages(dependency_paths)
         packages = {package_ for package_ in packages if package_.name != package.name}
@@ -125,8 +125,7 @@ def _get_package_python_paths(package):
         environment = rez_context.get_environ()
 
     return inspection.get_package_python_paths(
-        package,
-        environment.get("PYTHONPATH", "").split(os.pathsep),
+        package, environment.get("PYTHONPATH", "").split(os.pathsep),
     )
 
 

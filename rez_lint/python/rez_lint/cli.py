@@ -11,10 +11,10 @@ import os
 
 from python_compatibility import wrapping
 from rez import exceptions as rez_exceptions
-from rez.vendor.schema import schema
 from rez import packages_
+from rez.vendor.schema import schema
 
-from .core import exceptions, registry, message_description
+from .core import exceptions, message_description, registry
 from .plugins import check_context
 from .plugins.checkers import (
     base_checker,
@@ -83,6 +83,7 @@ def _find_rez_packages(directory, recursive=False):
             invalid Rez package, those are returned, too.
 
     """
+
     def _get_safe_package(path):
         try:
             return {packages_.get_developer_package(path)}, set()
@@ -263,7 +264,12 @@ def lint(
         code = base_checker.Code(short_name="D", long_name="invalid-schema")
 
         output.add(
-            message_description.Description(["TODO write"], location, code=code, full="TODO write here")
-         )
+            message_description.Description(
+                ["Package has invalid attributes."],
+                location,
+                code=code,
+                full="Try running `rez-build` and Rez will report the exact error.",
+            )
+        )
 
     return sorted(output)

@@ -5,10 +5,10 @@
 """Test all of the checkers in "dangers.py"."""
 
 import os
-import unittest
 import shutil
 import tempfile
 import textwrap
+import unittest
 
 from rez import packages_
 from rez.config import config

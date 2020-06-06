@@ -202,7 +202,7 @@ def _get_vimgrep_sort(line):  # pragma: no cover
     items = []
 
     for item in line.split():
-        stripped = item.strip(',:')
+        stripped = item.strip(",:")
 
         if stripped.isdigit():
             items.append(int(stripped))

@@ -85,7 +85,6 @@ class InvalidPackages(packaging.BasePackaging):
                 uuid = 8
                 """
             ),
-
             # A valid Rez package
             textwrap.dedent(
                 """\
@@ -97,7 +96,9 @@ class InvalidPackages(packaging.BasePackaging):
             ),
         ]
 
-        directory = tempfile.mkdtemp(prefix="rez_lint_InvalidPackages_test_schema_recursive_")
+        directory = tempfile.mkdtemp(
+            prefix="rez_lint_InvalidPackages_test_schema_recursive_"
+        )
         atexit.register(functools.partial(shutil.rmtree, directory))
 
         for index, code in enumerate(files):

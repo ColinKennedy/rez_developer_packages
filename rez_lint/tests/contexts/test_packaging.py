@@ -51,7 +51,9 @@ class SourceResolved(testing_packaging.BasePackaging):
         dependency_package = packages_.get_developer_package(dependency_directory)
         dependency_build_path = tempfile.mkdtemp(suffix="_dependency_build_path")
         self.delete_item_later(dependency_build_path)
-        dependency_package = creator.build(dependency_package, dependency_build_path, quiet=True)
+        dependency_package = creator.build(
+            dependency_package, dependency_build_path, quiet=True
+        )
         dependency_path = inspection.get_packages_path_from_package(dependency_package)
 
         context = dict()
