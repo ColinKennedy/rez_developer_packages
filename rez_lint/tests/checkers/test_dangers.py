@@ -1498,14 +1498,17 @@ class NoRezTest(packaging.BasePackaging):
 
 
 class NoUuid(unittest.TestCase):
+    """Test that the :class:`rez_lint.plugins.checkers.dangers.NoUuid.` class works."""
+
     def test_missing(self):
+        """Report a missing ``uuid`` attribute if it actually is missing."""
         code = textwrap.dedent(
             """\
             name = "my_package"
             version = "1.0.0"
             build_command = "echo 'foo'"
             """
-        ),
+        )
         directory = packaging.make_fake_source_package("my_package", code)
 
         results = cli.lint(directory)
@@ -1513,12 +1516,13 @@ class NoUuid(unittest.TestCase):
         issues = [
             description
             for description in results
-            if description.get_code() == "no-uuid"
+            if description.get_code().long_name == "no-uuid"
         ]
 
-        self.assertEqual([], issues)
+        self.assertNotEqual([], issues)
 
     def test_found(self):
+        """Don't report a missing ``uuid`` attribute if it is there."""
         code = textwrap.dedent(
             """\
             name = "my_package"
@@ -1526,7 +1530,7 @@ class NoUuid(unittest.TestCase):
             build_command = "echo 'foo'"
             uuid = "2203ed86-37d4-46fb-9a8e-43bd957acb51"
             """
-        ),
+        )
         directory = packaging.make_fake_source_package("my_package", code)
 
         results = cli.lint(directory)
@@ -1534,15 +1538,12 @@ class NoUuid(unittest.TestCase):
         issues = [
             description
             for description in results
-            if description.get_code() == "no-uuid"
+            if description.get_code().long_name == "no-uuid"
         ]
 
         self.assertEqual([], issues)
 
     def test_full_text(self):
-        raise ValueError()
-
-    def test_invalid(self):
         raise ValueError()
 
 
