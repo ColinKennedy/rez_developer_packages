@@ -3,9 +3,12 @@
 
 """A series of unittests for the CLI of ``rez_move_imports``."""
 
+import atexit
+import functools
 import os
 import shutil
 import tempfile
+import unittest
 import textwrap
 
 from python_compatibility import wrapping
@@ -231,6 +234,200 @@ class Bugs(common.Common):
             from a_new_namespace import somewhere_else
 
             from . import another_module
+
+            def something():
+                pass
+            """
+        )
+
+        with open(some_module, "r") as handler:
+            code = handler.read()
+
+        self.assertEqual(expected_code, code)
+
+
+class Deprecation(unittest.TestCase):
+    """Make sure deprecation logic works as expected."""
+
+    def test_extras_001(self):
+        """Avoid deprecating a Rez package because at least one import remains."""
+        directory = tempfile.mkdtemp(suffix="_test_replace_and_no_deprecate")
+        atexit.register(functools.partial(shutil.rmtree, directory))
+
+        some_module = os.path.join(directory, "some_module_inside.py")
+        text = textwrap.dedent(
+            """\
+            # some module with stuff in it
+
+            import os
+            import textwrap
+
+            from old_dependency import a_module
+            from old_dependency.a_module import some_function_name
+            from old_dependency import another_import
+
+            def something():
+                pass
+            """
+        )
+
+        with open(some_module, "w") as handler:
+            handler.write(text)
+
+        package = os.path.join(directory, "package.py")
+
+        with open(package, "w") as handler:
+            handler.write(
+                textwrap.dedent(
+                    """\
+                    name = "some_test_package"
+
+                    version = "1.0.0"
+
+                    requires = [
+                        "something_more",
+                        "old_dependency_package-1+<3",
+                        "python-2",
+                    ]
+                    """
+                )
+            )
+
+        command = [
+            '"{directory} old_dependency.a_module,a_new_namespace.somewhere_else --partial"'
+            "".format(directory=directory),
+            '--requirements="a_new_package-2+<4,a_new_namespace"',
+            '--deprecate="old_dependency_package,old_dependency"',
+            '--package-directory="{directory}"'.format(directory=directory),
+        ]
+
+        cli.main(command)
+
+        expected_package = textwrap.dedent(
+            """\
+            name = "some_test_package"
+
+            version = "1.1.0"
+
+            requires = [
+                "a_new_package-2+<4",
+                "something_more",
+                "old_dependency_package-1+<3",
+                "python-2",
+            ]
+            """
+        )
+
+        with open(package, "r") as handler:
+            code = handler.read()
+
+        self.assertEqual(expected_package, code)
+
+        expected_code = textwrap.dedent(
+            """\
+            # some module with stuff in it
+
+            import os
+            import textwrap
+
+            from a_new_namespace import somewhere_else
+            from a_new_namespace.somewhere_else import some_function_name
+            from old_dependency import another_import
+
+            def something():
+                pass
+            """
+        )
+
+        with open(some_module, "r") as handler:
+            code = handler.read()
+
+        self.assertEqual(expected_code, code)
+
+    def test_extras_002(self):
+        """Avoid deprecating a Rez package because at least one import remains."""
+        directory = tempfile.mkdtemp(suffix="_test_replace_and_no_deprecate")
+        atexit.register(functools.partial(shutil.rmtree, directory))
+
+        some_module = os.path.join(directory, "some_module_inside.py")
+        text = textwrap.dedent(
+            """\
+            # some module with stuff in it
+
+            import os
+            import textwrap
+
+            from shared.subpackage import a_module
+            from shared.subpackage.a_module import some_function_name
+            from shared.subpackage import another_import
+
+            def something():
+                pass
+            """
+        )
+
+        with open(some_module, "w") as handler:
+            handler.write(text)
+
+        package = os.path.join(directory, "package.py")
+
+        with open(package, "w") as handler:
+            handler.write(
+                textwrap.dedent(
+                    """\
+                    name = "some_test_package"
+
+                    version = "1.0.0"
+
+                    requires = [
+                        "something_more",
+                        "old_dependency_package-1+<3",
+                        "python-2",
+                    ]
+                    """
+                )
+            )
+
+        command = [
+            '"{directory} shared.subpackage.a_module,shared.new_subpackage.a_module --partial"'
+            "".format(directory=directory),
+            '--requirements="a_new_package-2+<4,shared.new_subpackage.a_module"',
+            '--deprecate="old_dependency_package,shared.subpackage.a_module,shared.subpackage"',
+            '--package-directory="{directory}"'.format(directory=directory),
+        ]
+
+        cli.main(command)
+
+        expected_package = textwrap.dedent(
+            """\
+            name = "some_test_package"
+
+            version = "1.1.0"
+
+            requires = [
+                "a_new_package-2+<4",
+                "something_more",
+                "old_dependency_package-1+<3",
+                "python-2",
+            ]
+            """
+        )
+
+        with open(package, "r") as handler:
+            code = handler.read()
+
+        self.assertEqual(expected_package, code)
+
+        expected_code = textwrap.dedent(
+            """\
+            # some module with stuff in it
+
+            import os
+            import textwrap
+
+            from shared.new_subpackage import a_module
+            from shared.new_subpackage.a_module import some_function_name
+            from shared.subpackage import another_import
 
             def something():
                 pass
