@@ -389,7 +389,10 @@ class Backslashes(_Common):
             """
         )
 
-        namespaces = [("os", "something_else")]
+        namespaces = [
+            ("os.path", "something_else"),
+            ("os", "something_else"),
+        ]
         expected = textwrap.dedent(
             """\
             import something_else, \\
@@ -441,7 +444,8 @@ class Backslashes(_Common):
         ]
         expected = textwrap.dedent(
             """\
-            from another import thingy, \\
+            from another import thingy
+            from another import \\
                     textwrap
             """
         )
