@@ -2,7 +2,7 @@
 
 name = "move_break"
 
-version = "2.1.0"
+version = "3.0.0"
 
 description = "Change, replace, and move Python imports"
 
