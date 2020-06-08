@@ -709,9 +709,26 @@ class Imports(_Common):
     def test_star(self):
         """Replace a star-import."""
         code = "from foo import *"
-        namespaces = [("foo.bar", "something.parse")]
-        expected = "from something import *"
 
+        # We can't assume the base import, so don't modify it
+        namespaces = [("foo.bar", "something.parse")]
+        expected = "from foo import *"
+        self._test(expected, code, namespaces, partial=False)
+        self._test(expected, code, namespaces, partial=True)
+
+        # Do modify it since the full namespace is here
+        namespaces = [("foo", "something")]
+        expected = "from something import *"
+        self._test(expected, code, namespaces, partial=True)
+
+        namespaces = [("foo", "something")]
+        code = "from foo.thing import *"
+        expected = "from something.thing import *"
+        self._test(expected, code, namespaces, partial=True)
+
+        namespaces = [("foo.thing", "something")]
+        code = "from foo.thing import *"
+        expected = "from something import *"
         self._test(expected, code, namespaces, partial=True)
 
     def test_complex_partial(self):
