@@ -3,6 +3,8 @@
 
 """The main class used for a regular `from foo import bar` Python import."""
 
+from __future__ import division
+
 import operator
 
 from parso.python import tree
@@ -57,7 +59,7 @@ class ImportFromAdapter(base_.BaseAdapter):
 
         base_names[0].parent.children[start : end + 1] = new_nodes
 
-    def _replace_base_and_parts_of_tail(  # pylint: disable=too-many-arguments
+    def _replace_tail(  # pylint: disable=too-many-arguments
         self, node, old_parts, new_parts, base_names, prefix
     ):
         """Replace the first half of a from-import and any part of the end, if possible.
@@ -79,7 +81,7 @@ class ImportFromAdapter(base_.BaseAdapter):
         """
         old_namespaces = {old for old, _ in self._namespaces}
 
-        if not self._partial and not _has_fully_described_namespace(
+        if not _has_fully_described_namespace(
             self._get_namespaces(node), old_namespaces
         ):
             # We need to split the import statement in two
@@ -131,9 +133,7 @@ class ImportFromAdapter(base_.BaseAdapter):
             return
 
         if _old_parts_exceeds_base(base_names, old_parts):
-            self._replace_base_and_parts_of_tail(
-                node, old_parts, new_parts, base_names, prefix
-            )
+            self._replace_tail(node, old_parts, new_parts, base_names, prefix)
 
             return
 
@@ -408,6 +408,9 @@ def _remove_comma(node):
 
     """
 
+    def _is_comma(node):
+        return isinstance(node, tree.Operator) and node.value == ","
+
     def _get_alias(node):
         parent = node.parent
 
@@ -418,15 +421,6 @@ def _remove_comma(node):
             return None
 
         return parent.children[-1]
-
-    def _remove_leading_node(node):
-        if isinstance(node, tree.Operator) and node.value == ",":
-            index = node.parent.children.index(node)
-            del node.parent.children[index]
-
-    def _remove_trailing_node(node):
-        if isinstance(node, tree.Operator) and node.value == ",":
-            del node.parent.children[-1]
 
     parent = _get_parents_up_to_import_from(node)[-2]
     alias = _get_alias(node)
@@ -448,8 +442,11 @@ def _remove_comma(node):
     children = parent.children
 
     if children:
-        _remove_leading_node(children[0])
-        _remove_trailing_node(children[-1])
+        commas = [index for index, node in enumerate(children) if _is_comma(node)]
+        comma_occurrence_index = index // 2
+        real_comma_index = commas[comma_occurrence_index]
+
+        del parent.children[real_comma_index]
 
     return alias
 
