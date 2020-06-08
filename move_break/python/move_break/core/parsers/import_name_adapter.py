@@ -86,6 +86,9 @@ class ImportNameAdapter(base_.BaseAdapter):
         for start, end in pairs:
             nodes = node.children[start + 1 : end]
 
+            if not _is_matching_prefix_namespace(nodes, old_parts):
+                continue
+
             if not _is_nested_import_list(nodes):
                 _replace_namespace(nodes, old_parts, new_parts, partial=self._partial)
 
@@ -119,6 +122,33 @@ class ImportNameAdapter(base_.BaseAdapter):
 def _is_dotted_import(node):
     """Check if `node` represents a Python import like "import foo.bar"."""
     return isinstance(node, tree.PythonNode) and node.type == "dotted_name"
+
+
+def _is_matching_prefix_namespace(children, old_parts):
+    """Check if a list of nodes matches an expected namespace completely.
+
+    Args:
+        children (list[:class:`parso.python.tree.PythonNode`]):
+            The nodes to check which represent some import namespace.
+            e.g. [Name("foo"), Operator("."), Name("bar")].
+        old_parts (iter[str]):
+            An import namespace like ["foo", "bar"].
+
+    Returns:
+        bool: If `children` is a namespace that starts with `old_parts`.
+
+    """
+    if _is_nested_import_list(children):
+        children = children[0].children
+
+    old_namespace = ".".join(old_parts)
+
+    # `expected_namespace` may equal `old_namespace` or be a child
+    # namespace or a completely unrelated namespace.
+    #
+    expected_namespace = "".join([item.get_code(include_prefix=False) for item in children])
+
+    return expected_namespace.startswith(old_namespace)
 
 
 def _is_nested_import_list(nodes):

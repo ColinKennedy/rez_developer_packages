@@ -1192,14 +1192,25 @@ class PartialImport(_Common):
             """
         )
 
-        namespaces = [("shared.namespace.foo", "shared.new_namespace.foo")]
+        namespaces = [
+            ("shared.namespace.foo", "shared.new_namespace.foo"),
+            ("shared.namespace.blah", "shared.new_namespace.blah"),
+        ]
         expected = textwrap.dedent(
             """\
             import shared.new_namespace.foo, shared.namespace.bar
             import shared.new_namespace.blah.another
             """
         )
+        self._test(expected, code, namespaces, partial=True)
 
+        namespaces = [("shared.namespace", "shared.new_namespace")]
+        expected = textwrap.dedent(
+            """\
+            import shared.new_namespace.foo, shared.new_namespace.bar
+            import shared.new_namespace.blah.another
+            """
+        )
         self._test(expected, code, namespaces, partial=True)
 
     def test_single(self):
