@@ -497,9 +497,20 @@ class Parentheses(_Common):
     def test_002(self):
         """Replace a multi-namespace import that uses parentheses."""
         code = "from thing.something import (parse as blah, more_items)"
-        namespaces = [("thing.something", "another.jpeg.many")]
-        expected = "from another.jpeg.many import (items as blah, more_items)"
 
+        namespaces = [("thing.something", "another.jpeg.many")]
+        expected = "from another.jpeg.many import (parse as blah, more_items)"
+        self._test(expected, code, namespaces, partial=True)
+
+        namespaces = [
+            ("thing.something.parse", "another.jpeg.many.items"),
+            ("thing.something", "another.jpeg.many"),
+        ]
+        expected = textwrap.dedent(
+            """\
+            from another.jpeg.many import items as blah
+            from another.jpeg.many import ( more_items)"""
+        )
         self._test(expected, code, namespaces, partial=True)
 
     def test_003(self):
@@ -524,9 +535,9 @@ class Parentheses(_Common):
         namespaces = [("thing.something.parse", "another.jpeg.many.thing")]
         expected = textwrap.dedent(
             """\
-            from another.jpeg.many import (
-                thing as blah)
-            from thing.something import more_items
+            from another.jpeg.many import thing as blah
+            from thing.something import (
+                    more_items)
             """
         )
         self._test(expected, code, namespaces, partial=True)
@@ -550,19 +561,31 @@ class Parentheses(_Common):
             )
             """
         )
-
         self._test(expected, code, namespaces, partial=True)
 
         namespaces = [("thing.something.parse", "another.jpeg.many.doom")]
         expected = textwrap.dedent(
             """\
-            from another.jpeg.many import (
-                doom as blah,
+            from another.jpeg.many import doom as blah
+            from thing.something import (
                     more_items
             )
             """
         )
+        self._test(expected, code, namespaces, partial=True)
 
+        namespaces = [
+            ("thing.something.parse", "another.jpeg.many.doom"),
+            ("thing.something", "another.jpeg.many"),
+        ]
+        expected = textwrap.dedent(
+            """\
+            from another.jpeg.many import doom as blah
+            from another.jpeg.many import (
+                    more_items
+            )
+            """
+        )
         self._test(expected, code, namespaces, partial=True)
 
 
