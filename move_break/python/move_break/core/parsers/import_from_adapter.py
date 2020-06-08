@@ -83,7 +83,6 @@ class ImportFromAdapter(base_.BaseAdapter):
             self._get_namespaces(node), old_namespaces
         ):
             # We need to split the import statement in two
-            new_nodes = import_helper.make_replacement_nodes(new_parts[:-1], prefix)
             children = _get_tail_children(node.children[3:])
             _adjust_imported_names(old_parts[-1], new_parts, children)
 
