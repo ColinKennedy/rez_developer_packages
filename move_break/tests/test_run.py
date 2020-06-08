@@ -1164,6 +1164,7 @@ class PartialImport(_Common):
     """Control when and how "import X" imports are replaced."""
 
     def test_from_downstream(self):
+        """Make sure partial import replacement works for `from X import Y` statements."""
         code = textwrap.dedent(
             """\
             import shared
@@ -1185,6 +1186,7 @@ class PartialImport(_Common):
         self._test(expected, code, namespaces, partial=True)
 
     def test_import_downstream(self):
+        """Make sure partial import replacement works for `import X` statements."""
         code = textwrap.dedent(
             """\
             import shared.namespace.foo, shared.namespace.bar
