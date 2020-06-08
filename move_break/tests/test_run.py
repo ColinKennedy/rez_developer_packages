@@ -335,11 +335,12 @@ class Backslashes(_Common):
             """
         )
         self._test(expected, code, namespaces, partial=False)
+        self._test(expected, code, namespaces, partial=True)
 
-        namespaces = [("os.path.textwrap", "something_else.blah")]
+        namespaces = [("textwrap", "blah")]
         expected = textwrap.dedent(
             """\
-            import something_else, \\
+            import os.path, \\
                     blah, \\
                 another
             """
@@ -347,12 +348,12 @@ class Backslashes(_Common):
         self._test(expected, code, namespaces, partial=False)
 
         namespaces = [
-            ("os.path.textwrap", "something_else.blah"),
-            ("os.path", "something_else"),
+            ("os.path", "blah"),
+            ("textwrap", "blah"),
         ]
         expected = textwrap.dedent(
             """\
-            import something_else, \\
+            import blah, \\
                     blah, \\
                 another
             """
@@ -377,6 +378,25 @@ class Backslashes(_Common):
             """
         )
 
+        self._test(expected, code, namespaces, partial=True)
+
+    def test_005(self):
+        code = textwrap.dedent(
+            """\
+            import os.path, \\
+                    textwrap, \\
+                os
+            """
+        )
+
+        namespaces = [("os", "something_else")]
+        expected = textwrap.dedent(
+            """\
+            import something_else, \\
+                    textwrap, \\
+                something_else
+            """
+        )
         self._test(expected, code, namespaces, partial=True)
 
     def test_from_001(self):
@@ -830,15 +850,18 @@ class ImportFrom(_Common):
     def test_trailing_from_001(self):
         """Make sure replacing the last name in an import works."""
         code = "from foo.bar import thing, another"
+
         namespaces = [("foo.bar.another", "ttt.stuff")]
         expected = textwrap.dedent(
             """\
             from ttt import stuff
             from foo.bar import thing"""
         )
+        self._test(expected, code, namespaces, partial=False)
+        self._test(expected, code, namespaces, partial=True)
 
-        self._test(expected, code, namespaces)
-        expected = "from ttt import thing, stuff"
+        namespaces = [("foo.bar", "ttt")]
+        expected = "from ttt import thing, another"
         self._test(expected, code, namespaces, partial=True)
 
     def test_trailing_from_002(self):
