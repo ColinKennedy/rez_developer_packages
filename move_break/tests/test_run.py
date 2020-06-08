@@ -522,6 +522,7 @@ class Parentheses(_Common):
                     more_items)
             """
         )
+
         namespaces = [("thing.something", "another.jpeg.many")]
         expected = textwrap.dedent(
             """\
@@ -552,6 +553,7 @@ class Parentheses(_Common):
             )
             """
         )
+
         namespaces = [("thing.something", "another.jpeg.many")]
         expected = textwrap.dedent(
             """\
