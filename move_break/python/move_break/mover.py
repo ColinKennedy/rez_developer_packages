@@ -3,10 +3,13 @@
 
 """The main "worker" module for the command-line `move_break` tool."""
 
+import logging
 import itertools
 
 from . import finder
 from .core import parser
+
+_LOGGER = logging.getLogger(__name__)
 
 
 def move_imports(  # pylint: disable=too-many-arguments
@@ -78,6 +81,8 @@ def move_imports(  # pylint: disable=too-many-arguments
         try:
             graph = finder.get_graph(path)
         except RuntimeError:
+            _LOGGER.warning('Couldn\'t parse "%s" as a Python file.', path)
+
             if not continue_on_syntax_error:
                 raise
 
