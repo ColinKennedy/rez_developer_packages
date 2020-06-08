@@ -381,6 +381,7 @@ class Backslashes(_Common):
         self._test(expected, code, namespaces, partial=True)
 
     def test_005(self):
+        """Replace multiple imports in the same `import X, Y, Z` statement."""
         code = textwrap.dedent(
             """\
             import os.path, \\
