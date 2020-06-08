@@ -3,8 +3,8 @@
 
 """The main "worker" module for the command-line `move_break` tool."""
 
-import logging
 import itertools
+import logging
 
 from . import finder
 from .core import parser
