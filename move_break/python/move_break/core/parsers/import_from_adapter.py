@@ -422,6 +422,10 @@ def _remove_comma(node):
 
         return parent.children[-1]
 
+    def _remove_trailing_node(node):
+        if _is_comma(node):
+            del node.parent.children[-1]
+
     parent = _get_parents_up_to_import_from(node)[-2]
     alias = _get_alias(node)
 
@@ -441,8 +445,18 @@ def _remove_comma(node):
     del parent.children[index]  # Remove the name
     children = parent.children
 
+    if index == len(children):
+        # We've removed the last import in an multi-import
+        # e.g. Removing "fizz" from `from foo import bar, fizz`
+        #
+        # To prevent `from foo import bar,` - remove the trailing `,`
+        #
+        _remove_trailing_node(children[-1])
+
+        return alias
+
     if children:
-        commas = [index for index, node in enumerate(children) if _is_comma(node)]
+        commas = [index_ for index_, node in enumerate(children) if _is_comma(node)]
         comma_occurrence_index = index // 2
         real_comma_index = commas[comma_occurrence_index]
 

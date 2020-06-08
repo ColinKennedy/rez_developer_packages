@@ -767,21 +767,40 @@ class Imports(_Common):
             )
             """
         )
+
         namespaces = [
             ("foo.more.another_line", "new.namespace.new_name"),
             ("foo.more.etc", "new.namespace.etc"),
         ]
         expected = textwrap.dedent(
             """\
-            from new.namespace import (
-                blah as whatever, bazz,
-                etc,
-                new_name as thing,
+            from new.namespace import new_name as thing
+            from new.namespace import etc
+
+            from foo.more import ( bazz,
+                another_line as thing,
                     bad_formatting
             )
             """
         )
+        self._test(expected, code, namespaces, partial=True)
 
+        namespaces = [
+            ("foo.more.another_line", "new.namespace.new_name"),
+            ("foo.more.etc", "new.namespace.etc"),
+            ("foo.more", "new"),
+        ]
+        expected = textwrap.dedent(
+            """\
+            from new.namespace import new_name as thing
+            from new.namespace import etc
+
+            from new import ( bazz,
+                another_line as thing,
+                    bad_formatting
+            )
+            """
+        )
         self._test(expected, code, namespaces, partial=True)
 
 
