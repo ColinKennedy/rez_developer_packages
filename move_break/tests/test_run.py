@@ -326,16 +326,37 @@ class Backslashes(_Common):
             """
         )
 
-        namespaces = [("textwrap", "thing")]
-
+        namespaces = [("os.path", "something_else")]
         expected = textwrap.dedent(
             """\
-            import os.path, \\
-                    thing, \\
+            import something_else, \\
+                    textwrap, \\
                 another
             """
         )
+        self._test(expected, code, namespaces, partial=False)
 
+        namespaces = [("os.path.textwrap", "something_else.blah")]
+        expected = textwrap.dedent(
+            """\
+            import something_else, \\
+                    blah, \\
+                another
+            """
+        )
+        self._test(expected, code, namespaces, partial=False)
+
+        namespaces = [
+            ("os.path.textwrap", "something_else.blah"),
+            ("os.path", "something_else"),
+        ]
+        expected = textwrap.dedent(
+            """\
+            import something_else, \\
+                    blah, \\
+                another
+            """
+        )
         self._test(expected, code, namespaces, partial=False)
 
     def test_004(self):
@@ -367,15 +388,22 @@ class Backslashes(_Common):
             """
         )
 
-        namespaces = [("thing.textwrap", "blah.another")]
-
+        namespaces = [("thing", "blah")]
         expected = textwrap.dedent(
             """\
             from blah import path, \\
-                another
+                textwrap
             """
         )
+        self._test(expected, code, namespaces, partial=True)
 
+        namespaces = [("thing.textwrap", "blah.another")]
+        expected = textwrap.dedent(
+            """\
+            from blah import another
+            from thing import path
+            """
+        )
         self._test(expected, code, namespaces, partial=True)
 
     def test_from_002(self):
@@ -387,17 +415,19 @@ class Backslashes(_Common):
             """
         )
 
-        namespaces = [("blah.path", "another.thingy")]
-
+        namespaces = [
+            ("blah.path", "another.thingy"),
+            ("blah", "another"),
+        ]
         expected = textwrap.dedent(
             """\
             from another import thingy, \\
                     textwrap
             """
         )
-
         self._test(expected, code, namespaces, partial=True)
 
+        namespaces = [("blah.path", "another.thingy")]
         expected = textwrap.dedent(
             """\
             from another import thingy
@@ -405,7 +435,7 @@ class Backslashes(_Common):
                     textwrap
             """
         )
-
+        self._test(expected, code, namespaces, partial=True)
         self._test(expected, code, namespaces, partial=False)
 
     def test_from_003(self):
@@ -418,16 +448,38 @@ class Backslashes(_Common):
             """
         )
 
-        namespaces = [("mit.textwrap", "cornell.thing")]
-
+        namespaces = [("mit", "cornell")]
         expected = textwrap.dedent(
             """\
             from cornell import path, \\
-                    thing, \\
+                    textwrap, \\
                 another
             """
         )
+        self._test(expected, code, namespaces, partial=True)
 
+        namespaces = [("mit.textwrap", "cornell.blah")]
+        expected = textwrap.dedent(
+            """\
+            from cornell import blah
+            from mit import path, \\
+                another
+            """
+        )
+        self._test(expected, code, namespaces, partial=True)
+
+        namespaces = [
+            ("mit.textwrap", "cornell.blah"),
+            ("mit", "cornell"),
+        ]
+
+        expected = textwrap.dedent(
+            """\
+            from cornell import blah
+            from cornell import path, \\
+                another
+            """
+        )
         self._test(expected, code, namespaces, partial=True)
 
 
@@ -440,12 +492,12 @@ class Parentheses(_Common):
         namespaces = [("thing.something.parse", "another.jpeg.many.items")]
         expected = "from another.jpeg.many import (items as blah)"
 
-        self._test(expected, code, namespaces, partial=True)
+        self._test(expected, code, namespaces)
 
     def test_002(self):
         """Replace a multi-namespace import that uses parentheses."""
         code = "from thing.something import (parse as blah, more_items)"
-        namespaces = [("thing.something.parse", "another.jpeg.many.items")]
+        namespaces = [("thing.something", "another.jpeg.many")]
         expected = "from another.jpeg.many import (items as blah, more_items)"
 
         self._test(expected, code, namespaces, partial=True)
@@ -459,15 +511,24 @@ class Parentheses(_Common):
                     more_items)
             """
         )
-        namespaces = [("thing.something.parse", "another.jpeg.many.items")]
+        namespaces = [("thing.something", "another.jpeg.many")]
         expected = textwrap.dedent(
             """\
             from another.jpeg.many import (
-                items as blah,
+                parse as blah,
                     more_items)
             """
         )
+        self._test(expected, code, namespaces, partial=True)
 
+        namespaces = [("thing.something.parse", "another.jpeg.many.thing")]
+        expected = textwrap.dedent(
+            """\
+            from another.jpeg.many import (
+                thing as blah)
+            from thing.something import more_items
+            """
+        )
         self._test(expected, code, namespaces, partial=True)
 
     def test_004(self):
@@ -480,11 +541,23 @@ class Parentheses(_Common):
             )
             """
         )
-        namespaces = [("thing.something.parse", "another.jpeg.many.items")]
+        namespaces = [("thing.something", "another.jpeg.many")]
         expected = textwrap.dedent(
             """\
             from another.jpeg.many import (
-                items as blah,
+                parse as blah,
+                    more_items
+            )
+            """
+        )
+
+        self._test(expected, code, namespaces, partial=True)
+
+        namespaces = [("thing.something.parse", "another.jpeg.many.doom")]
+        expected = textwrap.dedent(
+            """\
+            from another.jpeg.many import (
+                doom as blah,
                     more_items
             )
             """
@@ -928,7 +1001,10 @@ class PartialFrom(_Common):
         )
 
         self._test(expected, code, namespaces, partial=False)
+        self._test(expected, code, namespaces, partial=True)
+
         expected = "from blah import another, thing"
+        namespaces = [("foo.block.items", "blah")]
         self._test(expected, code, namespaces, partial=True)
 
     def test_split_002(self):
@@ -942,7 +1018,10 @@ class PartialFrom(_Common):
         )
 
         self._test(expected, code, namespaces, partial=False)
+        self._test(expected, code, namespaces, partial=True)
+
         expected = "from blah.blarg import another, thing"
+        namespaces = [("foo.block.items", "blah.blarg")]
         self._test(expected, code, namespaces, partial=True)
 
     def test_split_003_indentation(self):
@@ -963,6 +1042,9 @@ class PartialFrom(_Common):
         )
 
         self._test(expected, code, namespaces, partial=False)
+        self._test(expected, code, namespaces, partial=True)
+
+        namespaces = [("foo.block.items", "blah.blarg")]
         expected = textwrap.dedent(
             """\
             if True:
@@ -982,26 +1064,54 @@ class PartialFrom(_Common):
         )
 
         self._test(expected, code, namespaces, partial=False)
-        expected = "from blah import another as more, thing"
         self._test(expected, code, namespaces, partial=True)
 
-    def test_alias_002(self):
-        """Split an aliases from-import into its own separate import."""
-        code = "from foo.block.items import another as more, thing"
-        namespaces = [("foo.block.items.another", "blah.something_else")]
-        expected = textwrap.dedent(
-            """\
-            from blah import something_else as more
-            from foo.block.items import thing"""
-        )
-
-        self._test(expected, code, namespaces, partial=False)
-        expected = "from blah import something_else as more, thing"
+        namespaces = [("foo.block.items", "blah")]
+        expected = "from blah import another as more, thing"
         self._test(expected, code, namespaces, partial=True)
 
 
 class PartialImport(_Common):
     """Control when and how "import X" imports are replaced."""
+
+    def test_from_downstream(self):
+        code = textwrap.dedent(
+            """\
+            import shared
+            from shared.namespace import foo, bar
+            from shared.namespace.foo import blah, more
+            """
+        )
+
+        namespaces = [("shared.namespace.foo", "shared.new_namespace.foo")]
+        expected = textwrap.dedent(
+            """\
+            import shared
+            from shared.new_namespace import foo
+            from shared.namespace import bar
+            from shared.new_namespace.foo import blah, more
+            """
+        )
+
+        self._test(expected, code, namespaces, partial=True)
+
+    def test_import_downstream(self):
+        code = textwrap.dedent(
+            """\
+            import shared.namespace.foo, shared.namespace.bar
+            import shared.namespace.blah.another
+            """
+        )
+
+        namespaces = [("shared.namespace.foo", "shared.new_namespace.foo")]
+        expected = textwrap.dedent(
+            """\
+            import shared.new_namespace.foo, shared.namespace.bar
+            import shared.new_namespace.blah.another
+            """
+        )
+
+        self._test(expected, code, namespaces, partial=True)
 
     def test_single(self):
         """Don't split anything because the namespace is described."""
