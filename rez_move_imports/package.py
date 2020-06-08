@@ -2,7 +2,7 @@
 
 name = "rez_move_imports"
 
-version = "1.2.2"
+version = "1.3.0"
 
 description = "Change a Rez package's imports and then bump the require Rez version(s)"
 
@@ -13,7 +13,7 @@ help = [["README", "README.md"]]
 private_build_requires = ["rez_build_helper-1+<2"]
 
 requires = [
-    "move_break-2.1+<3",
+    "move_break-3+<4",
     "python-2+<3",
     "python_compatibility-2.3+<3",
     "rez-2.42+<3",
