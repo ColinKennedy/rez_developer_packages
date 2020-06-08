@@ -880,7 +880,8 @@ class ImportFrom(_Common):
 
         self._test(expected, code, namespaces)
 
-        expected = "from thing.stuff import thing, blah"
+        expected = "from thing.stuff import thing, another"
+        namespaces = [("foo.bar", "thing.stuff")]
         self._test(expected, code, namespaces, partial=True)
 
     # TODO : Finish
