@@ -74,8 +74,8 @@ class Packaging(common.Common):
         """Make sure :func:`rez_lint.inspection.in_valid_context` works as expected."""
         package = inspection.get_nearest_rez_package(_CURRENT_DIRECTORY)
 
-        Package = collections.namedtuple("Package", "name version")
-        fake_package = Package("foo", "6.6.6")
+        package_ = collections.namedtuple("Package", "name version")
+        fake_package = package_("foo", "6.6.6")
 
         self.assertTrue(inspection.in_valid_context(package))
         self.assertFalse(inspection.in_valid_context(fake_package))
