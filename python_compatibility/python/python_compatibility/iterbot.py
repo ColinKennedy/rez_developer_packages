@@ -31,7 +31,14 @@ def iter_is_last(container):
         try:
             value = next(iterator)
         except StopIteration:
+            if not did_iterate:
+                return
+                yield
+
             break
+        else:
+            if did_iterate:
+                yield False, next_value
 
         did_iterate = True
 

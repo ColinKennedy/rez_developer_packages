@@ -33,3 +33,13 @@ class IterIsLast(unittest.TestCase):
         """Make sure bad inputs raise `ValueError`."""
         with self.assertRaises(ValueError):
             list(iterbot.iter_is_last(None))
+
+    def test_multiple(self):
+        """Process big lists."""
+        items = range(100)
+        generator = (item for item in range(100))
+
+        expected = [(False, index) if index < 99 else (True, index) for index in range(100)]
+
+        self.assertEqual(expected, list(iterbot.iter_is_last(items)))
+        self.assertEqual(expected, list(iterbot.iter_is_last(generator)))
