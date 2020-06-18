@@ -5,10 +5,42 @@
 
 
 def iter_is_last(container):
-    count = len(container)
+    """Iterate over a Python object and check if it's at the last element.
 
-    for index, item in enumerate(container):
-        if index + 1 < count:
-            yield False, item
-        else:
-            yield True, item
+    Args:
+        container (iter[object]): Some iterable object.
+
+    Raises:
+        ValueError: If `container` isn't iterable.
+
+    Yields:
+        tuple[bool, object]:
+            Return True if it's the last index, otherwise False + the
+            original object.
+
+    """
+    try:
+        iterator = iter(container)
+    except TypeError:
+        raise ValueError('Container "{container}" is not iterable.'.format(container=container))
+
+    next_value = None
+    did_iterate = False
+
+    while True:
+        try:
+            value = next(iterator)
+        except StopIteration:
+            break
+
+        did_iterate = True
+
+        yield False, value
+
+        try:
+            next_value = next(iterator)
+        except StopIteration:
+            break
+
+    if did_iterate:
+        yield True, next_value
