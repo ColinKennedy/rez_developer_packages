@@ -15,6 +15,8 @@ help = [
 
 build_command = 'python {root}/rezbuild.py {install}'
 
+uuid = "168c5114-a951-4834-a744-dae1331e375e"
+
 
 def commands():
     import os

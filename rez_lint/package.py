@@ -64,6 +64,8 @@ tests = {
     "unittest": {"command": "python -m unittest discover", "requires": ["mock-3+",],},
 }
 
+uuid = "980fab3d-1b92-4ac6-b629-b7e9b85ac5f3"
+
 
 def commands():
     import os

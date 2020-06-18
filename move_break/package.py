@@ -56,6 +56,8 @@ tests = {
 
 build_command = "python -m rez_build_helper --items python"
 
+uuid = "d2d65025-6000-425e-9f8e-5db2b53ee571"
+
 
 def commands():
     import os

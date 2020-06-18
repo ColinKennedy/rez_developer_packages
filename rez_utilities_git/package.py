@@ -49,6 +49,9 @@ tests = {
     },
 }
 
+uuid = "fb9ac0e1-8c1f-401b-8cf0-54831331e138"
+
+
 def commands():
     import os
 

@@ -91,6 +91,8 @@ tests = {
     }
 }
 
+uuid = "c11e8439-d5f4-4e48-8002-5831cff647d9"
+
 
 def commands():
     """Add the Python folder and CLI to the user's environment."""

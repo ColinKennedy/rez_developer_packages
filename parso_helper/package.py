@@ -19,6 +19,8 @@ requires = [
 
 build_command = "python -m rez_build_helper --items python"
 
+uuid = "c989f6ef-7f52-4acf-8660-e0268049f700"
+
 
 def commands():
     import os

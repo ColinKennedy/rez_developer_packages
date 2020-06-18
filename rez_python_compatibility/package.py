@@ -48,6 +48,8 @@ tests = {
     "unittest": "python -m unittest discover",
 }
 
+uuid = "efb980ba-9580-4c60-b47f-fa0c7ebdabf4"
+
 
 def commands():
     import os

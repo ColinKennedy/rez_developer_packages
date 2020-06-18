@@ -63,6 +63,8 @@ tests = {
     "unittest": {"command": "python -m unittest discover", "requires": ["mock-3+<4"]},
 }
 
+uuid = "827534f3-aad3-4313-9387-f2e4c439cc4e"
+
 
 def commands():
     """Add the Python folder and CLI to the user's environment."""
