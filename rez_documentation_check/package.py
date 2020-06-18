@@ -27,7 +27,10 @@ variants = [["python-2.7"]]
 build_command = "python -m rez_build_helper --items bin python"
 
 tests = {
-    "black_diff": {"command": "rez-env black -- black --diff --check python tests"},
+    "black_diff": {
+        "command": "rez-env black -- black --diff --check python tests",
+        "run_on": "explicit",
+    },
     "black": {"command": "rez-env black -- black python tests"},
     "coverage": {
         "command": "coverage run --parallel-mode --include=python/* -m unittest discover && coverage combine --append && coverage html",
@@ -55,7 +58,11 @@ tests = {
             "Sphinx-1.8+<2",
         ],
     },
-    "isort": {"command": "isort --recursive python tests", "requires": ["isort"]},
+    "isort": {
+        "command": "isort --recursive python tests",
+        "requires": ["isort"],
+        "run_on": "explicit",
+    },
     "isort_check": {
         "command": "isort --check-only --diff --recursive python tests",
         "requires": ["isort"],
