@@ -22,7 +22,9 @@ def iter_is_last(container):
     try:
         iterator = iter(container)
     except TypeError:
-        raise ValueError('Container "{container}" is not iterable.'.format(container=container))
+        raise ValueError(
+            'Container "{container}" is not iterable.'.format(container=container)
+        )
 
     next_value = None
     did_iterate = False

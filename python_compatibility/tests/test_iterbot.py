@@ -25,9 +25,15 @@ class IterIsLast(unittest.TestCase):
         generator = (item for item in ["foo", "bar"])
         iter_tuple = iter(("foo", "bar"))
 
-        self.assertEqual([(False, "foo"), (True, "bar")], list(iterbot.iter_is_last(items)))
-        self.assertEqual([(False, "foo"), (True, "bar")], list(iterbot.iter_is_last(generator)))
-        self.assertEqual([(False, "foo"), (True, "bar")], list(iterbot.iter_is_last(iter_tuple)))
+        self.assertEqual(
+            [(False, "foo"), (True, "bar")], list(iterbot.iter_is_last(items))
+        )
+        self.assertEqual(
+            [(False, "foo"), (True, "bar")], list(iterbot.iter_is_last(generator))
+        )
+        self.assertEqual(
+            [(False, "foo"), (True, "bar")], list(iterbot.iter_is_last(iter_tuple))
+        )
 
     def test_invalid(self):
         """Make sure bad inputs raise `ValueError`."""
@@ -39,7 +45,9 @@ class IterIsLast(unittest.TestCase):
         items = range(100)
         generator = (item for item in range(100))
 
-        expected = [(False, index) if index < 99 else (True, index) for index in range(100)]
+        expected = [
+            (False, index) if index < 99 else (True, index) for index in range(100)
+        ]
 
         self.assertEqual(expected, list(iterbot.iter_is_last(items)))
         self.assertEqual(expected, list(iterbot.iter_is_last(generator)))

@@ -16,7 +16,6 @@ requires = [
     "backports.tempfile-1+<2",
     "six-1.13+<2",
 ]
-
 private_build_requires = ["rez_build_helper-1.1+<2"]
 
 variants = [["python-2.7"]]
