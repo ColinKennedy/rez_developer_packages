@@ -30,15 +30,20 @@ build_command = "python -m rez_build_helper --items bin python"
 
 tests = {
     "black_diff": {"command": "rez-env black -- black --diff --check python tests"},
-    "black": {"command": "rez-env black -- black python tests"},
+    "black": {
+        "command": "rez-env black -- black python tests",
+        "run_on": "explicit",
+    },
     "coverage": {
         "command": "coverage run --parallel-mode --include=python/* -m unittest discover && coverage combine --append && coverage html",
         "requires": ["coverage-4+"],
+        "run_on": "explicit",
     },
     "isort": {"command": "isort --recursive python tests", "requires": ["isort"]},
     "isort_check": {
         "command": "isort --check-only --diff --recursive python tests",
         "requires": ["isort"],
+        "run_on": "explicit",
     },
     "pydocstyle": {
         # Need to disable D202 for now, until a new pydocstyle version is released
