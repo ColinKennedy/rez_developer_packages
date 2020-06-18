@@ -20,7 +20,7 @@ _DOTS_EXPRESSION = re.compile(r"^\s*from\s+(?P<dots>\.+)*.+")
 _LOGGER = logging.getLogger(__name__)
 
 
-# TODO : This really needs to be renamed to "Namespace"
+# Note : This really needs to be renamed to "Namespace"
 class Module(object):
     """A wrapper class around a Python namespace."""
 

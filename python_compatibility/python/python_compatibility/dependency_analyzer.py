@@ -16,22 +16,29 @@ Note:
 
 """
 
+from __future__ import print_function
+
 import argparse
-import imp
 import logging
 import os
 import pkgutil
 import sys
-
-import six
 
 from . import filer, import_parser, imports, packaging
 
 _LOGGER = logging.getLogger(__name__)
 
 
-class _FakeModule(object):
+class _FakeModule(object):  # pylint: disable=too-few-public-methods
+    """A thin wrapper around a "Python module", used internally for finding namespace data."""
+
     def __init__(self, path):
+        """Get a importable Python file, given some path.
+
+        Args:
+            path (str): An absolute path to a Python file or folder on-disk.
+
+        """
         super(_FakeModule, self).__init__()
 
         if os.path.isdir(path):
@@ -39,6 +46,10 @@ class _FakeModule(object):
 
         self._path = path
         self.__file__ = self._path
+
+    def __repr__(self):
+        """str: Get a string representation of this instance."""
+        return "{self.__class__.__name__}({self._path!r})".format(self=self)
 
 
 def _module_has_attribute(module, namespace):
@@ -166,7 +177,7 @@ def _get_source_paths(namespaces):
     for namespace in namespaces:
         try:
             module = _get_nearest_module(namespace.get_namespace())
-        except Exception:
+        except Exception:  # pylint: disable=broad-except
             continue
 
         if not module:

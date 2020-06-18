@@ -35,7 +35,7 @@ def iter_is_last(container):
         except StopIteration:
             if not did_iterate:
                 return
-                yield
+                yield  # pylint: disable=unreachable
 
             break
         else:
