@@ -170,7 +170,7 @@ def is_built_package(package):
     return version == os.path.basename(parent_folder)
 
 
-def has_python_package(
+def has_python_package(  # pylint: disable=too-many-branches,too-many-locals
     package, paths=None, allow_build=True, allow_current_context=False
 ):
     """Check if the given Rez package has at least one Python package inside of it.
@@ -268,7 +268,6 @@ def has_python_package(
     return has_python_package(build_package)
 
 
-# TODO : Make this into a list. Not set
 def get_package_python_paths(package, paths):
     """Get the Python files that a Rez package adds to the user's PYTHONPATH.
 

@@ -11,7 +11,6 @@ import os
 from rez import build_process_, build_system, packages_
 from rez.cli import build as build_
 from rez.cli import release as release_
-from rez.config import config
 
 from . import inspection, rez_configuration
 
@@ -105,7 +104,7 @@ def build(package, install_path, packages_path=None, quiet=False):
     )
 
 
-def release(
+def release(  # pylint: disable=too-many-arguments
     directory, options, parser, new_release_path, search_paths=None, quiet=False
 ):
     """Release a package located at `directory` to the `new_release_path` folder.
@@ -146,7 +145,7 @@ def release(
     """
 
     def _clear_rez_get_current_developer_package_cache():
-        # Reference: https://github.com/nerdvegas/rez/blob/49cae49a9dd4376b9efb6d571713b716d315b32b/src/rez/cli/build.py#L13-L29
+        # Reference: https://github.com/nerdvegas/rez/blob/49cae49a9dd4376b9efb6d571713b716d315b32b/src/rez/cli/build.py#L13-L29  pylint: disable=line-too-long
         build_._package = None  # pylint: disable=protected-access
 
     if not os.path.isdir(directory):
