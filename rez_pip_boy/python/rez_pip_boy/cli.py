@@ -30,6 +30,9 @@ def _parse_arguments(text):
     Args:
         text (list[str]): User-provided arguments, split by spaces.
 
+    Raises:
+        Exception: If `text` is invalid input.
+
     Returns:
         tuple[str, :class:`argparse.Namespace`]:
             The raw text to parse with `rez-pip` and the parsed arguments needed by `rez_pip_boy`.
@@ -47,7 +50,11 @@ def _parse_arguments(text):
     try:
         index = text.index(separator)
     except ValueError:
-        raise exceptions.MissingDoubleDash('You must separate your arguments with {ARGUMENTS_SEPARATOR!r}.'.format(ARGUMENTS_SEPARATOR=ARGUMENTS_SEPARATOR))
+        raise exceptions.MissingDoubleDash(
+            'You must separate your arguments with {ARGUMENTS_SEPARATOR!r}.'.format(
+                ARGUMENTS_SEPARATOR=ARGUMENTS_SEPARATOR
+            )
+        )
 
     rez_pip_arguments = text[:index]
     rez_pip_command = " ".join(rez_pip_arguments)
@@ -96,7 +103,7 @@ def _parse_arguments(text):
         parser.parse_args(rez_pip_arguments)
 
         raise exceptions.SwappedArguments(
-            'Your arguments are separated by {ARGUMENTS_SEPARATOR!r} but they need to be flipped.'.format(
+            'Your arguments are separated by {ARGUMENTS_SEPARATOR!r} but they need to be flipped.'.format(  # pylint: disable=line-too-long
                 ARGUMENTS_SEPARATOR=ARGUMENTS_SEPARATOR,
             ),
         )

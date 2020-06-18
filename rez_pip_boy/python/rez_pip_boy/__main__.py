@@ -19,7 +19,9 @@ def main():
     except (exceptions.MissingDoubleDash, exceptions.SwappedArguments) as error:
         print(error, file=sys.stderr)
         print(
-            'The left side of "{cli.ARGUMENTS_SEPARATOR}" is for `rez-pip` arguments. The right is for `rez_pip_boy` arguements.'.format(cli=cli),
+            'The left side of "{cli.ARGUMENTS_SEPARATOR}" is for `rez-pip` arguments. The right is for `rez_pip_boy` arguements.'.format(  # pylint: disable=line-too-long
+                cli=cli
+            ),
             file=sys.stderr,
         )
 
