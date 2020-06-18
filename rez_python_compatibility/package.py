@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-name = "python_compatibility"
+name = "rez_python_compatibility"
 
 version = "2.3.0"
 

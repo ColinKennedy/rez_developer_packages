@@ -14,8 +14,8 @@ help = [
 
 requires = [
     "python-2+<3",
-    "python_compatibility-2+<3",
     "rez-2.47+<3",
+    "rez_python_compatibility-2+<3",
     "six-1.12+<2",
     "wurlitzer-2+<3",  # This package is used to make Rez builds quiet. If an alternative exists, please remove this dependency
 ]

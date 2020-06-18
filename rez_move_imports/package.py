@@ -15,10 +15,10 @@ private_build_requires = ["rez_build_helper-1+<2"]
 requires = [
     "move_break-3+<4",
     "python-2+<3",
-    "python_compatibility-2.3+<3",
     "rez-2.42+<3",
     "rez_bump-1.1+<2",
     "rez_industry-1+<2",
+    "rez_python_compatibility-2.3+<3",
     "rez_utilities-2+<3",
 ]
 

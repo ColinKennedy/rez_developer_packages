@@ -14,8 +14,8 @@ help = [
 
 requires = [
     "parso-0.5+<1",
-    "python_compatibility-2+<3",
     "rez-2.47+<3",
+    "rez_python_compatibility-2+<3",
     "rez_utilities-2+<3",
     "six-1.13+<2",
 ]

@@ -19,7 +19,7 @@ help = [
 requires = [
     "Sphinx-1+<2",
     "python-2+",
-    "python_compatibility-1.1+<2",
+    "rez_python_compatibility-2+<3",
 ]
 
 private_build_requires = [

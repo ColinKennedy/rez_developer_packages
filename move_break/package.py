@@ -14,7 +14,7 @@ requires = [
     "parso-0.5+<1",
     "parso_helper-1+<2",
     "python-2",
-    "python_compatibility-2+<3",
+    "rez_python_compatibility-2+<3",
     "six-1.12+<2",
 ]
 

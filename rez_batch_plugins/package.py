@@ -18,12 +18,12 @@ requires = [
     "GitPython-2.1+<3",
     "move_break-3+<4",
     "python-2+<3",
-    # Later versions of python_compatibility save and restore sys.argv
-    # and some of this package's tests mess with sys.argv. So we need a
-    # recent version of python_compatibility to prevent side-effects
-    #
-    "python_compatibility-2.2+<3",
     "rez-2.47+<3",
+    # Later versions of rez_python_compatibility save and restore sys.argv
+    # and some of this package's tests mess with sys.argv. So we need a
+    # recent version of rez_python_compatibility to prevent side-effects
+    #
+    "rez_python_compatibility-2.2+<3",
     "rez_batch_process-1+<2",
     "rez_bump-1.0.2+<2",
     "rez_industry-1+<2",

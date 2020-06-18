@@ -53,7 +53,7 @@ tests = {
     },
     "unittest": {
         "command": "python -m unittest discover",
-        "requires": ["python_compatibility-2.2+<3"],
+        "requires": ["rez_python_compatibility-2.2+<3"],
     },
 }
 
