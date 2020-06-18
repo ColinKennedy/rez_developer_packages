@@ -119,14 +119,17 @@ def _get_module_normal_namespace(namespace):
     return None
 
 
-# TODO : Need unittests for this function
 def _get_module_from_shared_namespace(namespace):
     # According to the documentation, to search within a namespace, you need to
     # have at least one "."
     #
     # Reference: https://docs.python.org/3/library/pkgutil.html#pkgutil.iter_importers
     #
-    closest_module = _import_nearest_module_namespace(namespace)
+    closest_module = imports.import_nearest_module(namespace)
+
+    if not closest_module:
+        return None
+
     loader = pkgutil.find_loader(closest_module)
 
     if not loader:
@@ -202,44 +205,6 @@ def _get_source_paths(namespaces):
             raise
 
     return paths
-
-
-def _import_nearest_module_namespace(namespace):
-    """Find the first shared namespace that correctly imports and return the namespace.
-
-    Args:
-        namespace (str): A dot-separated Python path.
-
-    Returns:
-        str: The namespace string (dot-separated Python path) to the first known module.
-
-    """
-    try:
-        return __import__(namespace)
-    except ImportError:
-        # Usually happens if the namespace is actually "foo.MyClass" or "foo.my_attribute"
-        pass
-
-    while True:
-        parts = namespace.split(".")
-        parent = parts[:-1]
-
-        if not parent:
-            break
-
-        new_namespace = ".".join(parent)
-
-        try:
-            __import__(new_namespace)
-        except ImportError:
-            # Usually happens if the namespace is actually "foo.MyClass" or "foo.my_attribute"
-            pass
-        else:
-            return new_namespace
-
-        namespace = new_namespace
-
-    return ""
 
 
 def _parse_arguments(text):
