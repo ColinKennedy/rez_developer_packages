@@ -50,7 +50,6 @@ tests = {
     "pylint_source": {
         "command": "pylint --disable=bad-continuation python/rez_utilities",
         "requires": [
-            "GitPython-2+<4",
             "pylint-1.9+<2",
         ],
     },
