@@ -3,7 +3,7 @@
 
 name = "rez_lint"
 
-version = "1.3.0"
+version = "1.4.0"
 
 description = 'A "pylint" for Rez packages'
 
@@ -19,7 +19,7 @@ requires = [
     "python-2+<3",
     "python_compatibility-2+<3",
     "rez-2.47+<3",
-    "rez_utilities-1+<2",
+    "rez_utilities-2+<3",
     "six-1.13+<2",
 ]
 

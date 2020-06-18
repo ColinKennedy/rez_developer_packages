@@ -6,7 +6,7 @@
 import os
 
 from python_compatibility.sphinx import conf_manager
-from rez_utilities import inspection
+from rez_utilities import finder
 
 from ...core import lint_constant, message_description
 from . import base_checker
@@ -33,7 +33,7 @@ class _MissingFile(base_checker.BaseChecker):  # pylint: disable=abstract-method
                 return one description of each found issue.
 
         """
-        root = inspection.get_package_root(package)
+        root = finder.get_package_root(package)
 
         if cls._file_name in [os.path.splitext(name)[0] for name in os.listdir(root)]:
             return []
@@ -88,7 +88,7 @@ class NoDocumentation(base_checker.BaseChecker):
         if not _has_context_python_package(context):
             return []
 
-        root = inspection.get_package_root(package)
+        root = finder.get_package_root(package)
 
         if conf_manager.get_conf_file(root):
             return []  # pragma: no cover
@@ -134,7 +134,7 @@ class NoHelp(base_checker.BaseChecker):
             "Every Rez package should always point to some documentation.",
             "Reference: https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#help",
         ]
-        root = inspection.get_package_root(package)
+        root = finder.get_package_root(package)
         code = base_checker.Code(short_name="E", long_name=cls.get_long_code())
         location = message_description.Location(path=root, row=0, column=0, text="")
 

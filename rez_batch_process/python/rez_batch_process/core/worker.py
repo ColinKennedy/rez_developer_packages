@@ -21,7 +21,7 @@ from git import exc
 from rez import exceptions as rez_exceptions
 from rez import packages_
 from rez.vendor.schema import schema
-from rez_utilities import inspection, rez_configuration
+from rez_utilities import finder, rez_configuration
 
 from . import exceptions, rez_git
 from .gitter import git_link
@@ -158,7 +158,7 @@ def handle_generic_exception(error, package):
 
     """
     # Plugin functions can raise any exception so they must be caught, here
-    path = inspection.get_package_root(package)
+    path = finder.get_package_root(package)
 
     if hasattr(error, "message"):
         message = error.message
@@ -219,7 +219,7 @@ def report(
         except (exceptions.InvalidPackage, exceptions.NoRepositoryRemote) as error:
             invalids.append(
                 exceptions.InvalidPackage(
-                    package, inspection.get_package_root(package), str(error)
+                    package, finder.get_package_root(package), str(error)
                 )
             )
 
@@ -230,7 +230,7 @@ def report(
             #
             invalids.append(
                 exceptions.InvalidPackage(
-                    package, inspection.get_package_root(package), str(error)
+                    package, finder.get_package_root(package), str(error)
                 )
             )
 

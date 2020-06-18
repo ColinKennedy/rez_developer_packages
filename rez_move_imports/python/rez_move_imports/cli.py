@@ -10,7 +10,7 @@ import shlex
 
 from move_break import cli
 from rez.vendor.version import requirement
-from rez_utilities import inspection
+from rez_utilities import finder
 
 from .core import exception, replacer
 
@@ -233,7 +233,7 @@ def main(text):
             "".format(package_directory=package_directory)
         )
 
-    package = inspection.get_nearest_rez_package(package_directory)
+    package = finder.get_nearest_rez_package(package_directory)
 
     if not package:
         raise exception.InvalidDirectory(

@@ -9,7 +9,7 @@ import textwrap
 from rez_lint import cli
 from rez_lint.core import message_description
 from rez_lint.plugins.checkers import base_checker
-from rez_utilities import inspection
+from rez_utilities import finder
 from six.moves import mock
 
 from .. import packaging
@@ -61,7 +61,7 @@ class FileChecks(packaging.BasePackaging):
             ),
         )
 
-        return inspection.get_package_root(package)
+        return finder.get_package_root(package)
 
     def test_has_changelog(self):
         """Report a missing CHANGELOG file if none exists."""

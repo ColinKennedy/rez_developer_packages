@@ -22,7 +22,7 @@ import textwrap
 import wurlitzer
 from git import exc
 from github3 import exceptions as github3_exceptions
-from rez_utilities import inspection
+from rez_utilities import finder
 
 from .. import exceptions, rez_git
 from ..gitter import base_adapter, git_link, git_registry
@@ -105,7 +105,7 @@ class RezShellCommand(base.BaseCommand):
 
         """
         command = 'cd "{root}";{arguments.command}'.format(
-            root=inspection.get_package_root(package), arguments=arguments
+            root=finder.get_package_root(package), arguments=arguments
         )
         _LOGGER.debug('Command to run "%s".', command)
 
@@ -388,7 +388,7 @@ def has_changes(package):
     """
     repository = rez_git.get_repository(package)
     relative_path = os.path.relpath(
-        inspection.get_package_root(package), repository.working_dir
+        finder.get_package_root(package), repository.working_dir
     )
     command = shlex.split(
         'git status --porcelain -- "{relative_path}"'.format(

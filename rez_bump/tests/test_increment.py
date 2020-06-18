@@ -9,7 +9,7 @@ import textwrap
 
 from python_compatibility.testing import common
 from rez_bump import rez_bump_api
-from rez_utilities import inspection
+from rez_utilities import finder
 
 
 class Version(common.Common):
@@ -30,7 +30,7 @@ class Version(common.Common):
                 )
             )
 
-        package = inspection.get_nearest_rez_package(directory)
+        package = finder.get_nearest_rez_package(directory)
         rez_bump_api.bump(package, minor=3)
 
         with open(package.filepath, "r") as handler:
@@ -60,7 +60,7 @@ class Version(common.Common):
                 )
             )
 
-        package = inspection.get_nearest_rez_package(directory)
+        package = finder.get_nearest_rez_package(directory)
         rez_bump_api.bump(package, minor=-4)
 
         with open(package.filepath, "r") as handler:
@@ -90,7 +90,7 @@ class Version(common.Common):
                 )
             )
 
-        package = inspection.get_nearest_rez_package(directory)
+        package = finder.get_nearest_rez_package(directory)
         rez_bump_api.bump(package, minor=3, absolute=True)
 
         with open(package.filepath, "r") as handler:
@@ -158,7 +158,7 @@ class Version(common.Common):
                 )
             )
 
-        package = inspection.get_nearest_rez_package(directory)
+        package = finder.get_nearest_rez_package(directory)
         rez_bump_api.bump(package, minor=3)
 
         with open(package.filepath, "r") as handler:
@@ -226,7 +226,7 @@ class Version(common.Common):
                 )
             )
 
-        package = inspection.get_nearest_rez_package(directory)
+        package = finder.get_nearest_rez_package(directory)
 
         with self.assertRaises(ValueError):
             rez_bump_api.bump(package)
@@ -246,7 +246,7 @@ class Version(common.Common):
                 )
             )
 
-        package = inspection.get_nearest_rez_package(directory)
+        package = finder.get_nearest_rez_package(directory)
 
         with self.assertRaises(ValueError):
             rez_bump_api.bump(package, minor=-4, absolute=True)
@@ -266,7 +266,7 @@ class Version(common.Common):
                 )
             )
 
-        package = inspection.get_nearest_rez_package(directory)
+        package = finder.get_nearest_rez_package(directory)
         rez_bump_api.bump(package, minor=1, normalize=True)
 
         with open(package.filepath, "r") as handler:
@@ -296,7 +296,7 @@ class Version(common.Common):
                 )
             )
 
-        package = inspection.get_nearest_rez_package(directory)
+        package = finder.get_nearest_rez_package(directory)
         rez_bump_api.bump(package, minor=1, normalize=True)
 
         with open(package.filepath, "r") as handler:

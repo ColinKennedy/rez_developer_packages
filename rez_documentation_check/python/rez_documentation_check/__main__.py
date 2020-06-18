@@ -17,7 +17,7 @@ from python_compatibility.sphinx import conf_manager
 from rez import exceptions as rez_exceptions
 from rez import resolved_context
 from rez.config import config
-from rez_utilities import inspection
+from rez_utilities import finder, inspection
 
 from . import cli
 from .core import check_constant, exceptions
@@ -245,7 +245,7 @@ def _resolve_arguments(arguments):
         _LOGGER.debug('Path "%s" must be a directory leading to a Rez package.', path)
         path = os.path.dirname(path)
 
-    package = inspection.get_nearest_rez_package(path)
+    package = finder.get_nearest_rez_package(path)
 
     if not package:
         raise EnvironmentError(

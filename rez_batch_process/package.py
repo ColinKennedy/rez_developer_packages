@@ -2,7 +2,7 @@
 
 name = "rez_batch_process"
 
-version = "1.1.2"
+version = "1.2.0"
 
 description = (
     "Check for Rez packages that need Sphinx documentation and automatically add it."
@@ -21,7 +21,7 @@ requires = [
     "github3.py-1.3+<2",
     "python_compatibility-2+<3",
     "rez-2.47+<3",
-    "rez_utilities-1.4+<2",
+    "rez_utilities-2+<3",
     "six-1.13+<2",
     "wurlitzer-2+<3",  # Used to silence calls to `rez-release` and git cloning
 ]

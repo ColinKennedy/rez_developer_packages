@@ -1,6 +1,6 @@
 name = "rez_pip_boy"
 
-version = "1.3.0"
+version = "1.4.0"
 
 description = "Convert an installed pip package back into a source package"
 
@@ -16,7 +16,7 @@ build_command = "python -m rez_build_helper --items bin python"
 
 requires = [
     "rez-2.47+<3",
-    "rez_utilities-1.6+<2",
+    "rez_utilities-2+<3",
     "wurlitzer-2+<3",
 ]
 

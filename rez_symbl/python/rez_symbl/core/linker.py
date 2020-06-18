@@ -7,7 +7,7 @@ import logging
 import os
 
 from rez import exceptions, resolved_context
-from rez_utilities import inspection
+from rez_utilities import finder, inspection
 
 from . import pather
 
@@ -88,7 +88,7 @@ def make_symlinks(paths, directory, force=False):
 
     """
     for path in paths:
-        package = inspection.get_nearest_rez_package(path)
+        package = finder.get_nearest_rez_package(path)
         root = inspection.get_packages_path_from_package(package)
 
         relative_directory = os.path.relpath(path, root)

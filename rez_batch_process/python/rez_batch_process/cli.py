@@ -17,7 +17,7 @@ import sys
 import six
 from python_compatibility import imports, wrapping
 from rez.config import config
-from rez_utilities import inspection
+from rez_utilities import finder
 
 from .core import cli_constant, registry, worker
 from .core.gitter import github_user
@@ -366,7 +366,7 @@ def _print_missing(packages, verbose):
         template = "{package.name}: {path}"
 
     for line in sorted(
-        template.format(package=package, path=inspection.get_package_root(package))
+        template.format(package=package, path=finder.get_package_root(package))
         for package in packages
     ):
         print(line)

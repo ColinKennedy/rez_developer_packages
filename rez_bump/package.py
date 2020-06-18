@@ -2,7 +2,7 @@
 
 name = "rez_bump"
 
-version = "1.1.0"
+version = "1.2.0"
 
 description = "Control the version value of Rez packages"
 
@@ -13,7 +13,7 @@ requires = [
     "python-2+<3",
     "rez-2.42+<3",
     "rez_industry-1+<2",
-    "rez_utilities-1.4+<2",
+    "rez_utilities-2+<3",
 ]
 
 help = [["README", "README.md"]]

@@ -7,7 +7,7 @@ import os
 import unittest
 
 from rez_lint import cli
-from rez_utilities import inspection
+from rez_utilities import finder
 
 _CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 
@@ -17,9 +17,9 @@ class Generic(unittest.TestCase):
 
     def test_not_recursive(self):
         """Make sure that getting plugins from a given directory works."""
-        package = inspection.get_nearest_rez_package(_CURRENT_DIRECTORY)
+        package = finder.get_nearest_rez_package(_CURRENT_DIRECTORY)
         found, invalids = cli._find_rez_packages(  # pylint: disable=protected-access
-            inspection.get_package_root(package), recursive=False,
+            finder.get_package_root(package), recursive=False,
         )
         found_package = next(iter((found)))
 
@@ -32,9 +32,9 @@ class Generic(unittest.TestCase):
 
     def test_recursive(self):
         """Make sure that getting plugins recursively works."""
-        package = inspection.get_nearest_rez_package(_CURRENT_DIRECTORY)
+        package = finder.get_nearest_rez_package(_CURRENT_DIRECTORY)
         found, invalids = cli._find_rez_packages(  # pylint: disable=protected-access
-            inspection.get_package_root(package), recursive=True,
+            finder.get_package_root(package), recursive=True,
         )
         found_package = next(iter((found)))
 

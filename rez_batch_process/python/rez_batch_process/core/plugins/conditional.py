@@ -7,7 +7,7 @@ import argparse
 import sys
 
 from python_compatibility.sphinx import conf_manager
-from rez_utilities import inspection
+from rez_utilities import finder, inspection
 
 from .. import exceptions, rez_git
 from ..gitter import git_link
@@ -83,7 +83,7 @@ def has_documentation(package):
 
     """
     if not inspection.is_built_package(package):
-        root = inspection.get_package_root(package)
+        root = finder.get_package_root(package)
 
         if conf_manager.get_conf_file(root):
             return True
@@ -93,7 +93,7 @@ def has_documentation(package):
     if not repository:
         raise exceptions.NoGitRepository(
             package,
-            inspection.get_package_root(package),
+            finder.get_package_root(package),
             "A built Rez package was found but it has no git repository.",
         )
 

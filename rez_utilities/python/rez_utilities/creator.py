@@ -12,7 +12,7 @@ from rez import build_process_, build_system, packages_
 from rez.cli import build as build_
 from rez.cli import release as release_
 
-from . import inspection, rez_configuration
+from . import finder, rez_configuration
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -59,8 +59,8 @@ def build(package, install_path, packages_path=None, quiet=False):
         package.config.packages_path[:] = packages_path
 
     if isinstance(package, packages_.Package):
-        package = inspection.get_nearest_rez_package(
-            inspection.get_package_root(package)
+        package = finder.get_nearest_rez_package(
+            finder.get_package_root(package)
         )
 
     directory = os.path.dirname(package.filepath)

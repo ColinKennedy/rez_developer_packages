@@ -15,7 +15,7 @@ from rez import exceptions as rez_exceptions
 from rez import packages_
 from rez_batch_process.core import exceptions, registry, worker
 from rez_batch_process.core.plugins import conditional
-from rez_utilities import creator, inspection
+from rez_utilities import creator, finder
 from six.moves import mock
 
 
@@ -86,8 +86,8 @@ class Tests(common.Common):
         arguments.pull_request_name = "ticket-name"
         arguments.exit_on_error = True
 
-        finder = registry.get_package_finder("shell")
-        valid_packages, invalid_packages, skips = finder(paths=paths)
+        finder_ = registry.get_package_finder("shell")
+        valid_packages, invalid_packages, skips = finder_(paths=paths)
 
         command = registry.get_command("shell")
 
@@ -156,7 +156,7 @@ def _run_and_catch(function, package):
     try:
         return function(package), []
     except known_issues as error:
-        path = inspection.get_package_root(package)
+        path = finder.get_package_root(package)
 
         return (
             False,
@@ -187,7 +187,7 @@ def _get_missing_documentation_packages(paths=None):
             skips.append(
                 worker.Skip(
                     package,
-                    os.path.normpath(inspection.get_package_root(package)),
+                    os.path.normpath(finder.get_package_root(package)),
                     "Rez Package does not define Python packages / modules.",
                 )
             )
@@ -205,7 +205,7 @@ def _get_missing_documentation_packages(paths=None):
             skips.append(
                 worker.Skip(
                     package,
-                    inspection.get_package_root(package),
+                    finder.get_package_root(package),
                     "Python package already has documentation.",
                 )
             )
@@ -272,7 +272,7 @@ def make_fake_repository(packages, root):
     initialized_packages = []
 
     for package in packages:
-        package_root = inspection.get_package_root(package)
+        package_root = finder.get_package_root(package)
         relative = os.path.relpath(package_root, root)
         destination = os.path.join(repository_root, relative)
         parent = os.path.dirname(destination)

@@ -18,7 +18,7 @@ import git
 from python_compatibility.testing import common
 from rez import exceptions
 from rez_batch_process.core import registry, worker
-from rez_utilities import creator, inspection
+from rez_utilities import creator, finder, inspection
 from six.moves import mock
 
 from . import package_common
@@ -53,7 +53,7 @@ class Add(common.Common):
         self.assertEqual((set(), []), (un_ran, invalids))
 
         package = next(iter(ran))
-        package_root = inspection.get_package_root(package)
+        package_root = finder.get_package_root(package)
         git_repository_root = os.path.dirname(package_root)
         git_repository = git.Repo(git_repository_root)
 
@@ -80,7 +80,7 @@ class Add(common.Common):
         package = package_common.make_package(
             "package_name", root, package_common.make_source_python_package
         )
-        package_root = inspection.get_package_root(package)
+        package_root = finder.get_package_root(package)
         rezbuild_file = os.path.join(package_root, "rezbuild.py")
 
         with open(rezbuild_file, "w") as handler:
@@ -134,7 +134,7 @@ class Add(common.Common):
                 The newly copied Rez package, located inside of the git repository.
 
         """
-        root = os.path.dirname(inspection.get_package_root(package))
+        root = os.path.dirname(finder.get_package_root(package))
         repository, packages, remote_root = package_common.make_fake_repository(
             [package], root
         )

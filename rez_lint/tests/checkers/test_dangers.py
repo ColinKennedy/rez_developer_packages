@@ -13,7 +13,7 @@ import unittest
 from rez import packages_
 from rez.config import config
 from rez_lint import cli
-from rez_utilities import creator, inspection
+from rez_utilities import creator, finder, inspection
 from six.moves import mock
 
 from .. import packaging
@@ -494,7 +494,7 @@ class ImproperRequirements(packaging.BasePackaging):
                 """
             ),
         )
-        directory = inspection.get_package_root(package)
+        directory = finder.get_package_root(package)
 
         results = cli.lint(directory)
         has_issue = any(
@@ -538,7 +538,7 @@ class ImproperRequirements(packaging.BasePackaging):
             + config.packages_path,  # pylint: disable=no-member
         )
 
-        directory = inspection.get_package_root(installed_package)
+        directory = finder.get_package_root(installed_package)
 
         with packaging.override_packages_path(
             [directory, dependency_path], prepend=True
@@ -616,7 +616,7 @@ class ImproperRequirements(packaging.BasePackaging):
             + config.packages_path,  # pylint: disable=no-member
         )
 
-        directory = inspection.get_package_root(installed_package)
+        directory = finder.get_package_root(installed_package)
 
         with packaging.override_packages_path([directory] + dependencies, prepend=True):
             results = cli.lint(directory)
@@ -697,7 +697,7 @@ class ImproperRequirements(packaging.BasePackaging):
             + config.packages_path,  # pylint: disable=no-member
         )
 
-        directory = inspection.get_package_root(installed_package)
+        directory = finder.get_package_root(installed_package)
 
         with packaging.override_packages_path([directory] + dependencies, prepend=True):
             results = cli.lint(directory)
@@ -744,7 +744,7 @@ class ImproperVariants(packaging.BasePackaging):
             + config.packages_path,  # pylint: disable=no-member
         )
 
-        directory = inspection.get_package_root(installed_package)
+        directory = finder.get_package_root(installed_package)
 
         with packaging.override_packages_path(
             [directory, dependency_path], prepend=True
@@ -793,7 +793,7 @@ class ImproperVariants(packaging.BasePackaging):
             + config.packages_path,  # pylint: disable=no-member
         )
 
-        directory = inspection.get_package_root(installed_package)
+        directory = finder.get_package_root(installed_package)
 
         with packaging.override_packages_path(
             [directory, dependency_path], prepend=True

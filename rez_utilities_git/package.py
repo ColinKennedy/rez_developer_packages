@@ -2,7 +2,7 @@
 
 name = "rez_utilities_git"
 
-version = "1.0.1"
+version = "1.1.0"
 
 description = "A collection of Rez / git functions. Mostly useful for unittests."
 
@@ -14,6 +14,7 @@ requires = [
     "GitPython-2.1+<3",
     "python-2",
     "rez-2.47+<3",
+    "rez_utilities-2+<3",
 ]
 
 help = [

@@ -18,7 +18,7 @@ from rez import serialise
 from rez_batch_plugins import repository_area
 from rez_batch_plugins.plugins import bump, move_imports, yaml2py
 from rez_batch_process.core import registry, worker
-from rez_utilities import creator, inspection, rez_configuration
+from rez_utilities import creator, finder, inspection, rez_configuration
 from rez_utilities_git import testify
 from six.moves import mock
 
@@ -65,7 +65,7 @@ class Bugs(common.Common):
                     )
                 )
 
-            return inspection.get_nearest_rez_package(directory)
+            return finder.get_nearest_rez_package(directory)
 
         _is_keep_temporary_files_enabled.return_value = False
         _get_temporary_directory.return_value = tempfile.mkdtemp(
@@ -152,7 +152,7 @@ class MoveImports(common.Common):
 
         for package in packages:
             creator.release(
-                inspection.get_package_root(package),
+                finder.get_package_root(package),
                 options,
                 parser,
                 release_path,
@@ -249,7 +249,7 @@ class MoveImports(common.Common):
 
         for package in packages:
             creator.release(
-                inspection.get_package_root(package),
+                finder.get_package_root(package),
                 options,
                 parser,
                 release_path,
@@ -276,7 +276,7 @@ class MoveImports(common.Common):
             [(skip.package.name, skip.reason) for skip in skips],
         )
 
-        cloned_package = inspection.get_package_root(next(iter(processed_packages)))
+        cloned_package = finder.get_package_root(next(iter(processed_packages)))
         path = os.path.join(cloned_package, "python", "in", "folder", "some_module.py")
 
         if not os.path.isfile(path):
@@ -355,7 +355,7 @@ class MoveImports(common.Common):
 
         for package in packages:
             creator.release(
-                inspection.get_package_root(package),
+                finder.get_package_root(package),
                 options,
                 parser,
                 release_path,
@@ -380,7 +380,7 @@ class MoveImports(common.Common):
         self.assertEqual([], skips)
 
         processed_packages = sorted(processed_packages, key=operator.attrgetter("name"))
-        cloned_package = inspection.get_package_root(processed_packages[1])
+        cloned_package = finder.get_package_root(processed_packages[1])
         path = os.path.join(cloned_package, "python", "in", "folder", "some_module.py")
 
         if not os.path.isfile(path):
@@ -397,7 +397,7 @@ class MoveImports(common.Common):
             """
         )
 
-        cloned_package = inspection.get_package_root(processed_packages[0])
+        cloned_package = finder.get_package_root(processed_packages[0])
         path = os.path.join(cloned_package, "python", "a_folder", "a_file.py")
 
         if not os.path.isfile(path):
@@ -512,7 +512,7 @@ class Yaml2Py(common.Common):
 
         for package in packages:
             creator.release(
-                inspection.get_package_root(package),
+                finder.get_package_root(package),
                 options,
                 parser,
                 release_path,
@@ -703,7 +703,7 @@ class Bump(common.Common):
 
             create_package(directory, name, version)
 
-            return inspection.get_nearest_rez_package(directory)
+            return finder.get_nearest_rez_package(directory)
 
         root = tempfile.mkdtemp(suffix="_test_is_definition_build_package")
         self.delete_item_later(root)
@@ -731,7 +731,7 @@ class Bump(common.Common):
 
         for package in packages:
             creator.release(
-                inspection.get_package_root(package),
+                finder.get_package_root(package),
                 options,
                 parser,
                 release_path,
@@ -912,7 +912,7 @@ def _make_package_with_modules(name, modules, root):
         with open(full_path, "w") as handler:
             handler.write(text)
 
-    return inspection.get_nearest_rez_package(directory)
+    return finder.get_nearest_rez_package(directory)
 
 
 def _make_rez_package(name, package_name, text, root):
@@ -934,7 +934,7 @@ def _make_rez_package(name, package_name, text, root):
     with open(os.path.join(directory, package_name), "w") as handler:
         handler.write(text)
 
-    return inspection.get_nearest_rez_package(directory)
+    return finder.get_nearest_rez_package(directory)
 
 
 def _get_test_commands():

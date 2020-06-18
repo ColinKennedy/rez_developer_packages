@@ -12,7 +12,7 @@ import inspect
 import os
 
 from rez import serialise
-from rez_utilities import inspection
+from rez_utilities import finder
 
 from . import _build_command
 
@@ -36,7 +36,7 @@ def add_build_file(package, name):
             Usually this is "rezbuild.py".
 
     """
-    root = inspection.get_package_root(package)
+    root = finder.get_package_root(package)
 
     with open(os.path.join(root, name), "w") as handler:
         handler.write(_get_build_command())

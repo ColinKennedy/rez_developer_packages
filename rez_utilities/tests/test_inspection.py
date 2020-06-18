@@ -13,7 +13,7 @@ import unittest
 from python_compatibility.testing import common
 from rez import packages_, resolved_context
 from rez.config import config
-from rez_utilities import creator, inspection
+from rez_utilities import creator, finder, inspection
 from rezplugins.build_process import local
 
 _CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
@@ -21,8 +21,8 @@ _CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 
 def _has_versioned_parent_package_folder():
     """bool: Check if this unittest suite is being run from a built Rez package."""
-    package = inspection.get_nearest_rez_package(_CURRENT_DIRECTORY)
-    root = inspection.get_package_root(package)
+    package = finder.get_nearest_rez_package(_CURRENT_DIRECTORY)
+    root = finder.get_package_root(package)
     folder = os.path.basename(root)
 
     return folder == os.environ["REZ_{name}_VERSION".format(name=package.name.upper())]
@@ -37,7 +37,7 @@ class Packaging(common.Common):
     )
     def test_built_package_false(self):
         """Check that source Rez packages do not return True for :func:`.is_built_package`."""
-        package = inspection.get_nearest_rez_package(
+        package = finder.get_nearest_rez_package(
             os.path.dirname(_CURRENT_DIRECTORY)
         )
         self.assertFalse(inspection.is_built_package(package))
@@ -50,17 +50,17 @@ class Packaging(common.Common):
     def test_detect_found_001(self):
         """Check that valid directory input can find Rez packages correctly."""
         self.assertIsNotNone(
-            inspection.get_nearest_rez_package(os.path.dirname(_CURRENT_DIRECTORY))
+            finder.get_nearest_rez_package(os.path.dirname(_CURRENT_DIRECTORY))
         )
 
     def test_detect_found_002(self):
         """Check that valid directory input can find Rez packages correctly."""
-        self.assertIsNotNone(inspection.get_nearest_rez_package(_CURRENT_DIRECTORY))
+        self.assertIsNotNone(finder.get_nearest_rez_package(_CURRENT_DIRECTORY))
 
     def test_detect_found_003(self):
         """Check that valid directory input can find Rez packages correctly."""
         self.assertIsNotNone(
-            inspection.get_nearest_rez_package(os.path.join(_CURRENT_DIRECTORY, "foo"))
+            finder.get_nearest_rez_package(os.path.join(_CURRENT_DIRECTORY, "foo"))
         )
 
     def test_detect_missing(self):
@@ -68,11 +68,11 @@ class Packaging(common.Common):
         directory = tempfile.mkdtemp(suffix="_detect_missing")
         self.delete_item_later(directory)
 
-        self.assertIsNone(inspection.get_nearest_rez_package(directory))
+        self.assertIsNone(finder.get_nearest_rez_package(directory))
 
     def test_in_valid_context(self):
         """Make sure :func:`rez_lint.inspection.in_valid_context` works as expected."""
-        package = inspection.get_nearest_rez_package(_CURRENT_DIRECTORY)
+        package = finder.get_nearest_rez_package(_CURRENT_DIRECTORY)
 
         package_ = collections.namedtuple("Package", "name version")
         fake_package = package_("foo", "6.6.6")
@@ -126,7 +126,7 @@ class HasPythonPackage(common.Common):
 
         local.LocalBuildProcess.build = _check_called(local.LocalBuildProcess.build)
 
-        package = inspection.get_nearest_rez_package(root)
+        package = finder.get_nearest_rez_package(root)
         self.assertTrue(
             inspection.has_python_package(
                 package,
@@ -172,7 +172,7 @@ class HasPythonPackage(common.Common):
 
         local.LocalBuildProcess.build = _check_called(local.LocalBuildProcess.build)
 
-        package = inspection.get_nearest_rez_package(root)
+        package = finder.get_nearest_rez_package(root)
         self.assertTrue(
             inspection.has_python_package(
                 package,
@@ -219,7 +219,7 @@ class HasPythonPackage(common.Common):
 
         local.LocalBuildProcess.build = _check_called(local.LocalBuildProcess.build)
 
-        package = inspection.get_nearest_rez_package(root)
+        package = finder.get_nearest_rez_package(root)
         self.assertTrue(
             inspection.has_python_package(
                 package,
@@ -263,7 +263,7 @@ class HasPythonPackage(common.Common):
 
         open(os.path.join(python_root, "__init__.py"), "a").close()
 
-        package = inspection.get_nearest_rez_package(root)
+        package = finder.get_nearest_rez_package(root)
 
         install_root = tempfile.mkdtemp(suffix="_installed_rez_package")
         self.delete_item_later(install_root)
@@ -280,7 +280,7 @@ class HasPythonPackage(common.Common):
 
     def test_python_package_true(self):
         """Make sure a source Rez package with no variant still works."""
-        package = inspection.get_nearest_rez_package(
+        package = finder.get_nearest_rez_package(
             os.path.dirname(_CURRENT_DIRECTORY)
         )
         self.assertTrue(inspection.has_python_package(package))
@@ -292,7 +292,7 @@ class HasPythonPackage(common.Common):
 
     def test_allow_current_context(self):
         """Check that has_python_package only creates a context when needed."""
-        package = inspection.get_nearest_rez_package(_CURRENT_DIRECTORY)
+        package = finder.get_nearest_rez_package(_CURRENT_DIRECTORY)
         inspection.in_valid_context = _check_called(inspection.in_valid_context)
 
         self.assertTrue(
@@ -397,7 +397,7 @@ class GetPackagePythonFiles(common.Common):
             extra_paths = []
 
         package = self._make_fake_rez_source_package(name, text)
-        root = inspection.get_package_root(package)
+        root = finder.get_package_root(package)
         python_root = os.path.join(root, "python")
         os.makedirs(python_root)
 

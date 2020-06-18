@@ -17,7 +17,7 @@ import wurlitzer
 from rez import packages_
 from rez.config import config
 from rez_batch_process.core import exceptions, worker
-from rez_utilities import creator, inspection, rez_configuration
+from rez_utilities import creator, finder, inspection, rez_configuration
 from six.moves import mock
 
 from . import package_common
@@ -156,7 +156,7 @@ class Fix(package_common.Tests):
         release_path = _release_packages(packages)
         self.delete_item_later(release_path)
 
-        package = inspection.get_nearest_rez_package(
+        package = finder.get_nearest_rez_package(
             os.path.join(release_path, "project_a", "1.0.0")
         )
 
@@ -167,7 +167,7 @@ class Fix(package_common.Tests):
                 [
                     worker.Skip(
                         package,
-                        inspection.get_package_root(package),
+                        finder.get_package_root(package),
                         "Rez Package does not define Python packages / modules.",
                     )
                 ],
@@ -370,7 +370,7 @@ class Variations(package_common.Tests):
             "2.0.0",
             directory,
         )
-        build_package = inspection.get_nearest_rez_package(os.path.join(build_package))
+        build_package = finder.get_nearest_rez_package(os.path.join(build_package))
         build_root = inspection.get_packages_path_from_package(build_package)
         build_paths = [build_root]
 
@@ -398,7 +398,7 @@ class Variations(package_common.Tests):
                     [
                         worker.Skip(
                             build_package,
-                            inspection.get_package_root(build_package),
+                            finder.get_package_root(build_package),
                             "Python package already has documentation.",
                         )
                     ],
@@ -553,7 +553,7 @@ class Variations(package_common.Tests):
             "2.0.0",
             directory,
         )
-        build_package = inspection.get_nearest_rez_package(os.path.join(build_package))
+        build_package = finder.get_nearest_rez_package(os.path.join(build_package))
         build_root = inspection.get_packages_path_from_package(build_package)
         paths = roots + [build_root]
 
@@ -568,7 +568,7 @@ class Variations(package_common.Tests):
                         #
                         worker.Skip(
                             build_package,
-                            inspection.get_package_root(build_package),
+                            finder.get_package_root(build_package),
                             "Python package already has documentation.",
                         )
                     ],
@@ -622,7 +622,7 @@ class Variations(package_common.Tests):
                     )
                 )
 
-            return inspection.get_nearest_rez_package(directory)
+            return finder.get_nearest_rez_package(directory)
 
         run_command.return_value = ""
         root = os.path.join(tempfile.mkdtemp(), "test_versioned_source")
@@ -821,7 +821,7 @@ class Bad(package_common.Tests):
         self.delete_item_later(remote_root)
 
         package = packages[1]
-        package_root = inspection.get_package_root(package)
+        package_root = finder.get_package_root(package)
 
         with rez_configuration.patch_packages_path([repository.working_dir]):
             self._test(
@@ -923,7 +923,7 @@ def _release_packages(packages, search_paths=None):
     # Rez prints a lot of text to console during release so we'll silence it all
     with wurlitzer.pipes():
         new_release_path = creator.release(
-            inspection.get_package_root(package),
+            finder.get_package_root(package),
             options,
             parser,
             temporary_path,
@@ -938,7 +938,7 @@ def _release_packages(packages, search_paths=None):
                 new_release_path,
             )
             creator.release(
-                inspection.get_package_root(package),
+                finder.get_package_root(package),
                 options,
                 parser,
                 new_release_path,

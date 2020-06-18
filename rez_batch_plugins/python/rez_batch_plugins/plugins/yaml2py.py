@@ -12,7 +12,7 @@ import textwrap
 from rez import serialise
 from rez_batch_process.core import exceptions, registry, worker
 from rez_batch_process.core.plugins import command, conditional
-from rez_utilities import inspection
+from rez_utilities import finder
 from six.moves import io
 
 from .. import repository_area
@@ -81,7 +81,7 @@ class Yaml2Py(command.RezShellCommand):
         if not package.filepath.endswith(".yaml"):
             raise exceptions.InvalidPackage(
                 package,
-                inspection.get_package_root(package),
+                finder.get_package_root(package),
                 'Package "{package}" is not a YAML file.'.format(package=package),
             )
 
@@ -89,7 +89,7 @@ class Yaml2Py(command.RezShellCommand):
         package.print_info(format_=serialise.FileFormat.py, buf=buffer_)
         code = buffer_.getvalue()
 
-        path = os.path.join(inspection.get_package_root(package), "package.py")
+        path = os.path.join(finder.get_package_root(package), "package.py")
         _LOGGER.info('Now creating "%s".', path)
 
         with open(path, "w") as handler:
@@ -182,7 +182,7 @@ def _get_non_python_packages(paths=None):
             skips.append(
                 worker.Skip(
                     package,
-                    inspection.get_package_root(package),
+                    finder.get_package_root(package),
                     "is not a package.yaml file.",
                 )
             )

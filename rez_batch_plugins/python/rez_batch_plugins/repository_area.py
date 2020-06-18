@@ -21,7 +21,7 @@ import git
 from rez import exceptions as rez_exceptions
 from rez import packages_
 from rez_batch_process import cli
-from rez_utilities import inspection
+from rez_utilities import finder, inspection
 from rez_utilities_git import gitter
 
 _LOGGER = logging.getLogger(__name__)
@@ -78,7 +78,7 @@ def is_definition(package, format_):
 
         """
         if not inspection.is_built_package(package):
-            path = inspection.get_package_root(package)
+            path = finder.get_package_root(package)
 
             try:
                 packages_.get_developer_package(path, format=format_)

@@ -10,7 +10,7 @@ import tempfile
 import git
 from rez import packages_
 from rez.config import config
-from rez_utilities import inspection
+from rez_utilities import finder
 
 _REMOTES = set()
 
@@ -52,7 +52,7 @@ def make_fake_repository(packages, root):
     initialized_packages = []
 
     for package in packages:
-        package_root = inspection.get_package_root(package)
+        package_root = finder.get_package_root(package)
         relative = os.path.relpath(package_root, root)
         destination = os.path.join(repository_root, relative)
         parent = os.path.dirname(destination)

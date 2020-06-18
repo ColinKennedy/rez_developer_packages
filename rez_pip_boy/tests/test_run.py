@@ -17,7 +17,7 @@ import unittest
 from rez import packages
 from rez_pip_boy import cli
 from rez_pip_boy.core import _build_command, exceptions
-from rez_utilities import creator, inspection
+from rez_utilities import creator, finder
 from six.moves import mock
 
 _BUILD_COMMAND_CODE = inspect.getsource(_build_command)
@@ -64,7 +64,7 @@ class Integrations(unittest.TestCase):
         with open(rezbuild, "r") as handler:
             rezbuild_code = handler.read()
 
-        package = inspection.get_nearest_rez_package(directory)
+        package = finder.get_nearest_rez_package(directory)
         self.assertIsNotNone(package)
 
         self.assertEqual(_BUILD_COMMAND_CODE, rezbuild_code)
@@ -86,7 +86,7 @@ class Integrations(unittest.TestCase):
         )
         atexit.register(functools.partial(shutil.rmtree, install_directory))
 
-        package = inspection.get_nearest_rez_package(directory)
+        package = finder.get_nearest_rez_package(directory)
         creator.build(package, install_directory, quiet=True)
 
         installed_package_directory = os.path.join(

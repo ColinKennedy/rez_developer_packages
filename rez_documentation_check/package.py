@@ -2,7 +2,7 @@
 
 name = "rez_documentation_check"
 
-version = "0.3.0"
+version = "0.4.0"
 
 description = "Check a Rez package's Sphinx documentation for issues"
 
@@ -14,9 +14,9 @@ help = [
 
 requires = [
     "parso-0.5+<1",
-    "python_compatibility-1.1+<2",
+    "python_compatibility-2+<3",
     "rez-2.47+<3",
-    "rez_utilities-1+<2",
+    "rez_utilities-2+<3",
     "six-1.13+<2",
 ]
 

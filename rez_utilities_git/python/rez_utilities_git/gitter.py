@@ -8,7 +8,7 @@ import os
 
 import git
 from git import exc
-from rez_utilities import inspection
+from rez_utilities import finder
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -49,7 +49,7 @@ def _guess_repository_from_symlinks(directory):
 
         raise RuntimeError(message)
 
-    packages = {inspection.get_nearest_rez_package(path).name for path in symlinks}
+    packages = {finder.get_nearest_rez_package(path).name for path in symlinks}
 
     if len(packages) != 1:
         raise RuntimeError(
@@ -80,7 +80,7 @@ def get_repository(package):
             always return something or error out.
 
     """
-    path = inspection.get_package_root(package)
+    path = finder.get_package_root(package)
 
     if not path:
         raise ValueError('Package "{package}" has no path on-disk.'.format(package=package))

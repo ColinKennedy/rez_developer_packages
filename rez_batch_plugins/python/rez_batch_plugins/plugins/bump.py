@@ -18,7 +18,7 @@ from rez_batch_process.core import registry
 from rez_batch_process.core.plugins import command, conditional
 from rez_bump import rez_bump_api
 from rez_industry import api
-from rez_utilities import creator, inspection
+from rez_utilities import creator, finder
 
 _Configuration = collections.namedtuple(
     "_Configuration", "command token pull_request_name ssl_no_verify results"
@@ -285,7 +285,7 @@ def _get_parser():
 
 def _run_build(package, paths=None):
     # TODO : Figure out where to put `paths`
-    root = inspection.get_package_root(package)
+    root = finder.get_package_root(package)
 
     system = build_system.create_build_system(root, package=package, verbose=True)
 
@@ -369,9 +369,9 @@ def _bump(package, increment, new_dependencies):
     with open(package.filepath, "w") as handler:
         handler.write(new_code)
 
-    root = inspection.get_package_root(package)
+    root = finder.get_package_root(package)
 
-    return inspection.get_nearest_rez_package(root)
+    return finder.get_nearest_rez_package(root)
 
 
 def main():

@@ -2,7 +2,7 @@
 
 name = "rez_move_imports"
 
-version = "1.3.0"
+version = "1.4.0"
 
 description = "Change a Rez package's imports and then bump the require Rez version(s)"
 
@@ -19,7 +19,7 @@ requires = [
     "rez-2.42+<3",
     "rez_bump-1.1+<2",
     "rez_industry-1+<2",
-    "rez_utilities-1.4+<2",
+    "rez_utilities-2+<3",
 ]
 
 build_command = "python -m rez_build_helper --items python"

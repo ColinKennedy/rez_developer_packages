@@ -14,7 +14,7 @@ from rez_batch_process import cli as rez_batch_process_cli
 from rez_batch_process.core import registry, worker
 from rez_batch_process.core.plugins import command, conditional
 from rez_move_imports import cli as rez_move_imports_cli
-from rez_utilities import inspection
+from rez_utilities import finder, inspection
 
 from .. import repository_area
 
@@ -197,8 +197,8 @@ def _needs_replacement(package, user_namespaces):
             inside of the given `package`.
 
     """
-    root = inspection.get_package_root(package)
-    package = inspection.get_nearest_rez_package(root)
+    root = finder.get_package_root(package)
+    package = finder.get_nearest_rez_package(root)
 
     namespaces = set()
 
@@ -254,7 +254,7 @@ def _get_packages_which_must_be_changed(paths=None):
             skips.append(
                 worker.Skip(
                     package,
-                    inspection.get_package_root(package),
+                    finder.get_package_root(package),
                     "does not define a package.py file.",
                 )
             )
@@ -265,7 +265,7 @@ def _get_packages_which_must_be_changed(paths=None):
             skips.append(
                 worker.Skip(
                     package,
-                    inspection.get_package_root(package),
+                    finder.get_package_root(package),
                     "No namespaces need to be replaced.",
                 )
             )

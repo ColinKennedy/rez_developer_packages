@@ -2,7 +2,7 @@
 
 name = "rez_batch_plugins"
 
-version = "2.2.0"
+version = "2.3.0"
 
 description = "Several plugins to demonstrate the use of `rez_batch_process` and its plugin system."
 
@@ -28,7 +28,7 @@ requires = [
     "rez_bump-1.0.2+<2",
     "rez_industry-1+<2",
     "rez_move_imports-1+<2",
-    "rez_utilities-1.4+<2",
+    "rez_utilities-2+<3",
     "rez_utilities_git-1+<2",
     "six-1.13+<2",
 ]

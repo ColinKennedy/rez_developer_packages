@@ -9,18 +9,18 @@ import subprocess
 import tempfile
 import textwrap
 
+import wurlitzer
 from rez import build_process_, build_system, packages_, resolved_context
 from rez.config import config
 from rez_documentation_check import cli
 from rez_documentation_check.core import sphinx_convention
-from rez_utilities import inspection, url_help
+from rez_utilities import finder, inspection, url_help
 from six.moves import mock
-import wurlitzer
 
 from . import common
 
 _CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
-_THIS_PACKAGE = inspection.get_nearest_rez_package(_CURRENT_DIRECTORY)
+_THIS_PACKAGE = finder.get_nearest_rez_package(_CURRENT_DIRECTORY)
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -42,7 +42,7 @@ class Url(common.Common):
                 The position, help command label, and URL for each invalid URL found.
 
         """
-        self.delete_item_later(inspection.get_package_root(package))
+        self.delete_item_later(finder.get_package_root(package))
         self._fake_package_root()
 
         return cli.find_intersphinx_links(package.requires or [])
@@ -250,7 +250,7 @@ class Cases(common.Common):
         path = inspection.get_packages_path_from_package(dependency)
         config.packages_path.append(path)  # pylint: disable=no-member
 
-        root = inspection.get_package_root(package)
+        root = finder.get_package_root(package)
         self.assertEqual(dict(), cli.get_existing_intersphinx_links(root))
         self.assertEqual(
             {dependency.name: (url, None)},
@@ -293,7 +293,7 @@ class Cases(common.Common):
             inspection.get_packages_path_from_package(dependency2)
         )
 
-        root = inspection.get_package_root(package)
+        root = finder.get_package_root(package)
 
         self.assertEqual(dict(), cli.get_existing_intersphinx_links(root))
 
@@ -336,7 +336,7 @@ class Cases(common.Common):
             inspection.get_packages_path_from_package(dependency2)
         )
 
-        root = inspection.get_package_root(package)
+        root = finder.get_package_root(package)
 
         self.assertEqual(existing_intersphinx, cli.get_existing_intersphinx_links(root))
 
@@ -371,7 +371,7 @@ class Cases(common.Common):
 
         self.delete_item_later(directory)
 
-        package = inspection.get_nearest_rez_package(root)
+        package = finder.get_nearest_rez_package(root)
 
         self.assertEqual(
             "https://google.com", url_help.find_package_documentation(package)
@@ -477,7 +477,7 @@ def _create_fake_rez_dependency_package(name, help_=common.DEFAULT_CODE):
 
 
 def _make_check_command(package):
-    directory = inspection.get_package_root(package)
+    directory = finder.get_package_root(package)
 
     return "rez-documentation-check check --package {directory}".format(
         directory=directory

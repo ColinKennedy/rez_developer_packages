@@ -9,7 +9,7 @@ import logging
 import os
 
 from python_compatibility import website
-from rez_utilities import inspection, url_help
+from rez_utilities import finder, url_help
 
 from ...core import lint_constant, message_description, package_parser
 from . import base_checker
@@ -856,7 +856,7 @@ class UrlNotReachable(base_checker.BaseChecker):
         if not urls:
             return []
 
-        urls = cls._filter_existing_paths(urls, inspection.get_package_root(package))
+        urls = cls._filter_existing_paths(urls, finder.get_package_root(package))
 
         if not urls:
             return []

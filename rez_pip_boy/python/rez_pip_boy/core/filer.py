@@ -6,7 +6,7 @@
 import os
 import tarfile
 
-from rez_utilities import inspection
+from rez_utilities import finder
 
 
 def _get_transfer_path(variant):
@@ -48,7 +48,7 @@ def transfer(variant):
             and later unpacked.
 
     """
-    source_root = inspection.get_package_root(variant)
+    source_root = finder.get_package_root(variant)
 
     source = os.path.join(
         source_root,

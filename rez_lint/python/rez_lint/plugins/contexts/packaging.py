@@ -10,7 +10,7 @@ import subprocess
 from python_compatibility import dependency_analyzer, filer
 from rez import exceptions, resolved_context
 from rez.config import config
-from rez_utilities import inspection
+from rez_utilities import finder, inspection
 
 from ...core import lint_constant
 from . import base_context
@@ -155,7 +155,7 @@ def _get_root_rez_packages(paths):
         if _is_root_already_found(path, package_roots):
             continue  # pragma: no cover
 
-        package = inspection.get_nearest_rez_package(path)
+        package = finder.get_nearest_rez_package(path)
 
         if package:
             packages[package.name] = package
