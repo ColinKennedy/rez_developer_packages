@@ -6,6 +6,11 @@ Important:
     This module isn't meant to be run directly. It's basically only used
     internally by other Python APIs.
 
+Important:
+    This module imports Python files directly to find namespaces.
+    It (intentionally) does not take into account conditional imports or branching.
+    For that, see :func:`move_break.finder.get_namespaces`.
+
 Note:
     This module can only be run when these assumptions are true:
 
