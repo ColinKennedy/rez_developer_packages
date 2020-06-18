@@ -12,4 +12,3 @@ def iter_is_last(container):
             yield False, item
         else:
             yield True, item
-
