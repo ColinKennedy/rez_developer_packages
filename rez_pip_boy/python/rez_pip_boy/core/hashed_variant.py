@@ -12,7 +12,10 @@ control over variant again, we have to get a bit creative and force
 
 import contextlib
 
-from rez import package_maker
+try:
+    from rez import package_maker__ as package_maker  # Older Rez versions (2.48-sh)
+except ImportError:
+    from rez import package_maker  # Newer Rez versions (Rez 2.49+-ish)
 
 
 def _modified_get_data(function):

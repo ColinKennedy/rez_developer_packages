@@ -19,6 +19,7 @@ from rez_utilities import rez_configuration
 
 from .core import builder, exceptions, filer, hashed_variant
 
+ARGUMENTS_SEPARATOR = " -- "
 _BUILD_FILE_NAME = "rezbuild.py"
 _LOGGER = logging.getLogger(__name__)
 
@@ -30,18 +31,33 @@ def _parse_arguments(text):
         text (list[str]): User-provided arguments, split by spaces.
 
     Returns:
-        :class:`argparse.Namespace`: The parsed arguments.
+        tuple[str, :class:`argparse.Namespace`]:
+            The raw text to parse with `rez-pip` and the parsed arguments needed by `rez_pip_boy`.
 
     """
+    separator = ARGUMENTS_SEPARATOR.strip()
+
+    if text.count(separator) > 1:
+        raise exceptions.DuplicateDoubleDash(
+            "Please provide only one {ARGUMENTS_SEPARATOR!r}.".format(
+                ARGUMENTS_SEPARATOR=ARGUMENTS_SEPARATOR,
+            ),
+        )
+
+    try:
+        index = text.index(separator)
+    except ValueError:
+        raise exceptions.MissingDoubleDash('You must separate your arguments with {ARGUMENTS_SEPARATOR!r}.'.format(ARGUMENTS_SEPARATOR=ARGUMENTS_SEPARATOR))
+
+    rez_pip_arguments = text[:index]
+    rez_pip_command = " ".join(rez_pip_arguments)
+    rez_pip_boy_arguments = text[index + 1:]  # Add `+ 1` to remove the "--" separator
+
     parser = argparse.ArgumentParser(
         description="A thin wrapper around ``rez-pip`` to transform an installed package "
         "back into a source package.",
     )
 
-    parser.add_argument(
-        "command",
-        help='The raw rez-pip command. e.g. "--install black --python-version=3.6".',
-    )
     parser.add_argument(
         "destination",
         help="The absolute folder path on-disk to place this source package "
@@ -74,7 +90,18 @@ def _parse_arguments(text):
         help="When included, rez-pip output will be printed to the terminal.",
     )
 
-    return parser.parse_args(text)
+    try:
+        arguments = parser.parse_args(rez_pip_boy_arguments)
+    except SystemExit:
+        parser.parse_args(rez_pip_arguments)
+
+        raise exceptions.SwappedArguments(
+            'Your arguments are separated by {ARGUMENTS_SEPARATOR!r} but they need to be flipped.'.format(
+                ARGUMENTS_SEPARATOR=ARGUMENTS_SEPARATOR,
+            ),
+        )
+
+    return rez_pip_command, arguments
 
 
 def _parse_rez_pip_arguments(text):
@@ -184,11 +211,11 @@ def main(text):
         :class:`.MissingDestination`: If the given directory doesn't exist.
 
     """
-    arguments = _parse_arguments(text)
-    destination = os.path.expanduser(os.path.expandvars(arguments.destination))
+    rez_pip_command, rez_pip_boy_arguments = _parse_arguments(text)
+    destination = os.path.expanduser(os.path.expandvars(rez_pip_boy_arguments.destination))
 
     if not os.path.isdir(destination):
-        if arguments.no_make_folders:
+        if rez_pip_boy_arguments.no_make_folders:
             raise exceptions.MissingDestination(
                 'Path "{destination}" is not a directory. Please create it and try again.'
                 "".format(destination=destination)
@@ -198,19 +225,19 @@ def main(text):
 
     prefix = tempfile.mkdtemp(prefix="rez_pip_boy_", suffix="_temporary_build_folder")
 
-    if not arguments.keep_temporary_files:
+    if not rez_pip_boy_arguments.keep_temporary_files:
         atexit.register(functools.partial(shutil.rmtree, prefix))
 
-    rez_pip_arguments = _parse_rez_pip_arguments(shlex.split(arguments.command))
+    rez_pip_arguments = _parse_rez_pip_arguments(shlex.split(rez_pip_command))
 
-    context = _get_install_context(arguments)
+    context = _get_install_context(rez_pip_boy_arguments)
 
     with context():
         installed_variants, stdout, stderr = _pip_install(rez_pip_arguments, prefix)
 
     _LOGGER.debug('Found variants "%s".', installed_variants)
 
-    if arguments.verbose:  # pragma: no cover
+    if rez_pip_boy_arguments.verbose:  # pragma: no cover
         stdout = stdout.read()
         if stdout:
             _LOGGER.info("Found stdout from a rez-pip install.")
