@@ -37,9 +37,7 @@ class Packaging(common.Common):
     )
     def test_built_package_false(self):
         """Check that source Rez packages do not return True for :func:`.is_built_package`."""
-        package = finder.get_nearest_rez_package(
-            os.path.dirname(_CURRENT_DIRECTORY)
-        )
+        package = finder.get_nearest_rez_package(os.path.dirname(_CURRENT_DIRECTORY))
         self.assertFalse(inspection.is_built_package(package))
 
     def test_built_package_invalid(self):
@@ -280,9 +278,7 @@ class HasPythonPackage(common.Common):
 
     def test_python_package_true(self):
         """Make sure a source Rez package with no variant still works."""
-        package = finder.get_nearest_rez_package(
-            os.path.dirname(_CURRENT_DIRECTORY)
-        )
+        package = finder.get_nearest_rez_package(os.path.dirname(_CURRENT_DIRECTORY))
         self.assertTrue(inspection.has_python_package(package))
 
     def test_python_package_invalid(self):

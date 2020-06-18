@@ -59,9 +59,7 @@ def build(package, install_path, packages_path=None, quiet=False):
         package.config.packages_path[:] = packages_path
 
     if isinstance(package, packages_.Package):
-        package = finder.get_nearest_rez_package(
-            finder.get_package_root(package)
-        )
+        package = finder.get_nearest_rez_package(finder.get_package_root(package))
 
     directory = os.path.dirname(package.filepath)
 
