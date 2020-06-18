@@ -51,14 +51,14 @@ def _parse_arguments(text):
         index = text.index(separator)
     except ValueError:
         raise exceptions.MissingDoubleDash(
-            'You must separate your arguments with {ARGUMENTS_SEPARATOR!r}.'.format(
+            "You must separate your arguments with {ARGUMENTS_SEPARATOR!r}.".format(
                 ARGUMENTS_SEPARATOR=ARGUMENTS_SEPARATOR
             )
         )
 
     rez_pip_arguments = text[:index]
     rez_pip_command = " ".join(rez_pip_arguments)
-    rez_pip_boy_arguments = text[index + 1:]  # Add `+ 1` to remove the "--" separator
+    rez_pip_boy_arguments = text[index + 1 :]  # Add `+ 1` to remove the "--" separator
 
     parser = argparse.ArgumentParser(
         description="A thin wrapper around ``rez-pip`` to transform an installed package "
@@ -103,7 +103,7 @@ def _parse_arguments(text):
         parser.parse_args(rez_pip_arguments)
 
         raise exceptions.SwappedArguments(
-            'Your arguments are separated by {ARGUMENTS_SEPARATOR!r} but they need to be flipped.'.format(  # pylint: disable=line-too-long
+            "Your arguments are separated by {ARGUMENTS_SEPARATOR!r} but they need to be flipped.".format(  # pylint: disable=line-too-long
                 ARGUMENTS_SEPARATOR=ARGUMENTS_SEPARATOR,
             ),
         )
@@ -219,7 +219,9 @@ def main(text):
 
     """
     rez_pip_command, rez_pip_boy_arguments = _parse_arguments(text)
-    destination = os.path.expanduser(os.path.expandvars(rez_pip_boy_arguments.destination))
+    destination = os.path.expanduser(
+        os.path.expandvars(rez_pip_boy_arguments.destination)
+    )
 
     if not os.path.isdir(destination):
         if rez_pip_boy_arguments.no_make_folders:
