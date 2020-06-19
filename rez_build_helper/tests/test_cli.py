@@ -7,6 +7,7 @@ import atexit
 import functools
 import os
 import shutil
+import sys
 import tempfile
 import textwrap
 import unittest
@@ -165,6 +166,14 @@ class Cli(unittest.TestCase):
 class Egg(unittest.TestCase):
     """Make sure .egg generation and symlinking works as expected."""
 
+    def setUp(self):
+        """Keep track of the users loadable Python paths so it can be reverted."""
+        self._paths = list(sys.path)
+
+    def tearDown(self):
+        """Restore the old set of loadable Python paths."""
+        sys.path[:] = self._paths
+
     def test_single(self):
         """Create a collapsed .egg file for a Python folder."""
         directory = tempfile.mkdtemp(prefix="rez_build_helper_Egg_test_single_")
@@ -194,7 +203,7 @@ class Egg(unittest.TestCase):
 
                     private_build_requires = ["rez_build_helper"]
 
-                    build_command = "python -m rez_build_helper --egg python"
+                    build_command = "python -m rez_build_helper --eggs python"
 
                     def commands():
                         import os
@@ -250,7 +259,7 @@ class Egg(unittest.TestCase):
 
                     private_build_requires = ["rez_build_helper"]
 
-                    build_command = "python -m rez_build_helper --egg python --symlink"
+                    build_command = "python -m rez_build_helper --eggs python --symlink"
 
                     def commands():
                         import os
@@ -317,7 +326,7 @@ class Egg(unittest.TestCase):
 
                     private_build_requires = ["rez_build_helper"]
 
-                    build_command = "python -m rez_build_helper --egg python another"
+                    build_command = "python -m rez_build_helper --eggs python another"
 
                     def commands():
                         import os
@@ -394,7 +403,7 @@ class Egg(unittest.TestCase):
 
                     private_build_requires = ["rez_build_helper"]
 
-                    build_command = "python -m rez_build_helper --egg python another --symlink"
+                    build_command = "python -m rez_build_helper --eggs python another --symlink"
 
                     def commands():
                         import os
@@ -442,5 +451,60 @@ class Egg(unittest.TestCase):
             filer.build(directory, destination, eggs=["foo/bar"])
 
     def test_loadable(self):
-        """Create a Python."""
-        raise NotImplementedError()
+        """Create a Python package .egg file and make sure it's importable."""
+        directory = tempfile.mkdtemp(prefix="rez_build_helper_Cli_test_loadable_")
+        atexit.register(functools.partial(shutil.rmtree, directory))
+
+        common.make_files(
+            {"python": {
+                "some_thing": {
+                    "__init__.py": None,
+                    "some_module.py": None,
+                    "inner_folder": {
+                        "__init__.py": None,
+                        "inner_module.py": None,
+                    }
+                }
+            }},
+            directory,
+        )
+
+        with open(os.path.join(directory, "package.py"), "w") as handler:
+            handler.write(
+                textwrap.dedent(
+                    """\
+                    name = "some_package"
+
+                    version = "1.0.0"
+
+                    private_build_requires = ["rez_build_helper"]
+
+                    build_command = "python -m rez_build_helper --eggs python"
+
+                    def commands():
+                        import os
+
+                        env.PYTHONPATH.append(os.path.join("{root}", "python"))
+                    """
+                )
+            )
+
+        package = finder.get_nearest_rez_package(directory)
+        destination = tempfile.mkdtemp(prefix="rez_build_helper_Cli_test_copy_install_folder_")
+        atexit.register(functools.partial(shutil.rmtree, destination))
+
+        creator.build(package, destination, quiet=True)
+        install_location = os.path.join(destination, "some_package", "1.0.0")
+
+        egg_file = os.path.join(install_location, "python.egg")
+        self.assertTrue(os.path.isfile(os.path.join(install_location, "python.egg")))
+
+        # Make the python.egg importable
+        sys.path.append(egg_file)
+
+        from some_thing import some_module
+
+        self.assertEqual(
+            os.path.join(install_location, "python.egg", "some_thing", "some_module", "__init__.py"),
+            os.path.realpath(some_module.__file__),
+        )
