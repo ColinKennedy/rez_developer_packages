@@ -46,6 +46,13 @@ alias rb="rez-build --clean --install -- --symlink"
 With this, building anything with symlinks is just an ``rb`` away.
 
 
+## .egg for Python packages
+
+If you want to convert a folder into a .egg file, just replace
+``--items`` with ``--egg``. When built, the .egg file will be named
+after whatever the folder is called.
+
+
 ## Calling rez_build_helper Manually
 
 If you want to take advantage of ``rez_build_helper``'s functions, you can write your own build script.
