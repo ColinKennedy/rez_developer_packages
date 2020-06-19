@@ -48,7 +48,13 @@ tests = {
         "command": "pylint --disable=bad-continuation python/rez_build_helper tests",
         "requires": ["pylint-1.9+<2"],
     },
-    "unittest": "python -m unittest discover",
+    "unittest": {
+        "command": "python -m unittest discover",
+        "requires": [
+            "rez_python_compatibility-2.3+<3",
+            "rez_utilities-2+<3",
+        ],
+    },
 }
 
 def commands():

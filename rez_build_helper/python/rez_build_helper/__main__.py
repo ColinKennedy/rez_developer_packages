@@ -34,6 +34,13 @@ def _parse_arguments(text):
     )
 
     parser.add_argument(
+        "-e",
+        "--eggs",
+        nargs="+",
+        help="The relative paths to each file/folder to make into a .egg file."
+    )
+
+    parser.add_argument(
         "-s",
         "--symlink",
         action="store_true",
@@ -52,7 +59,8 @@ def main(text):
     filer.build(
         os.environ["REZ_BUILD_SOURCE_PATH"],
         os.environ["REZ_BUILD_INSTALL_PATH"],
-        arguments.items,
+        items=arguments.items,
+        eggs=arguments.eggs,
     )
 
 
