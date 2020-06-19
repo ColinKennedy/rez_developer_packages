@@ -505,6 +505,6 @@ class Egg(unittest.TestCase):
         from some_thing import some_module
 
         self.assertEqual(
-            os.path.join(install_location, "python.egg", "some_thing", "some_module", "__init__.py"),
+            os.path.join(install_location, "python.egg", "some_thing", "some_module.py"),
             os.path.realpath(some_module.__file__),
         )

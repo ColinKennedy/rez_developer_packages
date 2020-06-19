@@ -38,7 +38,9 @@ def _make_egg(source, destination):
         if os.path.isdir(source):
             for root, directories, files in os.walk(source):
                 for name in itertools.chain(directories, files):
-                    handler.write(os.path.join(root, name), arcname=name)
+                    path = os.path.join(root, name)
+                    relative_path = os.path.relpath(path, source)
+                    handler.write(path, arcname=relative_path)
         else:
             handler.write(source, arcname=os.path.basename(source))
 
