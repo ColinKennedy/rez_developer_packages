@@ -3,11 +3,13 @@
 
 """A thin wrapper around "filer.py" that automatically builds / symlinks Rez packages."""
 
+from __future__ import print_function
+
 import argparse
 import os
 import sys
 
-from . import filer
+from . import exceptions, filer
 
 
 def _parse_arguments(text):
@@ -56,12 +58,16 @@ def main(text):
     """Run the main execution of the current script."""
     arguments = _parse_arguments(text)
 
-    filer.build(
-        os.environ["REZ_BUILD_SOURCE_PATH"],
-        os.environ["REZ_BUILD_INSTALL_PATH"],
-        items=arguments.items,
-        eggs=arguments.eggs,
-    )
+    try:
+        filer.build(
+            os.environ["REZ_BUILD_SOURCE_PATH"],
+            os.environ["REZ_BUILD_INSTALL_PATH"],
+            items=arguments.items,
+            eggs=arguments.eggs,
+        )
+    except exceptions.NonRootItemFound as error:
+        print(error, file=sys.stderr)
+        print('Please check spelling and try again.')
 
 
 if __name__ == "__main__":

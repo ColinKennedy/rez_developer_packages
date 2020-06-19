@@ -10,6 +10,8 @@ import shutil
 import sys
 import zipfile
 
+from . import exceptions
+
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -95,6 +97,18 @@ def _build(source, destination, items, eggs, symlink):
             shutil.copy2(source_path, destination_path)
 
 
+def _validate_egg_names(items):
+    """Check to ensure no item is in a sub-folder."""
+    invalids = set()
+
+    for item in items:
+        if "/" in item or "\\" in item:
+            invalids.add(item)
+
+    if invalids:
+        raise exceptions.NonRootItemFound('Found bad names "{invalids}".'.format(invalids=sorted(invalids)))
+
+
 def build(source, destination, items=None, eggs=None, symlink=_must_symlink()):
     """Copy or symlink all items in `source` to `destination`.
 
@@ -121,6 +135,8 @@ def build(source, destination, items=None, eggs=None, symlink=_must_symlink()):
 
     remove(destination)  # Clean any old build folder
     os.makedirs(destination)
+
+    _validate_egg_names(eggs)
 
     try:
         _build(source, destination, items, eggs, symlink=symlink)

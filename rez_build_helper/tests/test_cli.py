@@ -11,7 +11,7 @@ import tempfile
 import textwrap
 import unittest
 
-from rez_build_helper import filer
+from rez_build_helper import exceptions, filer
 from python_compatibility.testing import common
 from rez_utilities import creator, finder
 
@@ -433,4 +433,14 @@ class Egg(unittest.TestCase):
 
     def test_invalid(self):
         """Disallow non-root folders for .egg generation."""
-        pass
+        directory = tempfile.mkdtemp(prefix="rez_build_helper_Egg_test_multiple_")
+        atexit.register(functools.partial(shutil.rmtree, directory))
+        destination = tempfile.mkdtemp(prefix="rez_build_helper_Egg_test_single_install_folder_")
+        atexit.register(functools.partial(shutil.rmtree, destination))
+
+        with self.assertRaises(exceptions.NonRootItemFound):
+            filer.build(directory, destination, eggs=["foo/bar"])
+
+    def test_loadable(self):
+        """Create a Python."""
+        raise NotImplementedError()
