@@ -23,17 +23,12 @@ def _get_tar_path():
     package_name = os.environ["REZ_BUILD_PROJECT_NAME"]
 
     tar_directory = os.path.join(os.environ["PIP_BOY_TAR_LOCATION"], package_name,)
-    subpath = (
-        os.environ["REZ_BUILD_VARIANT_SUBPATH"]
-        .replace("/", "_")
-        .replace("\\", "_")
-        .replace(" ", "_")
-    )
+    sub_path = convert_variant_sub_path(os.environ["REZ_BUILD_VARIANT_SUBPATH"])
 
-    tar_name = "{package_name}-{version}-{subpath}.tar.gz".format(
+    tar_name = "{package_name}-{version}-{sub_path}.tar.gz".format(
         package_name=package_name,
         version=os.environ["REZ_BUILD_PROJECT_VERSION"],
-        subpath=subpath,
+        sub_path=sub_path,
     )
 
     return os.path.join(tar_directory, tar_name)
@@ -91,6 +86,11 @@ def _copy(paths, directory, overwrite=True):
                 )
 
             shutil.copy2(path, destination)
+
+
+def convert_variant_sub_path(text):
+    """str: Convert `text` which may contain file-path characters into a file path."""
+    return text.replace("/", "_").replace("\\", "_").replace(" ", "_")
 
 
 def main(build, install):
