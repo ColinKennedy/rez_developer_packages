@@ -460,24 +460,17 @@ class AddToAttributeHelp(unittest.TestCase):
 class AddToAttributeRequires(unittest.TestCase):
     """Make sure that :func:`rez_industry.api.add_to_attribute` works for Rez "requires"."""
 
-    def _test(self, expected, text, overrides, remove=False):
+    def _test(self, expected, text, overrides):
         """Run a test and check if it makes the expected results.
 
         Args:
-            expected (str):
-                The output of `text` mixed with `overrides`.
-            text (str):
-                The raw Rez package.py input.
-            overrides (list[str], optional):
-                The data that will append / remove / replace requires.
+            expected (str): The output of `text` mixed with `overrides`.
+            text (str): The raw Rez package.py input.
+            overrides (list[str], optional): The data that will
+                append / remove / replace requires.
                 e.g. "some_package-2+<3".
 
         """
-        if remove:
-            api.remove_from_attribute("requires", overrides, text)
-
-            return
-
         results = api.add_to_attribute("requires", overrides, text)
         self.assertEqual(expected, results)
 
