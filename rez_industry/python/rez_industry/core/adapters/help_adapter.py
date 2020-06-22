@@ -182,7 +182,7 @@ class HelpAdapter(base.BaseAdapter):
         if (
             assignment
             and not _get_list_root(assignment)
-            and isinstance(help_data, tree.String)
+            and isinstance(help_data, (tree.String, tree.Name))
         ):
             help_data.prefix = " "
             graph = convention.insert_or_append(help_data, graph, assignment, "help")
@@ -345,6 +345,11 @@ def _apply_formatting(node):
             return False
 
         return True  # pragma: no cover
+
+    def _format_string(text):
+        text = text[1:-1]
+
+        return '"{text}"'.format(text=text.replace("'", '"'))
 
     def _iter_inner_entries(node):
         for child in node_seek.iter_nested_children(node):
