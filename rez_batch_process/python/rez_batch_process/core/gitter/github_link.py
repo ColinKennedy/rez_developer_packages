@@ -166,7 +166,9 @@ class GithubAdapter(base_adapter.BaseAdapter):
 
         return "github" in link.base.lower()
 
-    def create_pull_request(self, title, body, pull_request_data, user_data="", assignee=""):
+    def create_pull_request(
+        self, title, body, pull_request_data, user_data="", assignee=""
+    ):
         """Make a pull request to GitHub, using the given information.
 
         It's recommended to always provide `user_data` because querying

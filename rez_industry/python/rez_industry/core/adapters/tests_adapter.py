@@ -10,12 +10,12 @@ import logging
 
 import parso
 import six
-from parso.python import tree
+from parso.python import tree  # pylint: disable=ungrouped-imports
 from parso_helper import node_seek
 from rez import package_serialise
 from rez.vendor.schema import schema
 
-from .. import convention, parso_utility
+from .. import convention, encoder, parso_utility
 from . import base as base_
 
 _LOGGER = logging.getLogger(__name__)
@@ -384,7 +384,7 @@ def _override_tests(base, data):
     if not base:
         return data
 
-    data_graph = parso.parse(json.dumps(data))
+    data_graph = parso.parse(json.dumps(data, cls=encoder.BuiltinEncoder))
     data_pairs = _make_makeshift_node_dict(data_graph)
 
     return _update_partial_python_dict(base, data_pairs)
@@ -412,7 +412,9 @@ def _escape_all(value):
         return _escape(value)
 
     if isinstance(value, list):
-        return json.dumps(value)  # JSON will escape ' to "s for us
+        return json.dumps(
+            value, cls=encoder.BuiltinEncoder
+        )  # JSON will escape ' to "s for us
 
     return str(value)  # pragma: no cover
 
@@ -440,18 +442,18 @@ def _make_dict_nodes(data, prefix=""):
     for key, item in data:
         item = _escape_all(item)
 
-        nodes.extend(
-            [
-                tree.String(
-                    _escape(key), (0, 0), prefix="\n    {prefix}".format(prefix=prefix)
-                ),
-                tree.Operator(":", (0, 0)),
-                tree.PythonNode(
-                    "atom",
-                    [tree.String(item, (0, 0), prefix=" "), tree.Operator(",", (0, 0))],
-                ),
-            ]
-        ),
+        nodes.append(
+            tree.String(
+                _escape(key), (0, 0), prefix="\n    {prefix}".format(prefix=prefix)
+            )
+        )
+        nodes.append(tree.Operator(":", (0, 0)))
+        nodes.append(
+            tree.PythonNode(
+                "atom",
+                [tree.String(item, (0, 0), prefix=" "), tree.Operator(",", (0, 0))],
+            ),
+        )
 
     return tree.PythonNode(
         "atom",

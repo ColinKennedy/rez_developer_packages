@@ -11,6 +11,7 @@ Submodules
 
 .. toctree::
 
+   rez_documentation_check.core.check_constant
    rez_documentation_check.core.exceptions
    rez_documentation_check.core.sphinx_convention
    rez_documentation_check.core.sphinx_helper

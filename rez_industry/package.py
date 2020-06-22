@@ -2,7 +2,7 @@
 
 name = "rez_industry"
 
-version = "1.0.1"
+version = "1.1.0"
 
 description = "A Rez package manufacturer. It's reliably modifies Rez package.py files."
 
@@ -47,12 +47,13 @@ tests = {
         "command": "rez-env pydocstyle -- pydocstyle --ignore=D213,D202,D203,D406,D407 python tests/*"
     },
     "pylint": {
-        "command": "pylint --disable=bad-continuation python/rez_industry",
+        "command": "pylint --disable=bad-continuation,duplicate-code python/rez_industry",
         "requires": ["pylint-1.9+<2"],
     },
     "unittest": {
         "command": "python -m unittest discover",
         "requires": [
+            "mock-1+<4",
             "rez-2.52.1+<3"  # The tests use newer features than what is required by the package
         ],
     },

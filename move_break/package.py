@@ -2,7 +2,7 @@
 
 name = "move_break"
 
-version = "3.0.0"
+version = "3.1.0"
 
 description = "Change, replace, and move Python imports"
 
@@ -44,8 +44,8 @@ tests = {
         # Need to disable D202 for now, until a new pydocstyle version is released
         # Reference: https://github.com/psf/black/issues/1159
         #
-        "command": "rez-env pydocstyle -- pydocstyle --ignore=D213,D202,D203,D406,D407 python tests/*",
-        "requires": ["pydocstyle"],
+        "command": "pydocstyle --ignore=D213,D202,D203,D406,D407 python tests/*",
+        "requires": ["pydocstyle-3"],
     },
     "pylint": {
         "command": "pylint --disable=bad-continuation python/move_break tests",
