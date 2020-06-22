@@ -714,7 +714,7 @@ class Egg(unittest.TestCase):
         atexit.register(functools.partial(shutil.rmtree, destination))
 
         with self.assertRaises(exceptions.NonRootItemFound):
-            filer.build(directory, destination, eggs=["foo/bar"])
+            filer.build(directory, destination, ["/asdf/asdf"], eggs=["foo/bar"])
 
     def test_loadable(self):
         """Create a Python package .egg file and make sure it's importable."""
