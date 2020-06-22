@@ -98,6 +98,8 @@ class TestsAdapter(base_.BaseAdapter):
         new = {key: _flatten_everything(value) for key, value in new.items()}
         node = _make_tests_node(sorted(new.items()))
 
+        node = _apply_formatting(node)
+
         graph = convention.insert_or_append(node, graph, assignment, "tests")
 
         return graph.get_code()
@@ -120,6 +122,57 @@ class TestsAdapter(base_.BaseAdapter):
 
         """
         raise NotImplementedError("This feature hasn't been added.")
+
+
+def _apply_formatting(node):
+    """Get a copy of `node` that has "human-readable" whitespace.
+
+    Args:
+        node (:class:`parso.python.Tree.PythonBaseNode`):
+            A parso object that represents the top-level "list of list
+            of strings" that defines a Rez help attribute.
+
+    Returns:
+        :class:`parso.python.Tree.PythonBaseNode`: The copy of `node` that has nice newlines.
+
+    """
+
+    def _needs_space(node):
+        if isinstance(node, tree.Operator) and node.value in ("[", "]"):
+            return False
+
+        if isinstance(node, tree.String):
+            return False
+
+        return True  # pragma: no cover
+
+    def _format_string(text):
+        text = text[1:-1]
+
+        return '"{text}"'.format(text=text.replace("'", '"'))
+
+    def _iter_inner_entries(node):
+        for child in node_seek.iter_nested_children(node):
+            if isinstance(child, tree.PythonNode) and child.type == "atom":
+                yield child
+
+    node = copy.deepcopy(node)
+
+    for child in node_seek.iter_nested_children(node):
+        if isinstance(child, tree.String):
+            child.value = _format_string(child.value)
+        if isinstance(child, tree.Operator) and child.value == ",":
+            child.prefix = ""
+        elif hasattr(child, "prefix") and _needs_space(child):
+            child.prefix = " "  # pragma: no cover
+
+    for child in _iter_inner_entries(node):
+        opening_brace = child.children[0]
+        opening_brace.prefix = "\n    "
+
+    node.children[-1].prefix = "\n"
+
+    return node
 
 
 def _is_binding(node):
@@ -384,7 +437,7 @@ def _override_tests(base, data):
     if not base:
         return data
 
-    data_graph = parso.parse(json.dumps(data))
+    data_graph = parso.parse(str(data))
     data_pairs = _make_makeshift_node_dict(data_graph)
 
     return _update_partial_python_dict(base, data_pairs)
