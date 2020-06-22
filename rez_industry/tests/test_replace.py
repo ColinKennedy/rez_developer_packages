@@ -1143,11 +1143,11 @@ class Types(unittest.TestCase):
         overrides = {
             None: "thing",
             "asdf": 8,
-            1.0: ["asdf", None, -10],
+            1.0: ["list_a", None, -10],
             "inner": {
                 None: "thing",
                 "asdf": 8,
-                1.0: ["asdf", None, -10],
+                1.0: ["list_b", None, -10],
             }
         }
 
