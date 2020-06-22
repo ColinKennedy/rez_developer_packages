@@ -146,7 +146,9 @@ def _is_matching_prefix_namespace(children, old_parts):
     # `expected_namespace` may equal `old_namespace` or be a child
     # namespace or a completely unrelated namespace.
     #
-    expected_namespace = "".join([item.get_code(include_prefix=False) for item in children])
+    expected_namespace = "".join(
+        [item.get_code(include_prefix=False) for item in children]
+    )
 
     return expected_namespace.startswith(old_namespace)
 
