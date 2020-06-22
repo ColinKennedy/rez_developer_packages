@@ -186,7 +186,7 @@ def _apply_formatting(node):
         elif isinstance(child, tree.Number):
             _handle_number(child)
         elif isinstance(child, tree.Operator) and child.value == "}":
-            child.prefix = "\n"
+            child.prefix = "\n    "
         elif isinstance(child, tree.Operator) and child.value in (":", ","):
             child.prefix = ""
         elif hasattr(child, "prefix") and _needs_space(child):
