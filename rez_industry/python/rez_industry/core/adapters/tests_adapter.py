@@ -138,8 +138,22 @@ def _apply_formatting(node):
     """
 
     def _needs_space(node):
-        if isinstance(node, tree.Operator) and node.value in ("[", "]"):
-            return False
+        if isinstance(node, tree.Operator):
+            if node.value not in ("[", "{"):
+                return False
+
+            try:
+                index = node.parent.parent.children.index(node.parent)
+            except AttributeError:
+                return False
+
+            if index == 0:
+                return False
+
+            previous_index = index - 1
+            previous_node = node.parent.parent.children[previous_index]
+
+            return isinstance(previous_node, tree.Operator) and previous_node.value == ":"
 
         if isinstance(node, tree.String):
             return False
@@ -147,28 +161,41 @@ def _apply_formatting(node):
         return True  # pragma: no cover
 
     def _format_string(text):
+        try:
+            float(text)
+
+            return text
+        except ValueError:
+            pass
+
         text = text[1:-1]
 
         return '"{text}"'.format(text=text.replace("'", '"'))
 
-    def _iter_inner_entries(node):
-        for child in node_seek.iter_nested_children(node):
-            if isinstance(child, tree.PythonNode) and child.type == "atom":
-                yield child
+    def _handle_number(node):
+        leaf = node.get_previous_leaf()
+
+        if isinstance(leaf, tree.Operator) and leaf.value == "-":
+            node.prefix = ""
 
     node = copy.deepcopy(node)
 
     for child in node_seek.iter_nested_children(node):
         if isinstance(child, tree.String):
             child.value = _format_string(child.value)
-        if isinstance(child, tree.Operator) and child.value == ",":
+        elif isinstance(child, tree.Number):
+            _handle_number(child)
+        elif isinstance(child, tree.Operator) and child.value == "}":
+            child.prefix = "\n"
+        elif isinstance(child, tree.Operator) and child.value in (":", ","):
             child.prefix = ""
         elif hasattr(child, "prefix") and _needs_space(child):
             child.prefix = " "  # pragma: no cover
 
-    for child in _iter_inner_entries(node):
-        opening_brace = child.children[0]
-        opening_brace.prefix = "\n    "
+        leaf = child.get_previous_leaf()
+
+        if isinstance(leaf, tree.Operator) and leaf.value == ",":
+            _set_first_prefix(child, " ")
 
     node.children[-1].prefix = "\n"
 
@@ -345,14 +372,7 @@ def _get_tests_data(graph):
     for key, value in pairs:
         key.prefix = ""
         key.value = key.value.strip("'\"")
-
-        if hasattr(value, "children"):
-            for child in value.children:
-                if hasattr(child, "prefix"):
-                    child.prefix = ""  # This will be reset later
-
-        if hasattr(value, "prefix"):
-            value.prefix = ""
+        _set_first_prefix(value, "")
 
     return {
         key.get_code(): _make_makeshift_node_dict(value)
@@ -619,3 +639,22 @@ def _make_tests_node(data):
         "atom",
         [tree.Operator("{", (0, 0)), base, tree.Operator("}", (0, 0), prefix="\n")],
     )
+
+
+def _set_first_prefix(node, prefix):
+    def _set_and_return(node, prefix):
+        if hasattr(node, "prefix"):
+            node.prefix = prefix
+
+            return True
+
+        if not hasattr(node, "children"):
+            raise NotImplementedError(node)
+
+        for child in node.children:
+            was_set = _set_and_return(child, prefix)
+
+            if was_set:
+                break
+
+    _set_and_return(node, prefix)
