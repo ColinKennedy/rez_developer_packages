@@ -13,7 +13,7 @@ from parso_helper import node_seek
 from rez import package_serialise
 from rez.vendor.schema import schema
 
-from .. import convention, parso_utility
+from .. import convention, encoder, parso_utility
 from . import base
 
 _DEFAULT_FALLBACK_KEY = "documentation"
@@ -177,7 +177,9 @@ class HelpAdapter(base.BaseAdapter):
         except IndexError:
             assignment = None
 
-        help_data = parso.parse(json.dumps(data)).children[0]
+        help_data = parso.parse(json.dumps(data, cls=encoder.BuiltinEncoder)).children[
+            0
+        ]
 
         if (
             assignment

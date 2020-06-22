@@ -133,7 +133,6 @@ def _get_entries(node):
     return entries
 
 
-# TODO : De-duplicate this
 def _get_inner_list_entries(node):
     """Find the literal "requires" entries of a node.
 
