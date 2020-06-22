@@ -405,7 +405,7 @@ class InputIssues(common.Common):
         root = tempfile.mkdtemp(suffix="_a_folder_with_no_rez_package")
         self.delete_item_later(root)
 
-        command = "rez-documentation-check check --package {root}".format(root=root)
+        command = "rez_documentation_check check --package {root}".format(root=root)
         _, stderr = self._test_command(command)
         expected = (
             'Path "{root}" is not inside '
@@ -479,7 +479,7 @@ def _create_fake_rez_dependency_package(name, help_=common.DEFAULT_CODE):
 def _make_check_command(package):
     directory = finder.get_package_root(package)
 
-    return "rez-documentation-check check --package {directory}".format(
+    return "rez_documentation_check check --package {directory}".format(
         directory=directory
     )
 
