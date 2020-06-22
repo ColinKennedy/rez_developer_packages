@@ -27,7 +27,11 @@ tests = {
     },
     "coverage": {
         "command": "coverage run --parallel-mode --include=python/* -m unittest discover && coverage combine --append && coverage html",
-        "requires": ["coverage"],
+        "requires": [
+            "coverage",
+            "rez_python_compatibility-2.3+<3",
+            "rez_utilities-2+<3",
+        ],
     },
     "isort": {
         "command": "isort --recursive package.py python tests",
@@ -46,7 +50,11 @@ tests = {
     },
     "pylint": {
         "command": "pylint --disable=bad-continuation python/rez_build_helper tests",
-        "requires": ["pylint-1.9+<2"],
+        "requires": [
+            "pylint-1.9+<2",
+            "rez_python_compatibility-2.3+<3",
+            "rez_utilities-2+<3",
+        ],
     },
     "unittest": {
         "command": "python -m unittest discover",

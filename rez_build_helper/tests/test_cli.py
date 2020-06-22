@@ -769,7 +769,7 @@ class Egg(unittest.TestCase):
         # Make the python.egg importable
         sys.path.append(egg_file)
 
-        from some_thing import some_module
+        from some_thing import some_module  # pylint: disable=import-error
 
         self.assertEqual(
             os.path.join(
