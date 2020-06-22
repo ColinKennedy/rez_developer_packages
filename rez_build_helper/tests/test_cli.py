@@ -12,8 +12,8 @@ import tempfile
 import textwrap
 import unittest
 
-from rez_build_helper import exceptions, filer
 from python_compatibility.testing import common
+from rez_build_helper import exceptions, filer
 from rez_utilities import creator, finder
 
 
@@ -44,7 +44,9 @@ class Cli(unittest.TestCase):
             )
 
         package = finder.get_nearest_rez_package(directory)
-        destination = tempfile.mkdtemp(prefix="rez_build_helper_Cli_test_copy_install_folder_")
+        destination = tempfile.mkdtemp(
+            prefix="rez_build_helper_Cli_test_copy_install_folder_"
+        )
         atexit.register(functools.partial(shutil.rmtree, destination))
 
         creator.build(package, destination, quiet=True)
@@ -58,16 +60,15 @@ class Cli(unittest.TestCase):
         atexit.register(functools.partial(shutil.rmtree, directory))
 
         common.make_files(
-            {"python": {
-                "some_thing": {
-                    "__init__.py": None,
-                    "some_module.py": None,
-                    "inner_folder": {
+            {
+                "python": {
+                    "some_thing": {
                         "__init__.py": None,
-                        "inner_module.py": None,
+                        "some_module.py": None,
+                        "inner_folder": {"__init__.py": None, "inner_module.py": None,},
                     }
                 }
-            }},
+            },
             directory,
         )
 
@@ -92,7 +93,9 @@ class Cli(unittest.TestCase):
             )
 
         package = finder.get_nearest_rez_package(directory)
-        destination = tempfile.mkdtemp(prefix="rez_build_helper_Cli_test_copy_install_folder_")
+        destination = tempfile.mkdtemp(
+            prefix="rez_build_helper_Cli_test_copy_install_folder_"
+        )
         atexit.register(functools.partial(shutil.rmtree, destination))
 
         creator.build(package, destination, quiet=True)
@@ -100,12 +103,46 @@ class Cli(unittest.TestCase):
 
         self.assertTrue(os.path.isdir(os.path.join(install_location, "python")))
         self.assertFalse(os.path.islink(os.path.join(install_location, "python")))
-        self.assertTrue(os.path.isdir(os.path.join(install_location, "python", "some_thing")))
-        self.assertTrue(os.path.isdir(os.path.join(install_location, "python", "some_thing", "inner_folder")))
-        self.assertTrue(os.path.isfile(os.path.join(install_location, "python", "some_thing", "__init__.py")))
-        self.assertTrue(os.path.isfile(os.path.join(install_location, "python", "some_thing", "some_module.py")))
-        self.assertTrue(os.path.isfile(os.path.join(install_location, "python", "some_thing", "inner_folder", "__init__.py")))
-        self.assertTrue(os.path.isfile(os.path.join(install_location, "python", "some_thing", "inner_folder", "inner_module.py")))
+        self.assertTrue(
+            os.path.isdir(os.path.join(install_location, "python", "some_thing"))
+        )
+        self.assertTrue(
+            os.path.isdir(
+                os.path.join(install_location, "python", "some_thing", "inner_folder")
+            )
+        )
+        self.assertTrue(
+            os.path.isfile(
+                os.path.join(install_location, "python", "some_thing", "__init__.py")
+            )
+        )
+        self.assertTrue(
+            os.path.isfile(
+                os.path.join(install_location, "python", "some_thing", "some_module.py")
+            )
+        )
+        self.assertTrue(
+            os.path.isfile(
+                os.path.join(
+                    install_location,
+                    "python",
+                    "some_thing",
+                    "inner_folder",
+                    "__init__.py",
+                )
+            )
+        )
+        self.assertTrue(
+            os.path.isfile(
+                os.path.join(
+                    install_location,
+                    "python",
+                    "some_thing",
+                    "inner_folder",
+                    "inner_module.py",
+                )
+            )
+        )
 
     def test_symlink(self):
         """Create symlinks for each specified folder."""
@@ -113,16 +150,15 @@ class Cli(unittest.TestCase):
         atexit.register(functools.partial(shutil.rmtree, directory))
 
         common.make_files(
-            {"python": {
-                "some_thing": {
-                    "__init__.py": None,
-                    "some_module.py": None,
-                    "inner_folder": {
+            {
+                "python": {
+                    "some_thing": {
                         "__init__.py": None,
-                        "inner_module.py": None,
+                        "some_module.py": None,
+                        "inner_folder": {"__init__.py": None, "inner_module.py": None,},
                     }
                 }
-            }},
+            },
             directory,
         )
 
@@ -147,7 +183,9 @@ class Cli(unittest.TestCase):
             )
 
         package = finder.get_nearest_rez_package(directory)
-        destination = tempfile.mkdtemp(prefix="rez_build_helper_Cli_test_symlink_install_folder_")
+        destination = tempfile.mkdtemp(
+            prefix="rez_build_helper_Cli_test_symlink_install_folder_"
+        )
         atexit.register(functools.partial(shutil.rmtree, destination))
 
         creator.build(package, destination, quiet=True)
@@ -155,12 +193,46 @@ class Cli(unittest.TestCase):
 
         self.assertTrue(os.path.isdir(os.path.join(install_location, "python")))
         self.assertTrue(os.path.islink(os.path.join(install_location, "python")))
-        self.assertTrue(os.path.isdir(os.path.join(install_location, "python", "some_thing")))
-        self.assertTrue(os.path.isdir(os.path.join(install_location, "python", "some_thing", "inner_folder")))
-        self.assertTrue(os.path.isfile(os.path.join(install_location, "python", "some_thing", "__init__.py")))
-        self.assertTrue(os.path.isfile(os.path.join(install_location, "python", "some_thing", "some_module.py")))
-        self.assertTrue(os.path.isfile(os.path.join(install_location, "python", "some_thing", "inner_folder", "__init__.py")))
-        self.assertTrue(os.path.isfile(os.path.join(install_location, "python", "some_thing", "inner_folder", "inner_module.py")))
+        self.assertTrue(
+            os.path.isdir(os.path.join(install_location, "python", "some_thing"))
+        )
+        self.assertTrue(
+            os.path.isdir(
+                os.path.join(install_location, "python", "some_thing", "inner_folder")
+            )
+        )
+        self.assertTrue(
+            os.path.isfile(
+                os.path.join(install_location, "python", "some_thing", "__init__.py")
+            )
+        )
+        self.assertTrue(
+            os.path.isfile(
+                os.path.join(install_location, "python", "some_thing", "some_module.py")
+            )
+        )
+        self.assertTrue(
+            os.path.isfile(
+                os.path.join(
+                    install_location,
+                    "python",
+                    "some_thing",
+                    "inner_folder",
+                    "__init__.py",
+                )
+            )
+        )
+        self.assertTrue(
+            os.path.isfile(
+                os.path.join(
+                    install_location,
+                    "python",
+                    "some_thing",
+                    "inner_folder",
+                    "inner_module.py",
+                )
+            )
+        )
 
 
 class Egg(unittest.TestCase):
@@ -180,16 +252,15 @@ class Egg(unittest.TestCase):
         atexit.register(functools.partial(shutil.rmtree, directory))
 
         common.make_files(
-            {"python": {
-                "some_thing": {
-                    "__init__.py": None,
-                    "some_module.py": None,
-                    "inner_folder": {
+            {
+                "python": {
+                    "some_thing": {
                         "__init__.py": None,
-                        "inner_module.py": None,
+                        "some_module.py": None,
+                        "inner_folder": {"__init__.py": None, "inner_module.py": None,},
                     }
                 }
-            }},
+            },
             directory,
         )
 
@@ -214,7 +285,9 @@ class Egg(unittest.TestCase):
             )
 
         package = finder.get_nearest_rez_package(directory)
-        destination = tempfile.mkdtemp(prefix="rez_build_helper_Egg_test_single_install_folder_")
+        destination = tempfile.mkdtemp(
+            prefix="rez_build_helper_Egg_test_single_install_folder_"
+        )
         atexit.register(functools.partial(shutil.rmtree, destination))
 
         creator.build(package, destination, quiet=True)
@@ -223,12 +296,46 @@ class Egg(unittest.TestCase):
         self.assertTrue(os.path.isfile(os.path.join(install_location, "python.egg")))
         self.assertFalse(os.path.islink(os.path.join(install_location, "python.egg")))
         self.assertFalse(os.path.isdir(os.path.join(install_location, "python")))
-        self.assertFalse(os.path.isdir(os.path.join(install_location, "python", "some_thing")))
-        self.assertFalse(os.path.isdir(os.path.join(install_location, "python", "some_thing", "inner_folder")))
-        self.assertFalse(os.path.isfile(os.path.join(install_location, "python", "some_thing", "__init__.py")))
-        self.assertFalse(os.path.isfile(os.path.join(install_location, "python", "some_thing", "some_module.py")))
-        self.assertFalse(os.path.isfile(os.path.join(install_location, "python", "some_thing", "inner_folder", "__init__.py")))
-        self.assertFalse(os.path.isfile(os.path.join(install_location, "python", "some_thing", "inner_folder", "inner_module.py")))
+        self.assertFalse(
+            os.path.isdir(os.path.join(install_location, "python", "some_thing"))
+        )
+        self.assertFalse(
+            os.path.isdir(
+                os.path.join(install_location, "python", "some_thing", "inner_folder")
+            )
+        )
+        self.assertFalse(
+            os.path.isfile(
+                os.path.join(install_location, "python", "some_thing", "__init__.py")
+            )
+        )
+        self.assertFalse(
+            os.path.isfile(
+                os.path.join(install_location, "python", "some_thing", "some_module.py")
+            )
+        )
+        self.assertFalse(
+            os.path.isfile(
+                os.path.join(
+                    install_location,
+                    "python",
+                    "some_thing",
+                    "inner_folder",
+                    "__init__.py",
+                )
+            )
+        )
+        self.assertFalse(
+            os.path.isfile(
+                os.path.join(
+                    install_location,
+                    "python",
+                    "some_thing",
+                    "inner_folder",
+                    "inner_module.py",
+                )
+            )
+        )
 
     def test_single_symlink(self):
         """Create a symlink for (what would have normally been) an .egg file."""
@@ -236,16 +343,15 @@ class Egg(unittest.TestCase):
         atexit.register(functools.partial(shutil.rmtree, directory))
 
         common.make_files(
-            {"python": {
-                "some_thing": {
-                    "__init__.py": None,
-                    "some_module.py": None,
-                    "inner_folder": {
+            {
+                "python": {
+                    "some_thing": {
                         "__init__.py": None,
-                        "inner_module.py": None,
+                        "some_module.py": None,
+                        "inner_folder": {"__init__.py": None, "inner_module.py": None,},
                     }
                 }
-            }},
+            },
             directory,
         )
 
@@ -270,7 +376,9 @@ class Egg(unittest.TestCase):
             )
 
         package = finder.get_nearest_rez_package(directory)
-        destination = tempfile.mkdtemp(prefix="rez_build_helper_Egg_test_single_install_folder_")
+        destination = tempfile.mkdtemp(
+            prefix="rez_build_helper_Egg_test_single_install_folder_"
+        )
         atexit.register(functools.partial(shutil.rmtree, destination))
 
         creator.build(package, destination, quiet=True)
@@ -279,12 +387,46 @@ class Egg(unittest.TestCase):
         self.assertTrue(os.path.islink(os.path.join(install_location, "python.egg")))
         self.assertFalse(os.path.isfile(os.path.join(install_location, "python.egg")))
         self.assertFalse(os.path.isdir(os.path.join(install_location, "python")))
-        self.assertFalse(os.path.isdir(os.path.join(install_location, "python", "some_thing")))
-        self.assertFalse(os.path.isdir(os.path.join(install_location, "python", "some_thing", "inner_folder")))
-        self.assertFalse(os.path.isfile(os.path.join(install_location, "python", "some_thing", "__init__.py")))
-        self.assertFalse(os.path.isfile(os.path.join(install_location, "python", "some_thing", "some_module.py")))
-        self.assertFalse(os.path.isfile(os.path.join(install_location, "python", "some_thing", "inner_folder", "__init__.py")))
-        self.assertFalse(os.path.isfile(os.path.join(install_location, "python", "some_thing", "inner_folder", "inner_module.py")))
+        self.assertFalse(
+            os.path.isdir(os.path.join(install_location, "python", "some_thing"))
+        )
+        self.assertFalse(
+            os.path.isdir(
+                os.path.join(install_location, "python", "some_thing", "inner_folder")
+            )
+        )
+        self.assertFalse(
+            os.path.isfile(
+                os.path.join(install_location, "python", "some_thing", "__init__.py")
+            )
+        )
+        self.assertFalse(
+            os.path.isfile(
+                os.path.join(install_location, "python", "some_thing", "some_module.py")
+            )
+        )
+        self.assertFalse(
+            os.path.isfile(
+                os.path.join(
+                    install_location,
+                    "python",
+                    "some_thing",
+                    "inner_folder",
+                    "__init__.py",
+                )
+            )
+        )
+        self.assertFalse(
+            os.path.isfile(
+                os.path.join(
+                    install_location,
+                    "python",
+                    "some_thing",
+                    "inner_folder",
+                    "inner_module.py",
+                )
+            )
+        )
 
     def test_multiple(self):
         """Create more than one collapsed egg files for a Python folder."""
@@ -292,27 +434,22 @@ class Egg(unittest.TestCase):
         atexit.register(functools.partial(shutil.rmtree, directory))
 
         common.make_files(
-            {"python": {
-                "some_thing": {
-                    "__init__.py": None,
-                    "some_module.py": None,
-                    "inner_folder": {
+            {
+                "python": {
+                    "some_thing": {
                         "__init__.py": None,
-                        "inner_module.py": None,
+                        "some_module.py": None,
+                        "inner_folder": {"__init__.py": None, "inner_module.py": None,},
                     }
-                }
+                },
+                "another": {
+                    "stuff": {
+                        "__init__.py": None,
+                        "some_module.py": None,
+                        "inner_folder": {"__init__.py": None, "inner_module.py": None,},
+                    }
+                },
             },
-            "another": {
-                "stuff": {
-                    "__init__.py": None,
-                    "some_module.py": None,
-                    "inner_folder": {
-                        "__init__.py": None,
-                        "inner_module.py": None,
-                    }
-                }
-            }
-             },
             directory,
         )
 
@@ -337,7 +474,9 @@ class Egg(unittest.TestCase):
             )
 
         package = finder.get_nearest_rez_package(directory)
-        destination = tempfile.mkdtemp(prefix="rez_build_helper_Egg_test_single_install_folder_")
+        destination = tempfile.mkdtemp(
+            prefix="rez_build_helper_Egg_test_single_install_folder_"
+        )
         atexit.register(functools.partial(shutil.rmtree, destination))
 
         creator.build(package, destination, quiet=True)
@@ -346,22 +485,86 @@ class Egg(unittest.TestCase):
         self.assertFalse(os.path.islink(os.path.join(install_location, "python.egg")))
         self.assertTrue(os.path.isfile(os.path.join(install_location, "python.egg")))
         self.assertFalse(os.path.isdir(os.path.join(install_location, "python")))
-        self.assertFalse(os.path.isdir(os.path.join(install_location, "python", "some_thing")))
-        self.assertFalse(os.path.isdir(os.path.join(install_location, "python", "some_thing", "inner_folder")))
-        self.assertFalse(os.path.isfile(os.path.join(install_location, "python", "some_thing", "__init__.py")))
-        self.assertFalse(os.path.isfile(os.path.join(install_location, "python", "some_thing", "some_module.py")))
-        self.assertFalse(os.path.isfile(os.path.join(install_location, "python", "some_thing", "inner_folder", "__init__.py")))
-        self.assertFalse(os.path.isfile(os.path.join(install_location, "python", "some_thing", "inner_folder", "inner_module.py")))
+        self.assertFalse(
+            os.path.isdir(os.path.join(install_location, "python", "some_thing"))
+        )
+        self.assertFalse(
+            os.path.isdir(
+                os.path.join(install_location, "python", "some_thing", "inner_folder")
+            )
+        )
+        self.assertFalse(
+            os.path.isfile(
+                os.path.join(install_location, "python", "some_thing", "__init__.py")
+            )
+        )
+        self.assertFalse(
+            os.path.isfile(
+                os.path.join(install_location, "python", "some_thing", "some_module.py")
+            )
+        )
+        self.assertFalse(
+            os.path.isfile(
+                os.path.join(
+                    install_location,
+                    "python",
+                    "some_thing",
+                    "inner_folder",
+                    "__init__.py",
+                )
+            )
+        )
+        self.assertFalse(
+            os.path.isfile(
+                os.path.join(
+                    install_location,
+                    "python",
+                    "some_thing",
+                    "inner_folder",
+                    "inner_module.py",
+                )
+            )
+        )
 
         self.assertFalse(os.path.islink(os.path.join(install_location, "another.egg")))
         self.assertTrue(os.path.isfile(os.path.join(install_location, "another.egg")))
         self.assertFalse(os.path.isdir(os.path.join(install_location, "another")))
-        self.assertFalse(os.path.isdir(os.path.join(install_location, "another", "stuff")))
-        self.assertFalse(os.path.isdir(os.path.join(install_location, "another", "stuff", "inner_folder")))
-        self.assertFalse(os.path.isfile(os.path.join(install_location, "another", "stuff", "__init__.py")))
-        self.assertFalse(os.path.isfile(os.path.join(install_location, "another", "stuff", "some_module.py")))
-        self.assertFalse(os.path.isfile(os.path.join(install_location, "another", "stuff", "inner_folder", "__init__.py")))
-        self.assertFalse(os.path.isfile(os.path.join(install_location, "another", "stuff", "inner_folder", "inner_module.py")))
+        self.assertFalse(
+            os.path.isdir(os.path.join(install_location, "another", "stuff"))
+        )
+        self.assertFalse(
+            os.path.isdir(
+                os.path.join(install_location, "another", "stuff", "inner_folder")
+            )
+        )
+        self.assertFalse(
+            os.path.isfile(
+                os.path.join(install_location, "another", "stuff", "__init__.py")
+            )
+        )
+        self.assertFalse(
+            os.path.isfile(
+                os.path.join(install_location, "another", "stuff", "some_module.py")
+            )
+        )
+        self.assertFalse(
+            os.path.isfile(
+                os.path.join(
+                    install_location, "another", "stuff", "inner_folder", "__init__.py"
+                )
+            )
+        )
+        self.assertFalse(
+            os.path.isfile(
+                os.path.join(
+                    install_location,
+                    "another",
+                    "stuff",
+                    "inner_folder",
+                    "inner_module.py",
+                )
+            )
+        )
 
     def test_multiple_symlink(self):
         """Create symlinks to represent egg files for Python folders."""
@@ -369,27 +572,22 @@ class Egg(unittest.TestCase):
         atexit.register(functools.partial(shutil.rmtree, directory))
 
         common.make_files(
-            {"python": {
-                "some_thing": {
-                    "__init__.py": None,
-                    "some_module.py": None,
-                    "inner_folder": {
+            {
+                "python": {
+                    "some_thing": {
                         "__init__.py": None,
-                        "inner_module.py": None,
+                        "some_module.py": None,
+                        "inner_folder": {"__init__.py": None, "inner_module.py": None,},
                     }
-                }
+                },
+                "another": {
+                    "stuff": {
+                        "__init__.py": None,
+                        "some_module.py": None,
+                        "inner_folder": {"__init__.py": None, "inner_module.py": None,},
+                    }
+                },
             },
-            "another": {
-                "stuff": {
-                    "__init__.py": None,
-                    "some_module.py": None,
-                    "inner_folder": {
-                        "__init__.py": None,
-                        "inner_module.py": None,
-                    }
-                }
-            }
-             },
             directory,
         )
 
@@ -414,7 +612,9 @@ class Egg(unittest.TestCase):
             )
 
         package = finder.get_nearest_rez_package(directory)
-        destination = tempfile.mkdtemp(prefix="rez_build_helper_Egg_test_single_install_folder_")
+        destination = tempfile.mkdtemp(
+            prefix="rez_build_helper_Egg_test_single_install_folder_"
+        )
         atexit.register(functools.partial(shutil.rmtree, destination))
 
         creator.build(package, destination, quiet=True)
@@ -423,28 +623,94 @@ class Egg(unittest.TestCase):
         self.assertTrue(os.path.islink(os.path.join(install_location, "python.egg")))
         self.assertFalse(os.path.isfile(os.path.join(install_location, "python.egg")))
         self.assertFalse(os.path.isdir(os.path.join(install_location, "python")))
-        self.assertFalse(os.path.isdir(os.path.join(install_location, "python", "some_thing")))
-        self.assertFalse(os.path.isdir(os.path.join(install_location, "python", "some_thing", "inner_folder")))
-        self.assertFalse(os.path.isfile(os.path.join(install_location, "python", "some_thing", "__init__.py")))
-        self.assertFalse(os.path.isfile(os.path.join(install_location, "python", "some_thing", "some_module.py")))
-        self.assertFalse(os.path.isfile(os.path.join(install_location, "python", "some_thing", "inner_folder", "__init__.py")))
-        self.assertFalse(os.path.isfile(os.path.join(install_location, "python", "some_thing", "inner_folder", "inner_module.py")))
+        self.assertFalse(
+            os.path.isdir(os.path.join(install_location, "python", "some_thing"))
+        )
+        self.assertFalse(
+            os.path.isdir(
+                os.path.join(install_location, "python", "some_thing", "inner_folder")
+            )
+        )
+        self.assertFalse(
+            os.path.isfile(
+                os.path.join(install_location, "python", "some_thing", "__init__.py")
+            )
+        )
+        self.assertFalse(
+            os.path.isfile(
+                os.path.join(install_location, "python", "some_thing", "some_module.py")
+            )
+        )
+        self.assertFalse(
+            os.path.isfile(
+                os.path.join(
+                    install_location,
+                    "python",
+                    "some_thing",
+                    "inner_folder",
+                    "__init__.py",
+                )
+            )
+        )
+        self.assertFalse(
+            os.path.isfile(
+                os.path.join(
+                    install_location,
+                    "python",
+                    "some_thing",
+                    "inner_folder",
+                    "inner_module.py",
+                )
+            )
+        )
 
         self.assertTrue(os.path.islink(os.path.join(install_location, "another.egg")))
         self.assertFalse(os.path.isfile(os.path.join(install_location, "another.egg")))
         self.assertFalse(os.path.isdir(os.path.join(install_location, "another")))
-        self.assertFalse(os.path.isdir(os.path.join(install_location, "another", "stuff")))
-        self.assertFalse(os.path.isdir(os.path.join(install_location, "another", "stuff", "inner_folder")))
-        self.assertFalse(os.path.isfile(os.path.join(install_location, "another", "stuff", "__init__.py")))
-        self.assertFalse(os.path.isfile(os.path.join(install_location, "another", "stuff", "some_module.py")))
-        self.assertFalse(os.path.isfile(os.path.join(install_location, "another", "stuff", "inner_folder", "__init__.py")))
-        self.assertFalse(os.path.isfile(os.path.join(install_location, "another", "stuff", "inner_folder", "inner_module.py")))
+        self.assertFalse(
+            os.path.isdir(os.path.join(install_location, "another", "stuff"))
+        )
+        self.assertFalse(
+            os.path.isdir(
+                os.path.join(install_location, "another", "stuff", "inner_folder")
+            )
+        )
+        self.assertFalse(
+            os.path.isfile(
+                os.path.join(install_location, "another", "stuff", "__init__.py")
+            )
+        )
+        self.assertFalse(
+            os.path.isfile(
+                os.path.join(install_location, "another", "stuff", "some_module.py")
+            )
+        )
+        self.assertFalse(
+            os.path.isfile(
+                os.path.join(
+                    install_location, "another", "stuff", "inner_folder", "__init__.py"
+                )
+            )
+        )
+        self.assertFalse(
+            os.path.isfile(
+                os.path.join(
+                    install_location,
+                    "another",
+                    "stuff",
+                    "inner_folder",
+                    "inner_module.py",
+                )
+            )
+        )
 
     def test_invalid(self):
         """Disallow non-root folders for .egg generation."""
         directory = tempfile.mkdtemp(prefix="rez_build_helper_Egg_test_multiple_")
         atexit.register(functools.partial(shutil.rmtree, directory))
-        destination = tempfile.mkdtemp(prefix="rez_build_helper_Egg_test_single_install_folder_")
+        destination = tempfile.mkdtemp(
+            prefix="rez_build_helper_Egg_test_single_install_folder_"
+        )
         atexit.register(functools.partial(shutil.rmtree, destination))
 
         with self.assertRaises(exceptions.NonRootItemFound):
@@ -456,16 +722,15 @@ class Egg(unittest.TestCase):
         atexit.register(functools.partial(shutil.rmtree, directory))
 
         common.make_files(
-            {"python": {
-                "some_thing": {
-                    "__init__.py": None,
-                    "some_module.py": None,
-                    "inner_folder": {
+            {
+                "python": {
+                    "some_thing": {
                         "__init__.py": None,
-                        "inner_module.py": None,
+                        "some_module.py": None,
+                        "inner_folder": {"__init__.py": None, "inner_module.py": None,},
                     }
                 }
-            }},
+            },
             directory,
         )
 
@@ -490,7 +755,9 @@ class Egg(unittest.TestCase):
             )
 
         package = finder.get_nearest_rez_package(directory)
-        destination = tempfile.mkdtemp(prefix="rez_build_helper_Cli_test_copy_install_folder_")
+        destination = tempfile.mkdtemp(
+            prefix="rez_build_helper_Cli_test_copy_install_folder_"
+        )
         atexit.register(functools.partial(shutil.rmtree, destination))
 
         creator.build(package, destination, quiet=True)
@@ -505,6 +772,8 @@ class Egg(unittest.TestCase):
         from some_thing import some_module
 
         self.assertEqual(
-            os.path.join(install_location, "python.egg", "some_thing", "some_module.py"),
+            os.path.join(
+                install_location, "python.egg", "some_thing", "some_module.py"
+            ),
             os.path.realpath(some_module.__file__),
         )

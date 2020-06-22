@@ -39,7 +39,7 @@ def _parse_arguments(text):
         "-e",
         "--eggs",
         nargs="+",
-        help="The relative paths to each file/folder to make into a .egg file."
+        help="The relative paths to each file/folder to make into a .egg file.",
     )
 
     parser.add_argument(
@@ -67,7 +67,7 @@ def main(text):
         )
     except exceptions.NonRootItemFound as error:
         print(error, file=sys.stderr)
-        print('Please check spelling and try again.')
+        print("Please check spelling and try again.")
 
 
 if __name__ == "__main__":

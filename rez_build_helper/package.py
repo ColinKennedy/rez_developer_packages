@@ -13,7 +13,7 @@ help = [
     ["README", "README.md"],
 ]
 
-build_command = 'python {root}/rezbuild.py {install}'
+build_command = "python {root}/rezbuild.py {install}"
 
 uuid = "168c5114-a951-4834-a744-dae1331e375e"
 
@@ -50,12 +50,10 @@ tests = {
     },
     "unittest": {
         "command": "python -m unittest discover",
-        "requires": [
-            "rez_python_compatibility-2.3+<3",
-            "rez_utilities-2+<3",
-        ],
+        "requires": ["rez_python_compatibility-2.3+<3", "rez_utilities-2+<3",],
     },
 }
+
 
 def commands():
     import os

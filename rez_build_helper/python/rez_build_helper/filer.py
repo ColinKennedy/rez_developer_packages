@@ -32,7 +32,9 @@ def _make_egg(source, destination):
 
     """
     if not os.path.exists(source):
-        raise RuntimeError('Path "{source}" does not exist. Cannot make an .egg.'.format(source=source))
+        raise RuntimeError(
+            'Path "{source}" does not exist. Cannot make an .egg.'.format(source=source)
+        )
 
     with zipfile.ZipFile(destination, "w") as handler:
         if os.path.isdir(source):
@@ -108,7 +110,9 @@ def _validate_egg_names(items):
             invalids.add(item)
 
     if invalids:
-        raise exceptions.NonRootItemFound('Found bad names "{invalids}".'.format(invalids=sorted(invalids)))
+        raise exceptions.NonRootItemFound(
+            'Found bad names "{invalids}".'.format(invalids=sorted(invalids))
+        )
 
 
 def build(source, destination, items=None, eggs=None, symlink=_must_symlink()):
