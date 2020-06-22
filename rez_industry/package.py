@@ -53,6 +53,7 @@ tests = {
     "unittest": {
         "command": "python -m unittest discover",
         "requires": [
+            "mock-1+<4",
             "rez-2.52.1+<3"  # The tests use newer features than what is required by the package
         ],
     },

@@ -460,7 +460,7 @@ class AddToAttributeHelp(unittest.TestCase):
 class AddToAttributeRequires(unittest.TestCase):
     """Make sure that :func:`rez_industry.api.add_to_attribute` works for Rez "requires"."""
 
-    def _test(self, expected, text, overrides):
+    def _test(self, expected, text, overrides, remove=False):
         """Run a test and check if it makes the expected results.
 
         Args:
@@ -469,8 +469,15 @@ class AddToAttributeRequires(unittest.TestCase):
             overrides (list[str], optional): The data that will
                 append / remove / replace requires.
                 e.g. "some_package-2+<3".
+            remove (bool, optional): If True, the attribute is removed,
+                not added. If False, `overrides` are added. Default is False.
 
         """
+        if remove:
+            api.remove_from_attribute("requires", overrides, text)
+
+            return
+
         results = api.add_to_attribute("requires", overrides, text)
         self.assertEqual(expected, results)
 
