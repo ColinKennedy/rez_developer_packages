@@ -10,7 +10,7 @@ import logging
 
 import parso
 import six
-from parso.python import tree
+from parso.python import tree  # pylint: disable=ungrouped-imports
 from parso_helper import node_seek
 from rez import package_serialise
 from rez.vendor.schema import schema
@@ -442,18 +442,18 @@ def _make_dict_nodes(data, prefix=""):
     for key, item in data:
         item = _escape_all(item)
 
-        nodes.extend(
-            [
-                tree.String(
-                    _escape(key), (0, 0), prefix="\n    {prefix}".format(prefix=prefix)
-                ),
-                tree.Operator(":", (0, 0)),
-                tree.PythonNode(
-                    "atom",
-                    [tree.String(item, (0, 0), prefix=" "), tree.Operator(",", (0, 0))],
-                ),
-            ]
-        ),
+        nodes.append(
+            tree.String(
+                _escape(key), (0, 0), prefix="\n    {prefix}".format(prefix=prefix)
+            )
+        )
+        nodes.append(tree.Operator(":", (0, 0)))
+        nodes.append(
+            tree.PythonNode(
+                "atom",
+                [tree.String(item, (0, 0), prefix=" "), tree.Operator(",", (0, 0))],
+            ),
+        )
 
     return tree.PythonNode(
         "atom",
