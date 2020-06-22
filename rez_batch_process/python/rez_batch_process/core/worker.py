@@ -103,7 +103,10 @@ def _find_package_definitions(directory, name):
                     _LOGGER.warning('Folder "%s" has an invalid Rez package.', root)
 
                     continue
-                except (rez_exceptions.InvalidPackageError, rez_exceptions.PackageMetadataError):
+                except (
+                    rez_exceptions.InvalidPackageError,
+                    rez_exceptions.PackageMetadataError,
+                ):
                     # This happens in one of two scenarios:
                     # 1. The Rez package file found is invalid
                     # 2. There's a package.py file in the Rez package itself
@@ -235,7 +238,6 @@ def report(
             )
 
             continue
-
 
         repositories.append(repository)
         packages.append(package)
@@ -381,7 +383,9 @@ def run(  # pylint: disable=too-many-arguments,too-many-locals
 
             continue
         except exc.InvalidGitRepositoryError:
-            _LOGGER.error('Directory "%s" is not a valid Git repository.', clone_directory)
+            _LOGGER.error(
+                'Directory "%s" is not a valid Git repository.', clone_directory
+            )
 
             for package in packages:
                 un_ran.add(
@@ -389,7 +393,7 @@ def run(  # pylint: disable=too-many-arguments,too-many-locals
                         package,
                         'The Git repository "{repository_url}" failed to clone.'.format(
                             repository_url=repository_url
-                        )
+                        ),
                     )
                 )
 
