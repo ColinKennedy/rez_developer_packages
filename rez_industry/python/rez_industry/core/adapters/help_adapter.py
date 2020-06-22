@@ -177,7 +177,9 @@ class HelpAdapter(base.BaseAdapter):
         except IndexError:
             assignment = None
 
-        help_data = parso.parse(json.dumps(data, cls=encoder.BuiltinEncoder)).children[0]
+        help_data = parso.parse(json.dumps(data, cls=encoder.BuiltinEncoder)).children[
+            0
+        ]
 
         if (
             assignment

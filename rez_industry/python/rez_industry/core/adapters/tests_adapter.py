@@ -412,7 +412,9 @@ def _escape_all(value):
         return _escape(value)
 
     if isinstance(value, list):
-        return json.dumps(value, cls=encoder.BuiltinEncoder)  # JSON will escape ' to "s for us
+        return json.dumps(
+            value, cls=encoder.BuiltinEncoder
+        )  # JSON will escape ' to "s for us
 
     return str(value)  # pragma: no cover
 

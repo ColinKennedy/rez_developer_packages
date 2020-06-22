@@ -1125,7 +1125,9 @@ class Types(unittest.TestCase):
         results = api.add_to_attribute("tests", overrides, text)
         self.assertEqual(expected, results)
 
-    @mock.patch("rez_industry.core.adapters.tests_adapter.TestsAdapter.check_if_invalid")
+    @mock.patch(
+        "rez_industry.core.adapters.tests_adapter.TestsAdapter.check_if_invalid"
+    )
     def test_null(self, check_if_invalid):
         """Make sure None is serialized as None."""
         check_if_invalid.return_value = ""
@@ -1156,7 +1158,9 @@ class Types(unittest.TestCase):
 
         self._test(expected, original, overrides)
 
-    @mock.patch("rez_industry.core.adapters.tests_adapter.TestsAdapter.check_if_invalid")
+    @mock.patch(
+        "rez_industry.core.adapters.tests_adapter.TestsAdapter.check_if_invalid"
+    )
     def test_boolean(self, check_if_invalid):
         """Test that True/False are serialized correctly."""
         check_if_invalid.return_value = ""
