@@ -359,6 +359,8 @@ def _apply_formatting(node):
     node = copy.deepcopy(node)
 
     for child in node_seek.iter_nested_children(node):
+        if isinstance(child, tree.String):
+            child.value = _format_string(child.value)
         if isinstance(child, tree.Operator) and child.value == ",":
             child.prefix = ""
         elif hasattr(child, "prefix") and _needs_space(child):
