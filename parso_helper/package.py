@@ -2,7 +2,7 @@
 
 name = "parso_helper"
 
-version = "1.0.0"
+version = "1.1.0"
 
 description = "Functions that make using parso a bit easier"
 
