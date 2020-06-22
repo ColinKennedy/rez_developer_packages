@@ -11,6 +11,8 @@ The module tests this by checking each permutation of the
 import textwrap
 import unittest
 
+
+from six.moves import mock
 from rez_industry import api
 
 
@@ -829,7 +831,7 @@ class AddToAttributeTests(unittest.TestCase):
 
     def test_empty_002(self):
         """Don't add any extries because `overrides` cannot be empty."""
-        original = textwrap.dedent(
+        textwrap.dedent(
             """\
             tests = {
                 "another": {
@@ -1103,6 +1105,85 @@ class AddToAttributeTests(unittest.TestCase):
 
             def commands():
                 pass
+            """
+        )
+
+        self._test(expected, original, overrides)
+
+
+class Types(unittest.TestCase):
+    """Make sure expected types serialize correctly."""
+
+    def _test(self, expected, text, overrides):
+        """Check that `overrides` is added to `text` as expected.
+
+        Args:
+            expected (str): The output of `text` mixed with `overrides`.
+            text (str): The raw Rez package.py input.
+            overrides (object): The data that will append / replace tests.
+
+        """
+        results = api.add_to_attribute("tests", overrides, text)
+        self.assertEqual(expected, results)
+
+    @mock.patch("rez_industry.core.adapters.tests_adapter.TestsAdapter.check_if_invalid")
+    def test_null(self, check_if_invalid):
+        """Make sure None is serialized as None."""
+        check_if_invalid.return_value = ""
+
+        original = textwrap.dedent(
+            """\
+            name = 'thing'
+
+            tests = {"foo": "bar", "another_test": {"command": "blah"}}
+            """
+        )
+        overrides = {"foo": {"blah": None}}
+
+        expected = textwrap.dedent(
+            """\
+            name = 'thing'
+
+            tests = {
+                "another_test": {
+                    "command": "blah",
+                },
+                "foo": {
+                    "blah": None,
+                },
+            }
+            """
+        )
+
+        self._test(expected, original, overrides)
+
+    @mock.patch("rez_industry.core.adapters.tests_adapter.TestsAdapter.check_if_invalid")
+    def test_boolean(self, check_if_invalid):
+        """Test that True/False are serialized correctly."""
+        check_if_invalid.return_value = ""
+
+        original = textwrap.dedent(
+            """\
+            name = 'thing'
+
+            tests = {"foo": "bar", "another_test": {"command": "blah"}}
+            """
+        )
+        overrides = {"foo": {"thing": False, "another": True}}
+
+        expected = textwrap.dedent(
+            """\
+            name = 'thing'
+
+            tests = {
+                "another_test": {
+                    "command": "blah",
+                },
+                "foo": {
+                    "another": True,
+                    "thing": False,
+                },
+            }
             """
         )
 

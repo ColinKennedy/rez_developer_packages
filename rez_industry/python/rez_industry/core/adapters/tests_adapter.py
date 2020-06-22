@@ -15,6 +15,7 @@ from parso_helper import node_seek
 from rez import package_serialise
 from rez.vendor.schema import schema
 
+from .. import encoder
 from .. import convention, parso_utility
 from . import base as base_
 
@@ -384,7 +385,7 @@ def _override_tests(base, data):
     if not base:
         return data
 
-    data_graph = parso.parse(json.dumps(data))
+    data_graph = parso.parse(json.dumps(data, cls=encoder.BuiltinEncoder))
     data_pairs = _make_makeshift_node_dict(data_graph)
 
     return _update_partial_python_dict(base, data_pairs)
@@ -412,7 +413,7 @@ def _escape_all(value):
         return _escape(value)
 
     if isinstance(value, list):
-        return json.dumps(value)  # JSON will escape ' to "s for us
+        return json.dumps(value, cls=encoder.BuiltinEncoder)  # JSON will escape ' to "s for us
 
     return str(value)  # pragma: no cover
 
