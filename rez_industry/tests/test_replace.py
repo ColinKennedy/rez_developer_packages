@@ -1141,7 +1141,7 @@ class Types(unittest.TestCase):
         )
 
         overrides = {
-            None: "thing",
+            None: "None_thing",
             "asdf": 8,
             1.0: ["list_a", None, -10],
             "inner": {
@@ -1157,7 +1157,7 @@ class Types(unittest.TestCase):
             name = 'thing'
 
             tests = {
-                None: "thing",
+                None: "None_thing",
                 "asdf": 8,
                 1.0: ["asdf", None, -10],
                 "inner": {
