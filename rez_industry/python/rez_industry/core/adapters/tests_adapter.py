@@ -15,8 +15,7 @@ from parso_helper import node_seek
 from rez import package_serialise
 from rez.vendor.schema import schema
 
-from .. import encoder
-from .. import convention, parso_utility
+from .. import convention, encoder, parso_utility
 from . import base as base_
 
 _LOGGER = logging.getLogger(__name__)

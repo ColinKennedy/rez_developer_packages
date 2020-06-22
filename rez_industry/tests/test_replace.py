@@ -11,9 +11,8 @@ The module tests this by checking each permutation of the
 import textwrap
 import unittest
 
-
-from six.moves import mock
 from rez_industry import api
+from six.moves import mock
 
 
 class AddToAttributeHelp(unittest.TestCase):

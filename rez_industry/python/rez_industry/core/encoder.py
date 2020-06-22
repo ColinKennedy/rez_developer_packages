@@ -3,6 +3,7 @@
 
 import json
 
+
 class BuiltinEncoder(json.JSONEncoder):
     def iterencode(self, o, _one_shot=False):
         results = super(BuiltinEncoder, self).iterencode(o, _one_shot=_one_shot)
