@@ -27,8 +27,15 @@ build_command = "python -m rez_build_helper --items python"
 
 tests = {
     "black_diff": {"command": "rez-env black-19.10+ -- black --diff --check python"},
-    "black": {"command": "rez-env black-19.10+ -- black python"},
-    "isort": {"command": "isort --recursive python", "requires": ["isort"]},
+    "black": {
+        "command": "rez-env black-19.10+ -- black python",
+        "run_on": "explicit",
+    },
+    "isort": {
+        "command": "isort --recursive python",
+        "requires": ["isort"],
+        "run_on": "explicit",
+    },
     "isort_check": {
         "command": "isort --check-only --diff --recursive python",
         "requires": ["isort-4.3+<5"],
