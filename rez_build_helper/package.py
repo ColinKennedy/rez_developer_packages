@@ -3,32 +3,39 @@
 
 name = "rez_build_helper"
 
-version = "1.4.0"
+version = "1.5.0"
 
 description = "Build Rez packages using Python"
 
 authors = ["ColinKennedy"]
 
-help = [
-    ["README", "README.md"],
-]
+help = [["README", "README.md"]]
 
 build_command = "python {root}/rezbuild.py {install}"
 
 uuid = "168c5114-a951-4834-a744-dae1331e375e"
 
+variants = [["python-2.7"], ["python-3.6"]]
+
 tests = {
     "black_diff": {
-        "command": "rez-env black -- black --diff --check package.py python tests"
+        "command": "black --diff --check package.py python tests",
+        "requires": ["black-19.10+<20"],
     },
     "black": {
-        "command": "rez-env black -- black package.py python tests",
+        "command": "black package.py python tests",
+        "requires": ["black-19.10+<20"],
         "run_on": "explicit",
     },
     "coverage": {
-        "command": "coverage run --parallel-mode --include=python/* -m unittest discover && coverage combine --append && coverage html",
+        "command": (
+            "coverage erase "
+            "&& coverage run --parallel-mode --include=python/* -m unittest discover "
+            "&& coverage combine --append "
+            "&& coverage html"
+        ),
         "requires": [
-            "coverage",
+            "coverage-5.1+<6",
             "rez_python_compatibility-2.3+<3",
             "rez_utilities-2+<3",
         ],
@@ -56,9 +63,15 @@ tests = {
             "rez_utilities-2+<3",
         ],
     },
-    "unittest": {
+    "unittest_python_2": {
         "command": "python -m unittest discover",
         "requires": ["rez_python_compatibility-2.3+<3", "rez_utilities-2+<3",],
+        "on_variants": {"type": "requires", "value": ["python-2.7"]},
+    },
+    "unittest_python_3": {
+        "command": "python -m unittest discover",
+        "requires": ["rez_python_compatibility-2.3+<3", "rez_utilities-2+<3",],
+        "on_variants": {"type": "requires", "value": ["python-3.6"]},
     },
 }
 

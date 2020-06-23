@@ -2,7 +2,7 @@
 
 name = "rez_python_compatibility"
 
-version = "2.3.0"
+version = "2.5.0"
 
 description = "Miscellaneous, core Python 2 + 3 functions."
 
@@ -12,27 +12,41 @@ help = [
     ["README", "README.md"],
 ]
 
-requires = [
-    "backports.tempfile-1+<2",
-    "six-1.13+<2",
-]
+requires = ["backports.tempfile-1+<2", "six-1.13+<2"]
+
 private_build_requires = ["rez_build_helper-1.1+<2"]
 
-variants = [["python-2.7"]]
+variants = [["python-2.7"], ["python-3.6"]]
 
 build_command = "python -m rez_build_helper --items python"
 
 tests = {
-    "black_diff": {"command": "rez-env black-19.10+ -- black --diff --check python tests"},
-    "black": {"command": "rez-env black-19.10+ -- black python tests"},
+    "black_diff": {
+        "command": "black --diff --check python tests",
+        "requires": ["black-19.10+<20"],
+    },
+    "black": {
+        "command": "rez-env black-19.10+ -- black python tests",
+        "requires": ["black-19.10+<20"],
+        "run_on": "explicit",
+    },
     "coverage": {
-        "command": "coverage run --parallel-mode --include=python/* -m unittest discover && coverage combine --append && coverage html",
+        "command": (
+            "coverage erase "
+            "&& coverage run --parallel-mode --include=python/* -m unittest discover "
+            "&& coverage combine --append "
+            "&& coverage html"
+        ),
         "requires": ["coverage-4.5+"],
     },
-    "isort": {"command": "isort --recursive python tests", "requires": ["isort"]},
+    "isort": {
+        "command": "isort --recursive python tests",
+        "requires": ["isort-4.3+<5"],
+        "run_on": "explicit",
+    },
     "isort_check": {
         "command": "isort --check-only --diff --recursive python tests",
-        "requires": ["isort-4.3+"],
+        "requires": ["isort-4.3+<5"],
     },
     "pydocstyle": {
         # Need to disable D202 for now, until a new pydocstyle version is released

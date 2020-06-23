@@ -2,7 +2,7 @@
 
 name = "move_break"
 
-version = "3.1.0"
+version = "3.2.0"
 
 description = "Change, replace, and move Python imports"
 
@@ -13,17 +13,20 @@ private_build_requires = ["rez_build_helper-1+<2"]
 requires = [
     "parso-0.5+<1",
     "parso_helper-1+<2",
-    "python-2",
     "rez_python_compatibility-2+<3",
     "six-1.12+<2",
 ]
 
+variants = [["python-2.7"], ["python-3.6"]]
+
 tests = {
     "black_diff": {
-        "command": "rez-env black -- black --diff --check package.py python tests"
+        "command": "black --diff --check package.py python tests",
+        "requires": ["black-19.10+<20"],
     },
     "black": {
-        "command": "rez-env black -- black package.py python tests",
+        "command": "black package.py python tests",
+        "requires": ["black-19.10+<20"],
         "run_on": "explicit",
     },
     "coverage": {
@@ -33,25 +36,32 @@ tests = {
     },
     "isort": {
         "command": "isort --recursive package.py python tests",
-        "requires": ["isort"],
+        "requires": ["isort-4.3+<5"],
         "run_on": "explicit",
     },
     "isort_check": {
         "command": "isort --check-only --diff --recursive package.py python tests",
-        "requires": ["isort"],
+        "requires": ["isort-4.3+<5"],
     },
     "pydocstyle": {
         # Need to disable D202 for now, until a new pydocstyle version is released
         # Reference: https://github.com/psf/black/issues/1159
         #
         "command": "pydocstyle --ignore=D213,D202,D203,D406,D407 python tests/*",
-        "requires": ["pydocstyle-3"],
+        "requires": ["pydocstyle-3+<5"],
     },
     "pylint": {
         "command": "pylint --disable=bad-continuation python/move_break tests",
         "requires": ["pylint-1.9+<2"],
     },
-    "unittest": "python -m unittest discover",
+    "unittest_python_2": {
+        "command": "python -m unittest discover",
+        "on_variants": {"type": "requires", "value": ["python-2.7"],},
+    },
+    "unittest_python_3": {
+        "command": "python -m unittest discover",
+        "on_variants": {"type": "requires", "value": ["python-3.6"],},
+    },
 }
 
 build_command = "python -m rez_build_helper --items python"

@@ -1,6 +1,6 @@
 name = "rez_pip_boy"
 
-version = "1.4.0"
+version = "1.5.0"
 
 description = "Convert an installed pip package back into a source package"
 
@@ -22,20 +22,27 @@ requires = [
 
 variants = [
     ["python-2.7"],
+    ["python-3.6"],
 ]
 
 tests = {
     "black_diff": {
-        "command": "rez-env black -- black --diff --check package.py python tests"
+        "command": "black --diff --check package.py python tests",
+        "requires": ["black-19.10+<20"],
     },
     "black": {
-        "command": "rez-env black -- black package.py python tests",
+        "command": "black package.py python tests",
+        "requires": ["black-19.10+<20"],
         "run_on": "explicit",
     },
     "coverage": {
-        "command": "coverage run --parallel-mode -m unittest discover && coverage combine --append && coverage html",
-        # "requires": ["python-3.6"],  # Several tests assume Python 3 is installed
-        "requires": ["coverage-5+<6", "mock-3+<4", "six-1.14+<2",],
+        "command": (
+            "coverage erase "
+            "&& coverage run --parallel-mode -m unittest discover "
+            "&& coverage combine --append "
+            "&& coverage html"
+        ),
+        "requires": ["coverage-5+<6", "mock-3+<4", "six-1.14+<2"],
         "run_on": "explicit",
     },
     "isort": {
@@ -57,10 +64,15 @@ tests = {
         "command": "pylint --disable=bad-continuation python/rez_pip_boy tests",
         "requires": ["pylint-1.9+<2"],
     },
-    "unittest": {
+    "unittest_python_2": {
         "command": "python -m unittest discover",
-        # "requires": ["python-3.6"],  # Several tests assume Python 3 is installed
-        "requires": ["mock-3+<4", "six-1.14+<2",],
+        "requires": ["mock-3+<5", "six-1.14+<2"],
+        "on_variants": {"type": "requires", "value": ["python-2.7"]},
+    },
+    "unittest_python_3": {
+        "command": "python -m unittest discover",
+        "requires": ["mock-3+<5", "six-1.14+<2"],
+        "on_variants": {"type": "requires", "value": ["python-3.6"]},
     },
 }
 

@@ -22,9 +22,14 @@ requires = [
 
 tests = {
     "black_diff": {
-        "command": "rez-env black -- black --diff --check package.py python tests"
+        "command": "black --diff --check package.py python tests",
+        "requires": ["black-19.10+<20"],
     },
-    "black": {"command": "rez-env black -- black package.py python tests"},
+    "black": {
+        "command": "black package.py python tests",
+        "requires": ["black-19.10+<20"],
+        "run_on": "explicit",
+    },
     "coverage": {
         "command": "coverage erase && coverage run --parallel-mode --include=python/* -m unittest discover && coverage combine --append && coverage html",
         "requires": [
@@ -35,6 +40,7 @@ tests = {
     "isort": {
         "command": "isort --recursive package.py python tests",
         "requires": ["isort-4.3+<5"],
+        "run_on": "explicit",
     },
     "isort_check": {
         "command": "isort --check-only --diff --recursive package.py python tests",

@@ -51,7 +51,7 @@ class _Common(common.Common):
                 going. Otherwise, raise an exception. Default is False.
 
         """
-        with tempfile.NamedTemporaryFile(suffix=".py", delete=False) as handler:
+        with tempfile.NamedTemporaryFile(suffix=".py", mode="w", delete=False) as handler:
             handler.write(code)
 
         self.delete_item_later(handler.name)
