@@ -329,7 +329,7 @@ class AddToAttributeHelp(unittest.TestCase):
             name = "whatever"
 
             help = [
-                ["documentation", "something"],
+                ["Home Page", "something"],
                 ["thing", "another"],
             ]
             """

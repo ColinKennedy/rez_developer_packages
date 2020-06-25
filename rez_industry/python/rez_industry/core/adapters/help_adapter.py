@@ -16,7 +16,7 @@ from rez.vendor.schema import schema
 from .. import convention, encoder, parso_utility
 from . import base
 
-_DEFAULT_FALLBACK_KEY = "documentation"
+DEFAULT_HELP_LABEL = "Home Page"
 
 
 class HelpAdapter(base.BaseAdapter):
@@ -61,8 +61,8 @@ class HelpAdapter(base.BaseAdapter):
             "testlist_comp",
             [
                 tree.String(
-                    '"{_DEFAULT_FALLBACK_KEY}"'.format(
-                        _DEFAULT_FALLBACK_KEY=_DEFAULT_FALLBACK_KEY
+                    '"{DEFAULT_HELP_LABEL}"'.format(
+                        DEFAULT_HELP_LABEL=DEFAULT_HELP_LABEL
                     ),
                     (0, 0),
                 ),
