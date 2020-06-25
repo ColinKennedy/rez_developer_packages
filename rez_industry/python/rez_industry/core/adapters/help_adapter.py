@@ -156,7 +156,7 @@ class HelpAdapter(base.BaseAdapter):
                 "tests". If "tests" assignment exists, it gets
                 overwritten. If no assignment exists then a new
                 assignment is appended to the end of the file.
-            data (list[list[str]] or str):
+            data (list[list[str]] or str or :class:`parso.python.tree.PythonNode`):
                 Any values that'd typically define a Rez "tests"
                 attribute. Basically anything is allowed, as long the
                 Rez package schema considers it valid.
