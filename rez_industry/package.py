@@ -2,9 +2,9 @@
 
 name = "rez_industry"
 
-version = "1.1.0"
+version = "1.2.0"
 
-description = "A Rez package manufacturer. It's reliably modifies Rez package.py files."
+description = "A Rez package manufacturer. It reliably modifies Rez package.py files."
 
 help = [["README", "README.md"]]
 
