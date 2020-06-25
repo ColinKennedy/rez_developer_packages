@@ -377,14 +377,13 @@ class AddToAttributeHelp(unittest.TestCase):
             """\
             name = "foo"
 
-            help = [
-                ["README", "README.md"],
-            ]
-
             build_requires = [
                 "something",
             ]
-            """
+
+            help = [
+                ["README", "README.md"],
+            ]"""
         )
 
         self._test(expected, original, overrides)
@@ -426,12 +425,12 @@ class AddToAttributeHelp(unittest.TestCase):
                 "Someone",
             ]
 
-            help = [
-                ["README", "README.md"],
-            ]
-
             requires = [
                 "another",
+            ]
+
+            help = [
+                ["README", "README.md"],
             ]
 
             def commands():
@@ -1191,16 +1190,16 @@ class AddToAttributeTests(unittest.TestCase):
                 "something",
             ]
 
+            private_build_requires = [
+                "cmake",
+            ]
+
             tests = {
                 "thing": {
                     "command": "thing",
                     "run_on": "explicit",
                 },
             }
-
-            private_build_requires = [
-                "cmake",
-            ]
 
             def commands():
                 pass

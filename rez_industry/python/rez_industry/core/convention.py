@@ -100,6 +100,8 @@ def _find_nearest_node_index(nodes, attribute):
                 attribute_to_find, node, inclusive=True
             ):
                 output_index = index + 1
+            elif parso_utility.find_def_nodes(attribute_to_find, nodes):
+                output_index = index + 1
 
         previous -= 1
 
