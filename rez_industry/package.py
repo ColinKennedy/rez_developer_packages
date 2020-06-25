@@ -32,6 +32,7 @@ tests = {
         "command": "coverage erase && coverage run --parallel-mode --include=python/* -m unittest discover && coverage combine --append && coverage html",
         "requires": [
             "coverage-5+<6",
+            "mock-1+<4",
             "rez-2.52.1+<3",  # The tests use newer features than what is required by the package
         ],
     },
