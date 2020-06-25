@@ -71,6 +71,27 @@ def _adjust_prefix(nodes, index):
 
 
 def _append_or_insert_node(node, graph, assignment, attribute):
+    """Add a new `attribute` to `graph`, according to pre-existing data.
+
+    Args:
+        node (:class:`parso.python.tree.PythonNode`):
+            The main data that will be added to `graph`.
+        graph (:class:`parso.python.tree.PythonNode`):
+            A Python module that may already contain an assignment for
+            `attribute`. If it doesn't the attribute will be added,
+            automatically.
+        assignment (:class:`parso.python.tree.PythonNode` or NoneType):
+            If `graph` has an existing node where `attribute` is
+            defined, this node will represent that position. If this
+            parameter is None, a new position for `attribute` will be
+            automatically found and used.
+        attribute (str):
+            The name of the Rez-related object to use.
+
+    Returns:
+        :class:`parso.python.tree.PythonNode`: The main module with a modified `attribute`.
+
+    """
     if assignment:
         index = _find_nearest_node_index(graph.children, attribute)
         del graph.children[index]
