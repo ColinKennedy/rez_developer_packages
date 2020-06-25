@@ -178,7 +178,7 @@ class HelpAdapter(base.BaseAdapter):
             assignment = None
 
         if isinstance(data, tree.BaseNode):
-            graph = convention.insert_or_append(data, graph, assignment, "help")
+            graph = convention.insert_or_append_raw_node(data, graph, assignment, "help")
 
             return graph.get_code()
 

@@ -9,23 +9,18 @@ its best to put it somewhere in the middle, if it can.
 
 """
 
+import copy
+
 from parso.python import tree
 from parso_helper import node_seek
+from rez import package_serialise
 
 from . import parso_utility
 
-_ATTRIBUTES = (
-    "name",
-    "version",
-    "description",
-    "authors",
-    "help",
-    "requires",
-    "tests",
-    "private_build_requires",
-    "build_requires",
-    "commands",
-)
+_ATTRIBUTES = copy.deepcopy(package_serialise.package_key_order)
+
+if "tests" not in _ATTRIBUTES:
+    _ATTRIBUTES.append("tests")
 
 
 def _adjust_prefix(nodes, index):
@@ -68,49 +63,6 @@ def _adjust_prefix(nodes, index):
 
     if hasattr(node, "prefix"):
         node.prefix = "\n\n"
-
-
-def _append_or_insert_node(node, graph, assignment, attribute):
-    """Add a new `attribute` to `graph`, according to pre-existing data.
-
-    Args:
-        node (:class:`parso.python.tree.PythonNode`):
-            The main data that will be added to `graph`.
-        graph (:class:`parso.python.tree.PythonNode`):
-            A Python module that may already contain an assignment for
-            `attribute`. If it doesn't the attribute will be added,
-            automatically.
-        assignment (:class:`parso.python.tree.PythonNode` or NoneType):
-            If `graph` has an existing node where `attribute` is
-            defined, this node will represent that position. If this
-            parameter is None, a new position for `attribute` will be
-            automatically found and used.
-        attribute (str):
-            The name of the Rez-related object to use.
-
-    Returns:
-        :class:`parso.python.tree.PythonNode`: The main module with a modified `attribute`.
-
-    """
-    if assignment:
-        index = _find_nearest_node_index(graph.children, attribute)
-        del graph.children[index]
-        graph.children.insert(index, tree.PythonNode("assignment", [node]))
-
-        return graph
-
-    index = _find_nearest_node_index(graph.children, attribute)
-
-    if index == -1:
-        graph.children.append(tree.PythonNode("assignment", [node]))
-
-        return graph
-
-    prefix_node = node_seek.get_node_with_first_prefix(node)
-    prefix_node.prefix = "\n\n"
-    graph.children.insert(index, tree.PythonNode("assignment", [node]))
-
-    return graph
 
 
 def _find_nearest_node_index(nodes, attribute):
@@ -185,9 +137,6 @@ def insert_or_append(node, graph, assignment, attribute):
         :class:`parso.python.tree.PythonNode`: The main module with a modified `attribute`.
 
     """
-    if isinstance(node, tree.BaseNode):
-        return _append_or_insert_node(node, graph, assignment, attribute)
-
     if assignment:
         if hasattr(node, "children"):
             node.children[0].prefix = " "
@@ -230,5 +179,48 @@ def insert_or_append(node, graph, assignment, attribute):
         ),
     )
     _adjust_prefix(graph.children, index)
+
+    return graph
+
+
+def insert_or_append_raw_node(node, graph, assignment, attribute):
+    """Add a new `attribute` to `graph`, according to pre-existing data.
+
+    Args:
+        node (:class:`parso.python.tree.PythonNode`):
+            The main data that will be added to `graph`.
+        graph (:class:`parso.python.tree.PythonNode`):
+            A Python module that may already contain an assignment for
+            `attribute`. If it doesn't the attribute will be added,
+            automatically.
+        assignment (:class:`parso.python.tree.PythonNode` or NoneType):
+            If `graph` has an existing node where `attribute` is
+            defined, this node will represent that position. If this
+            parameter is None, a new position for `attribute` will be
+            automatically found and used.
+        attribute (str):
+            The name of the Rez-related object to use.
+
+    Returns:
+        :class:`parso.python.tree.PythonNode`: The main module with a modified `attribute`.
+
+    """
+    if assignment:
+        index = _find_nearest_node_index(graph.children, attribute)
+        del graph.children[index]
+        graph.children.insert(index, tree.PythonNode("assignment", [node]))
+
+        return graph
+
+    index = _find_nearest_node_index(graph.children, attribute)
+
+    if index == -1:
+        graph.children.append(tree.PythonNode("assignment", [node]))
+
+        return graph
+
+    prefix_node = node_seek.get_node_with_first_prefix(node)
+    prefix_node.prefix = "\n\n"
+    graph.children.insert(index, tree.PythonNode("assignment", [node]))
 
     return graph
