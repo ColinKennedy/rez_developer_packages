@@ -443,19 +443,22 @@ class AddToAttributeHelp(unittest.TestCase):
 
 
 class AddToAttributeHelpFunction(unittest.TestCase):
+    """A variation of :class:`AddToAttributeHelp` which tests @early functions."""
+
     def _test(self, expected, text, overrides):
-        # """Check that `overrides` is added to `text` as expected.
-        #
-        # Args:
-        #     expected (str): The output of `text` mixed with `overrides`.
-        #     text (str): The raw Rez package.py input.
-        #     overrides (str or list[list[str, str]]): The data that will append / replace help.
-        #
-        # """
+        """Check that `overrides` is added to `text` as expected.
+
+        Args:
+            expected (str): The output of `text` mixed with `overrides`.
+            text (str): The raw Rez package.py input.
+            overrides (str or list[list[str, str]]): The data that will append / replace help.
+
+        """
         results = api.add_to_attribute("help", overrides, text)
         self.assertEqual(expected, results)
 
     def test_append(self):
+        """Add the @early() help function to a package definition which doesn't have one."""
         original = 'name = "whatever"'
 
         code_block = textwrap.dedent(
@@ -479,6 +482,7 @@ class AddToAttributeHelpFunction(unittest.TestCase):
         self._test(expected, original, parso.parse(code_block))
 
     def test_simple(self):
+        """Make sure @early() help attribute works."""
         original = textwrap.dedent(
             """\
             name = "whatever"
@@ -509,7 +513,8 @@ class AddToAttributeHelpFunction(unittest.TestCase):
 
         self._test(expected, original, parso.parse(code_block))
 
-    def test_format(self):
+    def test_format_001(self):
+        """Make sure Python formatting works within an @early() function."""
         original = textwrap.dedent(
             """\
             name = "whatever"
@@ -537,6 +542,46 @@ class AddToAttributeHelpFunction(unittest.TestCase):
             @early()
             def help():
                 return [["documentation", "foo.{this.major}.{this.minor}".format(this=this)]]
+            """
+        )
+
+        self._test(expected, original, parso.parse(code_block))
+
+    def test_format_002(self):
+        """Do both types of Python formatting and make sure they work."""
+        original = textwrap.dedent(
+            """\
+            name = "whatever"
+
+            version = "1.0.0"
+
+            help = "stuff"
+            """
+        )
+
+        code_block = textwrap.dedent(
+            """
+            @early()
+            def help():
+                return [
+                    ["documentation", "foo.{this.major}.{this.minor}".format(this=this)],
+                    ["foo", "foo.%s.%s", (this.major, this.minor)],
+                ]
+            """
+        )
+
+        expected = textwrap.dedent(
+            """\
+            name = "whatever"
+
+            version = "1.0.0"
+
+            @early()
+            def help():
+                return [
+                    ["documentation", "foo.{this.major}.{this.minor}".format(this=this)],
+                    ["foo", "foo.%s.%s", (this.major, this.minor)],
+                ]
             """
         )
 
