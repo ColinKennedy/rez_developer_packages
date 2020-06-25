@@ -11,6 +11,7 @@ The module tests this by checking each permutation of the
 import textwrap
 import unittest
 
+import parso
 from rez_industry import api
 from six.moves import mock
 
@@ -99,22 +100,6 @@ class AddToAttributeHelp(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             api.add_to_attribute("help", "", original)
-
-    def test_undefined(self):
-        """Define a help attribute if one doesn't exist."""
-        original = 'name = "whatever"'
-
-        expected = textwrap.dedent(
-            """\
-            name = "whatever"
-
-            help = [
-                ["thing", "blah"],
-                ["foo", "bar"],
-            ]"""
-        )
-
-        self._test(expected, original, [["thing", "blah"], ["foo", "bar"]])
 
     def test_invalid_001(self):
         """Raise an exception if an invalid help attribute was given."""
@@ -455,6 +440,107 @@ class AddToAttributeHelp(unittest.TestCase):
         )
 
         self._test(expected, original, overrides)
+
+
+class AddToAttributeHelpFunction(unittest.TestCase):
+    def _test(self, expected, text, overrides):
+        # """Check that `overrides` is added to `text` as expected.
+        #
+        # Args:
+        #     expected (str): The output of `text` mixed with `overrides`.
+        #     text (str): The raw Rez package.py input.
+        #     overrides (str or list[list[str, str]]): The data that will append / replace help.
+        #
+        # """
+        results = api.add_to_attribute("help", overrides, text)
+        self.assertEqual(expected, results)
+
+    def test_append(self):
+        original = 'name = "whatever"'
+
+        code_block = textwrap.dedent(
+            """
+            @early()
+            def help():
+                return [["foo", "bar"], ["Some Existing", "stuff"]]
+            """
+        )
+
+        expected = textwrap.dedent(
+            """\
+            name = "whatever"
+
+            @early()
+            def help():
+                return [["foo", "bar"], ["Some Existing", "stuff"]]
+            """
+        )
+
+        self._test(expected, original, parso.parse(code_block))
+
+    def test_simple(self):
+        original = textwrap.dedent(
+            """\
+            name = "whatever"
+
+            help = [
+                ["Some Existing", "stuff"],
+            ]
+            """
+        )
+
+        code_block = textwrap.dedent(
+            """
+            @early()
+            def help():
+                return [["foo", "bar"], ["Some Existing", "stuff"]]
+            """
+        )
+
+        expected = textwrap.dedent(
+            """\
+            name = "whatever"
+
+            @early()
+            def help():
+                return [["foo", "bar"], ["Some Existing", "stuff"]]
+            """
+        )
+
+        self._test(expected, original, parso.parse(code_block))
+
+    def test_format(self):
+        original = textwrap.dedent(
+            """\
+            name = "whatever"
+
+            version = "1.0.0"
+
+            help = "stuff"
+            """
+        )
+
+        code_block = textwrap.dedent(
+            """
+            @early()
+            def help():
+                return [["documentation", "foo.{this.major}.{this.minor}".format(this=this)]]
+            """
+        )
+
+        expected = textwrap.dedent(
+            """\
+            name = "whatever"
+
+            version = "1.0.0"
+
+            @early()
+            def help():
+                return [["documentation", "foo.{this.major}.{this.minor}".format(this=this)]]
+            """
+        )
+
+        self._test(expected, original, parso.parse(code_block))
 
 
 class AddToAttributeRequires(unittest.TestCase):

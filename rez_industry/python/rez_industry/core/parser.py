@@ -3,6 +3,7 @@
 
 """A main module that's responsible for modifying Rez package.py files."""
 
+from parso import tree
 import parso
 
 from .adapters import help_adapter, requires_adapter, tests_adapter
@@ -47,14 +48,15 @@ def _validate(attribute, data, code):
             "".format(attribute=attribute, _ADAPTERS=sorted(_ADAPTERS))
         )
 
-    reason_why_invalid = adapter_class.check_if_invalid(data)
+    if not isinstance(data, tree.BaseNode):
+        reason_why_invalid = adapter_class.check_if_invalid(data)
 
-    if reason_why_invalid:
-        raise ValueError(
-            'Data "{data}" is invalid. Reason "{reason_why_invalid}".'.format(
-                data=data, reason_why_invalid=reason_why_invalid
+        if reason_why_invalid:
+            raise ValueError(
+                'Data "{data}" is invalid. Reason "{reason_why_invalid}".'.format(
+                    data=data, reason_why_invalid=reason_why_invalid
+                )
             )
-        )
 
     return parso.parse(code), adapter_class
 

@@ -177,6 +177,11 @@ class HelpAdapter(base.BaseAdapter):
         except IndexError:
             assignment = None
 
+        if isinstance(data, tree.BaseNode):
+            graph = convention.insert_or_append(data, graph, assignment, "help")
+
+            return graph.get_code()
+
         help_data = parso.parse(json.dumps(data, cls=encoder.BuiltinEncoder)).children[
             0
         ]

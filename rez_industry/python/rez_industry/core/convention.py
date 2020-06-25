@@ -70,6 +70,28 @@ def _adjust_prefix(nodes, index):
         node.prefix = "\n\n"
 
 
+def _append_or_insert_node(node, graph, assignment, attribute):
+    if assignment:
+        index = _find_nearest_node_index(graph.children, attribute)
+        del graph.children[index]
+        graph.children.insert(index, tree.PythonNode("assignment", [node]))
+
+        return graph
+
+    index = _find_nearest_node_index(graph.children, attribute)
+
+    if index == -1:
+        graph.children.append(tree.PythonNode("assignment", [node]))
+
+        return graph
+
+    prefix_node = node_seek.get_node_with_first_prefix(node)
+    prefix_node.prefix = "\n\n"
+    graph.children.insert(index, tree.PythonNode("assignment", [node]))
+
+    return graph
+
+
 def _find_nearest_node_index(nodes, attribute):
     """Get the position used to insert `attribute` into the final Rez package.py file.
 
@@ -142,6 +164,9 @@ def insert_or_append(node, graph, assignment, attribute):
         :class:`parso.python.tree.PythonNode`: The main module with a modified `attribute`.
 
     """
+    if isinstance(node, tree.BaseNode):
+        return _append_or_insert_node(node, graph, assignment, attribute)
+
     if assignment:
         if hasattr(node, "children"):
             node.children[0].prefix = " "
