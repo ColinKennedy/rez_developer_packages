@@ -15,16 +15,16 @@ class BuiltinEncoder(json.JSONEncoder):
 
         for index, item in enumerate(results):
             if item in ("null", '"null"'):
-                results[
+                results[  # pylint: disable=unsupported-assignment-operation
                     index
-                ] = "None"  # pylint: disable=unsupported-assignment-operation
+                ] = "None"
             if item == "false":
-                results[
+                results[  # pylint: disable=unsupported-assignment-operation
                     index
-                ] = "False"  # pylint: disable=unsupported-assignment-operation
+                ] = "False"
             if item == "true":
-                results[
+                results[  # pylint: disable=unsupported-assignment-operation
                     index
-                ] = "True"  # pylint: disable=unsupported-assignment-operation
+                ] = "True"
 
         return results
