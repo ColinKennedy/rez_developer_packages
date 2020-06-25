@@ -3,8 +3,8 @@
 
 """A main module that's responsible for modifying Rez package.py files."""
 
-from parso import tree
 import parso
+from parso import tree
 
 from .adapters import help_adapter, requires_adapter, tests_adapter
 
