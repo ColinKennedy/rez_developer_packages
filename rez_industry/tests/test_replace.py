@@ -622,16 +622,16 @@ class AddToAttributeTests(unittest.TestCase):
                 "cmake",
             ]
 
+            def commands():
+                pass
+
+
             tests = {
                 "thing": {
                     "command": "thing",
                     "run_on": "explicit",
                 },
-            }
-
-            def commands():
-                pass
-            """
+            }"""
         )
 
         self._test(expected, original, overrides)
@@ -653,16 +653,16 @@ class AddToAttributeTests(unittest.TestCase):
             """\
             name = "foo"
 
+            def commands():
+                pass
+
+
             tests = {
                 "thing": {
                     "command": "thing",
                     "run_on": "explicit",
                 },
-            }
-
-            def commands():
-                pass
-            """
+            }"""
         )
 
         self._test(expected, original, overrides)

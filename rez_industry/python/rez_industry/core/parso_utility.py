@@ -65,9 +65,9 @@ def find_definition_root_nodes(attribute, graph, inclusive=False):
     nodes = []
 
     for child in items:
-        if isinstance(child, tree.Function):
+        if isinstance(child, tree.Function) and child.name == attribute:
             nodes.append(child)
-        elif _is_decorator_wrapper(child) and find_definition_nodes(attribute, {child}):
+        elif _is_decorator_wrapper(child) and find_definition_nodes(attribute, node_seek.iter_nested_children(child)):
             nodes.append(child)
 
     return nodes
@@ -94,7 +94,7 @@ def find_definition_nodes(attribute, nodes):
         if not isinstance(node, tree.Function):
             continue
 
-        if node.name == attribute:
+        if node.name.value == attribute:
             output.add(node)
 
     return output

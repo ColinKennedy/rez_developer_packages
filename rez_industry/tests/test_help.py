@@ -421,13 +421,13 @@ class Add(unittest.TestCase):
                 "another",
             ]
 
-            help = [
-                ["README", "README.md"],
-            ]
-
             def commands():
                 pass
-            """
+
+
+            help = [
+                ["README", "README.md"],
+            ]"""
         )
 
         self._test(expected, original, overrides)
