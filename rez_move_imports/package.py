@@ -55,7 +55,10 @@ tests = {
         "command": "pylint --disable=bad-continuation python/rez_move_imports tests",
         "requires": ["pylint-1.9+<2"],
     },
-    "unittest": "python -m unittest discover",
+    "unittest": {
+        "command": "python -m unittest discover",
+        "requires": ["rez-2.53+<3"],  # Needs to support `"run_on": "explicit"`
+    }
 }
 
 uuid = "5bfaee62-4aa3-4311-b50e-6b3844c6ef1b"
