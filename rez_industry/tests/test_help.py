@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""A series of tests for :mod:`rez_industry.core.adapter.help_adapter`."""
+
 import textwrap
 import unittest
 
@@ -579,6 +581,7 @@ class Function(unittest.TestCase):
         self._test(expected, original, parso.parse(code_block))
 
     def test_replace_different_001(self):
+        """Change a help function into a different help function."""
         original = textwrap.dedent(
             """\
             name = "whatever"
@@ -616,6 +619,7 @@ class Function(unittest.TestCase):
         self._test(expected, original, parso.parse(code_block))
 
     def test_replace_different_002(self):
+        """Change a help function into a help string."""
         original = textwrap.dedent(
             """\
             name = "whatever"
@@ -643,6 +647,7 @@ class Function(unittest.TestCase):
         self._test(expected, original, parso.parse(code_block))
 
     def test_replace_different_003(self):
+        """Change a help function into a help list."""
         original = textwrap.dedent(
             """\
             name = "whatever"
@@ -670,6 +675,7 @@ class Function(unittest.TestCase):
         self._test(expected, original, parso.parse(code_block))
 
     def test_replace_itself(self):
+        """Replace a help function with itself."""
         original = textwrap.dedent(
             """\
             name = "whatever"
