@@ -12,10 +12,9 @@ import tempfile
 import textwrap
 
 from python_compatibility import wrapping
-from rez import build_process_, build_system, package_search, package_test
-from rez.utils import formatting
-from rez import serialise
-from rez.utils import filesystem
+from rez import (build_process_, build_system, package_search, package_test,
+                 serialise)
+from rez.utils import filesystem, formatting
 from rez_batch_process.core import registry
 from rez_batch_process.core.plugins import command, conditional
 from rez_bump import rez_bump_api
