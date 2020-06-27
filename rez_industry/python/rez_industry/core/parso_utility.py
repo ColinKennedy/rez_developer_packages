@@ -47,6 +47,17 @@ def find_assignment_nodes(attribute, graph, inclusive=False):
 
 
 def _is_decorator_wrapper(node):
+    """Check if `node` is the start of a defintion which contains a @ decorator.
+
+    Args:
+        node (:class:`parso.tree.PythonNode`):
+            A parso object to test. If it's not the expected type, this
+            function returns False.
+
+    Returns:
+        bool: If `node` is an @ decorator (e.g. `@early()`).
+
+    """
     if not isinstance(node, tree.PythonNode):
         return False
 
@@ -57,6 +68,22 @@ def _is_decorator_wrapper(node):
 
 
 def find_definition_root_nodes(attribute, graph, inclusive=False):
+    """Find the root of a function definition.
+
+    If the function has decorator(s) above it, return the first node
+    that defines all of them.
+
+    Args:
+        attribute (str):
+            The name of a Python attribute. e.g. "tests", "help", etc.
+        graph (:class:`parso.python.tree.PythonBaseNode`):
+            The base node to check from. Usually this represents a Python module.
+        inclusive (bool, optional):
+            If True, include `graph` as the first item to be iterated
+            over. If False, only iterate over `graph`'s children,
+            recursively. Default is False.
+
+    """
     items = node_seek.iter_nested_children(graph)
 
     if inclusive:
