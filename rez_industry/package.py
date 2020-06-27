@@ -2,7 +2,7 @@
 
 name = "rez_industry"
 
-version = "1.3.0"
+version = "1.4.0"
 
 description = "A Rez package manufacturer. It reliably modifies Rez package.py files."
 
@@ -52,7 +52,7 @@ tests = {
         # Need to disable D202 for now, until a new pydocstyle version is released
         # Reference: https://github.com/psf/black/issues/1159
         #
-        "command": "rez-env pydocstyle -- pydocstyle --ignore=D213,D202,D203,D406,D407 python tests/*"
+        "command": "rez-env pydocstyle -- pydocstyle --ignore=D213,D202,D203,D406,D407,D417 python tests/*"
     },
     "pylint": {
         "command": "pylint --disable=bad-continuation,duplicate-code python/rez_industry",

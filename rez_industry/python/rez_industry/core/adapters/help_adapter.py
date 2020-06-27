@@ -172,8 +172,12 @@ class HelpAdapter(base.BaseAdapter):
                 source code of `graph` plus any serialized `data`.
 
         """
+        assignments = parso_utility.find_assignment_nodes(
+            "help", graph
+        ) or parso_utility.find_definition_root_nodes("help", graph)
+
         try:
-            assignment = parso_utility.find_assignment_nodes("help", graph)[-1]
+            assignment = assignments[-1]
         except IndexError:
             assignment = None
 
