@@ -9,6 +9,7 @@ import logging
 import os
 import textwrap
 
+from rez.utils import filesystem
 from rez import serialise
 from rez_batch_process.core import exceptions, registry, worker
 from rez_batch_process.core.plugins import command, conditional
