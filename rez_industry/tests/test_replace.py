@@ -11,6 +11,7 @@ The module tests this by checking each permutation of the
 import textwrap
 import unittest
 
+import parso
 from rez_industry import api
 from six.moves import mock
 
@@ -99,22 +100,6 @@ class AddToAttributeHelp(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             api.add_to_attribute("help", "", original)
-
-    def test_undefined(self):
-        """Define a help attribute if one doesn't exist."""
-        original = 'name = "whatever"'
-
-        expected = textwrap.dedent(
-            """\
-            name = "whatever"
-
-            help = [
-                ["thing", "blah"],
-                ["foo", "bar"],
-            ]"""
-        )
-
-        self._test(expected, original, [["thing", "blah"], ["foo", "bar"]])
 
     def test_invalid_001(self):
         """Raise an exception if an invalid help attribute was given."""
@@ -329,7 +314,7 @@ class AddToAttributeHelp(unittest.TestCase):
             name = "whatever"
 
             help = [
-                ["documentation", "something"],
+                ["Home Page", "something"],
                 ["thing", "another"],
             ]
             """
@@ -392,14 +377,13 @@ class AddToAttributeHelp(unittest.TestCase):
             """\
             name = "foo"
 
-            help = [
-                ["README", "README.md"],
-            ]
-
             build_requires = [
                 "something",
             ]
-            """
+
+            help = [
+                ["README", "README.md"],
+            ]"""
         )
 
         self._test(expected, original, overrides)
@@ -441,12 +425,12 @@ class AddToAttributeHelp(unittest.TestCase):
                 "Someone",
             ]
 
-            help = [
-                ["README", "README.md"],
-            ]
-
             requires = [
                 "another",
+            ]
+
+            help = [
+                ["README", "README.md"],
             ]
 
             def commands():
@@ -455,6 +439,152 @@ class AddToAttributeHelp(unittest.TestCase):
         )
 
         self._test(expected, original, overrides)
+
+
+class AddToAttributeHelpFunction(unittest.TestCase):
+    """A variation of :class:`AddToAttributeHelp` which tests @early functions."""
+
+    def _test(self, expected, text, overrides):
+        """Check that `overrides` is added to `text` as expected.
+
+        Args:
+            expected (str): The output of `text` mixed with `overrides`.
+            text (str): The raw Rez package.py input.
+            overrides (str or list[list[str, str]]): The data that will append / replace help.
+
+        """
+        results = api.add_to_attribute("help", overrides, text)
+        self.assertEqual(expected, results)
+
+    def test_append(self):
+        """Add the @early() help function to a package definition which doesn't have one."""
+        original = 'name = "whatever"'
+
+        code_block = textwrap.dedent(
+            """
+            @early()
+            def help():
+                return [["foo", "bar"], ["Some Existing", "stuff"]]
+            """
+        )
+
+        expected = textwrap.dedent(
+            """\
+            name = "whatever"
+
+            @early()
+            def help():
+                return [["foo", "bar"], ["Some Existing", "stuff"]]
+            """
+        )
+
+        self._test(expected, original, parso.parse(code_block))
+
+    def test_simple(self):
+        """Make sure @early() help attribute works."""
+        original = textwrap.dedent(
+            """\
+            name = "whatever"
+
+            help = [
+                ["Some Existing", "stuff"],
+            ]
+            """
+        )
+
+        code_block = textwrap.dedent(
+            """
+            @early()
+            def help():
+                return [["foo", "bar"], ["Some Existing", "stuff"]]
+            """
+        )
+
+        expected = textwrap.dedent(
+            """\
+            name = "whatever"
+
+            @early()
+            def help():
+                return [["foo", "bar"], ["Some Existing", "stuff"]]
+            """
+        )
+
+        self._test(expected, original, parso.parse(code_block))
+
+    def test_format_001(self):
+        """Make sure Python formatting works within an @early() function."""
+        original = textwrap.dedent(
+            """\
+            name = "whatever"
+
+            version = "1.0.0"
+
+            help = "stuff"
+            """
+        )
+
+        code_block = textwrap.dedent(
+            """
+            @early()
+            def help():
+                return [["documentation", "foo.{this.major}.{this.minor}".format(this=this)]]
+            """
+        )
+
+        expected = textwrap.dedent(
+            """\
+            name = "whatever"
+
+            version = "1.0.0"
+
+            @early()
+            def help():
+                return [["documentation", "foo.{this.major}.{this.minor}".format(this=this)]]
+            """
+        )
+
+        self._test(expected, original, parso.parse(code_block))
+
+    def test_format_002(self):
+        """Do both types of Python formatting and make sure they work."""
+        original = textwrap.dedent(
+            """\
+            name = "whatever"
+
+            version = "1.0.0"
+
+            help = "stuff"
+            """
+        )
+
+        code_block = textwrap.dedent(
+            """
+            @early()
+            def help():
+                return [
+                    ["documentation", "foo.{this.major}.{this.minor}".format(this=this)],
+                    ["foo", "foo.%s.%s", (this.major, this.minor)],
+                ]
+            """
+        )
+
+        expected = textwrap.dedent(
+            """\
+            name = "whatever"
+
+            version = "1.0.0"
+
+            @early()
+            def help():
+                return [
+                    ["documentation", "foo.{this.major}.{this.minor}".format(this=this)],
+                    ["foo", "foo.%s.%s", (this.major, this.minor)],
+                ]
+            """
+        )
+
+        self._test(expected, original, parso.parse(code_block))
 
 
 class AddToAttributeRequires(unittest.TestCase):
@@ -1060,16 +1190,16 @@ class AddToAttributeTests(unittest.TestCase):
                 "something",
             ]
 
+            private_build_requires = [
+                "cmake",
+            ]
+
             tests = {
                 "thing": {
                     "command": "thing",
                     "run_on": "explicit",
                 },
             }
-
-            private_build_requires = [
-                "cmake",
-            ]
 
             def commands():
                 pass

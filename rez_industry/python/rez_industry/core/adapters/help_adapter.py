@@ -16,7 +16,7 @@ from rez.vendor.schema import schema
 from .. import convention, encoder, parso_utility
 from . import base
 
-_DEFAULT_FALLBACK_KEY = "documentation"
+DEFAULT_HELP_LABEL = "Home Page"
 
 
 class HelpAdapter(base.BaseAdapter):
@@ -61,8 +61,8 @@ class HelpAdapter(base.BaseAdapter):
             "testlist_comp",
             [
                 tree.String(
-                    '"{_DEFAULT_FALLBACK_KEY}"'.format(
-                        _DEFAULT_FALLBACK_KEY=_DEFAULT_FALLBACK_KEY
+                    '"{DEFAULT_HELP_LABEL}"'.format(
+                        DEFAULT_HELP_LABEL=DEFAULT_HELP_LABEL
                     ),
                     (0, 0),
                 ),
@@ -156,7 +156,7 @@ class HelpAdapter(base.BaseAdapter):
                 "tests". If "tests" assignment exists, it gets
                 overwritten. If no assignment exists then a new
                 assignment is appended to the end of the file.
-            data (list[list[str]] or str):
+            data (list[list[str]] or str or :class:`parso.python.tree.PythonNode`):
                 Any values that'd typically define a Rez "tests"
                 attribute. Basically anything is allowed, as long the
                 Rez package schema considers it valid.
@@ -176,6 +176,13 @@ class HelpAdapter(base.BaseAdapter):
             assignment = parso_utility.find_assignment_nodes("help", graph)[-1]
         except IndexError:
             assignment = None
+
+        if isinstance(data, tree.BaseNode):
+            graph = convention.insert_or_append_raw_node(
+                data, graph, assignment, "help"
+            )
+
+            return graph.get_code()
 
         help_data = parso.parse(json.dumps(data, cls=encoder.BuiltinEncoder)).children[
             0

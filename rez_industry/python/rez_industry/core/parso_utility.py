@@ -44,3 +44,30 @@ def find_assignment_nodes(attribute, graph, inclusive=False):
                         nodes.append(child)
 
     return nodes
+
+
+def find_def_nodes(attribute, nodes):
+    """Get a parso node each time a certain Python function is declared and given a value.
+
+    Args:
+        attribute (str):
+            The name of a Python attribute. e.g. "tests", "help", etc.
+        nodes (iter[:class:`parso.python.tree.PythonBaseNode`]):
+            Every node to check for definitions. For a Rez package.py,
+            this is normally the parso root node's children. e.g.
+            `node.get_root_node().children`.
+
+    Returns:
+        set[:class:`parso.python.tree.PythonBaseNode`]: The found definitions, if any.
+
+    """
+    output = set()
+
+    for node in nodes:
+        if not isinstance(node, tree.Function):
+            continue
+
+        if node.name == attribute:
+            output.add(node)
+
+    return output

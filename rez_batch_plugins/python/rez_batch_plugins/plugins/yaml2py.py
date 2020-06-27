@@ -10,6 +10,7 @@ import os
 import textwrap
 
 from rez import serialise
+from rez.utils import filesystem
 from rez_batch_process.core import exceptions, registry, worker
 from rez_batch_process.core.plugins import command, conditional
 from rez_utilities import finder
@@ -92,8 +93,14 @@ class Yaml2Py(command.RezShellCommand):
         path = os.path.join(finder.get_package_root(package), "package.py")
         _LOGGER.info('Now creating "%s".', path)
 
-        with open(path, "w") as handler:
-            handler.write(code)
+        # Writing to DeveloperPackage objects is currently bugged.
+        # So instead, we disable caching during write.
+        #
+        # Reference: https://github.com/nerdvegas/rez/issues/857
+        #
+        with filesystem.make_path_writable(os.path.dirname(os.path.dirname(path))):
+            with serialise.open_file_for_write(path) as handler:
+                handler.write(code)
 
         _LOGGER.info('Now removing the old "%s".', package.filepath)
 
@@ -146,6 +153,7 @@ class Yaml2Py(command.RezShellCommand):
                 arguments.token,
                 arguments.pull_request_name,
                 arguments.ssl_no_verify,
+                arguments.assignee,
             ),
             cached_users=arguments.cached_users,
             fallback_reviewers=arguments.fallback_reviewers,

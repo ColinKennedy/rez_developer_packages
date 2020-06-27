@@ -2,9 +2,9 @@
 
 name = "rez_industry"
 
-version = "1.1.0"
+version = "1.3.0"
 
-description = "A Rez package manufacturer. It's reliably modifies Rez package.py files."
+description = "A Rez package manufacturer. It reliably modifies Rez package.py files."
 
 help = [["README", "README.md"]]
 
@@ -24,6 +24,7 @@ tests = {
     "black_diff": {
         "command": "black --diff --check package.py python tests",
         "requires": ["black-19.10+<20"],
+        "run_on": "explicit",
     },
     "black": {
         "command": "black package.py python tests",
@@ -33,7 +34,8 @@ tests = {
     "coverage": {
         "command": "coverage erase && coverage run --parallel-mode --include=python/* -m unittest discover && coverage combine --append && coverage html",
         "requires": [
-            "coverage-4+<5",
+            "coverage-5+<6",
+            "mock-1+<4",
             "rez-2.52.1+<3",  # The tests use newer features than what is required by the package
         ],
     },
@@ -60,7 +62,7 @@ tests = {
         "command": "python -m unittest discover",
         "requires": [
             "mock-1+<4",
-            "rez-2.52.1+<3"  # The tests use newer features than what is required by the package
+            "rez-2.52.1+<3",  # The tests use newer features than what is required by the package
         ],
     },
 }

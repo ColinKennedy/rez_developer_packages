@@ -169,7 +169,7 @@ class MoveImports(common.Common):
 
         with rez_configuration.patch_release_packages_path(release_path):
             _, unfixed, invalids, skips = _get_test_results(
-                "move_imports", arguments=arguments
+                "move_imports", arguments=arguments, paths={release_path}
             )
 
         self.assertEqual(set(), unfixed)
@@ -266,7 +266,7 @@ class MoveImports(common.Common):
 
         with rez_configuration.patch_release_packages_path(release_path):
             processed_packages, unfixed, invalids, skips = _get_test_results(
-                "move_imports", arguments=arguments
+                "move_imports", arguments=arguments, paths={release_path}
             )
 
         self.assertEqual(set(), unfixed)
@@ -372,7 +372,7 @@ class MoveImports(common.Common):
 
         with rez_configuration.patch_release_packages_path(release_path):
             processed_packages, unfixed, invalids, skips = _get_test_results(
-                "move_imports", arguments=arguments
+                "move_imports", arguments=arguments, paths={release_path}
             )
 
         self.assertEqual(set(), unfixed)
@@ -533,7 +533,7 @@ class Yaml2Py(common.Common):
         sys.argv[1:] = text
 
         with rez_configuration.patch_release_packages_path(release_path):
-            _, unfixed, invalids, skips = _get_test_results("yaml2py")
+            _, unfixed, invalids, skips = _get_test_results("yaml2py", paths={release_path})
 
         self.assertEqual(set(), unfixed)
         self.assertEqual([], invalids)
@@ -558,7 +558,7 @@ class Yaml2Py(common.Common):
         sys.argv[1:] = text
 
         with rez_configuration.patch_release_packages_path(release_path):
-            _, unfixed, invalids, skips = _get_test_results("yaml2py")
+            _, unfixed, invalids, skips = _get_test_results("yaml2py", paths={release_path})
 
         self.assertEqual(set(), unfixed)
         self.assertEqual([], invalids)
@@ -771,7 +771,7 @@ class Bump(common.Common):
 
         with rez_configuration.patch_release_packages_path(release_path):
             ran_packages, unfixed, invalids, skips = _get_test_results(
-                "bump", arguments=arguments,
+                "bump", arguments=arguments, paths={release_path}
             )
 
         package_file = next(iter(ran_packages)).filepath
@@ -816,6 +816,7 @@ class _Arguments(
         self.arguments = arguments
         self.command = command
         self.exit_on_error = True
+        self.assignee = "blah"
 
 
 def _clear_registry():
@@ -939,7 +940,7 @@ def _make_rez_package(name, package_name, text, root):
 
 def _get_test_commands():
     move_imports_arguments = "'. some.namespace.here,a.new.space.somewhere' --deprecate 'original_requirement-1,some.namespace' --requirements 'a_new_package-3.1+<4,a.new.space'"  # pylint: disable=line-too-long
-    text = 'run move_imports --arguments "{move_imports_arguments}" pr_prefix github-token --why "Because we must"'.format(  # pylint: disable=line-too-long
+    text = 'run move_imports --move-arguments "{move_imports_arguments}" pr_prefix github-token --why "Because we must"'.format(  # pylint: disable=line-too-long
         move_imports_arguments=move_imports_arguments
     )
 
@@ -966,8 +967,8 @@ def _get_test_results(command_text, paths=None, arguments=None):
     if not arguments:
         arguments = mock.MagicMock()
 
-    finder = registry.get_package_finder(command_text)
-    valid_packages, invalid_packages, skips = finder(paths=paths)
+    finder_ = registry.get_package_finder(command_text)
+    valid_packages, invalid_packages, skips = finder_(paths=paths)
 
     command = registry.get_command(command_text)
 

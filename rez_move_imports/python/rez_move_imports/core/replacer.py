@@ -7,8 +7,12 @@ Both Python files and Rez package modules are manipulatable, using this module.
 
 """
 
+import os
+
 from move_break import move_break_api
 from python_compatibility import dependency_analyzer
+from rez import serialise
+from rez.utils import filesystem
 from rez_bump import rez_bump_api
 from rez_industry import api
 
@@ -85,8 +89,9 @@ def _add_new_requirement_packages(package, namespaces, requirements):
 
     new_code = api.add_to_attribute("requires", list(packages_to_add), code)
 
-    with open(package.filepath, "w") as handler:
-        handler.write(new_code)
+    with filesystem.make_path_writable(os.path.dirname(os.path.dirname(package.filepath))):
+        with serialise.open_file_for_write(package.filepath) as handler:
+            handler.write(new_code)
 
 
 def _remove_deprecated_packages(package, namespaces, deprecate):
@@ -134,8 +139,9 @@ def _remove_deprecated_packages(package, namespaces, deprecate):
 
     new_code = api.remove_from_attribute("requires", list(packages_to_remove), code)
 
-    with open(package.filepath, "w") as handler:
-        handler.write(new_code)
+    with filesystem.make_path_writable(os.path.dirname(os.path.dirname(package.filepath))):
+        with serialise.open_file_for_write(package.filepath) as handler:
+            handler.write(new_code)
 
 
 def is_matching_namespace(part, options):

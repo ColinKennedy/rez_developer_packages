@@ -8,8 +8,8 @@ import functools
 import os
 import shutil
 import tempfile
-import unittest
 import textwrap
+import unittest
 
 from python_compatibility import wrapping
 from python_compatibility.testing import common
@@ -459,9 +459,8 @@ class Invalids(common.Common):
                 pass
 
         _, stderr = output
-        expected = "usage: python -m unittest [-h] -r REQUIREMENTS -d DEPRECATE [-n] [-p PACKAGE_DIRECTORY] command\npython -m unittest: error: argument -d/--deprecate is required\n"  # pylint: disable=line-too-long
-
-        self.assertEqual(expected, stderr)
+        expected = "error: argument -d/--deprecate is required"
+        self.assertIn(expected, stderr)
 
     def test_no_requirement(self):
         """Don't run the command if the user doesn't provide requirements to replace with."""
@@ -477,9 +476,8 @@ class Invalids(common.Common):
                 pass
 
         _, stderr = output
-        expected = "usage: python -m unittest [-h] -r REQUIREMENTS -d DEPRECATE [-n] [-p PACKAGE_DIRECTORY] command\npython -m unittest: error: argument -r/--requirements is required\n"  # pylint: disable=line-too-long
-
-        self.assertEqual(expected, stderr)
+        expected = "error: argument -r/--requirements is required"
+        self.assertIn(expected, stderr)
 
     def test_invalid_deprecate(self):
         """Defining --deprecate but missing either the Rez package for namespaces must error."""
