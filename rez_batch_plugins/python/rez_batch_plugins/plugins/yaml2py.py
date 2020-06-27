@@ -146,6 +146,7 @@ class Yaml2Py(command.RezShellCommand):
                 arguments.token,
                 arguments.pull_request_name,
                 arguments.ssl_no_verify,
+                arguments.assignee,
             ),
             cached_users=arguments.cached_users,
             fallback_reviewers=arguments.fallback_reviewers,

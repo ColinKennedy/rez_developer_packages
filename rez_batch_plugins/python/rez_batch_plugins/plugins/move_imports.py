@@ -86,8 +86,8 @@ class MoveImports(command.RezShellCommand):
             help="Explain what imports you're changing and why you're changing them.",
         )
         parser.add_argument(
-            "-a",
-            "--arguments",
+            "-m",
+            "--move-arguments",
             required=True,
             help="The code that'll be sent directly to rez_move_imports",
         )
@@ -160,6 +160,7 @@ class MoveImports(command.RezShellCommand):
                 arguments.token,
                 arguments.pull_request_name,
                 arguments.ssl_no_verify,
+                arguments.assignee,
             ),
             cached_users=arguments.cached_users,
             fallback_reviewers=arguments.fallback_reviewers,
@@ -226,7 +227,7 @@ def _get_user_provided_namespaces():
     """set[tuple[str, str]]: Find the dot-separated namespaces to replace + their replacements."""
     _, arguments = rez_batch_process_cli.parse_arguments(sys.argv[1:])
 
-    return rez_move_imports_cli.get_user_namespaces(shlex.split(arguments.arguments))
+    return rez_move_imports_cli.get_user_namespaces(shlex.split(arguments.move_arguments))
 
 
 def _get_packages_which_must_be_changed(paths=None):
