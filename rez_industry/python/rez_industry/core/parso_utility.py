@@ -46,7 +46,34 @@ def find_assignment_nodes(attribute, graph, inclusive=False):
     return nodes
 
 
-def find_def_nodes(attribute, nodes):
+def _is_decorator_wrapper(node):
+    if not isinstance(node, tree.PythonNode):
+        return False
+
+    if node.type != "decorated":
+        return False
+
+    return True
+
+
+def find_definition_root_nodes(attribute, graph, inclusive=False):
+    items = node_seek.iter_nested_children(graph)
+
+    if inclusive:
+        items = itertools.chain([graph], items)
+
+    nodes = []
+
+    for child in items:
+        if isinstance(child, tree.Function):
+            nodes.append(child)
+        elif _is_decorator_wrapper(child) and find_definition_nodes(attribute, {child}):
+            nodes.append(child)
+
+    return nodes
+
+
+def find_definition_nodes(attribute, nodes):
     """Get a parso node each time a certain Python function is declared and given a value.
 
     Args:

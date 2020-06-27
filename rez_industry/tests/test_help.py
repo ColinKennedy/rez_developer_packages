@@ -3,8 +3,9 @@
 
 import textwrap
 import unittest
-from rez_industry import api
+
 import parso
+from rez_industry import api
 
 
 class Add(unittest.TestCase):
@@ -577,8 +578,96 @@ class Function(unittest.TestCase):
 
         self._test(expected, original, parso.parse(code_block))
 
-    def test_replace_different(self):
-        raise NotImplementedError()
+    def test_replace_different_001(self):
+        original = textwrap.dedent(
+            """\
+            name = "whatever"
+
+            @early()
+            def help():
+                return [["foo", "bar"], ["Some Existing", "stuff"]]
+            """
+        )
+
+        code_block = textwrap.dedent(
+            """
+            @early()
+            def help():
+                import foo
+
+                return [["foo", "bar.{blah}".format(blah=blah)],
+                    ["Some Existing", "stuff"]]
+            """
+        )
+
+        expected = textwrap.dedent(
+            """\
+            name = "whatever"
+
+            @early()
+            def help():
+                import foo
+
+                return [["foo", "bar.{blah}".format(blah=blah)],
+                    ["Some Existing", "stuff"]]
+            """
+        )
+
+        self._test(expected, original, parso.parse(code_block))
+
+    def test_replace_different_002(self):
+        original = textwrap.dedent(
+            """\
+            name = "whatever"
+
+            @early()
+            def help():
+                return [["foo", "bar"], ["Some Existing", "stuff"]]
+            """
+        )
+
+        code_block = textwrap.dedent(
+            """
+            help = "asdfasfd"
+            """
+        )
+
+        expected = textwrap.dedent(
+            """\
+            name = "whatever"
+
+            help = "asdfasfd"
+            """
+        )
+
+        self._test(expected, original, parso.parse(code_block))
+
+    def test_replace_different_003(self):
+        original = textwrap.dedent(
+            """\
+            name = "whatever"
+
+            @early()
+            def help():
+                return [["foo", "bar"], ["Some Existing", "stuff"]]
+            """
+        )
+
+        code_block = textwrap.dedent(
+            """
+            help = [["TTT", "foo bar"]]
+            """
+        )
+
+        expected = textwrap.dedent(
+            """\
+            name = "whatever"
+
+            help = [["TTT", "foo bar"]]
+            """
+        )
+
+        self._test(expected, original, parso.parse(code_block))
 
     def test_replace_itself(self):
         original = textwrap.dedent(

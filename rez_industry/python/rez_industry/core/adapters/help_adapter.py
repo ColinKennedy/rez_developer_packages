@@ -177,6 +177,12 @@ class HelpAdapter(base.BaseAdapter):
         except IndexError:
             assignment = None
 
+        if not assignment:
+            try:
+                assignment = parso_utility.find_definition_root_nodes("help", graph)[-1]
+            except IndexError:
+                pass
+
         if isinstance(data, tree.BaseNode):
             graph = convention.insert_or_append_raw_node(
                 data, graph, assignment, "help"
