@@ -4,9 +4,12 @@
 """A module to change parts of a Rez package."""
 
 import copy
+import os
 
 import parso
 from parso.python import tree
+from rez import serialise
+from rez.utils import filesystem
 from rez.vendor.version import version as version_
 from rez_industry.core import convention, parso_utility
 
@@ -39,8 +42,14 @@ def _write_package_to_disk(package, version):
     node = tree.String('"{version}"'.format(version=version), (0, 0), prefix=prefix)
     graph = convention.insert_or_append(node, graph, assignment, "version")
 
-    with open(package, "w") as handler:
-        handler.write(graph.get_code())
+    # Writing to DeveloperPackage objects is currently bugged.
+    # So instead, we disable caching during write.
+    #
+    # Reference: https://github.com/nerdvegas/rez/issues/857
+    #
+    with filesystem.make_path_writable(os.path.dirname(os.path.dirname(package))):
+        with serialise.open_file_for_write(package) as handler:
+            handler.write(graph.get_code())
 
 
 def _bump_version(version, minor, absolute=False, normalize=False):

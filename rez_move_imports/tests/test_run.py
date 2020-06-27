@@ -8,8 +8,8 @@ import functools
 import os
 import shutil
 import tempfile
-import unittest
 import textwrap
+import unittest
 
 from python_compatibility import wrapping
 from python_compatibility.testing import common
