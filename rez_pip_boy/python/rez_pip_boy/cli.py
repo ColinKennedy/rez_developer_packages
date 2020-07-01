@@ -92,9 +92,10 @@ def _parse_arguments(text):
     )
 
     parser.add_argument(
-        "--verbose",
+        "-q",
+        "--quiet",
         action="store_true",
-        help="When included, rez-pip output will be printed to the terminal.",
+        help="When enabled rez-pip won't print anything to the terminal.",
     )
 
     try:
@@ -162,6 +163,24 @@ def _get_install_context(arguments):
     return hashed_variant.force_unhashed_variants
 
 
+def _get_verbosity_context(quiet):
+    """Get a Python context used for controlling printed text.
+
+    Args:
+        quiet (bool):
+            If True, return a context that will prevent print-out to the
+            user's terminal. If False, print everything as normal, instead.
+
+    Returns:
+        The found Python context.
+
+    """
+    if not quiet:
+        return hashed_variant.do_nothing()
+
+    return wurlitzer.pipes()
+
+
 def _pip_install(arguments, prefix):
     """Install the given ``rez-pip`` arguments to the ``prefix`` folder.
 
@@ -179,29 +198,28 @@ def _pip_install(arguments, prefix):
             messages which were found during installation.
 
     """
-    with wurlitzer.pipes() as (stdout, stderr):
-        if not _is_older_rez(arguments):
+    if not _is_older_rez(arguments):
+        installed_variants, _ = pip.pip_install_package(
+            arguments.PACKAGE,
+            pip_version=arguments.pip_ver,
+            python_version=arguments.py_ver,
+            release=arguments.release,
+            prefix=prefix,
+            extra_args=arguments.extra,
+        )
+    else:
+        # Older Rez versions don't have the `prefix` or `extra_args` parameters
+        # So we need to do more to get it to work.
+        #
+        with rez_configuration.patch_local_packages_path(prefix):
             installed_variants, _ = pip.pip_install_package(
                 arguments.PACKAGE,
                 pip_version=arguments.pip_ver,
                 python_version=arguments.py_ver,
-                release=arguments.release,
-                prefix=prefix,
-                extra_args=arguments.extra,
+                release=False,
             )
-        else:
-            # Older Rez versions don't have the `prefix` or `extra_args` parameters
-            # So we need to do more to get it to work.
-            #
-            with rez_configuration.patch_local_packages_path(prefix):
-                installed_variants, _ = pip.pip_install_package(
-                    arguments.PACKAGE,
-                    pip_version=arguments.pip_ver,
-                    python_version=arguments.py_ver,
-                    release=False,
-                )
 
-        return installed_variants, stdout, stderr
+    return installed_variants
 
 
 def main(text):
@@ -241,22 +259,11 @@ def main(text):
 
     context = _get_install_context(rez_pip_boy_arguments)
 
-    with context():
-        installed_variants, stdout, stderr = _pip_install(rez_pip_arguments, prefix)
+    with _get_verbosity_context(rez_pip_boy_arguments.quiet):
+        with context():
+            installed_variants = _pip_install(rez_pip_arguments, prefix)
 
     _LOGGER.debug('Found variants "%s".', installed_variants)
-
-    if rez_pip_boy_arguments.verbose:  # pragma: no cover
-        stdout = stdout.read()
-        if stdout:
-            _LOGGER.info("Found stdout from a rez-pip install.")
-            _LOGGER.info(stdout)
-
-        stderr = stderr.read()
-
-        if stderr:
-            _LOGGER.error("Found stderr from a rez-pip install.")
-            _LOGGER.error(stderr)
 
     for installed_variant in installed_variants:
         _LOGGER.info(
