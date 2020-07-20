@@ -12,7 +12,7 @@ help = [
     ["README", "README.md"],
 ]
 
-requires = ["backports.temple-1+<2", "python-2.7+<3", "six-1.13+<2"]
+requires = ["backports.tempfile-1+<2", "python-2.7+<3", "six-1.13+<2"]
 
 private_build_requires = ["rez_build_helper-1.1+<2"]
 
