@@ -12,11 +12,9 @@ help = [
     ["README", "README.md"],
 ]
 
-requires = ["backports.tempfile-1+<2", "six-1.13+<2"]
+requires = ["backports.temple-1+<2", "python-2.7+<3", "six-1.13+<2"]
 
 private_build_requires = ["rez_build_helper-1.1+<2"]
-
-variants = [["python-2.7"], ["python-3.6"]]
 
 build_command = "python -m rez_build_helper --items python"
 
@@ -59,7 +57,14 @@ tests = {
         "command": "pylint --disable=bad-continuation python/python_compatibility tests",
         "requires": ["pylint-1.9+<2"],
     },
-    "unittest": "python -m unittest discover",
+    "unittest_python_2": {
+        "command": "python -m unittest discover",
+        "on_variants": {"type": "requires", "value": ["python-2.7"]},
+    },
+    "unittest_python_3": {
+        "command": "python -m unittest discover",
+        "on_variants": {"type": "requires", "value": ["python-3.6"]},
+    },
 }
 
 uuid = "efb980ba-9580-4c60-b47f-fa0c7ebdabf4"
