@@ -15,7 +15,7 @@ build_command = "python -m rez_build_helper --items python"
 requires = [
     "parso-0.5+<1",
     "parso_helper-1+<2",
-    "python-2+<3",
+    "python-2.7+<3.7",
     "rez-2.42+<3",
     "six-1.13+<2",
 ]
@@ -60,6 +60,22 @@ tests = {
     },
     "unittest": {
         "command": "python -m unittest discover",
+        "requires": [
+            "mock-1+<4",
+            "rez-2.51+<3",  # The tests use newer features than what is required by the package
+        ],
+    },
+    "unittest_python_2": {
+        "command": "python -m unittest discover",
+        "on_variants": {"type": "requires", "value": ["python-2.7"]},
+        "requires": [
+            "mock-1+<4",
+            "rez-2.51+<3",  # The tests use newer features than what is required by the package
+        ],
+    },
+    "unittest_python_3": {
+        "command": "python -m unittest discover",
+        "on_variants": {"type": "requires", "value": ["python-3.6"]},
         "requires": [
             "mock-1+<4",
             "rez-2.51+<3",  # The tests use newer features than what is required by the package
