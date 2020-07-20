@@ -15,7 +15,7 @@ build_command = "python {root}/rezbuild.py {install}"
 
 uuid = "168c5114-a951-4834-a744-dae1331e375e"
 
-variants = [["python-2.7"], ["python-3.6"]]
+requires = ["python-2.7+<3.8"]
 
 tests = {
     "black_diff": {
@@ -34,11 +34,7 @@ tests = {
             "&& coverage combine --append "
             "&& coverage html"
         ),
-        "requires": [
-            "coverage-5.1+<6",
-            "rez_python_compatibility-2.3+<3",
-            "rez_utilities-2+<3",
-        ],
+        "requires": ["coverage-5.1+<6", "rez-2.47+<3", "wurlitzer-2+<3"],
     },
     "isort": {
         "command": "isort --recursive package.py python tests",
@@ -57,20 +53,16 @@ tests = {
     },
     "pylint": {
         "command": "pylint --disable=bad-continuation python/rez_build_helper tests",
-        "requires": [
-            "pylint-1.9+<2",
-            "rez_python_compatibility-2.3+<3",
-            "rez_utilities-2+<3",
-        ],
+        "requires": ["pylint-1.9+<2"],
     },
     "unittest_python_2": {
         "command": "python -m unittest discover",
-        "requires": ["rez_python_compatibility-2.3+<3", "rez_utilities-2+<3",],
+        "requires": ["rez-2.48+<3", "wurlitzer-2+<3"],
         "on_variants": {"type": "requires", "value": ["python-2.7"]},
     },
     "unittest_python_3": {
         "command": "python -m unittest discover",
-        "requires": ["rez_python_compatibility-2.3+<3", "rez_utilities-2+<3",],
+        "requires": ["rez-2.48+<3", "wurlitzer-2+<3"],
         "on_variants": {"type": "requires", "value": ["python-3.6"]},
     },
 }

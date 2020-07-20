@@ -12,9 +12,8 @@ import tempfile
 import textwrap
 import unittest
 
-from python_compatibility.testing import common
 from rez_build_helper import exceptions, filer
-from rez_utilities import creator, finder
+from .common import common, creator, finder
 
 
 class Cli(unittest.TestCase):
