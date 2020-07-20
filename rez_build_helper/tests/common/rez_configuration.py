@@ -6,9 +6,10 @@
 import contextlib
 import itertools
 
-import wurlitzer
 from rez import serialise
 from rez.config import config
+
+import wurlitzer
 
 REZ_PACKAGE_NAMES = frozenset(
     name + "." + extension.lstrip(".")
