@@ -448,4 +448,8 @@ def _run_command(command):
     if items[0] == "rez_pip_boy":
         items = items[1:]
 
+    # Make the command quiet so it doesn't spam the user when running unittests.
+    if "-q" not in items and "--quiet" not in items:
+        items.append("--quiet")
+
     cli.main(items)
