@@ -12,11 +12,16 @@ help = [
     ["README", "README.md"],
 ]
 
-requires = ["backports.tempfile-1+<2", "python-2.7+<3", "six-1.13+<2"]
+requires = [
+    "backports.tempfile-1+<2",
+    "six-1.13+<2",
+]
 
 private_build_requires = ["rez_build_helper-1.1+<2"]
 
 build_command = "python -m rez_build_helper --items python"
+
+variants = [["python-2.7"], ["python-3"]]
 
 tests = {
     "black_diff": {
@@ -36,6 +41,7 @@ tests = {
             "&& coverage html"
         ),
         "requires": ["coverage-4.5+"],
+        "run_on": "explicit",
     },
     "isort": {
         "command": "isort --recursive python tests",
