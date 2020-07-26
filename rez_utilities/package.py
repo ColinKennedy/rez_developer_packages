@@ -35,6 +35,7 @@ tests = {
             "coverage-4.5+<5",
             "mock-3+<4",
         ],
+        "run_on": "explicit",
     },
     "isort": {"command": "isort --recursive python tests", "requires": ["isort"]},
     "isort_check": {
