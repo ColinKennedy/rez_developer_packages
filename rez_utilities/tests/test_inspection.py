@@ -6,6 +6,7 @@
 import collections
 import functools
 import os
+import sys
 import tempfile
 import textwrap
 import unittest
@@ -145,20 +146,21 @@ class HasPythonPackage(common.Common):
         os.makedirs(root)
 
         with open(os.path.join(root, "package.py"), "w") as handler:
-            handler.write(
-                textwrap.dedent(
-                    """\
-                    name = "some_package"
-                    version = "1.0.0"
-                    build_command = "python {root}/rezbuild.py {install}"
+            template = textwrap.dedent(
+                """\
+                name = "some_package"
+                version = "1.0.0"
+                requires = ["python-{sys.version_info.major}"]
+                build_command = "python {{root}}/rezbuild.py {{install}}"
 
-                    def commands():
-                        import os
+                def commands():
+                    import os
 
-                        env.PYTHONPATH.append(os.path.join("{root}", "python"))
-                    """
-                )
+                    env.PYTHONPATH.append(os.path.join("{{root}}", "python"))
+                """
             )
+
+            handler.write(template.format(sys=sys))
 
         with open(os.path.join(root, "rezbuild.py"), "w") as handler:
             handler.write(_get_rezbuild_text())
@@ -238,20 +240,20 @@ class HasPythonPackage(common.Common):
         os.makedirs(root)
 
         with open(os.path.join(root, "package.py"), "w") as handler:
-            handler.write(
-                textwrap.dedent(
-                    """\
-                    name = "some_package"
-                    version = "1.0.0"
-                    build_command = "python {root}/rezbuild.py {install}"
+            template = textwrap.dedent(
+                """\
+                name = "some_package"
+                version = "1.0.0"
+                requires = ["python-{sys.version_info.major}"]
+                build_command = "python {{root}}/rezbuild.py {{install}}"
 
-                    def commands():
-                        import os
+                def commands():
+                    import os
 
-                        env.PYTHONPATH.append(os.path.join("{root}", "python"))
-                    """
-                )
+                    env.PYTHONPATH.append(os.path.join("{{root}}", "python"))
+                """
             )
+            handler.write(template.format(sys=sys))
 
         with open(os.path.join(root, "rezbuild.py"), "w") as handler:
             handler.write(_get_rezbuild_text())
