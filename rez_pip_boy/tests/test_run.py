@@ -14,7 +14,11 @@ import shutil
 import tempfile
 import unittest
 
-from rez import packages
+try:
+    from rez import packages_ as packages  # Old Rez versions
+except ImportError:
+    from rez import packages  # Newer (2.51+-ish) versions
+
 from rez_pip_boy import cli
 from rez_pip_boy.core import _build_command, exceptions
 from rez_utilities import creator, finder
