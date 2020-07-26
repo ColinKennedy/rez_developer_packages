@@ -112,11 +112,6 @@ def get_common_prefix(paths, separator=os.sep):
         str: The common prefix of all paths in `paths`, if any.
 
     """
-    try:
-        return os.path.commonpath(paths)  # Python 3.5+
-    except AttributeError:
-        pass
-
     if not paths:
         return ""
 

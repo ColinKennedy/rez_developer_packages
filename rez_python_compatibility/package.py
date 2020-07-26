@@ -2,7 +2,7 @@
 
 name = "rez_python_compatibility"
 
-version = "2.5.0"
+version = "2.4.0"
 
 description = "Miscellaneous, core Python 2 + 3 functions."
 
