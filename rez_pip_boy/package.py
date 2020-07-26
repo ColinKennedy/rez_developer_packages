@@ -20,7 +20,7 @@ requires = [
     "wurlitzer-2+<3",
 ]
 
-variants = [["python-2.7"], ["python-3.6"]]
+variants = [["python-2.7"], ["python-3"]]
 
 tests = {
     "black_diff": {
