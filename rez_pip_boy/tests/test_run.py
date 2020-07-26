@@ -72,7 +72,9 @@ class Integrations(unittest.TestCase):
         self.assertIsNotNone(package)
 
         self.assertEqual(_BUILD_COMMAND_CODE, rezbuild_code)
-        package_variants = [list(map(str, variant)) for variant in package.variants or []]
+        package_variants = [
+            list(map(str, variant)) for variant in package.variants or []
+        ]
         self.assertEqual(variants, package_variants)
         self.assertEqual("python {root}/rezbuild.py", package.build_command)
 

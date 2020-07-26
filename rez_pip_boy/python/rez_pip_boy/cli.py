@@ -199,7 +199,10 @@ def _pip_install(arguments, prefix):
 
     """
     if not _is_older_rez(arguments):
-        installed_variants, _ = pip.pip_install_package(  # pylint: disable=unexpected-keyword-arg
+        (
+            installed_variants,
+            _,
+        ) = pip.pip_install_package(  # pylint: disable=unexpected-keyword-arg
             arguments.PACKAGE,
             pip_version=arguments.pip_ver,
             python_version=arguments.py_ver,
