@@ -2,7 +2,7 @@
 
 name = "rez_utilities"
 
-version = "2.0.0"
+version = "2.1.0"
 
 description = "Helper functions / objects for working with Rez."
 
@@ -13,12 +13,13 @@ help = [
 ]
 
 requires = [
-    "python-2+<3",
     "rez-2.47+<3",
     "rez_python_compatibility-2+<3",
     "six-1.12+<2",
     "wurlitzer-2+<3",  # This package is used to make Rez builds quiet. If an alternative exists, please remove this dependency
 ]
+
+variants = [["python-2.7"], ["python-3"]]
 
 private_build_requires = ["rez_build_helper-1+<2"]
 
@@ -60,12 +61,21 @@ tests = {
             "pylint-1.9+<2",
         ],
     },
-    "unittest": {
+    "unittest_python_2": {
         "command": "python -m unittest discover",
         "requires": [
             "GitPython-2+<4",
             "mock-3+<4",
         ],
+        "on_variants": {"type": "requires", "value": ["python-2.7"]},
+    },
+    "unittest_python_3": {
+        "command": "python -m unittest discover",
+        "requires": [
+            "GitPython-2+<4",
+            "mock-4+<5",
+        ],
+        "on_variants": {"type": "requires", "value": ["python-3.6"]},
     },
 }
 
