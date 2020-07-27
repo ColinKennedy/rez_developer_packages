@@ -58,13 +58,6 @@ tests = {
         "command": "pylint --disable=bad-continuation,duplicate-code python/rez_industry",
         "requires": ["pylint-1.9+<2"],
     },
-    "unittest": {
-        "command": "python -m unittest discover",
-        "requires": [
-            "mock-1+<4",
-            "rez-2.51+<3",  # The tests use newer features than what is required by the package
-        ],
-    },
     "unittest_python_2": {
         "command": "python -m unittest discover",
         "on_variants": {"type": "requires", "value": ["python-2.7"]},
