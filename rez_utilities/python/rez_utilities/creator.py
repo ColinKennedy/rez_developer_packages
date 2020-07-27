@@ -8,7 +8,7 @@ import copy
 import logging
 import os
 
-from rez import build_process_, build_system, packages_
+from rez import build_process_, build_system, developer_package, packages_
 from rez.cli import build as build_
 from rez.cli import release as release_
 
@@ -55,7 +55,16 @@ def build(package, install_path, packages_path=None, quiet=False):
         # If the user has custom paths to use for building, prefer those
         # Reference: https://github.com/nerdvegas/rez/blob/da16fdeb754ccd93c8ce54fa2b6a4d4ef3601e6b/src/rez/build_process_.py#L232 pylint: disable=line-too-long
         #
-        package = copy.deepcopy(package)
+        if isinstance(package, developer_package.DeveloperPackage):
+            package = package.from_path(os.path.dirname(package.filepath))
+        elif isinstance(package, packages_.Package):
+            package = package.__class__(
+                package.resource,
+                context=package._context,  # pylint: disable=protected-access
+            )
+        else:
+            package = copy.deepcopy(package)
+
         package.config.packages_path[:] = packages_path
 
     if isinstance(package, packages_.Package):
