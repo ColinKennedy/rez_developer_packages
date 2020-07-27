@@ -55,11 +55,11 @@ tests = {
     },
     "unittest_python_2": {
         "command": "python -m unittest discover",
-        "on_variants": {"type": "requires", "value": ["python-2.7"],},
+        "requires": ["python-2"],
     },
     "unittest_python_3": {
         "command": "python -m unittest discover",
-        "on_variants": {"type": "requires", "value": ["python-3.6"],},
+        "requires": ["python-3.6"],
     },
 }
 
