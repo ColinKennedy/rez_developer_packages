@@ -15,12 +15,11 @@ private_build_requires = ["rez_build_helper-1+<2"]
 build_command = "python -m rez_build_helper --items bin python"
 
 requires = [
+    "python-2.7+<3.7",
     "rez-2.47+<3",
     "rez_utilities-2+<3",
     "wurlitzer-2+<3",
 ]
-
-variants = [["python-2.7"], ["python-3"]]
 
 tests = {
     "black_diff": {
@@ -63,13 +62,11 @@ tests = {
     },
     "unittest_python_2": {
         "command": "python -m unittest discover",
-        "requires": ["mock-3+<5", "six-1.14+<2"],
-        "on_variants": {"type": "requires", "value": ["python-2.7"]},
+        "requires": ["mock-3+<5", "python-2", "six-1.14+<2",],
     },
     "unittest_python_3": {
         "command": "python -m unittest discover",
-        "requires": ["mock-3+<5", "six-1.14+<2"],
-        "on_variants": {"type": "requires", "value": ["python-3.6"]},
+        "requires": ["mock-4+<5", "python-3.6", "six-1.14+<2",],
     },
 }
 
