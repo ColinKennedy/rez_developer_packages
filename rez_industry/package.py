@@ -60,17 +60,17 @@ tests = {
     },
     "unittest_python_2": {
         "command": "python -m unittest discover",
-        "on_variants": {"type": "requires", "value": ["python-2.7"]},
         "requires": [
             "mock-1+<4",
+            "python-2.7",
             "rez-2.51+<3",  # The tests use newer features than what is required by the package
         ],
     },
     "unittest_python_3": {
         "command": "python -m unittest discover",
-        "on_variants": {"type": "requires", "value": ["python-3.6"]},
         "requires": [
             "mock-4+<5",
+            "python-3.6",
             "rez-2.51+<3",  # The tests use newer features than what is required by the package
         ],
     },
