@@ -152,29 +152,26 @@ class Integrations(unittest.TestCase):
         atexit.register(functools.partial(shutil.rmtree, directory))
 
         _run_command(
-            "rez_pip_boy --install importlib_metadata==1.6.0 --python-version=2.7 -- {directory}".format(  # pylint: disable=line-too-long
+            "rez_pip_boy --install rsa==4.0 --python-version=2.7 -- {directory}".format(  # pylint: disable=line-too-long
                 directory=directory
             )
         )
 
-        source_directory = os.path.join(directory, "importlib_metadata", "1.6.0")
-        dependency = os.path.join(directory, "zipp", "1.2.0")
+        source_directory = os.path.join(directory, "rsa", "4.0")
+        dependency = os.path.join(directory, "pyasn1", "0.4.8")
         self.assertTrue(os.path.isfile(os.path.join(dependency, "package.py")))
         shutil.rmtree(dependency)
         self.assertFalse(os.path.isfile(os.path.join(dependency, "package.py")))
 
         _run_command(
-            "rez_pip_boy --install importlib_metadata==1.6.0 --python-version=2.7 -- {directory}".format(  # pylint: disable=line-too-long
+            "rez_pip_boy --install rsa==4.0 --python-version=2.7 -- {directory}".format(  # pylint: disable=line-too-long
                 directory=directory
             )
         )
         self.assertTrue(os.path.isfile(os.path.join(dependency, "package.py")))
 
-        self._verify_source_package(dependency, [["python-2.7", "contextlib2"]])
-        self._verify_source_package(
-            source_directory,
-            [["python-2.7", "contextlib2", "configparser-3.5+", "pathlib2"]],
-        )
+        self._verify_source_package(dependency, [["python-2.7"]])
+        self._verify_source_package(source_directory, [["python-2.7"]])
 
     @staticmethod
     @unittest.skipIf(_is_missing_python_version("2.7"), "Rez is missing Python 2.7")
