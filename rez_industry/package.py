@@ -70,7 +70,7 @@ tests = {
         "command": "python -m unittest discover",
         "on_variants": {"type": "requires", "value": ["python-3.6"]},
         "requires": [
-            "mock-1+<4",
+            "mock-4+<5",
             "rez-2.51+<3",  # The tests use newer features than what is required by the package
         ],
     },
