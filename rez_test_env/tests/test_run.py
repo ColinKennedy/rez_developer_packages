@@ -31,7 +31,7 @@ class Run(unittest.TestCase):
 
         resolved = _test("package_a", directory)
 
-        raise ValueError(resolved)
+        self.assertEqual(set(), resolved)
 
     def test_unittest_names(self):
         """Make sure 1-or-more rez-test commands are allowed as input."""
