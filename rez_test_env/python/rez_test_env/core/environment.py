@@ -21,6 +21,9 @@ from rez.cli import _main
 from . import exceptions
 
 
+_LOGGER = logging.getLogger(__name__)
+
+
 @contextlib.contextmanager
 def _keep_argv(override):
     """Temporarily replace :obj:`sys.argv` with `override` in a Python context.
@@ -43,6 +46,23 @@ def _keep_argv(override):
 
 
 def _expand_requirements(package, tests):
+    """Convert a list of Rez test names into Rez package requests.
+
+    Args:
+        package (:class:`rez.packages.Package`):
+            The Rez package to read test commands from. This package is
+            **not** included in the output.
+        tests (iter[str]):
+            The user's raw CLI test input. These could be real test
+            names, like "my_foo_unittest", or a glob expression, like
+            "my_*_unittest".
+
+    Returns:
+        set[str]:
+            The requirements needed to resolve `package` + the given
+            `tests`.
+
+    """
     package_tests = package.tests or set()
     requirements = set()
 
@@ -51,13 +71,38 @@ def _expand_requirements(package, tests):
     for name in real_test_names:
         details = package_tests[name]
 
+        # Not all rez-test commands define extra requirements. Only add
+        # the ones which do.
+        #
         if isinstance(details, collections.Mapping):
             requirements.update([str(item) for item in details.get("requires") or []])
+
+    _LOGGER.debug('Expanded package/tests "%s/%s" into packages "%s".', package.name, tests, requirements)
 
     return requirements
 
 
 def _get_test_names(expressions, package_tests):
+    """Find real rez-test command names from a list of `expressions`.
+
+    Args:
+        expressions (iter[str]):
+            The user's raw CLI test input. These could be real test
+            names, like "my_foo_unittest", or a glob expression, like
+            "my_*_unittest".
+        package_tests (list[str or dict[str]]):
+            The test details of some Rez package. This is used to find
+            the "real" test names.
+
+    Raises:
+        :class:`.MissingTests`:
+            If any test in `expressions` couldn't be matched to at least
+            one Rez test in `package_tests`.
+
+    Returns:
+        set[str]: The expanded rez-test command names.
+
+    """
     output = set()
     invalids = set()
 
@@ -78,20 +123,31 @@ def _get_test_names(expressions, package_tests):
     return output
 
 
-def _validate(package, tests):
-    package_tests = package.tests or set()
-
-    missing = {test for test in tests if test not in package_tests}
-
-    if missing:
-        raise exceptions.MissingTests('Package "{package}" has missing test names "{missing}".'.format(package=package, missing=", ".join(sorted(missing))))
-
-
 def run(package_request, tests):
+    """Convert a Rez package + tests.
+
+    See Also:
+        https://github.com/nerdvegas/rez/wiki/Basic-Concepts#package-requests
+
+    Args:
+        package_request (str):
+            The user's raw CLI input. It can be any Rez package request.
+        tests (iter[str]):
+            The user's raw CLI test input. These could be real test
+            names, like "my_foo_unittest", or a glob expression, like
+            "my_*_unittest".
+
+    Raises:
+        :class:`.NoValidPackageFound`:
+            If `package_request` doesn't match a valid Rez package'
+
+    """
     package = packages.get_latest_package_from_string(package_request)
 
     if not package:
         raise exceptions.NoValidPackageFound('Request "{package_request}" doesn\'t match a Rez package.'.format(package_request=package_request))
+
+    _LOGGER.debug('Found package "%s".', package)
 
     requirements = _expand_requirements(package, tests)
 
