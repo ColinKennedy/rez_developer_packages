@@ -6,13 +6,15 @@ version = "1.0.0"
 
 description = "A small CLI to make `rez-env`-ing test environments in Rez easier."
 
-private_build_requires = ["rez_build_helper-1+<2"]
+help = [["README", "README.md"]]
 
 authors = ["ColinKennedy"]
 
+private_build_requires = ["rez_build_helper-1+<2"]
+
 requires = ["python-2", "rez-2.50+<3"]
 
-build_command = "python -m rez_build_helper --items python"
+build_command = "python -m rez_build_helper --items bin python"
 
 tests = {
     "black_diff": {
@@ -52,6 +54,7 @@ tests = {
     },
     "unittest": "python -m unittest discover",
 }
+
 
 def commands():
     import os
