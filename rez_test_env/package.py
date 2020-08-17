@@ -4,7 +4,7 @@ name = "rez_test_env"
 
 version = "1.0.0"
 
-description = "A small CLI to make `rez-env`-ing test environments in Rez easier."
+description = "A small CLI for making a Rez environment + tests really easy to do."
 
 help = [["README", "README.md"]]
 
@@ -52,7 +52,10 @@ tests = {
         "command": "pylint --disable=bad-continuation python",
         "requires": ["pylint-1.9+<2"],
     },
-    "unittest": "python -m unittest discover",
+    "unittest": {
+        "command": "python -m unittest discover",
+        "requires": ["rez_utilities-2+<3", "wurlitzer-2+<3"],
+    },
 }
 
 uuid = "61969a5b-5709-4504-b2ac-db755b438618"

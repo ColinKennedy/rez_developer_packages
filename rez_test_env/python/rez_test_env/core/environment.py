@@ -2,8 +2,10 @@
 # -*- coding: utf-8 -*-
 
 import contextlib
+import collections
 import sys
 
+from rez import packages
 from rez.cli import _main
 
 from . import exceptions
@@ -28,7 +30,8 @@ def _expand_requirements(package, tests):
     for name in tests:
         details = package_tests[name]
 
-        requirements.update(details["requirements"])
+        if isinstance(details, collections.Mapping):
+            requirements.update([str(item) for item in details.get("requires") or []])
 
     return requirements
 
@@ -42,8 +45,13 @@ def _validate(package, tests):
         raise exceptions.MissingTests('Package "{package}" has missing test names "{missing}".'.format(package=package, missing=", ".join(sorted(missing))))
 
 
-def run(package, tests):
+def run(package_request, tests):
+    package = packages.get_latest_package_from_string(package_request)
+
+    if not package:
+        raise exceptions.NoValidPackageFound('Request "{package_request}" doesn\'t match a Rez package.'.format(package_request=package_request))
+
     requirements = _expand_requirements(package, tests)
 
-    with _keep_argv(package + sorted(requirements)):
+    with _keep_argv([package_request] + sorted(requirements)):
         _main.run("env")
