@@ -153,10 +153,30 @@ def _make_test_packages():
 
 @contextlib.contextmanager
 def _override_context_command():
+    """Change Rez's context function to always print out a Rez resolve.
+
+    This function is a bit strange. Basically, `rez_test_env` always
+    gives the user a new shell to run commands in. But for testing,
+    this is bad because we actually want to know the resolved Rez
+    packages. So instead of modifying `rez_test_env` with clutter
+    to make that possible, we simply tell Rez to always echo the
+    REZ_RESOLVE environment variable.
+
+    Yields:
+        callable: The overwritten :meth:`rez.resolved_context.ResolvedContext.execute_shell` method.
+
+    """
     def _wrap(function):
         @functools.wraps(function)
         def wrapper(*args, **kwargs):
-            kwargs["command"] = "echo $REZ_RESOLVE"
+            system = platform.system()
+
+            if system == "Windows":
+                kwargs["command"] = "echo %REZ_RESOLVE%"
+            elif system == "Linux":
+                kwargs["command"] = "echo $REZ_RESOLVE"
+            else:
+                raise NotImplementedError('System "{system}" is not supported yet.'.format(system=system))
 
             return function(*args, **kwargs)
 
