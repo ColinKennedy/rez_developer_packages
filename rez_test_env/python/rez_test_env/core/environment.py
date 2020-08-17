@@ -12,6 +12,7 @@ sent to `rez-env`.
 import collections
 import contextlib
 import fnmatch
+import logging
 import sys
 
 from rez import packages
