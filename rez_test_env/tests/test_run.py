@@ -18,6 +18,7 @@ from rez import resolved_context
 from rez_utilities import rez_configuration
 import wurlitzer
 
+from rez_test_env.core import exceptions
 from rez_test_env import cli
 
 
@@ -43,31 +44,19 @@ class Run(unittest.TestCase):
 
         multiple = _test("package_a name_*", directory)
 
-        raise ValueError()
+        self.assertEqual({"package_d-1.1.0", "package_c"}, multiple)
 
 
 class Invalids(unittest.TestCase):
     def test_package_name(self):
-        raise ValueError()
+        with self.assertRaises(exceptions.NoValidPackageFound):
+            _test("does_not_exist_package_name", tempfile.gettempdir())
 
     def test_test_names(self):
-        raise ValueError()
+        directory = _make_test_packages()
 
-
-@contextlib.contextmanager
-def _capture():
-    oldout,olderr = sys.stdout, sys.stderr
-
-    try:
-        out = [cStringIO(), cStringIO()]
-        sys.stdout,sys.stderr = out
-
-        yield out
-    finally:
-        sys.stdout,sys.stderr = oldout, olderr
-
-        out[0] = out[0].getvalue()
-        out[1] = out[1].getvalue()
+        with self.assertRaises(exceptions.MissingTests):
+            _test("package_a does_not_exist", directory)
 
 
 def _make_test_packages():

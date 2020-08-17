@@ -3,6 +3,7 @@
 
 import contextlib
 import collections
+import fnmatch
 import sys
 
 from rez import packages
@@ -27,13 +28,36 @@ def _expand_requirements(package, tests):
     package_tests = package.tests or set()
     requirements = set()
 
-    for name in tests:
+    real_test_names = _get_test_names(tests, package_tests)
+
+    for name in real_test_names:
         details = package_tests[name]
 
         if isinstance(details, collections.Mapping):
             requirements.update([str(item) for item in details.get("requires") or []])
 
     return requirements
+
+
+def _get_test_names(expressions, package_tests):
+    output = set()
+    invalids = set()
+
+    for expression in expressions:
+        found = False
+
+        for name in package_tests:
+            if fnmatch.fnmatch(name, expression):
+                output.add(name)
+                found = True
+
+        if not found:
+            invalids.add(expression)
+
+    if invalids:
+        raise exceptions.MissingTests('Tests "{invalids}" are missing.'.format(invalids=sorted(invalids)))
+
+    return output
 
 
 def _validate(package, tests):
