@@ -11,8 +11,8 @@ from __future__ import print_function
 
 import sys
 
-from .core import exceptions
 from . import cli
+from .core import exceptions
 
 
 def main():

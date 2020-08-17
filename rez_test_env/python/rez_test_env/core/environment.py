@@ -9,8 +9,8 @@ sent to `rez-env`.
 
 """
 
-import contextlib
 import collections
+import contextlib
 import fnmatch
 import sys
 

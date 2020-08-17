@@ -7,19 +7,17 @@ import functools
 import os
 import shlex
 import shutil
+import sys
 import tempfile
 import textwrap
 import unittest
-import sys
 
-
-from six.moves import cStringIO
-from rez import resolved_context
-from rez_utilities import rez_configuration
 import wurlitzer
-
-from rez_test_env.core import exceptions
+from rez import resolved_context
 from rez_test_env import cli
+from rez_test_env.core import exceptions
+from rez_utilities import rez_configuration
+from six.moves import cStringIO
 
 
 class Run(unittest.TestCase):
