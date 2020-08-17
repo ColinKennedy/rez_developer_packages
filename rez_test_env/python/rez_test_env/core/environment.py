@@ -20,7 +20,6 @@ from rez.cli import _main
 
 from . import exceptions
 
-
 _LOGGER = logging.getLogger(__name__)
 
 
