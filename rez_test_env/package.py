@@ -32,6 +32,7 @@ tests = {
             "&& coverage html"
         ),
         "requires": ["coverage-4+<5"],
+        "run_on": "explicit",
     },
     "isort": {
         "command": "isort --recursive package.py python tests",
