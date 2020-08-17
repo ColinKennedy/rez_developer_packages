@@ -1,6 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""The main entry-point for the `rez_test_env` CLI.
+
+This file gets called directly by the user.
+
+"""
+
 from __future__ import print_function
 
 import sys
