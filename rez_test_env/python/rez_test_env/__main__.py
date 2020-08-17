@@ -12,7 +12,7 @@ from . import cli
 def main():
     """Run the main execution of the current script."""
     try:
-        cli.main(sys.argv)
+        cli.main(sys.argv[1:])
     except (exceptions.MissingTests, exceptions.NoValidPackageFound) as error:
         print(str(error), file=sys.stderr)
 
