@@ -8,6 +8,7 @@ are raised.
 
 """
 
+
 class MissingTests(Exception):
     """Whenever the user provides 1+ Rez test name that does not exist."""
 

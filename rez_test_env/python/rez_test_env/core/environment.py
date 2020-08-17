@@ -76,7 +76,12 @@ def _expand_requirements(package, tests):
         if isinstance(details, collections.Mapping):
             requirements.update([str(item) for item in details.get("requires") or []])
 
-    _LOGGER.debug('Expanded package/tests "%s/%s" into packages "%s".', package.name, tests, requirements)
+    _LOGGER.debug(
+        'Expanded package/tests "%s/%s" into packages "%s".',
+        package.name,
+        tests,
+        requirements,
+    )
 
     return requirements
 
@@ -117,7 +122,9 @@ def _get_test_names(expressions, package_tests):
             invalids.add(expression)
 
     if invalids:
-        raise exceptions.MissingTests('Tests "{invalids}" are missing.'.format(invalids=sorted(invalids)))
+        raise exceptions.MissingTests(
+            'Tests "{invalids}" are missing.'.format(invalids=sorted(invalids))
+        )
 
     return output
 
@@ -144,7 +151,11 @@ def run(package_request, tests):
     package = packages.get_latest_package_from_string(package_request)
 
     if not package:
-        raise exceptions.NoValidPackageFound('Request "{package_request}" doesn\'t match a Rez package.'.format(package_request=package_request))
+        raise exceptions.NoValidPackageFound(
+            'Request "{package_request}" doesn\'t match a Rez package.'.format(
+                package_request=package_request
+            )
+        )
 
     _LOGGER.debug('Found package "%s".', package)
 

@@ -166,6 +166,7 @@ def _override_context_command():
         callable: The overwritten :meth:`rez.resolved_context.ResolvedContext.execute_shell` method.
 
     """
+
     def _wrap(function):
         @functools.wraps(function)
         def wrapper(*args, **kwargs):
@@ -176,7 +177,9 @@ def _override_context_command():
             elif system == "Linux":
                 kwargs["command"] = "echo $REZ_RESOLVE"
             else:
-                raise NotImplementedError('System "{system}" is not supported yet.'.format(system=system))
+                raise NotImplementedError(
+                    'System "{system}" is not supported yet.'.format(system=system)
+                )
 
             return function(*args, **kwargs)
 
@@ -185,7 +188,9 @@ def _override_context_command():
     original = resolved_context.ResolvedContext.execute_shell
 
     try:
-        resolved_context.ResolvedContext.execute_shell = _wrap(resolved_context.ResolvedContext.execute_shell)
+        resolved_context.ResolvedContext.execute_shell = _wrap(
+            resolved_context.ResolvedContext.execute_shell
+        )
 
         yield
     finally:
