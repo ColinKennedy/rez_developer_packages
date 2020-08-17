@@ -123,7 +123,9 @@ def _get_test_names(expressions, package_tests):
 
     if invalids:
         raise exceptions.MissingTests(
-            'Tests "{invalids}" are missing.'.format(invalids=", ".join(sorted(invalids)))
+            'Tests "{invalids}" are missing.'.format(
+                invalids=", ".join(sorted(invalids))
+            )
         )
 
     return output
