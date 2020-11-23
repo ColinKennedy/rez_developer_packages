@@ -71,8 +71,7 @@ class RequiresAdapter(base.BaseAdapter):
 
         if not append:
             data = _resolve_data_conflicts(
-                data,
-                [_node_to_requirement(node) for node in existing_data],
+                data, [_node_to_requirement(node) for node in existing_data],
             )
 
         data_nodes = _make_nodes(data, prefix=prefix)
@@ -366,7 +365,9 @@ def _resolve_data_conflicts(new, existing):
 
     """
     new = (rez_requirement.Requirement(requirement) for requirement in new)
-    new = collections.OrderedDict([(requirement.name, requirement) for requirement in new])
+    new = collections.OrderedDict(
+        [(requirement.name, requirement) for requirement in new]
+    )
     existing = {requirement.name: requirement for requirement in existing}
 
     for name, requirement in new.items():
@@ -374,8 +375,20 @@ def _resolve_data_conflicts(new, existing):
             continue
 
         range_ = existing[name].range
-        lower = max([bound.lower for bound in itertools.chain(range_.bounds, requirement.range.bounds) if bound.lower_bounded()])
-        upper = max([bound.upper for bound in itertools.chain(range_.bounds, requirement.range.bounds) if bound.upper_bounded()])
+        lower = max(
+            [
+                bound.lower
+                for bound in itertools.chain(range_.bounds, requirement.range.bounds)
+                if bound.lower_bounded()
+            ]
+        )
+        upper = max(
+            [
+                bound.upper
+                for bound in itertools.chain(range_.bounds, requirement.range.bounds)
+                if bound.upper_bounded()
+            ]
+        )
         temporary_range = rez_version.VersionRange.as_span(
             lower_version=lower.version,
             upper_version=upper.version,
