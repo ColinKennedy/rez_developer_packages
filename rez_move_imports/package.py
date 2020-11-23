@@ -51,8 +51,12 @@ tests = {
         #
         "command": "rez-env pydocstyle -- pydocstyle --ignore=D213,D202,D203,D406,D407 python tests/*"
     },
-    "pylint": {
-        "command": "pylint --disable=bad-continuation python/rez_move_imports tests",
+    "pylint_source": {
+        "command": "pylint --disable=bad-continuation python/rez_move_imports",
+        "requires": ["pylint-1.9+<2"],
+    },
+    "pylint_tests": {
+        "command": "pylint --disable=bad-continuation,duplicate-code tests",
         "requires": ["pylint-1.9+<2"],
     },
     "unittest": {

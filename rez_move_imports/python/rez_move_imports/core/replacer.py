@@ -57,8 +57,7 @@ def _add_new_requirement_packages(package, namespaces, requirements):
         package (:class:`rez.packges_.DeveloperPackage`):
             Some Rez package whose requirements may change as a result
             of this function getting ran.
-        namespaces (iter[str]):
-            The Python dot-separated namespaces that a Rez package uses.
+        namespaces (iter[str]): The Python dot-separated namespaces that a Rez package uses.
             In short, these are all of the import statements that a
             Rez package has inside of it and can be thought of as its
             "dependencies". The function uses this list to figure out
@@ -105,17 +104,16 @@ def _remove_deprecated_packages(package, namespaces, deprecate):
     doesn't matter anymore and can be removed.
 
     Args:
-        package (:class:`rez.packges_.DeveloperPackage`):
-            Some Rez package whose requirements may change as a result
+        package (:class:`rez.packges_.DeveloperPackage`): Some Rez package
+            whose requirements may change as a result
             of this function getting ran.
-        namespaces (iter[str]):
-            The Python dot-separated namespaces that a Rez package uses.
+        namespaces (iter[str]): The Python dot-separated namespaces that a Rez package uses.
             In short, these are all of the import statements that a
             Rez package has inside of it and can be thought of as its
             "dependencies". The function uses this list to figure out
             if `user_namespaces` is actually still being imported.
-        deprecate (iter[tuple[:class:`rez.vendor.version.requirement.Requirement`, tuple[str]]]):
-            Each Rez package that is (assumed to already be) a dependency of `package`
+        deprecate (iter[tuple[:class:`rez.vendor.version.requirement.Requirement`, tuple[str]]]): E
+            ach Rez package that is (assumed to already be) a dependency of `package`
             and the Python import namespaces that the package takes up.
 
             If any namespace in `namespaces` is still around, then that
@@ -205,8 +203,7 @@ def replace(package, configuration, deprecate, requirements, bump=True):
             Each Rez package that we'd like to add as dependencies to
             `package` followed by the Python dot-separated namespaces
             that each Rez package defines.
-        bump (bool, optional):
-            If True and `package` or its contents are modified,
+        bump (bool, optional): If True and `package` or its contents are modified,
             increment the minor version of `package` to reflect the new
             changes. If False, don't change the minor version of the Rez
             package even after new changes were made. Default is True.
