@@ -39,7 +39,7 @@ class RequiresAdapter(base.BaseAdapter):
         return ""
 
     @staticmethod
-    def modify_with_existing(graph, data, append=False):
+    def modify_with_existing(graph, data, append=False):  # pylint: disable=arguments-differ
         """Add `data` to a parso node `graph`.
 
         Args:
