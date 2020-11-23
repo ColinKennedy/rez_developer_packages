@@ -84,7 +84,7 @@ def add_to_attribute(attribute, data, code, append=False):
     """
     graph, adapter_class = _validate(attribute, data, code)
 
-    if adapter_class.supports_duplicates():
+    if adapter_class.supports_appending():
         return adapter_class.modify_with_existing(graph, data, append=append)
 
     return adapter_class.modify_with_existing(graph, data)
