@@ -89,7 +89,9 @@ def _add_new_requirement_packages(package, namespaces, requirements):
 
     new_code = api.add_to_attribute("requires", list(packages_to_add), code)
 
-    with filesystem.make_path_writable(os.path.dirname(os.path.dirname(package.filepath))):
+    with filesystem.make_path_writable(
+        os.path.dirname(os.path.dirname(package.filepath))
+    ):
         with serialise.open_file_for_write(package.filepath) as handler:
             handler.write(new_code)
 
@@ -139,7 +141,9 @@ def _remove_deprecated_packages(package, namespaces, deprecate):
 
     new_code = api.remove_from_attribute("requires", list(packages_to_remove), code)
 
-    with filesystem.make_path_writable(os.path.dirname(os.path.dirname(package.filepath))):
+    with filesystem.make_path_writable(
+        os.path.dirname(os.path.dirname(package.filepath))
+    ):
         with serialise.open_file_for_write(package.filepath) as handler:
             handler.write(new_code)
 
@@ -221,7 +225,9 @@ def replace(package, configuration, deprecate, requirements, bump=True):
     if not overwritten_paths:
         return
 
-    imported_namespaces = dependency_analyzer.get_imported_namespaces(configuration.paths, convert_relative_imports=False)
+    imported_namespaces = dependency_analyzer.get_imported_namespaces(
+        configuration.paths, convert_relative_imports=False
+    )
     namespaces = {module.get_namespace() for module in imported_namespaces}
 
     _remove_deprecated_packages(package, namespaces, deprecate)
