@@ -11,7 +11,8 @@ from parso.python import tree
 from parso_helper import node_seek
 from rez import package_serialise
 from rez.vendor.schema import schema
-from rez.vendor.version import requirement as rez_requirement, version as rez_version
+from rez.vendor.version import requirement as rez_requirement
+from rez.vendor.version import version as rez_version
 
 from .. import convention, parso_utility
 from . import base
