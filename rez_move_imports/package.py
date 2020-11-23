@@ -2,7 +2,7 @@
 
 name = "rez_move_imports"
 
-version = "1.4.1"
+version = "1.5.0"
 
 description = "Change a Rez package's imports and then bump the require Rez version(s)"
 
