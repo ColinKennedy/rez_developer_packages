@@ -17,7 +17,7 @@ requires = [
     "python-2+<3",
     "rez-2.42+<3",
     "rez_bump-1.1+<2",
-    "rez_industry-1+<2",
+    "rez_industry-2+<3",
     "rez_python_compatibility-2.3+<3",
     "rez_utilities-2+<3",
 ]
