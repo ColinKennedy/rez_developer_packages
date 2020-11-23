@@ -18,7 +18,7 @@ from six.moves import mock
 class AddToAttributeRequires(unittest.TestCase):
     """Make sure that :func:`rez_industry.api.add_to_attribute` works for Rez "requires"."""
 
-    def _test(self, expected, text, overrides, remove=False):
+    def _test(self, expected, text, overrides, remove=False, append=False):
         """Run a test and check if it makes the expected results.
 
         Args:
@@ -29,6 +29,12 @@ class AddToAttributeRequires(unittest.TestCase):
                 e.g. "some_package-2+<3".
             remove (bool, optional): If True, the attribute is removed,
                 not added. If False, `overrides` are added. Default is False.
+            append (bool, optional):
+                If False and `graph` contains an existing version for a
+                Rez package which conflicts with `data`, that version
+                conflict is resolved as best as possible. If True,
+                `data` is forced onto `graph`, without considering
+                existing package requirements. Default is False.
 
         """
         if remove:
@@ -36,7 +42,7 @@ class AddToAttributeRequires(unittest.TestCase):
 
             return
 
-        results = api.add_to_attribute("requires", overrides, text)
+        results = api.add_to_attribute("requires", overrides, text, append=append)
         self.assertEqual(expected, results)
 
     def test_empty_001(self):
@@ -278,6 +284,162 @@ class AddToAttributeRequires(unittest.TestCase):
             """
         )
         overrides = ["another_requirement==1.0.0"]
+
+        self._test(expected, original, overrides, append=True)
+
+    def test_add_keep_maximum(self):
+        """Use the existing maximum version because it's higher than the specified version."""
+        original = textwrap.dedent(
+            """\
+            name = "some_package"
+
+            requires = [
+                "another_requirement-1+<4",
+                'some_requirement-3.1.2.24+<4',
+            ]
+            """
+        )
+        expected = textwrap.dedent(
+            """\
+            name = "some_package"
+
+            requires = [
+                "another_requirement-2+<4",
+                'some_requirement-3.1.2.24+<4',
+            ]
+            """
+        )
+        overrides = ["another_requirement-2+<4"]
+
+        self._test(expected, original, overrides)
+
+    def test_add_keep_minimum(self):
+        """Use the existing minimum version because it's higher than the specified version."""
+        original = textwrap.dedent(
+            """\
+            name = "some_package"
+
+            requires = [
+                "another_requirement-2",
+                'some_requirement-3.1.2.24+<4',
+            ]
+            """
+        )
+        expected = textwrap.dedent(
+            """\
+            name = "some_package"
+
+            requires = [
+                "another_requirement-2+<4",
+                'some_requirement-3.1.2.24+<4',
+            ]
+            """
+        )
+        overrides = ["another_requirement-1+<4"]
+
+        self._test(expected, original, overrides)
+
+    def test_add_update_both_001(self):
+        """Expand the minimum and maximum verison of an updated dependency."""
+        original = textwrap.dedent(
+            """\
+            name = "some_package"
+
+            requires = [
+                "another_requirement-1",
+                'some_requirement-3.1.2.24+<4',
+            ]
+            """
+        )
+        expected = textwrap.dedent(
+            """\
+            name = "some_package"
+
+            requires = [
+                "another_requirement-2+<4",
+                'some_requirement-3.1.2.24+<4',
+            ]
+            """
+        )
+        overrides = ["another_requirement-2+<4"]
+
+        self._test(expected, original, overrides)
+
+    def test_add_update_both_002(self):
+        """Expand the minimum and maximum verison of an updated dependency."""
+        original = textwrap.dedent(
+            """\
+            name = "some_package"
+
+            requires = [
+                "another_requirement-1+<3",
+                'some_requirement-3.1.2.24+<4',
+            ]
+            """
+        )
+        expected = textwrap.dedent(
+            """\
+            name = "some_package"
+
+            requires = [
+                "another_requirement-2+<4",
+                'some_requirement-3.1.2.24+<4',
+            ]
+            """
+        )
+        overrides = ["another_requirement-2+<4"]
+
+        self._test(expected, original, overrides)
+
+    def test_add_update_maximum(self):
+        """Expand the minimum verison of an updated dependency."""
+        original = textwrap.dedent(
+            """\
+            name = "some_package"
+
+            requires = [
+                "another_requirement-2",
+                'some_requirement-3.1.2.24+<4',
+            ]
+            """
+        )
+        expected = textwrap.dedent(
+            """\
+            name = "some_package"
+
+            requires = [
+                "another_requirement-2+<4",
+                'some_requirement-3.1.2.24+<4',
+            ]
+            """
+        )
+        overrides = ["another_requirement-1+<4"]
+
+        self._test(expected, original, overrides)
+
+    def test_add_update_minimum(self):
+        """Expand the maximum verison of an updated dependency."""
+        original = textwrap.dedent(
+            """\
+            name = "some_package"
+
+            requires = [
+                "another_requirement-2",
+                'some_requirement-3.1.2.24+<4',
+            ]
+            """
+        )
+        expected = textwrap.dedent(
+            """\
+            name = "some_package"
+
+            requires = [
+                "another_requirement-3+<4",
+                'some_requirement-3.1.2.24+<4',
+            ]
+            """
+        )
+        overrides = ["another_requirement-3+<4"]
 
         self._test(expected, original, overrides)
 

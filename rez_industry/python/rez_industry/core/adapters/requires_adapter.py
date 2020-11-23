@@ -5,12 +5,13 @@
 
 import collections
 import copy
+import itertools
 
 from parso.python import tree
 from parso_helper import node_seek
 from rez import package_serialise
 from rez.vendor.schema import schema
-from rez.vendor.version import requirement as rez_requirement
+from rez.vendor.version import requirement as rez_requirement, version as rez_version
 
 from .. import convention, parso_utility
 from . import base
@@ -37,7 +38,7 @@ class RequiresAdapter(base.BaseAdapter):
         return ""
 
     @staticmethod
-    def modify_with_existing(graph, data):
+    def modify_with_existing(graph, data, append=False):
         """Add `data` to a parso node `graph`.
 
         Args:
@@ -46,6 +47,12 @@ class RequiresAdapter(base.BaseAdapter):
                 of its contents overwritten and returned.
             data (list[str]):
                 Rez requirements to convert to parso nodes and added to `graph`.
+            append (bool, optional):
+                If False and `graph` contains an existing version for a
+                Rez package which conflicts with `data`, that version
+                conflict is resolved as best as possible. If True,
+                `data` is forced onto `graph`, without considering
+                existing package requirements. Default is False.
 
         Returns:
             str:
@@ -60,6 +67,12 @@ class RequiresAdapter(base.BaseAdapter):
 
         existing_data = _get_entries(assignment)
         prefix = _get_prefix(assignment) or _DEFAULT_PREFIX
+
+        if not append:
+            data = _resolve_data_conflicts(
+                data,
+                [_node_to_requirement(node) for node in existing_data],
+            )
 
         data_nodes = _make_nodes(data, prefix=prefix)
         final_data = _merge_list_entries(existing_data, data_nodes)
@@ -99,6 +112,11 @@ class RequiresAdapter(base.BaseAdapter):
         graph = convention.insert_or_append(node, graph, assignment, "requires")
 
         return graph.get_code()
+
+    @staticmethod
+    def supports_appending():
+        """bool: Allow force-replacing a package family's required package version if True."""
+        return True
 
 
 def _is_list_root_definition(node):
@@ -283,6 +301,12 @@ def _merge_list_entries(old, new):
     return old
 
 
+def _node_to_requirement(node):
+    requirement_text = _escape(node.value)
+
+    return rez_requirement.Requirement(requirement_text)
+
+
 def _remove_existing_entries(old, new):
     """Remove any entries of `old` that also exist in `new`.
 
@@ -315,3 +339,26 @@ def _remove_existing_entries(old, new):
                 del old[index]
 
     return old
+
+
+def _resolve_data_conflicts(new, existing):
+    new = (rez_requirement.Requirement(requirement) for requirement in new)
+    new = collections.OrderedDict([(requirement.name, requirement) for requirement in new])
+    existing = {requirement.name: requirement for requirement in existing}
+
+    for name, requirement in new.items():
+        if name not in existing:
+            continue
+
+        range_ = existing[name].range
+        lower = max([bound.lower for bound in itertools.chain(range_.bounds, requirement.range.bounds) if bound.lower_bounded()])
+        upper = max([bound.upper for bound in itertools.chain(range_.bounds, requirement.range.bounds) if bound.upper_bounded()])
+        temporary_range = rez_version.VersionRange.as_span(
+            lower_version=lower.version,
+            upper_version=upper.version,
+            lower_inclusive=lower.inclusive,
+            upper_inclusive=upper.inclusive,
+        )
+        requirement.range_ = temporary_range
+
+    return [str(requirement) for requirement in new.values()]
