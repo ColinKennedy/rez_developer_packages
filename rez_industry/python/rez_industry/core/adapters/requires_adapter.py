@@ -302,6 +302,7 @@ def _merge_list_entries(old, new):
 
 
 def _node_to_requirement(node):
+    """:class:`rez.vendor.version.requirement.Requirement`: Convert an AST node to a Rez."""
     requirement_text = _escape(node.value)
 
     return rez_requirement.Requirement(requirement_text)
@@ -342,6 +343,27 @@ def _remove_existing_entries(old, new):
 
 
 def _resolve_data_conflicts(new, existing):
+    """Change the upper / lower bounds of each requirement in `new`, if needed.
+
+    The logic goes like this:
+
+    - Compare each requirement by-name in `new` and `existing`
+        - Apply whichever requirement's lower bound is highest.
+            - Because we probably need to apply a new requirement minimum.
+        - Apply whichever requirement's upper bound is highest.
+            - We assume that the user has taken into account the higher upper bound.
+
+    Args:
+        new (iter[str]):
+            Each Rez package requirement to compare / change.
+            e.g. ["foo-1+<2"].
+        existing (iter[:class:`rez.vendor.version.requirement.Requirement`]):
+            Each Rez requirement to compare against.
+
+    Returns:
+        list[str]: The newly generated requirements for `new`.
+
+    """
     new = (rez_requirement.Requirement(requirement) for requirement in new)
     new = collections.OrderedDict([(requirement.name, requirement) for requirement in new])
     existing = {requirement.name: requirement for requirement in existing}
