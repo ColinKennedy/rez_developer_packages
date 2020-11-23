@@ -231,7 +231,7 @@ class AddToAttributeRequires(unittest.TestCase):
         )
         overrides = ["another_requirement==1.0.0"]
 
-        self._test(expected, original, overrides)
+        self._test(expected, original, overrides, append=True)
 
         expected = textwrap.dedent(
             """\
@@ -239,13 +239,14 @@ class AddToAttributeRequires(unittest.TestCase):
 
             requires = [
                 "a_requirement-2",
-                "another_requirement-1+<2",
+                "another_requirement-2",
                 "z_requirement_end-3+<4",
             ]
             """
         )
-        overrides = ["another_requirement-1+<2"]
 
+        # This override is too low so it is not applied
+        overrides = ["another_requirement-1+<2"]
         self._test(expected, original, overrides)
 
     def test_invalid(self):
