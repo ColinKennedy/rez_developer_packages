@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""Assistant functions for traversing and get/set parso nodes."""
 
 def get_node_with_first_prefix(node):
     """Find a node with a prefix attribute.
@@ -67,6 +68,17 @@ def iter_nested_children(node):
 
 
 def iter_parents(node):
+    """Find every parent above the given `node`.
+
+    This function is exclusive. It does not yield `node` in its output.
+
+    Args:
+        node (:class:`parso.python.tree.PythonNode`): The node to get parents of.
+
+    Yields:
+        :class:`parso.python.tree.PythonNode`: The found nodes.
+
+    """
     parent = node.parent
 
     while parent:
