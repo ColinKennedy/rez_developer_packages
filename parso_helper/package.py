@@ -19,7 +19,15 @@ build_command = "python -m rez_build_helper --items python"
 uuid = "c989f6ef-7f52-4acf-8660-e0268049f700"
 
 tests = {
-    "unittest": "python -m unittest discover",
+    "black_diff": {
+        "command": "black --diff --check package.py python tests",
+        "requires": ["black-19.10+<21"],
+    },
+    "black": {
+        "command": "black package.py python tests",
+        "requires": ["black-19.10+<21"],
+        "run_on": "explicit",
+    },
     "isort": {
         "command": "isort --recursive package.py python tests",
         "requires": ["isort-4.3+<5"],
