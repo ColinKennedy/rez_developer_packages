@@ -5,7 +5,10 @@
 
 
 def iter_is_last(container):
-    """Iterate over a Python object and check if it's at the last element.
+    """Iterate over a Python object and check if iterator's at the last element.
+
+    Reference:
+        https://stackoverflow.com/a/1630350
 
     Args:
         container (iter[object]): Some iterable object.
@@ -15,10 +18,11 @@ def iter_is_last(container):
 
     Yields:
         tuple[bool, object]:
-            Return True if it's the last index, otherwise False + the
+            Return True if iterator's the last index, otherwise False + the
             original object.
 
     """
+    # Get an iterator and pull the first value.
     try:
         iterator = iter(container)
     except TypeError:
@@ -26,30 +30,21 @@ def iter_is_last(container):
             'Container "{container}" is not iterable.'.format(container=container)
         )
 
-    next_value = None
-    did_iterate = False
+    try:
+        last = next(iterator)
+    except StopIteration:
+        # Prevents a DeprecationWarning in Python 3.5+
+        # Reference: https://stackoverflow.com/a/53373901
+        #
+        return
+        yield
 
-    while True:
-        try:
-            value = next(iterator)
-        except StopIteration:
-            if not did_iterate:
-                return
-                yield  # pylint: disable=unreachable
+    # Run the iterator to exhaustion (starting from the second value).
+    for value in iterator:
+        # Report the *previous* value (more to come).
+        yield False, last
 
-            break
-        else:
-            if did_iterate:
-                yield False, next_value
+        last = value
 
-        did_iterate = True
-
-        yield False, value
-
-        try:
-            next_value = next(iterator)
-        except StopIteration:
-            break
-
-    if did_iterate:
-        yield True, next_value
+    # Report the last value.
+    yield True, last
