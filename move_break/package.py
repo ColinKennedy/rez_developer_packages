@@ -49,8 +49,12 @@ tests = {
         "command": "pydocstyle --ignore=D213,D202,D203,D406,D407 python tests/*",
         "requires": ["pydocstyle-3+<5"],
     },
-    "pylint": {
-        "command": "pylint --disable=bad-continuation python/move_break tests",
+    "pylint_source": {
+        "command": "pylint --disable=bad-continuation python/move_break",
+        "requires": ["pylint-1.9+<2"],
+    },
+    "pylint_tests": {
+        "command": "pylint --disable=bad-continuation,fixme tests",
         "requires": ["pylint-1.9+<2"],
     },
     "unittest_python_2": {

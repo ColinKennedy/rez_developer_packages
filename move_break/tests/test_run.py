@@ -46,14 +46,6 @@ class Aliases(common.Common):
 
         self._test(expected, code, namespaces, aliases=True)
 
-        # TODO : Add this later
-        # expected = textwrap.dedent(
-        #     """\
-        #     from thing.stuff import blah
-        #     from foo.bar import thing"""
-        # )
-        # self._test(expected, code, namespaces, aliases=True)
-
         namespaces = [("foo.bar", "thing.stuff.blah")]
         expected = "import ttt.fff, thing.stuff.blah.another as alias"
         self._test(expected, code, namespaces, partial=True, aliases=True)
