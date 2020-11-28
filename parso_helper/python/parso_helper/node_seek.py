@@ -3,6 +3,7 @@
 
 """Assistant functions for traversing and get/set parso nodes."""
 
+
 def get_node_with_first_prefix(node):
     """Find a node with a prefix attribute.
 
