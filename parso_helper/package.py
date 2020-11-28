@@ -45,7 +45,7 @@ tests = {
         "requires": ["pydocstyle-3+<5"],
     },
     "pylint": {
-        "command": "pylint --disable=bad-continuation python/move_break tests",
+        "command": "pylint --disable=bad-continuation python/parso_helper tests",
         "requires": ["pylint-1.9+<2"],
     },
     "unittest_python_2": {
