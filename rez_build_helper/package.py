@@ -15,7 +15,7 @@ build_command = "python {root}/rezbuild.py {install}"
 
 uuid = "168c5114-a951-4834-a744-dae1331e375e"
 
-variants = [["python-2.7"], ["python-3"]]
+requires = ["python-2.7+<3.8"]
 
 tests = {
     "black_diff": {
