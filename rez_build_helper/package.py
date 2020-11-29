@@ -20,11 +20,11 @@ requires = ["python-2.7+<3.8"]
 tests = {
     "black_diff": {
         "command": "black --diff --check package.py python tests",
-        "requires": ["black-19.10+<20"],
+        "requires": ["black-19.10+<21"],
     },
     "black": {
         "command": "black package.py python tests",
-        "requires": ["black-19.10+<20"],
+        "requires": ["black-19.10+<21"],
         "run_on": "explicit",
     },
     "coverage": {
