@@ -27,15 +27,6 @@ tests = {
         "requires": ["black-19.10+<21"],
         "run_on": "explicit",
     },
-    "coverage": {
-        "command": (
-            "coverage erase "
-            "&& coverage run --parallel-mode --include=python/* -m unittest discover "
-            "&& coverage combine --append "
-            "&& coverage html"
-        ),
-        "requires": ["coverage-5.1+<6", "rez-2.47+<3", "wurlitzer-2+<3"],
-    },
     "isort": {
         "command": "isort --recursive package.py python tests",
         "requires": ["isort-4.3+<5"],
