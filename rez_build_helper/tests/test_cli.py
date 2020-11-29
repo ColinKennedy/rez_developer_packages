@@ -63,10 +63,7 @@ class Cli(unittest.TestCase):
                     "some_thing": {
                         "__init__.py": None,
                         "some_module.py": None,
-                        "inner_folder": {
-                            "__init__.py": None,
-                            "inner_module.py": None,
-                        },
+                        "inner_folder": {"__init__.py": None, "inner_module.py": None,},
                     }
                 }
             },
@@ -166,10 +163,7 @@ class Egg(unittest.TestCase):
                     "some_thing": {
                         "__init__.py": None,
                         "some_module.py": None,
-                        "inner_folder": {
-                            "__init__.py": None,
-                            "inner_module.py": None,
-                        },
+                        "inner_folder": {"__init__.py": None, "inner_module.py": None,},
                     }
                 }
             },
@@ -258,20 +252,14 @@ class Egg(unittest.TestCase):
                     "some_thing": {
                         "__init__.py": None,
                         "some_module.py": None,
-                        "inner_folder": {
-                            "__init__.py": None,
-                            "inner_module.py": None,
-                        },
+                        "inner_folder": {"__init__.py": None, "inner_module.py": None,},
                     }
                 },
                 "another": {
                     "stuff": {
                         "__init__.py": None,
                         "some_module.py": None,
-                        "inner_folder": {
-                            "__init__.py": None,
-                            "inner_module.py": None,
-                        },
+                        "inner_folder": {"__init__.py": None, "inner_module.py": None,},
                     }
                 },
             },
@@ -414,10 +402,7 @@ class Egg(unittest.TestCase):
                     "some_thing": {
                         "__init__.py": None,
                         "some_module.py": None,
-                        "inner_folder": {
-                            "__init__.py": None,
-                            "inner_module.py": None,
-                        },
+                        "inner_folder": {"__init__.py": None, "inner_module.py": None,},
                     }
                 }
             },
@@ -484,10 +469,7 @@ class Symlink(unittest.TestCase):
                     "some_thing": {
                         "__init__.py": None,
                         "some_module.py": None,
-                        "inner_folder": {
-                            "__init__.py": None,
-                            "inner_module.py": None,
-                        },
+                        "inner_folder": {"__init__.py": None, "inner_module.py": None,},
                     }
                 },
             },
@@ -545,10 +527,7 @@ class Symlink(unittest.TestCase):
                     "some_thing": {
                         "__init__.py": None,
                         "some_module.py": None,
-                        "inner_folder": {
-                            "__init__.py": None,
-                            "inner_module.py": None,
-                        },
+                        "inner_folder": {"__init__.py": None, "inner_module.py": None,},
                     }
                 },
             },
@@ -605,10 +584,7 @@ class Symlink(unittest.TestCase):
                     "some_thing": {
                         "__init__.py": None,
                         "some_module.py": None,
-                        "inner_folder": {
-                            "__init__.py": None,
-                            "inner_module.py": None,
-                        },
+                        "inner_folder": {"__init__.py": None, "inner_module.py": None,},
                     }
                 }
             },
@@ -696,20 +672,14 @@ class Symlink(unittest.TestCase):
                     "some_thing": {
                         "__init__.py": None,
                         "some_module.py": None,
-                        "inner_folder": {
-                            "__init__.py": None,
-                            "inner_module.py": None,
-                        },
+                        "inner_folder": {"__init__.py": None, "inner_module.py": None,},
                     }
                 },
                 "another": {
                     "stuff": {
                         "__init__.py": None,
                         "some_module.py": None,
-                        "inner_folder": {
-                            "__init__.py": None,
-                            "inner_module.py": None,
-                        },
+                        "inner_folder": {"__init__.py": None, "inner_module.py": None,},
                     }
                 },
             },
@@ -838,10 +808,7 @@ class Symlink(unittest.TestCase):
                     "some_thing": {
                         "__init__.py": None,
                         "some_module.py": None,
-                        "inner_folder": {
-                            "__init__.py": None,
-                            "inner_module.py": None,
-                        },
+                        "inner_folder": {"__init__.py": None, "inner_module.py": None,},
                     }
                 }
             },
