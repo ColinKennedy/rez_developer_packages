@@ -43,10 +43,21 @@ def _parse_arguments(text):
     )
 
     parser.add_argument(
-        "-s",
         "--symlink",
         action="store_true",
-        help="If True, symlink back to the source Rez package, instead of creating new files.",
+        help="If True, symlink everything back to the source Rez package, instead of creating new files.",
+    )
+
+    parser.add_argument(
+        "--symlink-files",
+        action="store_true",
+        help="If True, symlink files back to the source Rez package, instead of creating new files.",
+    )
+
+    parser.add_argument(
+        "--symlink-folders",
+        action="store_true",
+        help="If True, symlink folders back to the source Rez package, instead of creating new files.",
     )
 
     known, _ = parser.parse_known_args(text)
@@ -64,6 +75,9 @@ def main(text):
             os.environ["REZ_BUILD_INSTALL_PATH"],
             items=arguments.items,
             eggs=arguments.eggs,
+            symlink=filer.must_symlink(),
+            symlink_folders=filer.must_symlink_folders(),
+            symlink_files=filer.must_symlink_files(),
         )
     except exceptions.NonRootItemFound as error:
         print(error, file=sys.stderr)
