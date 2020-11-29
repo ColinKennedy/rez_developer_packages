@@ -75,15 +75,7 @@ def main(text):
     filer.clean(destination)
 
     try:
-        filer.build(
-            source,
-            destination,
-            items=arguments.items,
-            eggs=arguments.eggs,
-            symlink=filer.must_symlink(),
-            symlink_folders=filer.must_symlink_folders(),
-            symlink_files=filer.must_symlink_files(),
-        )
+        filer.build(source, destination, items=arguments.items, eggs=arguments.eggs)
     except exceptions.NonRootItemFound as error:
         print(error, file=sys.stderr)
         print("Please check spelling and try again.")

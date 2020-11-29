@@ -504,7 +504,7 @@ class Symlink(unittest.TestCase):
 
                     private_build_requires = ["rez_build_helper"]
 
-                    build_command = "python -m rez_build_helper --items python --symlink-files"
+                    build_command = "python -m rez_build_helper --items some_file.txt python --symlink-files"
 
                     def commands():
                         import os
@@ -525,7 +525,7 @@ class Symlink(unittest.TestCase):
 
         file_path = os.path.join(install_location, "some_file.txt")
         self.assertTrue(os.path.islink(file_path))
-        self.assertFalse(os.path.isfile(file_path))
+        self.assertTrue(os.path.isfile(file_path))
         self.assertTrue(os.path.isdir(os.path.join(install_location, "python")))
         self.assertTrue(
             os.path.isdir(os.path.join(install_location, "python", "some_thing"))
@@ -589,7 +589,7 @@ class Symlink(unittest.TestCase):
         self.assertTrue(os.path.isfile(file_path))
         folder = os.path.join(install_location, "python")
         self.assertTrue(os.path.islink(folder))
-        self.assertFalse(os.path.isdir(folder))
+        self.assertTrue(os.path.isdir(folder))
         self.assertTrue(
             os.path.isdir(os.path.join(install_location, "python", "some_thing"))
         )

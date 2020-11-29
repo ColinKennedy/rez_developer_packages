@@ -7,10 +7,9 @@ import itertools
 import logging
 import os
 import shutil
-import sys
 import zipfile
 
-from . import exceptions
+from . import exceptions, linker
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -80,9 +79,9 @@ def build(
     destination,
     items=None,
     eggs=None,
-    symlink=False,
-    symlink_folders=False,
-    symlink_files=False,
+    symlink=linker.must_symlink(),
+    symlink_folders=linker.must_symlink_folders(),
+    symlink_files=linker.must_symlink_files(),
 ):
     # """Copy or symlink all items in `source` to `destination`.
     #
@@ -141,9 +140,9 @@ def build_eggs(
     source,
     destination,
     eggs,
-    symlink=False,
-    symlink_folders=False,
-    symlink_files=False,
+    symlink=linker.must_symlink(),
+    symlink_folders=linker.must_symlink_folders(),
+    symlink_files=linker.must_symlink_files(),
 ):
     _validate_egg_names(eggs)
 
@@ -166,9 +165,9 @@ def build_items(
     source,
     destination,
     items,
-    symlink=False,
-    symlink_folders=False,
-    symlink_files=False,
+    symlink=linker.must_symlink(),
+    symlink_folders=linker.must_symlink_folders(),
+    symlink_files=linker.must_symlink_files(),
 ):
     def _copy_file_or_folder(source, destination):
         if os.path.isdir(source):
@@ -195,21 +194,6 @@ def build_items(
 def clean(path):
     remove(path)  # Clean any old build folder
     os.makedirs(path)
-
-
-def must_symlink():
-    """bool: Check if the user wants symlinks, not copy files."""
-    return "--symlink" in sys.argv[1:]
-
-
-def must_symlink_files():
-    """bool: Check if the user wants symlinked files."""
-    return "--symlink-folders" in sys.argv[1:]
-
-
-def must_symlink_folders():
-    """bool: Check if the user wants symlinked folders."""
-    return "--symlink-folders" in sys.argv[1:]
 
 
 def remove(path):
