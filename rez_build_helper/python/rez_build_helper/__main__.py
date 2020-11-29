@@ -9,7 +9,7 @@ import argparse
 import os
 import sys
 
-from . import exceptions, filer
+from . import exceptions, filer, linker
 
 
 def _parse_arguments(text):
@@ -45,19 +45,22 @@ def _parse_arguments(text):
     parser.add_argument(
         "--symlink",
         action="store_true",
-        help="If True, symlink everything back to the source Rez package, instead of creating new files.",
+        default=linker.must_symlink(),
+        help="If True, symlink everything back to the source Rez package.",
     )
 
     parser.add_argument(
         "--symlink-files",
         action="store_true",
-        help="If True, symlink files back to the source Rez package, instead of creating new files.",
+        default=linker.must_symlink_files(),
+        help="If True, symlink files back to the source Rez package.",
     )
 
     parser.add_argument(
         "--symlink-folders",
         action="store_true",
-        help="If True, symlink folders back to the source Rez package, instead of creating new files.",
+        default=linker.must_symlink_folders(),
+        help="If True, symlink folders back to the source Rez package.",
     )
 
     known, _ = parser.parse_known_args(text)
@@ -75,7 +78,15 @@ def main(text):
     filer.clean(destination)
 
     try:
-        filer.build(source, destination, items=arguments.items, eggs=arguments.eggs)
+        filer.build(
+            source,
+            destination,
+            items=arguments.items,
+            eggs=arguments.eggs,
+            symlink=arguments.symlink,
+            symlink_folders=arguments.symlink_folders,
+            symlink_files=arguments.symlink_files,
+        )
     except exceptions.NonRootItemFound as error:
         print(error, file=sys.stderr)
         print("Please check spelling and try again.")

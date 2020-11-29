@@ -41,7 +41,14 @@ def _make_egg(source, destination):
             handler.write(source, arcname=os.path.basename(source))
 
 
-def _run_command(command, source, destination, symlink, symlink_folders, symlink_files):
+def _run_command(  # pylint: disable=too-many-arguments
+    command,
+    source,
+    destination,
+    symlink,
+    symlink_folders,
+    symlink_files,
+):
     """Run a commany or symlink instead, depending on the given input.
 
     Args:
@@ -99,7 +106,7 @@ def _validate_egg_names(items):
         )
 
 
-def build(
+def build(  # pylint: disable=too-many-arguments
     source,
     destination,
     items=None,
@@ -169,7 +176,7 @@ def build(
         raise
 
 
-def build_eggs(
+def build_eggs(  # pylint: disable=too-many-arguments
     source,
     destination,
     eggs,
@@ -217,7 +224,7 @@ def build_eggs(
         )
 
 
-def build_items(
+def build_items(  # pylint: disable=too-many-arguments
     source,
     destination,
     items,

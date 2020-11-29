@@ -486,7 +486,7 @@ class Symlink(unittest.TestCase):
 
                     private_build_requires = ["rez_build_helper"]
 
-                    build_command = "python -m rez_build_helper --items some_file.txt python --symlink-files"
+                    build_command = "python -m rez_build_helper --items some_file.txt python --symlink-files"  # pylint: disable=line-too-long
 
                     def commands():
                         import os
@@ -544,7 +544,7 @@ class Symlink(unittest.TestCase):
 
                     private_build_requires = ["rez_build_helper"]
 
-                    build_command = "python -m rez_build_helper --items some_file.txt python --symlink-folders"
+                    build_command = "python -m rez_build_helper --items some_file.txt python --symlink-folders"  # pylint: disable=line-too-long
 
                     def commands():
                         import os
