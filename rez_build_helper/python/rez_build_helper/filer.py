@@ -42,12 +42,7 @@ def _make_egg(source, destination):
 
 
 def _run_command(  # pylint: disable=too-many-arguments
-    command,
-    source,
-    destination,
-    symlink,
-    symlink_folders,
-    symlink_files,
+    command, source, destination, symlink, symlink_folders, symlink_files,
 ):
     """Run a commany or symlink instead, depending on the given input.
 
