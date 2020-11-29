@@ -44,8 +44,7 @@ def _make_egg(source, destination):
 def _run_command(command, source, destination, symlink, symlink_folders, symlink_files):
     if not os.path.exists(source):
         raise RuntimeError(
-            'Path "{source}" does not exist. Cannot continue.'
-            "".format(source=source)
+            'Path "{source}" does not exist. Cannot continue.'.format(source=source)
         )
 
     if (
