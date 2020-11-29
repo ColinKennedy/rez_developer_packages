@@ -69,10 +69,15 @@ def main(text):
     """Run the main execution of the current script."""
     arguments = _parse_arguments(text)
 
+    source = os.environ["REZ_BUILD_SOURCE_PATH"]
+    destination = os.environ["REZ_BUILD_INSTALL_PATH"]
+
+    filer.clean(destination)
+
     try:
         filer.build(
-            os.environ["REZ_BUILD_SOURCE_PATH"],
-            os.environ["REZ_BUILD_INSTALL_PATH"],
+            source,
+            destination,
             items=arguments.items,
             eggs=arguments.eggs,
             symlink=filer.must_symlink(),

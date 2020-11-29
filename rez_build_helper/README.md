@@ -1,3 +1,5 @@
+- Add a clean-on-exit context
+
 A basic wrapper around Rez's
 [build_command](https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#build_command).
 
