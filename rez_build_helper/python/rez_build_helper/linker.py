@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""A basic module for determining whether the user wants symlinks or not while building."""
+
 import sys
 
 
