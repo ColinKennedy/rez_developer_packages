@@ -21,9 +21,19 @@ REZ_PACKAGE_NAMES = frozenset(
 )
 
 
+@contextlib.contextmanager
 def get_context():
     """:class:`contextlib.GeneratorContextManager`: Silence all C-level stdout messages."""
-    return wurlitzer.pipes()
+    with wurlitzer.pipes() as (stdout, stderr):
+        yield (stdout, stderr)
+
+    # We need to close the pipes or we get warnings in Python 3+ unittests
+    # Warnings like this:
+    # /usr/lib64/python3.6/contextlib.py:88:
+    # ResourceWarning: unclosed file <_io.TextIOWrapper name=5 mode='r' encoding='ANSI_X3.4-1968'>
+    #
+    stdout.close()
+    stderr.close()
 
 
 @contextlib.contextmanager
