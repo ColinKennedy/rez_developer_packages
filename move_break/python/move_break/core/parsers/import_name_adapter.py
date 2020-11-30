@@ -269,7 +269,7 @@ def _replace_namespace(nodes, old_parts, new_parts, partial=False):
         return True
 
     names = [name for name in nodes if not isinstance(name, tree.Operator)]
-    prefix = names[0].prefix
+    prefix = node_seek.get_node_with_first_prefix(names[0]).prefix
     start, end = import_helper.get_replacement_indices(names, old_parts)
 
     if start == -1 or end == -1:
