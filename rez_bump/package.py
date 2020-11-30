@@ -54,7 +54,14 @@ tests = {
         "command": "pylint --disable=bad-continuation python/rez_bump",
         "requires": ["pylint-1.9+<2"],
     },
-    "unittest": {"command": "python -m unittest discover"},
+    "unittest_python_2": {
+        "command": "python -m unittest discover",
+        "requires": ["python-2.7"],
+    },
+    "unittest_python_3": {
+        "command": "python -m unittest discover",
+        "requires": ["python-3.6+<3.8"],
+    },
 }
 
 uuid = "e96d5484-abd7-49d4-a0e7-95d7b5540272"
