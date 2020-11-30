@@ -10,7 +10,7 @@ authors = ["Colin Kennedy (ColinKennedy)"]
 
 requires = [
     "parso-0.6+<1",
-    "python-2+<3",
+    "python-2+<3.8",
     "rez-2.42+<3",
     "rez_industry-1+<3",
     "rez_utilities-2+<3",
