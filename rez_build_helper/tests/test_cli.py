@@ -560,7 +560,7 @@ class Symlink(unittest.TestCase):
         )
         atexit.register(functools.partial(shutil.rmtree, destination))
 
-        creator.build(package, destination, quiet=False)
+        creator.build(package, destination, quiet=True)
         install_location = os.path.join(destination, "some_package", "1.0.0")
 
         file_path = os.path.join(install_location, "some_file.txt")
