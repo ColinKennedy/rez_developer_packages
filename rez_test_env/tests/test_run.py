@@ -18,7 +18,7 @@ import wurlitzer
 from rez import resolved_context
 from rez_test_env import cli
 from rez_test_env.core import exceptions
-from rez_utilities import rez_configuration
+from rez_utilities import creator, finder, rez_configuration
 
 
 class Run(unittest.TestCase):
@@ -28,27 +28,76 @@ class Run(unittest.TestCase):
         """Allow `rez_test_env` to be called with no additional rez-test commands."""
         directory = _make_test_packages()
 
-        resolved = _test("package_a", directory)
+        resolved = _test("request package_a", directory)
 
-        self.assertEqual(set(), resolved)
+        self.assertEqual({"package_a"}, resolved)
 
     def test_unittest_names(self):
         """Make sure 1-or-more rez-test commands are allowed as input."""
         directory = _make_test_packages()
 
-        single = _test("package_a name_A", directory)
-        multiple = _test("package_a name_A name_B", directory)
+        single = _test("request package_a name_A", directory)
+        multiple = _test("request package_a name_A name_B", directory)
 
-        self.assertEqual({"package_d-1.1.0"}, single)
-        self.assertEqual({"package_d-1.1.0", "package_c"}, multiple)
+        self.assertEqual({"package_a", "package_d-1.1.0"}, single)
+        self.assertEqual({"package_a", "package_d-1.1.0", "package_c"}, multiple)
 
     def test_glob(self):
         """Make sure glob expressions work."""
         directory = _make_test_packages()
 
-        multiple = _test("package_a name_*", directory)
+        multiple = _test("request package_a name_*", directory)
 
-        self.assertEqual({"package_d-1.1.0", "package_c"}, multiple)
+        self.assertEqual({"package_a", "package_d-1.1.0", "package_c"}, multiple)
+
+    def test_from_package_directory(self):
+        """Get the resolve from a package's directory."""
+        directory = _make_test_packages()
+
+        build_directory = tempfile.mkdtemp(suffix="_Run_test_from_package_directory")
+        atexit.register(functools.partial(shutil.rmtree, build_directory))
+
+        package_directory = os.path.join(directory, "package_b")
+
+        creator.build(
+            finder.get_nearest_rez_package(package_directory),
+            build_directory,
+            quiet=True,
+        )
+
+        result = _test(
+            "directory --directory '{directory}' unittest_*".format(
+                directory=os.path.join(build_directory, "package_b", "1.1.0"),
+            ),
+            directory,
+            build_directory=build_directory,
+        )
+
+        self.assertEqual({"package_a", "package_b-1.1.0"}, result)
+
+    def test_from_package_pwd(self):
+        """Get the resolve from a package's directory."""
+        directory = _make_test_packages()
+        package_directory = os.path.join(directory, "package_b")
+
+        build_directory = tempfile.mkdtemp(suffix="_Run_test_from_package_pwd")
+        atexit.register(functools.partial(shutil.rmtree, build_directory))
+
+        creator.build(
+            finder.get_nearest_rez_package(package_directory),
+            build_directory,
+            quiet=True,
+        )
+
+        with _keep_pwd():
+            os.chdir(package_directory)
+            result = _test(
+                "directory unittest_*",
+                directory,
+                build_directory=build_directory,
+            )
+
+        self.assertEqual({"package_a", "package_b-1.1.0"}, result)
 
 
 class Invalids(unittest.TestCase):
@@ -57,14 +106,14 @@ class Invalids(unittest.TestCase):
     def test_package_name(self):
         """Raise an exception if the given Rez package doesn't exist."""
         with self.assertRaises(exceptions.NoValidPackageFound):
-            _test("does_not_exist_package_name", tempfile.gettempdir())
+            _test("request does_not_exist_package_name", tempfile.gettempdir())
 
     def test_test_names(self):
         """Raise an exception if any of the given Rez test commands don't exist."""
         directory = _make_test_packages()
 
         with self.assertRaises(exceptions.MissingTests):
-            _test("package_a does_not_exist", directory)
+            _test("request package_a does_not_exist", directory)
 
 
 def _make_test_packages():
@@ -107,6 +156,8 @@ def _make_test_packages():
                 name = "package_b"
 
                 version = "1.1.0"
+
+                build_command = 'echo "package_b has been built!"'
 
                 tests = {
                     "unittest_1": {
@@ -197,7 +248,18 @@ def _override_context_command():
         resolved_context.ResolvedContext.execute_shell = original
 
 
-def _test(request, directory):
+@contextlib.contextmanager
+def _keep_pwd():
+    """Save and restore the current $PWD of the user."""
+    original = os.getcwd()
+
+    try:
+        yield
+    finally:
+        os.chdir(original)
+
+
+def _test(request, directory, build_directory=""):
     """Test a CLI command for `rez_test_env` and get its resolved packages back.
 
     This function is a bit intense so let's break it down.
@@ -212,15 +274,21 @@ def _test(request, directory):
     Args:
         request (str): User-provided test which would be sent directly to the CLI.
         directory (str): The folder on-disk where the fake Rez package(s) for the test live.
+        build_directory (str, optional): If provided, this path is added to resolves. Default: "".
 
     Returns:
         set[str]: The resolved Rez packages/versions.
 
     """
+    packages_path = [directory]
+
+    if build_directory:
+        packages_path += [build_directory]
+
     with _override_context_command():
-        with rez_configuration.patch_packages_path([directory]):
+        with rez_configuration.patch_packages_path(packages_path):
             try:
-                with wurlitzer.pipes() as (stdout, _):  # wurlitzer will capture stdout
+                with wurlitzer.pipes() as (stdout, stderr):  # wurlitzer will capture stdout
                     cli.main(shlex.split(request))
             except SystemExit as error:
                 # Since `rez_test_env` literally runs the `rez-env` CLI
@@ -231,4 +299,9 @@ def _test(request, directory):
                 if error.code != 0:
                     raise
 
-    return set(stdout.read().strip().split())
+    data = set(stdout.read().strip().split())
+
+    stdout.close()
+    stderr.close()
+
+    return data

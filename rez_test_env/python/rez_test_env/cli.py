@@ -20,7 +20,7 @@ def _add_tests_parameter(parser):
     """
     parser.add_argument(
         "tests",
-        nargs="+",
+        nargs="*",
         help="The test requirements to append to the package request.",
     )
 
