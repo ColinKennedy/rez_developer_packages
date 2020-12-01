@@ -19,7 +19,7 @@ def main():
     """Run the main execution of the current script."""
     try:
         cli.main(sys.argv[1:])
-    except (exceptions.MissingTests, exceptions.NoValidPackageFound) as error:
+    except exceptions._Base as error:  # pylint: disable=protected-access
         print(str(error), file=sys.stderr)
 
 

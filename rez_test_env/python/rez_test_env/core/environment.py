@@ -29,7 +29,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 @contextlib.contextmanager
-def _keep_argv(override):
+def _patch_main(override):
     """Temporarily replace :obj:`sys.argv` with `override` in a Python context.
 
     Args:
@@ -40,6 +40,7 @@ def _keep_argv(override):
 
     """
     original = list(sys.argv)
+    override = ["discarded_command"] + override
 
     try:
         sys.argv[:] = override
@@ -136,7 +137,7 @@ def _get_test_names(expressions, package_tests):
     return output
 
 
-def run(package_request, tests):
+def run_from_request(package_request, tests):
     """Convert a Rez package + tests.
 
     See Also:
@@ -168,5 +169,27 @@ def run(package_request, tests):
 
     requirements = _expand_requirements(package, tests)
 
-    with _keep_argv([package_request] + sorted(requirements)):
+    with _patch_main([package_request] + sorted(requirements)):
+        _main.run("env")
+
+
+def run_from_package(package, tests):
+    """Create an environment from a Rez package + tests.
+
+    Args:
+        package (:class:`rez.packages.Package`):
+            Some Rez package to include in the resolve.
+        tests (iter[str]):
+            The user's raw CLI test input. These could be real test
+            names, like "my_foo_unittest", or a glob expression, like
+            "my_*_unittest".
+
+    """
+    requirements = list(_expand_requirements(package, tests))
+    package_request = ["{package.name}=={package.version}".format(package=package)]
+    full_request = package_request + sorted(requirements)
+
+    _LOGGER.debug('Making environment for "%s" request.', full_request)
+
+    with _patch_main(full_request):
         _main.run("env")
