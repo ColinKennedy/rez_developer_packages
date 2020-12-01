@@ -15,10 +15,15 @@ import fnmatch
 import logging
 import sys
 
-from rez import packages
 from rez.cli import _main
 
 from . import exceptions
+
+try:
+    from rez import packages_ as packages
+except ImportError:
+    from rez import packages
+
 
 _LOGGER = logging.getLogger(__name__)
 

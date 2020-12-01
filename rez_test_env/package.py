@@ -12,16 +12,18 @@ authors = ["ColinKennedy"]
 
 private_build_requires = ["rez_build_helper-1+<2"]
 
-requires = ["python-2", "rez-2.50+<3"]
+requires = ["python-2+<3.8", "rez-2.50+<3"]
 
 build_command = "python -m rez_build_helper --items bin python"
 
 tests = {
     "black_diff": {
-        "command": "rez-env black -- black --diff --check package.py python tests"
+        "command": "black --diff --check package.py python tests",
+        "requires": ["black-20.8+<21"],
     },
     "black": {
-        "command": "rez-env black -- black package.py python tests",
+        "command": "black package.py python tests",
+        "requires": ["black-20.8+<21"],
         "run_on": "explicit",
     },
     "coverage": {
