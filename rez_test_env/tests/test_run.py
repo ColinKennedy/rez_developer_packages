@@ -19,7 +19,6 @@ from rez import resolved_context
 from rez_test_env import cli
 from rez_test_env.core import exceptions
 from rez_utilities import rez_configuration
-from six.moves import cStringIO
 
 
 class Run(unittest.TestCase):
@@ -170,6 +169,7 @@ def _override_context_command():
     def _wrap(function):
         @functools.wraps(function)
         def wrapper(*args, **kwargs):
+            """Append a command to print the resolved packages, then run ``function``."""
             system = platform.system()
 
             if system == "Windows":

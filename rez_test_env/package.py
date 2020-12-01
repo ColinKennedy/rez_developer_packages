@@ -52,8 +52,8 @@ tests = {
         "command": "rez-env pydocstyle-3.0 -- pydocstyle --ignore=D213,D202,D203,D406,D407 python tests/*",
     },
     "pylint": {
-        "command": "pylint --disable=bad-continuation python/rez_test_env",
-        "requires": ["pylint-1.9+<2"],
+        "command": "pylint --disable=bad-continuation python/rez_test_env tests",
+        "requires": ["pylint-1.9+<2", "rez_utilities-2+<3", "wurlitzer-2+<3"],
     },
     "unittest": {
         "command": "python -m unittest discover",
