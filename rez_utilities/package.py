@@ -63,19 +63,11 @@ tests = {
     },
     "unittest_python_2": {
         "command": "python -m unittest discover",
-        "requires": [
-            "GitPython-2+<4",
-            "mock-3+<4",
-        ],
-        "requires": ["python-2.7"],
+        "requires": ["GitPython-2+<4", "mock-3+<4", "python-2.7"],
     },
     "unittest_python_3": {
         "command": "python -m unittest discover",
-        "requires": [
-            "GitPython-2+<4",
-            "mock-4+<5",
-        ],
-        "requires": ["python-3.6"],
+        "requires": ["GitPython-2+<4", "python-3.6+<3.8"],
     },
 }
 
