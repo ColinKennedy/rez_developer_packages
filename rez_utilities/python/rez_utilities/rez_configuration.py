@@ -20,9 +20,14 @@ REZ_PACKAGE_NAMES = frozenset(
 )
 
 
+@contextlib.contextmanager
 def get_context():
     """:class:`contextlib.GeneratorContextManager`: Silence all C-level stdout messages."""
-    return wurlitzer.pipes()
+    with wurlitzer.pipes() as (stdout, stderr):
+        yield (stdout, stderr)
+
+    stdout.close()
+    stderr.close()
 
 
 @contextlib.contextmanager
