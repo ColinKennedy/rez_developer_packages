@@ -92,9 +92,7 @@ class Run(unittest.TestCase):
         with _keep_pwd():
             os.chdir(package_directory)
             result = _test(
-                "directory unittest_*",
-                directory,
-                build_directory=build_directory,
+                "directory unittest_*", directory, build_directory=build_directory,
             )
 
         self.assertEqual({"package_a", "package_b-1.1.0"}, result)
@@ -288,7 +286,10 @@ def _test(request, directory, build_directory=""):
     with _override_context_command():
         with rez_configuration.patch_packages_path(packages_path):
             try:
-                with wurlitzer.pipes() as (stdout, stderr):  # wurlitzer will capture stdout
+                with wurlitzer.pipes() as (
+                    stdout,
+                    stderr,
+                ):  # wurlitzer will capture stdout
                     cli.main(shlex.split(request))
             except SystemExit as error:
                 # Since `rez_test_env` literally runs the `rez-env` CLI
