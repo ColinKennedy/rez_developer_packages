@@ -19,11 +19,11 @@ build_command = "python -m rez_build_helper --items bin python"
 tests = {
     "black_diff": {
         "command": "black --diff --check package.py python tests",
-        "requires": ["black-20.8+<21"],
+        "requires": ["black-19.10+<21"],
     },
     "black": {
         "command": "black package.py python tests",
-        "requires": ["black-20.8+<21"],
+        "requires": ["black-19.10+<21"],
         "run_on": "explicit",
     },
     "coverage": {
@@ -33,7 +33,7 @@ tests = {
             "&& coverage combine --append "
             "&& coverage html"
         ),
-        "requires": ["coverage-4+<5"],
+        "requires": ["coverage-4+<5", "rez_utilities-2+<3", "wurlitzer-2+<3"],
         "run_on": "explicit",
     },
     "isort": {
