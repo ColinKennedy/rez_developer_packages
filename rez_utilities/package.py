@@ -68,7 +68,7 @@ tests = {
             "GitPython-2+<4",
             "mock-3+<4",
         ],
-        "on_variants": {"type": "requires", "value": ["python-2.7"]},
+        "requires": ["python-2.7"],
     },
     "unittest_python_3": {
         "command": "python -m unittest discover",
@@ -76,7 +76,7 @@ tests = {
             "GitPython-2+<4",
             "mock-4+<5",
         ],
-        "on_variants": {"type": "requires", "value": ["python-3.6"]},
+        "requires": ["python-3.6"],
     },
 }
 
