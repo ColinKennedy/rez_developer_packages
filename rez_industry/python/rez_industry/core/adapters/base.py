@@ -13,7 +13,7 @@ class BaseAdapter(object):
     """A class that is used to modify a Rez package definition."""
 
     @staticmethod
-    def supports_duplicates():
+    def supports_appending():
         """bool: Enable "append" support for this class, if set to True."""
         return False
 

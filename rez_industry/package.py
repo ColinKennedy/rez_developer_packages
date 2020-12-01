@@ -2,7 +2,7 @@
 
 name = "rez_industry"
 
-version = "1.5.0"
+version = "2.2.0"
 
 description = "A Rez package manufacturer. It reliably modifies Rez package.py files."
 
@@ -15,7 +15,7 @@ build_command = "python -m rez_build_helper --items python"
 requires = [
     "parso-0.5+<1",
     "parso_helper-1+<2",
-    "python-2.7+<3",
+    "python-2.7+<3.8",
     "rez-2.42+<3",
     "six-1.13+<2",
 ]
@@ -66,14 +66,13 @@ tests = {
             "rez-2.51+<3",  # The tests use newer features than what is required by the package
         ],
     },
-    # "unittest_python_3": {
-    #     "command": "python -m unittest discover",
-    #     "requires": [
-    #         "mock-4+<5",
-    #         "python-3.6",
-    #         "rez-2.51+<3",  # The tests use newer features than what is required by the package
-    #     ],
-    # },
+    "unittest_python_3": {
+        "command": "python -m unittest discover",
+        "requires": [
+            "python-3.6+<3.8",
+            "rez-2.51+<3",  # The tests use newer features than what is required by the package
+        ],
+    },
 }
 
 uuid = "91c5b238-303b-45e3-b8ac-76591f99caee"

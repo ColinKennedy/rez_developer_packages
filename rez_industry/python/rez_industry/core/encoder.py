@@ -14,17 +14,15 @@ class BuiltinEncoder(json.JSONEncoder):
         results = super(BuiltinEncoder, self).iterencode(o, _one_shot=_one_shot)
 
         for index, item in enumerate(results):
-            if item in ("null", '"null"'):
+            new = item
+            new = new.replace('"null"', '"None"')
+            new = new.replace("null", "None")
+            new = new.replace("false", "False")
+            new = new.replace("true", "True")
+
+            if new != item:
                 results[  # pylint: disable=unsupported-assignment-operation
                     index
-                ] = "None"
-            if item == "false":
-                results[  # pylint: disable=unsupported-assignment-operation
-                    index
-                ] = "False"
-            if item == "true":
-                results[  # pylint: disable=unsupported-assignment-operation
-                    index
-                ] = "True"
+                ] = new
 
         return results

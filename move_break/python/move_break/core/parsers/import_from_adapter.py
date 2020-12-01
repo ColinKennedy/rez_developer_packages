@@ -68,9 +68,9 @@ class ImportFromAdapter(base_.BaseAdapter):
             node (:class:`parso.python.tree.ImportFrom`):
                 A parso object that represents a Python from-import.
             old_parts (iter[str]):
-                Some tokens that should match with all or part of `names`,
+                Some tokens that should match with all or part of `base_names`,
                 in the same order. This parameter is used to figure out if
-                any part of `names` will be overwritten by other functions.
+                any part of `base_names` will be overwritten by other functions.
             new_parts (list[str]):
                 The namespace to replace `node` with. e.g. ["foo", "bar"].
             base_names (iter[:class:`parso.python.tree.Name`]):

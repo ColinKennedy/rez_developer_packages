@@ -122,7 +122,7 @@ class HelpAdapter(base.BaseAdapter):
         return output
 
     @staticmethod
-    def supports_duplicates():
+    def supports_appending():
         """bool: Allow appending duplicate data in :meth:`HelpAdapter.modify_with_existing`."""
         return True
 

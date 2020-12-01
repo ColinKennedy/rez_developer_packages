@@ -3,7 +3,7 @@
 
 name = "rez_build_helper"
 
-version = "1.5.0"
+version = "1.6.0"
 
 description = "Build Rez packages using Python"
 
@@ -15,26 +15,17 @@ build_command = "python {root}/rezbuild.py {install}"
 
 uuid = "168c5114-a951-4834-a744-dae1331e375e"
 
-variants = [["python-2.7"], ["python-3"]]
+requires = ["python-2.7+<3.8"]
 
 tests = {
     "black_diff": {
         "command": "black --diff --check package.py python tests",
-        "requires": ["black-19.10+<20"],
+        "requires": ["black-19.10+<21"],
     },
     "black": {
         "command": "black package.py python tests",
-        "requires": ["black-19.10+<20"],
+        "requires": ["black-19.10+<21"],
         "run_on": "explicit",
-    },
-    "coverage": {
-        "command": (
-            "coverage erase "
-            "&& coverage run --parallel-mode --include=python/* -m unittest discover "
-            "&& coverage combine --append "
-            "&& coverage html"
-        ),
-        "requires": ["coverage-5.1+<6", "rez-2.47+<3", "wurlitzer-2+<3"],
     },
     "isort": {
         "command": "isort --recursive package.py python tests",
@@ -53,17 +44,15 @@ tests = {
     },
     "pylint": {
         "command": "pylint --disable=bad-continuation python/rez_build_helper tests",
-        "requires": ["pylint-1.9+<2"],
+        "requires": ["pylint-1.9+<2", "wurlitzer-2+<3"],
     },
     "unittest_python_2": {
         "command": "python -m unittest discover",
-        "requires": ["rez-2.48+<3", "wurlitzer-2+<3"],
-        "on_variants": {"type": "requires", "value": ["python-2.7"]},
+        "requires": ["python-2.7", "rez-2.48+<3", "wurlitzer-2+<3"],
     },
     "unittest_python_3": {
         "command": "python -m unittest discover",
-        "requires": ["rez-2.48+<3", "wurlitzer-2+<3"],
-        "on_variants": {"type": "requires", "value": ["python-3.6"]},
+        "requires": ["python-3.6+<3.8", "rez-2.48+<3", "wurlitzer-2+<3"],
     },
 }
 

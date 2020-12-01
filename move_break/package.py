@@ -2,7 +2,7 @@
 
 name = "move_break"
 
-version = "3.2.0"
+version = "3.3.2"
 
 description = "Change, replace, and move Python imports"
 
@@ -14,18 +14,18 @@ requires = [
     "parso-0.5+<1",
     "parso_helper-1+<2",
     "python-2+<3.8",
-    "rez_python_compatibility-2+<3",
+    "rez_python_compatibility-2.4.1+<3",
     "six-1.12+<2",
 ]
 
 tests = {
     "black_diff": {
         "command": "black --diff --check package.py python tests",
-        "requires": ["black-19.10+<20"],
+        "requires": ["black-19.10+<21"],
     },
     "black": {
         "command": "black package.py python tests",
-        "requires": ["black-19.10+<20"],
+        "requires": ["black-19.10+<21"],
         "run_on": "explicit",
     },
     "coverage": {
@@ -49,8 +49,12 @@ tests = {
         "command": "pydocstyle --ignore=D213,D202,D203,D406,D407 python tests/*",
         "requires": ["pydocstyle-3+<5"],
     },
-    "pylint": {
-        "command": "pylint --disable=bad-continuation python/move_break tests",
+    "pylint_source": {
+        "command": "pylint --disable=bad-continuation python/move_break",
+        "requires": ["pylint-1.9+<2"],
+    },
+    "pylint_tests": {
+        "command": "pylint --disable=bad-continuation,fixme tests",
         "requires": ["pylint-1.9+<2"],
     },
     "unittest_python_2": {

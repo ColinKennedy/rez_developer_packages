@@ -361,7 +361,7 @@ class Parentheses(common.Common):
 
         self._test(expected, code, namespaces)
 
-    def test_002(self):
+    def test_002_full_replace(self):
         """Replace a multi-namespace import that uses parentheses."""
         code = "from thing.something import (parse as blah, more_items)"
 
@@ -369,6 +369,9 @@ class Parentheses(common.Common):
         expected = "from another.jpeg.many import (parse as blah, more_items)"
         self._test(expected, code, namespaces, partial=True)
 
+    def test_002_split_import(self):
+        """Replace a multi-namespace import that uses parentheses."""
+        code = "from thing.something import (parse as blah, more_items)"
         namespaces = [
             ("thing.something.parse", "another.jpeg.many.items"),
             ("thing.something", "another.jpeg.many"),
@@ -410,7 +413,7 @@ class Parentheses(common.Common):
         )
         self._test(expected, code, namespaces, partial=True)
 
-    def test_004(self):
+    def test_004_full_replace(self):
         """Replace a multi-namespace import that uses parentheses and whitespace."""
         code = textwrap.dedent(
             """\
@@ -432,6 +435,17 @@ class Parentheses(common.Common):
         )
         self._test(expected, code, namespaces, partial=True)
 
+    def test_004_extra_namespace(self):
+        """Replace a multi-namespace import that uses parentheses and whitespace."""
+        code = textwrap.dedent(
+            """\
+            from thing.something import (
+                parse as blah,
+                    more_items
+            )
+            """
+        )
+
         namespaces = [("thing.something.parse", "another.jpeg.many.doom")]
         expected = textwrap.dedent(
             """\
@@ -443,6 +457,16 @@ class Parentheses(common.Common):
         )
         self._test(expected, code, namespaces, partial=True)
 
+    def test_004_split_imports(self):
+        """Replace a multi-namespace import that uses parentheses and whitespace."""
+        code = textwrap.dedent(
+            """\
+            from thing.something import (
+                parse as blah,
+                    more_items
+            )
+            """
+        )
         namespaces = [
             ("thing.something.parse", "another.jpeg.many.doom"),
             ("thing.something", "another.jpeg.many"),

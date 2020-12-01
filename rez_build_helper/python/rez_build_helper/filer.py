@@ -7,17 +7,11 @@ import itertools
 import logging
 import os
 import shutil
-import sys
 import zipfile
 
-from . import exceptions
+from . import exceptions, linker
 
 _LOGGER = logging.getLogger(__name__)
-
-
-def _must_symlink():
-    """bool: Check if the user wants symlinks, not copy files."""
-    return "--symlink" in sys.argv[1:]
 
 
 def _make_egg(source, destination):
@@ -47,58 +41,50 @@ def _make_egg(source, destination):
             handler.write(source, arcname=os.path.basename(source))
 
 
-def _build(source, destination, items, eggs, symlink):
-    """Copy or symlink all items in `source` to `destination`.
+def _run_command(  # pylint: disable=too-many-arguments
+    command, source, destination, symlink, symlink_folders, symlink_files,
+):
+    """Run a commany or symlink instead, depending on the given input.
 
     Args:
+        command (callable[str, str]):
+            Some function to run if it's determined to not do a symlink.
         source (str):
-            The absolute path to the root directory of the Rez package.
+            Some absolute path to a file or folder on-disk.
         destination (str):
-            The location where the built files will be copied or symlinked from.
-        items (iter[str]):
-            The local paths to every item in `source` to copy / symlink.
-        eggs (iter[str]):
-            The local paths which will be compressed into .egg (zip) files.
+            The absolute path to where generated content will go.
         symlink (bool):
-            If True, create symlinks for each item in `items`.
-            Otherwise, copy the files. This parameter's default value is
-            set using sys.argv but typically is False.
+            If True, symlinking will always happen. It implies
+            If ``symlink_folders`` and ``symlink_files`` are both True.
+            If False, symlinking is not guaranteed to always happen.
+        symlink_folders (bool):
+            If True and ``source`` is a folder, make a symlink from
+            ``destination`` which points back to ``source``. If False,
+            run ``command`` instead.
+        symlink_files (bool):
+            If True and ``source`` is a file, make a symlink from
+            ``destination`` which points back to ``source``. If False,
+            run ``command`` instead.
 
     Raises:
-        RuntimeError: If any item in `items` does not exist.
+        RuntimeError: If ``source`` does not exist.
 
     """
-    for name in eggs:
-        source_path = os.path.join(source, name)
-        egg = name + ".egg"
-        destination_path = os.path.join(destination, egg)
+    if not os.path.exists(source):
+        raise RuntimeError(
+            'Path "{source}" does not exist. Cannot continue.'.format(source=source)
+        )
 
-        if symlink:
-            _LOGGER.info('Creating "%s" symlink.', egg)
-            os.symlink(source_path, destination_path)
-        else:
-            _LOGGER.info('Creating "%s" file.', egg)
-            _make_egg(source_path, destination_path)
-
-    for item in items:
-        source_path = os.path.join(source, item)
-        destination_path = os.path.join(destination, item)
-
-        if not os.path.exists(source_path):
-            raise RuntimeError(
-                'Path "{source_path}" does not exist. Cannot continue.'
-                "".format(source_path=source_path)
-            )
-
-        if symlink:
-            _LOGGER.info('Creating "%s" symlink.', item)
-            os.symlink(source_path, destination_path)
-        elif os.path.isdir(source_path):
-            _LOGGER.info('Copying "%s" folder.', item)
-            shutil.copytree(source_path, destination_path)
-        elif os.path.isfile(source_path):
-            _LOGGER.info('Copying "%s" file.', item)
-            shutil.copy2(source_path, destination_path)
+    if (
+        symlink
+        or (symlink_folders and os.path.isdir(source))
+        or (symlink_files and os.path.isfile(source))
+    ):
+        _LOGGER.info('Creating "%s" symlink.', destination)
+        os.symlink(source, destination)
+    else:
+        _LOGGER.info('Running command on "%s".', destination)
+        command(source, destination)
 
 
 def _validate_egg_names(items):
@@ -115,8 +101,16 @@ def _validate_egg_names(items):
         )
 
 
-def build(source, destination, items=None, eggs=None, symlink=_must_symlink()):
-    """Copy or symlink all items in `source` to `destination`.
+def build(  # pylint: disable=too-many-arguments
+    source,
+    destination,
+    items=None,
+    eggs=None,
+    symlink=linker.must_symlink(),
+    symlink_folders=linker.must_symlink_folders(),
+    symlink_files=linker.must_symlink_files(),
+):
+    """Copy or symlink all items in ``source`` to ``destination``.
 
     Args:
         source (str):
@@ -128,9 +122,17 @@ def build(source, destination, items=None, eggs=None, symlink=_must_symlink()):
         eggs (iter[str], optional):
             The local paths which will be compressed into .egg (zip) files. Default is None.
         symlink (bool, optional):
-            If True, create symlinks for each item in `items`.
-            Otherwise, copy the files. This parameter's default value is
-            set using sys.argv but typically is False.
+            If True, symlinking will always happen. It implies
+            If ``symlink_folders`` and ``symlink_files`` are both True.
+            If False, symlinking is not guaranteed to always happen.
+        symlink_folders (bool, optional):
+            If True and ``source`` is a folder, make a symlink from
+            ``destination`` which points back to ``source``. If False,
+            run ``command`` instead.
+        symlink_files (bool, optional):
+            If True and ``source`` is a file, make a symlink from
+            ``destination`` which points back to ``source``. If False,
+            run ``command`` instead.
 
     """
     if not items:
@@ -139,13 +141,26 @@ def build(source, destination, items=None, eggs=None, symlink=_must_symlink()):
     if not eggs:
         eggs = []
 
-    remove(destination)  # Clean any old build folder
-    os.makedirs(destination)
-
-    _validate_egg_names(eggs)
-
     try:
-        _build(source, destination, items, eggs, symlink=symlink)
+        if eggs:
+            build_eggs(
+                source,
+                destination,
+                eggs,
+                symlink=symlink,
+                symlink_folders=symlink_folders,
+                symlink_files=symlink_files,
+            )
+
+        if items:
+            build_items(
+                source,
+                destination,
+                items,
+                symlink=symlink,
+                symlink_folders=symlink_folders,
+                symlink_files=symlink_files,
+            )
     except RuntimeError:
         # If the build errors early for any reason, delete the
         # destination folder. This is done to prevent a situation where
@@ -154,6 +169,114 @@ def build(source, destination, items=None, eggs=None, symlink=_must_symlink()):
         shutil.rmtree(destination)
 
         raise
+
+
+def build_eggs(  # pylint: disable=too-many-arguments
+    source,
+    destination,
+    eggs,
+    symlink=linker.must_symlink(),
+    symlink_folders=linker.must_symlink_folders(),
+    symlink_files=linker.must_symlink_files(),
+):
+    """Copy or symlink all items in ``source`` to ``destination``.
+
+    Args:
+        source (str):
+            The absolute path to the root directory of the Rez package.
+        destination (str):
+            The location where the built files will be copied or symlinked from.
+        eggs (iter[str], optional):
+            The local paths which will be compressed into .egg (zip) files. Default is None.
+        symlink (bool, optional):
+            If True, symlinking will always happen. It implies
+            If ``symlink_folders`` and ``symlink_files`` are both True.
+            If False, symlinking is not guaranteed to always happen.
+        symlink_folders (bool, optional):
+            If True and ``source`` is a folder, make a symlink from
+            ``destination`` which points back to ``source``. If False,
+            run ``command`` instead.
+        symlink_files (bool, optional):
+            If True and ``source`` is a file, make a symlink from
+            ``destination`` which points back to ``source``. If False,
+            run ``command`` instead.
+
+    """
+    _validate_egg_names(eggs)
+
+    for name in eggs:
+        source_path = os.path.join(source, name)
+        egg = name + ".egg"
+        destination_path = os.path.join(destination, egg)
+
+        _run_command(
+            _make_egg,
+            source_path,
+            destination_path,
+            symlink,
+            symlink_folders,
+            symlink_files,
+        )
+
+
+def build_items(  # pylint: disable=too-many-arguments
+    source,
+    destination,
+    items,
+    symlink=linker.must_symlink(),
+    symlink_folders=linker.must_symlink_folders(),
+    symlink_files=linker.must_symlink_files(),
+):
+    """Copy or symlink all items in ``source`` to ``destination``.
+
+    Args:
+        source (str):
+            The absolute path to the root directory of the Rez package.
+        destination (str):
+            The location where the built files will be copied or symlinked from.
+        items (iter[str], optional):
+            The local paths to every item in `source` to copy / symlink. Default is None.
+        symlink (bool, optional):
+            If True, symlinking will always happen. It implies
+            If ``symlink_folders`` and ``symlink_files`` are both True.
+            If False, symlinking is not guaranteed to always happen.
+        symlink_folders (bool, optional):
+            If True and ``source`` is a folder, make a symlink from
+            ``destination`` which points back to ``source``. If False,
+            run ``command`` instead.
+        symlink_files (bool, optional):
+            If True and ``source`` is a file, make a symlink from
+            ``destination`` which points back to ``source``. If False,
+            run ``command`` instead.
+
+    """
+
+    def _copy_file_or_folder(source, destination):
+        if os.path.isdir(source):
+            _LOGGER.info('Copying "%s" folder.', source)
+            shutil.copytree(source, destination)
+        elif os.path.isfile(source):
+            _LOGGER.info('Copying "%s" file.', source)
+            shutil.copy2(source, destination)
+
+    for item in items:
+        source_path = os.path.join(source, item)
+        destination_path = os.path.join(destination, item)
+
+        _run_command(
+            _copy_file_or_folder,
+            source_path,
+            destination_path,
+            symlink,
+            symlink_folders,
+            symlink_files,
+        )
+
+
+def clean(path):
+    """Delete and re-make the ``path`` folder."""
+    remove(path)  # Clean any old build folder
+    os.makedirs(path)
 
 
 def remove(path):

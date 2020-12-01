@@ -9,7 +9,7 @@ import argparse
 import os
 import sys
 
-from . import exceptions, filer
+from . import exceptions, filer, linker
 
 
 def _parse_arguments(text):
@@ -43,10 +43,24 @@ def _parse_arguments(text):
     )
 
     parser.add_argument(
-        "-s",
         "--symlink",
         action="store_true",
-        help="If True, symlink back to the source Rez package, instead of creating new files.",
+        default=linker.must_symlink(),
+        help="If True, symlink everything back to the source Rez package.",
+    )
+
+    parser.add_argument(
+        "--symlink-files",
+        action="store_true",
+        default=linker.must_symlink_files(),
+        help="If True, symlink files back to the source Rez package.",
+    )
+
+    parser.add_argument(
+        "--symlink-folders",
+        action="store_true",
+        default=linker.must_symlink_folders(),
+        help="If True, symlink folders back to the source Rez package.",
     )
 
     known, _ = parser.parse_known_args(text)
@@ -58,12 +72,20 @@ def main(text):
     """Run the main execution of the current script."""
     arguments = _parse_arguments(text)
 
+    source = os.environ["REZ_BUILD_SOURCE_PATH"]
+    destination = os.environ["REZ_BUILD_INSTALL_PATH"]
+
+    filer.clean(destination)
+
     try:
         filer.build(
-            os.environ["REZ_BUILD_SOURCE_PATH"],
-            os.environ["REZ_BUILD_INSTALL_PATH"],
+            source,
+            destination,
             items=arguments.items,
             eggs=arguments.eggs,
+            symlink=arguments.symlink,
+            symlink_folders=arguments.symlink_folders,
+            symlink_files=arguments.symlink_files,
         )
     except exceptions.NonRootItemFound as error:
         print(error, file=sys.stderr)

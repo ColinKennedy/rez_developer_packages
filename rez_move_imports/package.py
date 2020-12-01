@@ -2,7 +2,7 @@
 
 name = "rez_move_imports"
 
-version = "1.4.1"
+version = "1.6.0"
 
 description = "Change a Rez package's imports and then bump the require Rez version(s)"
 
@@ -17,7 +17,7 @@ requires = [
     "python-2+<3",
     "rez-2.42+<3",
     "rez_bump-1.1+<2",
-    "rez_industry-1+<2",
+    "rez_industry-2+<3",
     "rez_python_compatibility-2.3+<3",
     "rez_utilities-2+<3",
 ]
@@ -51,14 +51,18 @@ tests = {
         #
         "command": "rez-env pydocstyle -- pydocstyle --ignore=D213,D202,D203,D406,D407 python tests/*"
     },
-    "pylint": {
-        "command": "pylint --disable=bad-continuation python/rez_move_imports tests",
+    "pylint_source": {
+        "command": "pylint --disable=bad-continuation python/rez_move_imports",
+        "requires": ["pylint-1.9+<2"],
+    },
+    "pylint_tests": {
+        "command": "pylint --disable=bad-continuation,duplicate-code tests",
         "requires": ["pylint-1.9+<2"],
     },
     "unittest": {
         "command": "python -m unittest discover",
         "requires": ["rez-2.53+<3"],  # Needs to support `"run_on": "explicit"`
-    }
+    },
 }
 
 uuid = "5bfaee62-4aa3-4311-b50e-6b3844c6ef1b"

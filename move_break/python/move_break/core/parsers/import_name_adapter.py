@@ -7,6 +7,8 @@ It also covers `import thing, some, other.namespace, more.imports`.
 
 """
 
+import itertools
+
 from parso.python import tree
 from parso_helper import node_seek
 
@@ -268,8 +270,13 @@ def _replace_namespace(nodes, old_parts, new_parts, partial=False):
 
         return True
 
-    names = [name for name in nodes if not isinstance(name, tree.Operator)]
-    prefix = names[0].prefix
+    names = [
+        child
+        for node in nodes
+        for child in itertools.chain([node], node_seek.iter_nested_children(node))
+        if isinstance(child, tree.Name)
+    ]
+    prefix = node_seek.get_node_with_first_prefix(names[0]).prefix
     start, end = import_helper.get_replacement_indices(names, old_parts)
 
     if start == -1 or end == -1:

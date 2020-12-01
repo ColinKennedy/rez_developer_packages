@@ -2,7 +2,7 @@
 
 name = "rez_python_compatibility"
 
-version = "2.4.0"
+version = "2.4.1"
 
 description = "Miscellaneous, core Python 2 + 3 functions."
 
@@ -26,11 +26,11 @@ variants = [["python-2.7"], ["python-3"]]
 tests = {
     "black_diff": {
         "command": "black --diff --check python tests",
-        "requires": ["black-19.10+<20"],
+        "requires": ["black-19.10+<21"],
     },
     "black": {
         "command": "rez-env black-19.10+ -- black python tests",
-        "requires": ["black-19.10+<20"],
+        "requires": ["black-19.10+<21"],
         "run_on": "explicit",
     },
     "coverage": {
@@ -65,11 +65,11 @@ tests = {
     },
     "unittest_python_2": {
         "command": "python -m unittest discover",
-        "on_variants": {"type": "requires", "value": ["python-2.7"]},
+        "requires": ["python-2.7"],
     },
     "unittest_python_3": {
         "command": "python -m unittest discover",
-        "on_variants": {"type": "requires", "value": ["python-3.6"]},
+        "requires": ["python-3.6+<3.8"],
     },
 }
 

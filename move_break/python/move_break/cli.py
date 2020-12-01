@@ -65,7 +65,8 @@ def _parse_arguments(text):
         "-c",
         "--continue-on-syntax-error",
         action="store_true",
-        help="If one or more discovered files has a syntax errors, don't modify it or exit the script.",
+        help="If one or more discovered files has a syntax errors, "
+        "don't modify it or exit the script.",
     )
 
     return parser.parse_args(text)

@@ -53,7 +53,9 @@ class Common(unittest.TestCase):
                 going. Otherwise, raise an exception. Default is False.
 
         """
-        with tempfile.NamedTemporaryFile(suffix=".py", mode="w", delete=False) as handler:
+        with tempfile.NamedTemporaryFile(
+            suffix=".py", mode="w", delete=False
+        ) as handler:
             handler.write(code)
 
         atexit.register(functools.partial(os.remove, handler.name))

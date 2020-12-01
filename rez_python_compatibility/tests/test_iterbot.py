@@ -51,3 +51,10 @@ class IterIsLast(unittest.TestCase):
 
         self.assertEqual(expected, list(iterbot.iter_is_last(items)))
         self.assertEqual(expected, list(iterbot.iter_is_last(generator)))
+
+    def test_simple_bug(self):
+        """Make sure a simple list works as expected."""
+        self.assertEqual(
+            [(False, "another"), (False, "jpeg"), (True, "many")],
+            list(iterbot.iter_is_last(["another", "jpeg", "many"])),
+        )
