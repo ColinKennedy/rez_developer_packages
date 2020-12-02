@@ -39,6 +39,7 @@ tests = {
             "mock-1+<4",
             "rez-2.51+<3",  # The tests use newer features than what is required by the package
         ],
+        "run_on": "explicit",
     },
     "isort": {
         "command": "isort --recursive package.py python tests",
