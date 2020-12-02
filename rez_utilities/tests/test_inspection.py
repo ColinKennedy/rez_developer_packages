@@ -18,9 +18,9 @@ from rez_utilities import creator, finder, inspection
 from rezplugins.build_process import local
 
 try:
-    from rez import packages as packages_
+    from rez import packages as packages_  # pylint: disable=ungrouped-imports
 except ImportError:
-    from rez import packages
+    from rez import packages_  # pylint: disable=ungrouped-imports
 
 
 _CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
