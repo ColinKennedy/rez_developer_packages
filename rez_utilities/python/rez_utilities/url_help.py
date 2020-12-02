@@ -35,7 +35,7 @@ def _get_insert_index(help_, key):
         if key < help_key:
             return index
 
-    return -1
+    return len(help_)
 
 
 def _get_url(text):
