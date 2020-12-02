@@ -3,7 +3,10 @@
 
 """Test that querying rez help URLs works as expected."""
 
+import atexit
+import functools
 import os
+import shutil
 import tempfile
 import textwrap
 import unittest
@@ -104,7 +107,18 @@ class InsertHelpEntry(unittest.TestCase):
 
     def test_undefined(self):
         """Define a new `help` attribute."""
-        raise ValueError()
+        folder = tempfile.mkdtemp(suffix="_InsertHelpEntry_test_undefined")
+        atexit.register(functools.partial(shutil.rmtree, folder))
+
+        with open(os.path.join(folder, "package.py"), "w") as handler:
+            handler.write('name = "some_package"')
+
+        package = packages_.get_developer_package(folder)
+
+        self.assertEqual(
+            [["foo", "bar"]],
+            url_help.insert_help_entry(package.help, "foo", "bar"),
+        )
 
 
 class CheckUrl(common.Common):

@@ -247,7 +247,7 @@ def insert_help_entry(help_, key, value):
 
     """
     help_ = resolve_to_list(help_)
-    index = _get_insert_index(help_, key)
+    index = _get_insert_index([key_ for key_, _ in help_], key)
     help_.insert(index, [key, value])
 
     return help_
