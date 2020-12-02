@@ -45,7 +45,7 @@ tests = {
     },
     "isort": {
         "command": "isort --recursive python tests",
-        "requires": ["isort"],
+        "requires": ["isort-4.3+<5"],
         "run_on": "explicit",
     },
     "isort_check": {
