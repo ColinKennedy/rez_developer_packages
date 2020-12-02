@@ -9,10 +9,33 @@ import logging
 import six
 from six.moves import urllib
 
+from . import rez_configuration
+
+
 _EXPECTED_API_LABELS = frozenset(
     ("api documentation", "api", "api-documentation", "api_documentation")
 )
 _LOGGER = logging.getLogger(__name__)
+
+
+def _get_insert_index(help_, key):
+    """Find the index where `key` can be inserted into `help_`.
+
+    Args:
+        help_ (container[str]): The Rez help keys to compare with `key`
+        key (str): Some string to check against `help_`.
+
+    Returns:
+        int:
+            A -1-or-greater value. If `help_` is empty or no match is
+            found, -1 is returned to mean "append to the end".
+
+    """
+    for index, help_key in enumerate(help_):
+        if key < help_key:
+            return index
+
+    return -1
 
 
 def _get_url(text):
@@ -207,6 +230,49 @@ def find_package_documentation(package, filters=frozenset(("*",))):
             return url
 
     return ""
+
+
+def insert_help_entry(help_, key, value):
+    """Add `key` and `value` to `help_` at the appropriate index.
+
+    This function assumes that you want ascending alphabetical order.
+
+    Args:
+        help_ (str or list[list[str, str]] or NoneType):
+            The Rez package help information to resolve.
+        key (str):
+            Some left-hand key to refer to the help `value` by.
+        value (str):
+            A path to a file/folder or website URL used for Rez help.
+
+    """
+    help_ = resolve_to_list(help_)
+    index = _get_insert_index(help_, key)
+    help_.insert(index, [key, value])
+
+    return help_
+
+
+def resolve_to_list(help_):
+    """Get a copy of `help_` which is a list.
+
+    Args:
+        help_ (str or list[list[str, str]] or NoneType):
+            The Rez package help information to resolve.
+
+    Returns:
+        list[list[str, str]]:
+            The resolved data, if any. If a string was given, a default
+            key is added for you.
+
+    """
+    if not help_:
+        return []
+
+    if isinstance(help_, six.string_types):
+        help_ = [[rez_configuration.DEFAULT_HELP_LABEL, help_]]
+
+    return list(help_ or [])
 
 
 def get_common_documentation_help_labels():

@@ -15,6 +15,98 @@ from rez_utilities import url_help
 _DEFAULT_HELP = object()
 
 
+class InsertHelpEntry(unittest.TestCase):
+    """Make sure :func:`rez_utilities.url_help.insert_help_entry` works."""
+
+    def test_beginning_list(self):
+        """Add to the beginning of a list `help` attribute."""
+        help_ = [
+            ["another", "thing"],
+            ["blah", "something"],
+        ]
+
+        self.assertEqual(
+            [
+                ["aaa", "zzz"],
+                ["another", "thing"],
+                ["blah", "something"],
+            ],
+            url_help.insert_help_entry(help_, "aaa", "zzz"),
+        )
+
+    def test_beginning_string(self):
+        """Add to the beginning of a string `help` attribute."""
+        help_ = "something"
+
+        self.assertEqual(
+            [["AAA", "zzz"], ["Home Page", "something"]],
+            url_help.insert_help_entry(help_, "AAA", "zzz"),
+        )
+
+    def test_end_list(self):
+        """Add to the end of a list `help` attribute."""
+        help_ = [
+            ["another", "thing"],
+            ["blah", "something"],
+        ]
+
+        self.assertEqual(
+            [
+                ["another", "thing"],
+                ["blah", "something"],
+                ["foo", "bar"],
+            ],
+            url_help.insert_help_entry(help_, "foo", "bar"),
+        )
+
+    def test_end_string(self):
+        """Add to the end of a string `help` attribute."""
+        help_ = "something"
+
+        self.assertEqual(
+            [["Home Page", "something"], ["foo", "bar"]],
+            url_help.insert_help_entry(help_, "foo", "bar"),
+        )
+
+    def test_empty_001(self):
+        """Add to the end of an empty `help` attribute."""
+        help_ = []
+
+        self.assertEqual(
+            [["foo", "bar"]],
+            url_help.insert_help_entry(help_, "foo", "bar"),
+        )
+
+    def test_empty_002(self):
+        """Add to the end of an empty `help` attribute."""
+        help_ = ""
+
+        self.assertEqual(
+            [["foo", "bar"]],
+            url_help.insert_help_entry(help_, "foo", "bar"),
+        )
+
+    def test_middle_list(self):
+        """Add to the middle of a list `help` attribute."""
+        help_ = [
+            ["another", "thing"],
+            ["blah", "something"],
+        ]
+
+        self.assertEqual(
+            [
+                ["another", "thing"],
+                ["azz", "zzz"],
+                ["blah", "something"],
+            ],
+            url_help.insert_help_entry(help_, "azz", "zzz"),
+        )
+
+    def test_undefined(self):
+        """Define a new `help` attribute."""
+        raise ValueError()
+
+
 class CheckUrl(common.Common):
     """Check that different package help URLs settings all raise exceptions correctly."""
 

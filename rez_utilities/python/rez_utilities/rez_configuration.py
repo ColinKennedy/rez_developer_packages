@@ -10,6 +10,7 @@ import wurlitzer
 from rez import serialise
 from rez.config import config
 
+DEFAULT_HELP_LABEL = "Home Page"  # A label used for a Rez package.py `help` attribute
 REZ_PACKAGE_NAMES = frozenset(
     name + "." + extension.lstrip(".")
     for name, format_ in itertools.product(
