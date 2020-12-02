@@ -11,7 +11,6 @@ from six.moves import urllib
 
 from . import rez_configuration
 
-
 _EXPECTED_API_LABELS = frozenset(
     ("api documentation", "api", "api-documentation", "api_documentation")
 )
