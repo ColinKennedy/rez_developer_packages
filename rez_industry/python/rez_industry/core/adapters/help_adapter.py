@@ -12,11 +12,10 @@ from parso.python import tree
 from parso_helper import node_seek
 from rez import package_serialise
 from rez.vendor.schema import schema
+from rez_utilities import rez_configuration
 
 from .. import convention, encoder, parso_utility
 from . import base
-
-DEFAULT_HELP_LABEL = "Home Page"
 
 
 class HelpAdapter(base.BaseAdapter):
@@ -61,8 +60,8 @@ class HelpAdapter(base.BaseAdapter):
             "testlist_comp",
             [
                 tree.String(
-                    '"{DEFAULT_HELP_LABEL}"'.format(
-                        DEFAULT_HELP_LABEL=DEFAULT_HELP_LABEL
+                    '"{rez_configuration.DEFAULT_HELP_LABEL}"'.format(
+                        rez_configuration=rez_configuration
                     ),
                     (0, 0),
                 ),
