@@ -237,12 +237,13 @@ def insert_help_entry(help_, key, value):
     This function assumes that you want ascending alphabetical order.
 
     Args:
-        help_ (str or list[list[str, str]] or NoneType):
-            The Rez package help information to resolve.
-        key (str):
-            Some left-hand key to refer to the help `value` by.
-        value (str):
-            A path to a file/folder or website URL used for Rez help.
+        help_ (str or list[list[str, str]] or NoneType): The Rez package
+            help information to resolve.
+        key (str): Some left-hand key to refer to the help `value` by.
+        value (str): A path to a file/folder or website URL used for Rez help.
+
+    Returns:
+        list[list[str, str]]: The resolved Rez help data.
 
     """
     help_ = resolve_to_list(help_)

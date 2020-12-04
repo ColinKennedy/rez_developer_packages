@@ -71,22 +71,19 @@ def get_data(directory="", matches="", resolve=True):
     """Get a Rez package's help information.
 
     Args:
-        directory (str, optional):
-            The absolute path on-disk where a Rez package is assumed
-            to be in. If no folder is given, this function will
-            automatically find the Rez package which called this
-            function and use that directory, instead.
-        matches (str or callable[str] -> bool, optional):
-            If nothing is given, the whole `help` attribute is returned.
-            If a string is given, it matches the string against each key
-            as a glob expression. Matches are returned. If a function is
-            given, all True return values are shown and False are not.
-            Default: "".
-        resolve (bool, optional):
-            If True and a `help` value is pointing to a relative path
-            on-disk, that path is expanded into an absolute path and
-            returned. If False, the path is returned as-is without being
-            modified. Default is True.
+        directory (str, optional): The absolute path on-disk where
+            a Rez package is assumed to be in. If no folder is given,
+            this function will automatically find the Rez package which
+            called this function and use that directory, instead.
+        matches (str or callable[str] -> bool, optional): If nothing is given,
+            the whole `help` attribute is returned. If a string is
+            given, it matches the string against each key as a glob
+            expression. Matches are returned. If a function is given,
+            all True return values are shown and False are not. Default: "".
+        resolve (bool, optional): If True and a `help` value is pointing
+            to a relative path on-disk, that path is expanded into an
+            absolute path and returned. If False, the path is returned
+            as-is without being modified. Default is True.
 
     """
     matches = _resolve_matches(matches)
