@@ -207,7 +207,7 @@ def _get_package_help(directory):
     :mod:`rez_utilities`, we need to interrupt the call stack.
 
     We do this by running the module in a subprocess and then returning
-its output. It's hacky, but it works.
+    its output. It's hacky, but it works.
 
     Args:
         directory (str):
