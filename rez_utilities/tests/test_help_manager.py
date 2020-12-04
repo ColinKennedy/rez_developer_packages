@@ -96,8 +96,7 @@ class GetHelpData(unittest.TestCase):
         help_ = [["Blah", "some/non/existent/path"]]
         package = _make_package(help_=help_)
         items = help_manager.get_data(
-            os.path.dirname(package.filepath),
-            matches=_matches,
+            os.path.dirname(package.filepath), matches=_matches,
         )
 
         self.assertEqual(help_, items)
@@ -107,8 +106,7 @@ class GetHelpData(unittest.TestCase):
         help_ = [["Blah", "some/non/existent/path"]]
         package = _make_package(help_=help_)
         items = help_manager.get_data(
-            os.path.dirname(package.filepath),
-            matches="*Thing*",
+            os.path.dirname(package.filepath), matches="*Thing*",
         )
 
         self.assertEqual([], items)
@@ -121,8 +119,7 @@ class GetHelpData(unittest.TestCase):
         ]
         package = _make_package(help_=help_)
         items = help_manager.get_data(
-            os.path.dirname(package.filepath),
-            matches="*Documentation",
+            os.path.dirname(package.filepath), matches="*Documentation",
         )
 
         self.assertEqual([["Some Documentation", "foo/bar"]], items)
@@ -134,10 +131,7 @@ class GetHelpData(unittest.TestCase):
             ["Some Documentation", "foo/bar"],
         ]
         package = _make_package(help_=help_)
-        items = help_manager.get_data(
-            os.path.dirname(package.filepath),
-            matches="*",
-        )
+        items = help_manager.get_data(os.path.dirname(package.filepath), matches="*",)
 
         self.assertEqual(help_, items)
 
@@ -171,8 +165,7 @@ class GetHelpData(unittest.TestCase):
         open(path, "a").close()
 
         self.assertEqual(
-            [["README", path]],
-            help_manager.get_data(directory),
+            [["README", path]], help_manager.get_data(directory),
         )
         self.assertEqual(
             [["README", "inner_folder/README.md"]],
