@@ -3,15 +3,23 @@
 
 """Create helpful functions for building Rez packages, using Python."""
 
+import glob
 import itertools
 import logging
 import os
 import shutil
+import subprocess
 import zipfile
+
+import whichcraft
 
 from . import exceptions, linker
 
 _LOGGER = logging.getLogger(__name__)
+
+
+def _get_hotl_executable():
+    return whichcraft.which("hotl")
 
 
 def _make_egg(source, destination):
@@ -87,6 +95,28 @@ def _run_command(  # pylint: disable=too-many-arguments
         command(source, destination)
 
 
+def _run_hotl(root, hda, symlink=linker.must_symlink()):
+    executable = _get_hotl_executable()
+
+    if not os.path.isfile(executable):
+        raise EnvironmentError('Path "{executable}" is not an executable file.'.format(executable=executable))
+
+    if symlink:
+        _LOGGER.info('Creating symlink "%s" -> "%s".', root, hda)
+        os.symlink(root, hda)
+
+        return
+
+    _LOGGER.info('Collapsing "%s" HDA to "%s".', root, hda)
+    process = subprocess.Popen([executable, "-l", root, hda], stderr=subprocess.PIPE)
+    _, stderr = process.communicate()
+
+    if stderr:
+        _LOGGER.error('HDA "%s" failed to generate.', root)
+
+        raise RuntimeError(stderr)
+
+
 def _validate_egg_names(items):
     """Check to ensure no item is in a sub-folder."""
     invalids = set()
@@ -104,6 +134,7 @@ def _validate_egg_names(items):
 def build(  # pylint: disable=too-many-arguments
     source,
     destination,
+    hdas=None,
     items=None,
     eggs=None,
     symlink=linker.must_symlink(),
@@ -135,11 +166,16 @@ def build(  # pylint: disable=too-many-arguments
             run ``command`` instead.
 
     """
+    if not hdas:
+        hdas = []
+
     if not items:
         items = []
 
     if not eggs:
         eggs = []
+
+    raise ValueError(('ASD', hdas))
 
     try:
         if eggs:
@@ -150,6 +186,14 @@ def build(  # pylint: disable=too-many-arguments
                 symlink=symlink,
                 symlink_folders=symlink_folders,
                 symlink_files=symlink_files,
+            )
+
+        if hdas:
+            build_hdas(
+                source,
+                destination,
+                hdas,
+                symlink=symlink,
             )
 
         if items:
@@ -217,6 +261,30 @@ def build_eggs(  # pylint: disable=too-many-arguments
             symlink_folders,
             symlink_files,
         )
+
+
+def build_hdas(
+    source,
+    destination,
+    hdas,
+    symlink=linker.must_symlink(),
+):
+    libraries = sorted(glob.glob(os.path.join(source, "*", "houdini.hdalibrary")))
+
+    if not libraries:
+        raise RuntimeError('Directory "{source}" has no VCS-style HDAs inside of it.'.format(source=source))
+
+    if not os.path.isdir(destination):
+        os.makedirs(destination)
+
+    for library in libraries:
+        root = os.path.dirname(library)
+        hda = os.path.join(destination, os.path.basename(root))
+
+        if os.path.exists(hda):
+            os.remove(hda)
+
+        _run_hotl(root, hda, symlink=symlink)
 
 
 def build_items(  # pylint: disable=too-many-arguments

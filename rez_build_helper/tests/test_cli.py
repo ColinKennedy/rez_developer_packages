@@ -4,6 +4,7 @@
 """Make sure :mod:`rez_build_helper` works as expected."""
 
 import atexit
+import contextlib
 import functools
 import os
 import shutil
@@ -452,6 +453,63 @@ class Egg(unittest.TestCase):
         )
 
 
+class Hda(unittest.TestCase):
+    """All tests related to building Houdini HDAs."""
+
+    def test_which(self):
+        """Make sure the we get the hotl correctly."""
+        raise ValueError()
+
+    def test_collapse(self):
+        directory = tempfile.mkdtemp(
+            prefix="rez_build_helper_Hda_test_collapse_",
+        )
+        atexit.register(functools.partial(shutil.rmtree, directory))
+
+        common.make_files(
+            {
+                "hda": {
+                    "blah": {
+                        "houdini.hdalibrary": None,
+                    }
+                },
+            },
+            directory,
+        )
+
+        with open(os.path.join(directory, "package.py"), "w") as handler:
+            handler.write(
+                textwrap.dedent(
+                    """\
+                    name = "some_package"
+
+                    version = "1.0.0"
+
+                    private_build_requires = ["rez_build_helper"]
+
+                    build_command = "python -m rez_build_helper --hdas hda"
+                    """
+                )
+            )
+
+        package = finder.get_nearest_rez_package(directory)
+        destination = tempfile.mkdtemp(prefix="rez_build_helper_Hda_test_collapse_")
+        atexit.register(functools.partial(shutil.rmtree, destination))
+
+        with _patch_hotl(file_name):
+            creator.build(package, destination)
+
+        install_location = os.path.join(destination, "some_package", "1.0.0")
+        self.assertTrue(os.path.isfile(os.path.join(install_location, file_name)))
+        self.assertTrue(os.path.isdir(os.path.join(install_location, "hda")))
+
+    def test_invalid(self):
+        raise ValueError()
+
+    def test_symlink(self):
+        raise ValueError()
+
+
 class Symlink(unittest.TestCase):
     """Make sure symlinks generate as expected."""
 
@@ -885,3 +943,29 @@ class Symlink(unittest.TestCase):
                 )
             )
         )
+
+
+@contextlib.contextmanager
+def _patch_hotl(fake_path_name):
+    path = os.getenv("PATH", "")
+    prefix = tempfile.mkdtemp(suffix="_patch_hotl")
+    hotl = os.path.join(prefix, "hotl")
+
+    template = textwrap.dedent(
+        """\
+        python -c 'open("{fake_path_name}", "a").close()'
+        """
+    )
+
+    with open(hotl, "w") as handler:
+        handler.write(template.format(fake_path_name=fake_path_name))
+
+    try:
+        os.environ["PATH"] = "{prefix}{os.pathsep}{path}".format(
+            prefix=prefix,
+            os=os,
+            path=path,
+        )
+        yield
+    finally:
+        os.environ["PATH"] = path
