@@ -19,7 +19,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 def _get_hotl_executable():
-    return whichcraft.which("hotl")
+    return whichcraft.which("hotl") or ""
 
 
 def _make_egg(source, destination):
