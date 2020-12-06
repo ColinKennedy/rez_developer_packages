@@ -175,8 +175,6 @@ def build(  # pylint: disable=too-many-arguments
     if not eggs:
         eggs = []
 
-    raise ValueError(('ASD', hdas))
-
     try:
         if eggs:
             build_eggs(
@@ -269,10 +267,18 @@ def build_hdas(
     hdas,
     symlink=linker.must_symlink(),
 ):
-    libraries = sorted(glob.glob(os.path.join(source, "*", "houdini.hdalibrary")))
+    libraries = set()
 
-    if not libraries:
-        raise RuntimeError('Directory "{source}" has no VCS-style HDAs inside of it.'.format(source=source))
+    for folder_name in hdas:
+        location = os.path.join(source, folder_name, "*", "houdini.hdalibrary")
+        folder_libraries = list(glob.glob(location))
+
+        if not folder_libraries:
+            raise RuntimeError('Directory "{location}" has no VCS-style HDAs inside of it.'.format(location=location))
+
+        libraries.update(folder_libraries)
+
+    libraries = sorted(libraries)
 
     if not os.path.isdir(destination):
         os.makedirs(destination)

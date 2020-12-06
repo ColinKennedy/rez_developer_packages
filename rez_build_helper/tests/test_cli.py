@@ -8,6 +8,7 @@ import contextlib
 import functools
 import os
 import shutil
+import stat
 import sys
 import tempfile
 import textwrap
@@ -462,7 +463,7 @@ class Hda(unittest.TestCase):
 
     def test_collapse(self):
         directory = tempfile.mkdtemp(
-            prefix="rez_build_helper_Hda_test_collapse_",
+            prefix="rez_build_helper_Hda_test_collapse_source_directory_",
         )
         atexit.register(functools.partial(shutil.rmtree, directory))
 
@@ -493,8 +494,10 @@ class Hda(unittest.TestCase):
             )
 
         package = finder.get_nearest_rez_package(directory)
-        destination = tempfile.mkdtemp(prefix="rez_build_helper_Hda_test_collapse_")
+        destination = tempfile.mkdtemp(prefix="rez_build_helper_Hda_test_collapse_destination_")
         atexit.register(functools.partial(shutil.rmtree, destination))
+
+        file_name = "hotl.txt"
 
         with _patch_hotl(file_name):
             creator.build(package, destination)
@@ -949,6 +952,7 @@ class Symlink(unittest.TestCase):
 def _patch_hotl(fake_path_name):
     path = os.getenv("PATH", "")
     prefix = tempfile.mkdtemp(suffix="_patch_hotl")
+    atexit.register(functools.partial(shutil.rmtree, prefix))
     hotl = os.path.join(prefix, "hotl")
 
     template = textwrap.dedent(
@@ -960,12 +964,19 @@ def _patch_hotl(fake_path_name):
     with open(hotl, "w") as handler:
         handler.write(template.format(fake_path_name=fake_path_name))
 
+    # Make `hotl` executable
+    stats = os.stat(hotl)
+    os.chmod(hotl, stats.st_mode | stat.S_IEXEC)
+
+    new_path = "{prefix}{os.pathsep}{path}".format(
+        prefix=prefix,
+        os=os,
+        path=path,
+    )
+
     try:
-        os.environ["PATH"] = "{prefix}{os.pathsep}{path}".format(
-            prefix=prefix,
-            os=os,
-            path=path,
-        )
+        os.environ["PATH"] = new_path
+
         yield
     finally:
         os.environ["PATH"] = path
