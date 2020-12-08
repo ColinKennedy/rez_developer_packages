@@ -4,16 +4,19 @@
 """Make sure :mod:`rez_utilities.help_manager` works as expected."""
 
 import atexit
+import contextlib
 import functools
 import json
 import os
 import shutil
 import subprocess
+import sys
 import tempfile
 import textwrap
 import unittest
 
 from rez_utilities import help_manager
+from python_compatibility.testing import contextual
 
 try:
     from rez import package_maker
@@ -24,6 +27,8 @@ try:
     from rez import packages as packages_
 except ImportError:
     from rez import packages_
+
+from six.moves import mock
 
 
 class GetHelpData(unittest.TestCase):
@@ -230,6 +235,48 @@ def _get_package_help(directory):
     cleaned = output.replace("u'", "'").replace("'", '"')
 
     return json.loads(cleaned)
+
+
+class GetHelpDataDirectory(unittest.TestCase):
+    """Check that auto-finding directory information works as expected."""
+
+    def test_egg(self):
+        """Get the directory of an .egg path automatically."""
+        root = tempfile.mkdtemp(suffix="_GetHelpDataDirectory_test_egg")
+        atexit.register(functools.partial(shutil.rmtree, root))
+        fake_directory = os.path.join(root, "some_rez_package", "1.0.0", "and", "stuff")
+        os.makedirs(fake_directory)
+
+        with open(os.path.join(fake_directory, "package.py"), "w") as handler:
+            handler.write(
+                textwrap.dedent(
+                    """
+                    name = "some_rez_package"
+
+                    help = [["Some Documentation", "blah here"]]
+                    """
+                )
+            )
+
+        fake_path = os.path.join(fake_directory, "namespace.file.py")
+        # This "build/foo/major.minor.patch" is a really common pattern with Rez .egg packages
+        fake_stack_path = "build/some_rez_package/1.0.0/namespace/file.py"
+
+        with _fake_build_environment(fake_path, fake_stack_path):
+            help_ = help_manager.get_data()
+
+        self.assertEqual([['Some Documentation', 'blah here']], help_)
+
+
+@contextlib.contextmanager
+def _fake_build_environment(fake_path, fake_stack_path):
+    """Create an environment which mimics a built Rez package + resolve."""
+    with mock.patch("rez_utilities.help_manager._get_first_external_path") as patch:
+        with contextual.keep_sys_path():
+            sys.path[:] = [fake_path] + sys.path
+            patch.return_value = fake_stack_path
+
+            yield
 
 
 def _make_package(help_=tuple()):
