@@ -28,7 +28,7 @@ tests = {
         "requires": ["black-19.10+<21"],
     },
     "black": {
-        "command": "rez-env black-19.10+ -- black python tests",
+        "command": "black python tests",
         "requires": ["black-19.10+<21"],
         "run_on": "explicit",
     },
