@@ -15,8 +15,9 @@ import tempfile
 import textwrap
 import unittest
 
-from rez_utilities import help_manager
 from python_compatibility.testing import contextual
+from rez_utilities import help_manager
+from six.moves import mock
 
 try:
     from rez import package_maker
@@ -28,7 +29,6 @@ try:
 except ImportError:
     from rez import packages_
 
-from six.moves import mock
 
 
 class GetHelpData(unittest.TestCase):
