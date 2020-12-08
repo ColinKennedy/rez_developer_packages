@@ -39,7 +39,7 @@ def iter_is_last(container):
         # Reference: https://stackoverflow.com/a/53373901
         #
         return
-        yield
+        yield  # pylint: disable=unreachable
 
     # Run the iterator to exhaustion (starting from the second value).
     for value in iterator:
@@ -52,40 +52,46 @@ def iter_is_last(container):
     yield True, last
 
 
-def iter_sub_finder(subseq, seq):
-    """Find each index of `seq` which contains `subseq`.
+def iter_sub_finder(smaller, larger):
+    """Find each index of `larger` which contains `smaller`.
+
+    Reference:
+        https://stackoverflow.com/a/60819519
 
     Args:
-        subseq (container[object]): Something to search for. e.g. [4, 6].
-        seq (container[object]): A bigger container to search with. e.g. [1, 4, 6, -4, 4, 6].
+        smaller (container[object]): Something to search for. e.g. [4, 6].
+        larger (container[object]): A bigger container to search with. e.g. [1, 4, 6, -4, 4, 6].
 
     Raises:
-        ValueError: If `subseq` is empty.
+        ValueError: If `smaller` is empty.
 
     Yields:
         int: Every found index, if any.
 
     """
-    # Reference: https://stackoverflow.com/a/60819519
-    n = len(seq)
-    m = len(subseq)
+    smaller_length = len(smaller)
 
-    if m == 0:
+    if smaller_length == 0:
         raise ValueError('Sub-sequence cannot be empty.')
 
-    stop = n - m + 1
+    larger_length = len(larger)
 
-    if n > 0:
-        item = subseq[0]
-        i = 0
-        try:
-            while i < stop:
-                i = seq.index(item, i)
-                if seq[i:i + m] == subseq:
-                    yield i
-                i += 1
-        except ValueError:
-            return
+    stop = larger_length - smaller_length + 1
+
+    if larger_length <= 0:
+        return
+        yield  # pylint: disable=unreachable
+
+    item = smaller[0]
+    index = 0
+
+    while index < stop:
+        index = larger.index(item, index)
+
+        if larger[index:index + smaller_length] == smaller:
+            yield index
+
+        index += 1
 
 
 def make_chains(sequence, size=2):
@@ -99,7 +105,8 @@ def make_chains(sequence, size=2):
         sequence (container[object]):
             Any container of objects, as long as it supports `len()`.
         size (int, optional):
-            The spacing for the chain. You can make "wider" chains but setting a higher size value. Default: 2.
+            The spacing for the chain. You can make "wider" chains but
+            setting a higher size value. Default: 2.
 
     Raises:
         ValueError: If `sequence` cannot be chained or if `size` is not greater than 1.
