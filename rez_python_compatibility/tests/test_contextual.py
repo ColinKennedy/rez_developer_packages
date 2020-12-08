@@ -3,8 +3,8 @@
 
 """Make sure :mod:`python_compatibility.testing.contextual` works."""
 
-import unittest
 import sys
+import unittest
 
 from python_compatibility.testing import contextual
 
