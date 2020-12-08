@@ -53,6 +53,19 @@ def iter_is_last(container):
 
 
 def iter_sub_finder(subseq, seq):
+    """Find each index of `seq` which contains `subseq`.
+
+    Args:
+        subseq (container[object]): Something to search for. e.g. [4, 6].
+        seq (container[object]): A bigger container to search with. e.g. [1, 4, 6, -4, 4, 6].
+
+    Raises:
+        ValueError: If `subseq` is empty.
+
+    Yields:
+        int: Every found index, if any.
+
+    """
     # Reference: https://stackoverflow.com/a/60819519
     n = len(seq)
     m = len(subseq)
