@@ -14,14 +14,13 @@ help = [
 
 requires = [
     "backports.tempfile-1+<2",
+    "python-2.7+<3.8",
     "six-1.13+<2",
 ]
 
 private_build_requires = ["rez_build_helper-1.1+<2"]
 
 build_command = "python -m rez_build_helper --items python"
-
-variants = [["python-2.7"], ["python-3"]]
 
 tests = {
     "black_diff": {
