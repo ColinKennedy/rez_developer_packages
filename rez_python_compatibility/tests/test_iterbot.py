@@ -78,12 +78,7 @@ class IterSubFinder(unittest.TestCase):
         """Find one multiple, matching indices."""
         self.assertEqual(
             [4, 14],
-            list(
-                iterbot.iter_sub_finder(
-                    [4, 5],
-                    list(range(10)) + list(range(10)),
-                )
-            ),
+            list(iterbot.iter_sub_finder([4, 5], list(range(10)) + list(range(10)),)),
         )
 
 
@@ -93,8 +88,7 @@ class MakeChains(unittest.TestCase):
     def test_custom(self):
         """Get a custom size output."""
         self.assertEqual(
-            [range(0, 4), range(1, 5)],
-            list(iterbot.make_chains(range(5), size=4)),
+            [range(0, 4), range(1, 5)], list(iterbot.make_chains(range(5), size=4)),
         )
 
     def test_default(self):
@@ -107,8 +101,7 @@ class MakeChains(unittest.TestCase):
     def test_empty(self):
         """Get no chains."""
         self.assertEqual(
-            [],
-            list(iterbot.make_chains([], size=4)),
+            [], list(iterbot.make_chains([], size=4)),
         )
 
     def test_invalid(self):
@@ -122,8 +115,7 @@ class MakeChains(unittest.TestCase):
     def test_one(self):
         """Get one chain."""
         self.assertEqual(
-            [range(0, 1)],
-            list(iterbot.make_chains(range(1), size=1)),
+            [range(0, 1)], list(iterbot.make_chains(range(1), size=1)),
         )
 
     def test_string(self):
@@ -137,8 +129,7 @@ class MakeChains(unittest.TestCase):
         """Get no list back because the minimum size is too high."""
         length = 5
         self.assertEqual(
-            [],
-            list(iterbot.make_chains(range(length), size=length + 1)),
+            [], list(iterbot.make_chains(range(length), size=length + 1)),
         )
 
 
@@ -164,6 +155,5 @@ class MakePairs(unittest.TestCase):
     def test_odd(self):
         """Get the pairs of an odd container."""
         self.assertEqual(
-            [(0, 1), (2, 3), (4, 5), (6, 7)],
-            list(iterbot.make_pairs(range(9))),
+            [(0, 1), (2, 3), (4, 5), (6, 7)], list(iterbot.make_pairs(range(9))),
         )
