@@ -191,6 +191,13 @@ def get_data(directory="", matches="", resolve=True, excludes=frozenset()):
             default, even if no paths are given, this module's current
             Rez package is always excluded.
 
+    Raises:
+        ValueError: If no `directory` is given and one couldn't be automatically found.
+        RuntimeError: If the `directory` has no Rez package inside of it.
+
+    Returns:
+        list[list[str, str]]: Each found package help key and value, if any.
+
     """
     matches = _resolve_matches(matches)
 
