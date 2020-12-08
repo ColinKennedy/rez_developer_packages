@@ -83,16 +83,16 @@ def iter_sub_finder(smaller, larger):
     item = smaller[0]
     index = 0
 
-    try:
-        while index < stop:
+    while index < stop:
+        try:
             index = larger.index(item, index)
+        except ValueError:
+            return
 
-            if larger[index : index + smaller_length] == smaller:
-                yield index
+        if larger[index : index + smaller_length] == smaller:
+            yield index
 
-            index += 1
-    except ValueError:
-        return
+        index += 1
 
 
 def make_chains(sequence, size=2):
