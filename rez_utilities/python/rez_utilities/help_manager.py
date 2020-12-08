@@ -186,10 +186,10 @@ def get_data(directory="", matches="", resolve=True, excludes=frozenset()):
             to a relative path on-disk, that path is expanded into an
             absolute path and returned. If False, the path is returned
             as-is without being modified. Default is True.
-        excludes (set[str]):
-            The absolute path to any directory which should be ignored
-            while running this function. Default default, even if no
-            paths are given, this module's current Rez package is always excluded.
+        excludes (set[str]): The absolute path to any directory which
+            should be ignored while running this function. Default
+            default, even if no paths are given, this module's current
+            Rez package is always excluded.
 
     """
     matches = _resolve_matches(matches)
