@@ -30,7 +30,6 @@ except ImportError:
     from rez import packages_
 
 
-
 class GetHelpData(unittest.TestCase):
     """Make sure :func:`rez_utilities.help_manager.get_data` works."""
 
