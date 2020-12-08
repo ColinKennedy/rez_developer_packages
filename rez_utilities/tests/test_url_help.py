@@ -29,11 +29,7 @@ class InsertHelpEntry(unittest.TestCase):
         ]
 
         self.assertEqual(
-            [
-                ["aaa", "zzz"],
-                ["another", "thing"],
-                ["blah", "something"],
-            ],
+            [["aaa", "zzz"], ["another", "thing"], ["blah", "something"],],
             url_help.insert_help_entry(help_, "aaa", "zzz"),
         )
 
@@ -54,11 +50,7 @@ class InsertHelpEntry(unittest.TestCase):
         ]
 
         self.assertEqual(
-            [
-                ["another", "thing"],
-                ["blah", "something"],
-                ["foo", "bar"],
-            ],
+            [["another", "thing"], ["blah", "something"], ["foo", "bar"],],
             url_help.insert_help_entry(help_, "foo", "bar"),
         )
 
@@ -76,8 +68,7 @@ class InsertHelpEntry(unittest.TestCase):
         help_ = []
 
         self.assertEqual(
-            [["foo", "bar"]],
-            url_help.insert_help_entry(help_, "foo", "bar"),
+            [["foo", "bar"]], url_help.insert_help_entry(help_, "foo", "bar"),
         )
 
     def test_empty_002(self):
@@ -85,8 +76,7 @@ class InsertHelpEntry(unittest.TestCase):
         help_ = ""
 
         self.assertEqual(
-            [["foo", "bar"]],
-            url_help.insert_help_entry(help_, "foo", "bar"),
+            [["foo", "bar"]], url_help.insert_help_entry(help_, "foo", "bar"),
         )
 
     def test_middle_list(self):
@@ -97,11 +87,7 @@ class InsertHelpEntry(unittest.TestCase):
         ]
 
         self.assertEqual(
-            [
-                ["another", "thing"],
-                ["azz", "zzz"],
-                ["blah", "something"],
-            ],
+            [["another", "thing"], ["azz", "zzz"], ["blah", "something"],],
             url_help.insert_help_entry(help_, "azz", "zzz"),
         )
 
@@ -116,8 +102,7 @@ class InsertHelpEntry(unittest.TestCase):
         package = packages_.get_developer_package(folder)
 
         self.assertEqual(
-            [["foo", "bar"]],
-            url_help.insert_help_entry(package.help, "foo", "bar"),
+            [["foo", "bar"]], url_help.insert_help_entry(package.help, "foo", "bar"),
         )
 
 
