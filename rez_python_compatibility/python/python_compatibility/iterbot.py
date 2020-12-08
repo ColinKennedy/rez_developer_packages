@@ -78,7 +78,7 @@ def iter_sub_finder(smaller, larger):
 
     if larger_length <= 0:
         return
-        yield
+        yield  # pylint: disable=unreachable
 
     item = smaller[0]
     index = 0
@@ -87,7 +87,7 @@ def iter_sub_finder(smaller, larger):
         while index < stop:
             index = larger.index(item, index)
 
-            if larger[index:index + smaller_length] == smaller:
+            if larger[index : index + smaller_length] == smaller:
                 yield index
 
             index += 1
