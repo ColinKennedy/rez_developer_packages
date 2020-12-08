@@ -65,30 +65,27 @@ class IterSubFinder(unittest.TestCase):
 
     def test_empty(self):
         """Get no indices because the make sequence is empty."""
-        self.assertEqual(
-            [],
-            list(iterbot.iter_sub_finder([4, 5], []))
-        )
+        self.assertEqual([], list(iterbot.iter_sub_finder([4, 5], [])))
 
         with self.assertRaises(ValueError):
             list(iterbot.iter_sub_finder([], [range(10)]))
 
     def test_find(self):
         """Find one index."""
-        self.assertEqual(
-            [4],
-            list(iterbot.iter_sub_finder([4, 5], list(range(10))))
-        )
+        self.assertEqual([4], list(iterbot.iter_sub_finder([4, 5], list(range(10)))))
 
     def test_multiple_find_001(self):
         """Find one multiple, matching indices."""
         self.assertEqual(
             [4, 14],
-            list(iterbot.iter_sub_finder(
-                [4, 5],
-                list(range(10)) + list(range(10)),
-            ))
+            list(
+                iterbot.iter_sub_finder(
+                    [4, 5],
+                    list(range(10)) + list(range(10)),
+                )
+            ),
         )
+
 
 class MakeChains(unittest.TestCase):
     """Make sure :func:`python_compatibility.iterbot.make_chains` works."""

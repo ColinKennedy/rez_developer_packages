@@ -72,7 +72,7 @@ def iter_sub_finder(smaller, larger):
     smaller_length = len(smaller)
 
     if smaller_length == 0:
-        raise ValueError('Sub-sequence cannot be empty.')
+        raise ValueError("Sub-sequence cannot be empty.")
 
     larger_length = len(larger)
 
@@ -88,7 +88,7 @@ def iter_sub_finder(smaller, larger):
     while index < stop:
         index = larger.index(item, index)
 
-        if larger[index:index + smaller_length] == smaller:
+        if larger[index : index + smaller_length] == smaller:
             yield index
 
         index += 1
