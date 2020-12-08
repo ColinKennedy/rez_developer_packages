@@ -208,6 +208,24 @@ def get_data(directory="", matches="", resolve=True, excludes=frozenset()):
 
     _LOGGER.debug('Found package "%s".', package)
 
+    if not package:
+        if directory and os.path.isdir(directory):
+            raise ValueError(
+                'Directory "{directory}" is not a Rez package.'.format(
+                    directory=directory
+                )
+            )
+        elif directory:
+            raise RuntimeError(
+                'Directory "{directory}" does not exist and could not get a Rez package.'.format(
+                    directory=directory
+                )
+            )
+        else:
+            raise ValueError(
+                'No directory was given and no automatic Rez package could be found.'
+            )
+
     if not package.help:
         return []
 

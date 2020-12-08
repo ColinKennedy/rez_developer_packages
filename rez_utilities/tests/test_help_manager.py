@@ -61,7 +61,7 @@ class GetHelpData(unittest.TestCase):
         directory = tempfile.mkdtemp(suffix="_does_not_exist")
         shutil.rmtree(directory)
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(RuntimeError):
             help_manager.get_data(directory)
 
     def test_invalid_002(self):
@@ -69,7 +69,7 @@ class GetHelpData(unittest.TestCase):
         directory = tempfile.mkdtemp(suffix="_does_not_exist")
         atexit.register(functools.partial(shutil.rmtree, directory))
 
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(ValueError):
             help_manager.get_data(directory)
 
     def test_list_001(self):
