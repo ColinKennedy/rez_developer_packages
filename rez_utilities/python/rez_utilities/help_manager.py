@@ -152,7 +152,9 @@ def _resolve_rez_path(path):
     if parts[0] == "build":
         parts[:] = parts[1:]
 
-    all_sys_parts = [(sys_path, pathrip.split_os_path_asunder(sys_path)) for sys_path in sys.path]
+    all_sys_parts = [
+        (sys_path, pathrip.split_os_path_asunder(sys_path)) for sys_path in sys.path
+    ]
 
     for name, version in iterbot.make_chains(parts):
         for sys_path, sys_parts in all_sys_parts:
@@ -167,9 +169,7 @@ def _resolve_rez_path(path):
     return ""
 
 
-def get_data(
-    directory="", matches="", resolve=True, excludes=frozenset()
-):
+def get_data(directory="", matches="", resolve=True, excludes=frozenset()):
     """Get a Rez package's help information.
 
     Args:
