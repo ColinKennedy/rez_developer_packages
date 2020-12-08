@@ -69,24 +69,30 @@ def iter_sub_finder(smaller, larger):
         int: Every found index, if any.
 
     """
+    if not smaller:
+        raise ValueError("The smaller sequence cannot be empty.")
+
     larger_length = len(larger)
     smaller_length = len(smaller)
     stop = larger_length - smaller_length + 1
 
-    if larger_length > 0:
-        item = smaller[0]
-        index = 0
+    if larger_length <= 0:
+        return
+        yield
 
-        try:
-            while index < stop:
-                index = larger.index(item, index)
+    item = smaller[0]
+    index = 0
 
-                if larger[index:index + smaller_length] == smaller:
-                    yield index
+    try:
+        while index < stop:
+            index = larger.index(item, index)
 
-                index += 1
-        except ValueError:
-            return
+            if larger[index:index + smaller_length] == smaller:
+                yield index
+
+            index += 1
+    except ValueError:
+        return
 
 
 def make_chains(sequence, size=2):
