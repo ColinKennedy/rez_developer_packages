@@ -24,7 +24,7 @@ def _add_tests_parameter(parser):
 
     parser.add_argument(
         "--shell",
-        help="The shell environment to use for the new Rez environment. Defaults to the current shell.",
+        help="The terminal used for a new Rez environment. Defaults to the current shell.",
     )
 
 
