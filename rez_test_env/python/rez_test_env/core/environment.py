@@ -43,7 +43,7 @@ def _patch_main(override):
 
     """
     original = list(sys.argv)
-    override = ["discarded_command"] + override
+    override = ["discarded_command", "--shell", "bash"] + override
 
     try:
         sys.argv[:] = override
