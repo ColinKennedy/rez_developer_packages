@@ -32,18 +32,25 @@ _LOGGER = logging.getLogger(__name__)
 
 
 @contextlib.contextmanager
-def _patch_main(override):
+def _patch_main(override, shell=""):
     """Temporarily replace :obj:`sys.argv` with `override` in a Python context.
 
     Args:
-        override (list[str]): The new text to fake as user-provided text.
+        override (list[str]):
+            The new text to fake as user-provided text.
+        shell (str, optional):
+            If provided, this shell will be used for rez-env instead of
+            the user's current shell. Default: "".
 
     Yields:
         A context which has the overwritten :attr:`sys.argv`.
 
     """
     original = list(sys.argv)
-    override = ["discarded_command", "--shell", "bash"] + override
+    override = ["discarded_command"] + override
+
+    if shell:
+        override += ["--shell", shell]
 
     try:
         sys.argv[:] = override
@@ -186,7 +193,7 @@ def get_nearest_rez_package(directory):
     return None
 
 
-def run_from_request(package_request, tests):
+def run_from_request(package_request, tests, shell=""):
     """Convert a Rez package + tests.
 
     See Also:
@@ -199,6 +206,9 @@ def run_from_request(package_request, tests):
             The user's raw CLI test input. These could be real test
             names, like "my_foo_unittest", or a glob expression, like
             "my_*_unittest".
+        shell (str, optional):
+            If provided, this shell will be used for rez-env instead of
+            the user's current shell. Default: "".
 
     Raises:
         :class:`.NoValidPackageFound`:
@@ -218,11 +228,11 @@ def run_from_request(package_request, tests):
 
     requirements = _expand_requirements(package, tests)
 
-    with _patch_main([package_request] + sorted(requirements)):
+    with _patch_main([package_request] + sorted(requirements), shell=shell):
         _main.run("env")
 
 
-def run_from_package(package, tests):
+def run_from_package(package, tests, shell=""):
     """Create an environment from a Rez package + tests.
 
     Args:
@@ -232,6 +242,9 @@ def run_from_package(package, tests):
             The user's raw CLI test input. These could be real test
             names, like "my_foo_unittest", or a glob expression, like
             "my_*_unittest".
+        shell (str, optional):
+            If provided, this shell will be used for rez-env instead of
+            the user's current shell. Default: "".
 
     """
     requirements = list(_expand_requirements(package, tests))
@@ -240,5 +253,5 @@ def run_from_package(package, tests):
 
     _LOGGER.debug('Making environment for "%s" request.', full_request)
 
-    with _patch_main(full_request):
+    with _patch_main(full_request, shell=shell):
         _main.run("env")

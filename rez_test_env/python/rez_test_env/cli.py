@@ -22,6 +22,11 @@ def _add_tests_parameter(parser):
         help="The test requirements to append to the package request.",
     )
 
+    parser.add_argument(
+        "--shell",
+        help="The shell environment to use for the new Rez environment. Defaults to the current shell.",
+    )
+
 
 def _multi_requester(arguments):
     """Get an environment using the user's request.
@@ -30,7 +35,11 @@ def _multi_requester(arguments):
         arguments (:class:`argparse.Namespace`): The parsed user input.
 
     """
-    environment.run_from_request(arguments.package_request, arguments.tests)
+    environment.run_from_request(
+        arguments.package_request,
+        arguments.tests,
+        shell=arguments.shell,
+    )
 
 
 def _parse_arguments(text):
