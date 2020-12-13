@@ -12,7 +12,7 @@ authors = ["ColinKennedy"]
 
 private_build_requires = ["rez_build_helper-1+<2"]
 
-requires = ["python-2+<3.8", "rez-2.50+<3", "rez_utilities-2.1+<3"]
+requires = ["python-2+<3.8", "rez-2.50+<3"]
 
 build_command = "python -m rez_build_helper --items bin python"
 

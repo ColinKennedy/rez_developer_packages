@@ -6,8 +6,6 @@
 import argparse
 import os
 
-from rez_utilities import finder
-
 from .core import environment, exceptions
 
 
@@ -85,7 +83,7 @@ def _pwd_requester(arguments):
         :class:`.NoValidPackageFound`: If the given directory isn't within a Rez package.
 
     """
-    package = finder.get_nearest_rez_package(arguments.directory)
+    package = environment.get_nearest_rez_package(arguments.directory)
 
     if not package:
         raise exceptions.NoValidPackageFound(
