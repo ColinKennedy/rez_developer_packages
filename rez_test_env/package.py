@@ -2,7 +2,7 @@
 
 name = "rez_test_env"
 
-version = "1.0.0"
+version = "1.0.1"
 
 description = "A small CLI for making a Rez environment + tests really easy to do."
 
