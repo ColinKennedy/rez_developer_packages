@@ -101,7 +101,7 @@ def _pwd_requester(arguments):
             )
         )
 
-    environment.run_from_package(package, arguments.tests)
+    environment.run_from_package(package, arguments.tests, shell=arguments.shell)
 
 
 def main(text):
