@@ -9,9 +9,63 @@ import functools
 import os
 import sys
 import tempfile
+import unittest
 
-from python_compatibility import wrapping
+from python_compatibility import dependency_analyzer, imports, wrapping
 from python_compatibility.testing import common
+
+
+class WatchCallable(unittest.TestCase):
+    """Make sure :func:python_compatibility.wrapping.watch_callable` works."""
+
+    def test_class_call(self):
+        """Watch a instance's ``__call__`` method."""
+        raise ValueError()
+
+    def test_class_dunder(self):
+        """Watch an instance's ``__repr__`` dunder (double-underscore) method."""
+        module = dependency_analyzer._FakeModule("text")
+
+        with wrapping.watch_callable(module.__repr__) as container:
+            repr(module)
+
+        raise ValueError(container)
+        self.assertEqual([(tuple(), dict(), "text")], [record.get_all() for record in container])
+
+    def test_class_dynamic(self):
+        """Watch an instance's function which was arbitrarily added."""
+        raise ValueError()
+
+    def test_class_init(self):
+        """Watch a class's ``__init__`` method."""
+        with wrapping.watch_callable(dependency_analyzer._FakeModule) as container:
+            dependency_analyzer._FakeModule("text")
+
+        self.assertEqual([(("text", ), dict(), None)], [record.get_all() for record in container])
+
+    def test_class_method(self):
+        """Watch an instance's method."""
+        module = dependency_analyzer._FakeModule("text")
+
+        with wrapping.watch_callable(module.get_path) as container:
+            module.get_path()
+
+        self.assertEqual([(tuple(), dict(), "text")], [record.get_all() for record in container])
+
+    def test_function(self):
+        """Watch a function from a module."""
+        with wrapping.watch_callable(imports.import_nearest_module) as container:
+            imports.import_nearest_module("sys")
+
+        self.assertEqual([(("sys", ), dict(), sys)], [record.get_all() for record in container])
+
+    def test_nested_class_method(self):
+        """Watch a class's child class's method."""
+        raise ValueError()
+
+    def test_static_function(self):
+        """Watch a function from a class."""
+        raise ValueError()
 
 
 class Wraps(common.Common):
