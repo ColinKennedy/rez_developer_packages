@@ -202,24 +202,29 @@ def get_data(directory="", matches="", resolve=True, excludes=frozenset()):
     matches = _resolve_matches(matches)
 
     if not directory:
-        directory = _discover_external_directory(excludes=excludes)
-        _LOGGER.debug('Directory "%s" was found.', directory)
-
-    if not os.path.isdir(directory):
-        raise ValueError(
-            'Text "{directory}" is not a directory.'.format(directory=directory)
-        )
-
-    package = finder.get_nearest_rez_package(directory)
-
-    if not package:
-        raise RuntimeError(
-            'Directory "{directory}" is not in a Rez package.'.format(
-                directory=directory
-            )
-        )
+        package = get_nearest_external_rez_package(excludes=excludes)
+    else:
+        package = finder.get_nearest_rez_package(directory)
 
     _LOGGER.debug('Found package "%s".', package)
+
+    if not package:
+        if directory and os.path.isdir(directory):
+            raise ValueError(
+                'Directory "{directory}" is not a Rez package.'.format(
+                    directory=directory
+                )
+            )
+        elif directory:
+            raise RuntimeError(
+                'Directory "{directory}" does not exist and could not get a Rez package.'.format(
+                    directory=directory
+                )
+            )
+        else:
+            raise ValueError(
+                'No directory was given and no automatic Rez package could be found.'
+            )
 
     if not package.help:
         return []
@@ -250,3 +255,37 @@ def get_data(directory="", matches="", resolve=True, excludes=frozenset()):
         output.append([key, path])
 
     return output
+
+
+def get_nearest_external_rez_package(excludes=frozenset()):
+    """Find the first directory in the call stack which comes from outside of `excludes`.
+
+    Args:
+        excludes (set[str]):
+            The absolute path to any directory which should be ignored
+            while running this function. Default default, even if no
+            paths are given, this module's current Rez package is always excluded.
+
+    Raises:
+        ValueError: If not directory was found.
+        RuntimeError: If no external file path could be found or resolved.
+
+    """
+    directory = _discover_external_directory(excludes=excludes)
+
+    if not os.path.isdir(directory):
+        raise ValueError(
+            'Text "{directory}" is not a directory.'.format(directory=directory)
+        )
+
+    _LOGGER.debug('Directory "%s" was found.', directory)
+    package = finder.get_nearest_rez_package(directory)
+
+    if not package:
+        raise RuntimeError(
+            'Directory "{directory}" is not in a Rez package.'.format(
+                directory=directory
+            )
+        )
+
+    return package

@@ -6,8 +6,6 @@
 import argparse
 import os
 
-from rez_utilities import finder
-
 from .core import environment, exceptions
 
 
@@ -24,6 +22,11 @@ def _add_tests_parameter(parser):
         help="The test requirements to append to the package request.",
     )
 
+    parser.add_argument(
+        "--shell",
+        help="The terminal used for a new Rez environment. Defaults to the current shell.",
+    )
+
 
 def _multi_requester(arguments):
     """Get an environment using the user's request.
@@ -32,7 +35,11 @@ def _multi_requester(arguments):
         arguments (:class:`argparse.Namespace`): The parsed user input.
 
     """
-    environment.run_from_request(arguments.package_request, arguments.tests)
+    environment.run_from_request(
+        arguments.package_request,
+        arguments.tests,
+        shell=arguments.shell,
+    )
 
 
 def _parse_arguments(text):
@@ -85,7 +92,7 @@ def _pwd_requester(arguments):
         :class:`.NoValidPackageFound`: If the given directory isn't within a Rez package.
 
     """
-    package = finder.get_nearest_rez_package(arguments.directory)
+    package = environment.get_nearest_rez_package(arguments.directory)
 
     if not package:
         raise exceptions.NoValidPackageFound(
@@ -94,7 +101,7 @@ def _pwd_requester(arguments):
             )
         )
 
-    environment.run_from_package(package, arguments.tests)
+    environment.run_from_package(package, arguments.tests, shell=arguments.shell)
 
 
 def main(text):

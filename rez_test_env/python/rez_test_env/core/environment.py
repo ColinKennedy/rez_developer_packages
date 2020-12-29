@@ -13,9 +13,12 @@ import collections
 import contextlib
 import fnmatch
 import logging
+import os
 import sys
 
+from rez import exceptions as rez_exceptions
 from rez.cli import _main
+from rez.vendor.schema import schema
 
 from . import exceptions
 
@@ -29,11 +32,15 @@ _LOGGER = logging.getLogger(__name__)
 
 
 @contextlib.contextmanager
-def _patch_main(override):
+def _patch_main(override, shell=""):
     """Temporarily replace :obj:`sys.argv` with `override` in a Python context.
 
     Args:
-        override (list[str]): The new text to fake as user-provided text.
+        override (list[str]):
+            The new text to fake as user-provided text.
+        shell (str, optional):
+            If provided, this shell will be used for rez-env instead of
+            the user's current shell. Default: "".
 
     Yields:
         A context which has the overwritten :attr:`sys.argv`.
@@ -41,6 +48,9 @@ def _patch_main(override):
     """
     original = list(sys.argv)
     override = ["discarded_command"] + override
+
+    if shell:
+        override += ["--shell", shell]
 
     try:
         sys.argv[:] = override
@@ -129,15 +139,61 @@ def _get_test_names(expressions, package_tests):
 
     if invalids:
         raise exceptions.MissingTests(
-            'Tests "{invalids}" are missing.'.format(
-                invalids=", ".join(sorted(invalids))
+            'Tests "{invalids}" are missing. Options were "{package_tests}".'.format(
+                invalids=", ".join(sorted(invalids)),
+                package_tests=sorted(package_tests.keys()),
             )
         )
 
     return output
 
 
-def run_from_request(package_request, tests):
+def get_nearest_rez_package(directory):
+    """Assuming that `directory` is on or inside a Rez package, find the nearest Rez package.
+
+    This is copied from
+    :func:`rez_utilities.finder.get_nearest_rez_package` to avoid the
+    extra dependency.
+
+    Args:
+        directory (str):
+            The absolute path to a folder on disk. This folder should be
+            a sub-folder inside of a Rez package to the root of the Rez package.
+
+    Returns:
+        :class:`rez.developer_package.DeveloperPackage` or NoneType: The found package.
+
+    """
+    previous = None
+    original = directory
+
+    if not os.path.isdir(directory):
+        directory = os.path.dirname(directory)
+
+    while directory and previous != directory:
+        previous = directory
+
+        try:
+            return packages.get_developer_package(directory)
+        except (
+            # This happens if the package in `directory` is missing required data
+            rez_exceptions.PackageMetadataError,
+            # This happens if the package in `directory` is written incorrectly
+            schema.SchemaError,
+        ):
+            _LOGGER.debug('Directory "%s" found an invalid Rez package.', directory)
+
+        directory = os.path.dirname(directory)
+
+    _LOGGER.debug(
+        'Directory "%s" is either inaccessible or is not part of a Rez package.',
+        original,
+    )
+
+    return None
+
+
+def run_from_request(package_request, tests, shell=""):
     """Convert a Rez package + tests.
 
     See Also:
@@ -150,6 +206,9 @@ def run_from_request(package_request, tests):
             The user's raw CLI test input. These could be real test
             names, like "my_foo_unittest", or a glob expression, like
             "my_*_unittest".
+        shell (str, optional):
+            If provided, this shell will be used for rez-env instead of
+            the user's current shell. Default: "".
 
     Raises:
         :class:`.NoValidPackageFound`:
@@ -169,11 +228,11 @@ def run_from_request(package_request, tests):
 
     requirements = _expand_requirements(package, tests)
 
-    with _patch_main([package_request] + sorted(requirements)):
+    with _patch_main([package_request] + sorted(requirements), shell=shell):
         _main.run("env")
 
 
-def run_from_package(package, tests):
+def run_from_package(package, tests, shell=""):
     """Create an environment from a Rez package + tests.
 
     Args:
@@ -183,6 +242,9 @@ def run_from_package(package, tests):
             The user's raw CLI test input. These could be real test
             names, like "my_foo_unittest", or a glob expression, like
             "my_*_unittest".
+        shell (str, optional):
+            If provided, this shell will be used for rez-env instead of
+            the user's current shell. Default: "".
 
     """
     requirements = list(_expand_requirements(package, tests))
@@ -191,5 +253,5 @@ def run_from_package(package, tests):
 
     _LOGGER.debug('Making environment for "%s" request.', full_request)
 
-    with _patch_main(full_request):
+    with _patch_main(full_request, shell=shell):
         _main.run("env")
