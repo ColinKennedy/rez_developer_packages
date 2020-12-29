@@ -176,9 +176,7 @@ class ImportNearest(unittest.TestCase):
         with wrapping.keep_sys_path():
             sys.path.append(directory)
 
-            self.assertIsNone(
-                imports.import_nearest_module("some_name_mangled_file")
-            )
+            self.assertIsNone(imports.import_nearest_module("some_name_mangled_file"))
             self.assertIsNone(
                 imports.import_nearest_module("some_name_mangled_file.another")
             )
@@ -231,4 +229,6 @@ class Module(unittest.TestCase):
         with wrapping.keep_sys_path():
             sys.path.append(os.path.dirname(path))
 
-            self.assertIsNotNone(imports.get_parent_module("fake_module.Something.Another"))
+            self.assertIsNotNone(
+                imports.get_parent_module("fake_module.Something.Another")
+            )
