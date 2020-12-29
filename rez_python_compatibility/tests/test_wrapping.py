@@ -79,6 +79,19 @@ class Wraps(common.Common):
 
         self.assertEqual(current_directory, os.getcwd())
 
+    def test_sys_path(self):
+        """Make sure :func:`python_compatibility.wrapping.keep_sys_path` works."""
+        original = list(sys.path)
+
+        with wrapping.keep_sys_path():
+            before = list(sys.path)
+            sys.path.append("/something")
+            after = list(sys.path)
+
+        self.assertEqual(original, before)
+        self.assertNotEqual(before, after)
+        self.assertEqual(original, sys.path)
+
     def test_pipes_empty(self):
         """Check that pipes capture nothing in stdout and stderr if there is nothing."""
         with wrapping.capture_pipes() as output:

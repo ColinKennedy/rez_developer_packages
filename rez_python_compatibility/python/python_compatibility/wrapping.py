@@ -70,6 +70,17 @@ def keep_cwd(directory):
         os.chdir(directory)
 
 
+@contextlib.contextmanager
+def keep_sys_path():
+    """Save the current :attr:`sys.path` and restore it later."""
+    paths = list(sys.path)
+
+    try:
+        yield
+    finally:
+        sys.path[:] = paths
+
+
 def profile_temporary(sort_field="cumulative"):
     """Profile some Python object to get its timing information.
 
