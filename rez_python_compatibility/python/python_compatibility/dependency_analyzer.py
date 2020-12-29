@@ -52,6 +52,10 @@ class _FakeModule(object):  # pylint: disable=too-few-public-methods
         self._path = path
         self.__file__ = self._path
 
+    def get_path(self):
+        """str: Get the path that this instance represents."""
+        return self._path
+
     def __repr__(self):
         """str: Get a string representation of this instance."""
         return "{self.__class__.__name__}({self._path!r})".format(self=self)

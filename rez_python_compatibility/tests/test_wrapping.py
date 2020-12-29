@@ -79,6 +79,19 @@ class Wraps(common.Common):
 
         self.assertEqual(current_directory, os.getcwd())
 
+    def test_os_environment(self):
+        """Make sure :func:`python_compatibility.wrapping.keep_os_environment` works."""
+        original = os.environ.copy()
+
+        with wrapping.keep_sys_path():
+            before = os.environ.copy()
+            os.environ["FOO"] = "blah"
+            after = os.environ.copy()
+
+        self.assertEqual(original, before)
+        self.assertNotEqual(before, after)
+        self.assertEqual(original, sys.path)
+
     def test_sys_path(self):
         """Make sure :func:`python_compatibility.wrapping.keep_sys_path` works."""
         original = list(sys.path)

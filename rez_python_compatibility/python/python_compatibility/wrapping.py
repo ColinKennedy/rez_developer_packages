@@ -3,9 +3,10 @@
 
 """Generic-but-still-useful wrappers."""
 
-import contextlib
 import cProfile
+import contextlib
 import functools
+import inspect
 import os
 import pstats
 import sys
@@ -68,6 +69,18 @@ def keep_cwd(directory):
         yield
     finally:
         os.chdir(directory)
+
+
+@contextlib.contextmanager
+def keep_os_environment():
+    """Save the some environment and restore it later."""
+    original = os.environ.copy()
+
+    try:
+        yield
+    finally:
+        os.environ.clear()
+        os.environ.update(original)
 
 
 @contextlib.contextmanager
