@@ -11,6 +11,10 @@ import six
 
 from . import pathrip
 
+_COMMON_IMPORT_EXCEPTIONS = (
+    ImportError,  # If the module does not exist
+    NameError,  # If the module exists but contains an undefined variable
+)
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -173,7 +177,7 @@ def import_nearest_module(namespace):
     """
     try:
         return __import__(namespace, fromlist=[""])
-    except ImportError:
+    except _COMMON_IMPORT_EXCEPTIONS:
         # Usually happens if the namespace is actually "foo.MyClass" or "foo.my_attribute"
         pass
 
@@ -188,7 +192,7 @@ def import_nearest_module(namespace):
 
         try:
             return __import__(new_namespace, fromlist=[""])
-        except ImportError:
+        except _COMMON_IMPORT_EXCEPTIONS:
             pass
 
         namespace = new_namespace

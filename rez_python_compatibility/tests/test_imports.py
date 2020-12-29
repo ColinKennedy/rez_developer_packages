@@ -3,6 +3,8 @@
 
 """Basic import/module related unittests."""
 
+import atexit
+import functools
 import logging
 import os
 import shutil
@@ -11,7 +13,7 @@ import tempfile
 import textwrap
 import unittest
 
-from python_compatibility import imports
+from python_compatibility import imports, wrapping
 from python_compatibility.testing import common
 
 
@@ -151,6 +153,39 @@ class ImportNearest(unittest.TestCase):
             None, imports.import_nearest_module("something_that_doesnt_exist")
         )
 
+    def test_undefined_name(self):
+        """Prevent a module with an undefined name from breaking our function."""
+        code = textwrap.dedent(
+            """\
+            def __some_function():
+                pass
+
+            some_undefined_name
+
+            def another():
+                pass
+            """
+        )
+
+        directory = tempfile.mkdtemp(suffix="_ImportNearest_test_undefined_name")
+        atexit.register(functools.partial(shutil.rmtree, directory))
+
+        with open(os.path.join(directory, "some_name_mangled_file.py"), "w") as handler:
+            handler.write(code)
+
+        with wrapping.keep_sys_path():
+            sys.path.append(directory)
+
+            self.assertIsNone(
+                imports.import_nearest_module("some_name_mangled_file")
+            )
+            self.assertIsNone(
+                imports.import_nearest_module("some_name_mangled_file.another")
+            )
+            self.assertIsNone(
+                imports.import_nearest_module("some_name_mangled_file.__some_function")
+            )
+
 
 class Module(unittest.TestCase):
     """Test different situations for :func:`python_compatibility.imports.get_parent_module`."""
@@ -193,5 +228,7 @@ class Module(unittest.TestCase):
         with open(path, "w") as handler:
             handler.write(code)
 
-        sys.path.append(os.path.dirname(path))
-        self.assertIsNotNone(imports.get_parent_module("fake_module.Something.Another"))
+        with wrapping.keep_sys_path():
+            sys.path.append(os.path.dirname(path))
+
+            self.assertIsNotNone(imports.get_parent_module("fake_module.Something.Another"))
