@@ -4,6 +4,7 @@
 """Importing/Modules differ in Python 2 and 3. This module helps with that."""
 
 import importlib
+import inspect
 import logging
 import os
 
@@ -105,6 +106,46 @@ def has_importable_module(
                 return True
 
     return False
+
+
+def get_namespace(object_):
+    try:
+        # Reference: https://www.python.org/dev/peps/pep-3155/
+        return object_.__qualname__
+    except AttributeError:
+        pass
+
+    if inspect.isfunction(object_):
+        module = object_.__module__
+        name = object_.__name__
+
+        return "{module}.{name}".format(module=module, name=name)
+
+    if inspect.isclass(object_):
+        module = object_.__module__
+        name = object_.__name__
+
+        return "{module}.{name}".format(module=module, name=name)
+
+    if inspect.ismethod(object_):
+        module = object_.__module__
+
+        print('asdf', object_.im_self.__class__)
+
+        try:
+            class_name = object_.im_self.__class__.__name__
+        except AttributeError:
+            class_name = object_.im_self.__name__
+
+        name = object_.__name__
+
+        return "{module}.{class_name}.{name}".format(
+            module=module,
+            class_name=class_name,
+            name=name,
+        )
+
+    raise ValueError()
 
 
 def get_parent_module(namespace):

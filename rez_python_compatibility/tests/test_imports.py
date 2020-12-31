@@ -13,8 +13,56 @@ import tempfile
 import textwrap
 import unittest
 
-from python_compatibility import imports, wrapping
+from python_compatibility import imports, import_parser, wrapping
 from python_compatibility.testing import common
+
+
+class GetNamespace(unittest.TestCase):
+    def test_class(self):
+        self.assertEqual(
+            "python_compatibility.import_parser.Module",
+            imports.get_namespace(import_parser.Module),
+        )
+
+    def test_class_call(self):
+        self.assertEqual(
+            "python_compatibility.import_parser.Module.__call__",
+            imports.get_namespace(import_parser.Module.__call__),
+        )
+
+    def test_class_init(self):
+        self.assertEqual(
+            "python_compatibility.import_parser.Module.__init__",
+            imports.get_namespace(import_parser.Module.__init__),
+        )
+
+    def test_class_method(self):
+        self.assertEqual(
+            "python_compatibility.import_parser.Module.from_context",
+            imports.get_namespace(import_parser.Module.from_context),
+        )
+
+    def test_function(self):
+        self.assertEqual(
+            "python_compatibility.imports.get_parent_module",
+            imports.get_namespace(imports.get_parent_module),
+        )
+
+    def test_static_method(self):
+        raise ValueError()
+
+    def test_instance_method(self):
+        module = import_parser.Module("blah", "thing", 0)
+        self.assertEqual(
+            "python_compatibility.import_parser.Module.get_alias",
+            imports.get_namespace(module.get_alias),
+        )
+
+    def test_instance_method_un_instantiated(self):
+        self.assertEqual(
+            "python_compatibility.import_parser.Module.get_alias",
+            imports.get_namespace(import_parser.Module.get_alias),
+        )
 
 
 class ImportDetection(common.Common):
