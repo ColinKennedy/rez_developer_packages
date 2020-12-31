@@ -20,40 +20,33 @@ class WatchCallable(unittest.TestCase):
 
     def test_class_call(self):
         """Watch a instance's ``__call__`` method."""
+        caller = _Callable()
 
-        class Callable(object):
-            def __init__(self):
-                super(Callable, self).__init__()
-
-            def __call__(self, item, blah=None):
-                return 8
-
-        caller = Callable()
-
-        with wrapping.watch_callable(caller) as container:
+        with wrapping.watch_namespace(_Callable.__call__) as container:
             caller("thing")
 
-        self.assertEqual([("thing", dict(), 8)], [record.get_all() for record in container])
-
-    def test_class_dunder(self):
-        """Watch an instance's ``__repr__`` dunder (double-underscore) method."""
-        item = dependency_analyzer._FakeModule("text")
-
-        with wrapping.watch_callable(item.__repr__) as container:
-            repr(item)
-            # item.__repr__()
-
-        raise ValueError(container)
-        self.assertEqual([(tuple(), dict(), "text")], [record.get_all() for record in container])
+        self.assertEqual([(("thing", ), dict(), 8)], [record.get_all() for record in container])
 
     def test_class_init(self):
         """Watch a class's ``__init__`` method."""
         with wrapping.watch_namespace(
-            dependency_analyzer._FakeModule,
+            dependency_analyzer._FakeModule.__init__,
         ) as container:
             dependency_analyzer._FakeModule("text")
 
         self.assertEqual([(("text", ), dict(), None)], [record.get_all() for record in container])
+
+    def test_instance_dunder(self):
+        """Watch an instance's ``__repr__`` dunder (double-underscore) method."""
+
+        with wrapping.watch_namespace(dependency_analyzer._FakeModule.__repr__) as container:
+            item = dependency_analyzer._FakeModule("text")
+            repr(item)
+
+        self.assertEqual(
+            [(tuple(), dict(), "_FakeModule('text')")],
+            [record.get_all() for record in container],
+        )
 
     def test_instance_method_001(self):
         """Watch an instance's method."""
@@ -85,24 +78,12 @@ class WatchCallable(unittest.TestCase):
 
         self.assertEqual([(("sys", ), dict(), sys)], [record.get_all() for record in container])
 
-    def test_nested_class_method(self):
-        """Watch a class's child class's method."""
-        raise ValueError()
-
     def test_static_function(self):
         """Watch a function from a class."""
+        with wrapping.watch_namespace(_Callable.do_static, namespace="tests.test_wrapping._Callable.do_static") as container:
+            _Callable.do_static("thing")
 
-        class Class(object):
-            @staticmethod
-            def do_it(item, blah=None):
-                return 8
-
-        caller = Class()
-
-        with wrapping.watch_namespace(caller.do_it) as container:
-            caller.do_it("thing")
-
-        self.assertEqual([("thing", dict(), 8)], [record.get_all() for record in container])
+        self.assertEqual([(("thing", ), dict(), 9)], [record.get_all() for record in container])
 
 
 class Wraps(common.Common):
@@ -219,3 +200,15 @@ class Wraps(common.Common):
 
         self.assertEqual("Hello\nthere!\n", stdout)
         self.assertEqual("General\nKanobi\n", stderr)
+
+
+class _Callable(object):
+    def __init__(self):
+        super(_Callable, self).__init__()
+
+    @staticmethod
+    def do_static(text):
+        return 9
+
+    def __call__(self, item, blah=None):
+        return 8
