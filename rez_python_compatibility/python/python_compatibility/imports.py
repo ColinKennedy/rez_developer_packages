@@ -47,6 +47,11 @@ def _is_every_inner_folder_importable(directory, root):
     return True
 
 
+def _is_method_wrapper(object_):
+    """bool: Check if `object_` is a Python dunder method."""
+    return type(object_).__name__ == "method-wrapper"
+
+
 def _iter_all_namespaces_from_parents(namespace):
     """Get every possible namespace from a given Python dotted-namespace.
 
@@ -129,18 +134,27 @@ def get_namespace(object_):
     except AttributeError:
         module = object_.__self__.__module__
 
-    try:
-        # Reference: https://www.python.org/dev/peps/pep-3155/
-        return "{module}.{object_.__qualname__}".format(module=module, object_=object_)
-    except AttributeError:
-        pass
+    is_method_wrapper = _is_method_wrapper(object_)
+
+    if not is_method_wrapper:
+        # If `object_` is not a dunder method like ``__call__``, Python
+        # 3 has a cool attribute called ``__qualname__`` which can be
+        # used to get what we need.
+        #
+        try:
+            # Reference: https://www.python.org/dev/peps/pep-3155/
+            return "{module}.{object_.__qualname__}".format(
+                module=module, object_=object_
+            )
+        except AttributeError:
+            pass
 
     name = object_.__name__
 
     if inspect.isfunction(object_) or inspect.isclass(object_):
         return "{module}.{name}".format(module=module, name=name)
 
-    if inspect.ismethod(object_) or type(object_).__name__ == "method-wrapper":
+    if inspect.ismethod(object_) or is_method_wrapper:
         # method-caller is for "dunder" Python methods, like `__call__`, `__add__`, etc.
         class_ = object_.__self__
 
