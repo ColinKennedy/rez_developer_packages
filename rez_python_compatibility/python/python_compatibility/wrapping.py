@@ -3,8 +3,8 @@
 
 """Generic-but-still-useful wrappers."""
 
-import cProfile
 import contextlib
+import cProfile
 import functools
 import inspect
 import os
