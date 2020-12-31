@@ -109,6 +109,21 @@ def has_importable_module(
 
 
 def get_namespace(object_):
+    """Find the full, dot-separated namespace for a Python object.
+
+    Important:
+        In Python 2, staticmethods are not supported.
+
+    Args:
+        object_ (object): A class, function, method, or module. e.g. :func:`textwrap.dedent`.
+
+    Raises:
+        NotImplementedError: If no namespace can be found for `object_`.
+
+    Returns:
+        str: The found name, e.g. "textwrap.dedent".
+
+    """
     try:
         # Reference: https://www.python.org/dev/peps/pep-3155/
         return object_.__qualname__

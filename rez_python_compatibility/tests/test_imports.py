@@ -13,42 +13,50 @@ import tempfile
 import textwrap
 import unittest
 
-from python_compatibility import imports, import_parser, wrapping
+from python_compatibility import import_parser, imports, wrapping
 from python_compatibility.testing import common
 
 
 class GetNamespace(unittest.TestCase):
+    """Make sure :func:`python_compatibility.imports.get_namespace` works."""
+
     def test_class(self):
+        """Get the dot namespace of a Python class."""
         self.assertEqual(
             "python_compatibility.import_parser.Module",
             imports.get_namespace(import_parser.Module),
         )
 
     def test_class_call(self):
+        """Get the dot namespace of a Python ``__call__`` method."""
         self.assertEqual(
             "python_compatibility.import_parser.Module.__call__",
             imports.get_namespace(import_parser.Module.__call__),
         )
 
     def test_class_init(self):
+        """Get the dot namespace of a Python ``__init__`` method."""
         self.assertEqual(
             "python_compatibility.import_parser.Module.__init__",
             imports.get_namespace(import_parser.Module.__init__),
         )
 
     def test_class_method(self):
+        """Get the dot namespace of a Python classmethod."""
         self.assertEqual(
             "python_compatibility.import_parser.Module.from_context",
             imports.get_namespace(import_parser.Module.from_context),
         )
 
     def test_function(self):
+        """Get the dot namespace of a Python function."""
         self.assertEqual(
             "python_compatibility.imports.get_parent_module",
             imports.get_namespace(imports.get_parent_module),
         )
 
     def test_instance_method(self):
+        """Get the dot namespace of a Python method of an instantiated class."""
         module = import_parser.Module("blah", "thing", 0)
         self.assertEqual(
             "python_compatibility.import_parser.Module.get_alias",
@@ -56,6 +64,7 @@ class GetNamespace(unittest.TestCase):
         )
 
     def test_instance_method_un_instantiated(self):
+        """Get the dot namespace of a Python method of an un-instantiated class."""
         self.assertEqual(
             "python_compatibility.import_parser.Module.get_alias",
             imports.get_namespace(import_parser.Module.get_alias),

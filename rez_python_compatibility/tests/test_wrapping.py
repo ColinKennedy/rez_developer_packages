@@ -203,12 +203,13 @@ class Wraps(common.Common):
 
 
 class _Callable(object):
-    def __init__(self):
-        super(_Callable, self).__init__()
+    """Some class for testing."""
 
     @staticmethod
     def do_static(text):
+        """Do something."""
         return 9
 
     def __call__(self, item, blah=None):
+        """Do something."""
         return 8
