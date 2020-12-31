@@ -127,34 +127,23 @@ def get_namespace(object_):
 
         return "{module}.{name}".format(module=module, name=name)
 
-    if inspect.ismethod(object_):
-        module = object_.__module__
-        class_ = object_.im_self
+    if inspect.ismethod(object_) or type(object_).__name__ == "method-wrapper":
+        # method-caller is for "dunder" Python methods, like `__call__`, `__add__`, etc.
+        class_ = object_.__self__
 
         if class_ is None:
-            # This happens if `object_` is an instance method of an un-initialized class
-            class_name = object_.im_class.__name__
-        else:
-            try:
-                class_name = class_.__name__
-            except AttributeError:
-                class_name = class_.__class__.__name__
+            class_ = object_.im_self
 
-        name = object_.__name__
+        if class_ is None:
+            class_ = object_.im_class
 
-        return "{module}.{class_name}.{name}".format(
-            module=module,
-            class_name=class_name,
-            name=name,
-        )
-
-    if type(object_).__name__ == "method-wrapper":
-        # If you pass a method like :meth:`Foo.__call__`. Not sure if
-        # there's a better way to check for this.
-        #
-        class_ = object_.__self__
         module = class_.__module__
-        class_name = class_.__name__
+
+        try:
+            class_name = class_.__name__
+        except AttributeError:
+            class_name = class_.__class__.__name__
+
         name = object_.__name__
 
         return "{module}.{class_name}.{name}".format(
