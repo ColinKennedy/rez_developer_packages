@@ -25,7 +25,9 @@ class WatchCallable(unittest.TestCase):
         with wrapping.watch_namespace(_Callable.__call__) as container:
             caller("thing")
 
-        self.assertEqual([(("thing", ), dict(), 8)], [record.get_all() for record in container])
+        self.assertEqual(
+            [(("thing",), dict(), 8)], [record.get_all() for record in container]
+        )
 
     def test_class_init(self):
         """Watch a class's ``__init__`` method."""
@@ -34,12 +36,16 @@ class WatchCallable(unittest.TestCase):
         ) as container:
             dependency_analyzer._FakeModule("text")
 
-        self.assertEqual([(("text", ), dict(), None)], [record.get_all() for record in container])
+        self.assertEqual(
+            [(("text",), dict(), None)], [record.get_all() for record in container]
+        )
 
     def test_instance_dunder(self):
         """Watch an instance's ``__repr__`` dunder (double-underscore) method."""
 
-        with wrapping.watch_namespace(dependency_analyzer._FakeModule.__repr__) as container:
+        with wrapping.watch_namespace(
+            dependency_analyzer._FakeModule.__repr__
+        ) as container:
             item = dependency_analyzer._FakeModule("text")
             repr(item)
 
@@ -57,33 +63,42 @@ class WatchCallable(unittest.TestCase):
         ) as container:
             item.get_path()
 
-        self.assertEqual([(tuple(), dict(), "text")], [record.get_all() for record in container])
+        self.assertEqual(
+            [(tuple(), dict(), "text")], [record.get_all() for record in container]
+        )
 
     def test_instance_method_002(self):
         """Watch an instance's method."""
         item = dependency_analyzer._FakeModule("text")
 
         with wrapping.watch_namespace(
-            dependency_analyzer._FakeModule.get_path,
-            implicits=True,
+            dependency_analyzer._FakeModule.get_path, implicits=True,
         ) as container:
             item.get_path()
 
-        self.assertEqual([((item, ), dict(), "text")], [record.get_all() for record in container])
+        self.assertEqual(
+            [((item,), dict(), "text")], [record.get_all() for record in container]
+        )
 
     def test_function(self):
         """Watch a function from a module."""
         with wrapping.watch_namespace(imports.import_nearest_module) as container:
             imports.import_nearest_module("sys")
 
-        self.assertEqual([(("sys", ), dict(), sys)], [record.get_all() for record in container])
+        self.assertEqual(
+            [(("sys",), dict(), sys)], [record.get_all() for record in container]
+        )
 
     def test_static_function(self):
         """Watch a function from a class."""
-        with wrapping.watch_namespace(_Callable.do_static, namespace="tests.test_wrapping._Callable.do_static") as container:
+        with wrapping.watch_namespace(
+            _Callable.do_static, namespace="tests.test_wrapping._Callable.do_static"
+        ) as container:
             _Callable.do_static("thing")
 
-        self.assertEqual([(("thing", ), dict(), 9)], [record.get_all() for record in container])
+        self.assertEqual(
+            [(("thing",), dict(), 9)], [record.get_all() for record in container]
+        )
 
 
 class Wraps(common.Common):

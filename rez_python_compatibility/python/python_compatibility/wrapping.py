@@ -210,7 +210,11 @@ def watch_namespace(original, namespace="", implicits=False):
         namespace = imports.get_namespace(original)
 
     if not namespace:
-        raise RuntimeError('No namespace was given and "{original}" has no discoverable namespace.'.format(original=original))
+        raise RuntimeError(
+            'No namespace was given and "{original}" has no discoverable namespace.'.format(
+                original=original
+            )
+        )
 
     @functools.wraps(original)
     def side_effect(*args, **kwargs):

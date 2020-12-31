@@ -162,12 +162,12 @@ def get_namespace(object_):
         name = object_.__name__
 
         return "{module}.{class_name}.{name}".format(
-            module=module,
-            class_name=class_name,
-            name=name,
+            module=module, class_name=class_name, name=name,
         )
 
-    raise NotImplementedError('Object "{object_}" is not currently supported.'.format(object_=object_))
+    raise NotImplementedError(
+        'Object "{object_}" is not currently supported.'.format(object_=object_)
+    )
 
 
 def get_parent_module(namespace):
