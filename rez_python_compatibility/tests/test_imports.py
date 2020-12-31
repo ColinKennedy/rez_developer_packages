@@ -48,9 +48,6 @@ class GetNamespace(unittest.TestCase):
             imports.get_namespace(imports.get_parent_module),
         )
 
-    def test_static_method(self):
-        raise ValueError()
-
     def test_instance_method(self):
         module = import_parser.Module("blah", "thing", 0)
         self.assertEqual(

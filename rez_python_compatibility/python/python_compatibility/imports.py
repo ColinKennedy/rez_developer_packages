@@ -130,12 +130,16 @@ def get_namespace(object_):
     if inspect.ismethod(object_):
         module = object_.__module__
 
-        print('asdf', object_.im_self.__class__)
+        class_ = object_.im_self
 
-        try:
-            class_name = object_.im_self.__class__.__name__
-        except AttributeError:
-            class_name = object_.im_self.__name__
+        if class_ is None:
+            # This happens if `object_` is an instance method of an un-initialized class
+            class_name = object_.im_class.__name__
+        else:
+            try:
+                class_name = class_.__name__
+            except AttributeError:
+                class_name = class_.__class__.__name__
 
         name = object_.__name__
 
