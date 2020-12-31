@@ -129,7 +129,6 @@ def get_namespace(object_):
 
     if inspect.ismethod(object_):
         module = object_.__module__
-
         class_ = object_.im_self
 
         if class_ is None:
@@ -149,7 +148,22 @@ def get_namespace(object_):
             name=name,
         )
 
-    raise ValueError()
+    if type(object_).__name__ == "method-wrapper":
+        # If you pass a method like :meth:`Foo.__call__`. Not sure if
+        # there's a better way to check for this.
+        #
+        class_ = object_.__self__
+        module = class_.__module__
+        class_name = class_.__name__
+        name = object_.__name__
+
+        return "{module}.{class_name}.{name}".format(
+            module=module,
+            class_name=class_name,
+            name=name,
+        )
+
+    raise NotImplementedError('Object "{object_}" is not currently supported.'.format(object_=object_))
 
 
 def get_parent_module(namespace):
