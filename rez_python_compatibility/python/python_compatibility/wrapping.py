@@ -242,7 +242,7 @@ def watch_namespace(original, namespace="", implicits=False):
 
     @functools.wraps(original)
     def side_effect(*args, **kwargs):
-        """A function which stores `original`'s inputs and outputs into `container`."""
+        """Run `original` and store its inputs and outputs into `container`."""
         result = original(*args, **kwargs)
 
         if inspect.ismethod(original):
