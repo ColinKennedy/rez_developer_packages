@@ -125,21 +125,19 @@ def get_namespace(object_):
 
     """
     try:
+        module = object_.__module__
+    except AttributeError:
+        module = object_.__self__.__module__
+
+    try:
         # Reference: https://www.python.org/dev/peps/pep-3155/
-        return object_.__qualname__
+        return "{module}.{object_.__qualname__}".format(module=module, object_=object_)
     except AttributeError:
         pass
 
-    if inspect.isfunction(object_):
-        module = object_.__module__
-        name = object_.__name__
+    name = object_.__name__
 
-        return "{module}.{name}".format(module=module, name=name)
-
-    if inspect.isclass(object_):
-        module = object_.__module__
-        name = object_.__name__
-
+    if inspect.isfunction(object_) or inspect.isclass(object_):
         return "{module}.{name}".format(module=module, name=name)
 
     if inspect.ismethod(object_) or type(object_).__name__ == "method-wrapper":
@@ -152,14 +150,10 @@ def get_namespace(object_):
         if class_ is None:
             class_ = object_.im_class
 
-        module = class_.__module__
-
         try:
             class_name = class_.__name__
         except AttributeError:
             class_name = class_.__class__.__name__
-
-        name = object_.__name__
 
         return "{module}.{class_name}.{name}".format(
             module=module, class_name=class_name, name=name,
