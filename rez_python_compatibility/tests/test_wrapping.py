@@ -32,9 +32,9 @@ class WatchCallable(unittest.TestCase):
     def test_class_init(self):
         """Watch a class's ``__init__`` method."""
         with wrapping.watch_namespace(
-            dependency_analyzer._FakeModule.__init__,
+            dependency_analyzer._FakeModule.__init__,  # pylint: disable=protected-access
         ) as container:
-            dependency_analyzer._FakeModule("text")
+            dependency_analyzer._FakeModule("text")  # pylint: disable=protected-access
 
         self.assertEqual(
             [(("text",), dict(), None)], [record.get_all() for record in container]
@@ -44,9 +44,11 @@ class WatchCallable(unittest.TestCase):
         """Watch an instance's ``__repr__`` dunder (double-underscore) method."""
 
         with wrapping.watch_namespace(
-            dependency_analyzer._FakeModule.__repr__
+            dependency_analyzer._FakeModule.__repr__  # pylint: disable=protected-access
         ) as container:
-            item = dependency_analyzer._FakeModule("text")
+            item = dependency_analyzer._FakeModule(  # pylint: disable=protected-access
+                "text"
+            )
             repr(item)
 
         self.assertEqual(
@@ -56,10 +58,12 @@ class WatchCallable(unittest.TestCase):
 
     def test_instance_method_001(self):
         """Watch an instance's method."""
-        item = dependency_analyzer._FakeModule("text")
+        item = dependency_analyzer._FakeModule(  # pylint: disable=protected-access
+            "text"
+        )
 
         with wrapping.watch_namespace(
-            dependency_analyzer._FakeModule.get_path,
+            dependency_analyzer._FakeModule.get_path,  # pylint: disable=protected-access
         ) as container:
             item.get_path()
 
@@ -69,10 +73,13 @@ class WatchCallable(unittest.TestCase):
 
     def test_instance_method_002(self):
         """Watch an instance's method."""
-        item = dependency_analyzer._FakeModule("text")
+        item = dependency_analyzer._FakeModule(  # pylint: disable=protected-access
+            "text"
+        )
 
         with wrapping.watch_namespace(
-            dependency_analyzer._FakeModule.get_path, implicits=True,
+            dependency_analyzer._FakeModule.get_path,  # pylint: disable=protected-access
+            implicits=True,
         ) as container:
             item.get_path()
 
@@ -221,7 +228,7 @@ class _Callable(object):
     """Some class for testing."""
 
     @staticmethod
-    def do_static(text):
+    def do_static(_):
         """Do something."""
         return 9
 

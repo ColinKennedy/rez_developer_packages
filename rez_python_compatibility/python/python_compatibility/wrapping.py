@@ -203,7 +203,31 @@ def run_once(function):
 
 @contextlib.contextmanager
 def watch_namespace(original, namespace="", implicits=False):
-    # Reference: https://stackoverflow.com/a/61963740/3626104
+    """Check the inputs and outputs of `original`, any time it is called.
+
+    Reference:
+        https://stackoverflow.com/a/61963740/3626104
+
+    Args:
+        original (callable):
+            The object to keep track of.
+        namespace (str, optional):
+            The full namespace of `original` to mock. If no namespace is given,
+            this function will auto-find the namespace, using `original`. Default: "".
+        implicits (bool, optional):
+            If True and `original` is a method of a class instance, the
+            first argument in args will be the instance (self). Usually,
+            we don't want that redundant information, so use False to
+            exclude it. Default is False.
+
+    Raises:
+        RuntimeError: If no `namespace` was given or could be automatically found.
+
+    Yields:
+        list[:class:`_Content`]:
+            The found inputs and outputs for each time `container` was called.
+
+    """
     container = []
 
     if not namespace:
@@ -218,6 +242,7 @@ def watch_namespace(original, namespace="", implicits=False):
 
     @functools.wraps(original)
     def side_effect(*args, **kwargs):
+        """A function which stores `original`'s inputs and outputs into `container`."""
         result = original(*args, **kwargs)
 
         if inspect.ismethod(original):
