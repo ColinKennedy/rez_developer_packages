@@ -14,6 +14,7 @@ help = [
 
 requires = [
     "backports.tempfile-1+<2",
+    "mock-3+<6",
     "python-2.7+<3.8",
     "six-1.13+<2",
 ]

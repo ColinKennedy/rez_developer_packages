@@ -12,7 +12,9 @@ import pstats
 import sys
 import tempfile
 
-from six.moves import io
+from six.moves import io, mock
+
+from . import imports
 
 
 class _Content(object):
@@ -200,35 +202,32 @@ def run_once(function):
 
 
 @contextlib.contextmanager
-def watch_callable(item):
-    """Wrap the execution of `item` but do not prevent its execution.
-
-    Args:
-        item (callable): Any Python object that is callable.
-
-    Yields:
-        A Python context which gets back every called record.
-
-    """
+def watch_namespace(original, namespace="", implicits=False):
+    # Reference: https://stackoverflow.com/a/61963740/3626104
     container = []
 
-    if inspect.ismethod(item):
-        parent = item.im_self
-    elif inspect.isfunction(item):
-        parent = sys.modules[item.__module__]
-    else:
-        # TODO : Finish this
-        raise NotImplementedError('Need to write this')
+    if not namespace:
+        namespace = imports.get_namespace(original)
 
-    @functools.wraps(item)
-    def wrapper(*args, **kwargs):
-        result = item(*args, **kwargs)
+    if not namespace:
+        raise RuntimeError('No namespace was given and "{original}" has no discoverable namespace.'.format(original=original))
+
+    @functools.wraps(original)
+    def side_effect(*args, **kwargs):
+        result = original(*args, **kwargs)
+
+        if inspect.ismethod(original):
+            if not implicits:
+                args = args[1:]
+
         container.append(_Content(args, kwargs, result))
 
-    try:
-        setattr(parent, item.__name__, wrapper)
+        return result
 
+    patcher = mock.patch(namespace, autospec=True, side_effect=side_effect)
+    patcher.start()
+
+    try:
         yield container
     finally:
-        # Revert the item back to normal
-        setattr(parent, item.__name__, item)
+        patcher.stop()
