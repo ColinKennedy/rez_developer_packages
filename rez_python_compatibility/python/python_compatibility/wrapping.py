@@ -52,6 +52,45 @@ class _Content(object):
         return (self._args, self._kwargs, self._results)
 
 
+def _is_method_of_class(original):
+    if inspect.ismethod(original):
+        return True
+
+    if _get_class_that_defined_method(original):
+        return True
+
+    return False
+
+
+def _get_class_that_defined_method(meth):
+    # Reference: https://stackoverflow.com/a/25959545/3626104
+    if not hasattr(meth, "__qualname__"):
+        # This only happens in Python 2. Python 3+ will always have ``__qualname__``
+        return None
+
+    if inspect.ismethod(meth) or (
+        inspect.isbuiltin(meth)
+        and getattr(meth, "__self__", None) is not None
+        and getattr(meth.__self__, "__class__", None)
+    ):
+        for cls in inspect.getmro(meth.__self__.__class__):
+            if meth.__name__ in cls.__dict__:
+                return cls
+
+        meth = getattr(meth, "__func__", meth)  # fallback to __qualname__ parsing
+
+    if inspect.isfunction(meth):
+        cls = getattr(
+            inspect.getmodule(meth),
+            meth.__qualname__.split(".<locals>", 1)[0].rsplit(".", 1)[0],
+            None,
+        )
+        if isinstance(cls, type):
+            return cls
+
+    return getattr(meth, "__objclass__", None)  # handle special descriptor objects
+
+
 @contextlib.contextmanager
 def capture_pipes():
     """Capture the stdout and stderr of the code that executes within this context.
@@ -243,11 +282,21 @@ def watch_namespace(original, namespace="", implicits=False):
     @functools.wraps(original)
     def side_effect(*args, **kwargs):
         """Run `original` and store its inputs and outputs into `container`."""
+        if inspect.ismethod(original):
+            # If it's a bound method, ignore the first argument, since
+            # it's always `self` or `cls` and we don't need to pass it twice.
+            #
+            if not hasattr(original, "im_self"):
+                args = args[1:]
+            elif original.im_self is not None:
+                # Reference: https://stackoverflow.com/a/53322/3626104
+                args = args[1:]
+
         result = original(*args, **kwargs)
 
-        if inspect.ismethod(original):
-            if not implicits:
-                args = args[1:]
+        if _is_method_of_class(original) and not implicits:
+            # Most of the time, we don't want `self` or `cls` included in `args`
+            args = args[1:]
 
         container.append(_Content(args, kwargs, result))
 
