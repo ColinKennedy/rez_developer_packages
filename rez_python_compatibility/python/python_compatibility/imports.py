@@ -268,7 +268,7 @@ def import_nearest_module(namespace):
 
     """
     try:
-        return __import__(namespace, fromlist=[""])
+        return __import__(namespace)
     except _COMMON_IMPORT_EXCEPTIONS:
         # Usually happens if the namespace is actually "foo.MyClass" or "foo.my_attribute"
         pass
@@ -283,7 +283,7 @@ def import_nearest_module(namespace):
         new_namespace = ".".join(parent)
 
         try:
-            return __import__(new_namespace, fromlist=[""])
+            return __import__(new_namespace)
         except _COMMON_IMPORT_EXCEPTIONS:
             pass
 
