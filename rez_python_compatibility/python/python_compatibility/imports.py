@@ -52,6 +52,31 @@ def _is_method_wrapper(object_):
     return type(object_).__name__ == "method-wrapper"
 
 
+def _get_module(object_):
+    """Find the module name of `object_`.
+
+    Args:
+        object_ (object): Some Python object to check.
+
+    Raises:
+        ValueError: If `object_` could not find a module.
+
+    Returns:
+        str: The found module name.
+
+    """
+    if hasattr(object_, '__module__'):
+        return object_.__module__
+
+    if hasattr(object_, '__self__'):
+        return object_.__self__.__module__
+
+    if hasattr(object_, '__origin__'):
+        return object_.__origin__.__module__
+
+    raise ValueError('Cannot determine the module of {object_}'.format(object_=object_))
+
+
 def _iter_all_namespaces_from_parents(namespace):
     """Get every possible namespace from a given Python dotted-namespace.
 
@@ -129,11 +154,7 @@ def get_namespace(object_):
         str: The found name, e.g. "textwrap.dedent".
 
     """
-    try:
-        module = object_.__module__
-    except AttributeError:
-        module = object_.__self__.__module__
-
+    module = _get_module(object_)
     is_method_wrapper = _is_method_wrapper(object_)
 
     if not is_method_wrapper:
