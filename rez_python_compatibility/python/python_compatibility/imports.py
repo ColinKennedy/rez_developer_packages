@@ -65,16 +65,16 @@ def _get_module(object_):
         str: The found module name.
 
     """
-    if hasattr(object_, '__module__'):
+    if hasattr(object_, "__module__"):
         return object_.__module__
 
-    if hasattr(object_, '__self__'):
+    if hasattr(object_, "__self__"):
         return object_.__self__.__module__
 
-    if hasattr(object_, '__origin__'):
+    if hasattr(object_, "__origin__"):
         return object_.__origin__.__module__
 
-    raise ValueError('Cannot determine the module of {object_}'.format(object_=object_))
+    raise ValueError("Cannot determine the module of {object_}".format(object_=object_))
 
 
 def _iter_all_namespaces_from_parents(namespace):
