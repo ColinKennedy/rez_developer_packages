@@ -53,10 +53,26 @@ class _Content(object):
 
 
 def _is_method_of_class(original):
+    """bool: Check if `original` is some kind of method of a class."""
     if inspect.ismethod(original):
         return True
 
     if _get_class_that_defined_method(original):
+        return True
+
+    return False
+
+
+def _is_static_method(caller):
+    """bool: Check if `caller` is a function defined as a staticmethod."""
+    class_ = _get_class_that_defined_method(caller)
+
+    if not class_:
+        return False
+
+    binded_value = class_.__dict__[caller.__name__]
+
+    if isinstance(binded_value, staticmethod):
         return True
 
     return False
@@ -279,6 +295,8 @@ def watch_namespace(original, namespace="", implicits=False):
             )
         )
 
+    is_static = _is_static_method(original)
+
     @functools.wraps(original)
     def side_effect(*args, **kwargs):
         """Run `original` and store its inputs and outputs into `container`."""
@@ -295,14 +313,19 @@ def watch_namespace(original, namespace="", implicits=False):
         result = original(*args, **kwargs)
 
         if _is_method_of_class(original) and not implicits:
-            # Most of the time, we don't want `self` or `cls` included in `args`
-            args = args[1:]
+            if not is_static:
+                # Most of the time, we don't want `self` or `cls` included in `args`
+                args = args[1:]
 
         container.append(_Content(args, kwargs, result))
 
         return result
 
-    patcher = mock.patch(namespace, autospec=True, side_effect=side_effect)
+    if is_static:
+        patcher = mock.patch(namespace, autospec=original, side_effect=side_effect)
+    else:
+        patcher = mock.patch(namespace, autospec=True, side_effect=side_effect)
+
     patcher.start()
 
     try:

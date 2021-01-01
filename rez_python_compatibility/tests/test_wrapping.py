@@ -87,6 +87,19 @@ class WatchCallable(unittest.TestCase):
             [((item,), dict(), "text")], [record.get_all() for record in container]
         )
 
+    def test_instance_method_003(self):
+        """Watch an instance's method."""
+        item = dependency_analyzer._FakeModule(  # pylint: disable=protected-access
+            "text"
+        )
+
+        with wrapping.watch_namespace(item.get_path) as container:
+            item.get_path()
+
+        self.assertEqual(
+            [(tuple(), dict(), "text")], [record.get_all() for record in container]
+        )
+
     def test_function(self):
         """Watch a function from a module."""
         with wrapping.watch_namespace(imports.import_nearest_module) as container:
