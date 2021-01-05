@@ -156,7 +156,7 @@ class Egg(unittest.TestCase):
     def test_single(self):
         """Create a collapsed .egg file for a Python folder."""
         directory = tempfile.mkdtemp(prefix="rez_build_helper_Egg_test_single_")
-        atexit.register(functools.partial(shutil.rmtree, directory))
+        # atexit.register(functools.partial(shutil.rmtree, directory))
 
         common.make_files(
             {
@@ -179,6 +179,8 @@ class Egg(unittest.TestCase):
 
                     version = "1.0.0"
 
+                    description = "A test packages for rez_build_helper"
+
                     private_build_requires = ["rez_build_helper"]
 
                     build_command = "python -m rez_build_helper --eggs python"
@@ -193,10 +195,22 @@ class Egg(unittest.TestCase):
 
         package = finder.get_nearest_rez_package(directory)
         destination = tempfile.mkdtemp(prefix="rez_build_helper_Egg_test_single_")
-        atexit.register(functools.partial(shutil.rmtree, destination))
+        # TODO : Change this
+        # atexit.register(functools.partial(shutil.rmtree, destination))
 
-        creator.build(package, destination, quiet=True)
+        _PACKAGES_PATH = [
+            "/home/selecaotwo/scratch/add_egg_support",
+            "/home/selecaotwo/.rez/packages/int",
+        ]
+
+        creator.build(
+            package,
+            destination,
+            quiet=False,
+            packages_path=_PACKAGES_PATH,
+        )
         install_location = os.path.join(destination, "some_package", "1.0.0")
+        raise ValueError()
 
         self.assertTrue(os.path.isfile(os.path.join(install_location, "python.egg")))
         self.assertFalse(os.path.islink(os.path.join(install_location, "python.egg")))
@@ -254,6 +268,8 @@ class Egg(unittest.TestCase):
             },
             {item.filename for item in egg.filelist}
         )
+        raise TypeError()
+        # description = "A test packages for rez_build_helper"
 
     def test_multiple(self):
         """Create more than one collapsed egg files for a Python folder."""
