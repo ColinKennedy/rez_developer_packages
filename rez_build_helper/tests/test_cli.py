@@ -11,6 +11,7 @@ import sys
 import tempfile
 import textwrap
 import unittest
+import zipfile
 
 from rez_build_helper import exceptions, filer
 
@@ -239,6 +240,19 @@ class Egg(unittest.TestCase):
                     "inner_module.py",
                 )
             )
+        )
+
+        egg = zipfile.ZipFile(os.path.join(install_location, "python.egg"), "r")
+        self.assertEqual(
+            {
+                "some_thing/",
+                "some_thing/__init__.py",
+                "some_thing/inner_folder/",
+                "some_thing/inner_folder/__init__.py",
+                "some_thing/inner_folder/inner_module.py",
+                "some_thing/some_module.py",
+            },
+            {item.filename for item in egg.filelist}
         )
 
     def test_multiple(self):
