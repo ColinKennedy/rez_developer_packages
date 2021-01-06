@@ -663,7 +663,7 @@ class Egg(unittest.TestCase):
         common.make_files(
             {
                 "python": {
-                    "some_thing": {
+                    "some_package": {
                         "__init__.py": None,
                         "some_module.py": None,
                         "inner_folder": {"__init__.py": None, "inner_module.py": None,},
@@ -706,11 +706,11 @@ class Egg(unittest.TestCase):
         # Make the python.egg importable
         sys.path.append(egg_file)
 
-        from some_thing import some_module  # pylint: disable=import-error
+        from some_package import some_module  # pylint: disable=import-error
 
         self.assertEqual(
             os.path.join(
-                install_location, "python.egg", "some_thing", "some_module.py"
+                install_location, "python.egg", "some_package", "some_module.py"
             ),
             os.path.realpath(some_module.__file__),
         )

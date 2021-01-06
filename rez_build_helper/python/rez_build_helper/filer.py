@@ -296,7 +296,7 @@ def build_eggs(  # pylint: disable=too-many-arguments
         if package_data_patterns:
             package_data = {"": package_data_patterns}
         else:
-            package_data = None
+            package_data = dict()
 
         python_modules = sorted((os.path.splitext(path)[0] for path in _iter_python_modules(os.path.join(source, name))))
 
