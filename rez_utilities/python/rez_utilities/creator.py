@@ -17,13 +17,7 @@ from . import finder, rez_configuration
 _LOGGER = logging.getLogger(__name__)
 
 
-@contextlib.contextmanager
-def _null_context():
-    """Do nothing."""
-    yield
-
-
-def build(package, install_path, packages_path=None, quiet=False):
+def _build(package, install_path, directory, quiet=False):
     """Build the given Rez `package` to the given `install_path`.
 
     Args:
@@ -51,27 +45,6 @@ def build(package, install_path, packages_path=None, quiet=False):
             The package the represents the newly-built package.
 
     """
-    if packages_path:
-        # If the user has custom paths to use for building, prefer those
-        # Reference: https://github.com/nerdvegas/rez/blob/da16fdeb754ccd93c8ce54fa2b6a4d4ef3601e6b/src/rez/build_process_.py#L232 pylint: disable=line-too-long
-        #
-        if isinstance(package, developer_package.DeveloperPackage):
-            package = package.from_path(os.path.dirname(package.filepath))
-        elif isinstance(package, packages_.Package):
-            package = package.__class__(
-                package.resource,
-                context=package._context,  # pylint: disable=protected-access
-            )
-        else:
-            package = copy.deepcopy(package)
-
-        package.config.packages_path[:] = packages_path
-
-    if isinstance(package, packages_.Package):
-        package = finder.get_nearest_rez_package(finder.get_package_root(package))
-
-    directory = os.path.dirname(package.filepath)
-
     system = build_system.create_build_system(directory, package=package, verbose=True)
 
     builder = build_process_.create_build_process(
@@ -109,6 +82,79 @@ def build(package, install_path, packages_path=None, quiet=False):
     return packages_.get_developer_package(
         os.path.join(install_path, package.name, str(package.version))
     )
+
+
+@contextlib.contextmanager
+def _keep_package_paths(package):
+    """Make sure that `package` maintains the same packages_path."""
+    original = copy.deepcopy(package.config.packages_path)
+
+    try:
+        yield
+    finally:
+        package.config.packages_path[:] = original
+
+
+@contextlib.contextmanager
+def _null_context():
+    """Do nothing."""
+    yield
+
+
+def build(package, install_path, packages_path=None, quiet=False):
+    """Build the given Rez `package` to the given `install_path`.
+
+    Args:
+        package (:class:`rez.developer_package.DeveloperPackage`):
+            The package to build.
+        install_path (str):
+            The absolute directory on-disk to build the package at.
+            This path represents a path that you might add to the
+            REZ_PACKAGES_PATH environment variable (for example) so it
+            should not contain the package's name or version.
+        packages_path (list[str], optional):
+            The paths that will be used to search for Rez packages while
+            building. This is usually to make it easier to find package
+            dependencies. If `packages_path` is not defined, Rez will
+            use its default paths. Default is None.
+        quiet (bool, optional):
+            If True, Rez won't print anything to the terminal while
+            If building. False, print everything. Default is False.
+
+    Raises:
+        RuntimeError: If the package fails to build for any reason.
+
+    Returns:
+        :class:`rez.developer_package.DeveloperPackage`:
+            The package the represents the newly-built package.
+
+    """
+    original_paths = []
+
+    if packages_path:
+        # If the user has custom paths to use for building, prefer those
+        # Reference: https://github.com/nerdvegas/rez/blob/da16fdeb754ccd93c8ce54fa2b6a4d4ef3601e6b/src/rez/build_process_.py#L232 pylint: disable=line-too-long
+        #
+        if isinstance(package, developer_package.DeveloperPackage):
+            package = package.from_path(os.path.dirname(package.filepath))
+        elif isinstance(package, packages_.Package):
+            package = package.__class__(
+                package.resource,
+                context=package._context,  # pylint: disable=protected-access
+            )
+        else:
+            package = copy.deepcopy(package)
+
+    if isinstance(package, packages_.Package):
+        package = finder.get_nearest_rez_package(finder.get_package_root(package))
+
+    directory = os.path.dirname(package.filepath)
+
+    with _keep_package_paths(package):
+        if packages_path:
+            package.config.packages_path[:] = packages_path
+
+        _build(package, install_path, directory, quiet=quiet)
 
 
 def release(  # pylint: disable=too-many-arguments
