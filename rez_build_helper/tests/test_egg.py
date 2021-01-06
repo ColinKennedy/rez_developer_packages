@@ -40,6 +40,8 @@ class Egg(unittest.TestCase):
         build_path = os.path.dirname(
             os.path.dirname(finder.get_package_root(build_package))
         )
+        directory = tempfile.mkdtemp(suffix="_test_egg_Egg_folder")
+        atexit.register(functools.partial(shutil.rmtree, directory))
 
         for name in ("arch", "os", "platform", "python", "rez", "setuptools", "six"):
             package = finder.get_nearest_rez_package(
@@ -47,13 +49,13 @@ class Egg(unittest.TestCase):
             )
             root = os.path.dirname(finder.get_package_root(package))
             path = os.path.dirname(root)
-            destination = os.path.join(build_path, os.path.relpath(root, path))
+            destination = os.path.join(directory, os.path.relpath(root, path))
 
             if not os.path.isdir(destination):
                 os.makedirs(destination)
                 copytree(root, destination)
 
-        cls._packages_path = [build_path]
+        cls._packages_path = [build_path, directory]
 
     def setUp(self):
         """Keep track of the users loadable Python paths so it can be reverted."""
