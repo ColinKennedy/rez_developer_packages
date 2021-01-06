@@ -2,7 +2,7 @@
 
 name = "rez_utilities"
 
-version = "2.4.0"
+version = "2.6.0"
 
 description = "Helper functions / objects for working with Rez."
 
@@ -15,7 +15,7 @@ help = [
 requires = [
     "python-2.7+<3.8",
     "rez-2.47+<3",
-    "rez_python_compatibility-2+<3",
+    "rez_python_compatibility-2.5+<3",
     "six-1.12+<2",
     "wurlitzer-2+<3",  # This package is used to make Rez builds quiet. If an alternative exists, please remove this dependency
 ]

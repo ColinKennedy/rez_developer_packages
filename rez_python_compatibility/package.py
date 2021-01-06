@@ -2,7 +2,7 @@
 
 name = "rez_python_compatibility"
 
-version = "2.4.1"
+version = "2.6.0"
 
 description = "Miscellaneous, core Python 2 + 3 functions."
 
@@ -14,6 +14,8 @@ help = [
 
 requires = [
     "backports.tempfile-1+<2",
+    "mock-3+<6",
+    "python-2.7+<3.8",
     "six-1.13+<2",
 ]
 
@@ -21,15 +23,13 @@ private_build_requires = ["rez_build_helper-1.1+<2"]
 
 build_command = "python -m rez_build_helper --items python"
 
-variants = [["python-2.7"], ["python-3"]]
-
 tests = {
     "black_diff": {
         "command": "black --diff --check python tests",
         "requires": ["black-19.10+<21"],
     },
     "black": {
-        "command": "rez-env black-19.10+ -- black python tests",
+        "command": "black python tests",
         "requires": ["black-19.10+<21"],
         "run_on": "explicit",
     },

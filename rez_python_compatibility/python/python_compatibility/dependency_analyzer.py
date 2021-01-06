@@ -52,6 +52,10 @@ class _FakeModule(object):  # pylint: disable=too-few-public-methods
         self._path = path
         self.__file__ = self._path
 
+    def get_path(self):
+        """str: Get the path that this instance represents."""
+        return self._path
+
     def __repr__(self):
         """str: Get a string representation of this instance."""
         return "{self.__class__.__name__}({self._path!r})".format(self=self)
@@ -302,8 +306,7 @@ def get_imported_namespaces(directories, convert_relative_imports=True):
         for path in packaging.iter_python_files(directory):
             try:
                 for namespace in import_parser.get_namespaces_from_file(
-                    path,
-                    absolute=convert_relative_imports,
+                    path, absolute=convert_relative_imports,
                 ):
                     namespace_text = namespace.get_namespace()
 

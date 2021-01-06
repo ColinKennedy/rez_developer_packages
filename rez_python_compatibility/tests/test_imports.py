@@ -3,6 +3,8 @@
 
 """Basic import/module related unittests."""
 
+import atexit
+import functools
 import logging
 import os
 import shutil
@@ -11,8 +13,62 @@ import tempfile
 import textwrap
 import unittest
 
-from python_compatibility import imports
+from python_compatibility import import_parser, imports, wrapping
 from python_compatibility.testing import common
+
+
+class GetNamespace(unittest.TestCase):
+    """Make sure :func:`python_compatibility.imports.get_namespace` works."""
+
+    def test_class(self):
+        """Get the dot namespace of a Python class."""
+        self.assertEqual(
+            "python_compatibility.import_parser.Module",
+            imports.get_namespace(import_parser.Module),
+        )
+
+    def test_class_call(self):
+        """Get the dot namespace of a Python ``__call__`` method."""
+        self.assertEqual(
+            "python_compatibility.import_parser.Module.__call__",
+            imports.get_namespace(import_parser.Module.__call__),
+        )
+
+    def test_class_init(self):
+        """Get the dot namespace of a Python ``__init__`` method."""
+        self.assertEqual(
+            "python_compatibility.import_parser.Module.__init__",
+            imports.get_namespace(import_parser.Module.__init__),
+        )
+
+    def test_class_method(self):
+        """Get the dot namespace of a Python classmethod."""
+        self.assertEqual(
+            "python_compatibility.import_parser.Module.from_context",
+            imports.get_namespace(import_parser.Module.from_context),
+        )
+
+    def test_function(self):
+        """Get the dot namespace of a Python function."""
+        self.assertEqual(
+            "python_compatibility.imports.get_parent_module",
+            imports.get_namespace(imports.get_parent_module),
+        )
+
+    def test_instance_method(self):
+        """Get the dot namespace of a Python method of an instantiated class."""
+        module = import_parser.Module("blah", "thing", 0)
+        self.assertEqual(
+            "python_compatibility.import_parser.Module.get_alias",
+            imports.get_namespace(module.get_alias),
+        )
+
+    def test_instance_method_un_instantiated(self):
+        """Get the dot namespace of a Python method of an un-instantiated class."""
+        self.assertEqual(
+            "python_compatibility.import_parser.Module.get_alias",
+            imports.get_namespace(import_parser.Module.get_alias),
+        )
 
 
 class ImportDetection(common.Common):
@@ -151,6 +207,37 @@ class ImportNearest(unittest.TestCase):
             None, imports.import_nearest_module("something_that_doesnt_exist")
         )
 
+    def test_undefined_name(self):
+        """Prevent a module with an undefined name from breaking our function."""
+        code = textwrap.dedent(
+            """\
+            def __some_function():
+                pass
+
+            some_undefined_name
+
+            def another():
+                pass
+            """
+        )
+
+        directory = tempfile.mkdtemp(suffix="_ImportNearest_test_undefined_name")
+        atexit.register(functools.partial(shutil.rmtree, directory))
+
+        with open(os.path.join(directory, "some_name_mangled_file.py"), "w") as handler:
+            handler.write(code)
+
+        with wrapping.keep_sys_path():
+            sys.path.append(directory)
+
+            self.assertIsNone(imports.import_nearest_module("some_name_mangled_file"))
+            self.assertIsNone(
+                imports.import_nearest_module("some_name_mangled_file.another")
+            )
+            self.assertIsNone(
+                imports.import_nearest_module("some_name_mangled_file.__some_function")
+            )
+
 
 class Module(unittest.TestCase):
     """Test different situations for :func:`python_compatibility.imports.get_parent_module`."""
@@ -193,5 +280,9 @@ class Module(unittest.TestCase):
         with open(path, "w") as handler:
             handler.write(code)
 
-        sys.path.append(os.path.dirname(path))
-        self.assertIsNotNone(imports.get_parent_module("fake_module.Something.Another"))
+        with wrapping.keep_sys_path():
+            sys.path.append(os.path.dirname(path))
+
+            self.assertIsNotNone(
+                imports.get_parent_module("fake_module.Something.Another")
+            )

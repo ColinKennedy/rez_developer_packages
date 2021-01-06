@@ -7,10 +7,11 @@ import fnmatch
 import functools
 import logging
 import os
+import sys
 import traceback
 
 import six
-from python_compatibility import filer
+from python_compatibility import filer, iterbot, pathrip
 
 from . import finder, rez_configuration
 
@@ -18,10 +19,54 @@ _CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 _LOGGER = logging.getLogger(__name__)
 
 
-def _get_first_external_path():
+def _discover_external_directory(excludes=frozenset()):
+    """Find the first directory in the call stack which comes from outside of `excludes`.
+
+    Args:
+        excludes (set[str]):
+            The absolute path to any directory which should be ignored
+            while running this function. Default default, even if no
+            paths are given, this module's current Rez package is always excluded.
+
+    Raises:
+        RuntimeError: If no external file path could be found or resolved.
+
+    """
+    file_path = _get_first_external_path(excludes=excludes)
+
+    if not file_path:
+        raise RuntimeError(
+            "No directory was provided and the caller directory could not be found."
+        )
+
+    directory = os.path.dirname(file_path)
+
+    if os.path.isdir(directory):
+        return directory
+
+    resolved = _resolve_rez_path(file_path)
+
+    if not resolved:
+        raise RuntimeError(
+            'No directory was found. The found path "{file_path}" is not a valid file path. '
+            'And no "real" path could be automatically found.'.format(
+                file_path=file_path
+            )
+        )
+
+    return os.path.dirname(resolved)
+
+
+def _get_first_external_path(excludes=frozenset()):
     """Find the path of the Python file which calls this function.
 
     This function excludes paths within this same Rez package, for simplicity's sake.
+
+    Args:
+        excludes (set[str]):
+            The absolute path to any directory which should be ignored
+            while running this function. Default default, even if no
+            paths are given, this module's current Rez package is always excluded.
 
     Returns:
         str: The found caller path, if any.
@@ -30,8 +75,18 @@ def _get_first_external_path():
     package = finder.get_nearest_rez_package(_CURRENT_DIRECTORY)
     root = os.path.dirname(package.filepath)
 
+    excludes = set(excludes)
+    excludes.add(root)
+
     for source_path, _, _, _ in reversed(traceback.extract_stack()):
-        if not filer.in_directory(source_path, root):
+        # If `source_path` isn't within any of the excluded paths,
+        # return it. Otherwise if `source_path` does match at least one
+        # of the excluded paths, keep searching.
+        #
+        for path in excludes:
+            if filer.in_directory(source_path, path):
+                break
+        else:
             return source_path
 
     return ""
@@ -67,7 +122,54 @@ def _resolve_matches(matches):
     return matches
 
 
-def get_data(directory="", matches="", resolve=True):
+def _resolve_rez_path(path):
+    """Find the first path in :attr:`sys.path` which represents some given `path`.
+
+    Python .egg paths tend to be incomprehensible, like
+    "build/some_rez_package/1.0.0/namespace/file.py". So this function's
+    job is to find the "real", location of the egg where file.py came
+    from. This function is only an approximation. After all, file.py
+    isn't actually a literal file on disk. It's a resource, within a
+    .egg file.
+
+    This function assumes that the .egg comes from another Rez package.
+    And installed Rez packages are always named after the Rez package
+    family + version. So we split the path up and use that name +
+    version pair to find the real .egg path.
+
+    Args:
+        path (str): Some raw stack line to the contents of a Python .egg file.
+
+    Returns:
+        str: The found real path, if any.
+
+    """
+    parts = pathrip.split_os_path_asunder(path)
+
+    if not parts:
+        return ""
+
+    if parts[0] == "build":
+        parts[:] = parts[1:]
+
+    all_sys_parts = [
+        (sys_path, pathrip.split_os_path_asunder(sys_path)) for sys_path in sys.path
+    ]
+
+    for name, version in iterbot.make_chains(parts):
+        for sys_path, sys_parts in all_sys_parts:
+            try:
+                next(iterbot.iter_sub_finder([name, version], sys_parts))
+            except StopIteration:
+                # Nothing was found. Just ignore the path.
+                continue
+
+            return sys_path
+
+    return ""
+
+
+def get_data(directory="", matches="", resolve=True, excludes=frozenset()):
     """Get a Rez package's help information.
 
     Args:
@@ -84,36 +186,45 @@ def get_data(directory="", matches="", resolve=True):
             to a relative path on-disk, that path is expanded into an
             absolute path and returned. If False, the path is returned
             as-is without being modified. Default is True.
+        excludes (set[str]): The absolute path to any directory which
+            should be ignored while running this function. Default
+            default, even if no paths are given, this module's current
+            Rez package is always excluded.
+
+    Raises:
+        ValueError: If no `directory` is given and one couldn't be automatically found.
+        RuntimeError: If the `directory` has no Rez package inside of it.
+
+    Returns:
+        list[list[str, str]]: Each found package help key and value, if any.
 
     """
     matches = _resolve_matches(matches)
 
     if not directory:
-        file_path = _get_first_external_path()
-
-        if not file_path:
-            raise RuntimeError(
-                "No directory was provided and the caller directory could not be found."
-            )
-
-        directory = os.path.dirname(file_path)
-        _LOGGER.debug('Directory "%s" was found.', directory)
-
-    if not os.path.isdir(directory):
-        raise ValueError(
-            'Text "{directory}" is not a directory.'.format(directory=directory)
-        )
-
-    package = finder.get_nearest_rez_package(directory)
-
-    if not package:
-        raise RuntimeError(
-            'Directory "{directory}" is not in a Rez package.'.format(
-                directory=directory
-            )
-        )
+        package = get_nearest_external_rez_package(excludes=excludes)
+    else:
+        package = finder.get_nearest_rez_package(directory)
 
     _LOGGER.debug('Found package "%s".', package)
+
+    if not package:
+        if directory and os.path.isdir(directory):
+            raise ValueError(
+                'Directory "{directory}" is not a Rez package.'.format(
+                    directory=directory
+                )
+            )
+        elif directory:
+            raise RuntimeError(
+                'Directory "{directory}" does not exist and could not get a Rez package.'.format(
+                    directory=directory
+                )
+            )
+        else:
+            raise ValueError(
+                'No directory was given and no automatic Rez package could be found.'
+            )
 
     if not package.help:
         return []
@@ -144,3 +255,37 @@ def get_data(directory="", matches="", resolve=True):
         output.append([key, path])
 
     return output
+
+
+def get_nearest_external_rez_package(excludes=frozenset()):
+    """Find the first directory in the call stack which comes from outside of `excludes`.
+
+    Args:
+        excludes (set[str]):
+            The absolute path to any directory which should be ignored
+            while running this function. Default default, even if no
+            paths are given, this module's current Rez package is always excluded.
+
+    Raises:
+        ValueError: If not directory was found.
+        RuntimeError: If no external file path could be found or resolved.
+
+    """
+    directory = _discover_external_directory(excludes=excludes)
+
+    if not os.path.isdir(directory):
+        raise ValueError(
+            'Text "{directory}" is not a directory.'.format(directory=directory)
+        )
+
+    _LOGGER.debug('Directory "%s" was found.', directory)
+    package = finder.get_nearest_rez_package(directory)
+
+    if not package:
+        raise RuntimeError(
+            'Directory "{directory}" is not in a Rez package.'.format(
+                directory=directory
+            )
+        )
+
+    return package

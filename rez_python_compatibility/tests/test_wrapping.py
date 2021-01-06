@@ -9,9 +9,116 @@ import functools
 import os
 import sys
 import tempfile
+import unittest
 
-from python_compatibility import wrapping
+from python_compatibility import dependency_analyzer, imports, wrapping
 from python_compatibility.testing import common
+
+
+class WatchCallable(unittest.TestCase):
+    """Make sure :func:python_compatibility.wrapping.watch_callable` works."""
+
+    def test_class_call(self):
+        """Watch a instance's ``__call__`` method."""
+        caller = _Callable()
+
+        with wrapping.watch_namespace(_Callable.__call__) as container:
+            caller("thing")
+
+        self.assertEqual(
+            [(("thing",), dict(), 8)], [record.get_all() for record in container]
+        )
+
+    def test_class_init(self):
+        """Watch a class's ``__init__`` method."""
+        with wrapping.watch_namespace(
+            dependency_analyzer._FakeModule.__init__,  # pylint: disable=protected-access
+        ) as container:
+            dependency_analyzer._FakeModule("text")  # pylint: disable=protected-access
+
+        self.assertEqual(
+            [(("text",), dict(), None)], [record.get_all() for record in container]
+        )
+
+    def test_instance_dunder(self):
+        """Watch an instance's ``__repr__`` dunder (double-underscore) method."""
+
+        with wrapping.watch_namespace(
+            dependency_analyzer._FakeModule.__repr__  # pylint: disable=protected-access
+        ) as container:
+            item = dependency_analyzer._FakeModule(  # pylint: disable=protected-access
+                "text"
+            )
+            repr(item)
+
+        self.assertEqual(
+            [(tuple(), dict(), "_FakeModule('text')")],
+            [record.get_all() for record in container],
+        )
+
+    def test_instance_method_001(self):
+        """Watch an instance's method."""
+        item = dependency_analyzer._FakeModule(  # pylint: disable=protected-access
+            "text"
+        )
+
+        with wrapping.watch_namespace(
+            dependency_analyzer._FakeModule.get_path,  # pylint: disable=protected-access
+        ) as container:
+            item.get_path()
+
+        self.assertEqual(
+            [(tuple(), dict(), "text")], [record.get_all() for record in container]
+        )
+
+    def test_instance_method_002(self):
+        """Watch an instance's method."""
+        item = dependency_analyzer._FakeModule(  # pylint: disable=protected-access
+            "text"
+        )
+
+        with wrapping.watch_namespace(
+            dependency_analyzer._FakeModule.get_path,  # pylint: disable=protected-access
+            implicits=True,
+        ) as container:
+            item.get_path()
+
+        self.assertEqual(
+            [((item,), dict(), "text")], [record.get_all() for record in container]
+        )
+
+    def test_instance_method_003(self):
+        """Watch an instance's method."""
+        item = dependency_analyzer._FakeModule(  # pylint: disable=protected-access
+            "text"
+        )
+
+        with wrapping.watch_namespace(item.get_path) as container:
+            item.get_path()
+
+        self.assertEqual(
+            [(tuple(), dict(), "text")], [record.get_all() for record in container]
+        )
+
+    def test_function(self):
+        """Watch a function from a module."""
+        with wrapping.watch_namespace(imports.import_nearest_module) as container:
+            imports.import_nearest_module("sys")
+
+        self.assertEqual(
+            [(("sys",), dict(), sys)], [record.get_all() for record in container]
+        )
+
+    def test_static_function(self):
+        """Watch a function from a class."""
+        with wrapping.watch_namespace(
+            _Callable.do_static, namespace="tests.test_wrapping._Callable.do_static"
+        ) as container:
+            _Callable.do_static("thing")
+
+        self.assertEqual(
+            [(("thing",), dict(), 9)], [record.get_all() for record in container]
+        )
 
 
 class Wraps(common.Common):
@@ -79,6 +186,32 @@ class Wraps(common.Common):
 
         self.assertEqual(current_directory, os.getcwd())
 
+    def test_os_environment(self):
+        """Make sure :func:`python_compatibility.wrapping.keep_os_environment` works."""
+        original = os.environ.copy()
+
+        with wrapping.keep_os_environment():
+            before = os.environ.copy()
+            os.environ["FOO"] = "blah"
+            after = os.environ.copy()
+
+        self.assertEqual(original, before)
+        self.assertNotEqual(before, after)
+        self.assertEqual(original, os.environ)
+
+    def test_sys_path(self):
+        """Make sure :func:`python_compatibility.wrapping.keep_sys_path` works."""
+        original = list(sys.path)
+
+        with wrapping.keep_sys_path():
+            before = list(sys.path)
+            sys.path.append("/something")
+            after = list(sys.path)
+
+        self.assertEqual(original, before)
+        self.assertNotEqual(before, after)
+        self.assertEqual(original, sys.path)
+
     def test_pipes_empty(self):
         """Check that pipes capture nothing in stdout and stderr if there is nothing."""
         with wrapping.capture_pipes() as output:
@@ -102,3 +235,16 @@ class Wraps(common.Common):
 
         self.assertEqual("Hello\nthere!\n", stdout)
         self.assertEqual("General\nKanobi\n", stderr)
+
+
+class _Callable(object):
+    """Some class for testing."""
+
+    @staticmethod
+    def do_static(_):
+        """Do something."""
+        return 9
+
+    def __call__(self, item, blah=None):
+        """Do something."""
+        return 8
