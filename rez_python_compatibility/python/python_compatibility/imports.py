@@ -4,6 +4,7 @@
 """Importing/Modules differ in Python 2 and 3. This module helps with that."""
 
 import importlib
+import inspect
 import logging
 import os
 
@@ -11,6 +12,10 @@ import six
 
 from . import pathrip
 
+_COMMON_IMPORT_EXCEPTIONS = (
+    ImportError,  # If the module does not exist
+    NameError,  # If the module exists but contains an undefined variable
+)
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -40,6 +45,36 @@ def _is_every_inner_folder_importable(directory, root):
             return False
 
     return True
+
+
+def _is_method_wrapper(object_):
+    """bool: Check if `object_` is a Python dunder method."""
+    return type(object_).__name__ == "method-wrapper"
+
+
+def _get_module(object_):
+    """Find the module name of `object_`.
+
+    Args:
+        object_ (object): Some Python object to check.
+
+    Raises:
+        ValueError: If `object_` could not find a module.
+
+    Returns:
+        str: The found module name.
+
+    """
+    if hasattr(object_, "__module__"):
+        return object_.__module__
+
+    if hasattr(object_, "__self__"):
+        return object_.__self__.__module__
+
+    if hasattr(object_, "__origin__"):
+        return object_.__origin__.__module__
+
+    raise ValueError("Cannot determine the module of {object_}".format(object_=object_))
 
 
 def _iter_all_namespaces_from_parents(namespace):
@@ -101,6 +136,67 @@ def has_importable_module(
                 return True
 
     return False
+
+
+def get_namespace(object_):
+    """Find the full, dot-separated namespace for a Python object.
+
+    Important:
+        In Python 2, staticmethods are not supported.
+
+    Args:
+        object_ (object): A class, function, method, or module. e.g. :func:`textwrap.dedent`.
+
+    Raises:
+        NotImplementedError: If no namespace can be found for `object_`.
+
+    Returns:
+        str: The found name, e.g. "textwrap.dedent".
+
+    """
+    module = _get_module(object_)
+    is_method_wrapper = _is_method_wrapper(object_)
+
+    if not is_method_wrapper:
+        # If `object_` is not a dunder method like ``__call__``, Python
+        # 3 has a cool attribute called ``__qualname__`` which can be
+        # used to get what we need.
+        #
+        try:
+            # Reference: https://www.python.org/dev/peps/pep-3155/
+            return "{module}.{object_.__qualname__}".format(
+                module=module, object_=object_
+            )
+        except AttributeError:
+            pass
+
+    name = object_.__name__
+
+    if inspect.isfunction(object_) or inspect.isclass(object_):
+        return "{module}.{name}".format(module=module, name=name)
+
+    if inspect.ismethod(object_) or is_method_wrapper:
+        # method-caller is for "dunder" Python methods, like `__call__`, `__add__`, etc.
+        class_ = object_.__self__
+
+        if class_ is None:
+            class_ = object_.im_self
+
+        if class_ is None:
+            class_ = object_.im_class
+
+        try:
+            class_name = class_.__name__
+        except AttributeError:
+            class_name = class_.__class__.__name__
+
+        return "{module}.{class_name}.{name}".format(
+            module=module, class_name=class_name, name=name,
+        )
+
+    raise NotImplementedError(
+        'Object "{object_}" is not currently supported.'.format(object_=object_)
+    )
 
 
 def get_parent_module(namespace):
@@ -172,8 +268,8 @@ def import_nearest_module(namespace):
 
     """
     try:
-        return __import__(namespace, fromlist=[""])
-    except ImportError:
+        return __import__(namespace)
+    except _COMMON_IMPORT_EXCEPTIONS:
         # Usually happens if the namespace is actually "foo.MyClass" or "foo.my_attribute"
         pass
 
@@ -187,8 +283,8 @@ def import_nearest_module(namespace):
         new_namespace = ".".join(parent)
 
         try:
-            return __import__(new_namespace, fromlist=[""])
-        except ImportError:
+            return __import__(new_namespace)
+        except _COMMON_IMPORT_EXCEPTIONS:
             pass
 
         namespace = new_namespace

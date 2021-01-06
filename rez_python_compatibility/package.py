@@ -2,7 +2,7 @@
 
 name = "rez_python_compatibility"
 
-version = "2.5.0"
+version = "2.6.0"
 
 description = "Miscellaneous, core Python 2 + 3 functions."
 
@@ -14,6 +14,7 @@ help = [
 
 requires = [
     "backports.tempfile-1+<2",
+    "mock-3+<6",
     "python-2.7+<3.8",
     "six-1.13+<2",
 ]
