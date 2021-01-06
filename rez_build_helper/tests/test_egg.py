@@ -201,7 +201,10 @@ class Egg(unittest.TestCase):
             Requires-Python: 3.6+<3.8
             """
         )
-        self.assertEqual(package_information, egg.open("EGG-INFO/PKG-INFO").read())
+        self.assertEqual(
+            package_information,
+            egg.open("EGG-INFO/PKG-INFO").read().decode("utf-8"),
+        )
 
     def test_import_pkg_resources(self):
         """Make sure a generated .egg file can be imported via pkg_resources."""
