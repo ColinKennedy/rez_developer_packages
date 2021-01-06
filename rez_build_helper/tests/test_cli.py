@@ -13,10 +13,10 @@ import textwrap
 import unittest
 import zipfile
 
+import pkg_resources
+from python_compatibility import wrapping
 from rez.config import config
 from rez_build_helper import exceptions, filer
-from python_compatibility import wrapping
-import pkg_resources
 
 from .common import common, creator, finder
 

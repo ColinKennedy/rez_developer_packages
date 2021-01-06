@@ -4,23 +4,24 @@
 """Create helpful functions for building Rez packages, using Python."""
 
 import atexit
-import functools
 import contextlib
+import functools
 import glob
 import logging
 import os
 import shutil
 
 import setuptools
+import six
 from rez.vendor.version import requirement
+
+from . import exceptions, linker
 
 try:
     from rez import packages  # Newer Rez versions, 2.51+-ish
 except ImportError:
     from rez import packages_ as packages  # Older Rez versions. 2.48-ish
-import six
 
-from . import exceptions, linker
 
 
 _LOGGER = logging.getLogger(__name__)
