@@ -156,8 +156,7 @@ class Egg(unittest.TestCase):
     def test_extra_metadata(self):
         """Make sure platform data is recorded, if it is included in requires."""
         directory = tempfile.mkdtemp(prefix="rez_build_helper_Egg_test_include_platform_directory_")
-        # TODO : Change this
-        # atexit.register(functools.partial(shutil.rmtree, directory))
+        atexit.register(functools.partial(shutil.rmtree, directory))
 
         common.make_files(
             {
@@ -202,8 +201,7 @@ class Egg(unittest.TestCase):
 
         package = finder.get_nearest_rez_package(directory)
         destination = tempfile.mkdtemp(prefix="rez_build_helper_Egg_test_include_platform_destination_")
-        # TODO : Change this
-        # atexit.register(functools.partial(shutil.rmtree, destination))
+        atexit.register(functools.partial(shutil.rmtree, destination))
 
         # TODO : Remove this later
         _PACKAGES_PATH = [
@@ -301,8 +299,7 @@ class Egg(unittest.TestCase):
     def test_single(self):
         """Create a collapsed .egg file for a Python folder."""
         directory = tempfile.mkdtemp(prefix="rez_build_helper_Egg_test_single_directory_")
-        # TODO : Change this
-        # atexit.register(functools.partial(shutil.rmtree, directory))
+        atexit.register(functools.partial(shutil.rmtree, directory))
 
         common.make_files(
             {
@@ -343,8 +340,7 @@ class Egg(unittest.TestCase):
 
         package = finder.get_nearest_rez_package(directory)
         destination = tempfile.mkdtemp(prefix="rez_build_helper_Egg_test_single_destination_")
-        # TODO : Change this
-        # atexit.register(functools.partial(shutil.rmtree, destination))
+        atexit.register(functools.partial(shutil.rmtree, destination))
 
         _PACKAGES_PATH = [
             "/home/selecaoone/scratch/add_egg_support",
