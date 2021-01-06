@@ -153,6 +153,151 @@ class Egg(unittest.TestCase):
         """Restore the old set of loadable Python paths."""
         sys.path[:] = self._paths
 
+    def test_extra_metadata(self):
+        """Make sure platform data is recorded, if it is included in requires."""
+        directory = tempfile.mkdtemp(prefix="rez_build_helper_Egg_test_include_platform_directory_")
+        # TODO : Change this
+        # atexit.register(functools.partial(shutil.rmtree, directory))
+
+        common.make_files(
+            {
+                "python": {
+                    "some_thing": {
+                        "__init__.py": None,
+                        "some_module.py": None,
+                        "inner_folder": {"__init__.py": None, "inner_module.py": None,},
+                    }
+                }
+            },
+            directory,
+        )
+
+        with open(os.path.join(directory, "package.py"), "w") as handler:
+            handler.write(
+                textwrap.dedent(
+                    """\
+                    name = "some_package"
+
+                    version = "1.0.0"
+
+                    description = "A test packages for rez_build_helper"
+
+                    help = "http://www.some_home_page.com"
+
+                    authors = ["ColinKennedy"]
+
+                    requires = ["platform-linux", "python-3.6+<3.8"]
+
+                    private_build_requires = ["rez_build_helper"]
+
+                    build_command = "python -m rez_build_helper --eggs python"
+
+                    def commands():
+                        import os
+
+                        env.PYTHONPATH.append(os.path.join("{root}", "python.egg"))
+                    """
+                )
+            )
+
+        package = finder.get_nearest_rez_package(directory)
+        destination = tempfile.mkdtemp(prefix="rez_build_helper_Egg_test_include_platform_destination_")
+        # TODO : Change this
+        # atexit.register(functools.partial(shutil.rmtree, destination))
+
+        # TODO : Remove this later
+        _PACKAGES_PATH = [
+            "/home/selecaoone/scratch/add_egg_support",
+            "/home/selecaoone/.rez/packages/int",
+        ]
+
+        creator.build(
+            package,
+            destination,
+            quiet=False,
+            packages_path=_PACKAGES_PATH,
+        )
+        install_location = os.path.join(destination, "some_package", "1.0.0")
+
+        self.assertTrue(os.path.isfile(os.path.join(install_location, "python.egg")))
+        self.assertFalse(os.path.islink(os.path.join(install_location, "python.egg")))
+        self.assertFalse(os.path.isdir(os.path.join(install_location, "python")))
+        self.assertFalse(
+            os.path.isdir(os.path.join(install_location, "python", "some_thing"))
+        )
+        self.assertFalse(
+            os.path.isdir(
+                os.path.join(install_location, "python", "some_thing", "inner_folder")
+            )
+        )
+        self.assertFalse(
+            os.path.isfile(
+                os.path.join(install_location, "python", "some_thing", "__init__.py")
+            )
+        )
+        self.assertFalse(
+            os.path.isfile(
+                os.path.join(install_location, "python", "some_thing", "some_module.py")
+            )
+        )
+        self.assertFalse(
+            os.path.isfile(
+                os.path.join(
+                    install_location,
+                    "python",
+                    "some_thing",
+                    "inner_folder",
+                    "__init__.py",
+                )
+            )
+        )
+        self.assertFalse(
+            os.path.isfile(
+                os.path.join(
+                    install_location,
+                    "python",
+                    "some_thing",
+                    "inner_folder",
+                    "inner_module.py",
+                )
+            )
+        )
+
+        egg = zipfile.ZipFile(os.path.join(install_location, "python.egg"), "r")
+        self.assertEqual(
+            {
+                "EGG-INFO/PKG-INFO",
+                "EGG-INFO/SOURCES.txt",
+                "EGG-INFO/dependency_links.txt",
+                "EGG-INFO/not-zip-safe",
+                "EGG-INFO/top_level.txt",
+                "some_thing/__init__.py",
+                "some_thing/__pycache__/__init__.cpython-36.pyc",
+                "some_thing/__pycache__/some_module.cpython-36.pyc",
+                "some_thing/inner_folder/__init__.py",
+                "some_thing/inner_folder/__pycache__/__init__.cpython-36.pyc",
+                "some_thing/inner_folder/__pycache__/inner_module.cpython-36.pyc",
+                "some_thing/inner_folder/inner_module.py",
+                "some_thing/some_module.py",
+            },
+            {item.filename for item in egg.filelist}
+        )
+        package_information = textwrap.dedent(
+            """\
+            Metadata-Version: 1.2
+            Name: python
+            Version: 1.0.0
+            Summary: A test packages for rez_build_helper
+            Home-page: http://www.some_home_page.com
+            Author: ColinKennedy
+            License: UNKNOWN
+            Description: UNKNOWN
+            Platform: linux
+            Requires-Python: ==3.6.8
+            """
+        )
+        self.assertEqual(package_information, egg.open("EGG-INFO/PKG-INFO").read())
+
     def test_single(self):
         """Create a collapsed .egg file for a Python folder."""
         directory = tempfile.mkdtemp(prefix="rez_build_helper_Egg_test_single_directory_")
@@ -283,7 +428,7 @@ class Egg(unittest.TestCase):
             Name: python
             Version: 1.0.0
             Summary: A test packages for rez_build_helper
-            Home-page: UNKNOWN
+            Home-page: http://www.some_home_page.com
             Author: ColinKennedy
             License: UNKNOWN
             Description: UNKNOWN

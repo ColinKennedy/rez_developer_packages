@@ -8,11 +8,11 @@ import functools
 import contextlib
 import glob
 import logging
-from os.path import dirname as _dirname
 import os
 import shutil
 
 import setuptools
+from rez.vendor.version import requirement
 try:
     from rez import packages  # Newer Rez versions, 2.51+-ish
 except ImportError:
@@ -22,12 +22,7 @@ import six
 from . import exceptions, linker
 
 
-_CURRENT_DIRECTORY = _dirname(os.path.realpath(__file__))
-_PACKAGE_ROOT = _dirname(_dirname(_dirname(_dirname(_CURRENT_DIRECTORY))))
 _LOGGER = logging.getLogger(__name__)
-
-if not os.path.isfile(os.path.join(_PACKAGE_ROOT, "package.py")):
-    raise ImportError('Directory "{_PACKAGE_ROOT}" is not the parent of a package.py file.'.format(_PACKAGE_ROOT=_PACKAGE_ROOT))
 
 
 def _find_api_documentation(entries):
@@ -55,6 +50,16 @@ def _find_api_documentation(entries):
         # Reference: https://github.com/nerdvegas/rez/blob/b21516589933afeed1e1a1a439962d2e20151e2d/src/rez/pip.py#L443-L447
         if key == "Source Code":
             return value
+
+    return ""
+
+
+def _get_platform():
+    for text in os.environ["REZ_USED_REQUEST"].split(" "):
+        request = requirement.Requirement(text)
+
+        if request.name == "platform" and not request.weak:
+            return str(request.range)
 
     return ""
 
@@ -235,9 +240,14 @@ def build_eggs(  # pylint: disable=too-many-arguments
     name = os.environ["REZ_BUILD_PROJECT_NAME"]
     version = os.environ["REZ_BUILD_PROJECT_VERSION"]
     description = os.environ["REZ_BUILD_PROJECT_DESCRIPTION"]
-    package = packages.get_developer_package(_PACKAGE_ROOT)
+    package = packages.get_developer_package(os.path.dirname(os.environ["REZ_BUILD_PROJECT_FILE"]))
     author = ", ".join(package.authors or [])
     url = _find_api_documentation(package.help or [])
+    platform = _get_platform()
+    platforms = []
+
+    if platform:
+        platforms = [_get_platform()]
 
     for name in eggs:
         with _keep_cwd():
@@ -251,6 +261,7 @@ def build_eggs(  # pylint: disable=too-many-arguments
                 url=url,
                 packages=setuptools.find_packages(name),  # TODO : Not sure about this
                 package_dir={"": name},  # TODO : Not sure about this
+                platforms=platforms,
                 py_modules=[
                     os.path.splitext(os.path.basename(path))[0]
                     for path in glob.glob(os.path.join(source, name, "*.py"))
