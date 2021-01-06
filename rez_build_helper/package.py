@@ -53,11 +53,21 @@ tests = {
     },
     "unittest_python_2": {
         "command": "python -m unittest discover",
-        "requires": ["python-2.7", "rez-2.48+<3", "wurlitzer-2+<3"],
+        "requires": [
+            "python-2.7",
+            "rez-2.48+<3",
+            "rez_python_compatibility-2.6+<3",
+            "wurlitzer-2+<3",
+        ],
     },
     "unittest_python_3": {
         "command": "python -m unittest discover",
-        "requires": ["python-3.6+<3.8", "rez-2.48+<3", "wurlitzer-2+<3"],
+        "requires": [
+            "python-3.6+<3.8",
+            "rez-2.48+<3",
+            "rez_python_compatibility-2.6+<3",
+            "wurlitzer-2+<3",
+        ],
     },
 }
 
