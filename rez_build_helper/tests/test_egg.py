@@ -117,7 +117,9 @@ class Egg(unittest.TestCase):
         )
         atexit.register(functools.partial(shutil.rmtree, destination))
 
-        creator.build(package, destination, quiet=True, packages_path=self._packages_path)
+        creator.build(
+            package, destination, quiet=True, packages_path=self._packages_path
+        )
         install_location = os.path.join(destination, "some_package", "1.0.0")
 
         self.assertTrue(os.path.isfile(os.path.join(install_location, "python.egg")))
@@ -377,7 +379,7 @@ class Egg(unittest.TestCase):
                 "some_thing/inner_folder/inner_module.py",
                 "some_thing/some_module.py",
             },
-            {item.filename for item in egg.filelist}
+            {item.filename for item in egg.filelist},
         )
         package_information = textwrap.dedent(
             """\
