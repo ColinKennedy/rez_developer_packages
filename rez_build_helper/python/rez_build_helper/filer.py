@@ -275,15 +275,14 @@ def build_eggs(  # pylint: disable=too-many-arguments
                 description=description,
                 author=author,
                 url=url,
-                packages=setuptools.find_packages(name),  # TODO : Not sure about this
-                package_dir={"": name},  # TODO : Not sure about this
+                packages=setuptools.find_packages(name),
+                package_dir={"": name},
                 platforms=platforms,
                 py_modules=[
                     os.path.splitext(os.path.basename(path))[0]
                     for path in glob.glob(os.path.join(source, name, "*.py"))
                 ],
-                include_package_data=True,  # TODO : Not sure
-                zip_safe=False,  # TODO : Not sure
+                include_package_data=True,  # Reference: https://python-packaging.readthedocs.io/en/latest/non-code-files.html
                 python_requires=python_requires,
                 script="setup.py",  # Reference: https://stackoverflow.com/a/2851036
                 script_args=["bdist_egg"],  # Reference: https://stackoverflow.com/a/2851036

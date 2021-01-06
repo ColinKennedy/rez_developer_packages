@@ -429,7 +429,7 @@ class Egg(unittest.TestCase):
             Author-email: UNKNOWN
             License: UNKNOWN
             Description: UNKNOWN
-            Platform: UNKNOWN
+            Platform: any
             """
         )
         self.assertEqual(package_information, egg.open("EGG-INFO/PKG-INFO").read())
