@@ -23,6 +23,7 @@ from . import exceptions, linker
 
 
 _LOGGER = logging.getLogger(__name__)
+_PYTHON_EXTENSIONS = frozenset((".py", ".pyc", ".pyd"))
 
 
 def _find_api_documentation(entries):
@@ -76,6 +77,23 @@ def _get_platform():
             return str(request.range)
 
     return ""
+
+
+def _iter_data_extensions(directory):
+    for _, _, files in os.walk(directory):
+        for path in files:
+            _, extension = os.path.splitext(path)
+
+            if extension not in _PYTHON_EXTENSIONS:
+                yield "*" + extension
+
+
+def _iter_python_modules(directory):
+    for item in os.listdir(directory):
+        base, extension = os.path.splitext(item)
+
+        if extension in _PYTHON_EXTENSIONS:
+            yield base
 
 
 @contextlib.contextmanager
@@ -225,6 +243,7 @@ def build_eggs(  # pylint: disable=too-many-arguments
     symlink=linker.must_symlink(),
     symlink_folders=linker.must_symlink_folders(),
     symlink_files=linker.must_symlink_files(),
+    data_patterns=None,
 ):
     """Copy or symlink all items in ``source`` to ``destination``.
 
@@ -251,6 +270,9 @@ def build_eggs(  # pylint: disable=too-many-arguments
     """
     _validate_egg_names(eggs)
 
+    if not data_patterns:
+        data_patterns = set()
+
     package_name = os.environ["REZ_BUILD_PROJECT_NAME"]
     version = os.environ["REZ_BUILD_PROJECT_VERSION"]
     description = os.environ["REZ_BUILD_PROJECT_DESCRIPTION"]
@@ -266,6 +288,18 @@ def build_eggs(  # pylint: disable=too-many-arguments
         platforms = ["any"]  # This is apparently a common value to many "Linux, Windows, etc"
 
     for name in eggs:
+        package_data_patterns = data_patterns
+
+        if not package_data_patterns:
+            package_data_patterns = sorted(set(_iter_data_extensions(os.path.join(source, name))))
+
+        if package_data_patterns:
+            package_data = {"": package_data_patterns}
+        else:
+            package_data = None
+
+        python_modules = sorted((os.path.splitext(path)[0] for path in _iter_python_modules(os.path.join(source, name))))
+
         with _keep_cwd():
             os.chdir(source)
 
@@ -275,13 +309,15 @@ def build_eggs(  # pylint: disable=too-many-arguments
                 description=description,
                 author=author,
                 url=url,
+                package_data=package_data,  # Reference: https://setuptools.readthedocs.io/en/latest/userguide/datafiles.html
+                # For `convert_2to3_doctests`. I shouldn't need to add
+                # this but tests will fail without it, on setuptools-44.
+                #
+                convert_2to3_doctests=[],
                 packages=setuptools.find_packages(name),
                 package_dir={"": name},
                 platforms=platforms,
-                py_modules=[
-                    os.path.splitext(os.path.basename(path))[0]
-                    for path in glob.glob(os.path.join(source, name, "*.py"))
-                ],
+                py_modules=python_modules,
                 include_package_data=True,  # Reference: https://python-packaging.readthedocs.io/en/latest/non-code-files.html
                 python_requires=python_requires,
                 script="setup.py",  # Reference: https://stackoverflow.com/a/2851036

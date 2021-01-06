@@ -15,6 +15,7 @@ import zipfile
 
 from rez_build_helper import exceptions, filer
 from python_compatibility import wrapping
+import pkg_resources
 
 from .common import common, creator, finder
 
@@ -307,7 +308,7 @@ class Egg(unittest.TestCase):
                 "python": {
                     "some_thing": {
                         "__init__.py": None,
-                        "some_file.txt": None,
+                        "another_file.dat": None,
                         "some_module.py": None,
                         "inner_folder": {"__init__.py": None, "inner_module.py": None,},
                     }
@@ -359,8 +360,11 @@ class Egg(unittest.TestCase):
 
         with wrapping.keep_sys_path():
             sys.path.append(os.path.join(install_location, "python.egg"))
+            egg = zipfile.ZipFile(os.path.join(install_location, "python.egg"), "r")
+            pkg_resources.resource_filename("some_thing", "another_file.dat")
 
-        self.assertTrue(os.path.isfile(os.path.join(install_location, "python.egg")))
+        egg = zipfile.ZipFile(os.path.join(install_location, "python.egg"), "r")
+        self.assertIn("some_thing/another_file.dat", {item.filename for item in egg.filelist})
 
     def test_single(self):
         """Create a collapsed .egg file for a Python folder."""
