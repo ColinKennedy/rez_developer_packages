@@ -15,6 +15,7 @@ import textwrap
 import unittest
 
 from rez_build_helper import exceptions, filer
+from python_compatibility import wrapping
 
 from .common import common, creator, finder
 
@@ -974,9 +975,5 @@ def _patch_hotl(fake_path_name):
         path=path,
     )
 
-    try:
-        os.environ["PATH"] = new_path
-
+    with wrapping.keep_os_environment():
         yield
-    finally:
-        os.environ["PATH"] = path
