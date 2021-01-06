@@ -3,9 +3,7 @@
 
 """Create helpful functions for building Rez packages, using Python."""
 
-import atexit
 import contextlib
-import functools
 import glob
 import logging
 import os
@@ -44,12 +42,12 @@ def _find_api_documentation(entries):
             return value
 
     for key, value in entries or []:
-        # Reference: https://github.com/nerdvegas/rez/blob/b21516589933afeed1e1a1a439962d2e20151e2d/src/rez/pip.py#L443-L447
+        # Reference: https://github.com/nerdvegas/rez/blob/b21516589933afeed1e1a1a439962d2e20151e2d/src/rez/pip.py#L443-L447  pylint: disable=line-too-long
         if key == "Home Page":
             return value
 
     for key, value in entries or []:
-        # Reference: https://github.com/nerdvegas/rez/blob/b21516589933afeed1e1a1a439962d2e20151e2d/src/rez/pip.py#L443-L447
+        # Reference: https://github.com/nerdvegas/rez/blob/b21516589933afeed1e1a1a439962d2e20151e2d/src/rez/pip.py#L443-L447  pylint: disable=line-too-long
         if key == "Source Code":
             return value
 
@@ -321,7 +319,7 @@ def build_eggs(  # pylint: disable=too-many-arguments
                 description=description,
                 author=author,
                 url=url,
-                package_data=package_data,  # Reference: https://setuptools.readthedocs.io/en/latest/userguide/datafiles.html
+                package_data=package_data,  # Reference: https://setuptools.readthedocs.io/en/latest/userguide/datafiles.html  pylint: disable=line-too-long
                 # For `convert_2to3_doctests`. I shouldn't need to add
                 # this but tests will fail without it, on setuptools-44.
                 #
@@ -330,7 +328,7 @@ def build_eggs(  # pylint: disable=too-many-arguments
                 package_dir={"": name},
                 platforms=platforms,
                 py_modules=python_modules,
-                include_package_data=True,  # Reference: https://python-packaging.readthedocs.io/en/latest/non-code-files.html
+                include_package_data=True,  # Reference: https://python-packaging.readthedocs.io/en/latest/non-code-files.html  pylint: disable=line-too-long
                 python_requires=python_requires,
                 script_args=[
                     "bdist_egg"  # Reference: https://stackoverflow.com/a/2851036
