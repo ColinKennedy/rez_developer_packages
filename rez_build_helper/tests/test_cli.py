@@ -11,8 +11,6 @@ import tempfile
 import textwrap
 import unittest
 
-from rez.config import config
-
 from .common import common, creator, finder
 
 

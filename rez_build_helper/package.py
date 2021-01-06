@@ -47,9 +47,13 @@ tests = {
         #
         "command": "rez-env pydocstyle==3.0.0 -- pydocstyle --ignore=D213,D202,D203,D406,D407 python tests/*",
     },
-    "pylint": {
-        "command": "pylint --disable=bad-continuation python/rez_build_helper tests",
+    "pylint_source": {
+        "command": "pylint --disable=bad-continuation python/rez_build_helper",
         "requires": ["pylint-1.9+<2", "wurlitzer-2+<3"],
+    },
+    "pylint_tests": {
+        "command": "pylint --disable=bad-continuation,duplicate-code tests",
+        "requires": ["pylint-1.9+<2", "rez_python_compatibility-2.6+<3", "wurlitzer-2+<3"],
     },
     "unittest_python_2": {
         "command": "python -m unittest discover",
