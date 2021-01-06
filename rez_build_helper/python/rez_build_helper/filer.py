@@ -23,7 +23,6 @@ except ImportError:
     from rez import packages_ as packages  # Older Rez versions. 2.48-ish
 
 
-
 _LOGGER = logging.getLogger(__name__)
 _PYTHON_EXTENSIONS = frozenset((".py", ".pyc", ".pyd"))
 
