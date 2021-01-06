@@ -976,4 +976,6 @@ def _patch_hotl(fake_path_name):
     )
 
     with wrapping.keep_os_environment():
+        os.environ["PATH"] = new_path
+
         yield
