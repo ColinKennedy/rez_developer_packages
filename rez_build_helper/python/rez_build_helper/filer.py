@@ -257,12 +257,13 @@ def build_eggs(  # pylint: disable=too-many-arguments
     package = packages.get_developer_package(os.path.dirname(os.environ["REZ_BUILD_PROJECT_FILE"]))
     author = ", ".join(package.authors or [])
     url = _find_api_documentation(package.help or [])
-    platform = _get_platform()
-    platforms = []
     python_requires = _get_python_requires()
+    platform = _get_platform()
 
     if platform:
         platforms = [_get_platform()]
+    else:
+        platforms = ["any"]  # This is apparently a common value to many "Linux, Windows, etc"
 
     for name in eggs:
         with _keep_cwd():
