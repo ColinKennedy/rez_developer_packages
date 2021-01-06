@@ -13,6 +13,7 @@ import shutil
 
 import setuptools
 from rez.vendor.version import requirement
+
 try:
     from rez import packages  # Newer Rez versions, 2.51+-ish
 except ImportError:
@@ -276,7 +277,9 @@ def build_eggs(  # pylint: disable=too-many-arguments
     package_name = os.environ["REZ_BUILD_PROJECT_NAME"]
     version = os.environ["REZ_BUILD_PROJECT_VERSION"]
     description = os.environ["REZ_BUILD_PROJECT_DESCRIPTION"]
-    package = packages.get_developer_package(os.path.dirname(os.environ["REZ_BUILD_PROJECT_FILE"]))
+    package = packages.get_developer_package(
+        os.path.dirname(os.environ["REZ_BUILD_PROJECT_FILE"])
+    )
     author = ", ".join(package.authors or [])
     url = _find_api_documentation(package.help or [])
     python_requires = _get_python_requires()
@@ -285,20 +288,29 @@ def build_eggs(  # pylint: disable=too-many-arguments
     if platform:
         platforms = [_get_platform()]
     else:
-        platforms = ["any"]  # This is apparently a common value to many "Linux, Windows, etc"
+        platforms = [
+            "any"
+        ]  # This is apparently a common value to many "Linux, Windows, etc"
 
     for name in eggs:
         package_data_patterns = data_patterns
 
         if not package_data_patterns:
-            package_data_patterns = sorted(set(_iter_data_extensions(os.path.join(source, name))))
+            package_data_patterns = sorted(
+                set(_iter_data_extensions(os.path.join(source, name)))
+            )
 
         if package_data_patterns:
             package_data = {"": package_data_patterns}
         else:
             package_data = dict()
 
-        python_modules = sorted((os.path.splitext(path)[0] for path in _iter_python_modules(os.path.join(source, name))))
+        python_modules = sorted(
+            (
+                os.path.splitext(path)[0]
+                for path in _iter_python_modules(os.path.join(source, name))
+            )
+        )
 
         with _keep_cwd():
             os.chdir(source)
@@ -320,8 +332,9 @@ def build_eggs(  # pylint: disable=too-many-arguments
                 py_modules=python_modules,
                 include_package_data=True,  # Reference: https://python-packaging.readthedocs.io/en/latest/non-code-files.html
                 python_requires=python_requires,
-                script="setup.py",  # Reference: https://stackoverflow.com/a/2851036
-                script_args=["bdist_egg"],  # Reference: https://stackoverflow.com/a/2851036
+                script_args=[
+                    "bdist_egg"  # Reference: https://stackoverflow.com/a/2851036
+                ],
             )
 
             distribution_directory = os.path.join(os.getcwd(), "dist")

@@ -13,6 +13,7 @@ import textwrap
 import unittest
 import zipfile
 
+from rez.config import config
 from rez_build_helper import exceptions, filer
 from python_compatibility import wrapping
 import pkg_resources
@@ -147,6 +148,29 @@ class Cli(unittest.TestCase):
 class Egg(unittest.TestCase):
     """Make sure .egg generation works as expected."""
 
+    @classmethod
+    def setUpClass(cls):
+        build_package = finder.get_nearest_rez_package(
+            os.environ["REZ_REZ_BUILD_HELPER_ROOT"]
+        )
+        build_path = os.path.dirname(
+            os.path.dirname(finder.get_package_root(build_package))
+        )
+
+        for name in ("arch", "os", "platform", "python", "rez", "setuptools", "six"):
+            package = finder.get_nearest_rez_package(
+                os.environ["REZ_{name}_ROOT".format(name=name.upper())]
+            )
+            root = os.path.dirname(finder.get_package_root(package))
+            path = os.path.dirname(root)
+            destination = os.path.join(build_path, os.path.relpath(root, path))
+
+            if not os.path.isdir(destination):
+                os.makedirs(destination)
+                copytree(root, destination)
+
+        cls._packages_path = [build_path]
+
     def setUp(self):
         """Keep track of the users loadable Python paths so it can be reverted."""
         self._paths = list(sys.path)
@@ -157,7 +181,9 @@ class Egg(unittest.TestCase):
 
     def test_extra_metadata(self):
         """Make sure platform data is recorded, if it is included in requires."""
-        directory = tempfile.mkdtemp(prefix="rez_build_helper_Egg_test_include_platform_directory_")
+        directory = tempfile.mkdtemp(
+            prefix="rez_build_helper_Egg_test_include_platform_directory_"
+        )
         atexit.register(functools.partial(shutil.rmtree, directory))
 
         common.make_files(
@@ -202,21 +228,20 @@ class Egg(unittest.TestCase):
             )
 
         package = finder.get_nearest_rez_package(directory)
-        destination = tempfile.mkdtemp(prefix="rez_build_helper_Egg_test_include_platform_destination_")
+        destination = tempfile.mkdtemp(
+            prefix="rez_build_helper_Egg_test_include_platform_destination_"
+        )
         atexit.register(functools.partial(shutil.rmtree, destination))
 
-        # TODO : Remove this later
-        _PACKAGES_PATH = [
+        packages_path = [
+            # TODO : Fix this
             "/home/selecaoone/scratch/add_egg_support",
             "/home/selecaoone/.rez/packages/int",
         ]
 
-        creator.build(
-            package,
-            destination,
-            quiet=False,
-            packages_path=_PACKAGES_PATH,
-        )
+        packages_path = self._packages_path
+
+        creator.build(package, destination, quiet=False, packages_path=packages_path)
         install_location = os.path.join(destination, "some_package", "1.0.0")
 
         self.assertTrue(os.path.isfile(os.path.join(install_location, "python.egg")))
@@ -280,7 +305,7 @@ class Egg(unittest.TestCase):
                 "some_thing/inner_folder/inner_module.py",
                 "some_thing/some_module.py",
             },
-            {item.filename for item in egg.filelist}
+            {item.filename for item in egg.filelist},
         )
         package_information = textwrap.dedent(
             """\
@@ -300,7 +325,9 @@ class Egg(unittest.TestCase):
 
     def test_import_pkg_resources(self):
         """Make sure a generated .egg file can be imported via pkg_resources."""
-        directory = tempfile.mkdtemp(prefix="rez_build_helper_Egg_test_single_directory_")
+        directory = tempfile.mkdtemp(
+            prefix="rez_build_helper_Egg_test_single_directory_"
+        )
         atexit.register(functools.partial(shutil.rmtree, directory))
 
         common.make_files(
@@ -342,20 +369,12 @@ class Egg(unittest.TestCase):
             )
 
         package = finder.get_nearest_rez_package(directory)
-        destination = tempfile.mkdtemp(prefix="rez_build_helper_Egg_test_single_destination_")
+        destination = tempfile.mkdtemp(
+            prefix="rez_build_helper_Egg_test_single_destination_"
+        )
         atexit.register(functools.partial(shutil.rmtree, destination))
 
-        _PACKAGES_PATH = [
-            "/home/selecaoone/scratch/add_egg_support",
-            "/home/selecaoone/.rez/packages/int",
-        ]
-
-        creator.build(
-            package,
-            destination,
-            quiet=False,
-            packages_path=_PACKAGES_PATH,
-        )
+        creator.build(package, destination, quiet=True)
         install_location = os.path.join(destination, "some_package", "1.0.0")
 
         with wrapping.keep_sys_path():
@@ -364,11 +383,15 @@ class Egg(unittest.TestCase):
             pkg_resources.resource_filename("some_thing", "another_file.dat")
 
         egg = zipfile.ZipFile(os.path.join(install_location, "python.egg"), "r")
-        self.assertIn("some_thing/another_file.dat", {item.filename for item in egg.filelist})
+        self.assertIn(
+            "some_thing/another_file.dat", {item.filename for item in egg.filelist}
+        )
 
     def test_single(self):
         """Create a collapsed .egg file for a Python folder."""
-        directory = tempfile.mkdtemp(prefix="rez_build_helper_Egg_test_single_directory_")
+        directory = tempfile.mkdtemp(
+            prefix="rez_build_helper_Egg_test_single_directory_"
+        )
         atexit.register(functools.partial(shutil.rmtree, directory))
 
         common.make_files(
@@ -409,20 +432,12 @@ class Egg(unittest.TestCase):
             )
 
         package = finder.get_nearest_rez_package(directory)
-        destination = tempfile.mkdtemp(prefix="rez_build_helper_Egg_test_single_destination_")
+        destination = tempfile.mkdtemp(
+            prefix="rez_build_helper_Egg_test_single_destination_"
+        )
         atexit.register(functools.partial(shutil.rmtree, destination))
 
-        _PACKAGES_PATH = [
-            "/home/selecaoone/scratch/add_egg_support",
-            "/home/selecaoone/.rez/packages/int",
-        ]
-
-        creator.build(
-            package,
-            destination,
-            quiet=False,
-            packages_path=_PACKAGES_PATH,
-        )
+        creator.build(package, destination, quiet=True)
         install_location = os.path.join(destination, "some_package", "1.0.0")
 
         self.assertTrue(os.path.isfile(os.path.join(install_location, "python.egg")))
@@ -1063,7 +1078,9 @@ class Symlink(unittest.TestCase):
 
     def test_single(self):
         """Create a symlink for (what would have normally been) an .egg file."""
-        directory = tempfile.mkdtemp(prefix="rez_build_helper_Symlink_test_single_directory_")
+        directory = tempfile.mkdtemp(
+            prefix="rez_build_helper_Symlink_test_single_directory_"
+        )
         atexit.register(functools.partial(shutil.rmtree, directory))
 
         common.make_files(
@@ -1100,7 +1117,9 @@ class Symlink(unittest.TestCase):
             )
 
         package = finder.get_nearest_rez_package(directory)
-        destination = tempfile.mkdtemp(prefix="rez_build_helper_Symlink_test_single_destination_")
+        destination = tempfile.mkdtemp(
+            prefix="rez_build_helper_Symlink_test_single_destination_"
+        )
         atexit.register(functools.partial(shutil.rmtree, destination))
 
         creator.build(package, destination, quiet=True)
@@ -1149,3 +1168,14 @@ class Symlink(unittest.TestCase):
                 )
             )
         )
+
+
+def copytree(src, dst, symlinks=False, ignore=None):
+    # Reference: https://stackoverflow.com/a/12514470/3626104
+    for item in os.listdir(src):
+        s = os.path.join(src, item)
+        d = os.path.join(dst, item)
+        if os.path.isdir(s):
+            shutil.copytree(s, d, symlinks, ignore)
+        else:
+            shutil.copy2(s, d)
