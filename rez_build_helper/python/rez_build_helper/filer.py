@@ -54,6 +54,20 @@ def _find_api_documentation(entries):
     return ""
 
 
+def _get_python_requires():
+    for text in os.environ["REZ_USED_REQUEST"].split(" "):
+        request = requirement.Requirement(text)
+
+        if request.name == "python" and not request.weak:
+            # rez/utils/py_dist.py has convert_version, which apparently
+            # shows that any Rez version syntax will work with dist. So
+            # we'll do the same.
+            #
+            return str(request.range)
+
+    return ""
+
+
 def _get_platform():
     for text in os.environ["REZ_USED_REQUEST"].split(" "):
         request = requirement.Requirement(text)
@@ -237,7 +251,7 @@ def build_eggs(  # pylint: disable=too-many-arguments
     """
     _validate_egg_names(eggs)
 
-    name = os.environ["REZ_BUILD_PROJECT_NAME"]
+    package_name = os.environ["REZ_BUILD_PROJECT_NAME"]
     version = os.environ["REZ_BUILD_PROJECT_VERSION"]
     description = os.environ["REZ_BUILD_PROJECT_DESCRIPTION"]
     package = packages.get_developer_package(os.path.dirname(os.environ["REZ_BUILD_PROJECT_FILE"]))
@@ -245,6 +259,7 @@ def build_eggs(  # pylint: disable=too-many-arguments
     url = _find_api_documentation(package.help or [])
     platform = _get_platform()
     platforms = []
+    python_requires = _get_python_requires()
 
     if platform:
         platforms = [_get_platform()]
@@ -253,8 +268,8 @@ def build_eggs(  # pylint: disable=too-many-arguments
         with _keep_cwd():
             os.chdir(source)
 
-            distribution = setuptools.setup(
-                name=name,
+            setuptools.setup(
+                name=package_name,
                 version=version,
                 description=description,
                 author=author,
@@ -268,7 +283,7 @@ def build_eggs(  # pylint: disable=too-many-arguments
                 ],
                 include_package_data=True,  # TODO : Not sure
                 zip_safe=False,  # TODO : Not sure
-                python_requires="=={os.environ[REZ_PYTHON_VERSION]}".format(os=os),
+                python_requires=python_requires,
                 script="setup.py",  # Reference: https://stackoverflow.com/a/2851036
                 script_args=["bdist_egg"],  # Reference: https://stackoverflow.com/a/2851036
             )

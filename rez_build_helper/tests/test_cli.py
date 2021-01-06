@@ -285,7 +285,7 @@ class Egg(unittest.TestCase):
         package_information = textwrap.dedent(
             """\
             Metadata-Version: 1.2
-            Name: python
+            Name: some-package
             Version: 1.0.0
             Summary: A test packages for rez_build_helper
             Home-page: http://www.some_home_page.com
@@ -293,7 +293,7 @@ class Egg(unittest.TestCase):
             License: UNKNOWN
             Description: UNKNOWN
             Platform: linux
-            Requires-Python: ==3.6.8
+            Requires-Python: 3.6+<3.8
             """
         )
         self.assertEqual(package_information, egg.open("EGG-INFO/PKG-INFO").read())
@@ -424,21 +424,20 @@ class Egg(unittest.TestCase):
         )
         package_information = textwrap.dedent(
             """\
-            Metadata-Version: 1.2
-            Name: python
+            Metadata-Version: 1.0
+            Name: some-package
             Version: 1.0.0
             Summary: A test packages for rez_build_helper
             Home-page: http://www.some_home_page.com
-            Author: ColinKennedy
+            Author: UNKNOWN
+            Author-email: UNKNOWN
             License: UNKNOWN
             Description: UNKNOWN
             Platform: UNKNOWN
-            Requires-Python: ==3.6.8
             """
         )
         self.assertEqual(package_information, egg.open("EGG-INFO/PKG-INFO").read())
-
-        # description = "A test packages for rez_build_helper"
+        self.assertEqual("some_thing", egg.open("EGG-INFO/top-level.txt").read())
 
     def test_multiple(self):
         """Create more than one collapsed egg files for a Python folder."""
