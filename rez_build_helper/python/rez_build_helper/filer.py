@@ -3,6 +3,9 @@
 
 """Create helpful functions for building Rez packages, using Python."""
 
+import atexit
+import functools
+import contextlib
 import glob
 import logging
 from os.path import dirname as _dirname
@@ -56,34 +59,14 @@ def _find_api_documentation(entries):
     return ""
 
 
-def _make_egg(source, destination):
-    """Make an egg from `source` and put it in `destination`.
+@contextlib.contextmanager
+def _keep_cwd():
+    original = os.getcwd()
 
-    Args:
-        source (str): The path to a file or folder on-disk.
-        destination (str): The absolute path to somewhere on-disk where the .egg is saved.
-
-    Raises:
-        RuntimeError: If `source` does not exist.
-
-    """
-    if not os.path.exists(source):
-        raise RuntimeError(
-            'Path "{source}" does not exist. Cannot make an .egg.'.format(source=source)
-        )
-
-
-    raise ValueError('STop')
-
-    # with zipfile.ZipFile(destination, "w") as handler:
-    #     if os.path.isdir(source):
-    #         for root, directories, files in os.walk(source):
-    #             for name in itertools.chain(directories, files):
-    #                 path = os.path.join(root, name)
-    #                 relative_path = os.path.relpath(path, source)
-    #                 handler.write(path, arcname=relative_path)
-    #     else:
-    #         handler.write(source, arcname=os.path.basename(source))
+    try:
+        yield
+    finally:
+        os.chdir(original)
 
 
 def _run_command(  # pylint: disable=too-many-arguments
@@ -249,48 +232,42 @@ def build_eggs(  # pylint: disable=too-many-arguments
     """
     _validate_egg_names(eggs)
 
-    for key, value in sorted(os.environ.items()):
-        if "rez" in key.lower():
-            print((key, value))
-
     name = os.environ["REZ_BUILD_PROJECT_NAME"]
     version = os.environ["REZ_BUILD_PROJECT_VERSION"]
     description = os.environ["REZ_BUILD_PROJECT_DESCRIPTION"]
     package = packages.get_developer_package(_PACKAGE_ROOT)
-    author=", ".join(package.authors or [])
-    url=_find_api_documentation(package.help or [])
+    author = ", ".join(package.authors or [])
+    url = _find_api_documentation(package.help or [])
 
     for name in eggs:
-        setuptools.setup(
-            name=name,
-            version=version,
-            description=description,
-            author=author,
-            url=_find_api_documentation(package.help or []),
-            packages=setuptools.find_packages(name),  # TODO : Not sure about this
-            package_dir={"": name},  # TODO : Not sure about this
-            py_modules=[
-                os.path.splitext(os.path.basename(path))[0]
-                for path in glob.glob(os.path.join(source, name, "*.py"))
-            ],
-            include_package_data=True,  # TODO : Not sure
-            zip_safe=False,  # TODO : Not sure
-            python_requires="=={os.environ[REZ_PYTHON_VERSION]".format(os=os),
-            script="setup.py",  # Reference: https://stackoverflow.com/a/2851036
-            script_args=["bdist_egg"],  # Reference: https://stackoverflow.com/a/2851036
-        )
-        source_path = os.path.join(source, name)
-        egg = name + ".egg"
-        destination_path = os.path.join(destination, egg)
+        with _keep_cwd():
+            os.chdir(source)
 
-        # _run_command(
-        #     _make_egg,
-        #     source_path,
-        #     destination_path,
-        #     symlink,
-        #     symlink_folders,
-        #     symlink_files,
-        # )
+            distribution = setuptools.setup(
+                name=name,
+                version=version,
+                description=description,
+                author=author,
+                url=url,
+                packages=setuptools.find_packages(name),  # TODO : Not sure about this
+                package_dir={"": name},  # TODO : Not sure about this
+                py_modules=[
+                    os.path.splitext(os.path.basename(path))[0]
+                    for path in glob.glob(os.path.join(source, name, "*.py"))
+                ],
+                include_package_data=True,  # TODO : Not sure
+                zip_safe=False,  # TODO : Not sure
+                python_requires="=={os.environ[REZ_PYTHON_VERSION]}".format(os=os),
+                script="setup.py",  # Reference: https://stackoverflow.com/a/2851036
+                script_args=["bdist_egg"],  # Reference: https://stackoverflow.com/a/2851036
+            )
+
+            distribution_directory = os.path.join(os.getcwd(), "dist")
+            egg_directory = os.path.join(distribution_directory, "*.egg")
+            egg = list(glob.glob(egg_directory))[0]
+
+            destination_path = os.path.join(destination, name + ".egg")
+            shutil.copy2(egg, destination_path)
 
 
 def build_items(  # pylint: disable=too-many-arguments

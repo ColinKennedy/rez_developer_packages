@@ -155,7 +155,8 @@ class Egg(unittest.TestCase):
 
     def test_single(self):
         """Create a collapsed .egg file for a Python folder."""
-        directory = tempfile.mkdtemp(prefix="rez_build_helper_Egg_test_single_")
+        directory = tempfile.mkdtemp(prefix="rez_build_helper_Egg_test_single_directory_")
+        # TODO : Change this
         # atexit.register(functools.partial(shutil.rmtree, directory))
 
         common.make_files(
@@ -181,6 +182,8 @@ class Egg(unittest.TestCase):
 
                     description = "A test packages for rez_build_helper"
 
+                    help = "http://www.some_home_page.com"
+
                     private_build_requires = ["rez_build_helper"]
 
                     build_command = "python -m rez_build_helper --eggs python"
@@ -194,13 +197,13 @@ class Egg(unittest.TestCase):
             )
 
         package = finder.get_nearest_rez_package(directory)
-        destination = tempfile.mkdtemp(prefix="rez_build_helper_Egg_test_single_")
+        destination = tempfile.mkdtemp(prefix="rez_build_helper_Egg_test_single_destination_")
         # TODO : Change this
         # atexit.register(functools.partial(shutil.rmtree, destination))
 
         _PACKAGES_PATH = [
-            "/home/selecaotwo/scratch/add_egg_support",
-            "/home/selecaotwo/.rez/packages/int",
+            "/home/selecaoone/scratch/add_egg_support",
+            "/home/selecaoone/.rez/packages/int",
         ]
 
         creator.build(
@@ -210,7 +213,6 @@ class Egg(unittest.TestCase):
             packages_path=_PACKAGES_PATH,
         )
         install_location = os.path.join(destination, "some_package", "1.0.0")
-        raise ValueError()
 
         self.assertTrue(os.path.isfile(os.path.join(install_location, "python.egg")))
         self.assertFalse(os.path.islink(os.path.join(install_location, "python.egg")))
@@ -259,16 +261,38 @@ class Egg(unittest.TestCase):
         egg = zipfile.ZipFile(os.path.join(install_location, "python.egg"), "r")
         self.assertEqual(
             {
-                "some_thing/",
+                "EGG-INFO/PKG-INFO",
+                "EGG-INFO/SOURCES.txt",
+                "EGG-INFO/dependency_links.txt",
+                "EGG-INFO/not-zip-safe",
+                "EGG-INFO/top_level.txt",
                 "some_thing/__init__.py",
-                "some_thing/inner_folder/",
+                "some_thing/__pycache__/__init__.cpython-36.pyc",
+                "some_thing/__pycache__/some_module.cpython-36.pyc",
                 "some_thing/inner_folder/__init__.py",
+                "some_thing/inner_folder/__pycache__/__init__.cpython-36.pyc",
+                "some_thing/inner_folder/__pycache__/inner_module.cpython-36.pyc",
                 "some_thing/inner_folder/inner_module.py",
                 "some_thing/some_module.py",
             },
             {item.filename for item in egg.filelist}
         )
-        raise TypeError()
+        package_information = textwrap.dedent(
+            """\
+            Metadata-Version: 1.2
+            Name: python
+            Version: 1.0.0
+            Summary: A test packages for rez_build_helper
+            Home-page: UNKNOWN
+            Author: ColinKennedy
+            License: UNKNOWN
+            Description: UNKNOWN
+            Platform: UNKNOWN
+            Requires-Python: ==3.6.8
+            """
+        )
+        self.assertEqual(package_information, egg.open("EGG-INFO/PKG-INFO").read())
+
         # description = "A test packages for rez_build_helper"
 
     def test_multiple(self):
@@ -829,7 +853,7 @@ class Symlink(unittest.TestCase):
 
     def test_single(self):
         """Create a symlink for (what would have normally been) an .egg file."""
-        directory = tempfile.mkdtemp(prefix="rez_build_helper_Symlink_test_single_")
+        directory = tempfile.mkdtemp(prefix="rez_build_helper_Symlink_test_single_directory_")
         atexit.register(functools.partial(shutil.rmtree, directory))
 
         common.make_files(
@@ -866,7 +890,7 @@ class Symlink(unittest.TestCase):
             )
 
         package = finder.get_nearest_rez_package(directory)
-        destination = tempfile.mkdtemp(prefix="rez_build_helper_Symlink_test_single_")
+        destination = tempfile.mkdtemp(prefix="rez_build_helper_Symlink_test_single_destination_")
         atexit.register(functools.partial(shutil.rmtree, destination))
 
         creator.build(package, destination, quiet=True)

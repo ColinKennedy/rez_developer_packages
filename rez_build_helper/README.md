@@ -1,4 +1,5 @@
 - Add a clean-on-exit context
+- Make sure the EGG has as much data as possible
 
 A basic wrapper around Rez's
 [build_command](https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#build_command).
