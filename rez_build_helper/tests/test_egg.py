@@ -202,8 +202,7 @@ class Egg(unittest.TestCase):
             """
         )
         self.assertEqual(
-            package_information,
-            egg.open("EGG-INFO/PKG-INFO").read().decode("utf-8"),
+            package_information, egg.open("EGG-INFO/PKG-INFO").read().decode("utf-8"),
         )
 
     def test_import_pkg_resources(self):
