@@ -3,7 +3,9 @@
 
 """Create helpful functions for building Rez packages, using Python."""
 
+import collections
 import contextlib
+import functools
 import glob
 import logging
 import os
@@ -21,6 +23,10 @@ except ImportError:
     from rez import packages_ as packages  # Older Rez versions. 2.48-ish
 
 
+_SetuptoolsData = collections.namedtuple(
+    "_SetuptoolsData",
+    "package_name, version, description, author, url, python_requires, platforms",
+)
 _LOGGER = logging.getLogger(__name__)
 _PYTHON_EXTENSIONS = frozenset((".py", ".pyc", ".pyd"))
 
@@ -29,27 +35,16 @@ def _find_api_documentation(entries):
     if isinstance(entries, six.string_types):
         return entries
 
-    for key, value in entries or []:
-        if "api" in key.lower():
-            return value
+    for token in ("api", "documentation", "docs"):
+        for key, value in entries or []:
+            if token in key.lower():
+                return value
 
-    for key, value in entries or []:
-        if "documentation" in key.lower():
-            return value
-
-    for key, value in entries or []:
-        if "docs" in key.lower():
-            return value
-
-    for key, value in entries or []:
-        # Reference: https://github.com/nerdvegas/rez/blob/b21516589933afeed1e1a1a439962d2e20151e2d/src/rez/pip.py#L443-L447  pylint: disable=line-too-long
-        if key == "Home Page":
-            return value
-
-    for key, value in entries or []:
-        # Reference: https://github.com/nerdvegas/rez/blob/b21516589933afeed1e1a1a439962d2e20151e2d/src/rez/pip.py#L443-L447  pylint: disable=line-too-long
-        if key == "Source Code":
-            return value
+    for token in ("Home Page", "Source Code"):
+        for key, value in entries or []:
+            # Reference: https://github.com/nerdvegas/rez/blob/b21516589933afeed1e1a1a439962d2e20151e2d/src/rez/pip.py#L443-L447  pylint: disable=line-too-long
+            if key == token:
+                return value
 
     return ""
 
@@ -103,6 +98,57 @@ def _keep_cwd():
         yield
     finally:
         os.chdir(original)
+
+
+def _build_eggs(source, destination, name, setuptools_data, data_patterns):
+    if not data_patterns:
+        data_patterns = sorted(
+            set(_iter_data_extensions(os.path.join(source, name)))
+        )
+
+    if data_patterns:
+        package_data = {"": data_patterns}
+    else:
+        package_data = dict()
+
+    python_modules = sorted(
+        (
+            os.path.splitext(path)[0]
+            for path in _iter_python_modules(os.path.join(source, name))
+        )
+    )
+
+    with _keep_cwd():
+        os.chdir(source)
+
+        setuptools.setup(
+            name=setuptools_data.package_name,
+            version=setuptools_data.version,
+            description=setuptools_data.description,
+            author=setuptools_data.author,
+            url=setuptools_data.url,
+            package_data=package_data,  # Reference: https://setuptools.readthedocs.io/en/latest/userguide/datafiles.html  pylint: disable=line-too-long
+            # For `convert_2to3_doctests`. I shouldn't need to add
+            # this but tests will fail without it, on setuptools-44.
+            #
+            convert_2to3_doctests=[],
+            packages=setuptools.find_packages(name),
+            package_dir={"": name},
+            platforms=setuptools_data.platforms,
+            py_modules=python_modules,
+            include_package_data=True,  # Reference: https://python-packaging.readthedocs.io/en/latest/non-code-files.html  pylint: disable=line-too-long
+            python_requires=setuptools_data.python_requires,
+            script_args=[
+                "bdist_egg"  # Reference: https://stackoverflow.com/a/2851036
+            ],
+        )
+
+        distribution_directory = os.path.join(os.getcwd(), "dist")
+        egg_directory = os.path.join(distribution_directory, "*.egg")
+        egg = list(glob.glob(egg_directory))[0]
+
+        destination_path = os.path.join(destination, name + ".egg")
+        shutil.copy2(egg, destination_path)
 
 
 def _run_command(  # pylint: disable=too-many-arguments
@@ -272,75 +318,41 @@ def build_eggs(  # pylint: disable=too-many-arguments
     if not data_patterns:
         data_patterns = set()
 
-    package_name = os.environ["REZ_BUILD_PROJECT_NAME"]
-    version = os.environ["REZ_BUILD_PROJECT_VERSION"]
-    description = os.environ["REZ_BUILD_PROJECT_DESCRIPTION"]
     package = packages.get_developer_package(
         os.path.dirname(os.environ["REZ_BUILD_PROJECT_FILE"])
     )
-    author = ", ".join(package.authors or [])
-    url = _find_api_documentation(package.help or [])
-    python_requires = _get_python_requires()
     platform = _get_platform()
 
     if platform:
-        platforms = [_get_platform()]
+        platforms = [platform]
     else:
-        platforms = [
-            "any"
-        ]  # This is apparently a common value to many "Linux, Windows, etc"
+        # This is apparently a common value to many "Linux, Windows, etc"
+        platforms = ["any"]
+
+    setuptools_data = _SetuptoolsData(
+        package_name=os.environ["REZ_BUILD_PROJECT_NAME"],
+        version=os.environ["REZ_BUILD_PROJECT_VERSION"],
+        description=os.environ["REZ_BUILD_PROJECT_DESCRIPTION"],
+        author=", ".join(package.authors or []),
+        url=_find_api_documentation(package.help or []),
+        python_requires=_get_python_requires(),
+        platforms=platforms,
+    )
 
     for name in eggs:
-        package_data_patterns = data_patterns
-
-        if not package_data_patterns:
-            package_data_patterns = sorted(
-                set(_iter_data_extensions(os.path.join(source, name)))
-            )
-
-        if package_data_patterns:
-            package_data = {"": package_data_patterns}
-        else:
-            package_data = dict()
-
-        python_modules = sorted(
-            (
-                os.path.splitext(path)[0]
-                for path in _iter_python_modules(os.path.join(source, name))
-            )
+        _run_command(
+            functools.partial(
+                _build_eggs,
+                name=name,
+                setuptools_data=setuptools_data,
+                data_patterns=data_patterns,
+            ),
+            source,
+            destination,
+            symlink,
+            symlink_folders,
+            symlink_files,
         )
-
-        with _keep_cwd():
-            os.chdir(source)
-
-            setuptools.setup(
-                name=package_name,
-                version=version,
-                description=description,
-                author=author,
-                url=url,
-                package_data=package_data,  # Reference: https://setuptools.readthedocs.io/en/latest/userguide/datafiles.html  pylint: disable=line-too-long
-                # For `convert_2to3_doctests`. I shouldn't need to add
-                # this but tests will fail without it, on setuptools-44.
-                #
-                convert_2to3_doctests=[],
-                packages=setuptools.find_packages(name),
-                package_dir={"": name},
-                platforms=platforms,
-                py_modules=python_modules,
-                include_package_data=True,  # Reference: https://python-packaging.readthedocs.io/en/latest/non-code-files.html  pylint: disable=line-too-long
-                python_requires=python_requires,
-                script_args=[
-                    "bdist_egg"  # Reference: https://stackoverflow.com/a/2851036
-                ],
-            )
-
-            distribution_directory = os.path.join(os.getcwd(), "dist")
-            egg_directory = os.path.join(distribution_directory, "*.egg")
-            egg = list(glob.glob(egg_directory))[0]
-
-            destination_path = os.path.join(destination, name + ".egg")
-            shutil.copy2(egg, destination_path)
 
 
 def build_items(  # pylint: disable=too-many-arguments
