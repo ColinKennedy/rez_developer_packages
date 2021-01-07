@@ -15,7 +15,12 @@ build_command = "python {root}/rezbuild.py {install}"
 
 uuid = "168c5114-a951-4834-a744-dae1331e375e"
 
-requires = ["python-2.7+<3.8", "whichcraft-0.6+<1"]
+requires = ["rez-2.48+<3", "six-1.11+<2", "whichcraft-0.6+<1"]
+
+variants = [
+    ["python-2.7", "setuptools-44+<45"],
+    ["python-3.6", "setuptools-51+<52"],
+]
 
 tests = {
     "black_diff": {
@@ -42,8 +47,16 @@ tests = {
         #
         "command": "rez-env pydocstyle==3.0.0 -- pydocstyle --ignore=D213,D202,D203,D406,D407 python tests/*",
     },
-    "pylint": {
+    "pylint_source": {
         "command": "pylint --disable=bad-continuation python/rez_build_helper tests",
+        "requires": [
+            "pylint-1.9+<2",
+            "rez_python_compatibility-2.6+<3",
+            "wurlitzer-2+<3",
+        ],
+    },
+    "pylint_tests": {
+        "command": "pylint --disable=bad-continuation,duplicate-code tests",
         "requires": [
             "pylint-1.9+<2",
             "rez_python_compatibility-2.6+<3",
@@ -62,7 +75,7 @@ tests = {
     "unittest_python_3": {
         "command": "python -m unittest discover",
         "requires": [
-            "python-2.7",
+            "python-3.6+<3.8",
             "rez-2.48+<3",
             "rez_python_compatibility-2.6+<3",
             "wurlitzer-2+<3",

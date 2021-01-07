@@ -3,6 +3,9 @@
 
 """Create helpful functions for building Rez packages, using Python."""
 
+import collections
+import contextlib
+import functools
 import glob
 import itertools
 import logging
@@ -11,42 +14,192 @@ import shutil
 import subprocess
 import zipfile
 
+import setuptools
+import six
+from rez.vendor.version import requirement
+
 import whichcraft
 
 from . import exceptions, linker
 
+try:
+    from rez import packages  # Newer Rez versions, 2.51+-ish
+except ImportError:
+    from rez import packages_ as packages  # Older Rez versions. 2.48-ish
+
+
+_SetuptoolsData = collections.namedtuple(
+    "_SetuptoolsData",
+    "package_name, version, description, author, url, python_requires, platforms",
+)
 _LOGGER = logging.getLogger(__name__)
+_PYTHON_EXTENSIONS = frozenset((".py", ".pyc", ".pyd"))
+
+
+def _find_api_documentation(entries):
+    """Find the home page URL, given some entries.
+
+    Args:
+        entries (list[str] or str):
+            If a string is given, assume it's the home page and return
+            it. Otherwise, search each key/value pair for a home page
+            and return it, if found.
+
+    Returns:
+        str: The found home page URL, if any.
+
+    """
+    if isinstance(entries, six.string_types):
+        return entries
+
+    for token in ("Home Page", "Source Code"):
+        for key, value in entries or []:
+            # Reference: https://github.com/nerdvegas/rez/blob/b21516589933afeed1e1a1a439962d2e20151e2d/src/rez/pip.py#L443-L447  pylint: disable=line-too-long
+            if key == token:
+                return value
+
+    for token in ("api", "documentation", "docs"):
+        for key, value in entries or []:
+            if token in key.lower():
+                return value
+
+    return ""
 
 
 def _get_hotl_executable():
     return whichcraft.which("hotl") or ""
 
 
-def _make_egg(source, destination):
-    """Make an egg from `source` and put it in `destination`.
+def _get_python_requires():
+    """str: Get the required Python version, if any."""
+    for text in os.environ["REZ_USED_REQUEST"].split(" "):
+        request = requirement.Requirement(text)
+
+        if request.name == "python" and not request.weak:
+            # rez/utils/py_dist.py has convert_version, which apparently
+            # shows that any Rez version syntax will work with dist. So
+            # we'll do the same.
+            #
+            return str(request.range)
+
+    return ""
+
+
+def _get_platform():
+    """str: Get the required platform name, if any."""
+    for text in os.environ["REZ_USED_REQUEST"].split(" "):
+        request = requirement.Requirement(text)
+
+        if request.name == "platform" and not request.weak:
+            return str(request.range)
+
+    return ""
+
+
+def _iter_data_extensions(directory):
+    """Get every non-Python extension within `directory`.
 
     Args:
-        source (str): The path to a file or folder on-disk.
-        destination (str): The absolute path to somewhere on-disk where the .egg is saved.
+        directory (str): Some absolute path to a directory on-disk.
 
-    Raises:
-        RuntimeError: If `source` does not exist.
+    Yields:
+        str: Each found extension, as a glob pattern. e.g. "*.txt".
 
     """
-    if not os.path.exists(source):
-        raise RuntimeError(
-            'Path "{source}" does not exist. Cannot make an .egg.'.format(source=source)
+    for _, _, files in os.walk(directory):
+        for path in files:
+            _, extension = os.path.splitext(path)
+
+            if extension not in _PYTHON_EXTENSIONS:
+                yield "*" + extension
+
+
+def _iter_python_modules(directory):
+    """str: Find  very child Python file (no extension) within `directory`."""
+    for item in os.listdir(directory):
+        base, extension = os.path.splitext(item)
+
+        if extension in _PYTHON_EXTENSIONS:
+            yield base
+
+
+@contextlib.contextmanager
+def _keep_cwd():
+    """Save and store the user's current working directory."""
+    original = os.getcwd()
+
+    try:
+        yield
+    finally:
+        os.chdir(original)
+
+
+def _build_eggs(source, destination, name, setuptools_data, data_patterns=None):
+    """Create a .egg file for some Python directory.
+
+    Args:
+        source (str):
+            The absolute path to the user's developer Rez package.
+        destination (str):
+            The absolute path to the installed Rez package path.
+        name (str):
+            The directory which contains Python modules which will be made into a .egg file.
+        setuptools_data (:attr:`._SetuptoolsData`):
+            The metadata which will be added to the .egg's EGG-INFO folder.
+        data_patterns (list[str], optional):
+            Any file extensions to include as data in the .egg. For
+            example, if you have a .txt file within `source/name`, use
+            `data_patterns=["*.txt"]` to include them in the .egg.
+            Default is None.
+
+    """
+    source = os.path.dirname(source)
+    destination = os.path.dirname(destination)
+
+    if not data_patterns:
+        data_patterns = sorted(set(_iter_data_extensions(os.path.join(source, name))))
+
+    if data_patterns:
+        package_data = {"": data_patterns}
+    else:
+        package_data = dict()
+
+    python_modules = sorted(
+        (
+            os.path.splitext(path)[0]
+            for path in _iter_python_modules(os.path.join(source, name))
+        )
+    )
+
+    with _keep_cwd():
+        os.chdir(source)
+
+        setuptools.setup(
+            name=setuptools_data.package_name,
+            version=setuptools_data.version,
+            description=setuptools_data.description,
+            author=setuptools_data.author,
+            url=setuptools_data.url,
+            package_data=package_data,  # Reference: https://setuptools.readthedocs.io/en/latest/userguide/datafiles.html  pylint: disable=line-too-long
+            # For `convert_2to3_doctests`. I shouldn't need to add
+            # this but tests will fail without it, on setuptools-44.
+            #
+            convert_2to3_doctests=[],
+            packages=setuptools.find_packages(name),
+            package_dir={"": name},
+            platforms=setuptools_data.platforms,
+            py_modules=python_modules,
+            include_package_data=True,  # Reference: https://python-packaging.readthedocs.io/en/latest/non-code-files.html  pylint: disable=line-too-long
+            python_requires=setuptools_data.python_requires,
+            script_args=["bdist_egg"],  # Reference: https://stackoverflow.com/a/2851036
         )
 
-    with zipfile.ZipFile(destination, "w") as handler:
-        if os.path.isdir(source):
-            for root, directories, files in os.walk(source):
-                for name in itertools.chain(directories, files):
-                    path = os.path.join(root, name)
-                    relative_path = os.path.relpath(path, source)
-                    handler.write(path, arcname=relative_path)
-        else:
-            handler.write(source, arcname=os.path.basename(source))
+        distribution_directory = os.path.join(os.getcwd(), "dist")
+        egg_directory = os.path.join(distribution_directory, "*.egg")
+        egg = list(glob.glob(egg_directory))[0]
+
+        destination_path = os.path.join(destination, name + ".egg")
+        shutil.copy2(egg, destination_path)
 
 
 def _run_command(  # pylint: disable=too-many-arguments
@@ -220,6 +373,7 @@ def build_eggs(  # pylint: disable=too-many-arguments
     symlink=linker.must_symlink(),
     symlink_folders=linker.must_symlink_folders(),
     symlink_files=linker.must_symlink_files(),
+    data_patterns=None,
 ):
     """Copy or symlink all items in ``source`` to ``destination``.
 
@@ -246,15 +400,40 @@ def build_eggs(  # pylint: disable=too-many-arguments
     """
     _validate_egg_names(eggs)
 
-    for name in eggs:
-        source_path = os.path.join(source, name)
-        egg = name + ".egg"
-        destination_path = os.path.join(destination, egg)
+    if not data_patterns:
+        data_patterns = set()
 
+    package = packages.get_developer_package(
+        os.path.dirname(os.environ["REZ_BUILD_PROJECT_FILE"])
+    )
+    platform = _get_platform()
+
+    if platform:
+        platforms = [platform]
+    else:
+        # This is apparently a common value to many "Linux, Windows, etc"
+        platforms = ["any"]
+
+    setuptools_data = _SetuptoolsData(
+        package_name=os.environ["REZ_BUILD_PROJECT_NAME"],
+        version=os.environ["REZ_BUILD_PROJECT_VERSION"],
+        description=os.environ["REZ_BUILD_PROJECT_DESCRIPTION"],
+        author=", ".join(package.authors or []),
+        url=_find_api_documentation(package.help or []),
+        python_requires=_get_python_requires(),
+        platforms=platforms,
+    )
+
+    for name in eggs:
         _run_command(
-            _make_egg,
-            source_path,
-            destination_path,
+            functools.partial(
+                _build_eggs,
+                name=name,
+                setuptools_data=setuptools_data,
+                data_patterns=data_patterns,
+            ),
+            os.path.join(source, name),
+            os.path.join(destination, name + ".egg"),
             symlink,
             symlink_folders,
             symlink_files,

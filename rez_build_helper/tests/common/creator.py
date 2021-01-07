@@ -8,13 +8,91 @@ import copy
 import logging
 import os
 
-from rez import build_process_, build_system, packages_
+from rez import build_process_, build_system, developer_package, packages_
 from rez.cli import build as build_
 from rez.cli import release as release_
 
 from . import finder, rez_configuration
 
 _LOGGER = logging.getLogger(__name__)
+
+
+def _build(package, install_path, directory, quiet=False):
+    """Build the given Rez `package` to the given `install_path`.
+
+    Args:
+        package (:class:`rez.developer_package.DeveloperPackage`):
+            The package to build.
+        install_path (str):
+            The absolute directory on-disk to build the package at.
+            This path represents a path that you might add to the
+            REZ_PACKAGES_PATH environment variable (for example) so it
+            should not contain the package's name or version.
+        packages_path (list[str], optional):
+            The paths that will be used to search for Rez packages while
+            building. This is usually to make it easier to find package
+            dependencies. If `packages_path` is not defined, Rez will
+            use its default paths. Default is None.
+        quiet (bool, optional):
+            If True, Rez won't print anything to the terminal while
+            If building. False, print everything. Default is False.
+
+    Raises:
+        RuntimeError: If the package fails to build for any reason.
+
+    Returns:
+        :class:`rez.developer_package.DeveloperPackage`:
+            The package the represents the newly-built package.
+
+    """
+    system = build_system.create_build_system(directory, package=package, verbose=True)
+
+    builder = build_process_.create_build_process(
+        "local",  # See :func:`rez.build_process_.get_build_process_types` for possible values
+        directory,
+        build_system=system,
+        verbose=True,
+    )
+
+    _LOGGER.info('Now building package "%s".', package)
+
+    if quiet:
+        context = rez_configuration.get_context()
+    else:
+        context = _null_context()
+
+    with context:
+        number_of_variants_visited = builder.build(
+            clean=True, install=True, install_path=install_path
+        )
+
+    if not number_of_variants_visited:
+        raise RuntimeError(
+            'Building "{package}" failed. No variants were installed.'.format(
+                package=package
+            )
+        )
+
+    if not os.listdir(install_path):
+        raise RuntimeError(
+            'Package "{package}" has an installed variant '
+            "but no files were written to-disk.".format(package=package)
+        )
+
+    return packages_.get_developer_package(
+        os.path.join(install_path, package.name, str(package.version))
+    )
+
+
+@contextlib.contextmanager
+def _keep_package_paths(package):
+    """Make sure that `package` maintains the same packages_path."""
+    original = copy.deepcopy(package.config.packages_path)
+
+    try:
+        yield
+    finally:
+        package.config.packages_path[:] = original
 
 
 @contextlib.contextmanager
@@ -55,51 +133,26 @@ def build(package, install_path, packages_path=None, quiet=False):
         # If the user has custom paths to use for building, prefer those
         # Reference: https://github.com/nerdvegas/rez/blob/da16fdeb754ccd93c8ce54fa2b6a4d4ef3601e6b/src/rez/build_process_.py#L232 pylint: disable=line-too-long
         #
-        package = copy.deepcopy(package)
-        package.config.packages_path[:] = packages_path
+        if isinstance(package, developer_package.DeveloperPackage):
+            package = package.from_path(os.path.dirname(package.filepath))
+        elif isinstance(package, packages_.Package):
+            package = package.__class__(
+                package.resource,
+                context=package._context,  # pylint: disable=protected-access
+            )
+        else:
+            package = copy.deepcopy(package)
 
     if isinstance(package, packages_.Package):
         package = finder.get_nearest_rez_package(finder.get_package_root(package))
 
     directory = os.path.dirname(package.filepath)
 
-    system = build_system.create_build_system(directory, package=package, verbose=True)
+    with _keep_package_paths(package):
+        if packages_path:
+            package.config.packages_path[:] = packages_path
 
-    builder = build_process_.create_build_process(
-        "local",  # See :func:`rez.build_process_.get_build_process_types` for possible values
-        directory,
-        build_system=system,
-        verbose=True,
-    )
-
-    _LOGGER.info('Now building package "%s".', package)
-
-    if quiet:
-        context = rez_configuration.get_context()
-    else:
-        context = _null_context()
-
-    with context:
-        number_of_variants_visited = builder.build(
-            clean=True, install=True, install_path=install_path
-        )
-
-    if not number_of_variants_visited:
-        raise RuntimeError(
-            'Building "{package}" failed. No variants were installed.'.format(
-                package=package
-            )
-        )
-
-    if not os.listdir(install_path):
-        raise RuntimeError(
-            'Package "{package}" has an installed variant '
-            "but no files were written to-disk.".format(package=package)
-        )
-
-    return packages_.get_developer_package(
-        os.path.join(install_path, package.name, str(package.version))
-    )
+        _build(package, install_path, directory, quiet=quiet)
 
 
 def release(  # pylint: disable=too-many-arguments

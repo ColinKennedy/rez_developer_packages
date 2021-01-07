@@ -3,8 +3,11 @@
 
 """A series of tests for building/installing Rez packages."""
 
+import atexit
+import functools
 import logging
 import os
+import shutil
 import tempfile
 import textwrap
 
@@ -70,6 +73,18 @@ class Build(common.Common):
         with self.assertRaises(exceptions.BuildSystemError):
             creator.build(package, root, quiet=True)
 
+    def test_packages_path(self):
+        """Make sure packages_path isn't accidentally modified."""
+        root = tempfile.mkdtemp("_fake_source_package_with_build_method")
+        paths = ["/stuff"]
+        build_package, build_root = _build_source_that_has_build_method(
+            root, packages_path=paths
+        )
+        atexit.register(functools.partial(shutil.rmtree, root))
+        atexit.register(functools.partial(shutil.rmtree, build_root))
+
+        self.assertNotEqual(paths, build_package.config.packages_path)
+
 
 class Release(common.Common):
     """Make sure :func:`rez_utilities.creator.release_package` works as expected."""
@@ -127,7 +142,7 @@ class Release(common.Common):
         self.assertIsNotNone(release_package)
 
 
-def _build_source_that_has_build_method(root):
+def _build_source_that_has_build_method(root, packages_path=None):
     """Create a source Rez package and then build it to some temporary location."""
     with open(os.path.join(root, "package.py"), "w") as handler:
         handler.write(
@@ -143,4 +158,7 @@ def _build_source_that_has_build_method(root):
     package = packages_.get_developer_package(root)
     build_root = tempfile.mkdtemp(suffix="_build_test")
 
-    return creator.build(package, build_root, quiet=True), build_root
+    return (
+        creator.build(package, build_root, packages_path=packages_path, quiet=True),
+        build_root,
+    )
