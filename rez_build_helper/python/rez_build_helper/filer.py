@@ -32,13 +32,20 @@ _PYTHON_EXTENSIONS = frozenset((".py", ".pyc", ".pyd"))
 
 
 def _find_api_documentation(entries):
+    """Find the home page URL, given some entries.
+
+    Args:
+        entries (list[str] or str):
+            If a string is given, assume it's the home page and return
+            it. Otherwise, search each key/value pair for a home page
+            and return it, if found.
+
+    Returns:
+        str: The found home page URL, if any.
+
+    """
     if isinstance(entries, six.string_types):
         return entries
-
-    for token in ("api", "documentation", "docs"):
-        for key, value in entries or []:
-            if token in key.lower():
-                return value
 
     for token in ("Home Page", "Source Code"):
         for key, value in entries or []:
@@ -46,10 +53,16 @@ def _find_api_documentation(entries):
             if key == token:
                 return value
 
+    for token in ("api", "documentation", "docs"):
+        for key, value in entries or []:
+            if token in key.lower():
+                return value
+
     return ""
 
 
 def _get_python_requires():
+    """str: Get the required Python version, if any."""
     for text in os.environ["REZ_USED_REQUEST"].split(" "):
         request = requirement.Requirement(text)
 
@@ -64,6 +77,7 @@ def _get_python_requires():
 
 
 def _get_platform():
+    """str: Get the required platform name, if any."""
     for text in os.environ["REZ_USED_REQUEST"].split(" "):
         request = requirement.Requirement(text)
 
@@ -74,6 +88,15 @@ def _get_platform():
 
 
 def _iter_data_extensions(directory):
+    """Get every non-Python extension within `directory`.
+
+    Args:
+        directory (str): Some absolute path to a directory on-disk.
+
+    Yields:
+        str: Each found extension, as a glob pattern. e.g. "*.txt".
+
+    """
     for _, _, files in os.walk(directory):
         for path in files:
             _, extension = os.path.splitext(path)
@@ -83,6 +106,7 @@ def _iter_data_extensions(directory):
 
 
 def _iter_python_modules(directory):
+    """str: Find  very child Python file (no extension) within `directory`."""
     for item in os.listdir(directory):
         base, extension = os.path.splitext(item)
 
@@ -92,6 +116,7 @@ def _iter_python_modules(directory):
 
 @contextlib.contextmanager
 def _keep_cwd():
+    """Save and store the user's current working directory."""
     original = os.getcwd()
 
     try:
@@ -100,7 +125,25 @@ def _keep_cwd():
         os.chdir(original)
 
 
-def _build_eggs(source, destination, name, setuptools_data, data_patterns):
+def _build_eggs(source, destination, name, setuptools_data, data_patterns=None):
+    """Create a .egg file for some Python directory.
+
+    Args:
+        source (str):
+            The absolute path to the user's developer Rez package.
+        destination (str):
+            The absolute path to the installed Rez package path.
+        name (str):
+            The directory which contains Python modules which will be made into a .egg file.
+        setuptools_data (:attr:`._SetuptoolsData`):
+            The metadata which will be added to the .egg's EGG-INFO folder.
+        data_patterns (list[str], optional):
+            Any file extensions to include as data in the .egg. For
+            example, if you have a .txt file within `source/name`, use
+            `data_patterns=["*.txt"]` to include them in the .egg.
+            Default is None.
+
+    """
     if not data_patterns:
         data_patterns = sorted(
             set(_iter_data_extensions(os.path.join(source, name)))
