@@ -152,7 +152,7 @@ def build(package, install_path, packages_path=None, quiet=False):
         if packages_path:
             package.config.packages_path[:] = packages_path
 
-        _build(package, install_path, directory, quiet=quiet)
+        return _build(package, install_path, directory, quiet=quiet)
 
 
 def release(  # pylint: disable=too-many-arguments

@@ -199,16 +199,9 @@ def get_data(directory="", matches="", resolve=True, excludes=frozenset()):
         list[list[str, str]]: Each found package help key and value, if any.
 
     """
-    matches = _resolve_matches(matches)
 
-    if not directory:
-        package = get_nearest_external_rez_package(excludes=excludes)
-    else:
-        package = finder.get_nearest_rez_package(directory)
-
-    _LOGGER.debug('Found package "%s".', package)
-
-    if not package:
+    def _check_directory(directory):
+        """Check to make sure `directory` exists."""
         if directory and os.path.isdir(directory):
             raise ValueError(
                 'Directory "{directory}" is not a Rez package.'.format(
@@ -223,8 +216,20 @@ def get_data(directory="", matches="", resolve=True, excludes=frozenset()):
             )
         else:
             raise ValueError(
-                'No directory was given and no automatic Rez package could be found.'
+                "No directory was given and no automatic Rez package could be found."
             )
+
+    matches = _resolve_matches(matches)
+
+    if not directory:
+        package = get_nearest_external_rez_package(excludes=excludes)
+    else:
+        package = finder.get_nearest_rez_package(directory)
+
+    _LOGGER.debug('Found package "%s".', package)
+
+    if not package:
+        _check_directory(directory)
 
     if not package.help:
         return []
