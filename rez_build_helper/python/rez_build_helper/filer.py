@@ -145,9 +145,7 @@ def _build_eggs(source, destination, name, setuptools_data, data_patterns=None):
 
     """
     if not data_patterns:
-        data_patterns = sorted(
-            set(_iter_data_extensions(os.path.join(source, name)))
-        )
+        data_patterns = sorted(set(_iter_data_extensions(os.path.join(source, name))))
 
     if data_patterns:
         package_data = {"": data_patterns}
@@ -181,9 +179,7 @@ def _build_eggs(source, destination, name, setuptools_data, data_patterns=None):
             py_modules=python_modules,
             include_package_data=True,  # Reference: https://python-packaging.readthedocs.io/en/latest/non-code-files.html  pylint: disable=line-too-long
             python_requires=setuptools_data.python_requires,
-            script_args=[
-                "bdist_egg"  # Reference: https://stackoverflow.com/a/2851036
-            ],
+            script_args=["bdist_egg"],  # Reference: https://stackoverflow.com/a/2851036
         )
 
         distribution_directory = os.path.join(os.getcwd(), "dist")

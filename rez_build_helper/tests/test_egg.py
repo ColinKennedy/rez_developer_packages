@@ -68,7 +68,7 @@ class Egg(unittest.TestCase):
     def test_extra_metadata(self):
         """Make sure platform data is recorded, if it is included in requires."""
         directory = tempfile.mkdtemp(
-            prefix="rez_build_helper_Egg_test_include_platform_directory_"
+            prefix="rez_build_helper_Egg_test_extra_metadata_directory_"
         )
         atexit.register(functools.partial(shutil.rmtree, directory))
 
@@ -115,7 +115,7 @@ class Egg(unittest.TestCase):
 
         package = finder.get_nearest_rez_package(directory)
         destination = tempfile.mkdtemp(
-            prefix="rez_build_helper_Egg_test_include_platform_destination_"
+            prefix="rez_build_helper_Egg_test_extra_metadata_destination_"
         )
         atexit.register(functools.partial(shutil.rmtree, destination))
 
@@ -208,7 +208,7 @@ class Egg(unittest.TestCase):
     def test_import_pkg_resources(self):
         """Make sure a generated .egg file can be imported via pkg_resources."""
         directory = tempfile.mkdtemp(
-            prefix="rez_build_helper_Egg_test_single_directory_"
+            prefix="rez_build_helper_Egg_test_import_pkg_resources_directory_"
         )
         atexit.register(functools.partial(shutil.rmtree, directory))
 
@@ -252,7 +252,7 @@ class Egg(unittest.TestCase):
 
         package = finder.get_nearest_rez_package(directory)
         destination = tempfile.mkdtemp(
-            prefix="rez_build_helper_Egg_test_single_destination_"
+            prefix="rez_build_helper_Egg_test_pkg_resources_destination_"
         )
         atexit.register(functools.partial(shutil.rmtree, destination))
 
@@ -272,7 +272,7 @@ class Egg(unittest.TestCase):
     def test_single(self):
         """Create a collapsed .egg file for a Python folder."""
         directory = tempfile.mkdtemp(
-            prefix="rez_build_helper_Egg_test_single_directory_"
+            prefix="rez_build_helper_Egg_test_single_directory_",
         )
         atexit.register(functools.partial(shutil.rmtree, directory))
 
@@ -319,7 +319,9 @@ class Egg(unittest.TestCase):
         )
         atexit.register(functools.partial(shutil.rmtree, destination))
 
-        creator.build(package, destination, quiet=True)
+        creator.build(
+            package, destination, quiet=True, packages_path=self._packages_path
+        )
         install_location = os.path.join(destination, "some_package", "1.0.0")
 
         self.assertTrue(os.path.isfile(os.path.join(install_location, "python.egg")))
@@ -399,7 +401,9 @@ class Egg(unittest.TestCase):
             Platform: any
             """
         )
-        self.assertEqual(package_information, egg.open("EGG-INFO/PKG-INFO").read())
+        self.assertEqual(
+            package_information, egg.open("EGG-INFO/PKG-INFO").read().decode("utf-8"),
+        )
         self.assertEqual("some_thing\n", egg.open("EGG-INFO/top_level.txt").read())
 
     def test_multiple(self):
