@@ -404,7 +404,9 @@ class Egg(unittest.TestCase):
         self.assertEqual(
             package_information, egg.open("EGG-INFO/PKG-INFO").read().decode("utf-8"),
         )
-        self.assertEqual("some_thing\n", egg.open("EGG-INFO/top_level.txt").read().decode("utf-8"))
+        self.assertEqual(
+            "some_thing\n", egg.open("EGG-INFO/top_level.txt").read().decode("utf-8")
+        )
 
     def test_multiple(self):
         """Create more than one collapsed egg files for a Python folder."""
