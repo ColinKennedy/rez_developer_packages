@@ -144,6 +144,9 @@ def _build_eggs(source, destination, name, setuptools_data, data_patterns=None):
             Default is None.
 
     """
+    source = os.path.dirname(source)
+    destination = os.path.dirname(destination)
+
     if not data_patterns:
         data_patterns = sorted(set(_iter_data_extensions(os.path.join(source, name))))
 
@@ -386,8 +389,8 @@ def build_eggs(  # pylint: disable=too-many-arguments
                 setuptools_data=setuptools_data,
                 data_patterns=data_patterns,
             ),
-            source,
-            destination,
+            os.path.join(source, name),
+            os.path.join(destination, name + ".egg"),
             symlink,
             symlink_folders,
             symlink_files,
