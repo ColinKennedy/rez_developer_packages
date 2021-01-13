@@ -9,10 +9,27 @@ import functools
 import os
 import sys
 import tempfile
+import time
 import unittest
 
 from python_compatibility import dependency_analyzer, imports, wrapping
 from python_compatibility.testing import common
+
+
+class ProfileAndPrint(unittest.TestCase):
+    """Make sure :func:`python_compatibility.wrapping.profile_and_print`."""
+
+    def test_simple(self):
+        """Profile something."""
+        with wrapping.capture_pipes():  # This is to silence printing
+            with wrapping.profile_and_print():
+                time.sleep(0.1)
+
+    def test_invalid(self):
+        """Make sure the function errors, when needed."""
+        with self.assertRaises(ValueError):
+            with wrapping.profile_and_print(show=-1):
+                pass
 
 
 class WatchCallable(unittest.TestCase):

@@ -4,13 +4,17 @@
 """Generic-but-still-useful wrappers."""
 
 import contextlib
-import cProfile
 import functools
 import inspect
 import os
 import pstats
 import sys
 import tempfile
+
+try:
+    import cProfile as profile
+except ImportError:
+    import profile
 
 from six.moves import io, mock
 
@@ -186,6 +190,39 @@ def keep_sys_path():
         sys.path[:] = paths
 
 
+@contextlib.contextmanager
+def profile_and_print(sort="cumulative", show=20):
+    """Profile all Python calls which occur under this context.
+
+    Example:
+        >>> import time
+        >>> with profile_and_print():
+        ...     time.sleep(1)
+
+    Args:
+        sort (str, optional): The field to sort results by. Default: "cumulative".
+        show (int, optional): A value greater than or equal to 1. Default: 20.
+
+    Raises:
+        ValueError: If `show` is less than 1.
+
+    """
+    if show < 1:
+        raise ValueError('Show "{show}" cannot be less than 1.'.format(show=show))
+
+    profiler = profile.Profile()
+    profiler.enable()
+
+    try:
+        yield
+    finally:
+        profiler.disable()
+
+    stats = pstats.Stats(profiler)
+    stats.sort_stats(sort)
+    stats.print_stats(show)
+
+
 def profile_temporary(sort_field="cumulative"):
     """Profile some Python object to get its timing information.
 
@@ -207,7 +244,7 @@ def profile_temporary(sort_field="cumulative"):
         @functools.wraps(function)
         def wrapper(*args, **kwargs):
             """Pass the function + its arguments here and run it while profiling it."""
-            profiler = cProfile.Profile()
+            profiler = profile.Profile()
             results = profiler.runcall(function, *args, **kwargs)
 
             with tempfile.NamedTemporaryFile() as handler:
