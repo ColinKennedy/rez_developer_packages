@@ -19,7 +19,7 @@ from python_compatibility.testing import common
 class ProfileAndPrint(unittest.TestCase):
     """Make sure :func:`python_compatibility.wrapping.profile_and_print`."""
 
-    def test_simple(self):
+    def test_simple(self):  # pylint: disable=no-self-use
         """Profile something."""
         with wrapping.capture_pipes():  # This is to silence printing
             with wrapping.profile_and_print():
