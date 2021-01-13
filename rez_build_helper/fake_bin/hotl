@@ -1,8 +1,9 @@
 #!/usr/bin/env sh
 
-folder=$2
+folder=$3
 
 echo "Executing fake hotl command: $@"
 echo "touch $folder/hotl.txt"
 
+mkdir -p $folder
 touch $folder/hotl.txt

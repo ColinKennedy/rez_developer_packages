@@ -75,14 +75,15 @@ class Hda(common.Common):
 
         with _patch_hotl(file_name):
             creator.build(
-                package, destination, quiet=True, packages_path=self._packages_path
+                package, destination, quiet=False, packages_path=self._packages_path
             )
 
         install_location = os.path.join(destination, "some_package", "1.0.0")
         self.assertTrue(
-            os.path.isfile(os.path.join(install_location, "blah", file_name))
+            os.path.isfile(os.path.join(install_location, "hda", "blah", file_name))
         )
-        self.assertTrue(os.path.isdir(os.path.join(install_location, "hda")))
+        self.assertTrue(os.path.isdir(os.path.join(install_location, "hda", "blah")))
+        self.assertFalse(os.path.islink(os.path.join(install_location, "hda", "blah")))
 
     def test_symlink(self):
         """Build symlinks, instead of collapsing the OTL."""
