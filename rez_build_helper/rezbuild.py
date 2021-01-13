@@ -36,5 +36,5 @@ if __name__ == "__main__":
     build(
         os.environ["REZ_BUILD_SOURCE_PATH"],
         os.environ["REZ_BUILD_INSTALL_PATH"],
-        {"bin", "python"},
+        {"fake_bin", "python"},
     )

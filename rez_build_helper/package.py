@@ -3,7 +3,7 @@
 
 name = "rez_build_helper"
 
-version = "1.7.0"
+version = "1.8.0"
 
 description = "Build Rez packages using Python"
 
@@ -66,6 +66,7 @@ tests = {
     "unittest_python_2": {
         "command": "python -m unittest discover",
         "requires": [
+            ".add_fake_hotl-1",
             "python-2.7",
             "rez-2.48+<3",
             "rez_python_compatibility-2.6+<3",
@@ -75,6 +76,7 @@ tests = {
     "unittest_python_3": {
         "command": "python -m unittest discover",
         "requires": [
+            ".add_fake_hotl-1",
             "python-3.6+<3.8",
             "rez-2.48+<3",
             "rez_python_compatibility-2.6+<3",
@@ -88,3 +90,7 @@ def commands():
     import os
 
     env.PYTHONPATH.append(os.path.join("{root}", "python"))
+
+    if intersects(ephemerals.get('add_fake_hotl', '0'), '1'):
+        # This line is only used during unittests
+        env.PATH.append(os.path.join("{root}", "fake_bin"))

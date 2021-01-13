@@ -63,7 +63,7 @@ def _build(package, install_path, directory, quiet=False):
 
     with context:
         number_of_variants_visited = builder.build(
-            clean=True, install=True, install_path=install_path
+            clean=True, install=True, install_path=install_path,
         )
 
     if not number_of_variants_visited:

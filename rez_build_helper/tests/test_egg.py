@@ -20,42 +20,8 @@ from rez_build_helper import exceptions, filer
 from .common import common, creator, finder
 
 
-class Egg(unittest.TestCase):
+class Egg(common.Common):
     """Make sure .egg generation works as expected."""
-
-    @classmethod
-    def setUpClass(cls):
-        """Copy over dependent packages so rez_build_helper resolves to the latest version.
-
-        If a user sets their REZ_PACKAGES_PATH in their shell start-up
-        scripts, it causes tests to fail. So this block of code copies
-        packages into a temporary location so that they can be used in
-        place of the user's packages_path, so that tests will always
-        can be made to pass.
-
-        """
-        build_package = finder.get_nearest_rez_package(
-            os.environ["REZ_REZ_BUILD_HELPER_ROOT"]
-        )
-        build_path = os.path.dirname(
-            os.path.dirname(finder.get_package_root(build_package))
-        )
-        directory = tempfile.mkdtemp(suffix="_test_egg_Egg_folder")
-        atexit.register(functools.partial(shutil.rmtree, directory))
-
-        for name in ("arch", "os", "platform", "python", "rez", "setuptools", "six"):
-            package = finder.get_nearest_rez_package(
-                os.environ["REZ_{name}_ROOT".format(name=name.upper())]
-            )
-            root = os.path.dirname(finder.get_package_root(package))
-            path = os.path.dirname(root)
-            destination = os.path.join(directory, os.path.relpath(root, path))
-
-            if not os.path.isdir(destination):
-                os.makedirs(destination)
-                copytree(root, destination)
-
-        cls._packages_path = [build_path, directory]
 
     def setUp(self):
         """Keep track of the users loadable Python paths so it can be reverted."""
@@ -617,33 +583,3 @@ class Egg(unittest.TestCase):
             ),
             os.path.realpath(some_module.__file__),
         )
-
-
-def copytree(source, destination, symlinks=False, ignore=None):
-    """Copy `source` into `destination`.
-
-    Why is this not just default behavior. Guido, explain yourself!
-
-    Reference:
-        https://stackoverflow.com/a/12514470/3626104
-
-    Args:
-        source (str):
-            The folder to copy from.
-        destination (str):
-            The folder to copy into.
-        symlinks (bool, optional):
-            If True, copy through symlinks. If False, copy just the
-            symlink. Default is False.
-        ignore (set[str], optional):
-            The names of the files/folders to ignore during copy.
-
-    """
-    for item in os.listdir(source):
-        source_ = os.path.join(source, item)
-        destination_ = os.path.join(destination, item)
-
-        if os.path.isdir(source_):
-            shutil.copytree(source_, destination_, symlinks, ignore)
-        else:
-            shutil.copy2(source_, destination_)
