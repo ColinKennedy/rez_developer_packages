@@ -11,14 +11,16 @@ import pstats
 import sys
 import tempfile
 
+from six.moves import io, mock
+
+from . import imports
+
 try:
     import cProfile as profile
 except ImportError:
     import profile
 
-from six.moves import io, mock
 
-from . import imports
 
 
 class _Content(object):
