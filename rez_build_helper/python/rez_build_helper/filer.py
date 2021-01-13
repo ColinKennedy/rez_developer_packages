@@ -15,9 +15,8 @@ import zipfile
 
 import setuptools
 import six
-from rez.vendor.version import requirement
-
 import whichcraft
+from rez.vendor.version import requirement
 
 from . import exceptions, linker
 
