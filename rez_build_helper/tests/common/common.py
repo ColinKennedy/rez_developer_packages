@@ -14,6 +14,8 @@ from . import finder
 
 
 class Common(unittest.TestCase):
+    """A basic unittest class for creating a fake ``rez_build_helper`` install."""
+
     @classmethod
     def setUpClass(cls):
         """Copy over dependent packages so rez_build_helper resolves to the latest version.

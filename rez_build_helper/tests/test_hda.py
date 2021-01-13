@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""All tests related to building, collapsing, and symlinking HDAs."""
+
 import atexit
 import contextlib
 import functools
@@ -9,11 +11,10 @@ import shutil
 import stat
 import tempfile
 import textwrap
-import unittest
 
 from python_compatibility import wrapping
 from rez import resolved_context
-from six.moves import mock
+from rez_build_helper import filer
 
 from .common import common, creator, finder
 
@@ -22,10 +23,24 @@ class Hda(common.Common):
     """All tests related to building Houdini HDAs."""
 
     def test_which(self):
-        """Make sure the we get the hotl correctly."""
-        raise ValueError()
+        """Make sure the we get the hotl correctly.
+
+        This path is only used for testing. In production, this should
+        point to a Houdini ``hotl`` binary file.
+
+        """
+        self.assertEqual(
+            os.path.join(os.environ["REZ_REZ_BUILD_HELPER_ROOT"], "fake_bin", "hotl"),
+            filer._get_hotl_executable(),  # pylint: disable=protected-access
+        )
 
     def test_collapse(self):
+        """Collapse a HDA VCS folder into a single HDA file.
+
+        This test doesn't actually do the collapse. But it tests the
+        logic which would do it.
+
+        """
         directory = tempfile.mkdtemp(
             prefix="rez_build_helper_Hda_test_collapse_source_directory_",
         )
@@ -64,14 +79,11 @@ class Hda(common.Common):
         file_name = "hotl.txt"
 
         with _patch_hotl(file_name):
-            creator.build(package, destination, quiet=True, packages_path=self._packages_path)
+            creator.build(package, destination, quiet=False, packages_path=self._packages_path)
 
         install_location = os.path.join(destination, "some_package", "1.0.0")
         self.assertTrue(os.path.isfile(os.path.join(install_location, file_name)))
         self.assertTrue(os.path.isdir(os.path.join(install_location, "hda")))
-
-    def test_invalid(self):
-        raise ValueError()
 
     def test_symlink(self):
         """Build symlinks, instead of collapsing the OTL."""
@@ -125,7 +137,7 @@ class Hda(common.Common):
 
             self.assertTrue(os.path.islink(path))
 
-        self.assertTrue(files)
+        self.assertEqual(["blah"], files)
 
 
 @contextlib.contextmanager
@@ -154,20 +166,6 @@ def _patch_hotl(fake_path_name):
         path=path,
     )
 
-    # def _execute(self, *args, **kwargs):
-    #     kwargs["env"] = {"PATH": "BLAH_"}
-    #
-    #     return self.execute_shell(*args, **kwargs)
-    #
-    # with wrapping.keep_os_environment():
-    #     os.environ["PATH"] = new_path
-    #
-    #     with mock.patch(
-    #         "rez.resolved_context.ResolvedContext.execute_shell",
-    #         new=_execute,
-    #     ):
-    #         yield
-
     def _execute(self, *args, **kwargs):
         kwargs["env"] = {"PATH": "BLAH_"}
 
@@ -191,33 +189,3 @@ def _patch_hotl(fake_path_name):
             yield
         finally:
             resolved_context.ResolvedContext.execute_shell = original
-
-
-# def copytree(source, destination, symlinks=False, ignore=None):
-#     """Copy `source` into `destination`.
-#
-#     Why is this not just default behavior. Guido, explain yourself!
-#
-#     Reference:
-#         https://stackoverflow.com/a/12514470/3626104
-#
-#     Args:
-#         source (str):
-#             The folder to copy from.
-#         destination (str):
-#             The folder to copy into.
-#         symlinks (bool, optional):
-#             If True, copy through symlinks. If False, copy just the
-#             symlink. Default is False.
-#         ignore (set[str], optional):
-#             The names of the files/folders to ignore during copy.
-#
-#     """
-#     for item in os.listdir(source):
-#         source_ = os.path.join(source, item)
-#         destination_ = os.path.join(destination, item)
-#
-#         if os.path.isdir(source_):
-#             shutil.copytree(source_, destination_, symlinks, ignore)
-#         else:
-#             shutil.copy2(source_, destination_)

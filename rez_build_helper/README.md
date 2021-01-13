@@ -57,6 +57,29 @@ If you want to convert a folder into a .egg file, just replace
 after whatever the folder is called.
 
 
+## Building Houdini HDAs
+Use ``--hdas`` to note any folders which contain Houdini HDAs. The
+folder structure should look like this:
+
+```
+- some_folder_name (usually, just "hdas")
+    - some_hda_name
+	    - houdini.hdalibrary
+		- other
+		- files
+```
+
+And then rez_build_helper looks like this:
+
+```python
+build_command = "python -m rez_build_helper --hdas hda"
+```
+
+The key points are, ``--hdas`` expects folder names. And in each folder,
+there should inner folders, containing Houdini HDAs. Each HDA folder
+should have a "houdini.hdalibrary" file directly inside of it.
+
+
 ## Calling rez_build_helper Manually
 
 If you want to take advantage of ``rez_build_helper``'s functions, you can write your own build script.

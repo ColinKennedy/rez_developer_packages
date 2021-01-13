@@ -7,7 +7,6 @@ import collections
 import contextlib
 import functools
 import glob
-import itertools
 import logging
 import os
 import shutil
@@ -67,6 +66,7 @@ def _find_api_documentation(entries):
 
 
 def _get_hotl_executable():
+    """str: Find the path to a hotl executable, if any."""
     return whichcraft.which("hotl") or ""
 
 
@@ -249,10 +249,29 @@ def _run_command(  # pylint: disable=too-many-arguments
 
 
 def _run_hotl(root, hda, symlink=linker.must_symlink()):
+    """Collapse or symlink Houdini HDA VCS folders.
+
+    This function assumes that you're using expanded HDAs (HDAs which
+    are folders, not single-files).
+
+    Args:
+        root (str):
+            The absolute directory to folder where a houdini.hdalibrary file lives.
+        hda (str):
+            The absolute directory where the HDA will be built to.
+        symlink (bool, optional):
+            If True, symlink ``root`` to ``hda``. If False, collapse the
+            HDA in ``root`` into a single file and copy it into ``hda``.
+
+    Raises:
+        EnvironmentError: If no ``hotl`` executable could be found.
+        RuntimeError: If calling ``hotl`` errored, for any reason.
+
+    """
     executable = _get_hotl_executable()
 
     if not os.path.isfile(executable):
-        raise EnvironmentError('Path "{executable}" is not an executable file.'.format(executable=executable))
+        raise EnvironmentError('Path "{executable}" is not an executable file. Make sure you have Houdini included in your package requirements.'.format(executable=executable))
 
     if symlink:
         _LOGGER.info('Creating symlink "%s" -> "%s".', root, hda)
@@ -301,6 +320,8 @@ def build(  # pylint: disable=too-many-arguments
             The absolute path to the root directory of the Rez package.
         destination (str):
             The location where the built files will be copied or symlinked from.
+        hdas (iter[str], optional):
+            The local paths to each folder containing HDAs. Default is None.
         items (iter[str], optional):
             The local paths to every item in `source` to copy / symlink. Default is None.
         eggs (iter[str], optional):
@@ -356,7 +377,7 @@ def build(  # pylint: disable=too-many-arguments
                 symlink_folders=symlink_folders,
                 symlink_files=symlink_files,
             )
-    except RuntimeError:
+    except (EnvironmentError, RuntimeError):
         # If the build errors early for any reason, delete the
         # destination folder. This is done to prevent a situation where
         # we have a "partial install".
@@ -446,6 +467,26 @@ def build_hdas(
     hdas,
     symlink=linker.must_symlink(),
 ):
+    """Symlink or collapse VCS-style HDA folders to an installed Rez package.
+
+    Args:
+        source (str):
+            The absolute path to the root directory of the Rez package.
+        destination (str):
+            The location where the built files will be copied or symlinked from.
+        hdas (iter[str]):
+            The name of each local folder which contains HDAs to build.
+        symlink (bool, optional):
+            If True, symlinking will always happen. It implies
+            If ``symlink_folders`` and ``symlink_files`` are both True.
+            If False, symlinking is not guaranteed to always happen.
+
+    Raises:
+        RuntimeError:
+            If any name in ``hdas`` is not a folder on-disk or a folder
+            which does not contain HDA definitions.
+
+    """
     libraries = set()
 
     for folder_name in hdas:
