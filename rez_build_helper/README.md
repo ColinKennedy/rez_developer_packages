@@ -79,6 +79,9 @@ The key points are, ``--hdas`` expects folder names. And in each folder,
 there should inner folders, containing Houdini HDAs. Each HDA folder
 should have a "houdini.hdalibrary" file directly inside of it.
 
+**Note**: Your Rez resolve must include Houdini's ``hotl`` as an
+executable (in ``$PATH``, for example) or building will fail.
+
 
 ## Calling rez_build_helper Manually
 
