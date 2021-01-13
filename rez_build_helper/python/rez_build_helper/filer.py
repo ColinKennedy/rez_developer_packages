@@ -463,13 +463,22 @@ def build_hdas(
         os.makedirs(destination)
 
     for library in libraries:
-        root = os.path.dirname(library)
-        hda = os.path.join(destination, os.path.basename(root))
+        hda_root = os.path.dirname(library)  # The root of the current HDA library
+        library_root = os.path.dirname(hda_root)  # The folder containing all HDAs
 
-        if os.path.exists(hda):
-            os.remove(hda)
+        hda_destination = os.path.join(
+            destination,
+            os.path.basename(library_root),
+        )
 
-        _run_hotl(root, hda, symlink=symlink)
+        if os.path.isdir(hda_destination):
+            shutil.rmtree(hda_destination)
+
+        os.makedirs(hda_destination)
+
+        hda = os.path.join(hda_destination, os.path.basename(hda_root))
+
+        _run_hotl(hda_root, hda, symlink=symlink)
 
 
 def build_items(  # pylint: disable=too-many-arguments

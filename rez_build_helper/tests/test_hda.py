@@ -118,11 +118,14 @@ class Hda(common.Common):
         install_location = os.path.join(destination, "some_package", "1.0.0")
         self.assertFalse(os.path.isfile(os.path.join(install_location, file_name)))
         hda = os.path.join(install_location, "hda")
+        files = os.listdir(hda)
 
-        for item in os.listdir(hda):
+        for item in files:
             path = os.path.join(hda, item)
 
             self.assertTrue(os.path.islink(path))
+
+        self.assertTrue(files)
 
 
 @contextlib.contextmanager
