@@ -31,7 +31,7 @@ def _parse_arguments(text):
     parser.add_argument(
         "--hdas",
         nargs="+",
-        help="The relative paths to each folder containing VCS-style Houdini HDAs to symlink or collapse.",
+        help="The relative paths to each folder containing VCS-style Houdini HDAs.",
     )
 
     parser.add_argument(

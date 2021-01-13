@@ -11,7 +11,6 @@ import logging
 import os
 import shutil
 import subprocess
-import zipfile
 
 import setuptools
 import six
@@ -271,7 +270,8 @@ def _run_hotl(root, hda, symlink=linker.must_symlink()):
 
     if not os.path.isfile(executable):
         raise EnvironmentError(
-            'Path "{executable}" is not an executable file. Make sure you have Houdini included in your package requirements.'.format(
+            'Path "{executable}" is not an executable file. '
+            "Make sure you have Houdini included in your package requirements.".format(
                 executable=executable
             )
         )

@@ -11,8 +11,6 @@ import tempfile
 import textwrap
 import unittest
 
-from rez_build_helper import exceptions, filer
-
 from .common import common, creator, finder
 
 
