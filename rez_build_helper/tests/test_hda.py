@@ -4,16 +4,12 @@
 """All tests related to building, collapsing, and symlinking HDAs."""
 
 import atexit
-import contextlib
 import functools
 import os
 import shutil
-import stat
 import tempfile
 import textwrap
 
-from python_compatibility import wrapping
-from rez import resolved_context
 from rez_build_helper import filer
 
 from .common import common, creator, finder
@@ -71,16 +67,13 @@ class Hda(common.Common):
         )
         atexit.register(functools.partial(shutil.rmtree, destination))
 
-        file_name = "hotl.txt"
-
-        with _patch_hotl(file_name):
-            creator.build(
-                package, destination, quiet=False, packages_path=self._packages_path
-            )
+        creator.build(
+            package, destination, quiet=True, packages_path=self._packages_path
+        )
 
         install_location = os.path.join(destination, "some_package", "1.0.0")
         self.assertTrue(
-            os.path.isfile(os.path.join(install_location, "hda", "blah", file_name))
+            os.path.isfile(os.path.join(install_location, "hda", "blah", "hotl.txt"))
         )
         self.assertTrue(os.path.isdir(os.path.join(install_location, "hda", "blah")))
         self.assertFalse(os.path.islink(os.path.join(install_location, "hda", "blah")))
@@ -117,15 +110,12 @@ class Hda(common.Common):
         )
         atexit.register(functools.partial(shutil.rmtree, destination))
 
-        file_name = "hotl.txt"
-
-        with _patch_hotl(file_name):
-            creator.build(
-                package, destination, quiet=True, packages_path=self._packages_path
-            )
+        creator.build(
+            package, destination, quiet=True, packages_path=self._packages_path
+        )
 
         install_location = os.path.join(destination, "some_package", "1.0.0")
-        self.assertFalse(os.path.isfile(os.path.join(install_location, file_name)))
+        self.assertFalse(os.path.isfile(os.path.join(install_location, "hotl.txt")))
         hda = os.path.join(install_location, "hda")
         files = os.listdir(hda)
 
@@ -135,53 +125,3 @@ class Hda(common.Common):
             self.assertTrue(os.path.islink(path))
 
         self.assertEqual(["blah"], files)
-
-
-# TODO : Check if this can be removed.
-@contextlib.contextmanager
-def _patch_hotl(fake_path_name):
-    path = os.getenv("PATH", "")
-    prefix = tempfile.mkdtemp(suffix="_patch_hotl")
-    atexit.register(functools.partial(shutil.rmtree, prefix))
-    hotl = os.path.join(prefix, "hotl")
-
-    template = textwrap.dedent(
-        """\
-        python -c 'open("{fake_path_name}", "a").close()'
-        """
-    )
-
-    with open(hotl, "w") as handler:
-        handler.write(template.format(fake_path_name=fake_path_name))
-
-    # Make `hotl` executable
-    stats = os.stat(hotl)
-    os.chmod(hotl, stats.st_mode | stat.S_IEXEC)
-
-    new_path = "{prefix}{os.pathsep}{path}".format(prefix=prefix, os=os, path=path,)
-
-    def _execute(self, *args, **kwargs):
-        kwargs["env"] = {"PATH": "BLAH_"}
-
-        return self.execute_shell(*args, **kwargs)
-
-    def _wrap(function):
-        def wrapper(*args, **kwargs):
-            kwargs["parent_environ"] = {"PATH": "asdf"}
-
-            return function(*args, **kwargs)
-
-        return wrapper
-
-    with wrapping.keep_os_environment():
-        os.environ["PATH"] = new_path
-        original = resolved_context.ResolvedContext.execute_shell
-
-        try:
-            resolved_context.ResolvedContext.execute_shell = _wrap(
-                resolved_context.ResolvedContext.execute_shell
-            )
-
-            yield
-        finally:
-            resolved_context.ResolvedContext.execute_shell = original
