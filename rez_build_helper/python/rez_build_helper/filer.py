@@ -271,7 +271,11 @@ def _run_hotl(root, hda, symlink=linker.must_symlink()):
     executable = _get_hotl_executable()
 
     if not os.path.isfile(executable):
-        raise EnvironmentError('Path "{executable}" is not an executable file. Make sure you have Houdini included in your package requirements.'.format(executable=executable))
+        raise EnvironmentError(
+            'Path "{executable}" is not an executable file. Make sure you have Houdini included in your package requirements.'.format(
+                executable=executable
+            )
+        )
 
     if symlink:
         _LOGGER.info('Creating symlink "%s" -> "%s".', root, hda)
@@ -362,10 +366,7 @@ def build(  # pylint: disable=too-many-arguments
 
         if hdas:
             build_hdas(
-                source,
-                destination,
-                hdas,
-                symlink=symlink,
+                source, destination, hdas, symlink=symlink,
             )
 
         if items:
@@ -462,10 +463,7 @@ def build_eggs(  # pylint: disable=too-many-arguments
 
 
 def build_hdas(
-    source,
-    destination,
-    hdas,
-    symlink=linker.must_symlink(),
+    source, destination, hdas, symlink=linker.must_symlink(),
 ):
     """Symlink or collapse VCS-style HDA folders to an installed Rez package.
 
@@ -494,7 +492,11 @@ def build_hdas(
         folder_libraries = list(glob.glob(location))
 
         if not folder_libraries:
-            raise RuntimeError('Directory "{location}" has no VCS-style HDAs inside of it.'.format(location=location))
+            raise RuntimeError(
+                'Directory "{location}" has no VCS-style HDAs inside of it.'.format(
+                    location=location
+                )
+            )
 
         libraries.update(folder_libraries)
 
@@ -507,10 +509,7 @@ def build_hdas(
         hda_root = os.path.dirname(library)  # The root of the current HDA library
         library_root = os.path.dirname(hda_root)  # The folder containing all HDAs
 
-        hda_destination = os.path.join(
-            destination,
-            os.path.basename(library_root),
-        )
+        hda_destination = os.path.join(destination, os.path.basename(library_root),)
 
         if os.path.isdir(hda_destination):
             shutil.rmtree(hda_destination)

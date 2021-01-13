@@ -91,6 +91,6 @@ def commands():
 
     env.PYTHONPATH.append(os.path.join("{root}", "python"))
 
-    if intersects(ephemerals.get('add_fake_hotl', '0'), '1'):
+    if intersects(ephemerals.get("add_fake_hotl", "0"), "1"):
         # This line is only used during unittests
         env.PATH.append(os.path.join("{root}", "fake_bin"))

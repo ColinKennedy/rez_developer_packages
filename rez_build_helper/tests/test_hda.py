@@ -47,14 +47,7 @@ class Hda(common.Common):
         atexit.register(functools.partial(shutil.rmtree, directory))
 
         common.make_files(
-            {
-                "hda": {
-                    "blah": {
-                        "houdini.hdalibrary": None,
-                    }
-                },
-            },
-            directory,
+            {"hda": {"blah": {"houdini.hdalibrary": None,}},}, directory,
         )
 
         with open(os.path.join(directory, "package.py"), "w") as handler:
@@ -73,13 +66,17 @@ class Hda(common.Common):
             )
 
         package = finder.get_nearest_rez_package(directory)
-        destination = tempfile.mkdtemp(prefix="rez_build_helper_Hda_test_collapse_destination_")
+        destination = tempfile.mkdtemp(
+            prefix="rez_build_helper_Hda_test_collapse_destination_"
+        )
         atexit.register(functools.partial(shutil.rmtree, destination))
 
         file_name = "hotl.txt"
 
         with _patch_hotl(file_name):
-            creator.build(package, destination, quiet=False, packages_path=self._packages_path)
+            creator.build(
+                package, destination, quiet=False, packages_path=self._packages_path
+            )
 
         install_location = os.path.join(destination, "some_package", "1.0.0")
         self.assertTrue(os.path.isfile(os.path.join(install_location, file_name)))
@@ -93,14 +90,7 @@ class Hda(common.Common):
         atexit.register(functools.partial(shutil.rmtree, directory))
 
         common.make_files(
-            {
-                "hda": {
-                    "blah": {
-                        "houdini.hdalibrary": None,
-                    }
-                },
-            },
-            directory,
+            {"hda": {"blah": {"houdini.hdalibrary": None,}},}, directory,
         )
 
         with open(os.path.join(directory, "package.py"), "w") as handler:
@@ -119,13 +109,17 @@ class Hda(common.Common):
             )
 
         package = finder.get_nearest_rez_package(directory)
-        destination = tempfile.mkdtemp(prefix="rez_build_helper_Hda_test_symlink_destination_")
+        destination = tempfile.mkdtemp(
+            prefix="rez_build_helper_Hda_test_symlink_destination_"
+        )
         atexit.register(functools.partial(shutil.rmtree, destination))
 
         file_name = "hotl.txt"
 
         with _patch_hotl(file_name):
-            creator.build(package, destination, quiet=True, packages_path=self._packages_path)
+            creator.build(
+                package, destination, quiet=True, packages_path=self._packages_path
+            )
 
         install_location = os.path.join(destination, "some_package", "1.0.0")
         self.assertFalse(os.path.isfile(os.path.join(install_location, file_name)))
@@ -140,6 +134,7 @@ class Hda(common.Common):
         self.assertEqual(["blah"], files)
 
 
+# TODO : Check if this can be removed.
 @contextlib.contextmanager
 def _patch_hotl(fake_path_name):
     path = os.getenv("PATH", "")
@@ -160,11 +155,7 @@ def _patch_hotl(fake_path_name):
     stats = os.stat(hotl)
     os.chmod(hotl, stats.st_mode | stat.S_IEXEC)
 
-    new_path = "{prefix}{os.pathsep}{path}".format(
-        prefix=prefix,
-        os=os,
-        path=path,
-    )
+    new_path = "{prefix}{os.pathsep}{path}".format(prefix=prefix, os=os, path=path,)
 
     def _execute(self, *args, **kwargs):
         kwargs["env"] = {"PATH": "BLAH_"}
@@ -184,7 +175,9 @@ def _patch_hotl(fake_path_name):
         original = resolved_context.ResolvedContext.execute_shell
 
         try:
-            resolved_context.ResolvedContext.execute_shell = _wrap(resolved_context.ResolvedContext.execute_shell)
+            resolved_context.ResolvedContext.execute_shell = _wrap(
+                resolved_context.ResolvedContext.execute_shell
+            )
 
             yield
         finally:
