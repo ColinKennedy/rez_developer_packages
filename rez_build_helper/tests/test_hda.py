@@ -79,7 +79,7 @@ class Hda(common.Common):
             )
 
         install_location = os.path.join(destination, "some_package", "1.0.0")
-        self.assertTrue(os.path.isfile(os.path.join(install_location, file_name)))
+        self.assertTrue(os.path.isfile(os.path.join(install_location, "blah", file_name)))
         self.assertTrue(os.path.isdir(os.path.join(install_location, "hda")))
 
     def test_symlink(self):

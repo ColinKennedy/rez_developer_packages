@@ -15,7 +15,7 @@ build_command = "python {root}/rezbuild.py {install}"
 
 uuid = "168c5114-a951-4834-a744-dae1331e375e"
 
-requires = ["rez-2.48+<3", "six-1.11+<2", "whichcraft-0.6+<1"]
+requires = ["rez-2.71+<3", "six-1.11+<2", "whichcraft-0.6+<1"]
 
 variants = [
     ["python-2.7", "setuptools-44+<45"],
@@ -68,7 +68,6 @@ tests = {
         "requires": [
             ".add_fake_hotl-1",
             "python-2.7",
-            "rez-2.48+<3",
             "rez_python_compatibility-2.6+<3",
             "wurlitzer-2+<3",
         ],
@@ -78,7 +77,6 @@ tests = {
         "requires": [
             ".add_fake_hotl-1",
             "python-3.6+<3.8",
-            "rez-2.48+<3",
             "rez_python_compatibility-2.6+<3",
             "wurlitzer-2+<3",
         ],
