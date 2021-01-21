@@ -616,6 +616,43 @@ class AddToAttributeTests(unittest.TestCase):
 
         self._test(expected, original, overrides)
 
+    def test_requires_with_multiple_packages(self):
+        """Add a new key and make sure commas are retained."""
+        original = textwrap.dedent(
+            """\
+            name = 'thing'
+
+            tests = {
+                "blah": {
+                    "command": "something",
+                    "requires": ["thing-2+<3",   "dependency_a-1"],
+                },
+            }
+            """
+        )
+        overrides = {
+            "another": {"command": "thing", "requires": ["whatever-1", "another-3"]},
+        }
+
+        expected = textwrap.dedent(
+            """\
+            name = 'thing'
+
+            tests = {
+                "another": {
+                    "command": "thing",
+                    "requires": ["whatever-1", "another-3"],
+                },
+                "blah": {
+                    "command": "something",
+                    "requires": ["thing-2+<3",   "dependency_a-1"],
+                },
+            }
+            """
+        )
+
+        self._test(expected, original, overrides)
+
     def test_undefined(self):
         """Add a new assignment for "tests" if it doesn't already exist."""
         original = "name = 'thing'"
