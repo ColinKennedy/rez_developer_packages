@@ -513,6 +513,8 @@ def _flatten_node(node):
         if hasattr(child, "prefix"):
             child.prefix = ""
 
+            break
+
     return node
 
 
