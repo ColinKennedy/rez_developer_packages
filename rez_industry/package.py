@@ -2,7 +2,7 @@
 
 name = "rez_industry"
 
-version = "3.0.0"
+version = "3.0.1"
 
 description = "A Rez package manufacturer. It reliably modifies Rez package.py files."
 
