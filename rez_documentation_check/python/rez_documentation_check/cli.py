@@ -87,7 +87,6 @@ def get_missing_intersphinx_mappings(package, sphinx_files_must_exist=False):
     """
     root = os.path.dirname(package.filepath)
 
-    # TODO : Check if `sphinx_files_must_exist` is still in-use
     if sphinx_files_must_exist and _is_conf_file_missing(root):
         raise exceptions.SphinxFileMissing(
             "conf.py is missing. Either set sphinx_files_must_exist to False "
