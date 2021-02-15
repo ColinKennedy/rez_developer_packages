@@ -12,7 +12,6 @@ from rez_documentation_check.core import sphinx_helper
 
 from . import common
 
-
 _PYTHON_2 = sys.version_info.major == 2
 
 
