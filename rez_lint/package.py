@@ -3,7 +3,7 @@
 
 name = "rez_lint"
 
-version = "1.4.0"
+version = "1.5.0"
 
 description = 'A "pylint" for Rez packages'
 
