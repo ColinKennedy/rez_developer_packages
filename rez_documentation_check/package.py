@@ -2,7 +2,7 @@
 
 name = "rez_documentation_check"
 
-version = "0.4.0"
+version = "0.5.0"
 
 description = "Check a Rez package's Sphinx documentation for issues"
 
