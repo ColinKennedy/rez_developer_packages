@@ -5,6 +5,7 @@
 
 import argparse
 import atexit
+import contextlib
 import functools
 import logging
 import os
@@ -163,6 +164,7 @@ def _get_install_context(arguments):
     return hashed_variant.force_unhashed_variants
 
 
+@contextlib.contextmanager
 def _get_verbosity_context(quiet):
     """Get a Python context used for controlling printed text.
 
@@ -176,9 +178,14 @@ def _get_verbosity_context(quiet):
 
     """
     if not quiet:
-        return hashed_variant.do_nothing()
+        with hashed_variant.do_nothing():
+            yield
+    else:
+        with wurlitzer.pipes() as (stdout, stderr):
+            yield
 
-    return wurlitzer.pipes()
+        stdout.close()
+        stderr.close()
 
 
 def _pip_install(arguments, prefix):

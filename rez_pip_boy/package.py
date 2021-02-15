@@ -15,7 +15,7 @@ private_build_requires = ["rez_build_helper-1+<2"]
 build_command = "python -m rez_build_helper --items bin python"
 
 requires = [
-    "python-2.7+<3.7",
+    "python-2.7+<3.8",
     "rez-2.47+<3",
     "rez_utilities-2+<3",
     "wurlitzer-2+<3",
@@ -66,7 +66,7 @@ tests = {
     },
     "unittest_python_3": {
         "command": "python -m unittest discover",
-        "requires": ["mock-4+<5", "python-3.6", "six-1.14+<2",],
+        "requires": ["python-3.6", "six-1.14+<2",],
     },
 }
 
