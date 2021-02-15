@@ -178,7 +178,7 @@ def handle_generic_exception(error, package):
 
 
 def report(
-    packages_to_report, maximum_repositories=sys.maxint, maximum_rez_packages=sys.maxint
+    packages_to_report, maximum_repositories=sys.maxsize, maximum_rez_packages=sys.maxsize
 ):
     """Check Rez packages for missing documentation and return them all.
 
@@ -189,12 +189,12 @@ def report(
             The number of unique repositories to check for packages.
             If the queried packages live in more repositories than
             this given parameter, then this function will exit early.
-            Default: :attr:`sys.maxint`.
+            Default: :attr:`sys.maxsize`.
         maximum_rez_packages (int, optional):
             The number of unique Rez packages to potentially report.
             If the queried packages live in more repositories than
             this given parameter, then this function will exit early.
-            Default: :attr:`sys.maxint`.
+            Default: :attr:`sys.maxsize`.
 
     Returns:
         tuple[
@@ -248,8 +248,8 @@ def report(
 def run(  # pylint: disable=too-many-arguments,too-many-locals
     runner,
     packages_to_run,
-    maximum_repositories=sys.maxint,
-    maximum_rez_packages=sys.maxint,
+    maximum_repositories=sys.maxsize,
+    maximum_rez_packages=sys.maxsize,
     keep_temporary_files=False,
     temporary_directory="",
 ):
@@ -262,12 +262,12 @@ def run(  # pylint: disable=too-many-arguments,too-many-locals
             The number of unique repositories to check for packages.
             If the queried packages live in more repositories than
             this given parameter, then this function will exit early.
-            Default: :attr:`sys.maxint`.
+            Default: :attr:`sys.maxsize`.
         maximum_rez_packages (int, optional):
             The number of unique Rez packages to run the command onto.
             If the queried packages live in more repositories than
             this given parameter, then this function will exit early.
-            Default: :attr:`sys.maxint`.
+            Default: :attr:`sys.maxsize`.
         keep_temporary_files (bool, optional):
             If False, delete any folders used to clone local git
             If repositories. True, don't delete them. Default is False.

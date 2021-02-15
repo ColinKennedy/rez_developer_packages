@@ -15,18 +15,17 @@ help = [["README", "README.md"]]
 private_build_requires = ["rez_build_helper-1+<2"]
 
 requires = [
-    "GitPython-2+<3",
+    "GitPython-2+<4",
     "PyGithub-1.45+<2",  # TODO : Remove this if needed. Same with `GitPython`
     "backports.functools_lru_cache-1.6+<2",
     "github3.py-1.3+<2",
+    "python-2.7",
     "rez-2.47+<3",
     "rez_python_compatibility-2+<3",
     "rez_utilities-2+<3",
     "six-1.13+<2",
     "wurlitzer-2+<3",  # Used to silence calls to `rez-release` and git cloning
 ]
-
-variants = [["python-2.7"], ["python-3.6"]]
 
 build_command = "python -m rez_build_helper --items python"
 
@@ -62,7 +61,10 @@ tests = {
         "command": "pylint --disable=bad-continuation python/rez_batch_process tests",
         "requires": ["pylint-1.9+<2"],
     },
-    "unittest": {"command": "python -m unittest discover", "requires": ["mock-3+<4"]},
+    "unittest_python_2": {
+        "command": "python -m unittest discover",
+        "requires": ["mock-3+<4", "python-2.7"],
+    },
 }
 
 uuid = "827534f3-aad3-4313-9387-f2e4c439cc4e"

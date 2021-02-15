@@ -422,7 +422,7 @@ def _add_arguments(parser):
     parser.add_argument(
         "-x",
         "--maximum-repositories",
-        default=sys.maxint,
+        default=sys.maxsize,
         type=int,
         help='If a value of `2` is used, it means "Only search 2 repositories '
         'for Rez packages to run on, at most".',
@@ -431,7 +431,7 @@ def _add_arguments(parser):
     parser.add_argument(
         "-z",
         "--maximum-rez-packages",
-        default=sys.maxint,
+        default=sys.maxsize,
         type=int,
         help='If a value of `2` is used, it means "Only search for 2 Rez packages '
         'to run some comm on, at most".',
@@ -605,7 +605,7 @@ def parse_arguments(text):
     git_users_command.add_argument(
         "-m",
         "--maximum-users",
-        default=sys.maxint,
+        default=sys.maxsize,
         type=int,
         help="This integer represents that maximum number of users to query. "
         "Set this value low to avoid long wait times.",

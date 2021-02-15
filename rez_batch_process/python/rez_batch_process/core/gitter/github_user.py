@@ -9,7 +9,7 @@ import sys
 from . import github_link
 
 
-def write_cache(path, token, base_url="", verify=False, maximum=sys.maxint):
+def write_cache(path, token, base_url="", verify=False, maximum=sys.maxsize):
     """Serialize a list of GitHub users to-disk.
 
     Reference:

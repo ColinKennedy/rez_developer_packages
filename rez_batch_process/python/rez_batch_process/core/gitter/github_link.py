@@ -359,7 +359,7 @@ def _write_user_data_cache(users):
 
 
 @lru_cache()
-def get_all_users(token, base_url="", verify=True, maximum=sys.maxint, write=False):
+def get_all_users(token, base_url="", verify=True, maximum=sys.maxsize, write=False):
     """Find every GitHub user.
 
     Warning:
