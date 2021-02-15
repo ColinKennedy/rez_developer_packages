@@ -19,7 +19,7 @@ requires = [
     "six-1.13+<2",
 ]
 
-private_build_requires = ["rez_build_helper-1.1+<2"]
+private_build_requires = ["python-2", "rez_build_helper-1.1+<2"]
 
 build_command = "python -m rez_build_helper --items python"
 
