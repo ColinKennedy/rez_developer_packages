@@ -32,8 +32,9 @@ class Invalids(common.Common):
                 pass
 
         _, stderr = output
-        expected = "error: argument -d/--deprecate is required"
+        expected = "-d DEPRECATE"
         self.assertIn(expected, stderr)
+        self.assertTrue(stderr.startswith("usage: "))
 
     def test_no_requirement(self):
         """Don't run the command if the user doesn't provide requirements to replace with."""
@@ -49,8 +50,9 @@ class Invalids(common.Common):
                 pass
 
         _, stderr = output
-        expected = "error: argument -r/--requirements is required"
+        expected = "-r REQUIREMENTS"
         self.assertIn(expected, stderr)
+        self.assertTrue(stderr.startswith("usage: "))
 
     def test_invalid_deprecate(self):
         """Defining --deprecate but missing either the Rez package for namespaces must error."""

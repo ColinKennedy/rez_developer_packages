@@ -14,10 +14,10 @@ private_build_requires = ["rez_build_helper-1+<2"]
 
 requires = [
     "move_break-3+<4",
-    "python-2+<3",
+    "python-2+<3.8",
     "rez-2.42+<3",
     "rez_bump-1.1+<2",
-    "rez_industry-2+<3",
+    "rez_industry-2+<4",
     "rez_python_compatibility-2.3+<3",
     "rez_utilities-2+<3",
 ]
@@ -59,9 +59,19 @@ tests = {
         "command": "pylint --disable=bad-continuation,duplicate-code tests",
         "requires": ["pylint-1.9+<2"],
     },
-    "unittest": {
+    "unittest_python_2": {
         "command": "python -m unittest discover",
-        "requires": ["rez-2.53+<3"],  # Needs to support `"run_on": "explicit"`
+        "requires": [
+            "python-2.7",
+            "rez-2.53+<3",  # Needs to support `"run_on": "explicit"`
+        ],
+    },
+    "unittest_python_3": {
+        "command": "python -m unittest discover",
+        "requires": [
+            "python-3.6+",
+            "rez-2.53+<3",  # Needs to support `"run_on": "explicit"`
+        ],
     },
 }
 
