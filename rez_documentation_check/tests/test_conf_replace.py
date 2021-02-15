@@ -52,9 +52,7 @@ class Append(_Tester):
         links = {"some_package": ("https://google.com", None)}
 
         if _PYTHON_2:
-            expected = (
-                "intersphinx_mapping = {   'some_package': ('https://google.com', None)}\n"
-            )
+            expected = "intersphinx_mapping = {   'some_package': ('https://google.com', None)}\n"
         else:
             expected = (
                 "intersphinx_mapping = {'some_package': ('https://google.com', None)}\n"
