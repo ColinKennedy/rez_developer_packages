@@ -824,6 +824,7 @@ class MissingRequirements(packaging.BasePackaging):
             name = "another_dependency"
             version = "1.0.0"
             requires = []
+            private_build_requires = ["python-2"]
             build_command = "python {root}/rezbuild.py {install}"
 
             def commands():
@@ -871,6 +872,7 @@ class MissingRequirements(packaging.BasePackaging):
             requires = [
                 "another_dependency-1",
             ]
+            private_build_requires = ["python-2"]
             build_command = "python {root}/rezbuild.py {install}"
 
             def commands():

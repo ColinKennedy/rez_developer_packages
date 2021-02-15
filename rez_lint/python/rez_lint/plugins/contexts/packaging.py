@@ -239,6 +239,6 @@ def _search_for_python_dependencies(caller, directories):
 
         return set()
 
-    stdout_lines = filter(None, (line for line in stdout.splitlines()))
+    stdout_lines = filter(None, (line for line in stdout.decode("utf-8").splitlines()))
 
     return set(line for line in stdout_lines if os.path.isfile(line))

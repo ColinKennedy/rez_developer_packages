@@ -16,7 +16,7 @@ private_build_requires = ["rez_build_helper-1+<2"]
 requires = [
     "backports.functools_lru_cache-1.6+<2",
     "parso-0+<1",
-    "python-2+<3",
+    "python-2+<3.8",
     "rez_python_compatibility-2+<3",
     "rez-2.47+<3",
     "rez_utilities-2+<3",
@@ -61,7 +61,14 @@ tests = {
         "command": "pylint --disable=bad-continuation,duplicate-code tests",
         "requires": ["pylint-1.9+<2"],
     },
-    "unittest": {"command": "python -m unittest discover", "requires": ["mock-3+",],},
+    "unittest_python_2": {
+        "command": "python -m unittest discover",
+        "requires": ["mock-3+", "python-2.7"],
+    },
+    "unittest_python_3": {
+        "command": "python -m unittest discover",
+        "requires": ["mock-3+", "python-3+"],
+    },
 }
 
 uuid = "980fab3d-1b92-4ac6-b629-b7e9b85ac5f3"

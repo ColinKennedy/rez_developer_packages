@@ -172,6 +172,10 @@ class Description(object):
         """bool: Check if this instance should come before or after another instance."""
         return self.get_summary() < other.get_summary()
 
+    def __hash__(self):
+        """int: A unique key for this instance."""
+        return hash((self._code, tuple(self._full), self._location, tuple(self._summary)))
+
     def __repr__(self):  # pragma: no cover
         """str: Get the code needed to copy or re-create this instance."""
         template = "{self.__class__.__name__}({summary!r}, {location!r}, {code!r}, full={full})"
