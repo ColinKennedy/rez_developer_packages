@@ -18,6 +18,7 @@ import sys
 
 _DOTS_EXPRESSION = re.compile(r"^\s*from\s+(?P<dots>\.+)*.+")
 _LOGGER = logging.getLogger(__name__)
+_PYTHON_2 = sys.version_info.major == 2
 
 
 # Note : This really needs to be renamed to "Namespace"
@@ -452,7 +453,12 @@ def parse_python_source_file(path):
         list[:class:`Module`]: Dequeue any remaining modules and return them.
 
     """
-    contents = open(path, "rU").read()
+    if _PYTHON_2:
+        with open(path, "rU") as handler:
+            contents = handler.read()
+    else:
+        with open(path, "r", newline="\n") as handler:
+            contents = handler.read()
 
     return parse_python_source_code(contents)
 
