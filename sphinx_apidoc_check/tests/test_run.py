@@ -259,7 +259,7 @@ class Integrations(common.Common):
                 file_2=os.path.join(output, "some_package.rst"),
                 file_3=os.path.join(output, "some_package.something_inside.rst"),
             ),
-            stdout,
+            stdout.decode("utf-8"),
         )
 
     def test_more_arguments(self):
@@ -290,7 +290,7 @@ class Integrations(common.Common):
                     output, "some_package.something_inside.some_module.rst"
                 ),
             ),
-            stdout,
+            stdout.decode("utf-8"),
         )
 
     def test_temporary_cd(self):
@@ -318,10 +318,10 @@ class Integrations(common.Common):
         expected_error = (
             'Command "python --dry-run" is not a valid call to ``sphinx-apidoc``. '
             "Here's the full error message "
-            '"sphinx-apidoc: error: argument -o/--output-dir is required".\n'
+            '"sphinx-apidoc: '
         )
 
-        self.assertEqual(expected_error, stderr)
+        self.assertIn(expected_error, stderr.decode("utf-8"))
         self.assertEqual(current_directory, os.getcwd())
 
 

@@ -17,8 +17,8 @@ help = [
 ]
 
 requires = [
-    "Sphinx-1+<2",
-    "python-2+",
+    "Sphinx-1+<4",
+    "python-2.7+<3.8",
     "rez_python_compatibility-2+<3",
 ]
 
@@ -57,7 +57,14 @@ tests = {
         "command": "pylint --disable=bad-continuation python/sphinx_apidoc_check tests",
         "requires": ["pylint-1.9+<2"],
     },
-    "unittest": "python -m unittest discover",
+    "unittest_python_2": {
+        "command": "python -m unittest discover",
+        "requires": ["python-2.7"],
+    },
+    "unittest_python_3": {
+        "command": "python -m unittest discover",
+        "requires": ["python-3+"],
+    },
     "rez_lint": {
         "command": "rez_lint",
         "requires": [
