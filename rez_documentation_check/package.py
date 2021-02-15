@@ -14,6 +14,7 @@ help = [
 
 requires = [
     "parso-0.5+<1",
+    "python-2.7+<3.8",
     "rez-2.47+<3",
     "rez_python_compatibility-2+<3",
     "rez_utilities-2+<3",
@@ -21,8 +22,6 @@ requires = [
 ]
 
 private_build_requires = ["rez_build_helper-1.1+<2"]
-
-variants = [["python-2.7"]]
 
 build_command = "python -m rez_build_helper --items bin python"
 
@@ -84,12 +83,13 @@ tests = {
         "command": "rez-package-check",
         "requires": ["rez_package_check-1+<2"],
     },
-    "unittest": {
+    "unittest_python_2": {
         "command": "python -m unittest discover",
-        "requires": [
-            "mock-3+<4",
-            "wurlitzer-2+<3",
-        ],
+        "requires": ["mock-3+<4", "python-2.7", "wurlitzer-2+<3"],
+    },
+    "unittest_python_3": {
+        "command": "python -m unittest discover",
+        "requires": ["python-3+", "wurlitzer-2+<3"],
     }
 }
 

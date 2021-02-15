@@ -3,6 +3,7 @@
 
 """A series of tests for modifying a Rez package's conf.py file."""
 
+import sys
 import tempfile
 import textwrap
 
@@ -10,6 +11,9 @@ from python_compatibility.sphinx import exceptions
 from rez_documentation_check.core import sphinx_helper
 
 from . import common
+
+
+_PYTHON_2 = sys.version_info.major == 2
 
 
 class _Tester(common.Common):
@@ -46,9 +50,16 @@ class Append(_Tester):
         """Add an intersphinx mapping if the conf.py is empty."""
         code = ""
         links = {"some_package": ("https://google.com", None)}
-        expected = (
-            "intersphinx_mapping = {   'some_package': ('https://google.com', None)}\n"
-        )
+
+        if _PYTHON_2:
+            expected = (
+                "intersphinx_mapping = {   'some_package': ('https://google.com', None)}\n"
+            )
+        else:
+            expected = (
+                "intersphinx_mapping = {'some_package': ('https://google.com', None)}\n"
+            )
+
         self._test(expected, links, code)
 
     def test_missing(self):
@@ -60,14 +71,25 @@ class Append(_Tester):
             release = version = '1.0.0'"""
         )
         links = {"some_package": ("https://google.com", None)}
-        expected = textwrap.dedent(
-            """\
-            project = "foo"
+        if _PYTHON_2:
+            expected = textwrap.dedent(
+                """\
+                project = "foo"
 
-            release = version = '1.0.0'
-            intersphinx_mapping = {   'some_package': ('https://google.com', None)}
-            """
-        )
+                release = version = '1.0.0'
+                intersphinx_mapping = {   'some_package': ('https://google.com', None)}
+                """
+            )
+        else:
+            expected = textwrap.dedent(
+                """\
+                project = "foo"
+
+                release = version = '1.0.0'
+                intersphinx_mapping = {'some_package': ('https://google.com', None)}
+                """
+            )
+
         self._test(expected, links, code)
 
 

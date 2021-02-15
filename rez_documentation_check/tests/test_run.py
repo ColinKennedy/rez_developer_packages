@@ -152,7 +152,7 @@ class Integration(common.Common):
             """
         )
 
-        self.assertTrue(expected in stdout)
+        self.assertTrue(expected in stdout.decode("utf-8"))
 
 
 class Cases(common.Common):
@@ -412,7 +412,7 @@ class InputIssues(common.Common):
             "of a Rez package version. Please CD into a Rez package and try again."
         ).format(root=root)
 
-        self.assertEqual(expected, stderr.rstrip())
+        self.assertEqual(expected, stderr.rstrip().decode("utf-8"))
 
 
 class Others(common.Common):
@@ -668,7 +668,10 @@ def _make_temporary_build(package):
 
     _LOGGER.debug('Building to "%s" path.', install_path)
 
-    with wurlitzer.pipes():
+    with wurlitzer.pipes() as (stdout, stderr):
         builder.build(clean=True, install=True, install_path=install_path)
+
+    stdout.close()
+    stderr.close()
 
     return install_path
