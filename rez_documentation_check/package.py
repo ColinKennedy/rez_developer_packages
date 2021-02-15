@@ -79,10 +79,6 @@ tests = {
         "command": "pylint --disable=bad-continuation python/rez_documentation_check tests",
         "requires": ["pylint-1.9+<2"],
     },
-    "package_check": {
-        "command": "rez-package-check",
-        "requires": ["rez_package_check-1+<2"],
-    },
     "unittest_python_2": {
         "command": "python -m unittest discover",
         "requires": ["mock-3+<4", "python-2.7", "wurlitzer-2+<3"],
