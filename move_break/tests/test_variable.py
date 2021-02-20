@@ -1,0 +1,126 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import textwrap
+
+from . import common
+
+
+class Replace(common.Common):
+    def test_inner(self):
+        """Replace an import and its function caller names."""
+        code = textwrap.dedent(
+            """\
+            import something
+
+            something.blah
+            something.inner_function()
+            """
+        )
+        namespaces = [
+            ("something.blah", "another.blah"),
+            ("something.inner_function", "another.get_foo"),
+        ]
+        expected = textwrap.dedent(
+            """\
+            import another
+
+            another.blah
+            another.get_foo()
+            """
+        )
+
+        self._test(expected, code, namespaces)
+
+    def test_module(self):
+        """Replace a basic, minimum import and a name reference."""
+        code = textwrap.dedent(
+            """\
+            import something
+
+            something.blah
+            something.another()
+            """
+        )
+        namespaces = [
+            ("something.blah", "another.blah"),
+            ("something.another", "another.another"),
+        ]
+        expected = textwrap.dedent(
+            """\
+            import another
+
+            another.blah
+            another.another()
+            """
+        )
+
+        self._test(expected, code, namespaces)
+
+    def test_nested_caller(self):
+        """Replace an import and names within a nested expression."""
+        code = textwrap.dedent(
+            """\
+            import something
+
+            blah.blah(inner[something.inner_function()])
+            a_module.SomeClass.class_method(
+                thing,
+                another,
+                something.blah,
+            )
+            """
+        )
+        namespaces = [
+            ("something.blah", "another2.blah"),
+            ("something.inner_function", "another2.get_inner"),
+        ]
+        expected = textwrap.dedent(
+            """\
+            import another2
+
+            blah.blah(inner[another2.get_inner()])
+            a_module.SomeClass.class_method(
+                thing,
+                another,
+                another2.blah,
+            )
+            """
+        )
+
+        self._test(expected, code, namespaces)
+
+    def test_nested_dots(self):
+        """Don't replace code if it is nested under a different parent namespace."""
+        code = textwrap.dedent(
+            """\
+            import something
+
+            blah.blah.something.inner_function()
+            thing.another.something.blah
+            thing.another.something.blah(
+                thing,
+                another,
+                something.blah[1 + index],
+            )
+            """
+        )
+        namespaces = [
+            ("something.blah", "another2.blah"),
+            ("something.inner_function", "another2.get_inner"),
+        ]
+        expected = textwrap.dedent(
+            """\
+            import another2
+
+            blah.blah.something.inner_function()
+            thing.another.something.blah
+            thing.another.something.blah(
+                thing,
+                another,
+                another2.blah[1 + index],
+            )
+            """
+        )
+
+        self._test(expected, code, namespaces)
