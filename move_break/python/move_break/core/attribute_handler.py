@@ -61,15 +61,7 @@ def _make_import_node(namespace):
     )
 
 
-def _get_inner_python_node(namespace, node):
-    # for child in itertools.chain(node_seek.iter_nested_children(node), [node]):
-    #     if not isinstance(child, tree.PythonNode):
-    #         continue
-    #
-    #     if child.get_code().strip().startswith(namespace):
-    #         return child
-    #
-    # return None
+def _get_inner_python_node(node):
     previous = node
 
     while True:
