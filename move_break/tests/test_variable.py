@@ -8,6 +8,68 @@ from . import common
 
 # TODO : A nested index , dict, etc thing
 class Imports(common.Common):
+    def test_bracket_expressions_001(self):
+        """Replace name references within []s and {}s."""
+        code = textwrap.dedent(
+            """\
+            from more import things
+            import something
+
+            something.inner.key_1 = {
+                "asdfasdf": more.things.here(something.key_1),
+            }
+            """
+        )
+
+        namespaces = [
+            ("import:more.things", "import:newer_place.bar"),
+            ("import:something", "import:another"),
+        ]
+
+        expected = textwrap.dedent(
+            """\
+            from newer_place import bar
+            import another
+
+            another.inner.key_1 = {
+                "asdfasdf": bar.here(something.key_1),
+            }
+            """
+        )
+
+        self._test(expected, code, namespaces, partial=True)
+
+    def test_bracket_expressions_002(self):
+        """Replace name references within []s and {}s."""
+        code = textwrap.dedent(
+            """\
+            from more import things
+            import something
+
+            something.key_1 = {
+                "asdfasdf": more.things.here(something.key_1),
+            }
+            """
+        )
+
+        namespaces = [
+            ("import:more.things", "import:newer_place.bar"),
+            ("import:something", "import:another"),
+        ]
+
+        expected = textwrap.dedent(
+            """\
+            from newer_place import bar
+            import another
+
+            another.key_1 = {
+                "asdfasdf": bar.here(something.key_1),
+            }
+            """
+        )
+
+        self._test(expected, code, namespaces, partial=True)
+
     def test_complex(self):
         """Replace name references inside nested Python syntax."""
         code = textwrap.dedent(
@@ -15,12 +77,12 @@ class Imports(common.Common):
             something.key_1 = {
                 "asdfasdf": (
                             ['blah.blah', more.things.here(
-                                    something.key_1
+                                    something.key_1,
                             ),
 
                             {
-                                something.key_3: 8 + "expression" + third_party.MyKlass() \
-                                    more.things.inner
+                                something.key_3: 8 + "expression" + third_party.MyKlass() + \
+                                    more.things.inner['blah':'fizz']
                             }
                         ]
                 ),
@@ -29,12 +91,34 @@ class Imports(common.Common):
         )
 
         namespaces = [
-            ("more.things", "newer_place"),
+            ("import:more.things", "import:newer_place"),
+            ("import:something", "import:another"),
+            ("import:third_party", "import:new_zone.core"),
             ("more.things.inner", "somewhere_else.blah"),
             ("something.key_1", "another.key_x"),
             ("something.key_3", "zzz"),
             ("third_party.MyKlass", "new_zone.core.MyClass"),
         ]
+
+        expected = textwrap.dedent(
+            """\
+            import newer_place
+
+            another.key_x = {
+                "asdfasdf": (
+                            ['blah.blah', newer_place.here(
+                                    another.key_x,
+                            ),
+
+                            {
+                                zzz: 8 + "expression" + new_zone.core.MyClass() + \
+                                    somewhere_else.blah['blah':'fizz']
+                            }
+                        ]
+                ),
+            }
+            """
+        )
 
         self._test(expected, code, namespaces, partial=True)
 

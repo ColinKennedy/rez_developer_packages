@@ -116,6 +116,14 @@ class Imports(common.Common):
         with self.assertRaises(ValueError):
             self._test(expected, code, namespaces)
 
+    def test_expand(self):
+        """Change a `import X` import into `from X import Y`."""
+        expected = "from foo.bar import thing"
+        namespaces = [("foo.bar", "blah")]
+        code = "import blah"
+
+        self._test(expected, code, namespaces, partial=True)
+
     def test_same_namespaces(self):
         """If any old and new namespace pair is the same, then raise an exception."""
         code = ""
@@ -287,6 +295,14 @@ class Imports(common.Common):
 
 class ImportFrom(common.Common):
     """A series of tests for `from X import Y` style imports."""
+
+    def test_collapse(self):
+        """Change a `from X import Y` import into `import X`."""
+        code = "from foo.bar import thing"
+        namespaces = [("foo.bar", "blah")]
+        expected = "import blah"
+
+        self._test(expected, code, namespaces, partial=True)
 
     def test_from_001(self):
         """Replace a from import with a different nested namespace."""
