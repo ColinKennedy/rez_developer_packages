@@ -31,9 +31,13 @@ class Invalids(common.Common):
             '--deprecate="old_dependency_package,old_dependency"',
             '--deprecate="some_another_package,another_thing"',
             '--package-directory="{directory}"'.format(directory=directory),
+            "--no-bump",
+            "--force-requirements-bump",
+
         ]
 
-        cli.main(command)
+        with self.assertRaises(exception.InvalidInput):
+            cli.main(command)
 
     def test_no_deprecate(self):
         """Don't run the command if the user doesn't provide at least one package to replace."""
