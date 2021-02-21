@@ -24,14 +24,21 @@ build_command = "python -m rez_build_helper --items python"
 
 tests = {
     "black_diff": {
-        "command": "rez-env black -- black --diff --check package.py python tests"
+        "command": "black --diff --check package.py python tests",
+        "requires": ["black-19"],
     },
     "black": {
-        "command": "rez-env black -- black package.py python tests",
+        "command": "black package.py python tests",
+        "requires": ["black-19"],
         "run_on": "explicit",
     },
     "coverage": {
-        "command": "coverage erase && coverage run --parallel-mode --include=python/* -m unittest discover && coverage combine --append && coverage html",
+        "command": (
+            "coverage erase "
+            "&& coverage run --parallel-mode --include=python/* -m unittest discover "
+            "&& coverage combine --append "
+            "&& coverage html",
+        ),
         "requires": ["coverage-4+<5"],
         "run_on": "explicit",
     },
