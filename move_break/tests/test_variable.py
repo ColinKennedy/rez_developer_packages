@@ -40,32 +40,6 @@ class Imports(common.Common):
 
         self._test(expected, code, namespaces, partial=True)
 
-    # TODO : Add replace checks for `from imports, too`
-    # def test_inner(self):
-    #     """Replace an import and its function caller names."""
-    #     code = textwrap.dedent(
-    #         """\
-    #         import something
-    #
-    #         something.blah
-    #         something.inner_function()
-    #         """
-    #     )
-    #     namespaces = [
-    #         ("something.blah", "another.blah"),
-    #         ("something.inner_function", "another.get_foo"),
-    #     ]
-    #     expected = textwrap.dedent(
-    #         """\
-    #         import another
-    #
-    #         another.blah
-    #         another.get_foo()
-    #         """
-    #     )
-    #
-    #     self._test(expected, code, namespaces, partial=True)
-
     def test_method(self):
         """Replace a name reference within class methods."""
         code = textwrap.dedent(
