@@ -55,7 +55,8 @@ tests = {
         # Need to disable D202 for now, until a new pydocstyle version is released
         # Reference: https://github.com/psf/black/issues/1159
         #
-        "command": "rez-env pydocstyle -- pydocstyle --ignore=D213,D202,D203,D406,D407 python tests/*"
+        "command": "pydocstyle --ignore=D213,D202,D203,D406,D407 python tests/*",
+        "requires": ["pydocstyle-5"],
     },
     "pylint": {
         "command": "pylint --disable=bad-continuation python/rez_bump",
