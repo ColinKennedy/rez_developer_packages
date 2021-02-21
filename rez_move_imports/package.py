@@ -35,6 +35,7 @@ tests = {
     "coverage": {
         "command": "coverage run --parallel-mode --include=python/* -m unittest discover && coverage combine --append && coverage html",
         "requires": ["coverage-5+<6"],
+        "run_on": "explicit",
     },
     "isort": {
         "command": "isort --recursive package.py python tests",

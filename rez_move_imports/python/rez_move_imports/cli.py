@@ -55,6 +55,11 @@ def _parse_arguments(text):
         default=".",
         help="The path (relative to absolute) to the Rez package that will be modified.",
     )
+    parser.add_argument(
+        "--force-requirements-bump",
+        action="store_true",
+        help="When enabled, even if no Python modules have changed, the requirement versions are bumped.",
+    )
 
     return parser.parse_args(text)
 
@@ -215,13 +220,22 @@ def main(text):
         text (list[str]): The raw CLI input, split by spaces.
 
     Raises:
-        ValueError:
+        :class:`.MissingDirectory`:
             If the user provides a directory to find a Rez package but
-            the directory doesn't exist or there isn't a Rez package in
-            the directory.
+            the directory doesn't exist.
+        :class:`.InvalidDirectory`:
+            If the user provides a directory which exists but does not
+            define a Rez package.
+        :class:`.InvalidInput`:
+            Whenever the user provides flags which conflict with one another.
 
     """
     arguments = _parse_arguments(text)
+
+    if arguments.no_bump and arguments.force_requirements_bump:
+        raise exception.InvalidInput(
+            "You cannot specify --no-bump and --force-requirements-bump at the same time."
+        )
 
     requirements = _expand(_clean_items(arguments.requirements))
     deprecate = _expand(_clean_items(arguments.deprecate))
@@ -260,4 +274,5 @@ def main(text):
         deprecate,
         requirements,
         bump=not arguments.no_bump,
+        force_requirements_bump=arguments.force_requirements_bump,
     )

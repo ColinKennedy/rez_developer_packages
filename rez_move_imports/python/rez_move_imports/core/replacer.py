@@ -46,7 +46,7 @@ def _is_package_needed(user_namespaces, all_namespaces):
     return False
 
 
-def _add_new_requirement_packages(package, namespaces, requirements):
+def _add_new_requirement_packages(package, namespaces, requirements, force=False):
     """Add new Rez package requirements to a Rez package, if needed.
 
     If no import statements were changed then this function does
@@ -69,19 +69,33 @@ def _add_new_requirement_packages(package, namespaces, requirements):
             the full `namespaces` then that means that `package` depends
             on the Rez package and so it is added as a dependency to
             `package`.
+        force (bool, optional):
+            If True, change every requirement that already exists in
+            `package` and `requirements`. If False, only change package
+            requirements if `requirements` is in the list of changed
+            `namespaces`. Default is False.
+
+    Returns:
+        bool: If `package` was changed as a result of this function.
 
     """
     packages_to_add = set()
 
-    for package_, package_namespaces in requirements:
-        if not _is_package_needed(tuple(package_namespaces), namespaces):
-            continue
+    if force:
+        existing = set(requirement.name for requirement in package.requires or [])
+        packages_to_add = set(
+            str(package_) for package_, _ in requirements if package_.name in existing
+        )
+    else:
+        for package_, package_namespaces in requirements:
+            if not _is_package_needed(tuple(package_namespaces), namespaces):
+                continue
 
-        packages_to_add.add(str(package_))
+            packages_to_add.add(str(package_))
 
     if not packages_to_add:
         # Nothing to do so exit early.
-        return
+        return False
 
     with open(package.filepath, "r") as handler:
         code = handler.read()
@@ -93,6 +107,8 @@ def _add_new_requirement_packages(package, namespaces, requirements):
     ):
         with serialise.open_file_for_write(package.filepath) as handler:
             handler.write(new_code)
+
+    return True
 
 
 def _remove_deprecated_packages(package, namespaces, deprecate):
@@ -174,7 +190,14 @@ def is_matching_namespace(part, options):
     return False
 
 
-def replace(package, configuration, deprecate, requirements, bump=True):
+def replace(
+    package,
+    configuration,
+    deprecate,
+    requirements,
+    bump=True,
+    force_requirements_bump=False,
+):
     """Replace as many Rez packages listed in `deprecate` with those listed in `requirements`.
 
     These packages get added / removed from `package` and written
@@ -207,6 +230,11 @@ def replace(package, configuration, deprecate, requirements, bump=True):
             increment the minor version of `package` to reflect the new
             changes. If False, don't change the minor version of the Rez
             package even after new changes were made. Default is True.
+        force_requirements_bump (bool, optional):
+            If True, bump each requirement, even if nothing about any
+            Python module has changed on-disk. If False, only bump the
+            Rez package requirement if changes have been made. Default
+            is False.
 
     """
     # Replace Python imports in all of the paths in `configuration`
@@ -219,7 +247,7 @@ def replace(package, configuration, deprecate, requirements, bump=True):
         continue_on_syntax_error=configuration.continue_on_syntax_error,
     )
 
-    if not overwritten_paths:
+    if not overwritten_paths and not force_requirements_bump:
         return
 
     imported_namespaces = dependency_analyzer.get_imported_namespaces(
@@ -228,7 +256,9 @@ def replace(package, configuration, deprecate, requirements, bump=True):
     namespaces = {module.get_namespace() for module in imported_namespaces}
 
     _remove_deprecated_packages(package, namespaces, deprecate)
-    _add_new_requirement_packages(package, namespaces, requirements)
+    changed = _add_new_requirement_packages(
+        package, namespaces, requirements, force=force_requirements_bump,
+    )
 
-    if bump and package.version:
+    if bump and changed and package.version:
         rez_bump_api.bump(package, minor=1, normalize=True)
