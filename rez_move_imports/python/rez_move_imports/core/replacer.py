@@ -190,7 +190,7 @@ def is_matching_namespace(part, options):
     return False
 
 
-def replace(
+def replace(  # pylint: disable=too-many-arguments
     package,
     configuration,
     deprecate,
@@ -230,11 +230,10 @@ def replace(
             increment the minor version of `package` to reflect the new
             changes. If False, don't change the minor version of the Rez
             package even after new changes were made. Default is True.
-        force_requirements_bump (bool, optional):
-            If True, bump each requirement, even if nothing about any
-            Python module has changed on-disk. If False, only bump the
-            Rez package requirement if changes have been made. Default
-            is False.
+        force_requirements_bump (bool, optional): If True, bump each requirement,
+            even if nothing about any Python module has changed on-disk.
+            If False, only bump the Rez package requirement if changes
+            have been made. Default is False.
 
     """
     # Replace Python imports in all of the paths in `configuration`

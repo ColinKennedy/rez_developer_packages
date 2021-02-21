@@ -58,7 +58,8 @@ def _parse_arguments(text):
     parser.add_argument(
         "--force-requirements-bump",
         action="store_true",
-        help="When enabled, even if no Python modules have changed, the requirement versions are bumped.",
+        help="When enabled, even if no Python modules have changed, "
+        "the requirement versions are bumped.",
     )
 
     return parser.parse_args(text)
