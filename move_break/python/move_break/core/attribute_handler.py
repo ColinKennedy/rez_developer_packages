@@ -21,6 +21,17 @@ def _get_module_and_attribute(namespace):
     return "{module}.{name}".format(module=parts[-2], name=parts[-1])
 
 
+def _get_replacement_range(namespace, node):
+    for index in range(1, len(node.children) + 1):
+        copied = copy.deepcopy(node)
+        copied.children[:] = copied.children[:index]
+
+        if copied.get_code().strip() == namespace:
+            return index
+
+    return -1
+
+
 def _make_import_node(namespace):
     if "." not in namespace:
         return tree.PythonNode("simple_stmt", [tree.Import("import {namespace}".format(namespace=namespace))])
@@ -45,35 +56,60 @@ def _make_import_node(namespace):
     )
 
 
+def _get_inner_python_node(node):
+    previous = node
+
+    while True:
+        if not node.children:
+            return previous
+
+        child = node.children[0]
+
+        if not isinstance(child, tree.PythonNode):
+            return previous
+
+        previous = node
+        node = child
+
+    return None
+
+
+def _make_namespace_replacement(old, new, node):
+    node = _get_inner_python_node(node) or node
+    end = _get_replacement_range(old, node.children[0])
+
+    tail = _get_module_and_attribute(new)
+    prefix_node = node_seek.get_node_with_first_prefix(node)
+    children = node.parent.children
+    current = children[children.index(node)]
+
+    ender = _get_ender(current)
+    new_child_contents = [tree.Name(tail, (0, 0), prefix=prefix_node.prefix)]
+
+    if ender:
+        new_child_contents.append(ender)
+
+    node.children[0].children[:end] = [tree.Name(tail, (0, 0), prefix=prefix_node.prefix)]
+    # children[children.index(node)] = tree.PythonNode(
+    #     "simple_stmt",
+    #     new_child_contents,
+    # )
+
+
 def replace(attributes, graph):
     changed = []
 
     for child in node_seek.iter_nested_children(graph):
+        code = child.get_code().strip()
+
         if not isinstance(child, tree.PythonNode):
             continue
 
-        code = child.get_code().strip()
-
         for old, new in attributes:
-            if code != old:
+            if not code.startswith(old):
                 continue
 
-            tail = _get_module_and_attribute(new)
-            prefix_node = node_seek.get_node_with_first_prefix(child)
-            children = child.parent.children
-            current = children[children.index(child)]
-
-            ender = _get_ender(current)
-            new_child_contents = [tree.Name(tail, (0, 0), prefix=prefix_node.prefix)]
-
-            if ender:
-                new_child_contents.append(ender)
-
-            children[children.index(child)] = tree.PythonNode(
-                "simple_stmt",
-                new_child_contents,
-            )
-
+            _make_namespace_replacement(old, new, child)
             changed.append((old, new))
 
             break
