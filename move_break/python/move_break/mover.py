@@ -5,29 +5,43 @@
 
 import itertools
 import logging
+import re
 
 from . import finder
 from .core import attribute_handler, parser
 
+_IMPORT_EXPRESSION = re.compile("^import:(?P<namespace>[\w\.]+)$")
 _LOGGER = logging.getLogger(__name__)
+
+
+def _get_import_match(text):
+    match = _IMPORT_EXPRESSION.match(text)
+
+    if not match:
+        return ""
+
+    return match.group("namespace")
 
 
 def _process_namespaces(namespaces):
     output = []
     explicits = set()
-
-    for old, new in namespaces:
-        if old == new:
-            explicits.add(new)
-
-            continue
-
+    unknowns = set()
     attributes = []
 
     for old, new in namespaces:
-        if new in explicits:
+        old_match = _get_import_match(old)
+        new_match = _get_import_match(new)
+
+        if old_match or new_match:
+            explicits.add(old_match)
+            output.append((old_match, new_match))
+
             continue
 
+        unknowns.add((old, new))
+
+    for old, new in unknowns:
         for explicit in explicits:
             if old.startswith(explicit):
                 attributes.append((old, new))
@@ -129,11 +143,15 @@ def move_imports(  # pylint: disable=too-many-arguments
 
         changed_attributes = []
 
-        if attributes:
-            changed_attributes = attribute_handler.replace(attributes, graph)
+        if partial or attributes:
+            changed_attributes = attribute_handler.replace(
+                attributes,
+                graph,
+                namespaces,
+            )
 
         if changed_attributes:
-            attribute_handler.add_imports([new for _, new in changed_attributes], graph, existing=new_imports)
+            attribute_handler.add_imports([new for _, new in changed_attributes], graph)
 
             changed = True
 

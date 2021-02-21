@@ -52,7 +52,7 @@ class Imports(common.Common):
             """
         )
         namespaces = [
-            ("something", "something"),
+            ("import:something", "import:something"),
             ("something.blah", "thing.another.blah"),
             ("something.another", "thing.another.another"),
         ]
@@ -88,7 +88,7 @@ class Imports(common.Common):
             """
         )
         namespaces = [
-            ("something", "something"),
+            ("import:something", "import:something"),
             ("something.blah", "thing.another.blah"),
             ("something.another", "thing.another.another"),
         ]
@@ -121,7 +121,7 @@ class Imports(common.Common):
             """
         )
         namespaces = [
-            ("something", "something"),
+            ("import:something", "import:something"),
             ("something.blah", "thing.another.blah"),
             ("something.another", "thing.another.another"),
         ]
@@ -152,7 +152,7 @@ class Imports(common.Common):
             """
         )
         namespaces = [
-            ("something", "something"),
+            ("import:something", "import:something"),
             ("something.blah", "another2.blah"),
             ("something.inner_function", "another2.get_inner"),
         ]
@@ -188,7 +188,7 @@ class Imports(common.Common):
             """
         )
         namespaces = [
-            ("something", "something"),
+            ("import:something", "import:something"),
             ("something.blah", "another2.blah"),
             ("something.inner_function", "another2.get_inner"),
         ]

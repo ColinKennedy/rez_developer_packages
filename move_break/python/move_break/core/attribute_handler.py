@@ -77,7 +77,7 @@ def _get_inner_python_node(node):
             if not isinstance(child, tree.Newline):
                 break
 
-        if not isinstance(child, tree.PythonNode):
+        if not isinstance(child, (tree.PythonNode, tree.ExprStmt)):
             return node
 
         previous = node
@@ -86,8 +86,8 @@ def _get_inner_python_node(node):
     return None
 
 
-def _make_namespace_replacement(old, new, node):
-    node = _get_inner_python_node(old, node) or node
+def _make_attribute_replacement(old, new, node):
+    node = _get_inner_python_node(node) or node
     end = _get_replacement_range(old, node)
 
     tail = _get_module_and_attribute(new)
@@ -104,8 +104,61 @@ def _make_namespace_replacement(old, new, node):
     node.children[:end] = [tree.Name(tail, (0, 0), prefix=prefix_node.prefix)]
 
 
-def replace(attributes, graph):
+def _make_namespace_replacement(old, new, node):
+    names = []
+
+    for child in node_seek.iter_nested_children(node):
+        if isinstance(child, tree.Name):
+            names.append(child)
+
+    found_namespace = ".".join(name.value for name in names)
+
+    if found_namespace == old:
+        replaced_namespace = new
+    else:
+        replaced_namespace = new + "." + found_namespace[len(old) + 1:]  # `+ 1` removes a trailing "."
+
+    parts = replaced_namespace.split(".")
+    beginning = parts[0]
+    endings = parts[1:]
+
+    prefix_node = node_seek.get_node_with_first_prefix(node)
+
+    replacement = tree.PythonNode(
+        "power",
+        [tree.Name(beginning, (0, 0), prefix=prefix_node.prefix)]
+        + [
+            tree.PythonNode(
+                "trailer",
+                [tree.Operator(".", (0, 0)), tree.Name(value, (0, 0))],
+            )
+            for value in endings
+        ],
+    )
+
+    node.parent.children[node.parent.children.index(node)] = replacement
+
+
+def replace(attributes, graph, namespaces=tuple()):
     changed = []
+
+    # TODO : Consider merging these for-loops into a single for-loop
+    for child in node_seek.iter_nested_children(graph):
+        code = child.get_code().strip()
+
+        if not isinstance(child, tree.PythonNode):
+            continue
+
+        node = _get_inner_python_node(child) or child
+
+        for old, new in attributes:
+            if not code.startswith(old):
+                continue
+
+            _make_attribute_replacement(old, new, node)
+            changed.append((old, new))
+
+            break
 
     for child in node_seek.iter_nested_children(graph):
         code = child.get_code().strip()
@@ -113,11 +166,13 @@ def replace(attributes, graph):
         if not isinstance(child, tree.PythonNode):
             continue
 
-        for old, new in attributes:
+        node = _get_inner_python_node(child) or child
+
+        for old, new in namespaces:
             if not code.startswith(old):
                 continue
 
-            _make_namespace_replacement(old, new, child)
+            _make_namespace_replacement(old, new, node)
             changed.append((old, new))
 
             break
@@ -129,7 +184,10 @@ def add_imports(namespaces, graph, existing=tuple()):
     imports = set(namespace for import_ in existing for namespace in import_.get_node_namespaces())
 
     for namespace in namespaces:
-        module_namespace, _ = namespace.rsplit(".", 1)
+        module_namespace = namespace
+
+        if "." in namespace:
+            module_namespace, _ = namespace.rsplit(".", 1)
 
         if module_namespace not in imports:
             node = _make_import_node(module_namespace)
