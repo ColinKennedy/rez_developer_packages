@@ -6,7 +6,38 @@ import textwrap
 from . import common
 
 
+# TODO : A nested index , dict, etc thing
 class Imports(common.Common):
+    def test_complex(self):
+        """Replace name references inside nested Python syntax."""
+        code = textwrap.dedent(
+            """\
+            something.key_1 = {
+                "asdfasdf": (
+                            ['blah.blah', more.things.here(
+                                    something.key_1
+                            ),
+
+                            {
+                                something.key_3: 8 + "expression" + third_party.MyKlass() \
+                                    more.things.inner
+                            }
+                        ]
+                ),
+            }
+            """
+        )
+
+        namespaces = [
+            ("more.things", "newer_place"),
+            ("more.things.inner", "somewhere_else.blah"),
+            ("something.key_1", "another.key_x"),
+            ("something.key_3", "zzz"),
+            ("third_party.MyKlass", "new_zone.core.MyClass"),
+        ]
+
+        self._test(expected, code, namespaces, partial=True)
+
     def test_function(self):
         """Replace a name reference within functions."""
         code = textwrap.dedent(

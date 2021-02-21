@@ -62,36 +62,36 @@ def _make_import_node(namespace):
 
 
 def _get_inner_python_node(namespace, node):
-    for child in itertools.chain(node_seek.iter_nested_children(node), [node]):
-        if not isinstance(child, tree.PythonNode):
-            continue
-
-        if child.get_code().strip().startswith(namespace):
-            return child
-
-    return None
-    # previous = node
-    #
-    # while True:
-    #     if not node.children:
-    #         return previous
-    #
-    #     child = node.children[0]
-    #
-    #     # Get the first non-whitespace related child
-    #     for index in range(len(node.children)):
-    #         child = node.children[index]
-    #
-    #         if not isinstance(child, tree.Newline):
-    #             break
-    #
+    # for child in itertools.chain(node_seek.iter_nested_children(node), [node]):
     #     if not isinstance(child, tree.PythonNode):
-    #         return node
+    #         continue
     #
-    #     previous = node
-    #     node = child
+    #     if child.get_code().strip().startswith(namespace):
+    #         return child
     #
     # return None
+    previous = node
+
+    while True:
+        if not node.children:
+            return previous
+
+        child = node.children[0]
+
+        # Get the first non-whitespace related child
+        for index in range(len(node.children)):
+            child = node.children[index]
+
+            if not isinstance(child, tree.Newline):
+                break
+
+        if not isinstance(child, tree.PythonNode):
+            return node
+
+        previous = node
+        node = child
+
+    return None
 
 
 def _make_namespace_replacement(old, new, node):
