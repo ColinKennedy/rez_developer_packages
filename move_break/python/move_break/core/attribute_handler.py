@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import copy
+import itertools
 
 from parso_helper import node_seek
 from parso.python import tree
@@ -34,7 +35,12 @@ def _get_replacement_range(namespace, node):
 
 def _make_import_node(namespace):
     if "." not in namespace:
-        return tree.PythonNode("simple_stmt", [tree.Import("import {namespace}".format(namespace=namespace))])
+        return tree.ImportName(
+            [
+                tree.Keyword("import", (0, 0)),
+                tree.Name(namespace, (0, 0), prefix=" "),
+            ],
+        )
 
     base, tail = namespace.rsplit(".", 1)
     base_nodes = [tree.Name(part, (0, 0)) for part in base.split(".")]
@@ -51,38 +57,45 @@ def _make_import_node(namespace):
             tree.PythonNode("dotted_name", base_nodes),
             tree.Keyword("import", (0, 0), prefix=" "),
             tree.Name(tail, (0, 0), prefix=" "),
-            tree.Newline("\n", (0, 0)),
         ],
     )
 
 
-def _get_inner_python_node(node):
-    previous = node
-
-    while True:
-        if not node.children:
-            return previous
-
-        child = node.children[0]
-
-        # Get the first non-whitespace related child
-        for index in range(len(node.children)):
-            child = node.children[index]
-
-            if not isinstance(child, tree.Newline):
-                break
-
+def _get_inner_python_node(namespace, node):
+    for child in itertools.chain(node_seek.iter_nested_children(node), [node]):
         if not isinstance(child, tree.PythonNode):
-            return node
+            continue
 
-        previous = node
-        node = child
+        if child.get_code().strip().startswith(namespace):
+            return child
 
     return None
+    # previous = node
+    #
+    # while True:
+    #     if not node.children:
+    #         return previous
+    #
+    #     child = node.children[0]
+    #
+    #     # Get the first non-whitespace related child
+    #     for index in range(len(node.children)):
+    #         child = node.children[index]
+    #
+    #         if not isinstance(child, tree.Newline):
+    #             break
+    #
+    #     if not isinstance(child, tree.PythonNode):
+    #         return node
+    #
+    #     previous = node
+    #     node = child
+    #
+    # return None
 
 
 def _make_namespace_replacement(old, new, node):
-    node = _get_inner_python_node(node) or node
+    node = _get_inner_python_node(old, node) or node
     end = _get_replacement_range(old, node)
 
     tail = _get_module_and_attribute(new)
@@ -97,10 +110,6 @@ def _make_namespace_replacement(old, new, node):
         new_child_contents.append(ender)
 
     node.children[:end] = [tree.Name(tail, (0, 0), prefix=prefix_node.prefix)]
-    # children[children.index(node)] = tree.PythonNode(
-    #     "simple_stmt",
-    #     new_child_contents,
-    # )
 
 
 def replace(attributes, graph):
@@ -133,6 +142,7 @@ def add_imports(namespaces, graph, existing=tuple()):
         if module_namespace not in imports:
             node = _make_import_node(module_namespace)
             imports.add(module_namespace)
+            graph.children.insert(0, tree.Newline("\n", (0, 0)))
             graph.children.insert(0, node)
 
             break

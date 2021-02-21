@@ -127,7 +127,10 @@ def move_imports(  # pylint: disable=too-many-arguments
             graph, partial=partial, namespaces=namespaces, aliases=aliases
         )
 
-        changed_attributes = attribute_handler.replace(attributes, graph)
+        changed_attributes = []
+
+        if attributes:
+            changed_attributes = attribute_handler.replace(attributes, graph)
 
         if changed_attributes:
             attribute_handler.add_imports([new for _, new in changed_attributes], graph, existing=new_imports)

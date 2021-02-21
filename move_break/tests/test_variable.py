@@ -133,39 +133,41 @@ class Imports(common.Common):
         self._test(expected, code, namespaces, partial=True)
 
     # TODO : Add nested checks (check within function, within class, nested, etc
-    # def test_nested_caller(self):
-    #     """Replace an import and names within a nested expression."""
-    #     code = textwrap.dedent(
-    #         """\
-    #         import something
-    #
-    #         blah.blah(inner[something.inner_function()])
-    #         a_module.SomeClass.class_method(
-    #             thing,
-    #             another,
-    #             something.blah,
-    #         )
-    #         """
-    #     )
-    #     namespaces = [
-    #         ("something.blah", "another2.blah"),
-    #         ("something.inner_function", "another2.get_inner"),
-    #     ]
-    #     expected = textwrap.dedent(
-    #         """\
-    #         import another2
-    #
-    #         blah.blah(inner[another2.get_inner()])
-    #         a_module.SomeClass.class_method(
-    #             thing,
-    #             another,
-    #             another2.blah,
-    #         )
-    #         """
-    #     )
-    #
-    #     self._test(expected, code, namespaces)
-    #
+    def test_nested_caller(self):
+        """Replace an import and names within a nested expression."""
+        code = textwrap.dedent(
+            """\
+            import something
+
+            blah.blah(inner[something.inner_function()])
+            a_module.SomeClass.class_method(
+                thing,
+                another,
+                something.blah,
+            )
+            """
+        )
+        namespaces = [
+            ("something", "something"),
+            ("something.blah", "another2.blah"),
+            ("something.inner_function", "another2.get_inner"),
+        ]
+        expected = textwrap.dedent(
+            """\
+            import another2
+            import something
+
+            blah.blah(inner[another2.get_inner()])
+            a_module.SomeClass.class_method(
+                thing,
+                another,
+                another2.blah,
+            )
+            """
+        )
+
+        self._test(expected, code, namespaces, partial=True)
+
     # def test_nested_dots(self):
     #     """Don't replace code if it is nested under a different parent namespace."""
     #     code = textwrap.dedent(
