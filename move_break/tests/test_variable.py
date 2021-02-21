@@ -132,7 +132,6 @@ class Imports(common.Common):
 
         self._test(expected, code, namespaces, partial=True)
 
-    # TODO : Add nested checks (check within function, within class, nested, etc
     def test_nested_caller(self):
         """Replace an import and names within a nested expression."""
         code = textwrap.dedent(
@@ -168,37 +167,39 @@ class Imports(common.Common):
 
         self._test(expected, code, namespaces, partial=True)
 
-    # def test_nested_dots(self):
-    #     """Don't replace code if it is nested under a different parent namespace."""
-    #     code = textwrap.dedent(
-    #         """\
-    #         import something
-    #
-    #         blah.blah.something.inner_function()
-    #         thing.another.something.blah
-    #         thing.another.something.blah(
-    #             thing,
-    #             another,
-    #             something.blah[1 + index],
-    #         )
-    #         """
-    #     )
-    #     namespaces = [
-    #         ("something.blah", "another2.blah"),
-    #         ("something.inner_function", "another2.get_inner"),
-    #     ]
-    #     expected = textwrap.dedent(
-    #         """\
-    #         import another2
-    #
-    #         blah.blah.something.inner_function()
-    #         thing.another.something.blah
-    #         thing.another.something.blah(
-    #             thing,
-    #             another,
-    #             another2.blah[1 + index],
-    #         )
-    #         """
-    #     )
-    #
-    #     self._test(expected, code, namespaces)
+    def test_nested_dots(self):
+        """Don't replace code if it is nested under a different parent namespace."""
+        code = textwrap.dedent(
+            """\
+            import something
+
+            blah.blah.something.inner_function()
+            thing.another.something.blah
+            thing.another.something.blah(
+                thing,
+                another,
+                something.blah[1 + index],
+            )
+            """
+        )
+        namespaces = [
+            ("something", "something"),
+            ("something.blah", "another2.blah"),
+            ("something.inner_function", "another2.get_inner"),
+        ]
+        expected = textwrap.dedent(
+            """\
+            import another2
+            import something
+
+            blah.blah.something.inner_function()
+            thing.another.something.blah
+            thing.another.something.blah(
+                thing,
+                another,
+                another2.blah[1 + index],
+            )
+            """
+        )
+
+        self._test(expected, code, namespaces, partial=True)
