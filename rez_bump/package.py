@@ -37,7 +37,7 @@ tests = {
             "coverage erase "
             "&& coverage run --parallel-mode --include=python/* -m unittest discover "
             "&& coverage combine --append "
-            "&& coverage html",
+            "&& coverage html"
         ),
         "requires": ["coverage-4+<5"],
         "run_on": "explicit",
