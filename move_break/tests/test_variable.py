@@ -7,6 +7,39 @@ from . import common
 
 
 class Imports(common.Common):
+    def test_function(self):
+        """Replace a name reference within functions."""
+        code = textwrap.dedent(
+            """\
+            import something
+
+            def foo():
+                def bar():
+
+                    something.blah
+                    something.another()
+            """
+        )
+        namespaces = [
+            ("something", "something"),
+            ("something.blah", "thing.another.blah"),
+            ("something.another", "thing.another.another"),
+        ]
+        expected = textwrap.dedent(
+            """\
+            from thing import another
+            import something
+
+            def foo():
+                def bar():
+
+                    another.blah
+                    another.another()
+            """
+        )
+
+        self._test(expected, code, namespaces, partial=True)
+
     # TODO : Add replace checks for `from imports, too`
     # def test_inner(self):
     #     """Replace an import and its function caller names."""

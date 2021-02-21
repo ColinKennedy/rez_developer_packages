@@ -65,6 +65,13 @@ def _get_inner_python_node(node):
 
         child = node.children[0]
 
+        # Get the first non-whitespace related child
+        for index in range(len(node.children)):
+            child = node.children[index]
+
+            if not isinstance(child, tree.Newline):
+                break
+
         if not isinstance(child, tree.PythonNode):
             return previous
 
