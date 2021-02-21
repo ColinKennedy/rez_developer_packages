@@ -33,7 +33,6 @@ class Invalids(common.Common):
             '--package-directory="{directory}"'.format(directory=directory),
             "--no-bump",
             "--force-requirements-bump",
-
         ]
 
         with self.assertRaises(exception.InvalidInput):
