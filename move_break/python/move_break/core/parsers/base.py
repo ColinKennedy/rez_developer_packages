@@ -108,6 +108,19 @@ class BaseAdapter(object):
         """str: An identifier used to categorize instances of this class."""
         return ""
 
+    def get_node_namespaces(self):
+        """Get all defined namespaces from the given adapter node.
+
+        Args:
+            adapter (:class:`BaseAdapter`):
+                An object that defines at least one namespace of a Python import.
+
+        Returns:
+            set[str]: Dot-separated namespaces such as {"foo.bar.bazz"}.
+
+        """
+        return self._get_namespaces(self._node)
+
     def replace(self, old, new):
         """Change `node` from `old` to `new`.
 
@@ -153,17 +166,3 @@ class BaseAdapter(object):
             for namespace_ in namespaces
             if namespace_.startswith(namespace + ".")
         )
-
-
-def get_namespaces(adapter):
-    """Get all defined namespaces from the given adapter node.
-
-    Args:
-        adapter (:class:`BaseAdapter`):
-            An object that defines at least one namespace of a Python import.
-
-    Returns:
-        set[str]: Dot-separated namespaces such as {"foo.bar.bazz"}.
-
-    """
-    return adapter._get_namespaces(adapter._node)  # pylint: disable=protected-access

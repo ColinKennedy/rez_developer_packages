@@ -14,7 +14,6 @@ import os
 import parso
 
 from .core import parser
-from .core.parsers import base
 
 _ALLOWED_ERROR_CODES = (
     903,  # IndentationError << This package can handle indentation issues, no problem
@@ -85,7 +84,7 @@ def get_namespaces(path):
     imports = parser.get_imports(graph, partial=True)
 
     return {
-        namespace for adapter in imports for namespace in base.get_namespaces(adapter)
+        namespace for adapter in imports for namespace in adapter.get_node_namespaces()
     }
 
 

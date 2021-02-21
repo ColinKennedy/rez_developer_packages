@@ -7,9 +7,36 @@ import itertools
 import logging
 
 from . import finder
-from .core import parser
+from .core import attribute_handler, parser
 
 _LOGGER = logging.getLogger(__name__)
+
+
+def _process_namespaces(namespaces):
+    output = []
+    explicits = set()
+
+    for old, new in namespaces:
+        if old == new:
+            explicits.add(new)
+
+            continue
+
+    attributes = []
+
+    for old, new in namespaces:
+        if new in explicits:
+            continue
+
+        for explicit in explicits:
+            if old.startswith(explicit):
+                attributes.append((old, new))
+
+                break
+        else:
+            output.append((old, new))
+
+    return output, attributes
 
 
 def move_imports(  # pylint: disable=too-many-arguments
@@ -69,11 +96,7 @@ def move_imports(  # pylint: disable=too-many-arguments
     if not namespaces:
         raise ValueError("Namespaces cannot be empty.")
 
-    for old, new in namespaces:
-        if old == new:
-            raise ValueError(
-                'Pair "{old}/{new}" cannot be the same.'.format(old=old, new=new)
-            )
+    namespaces, attributes = _process_namespaces(namespaces)
 
     for path in files:
         changed = False
@@ -99,6 +122,17 @@ def move_imports(  # pylint: disable=too-many-arguments
             if old in statement:
                 statement.replace(old, new)
                 changed = True
+
+        new_imports = parser.get_imports(
+            graph, partial=partial, namespaces=namespaces, aliases=aliases
+        )
+
+        changed_attributes = attribute_handler.replace(attributes, graph)
+
+        if changed_attributes:
+            attribute_handler.add_imports([new for _, new in changed_attributes], graph, existing=new_imports)
+
+            changed = True
 
         if changed:
             with open(path, "w") as handler:
