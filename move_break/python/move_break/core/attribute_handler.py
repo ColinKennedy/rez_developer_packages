@@ -73,7 +73,7 @@ def _get_inner_python_node(node):
                 break
 
         if not isinstance(child, tree.PythonNode):
-            return previous
+            return node
 
         previous = node
         node = child
@@ -83,7 +83,7 @@ def _get_inner_python_node(node):
 
 def _make_namespace_replacement(old, new, node):
     node = _get_inner_python_node(node) or node
-    end = _get_replacement_range(old, node.children[0])
+    end = _get_replacement_range(old, node)
 
     tail = _get_module_and_attribute(new)
     prefix_node = node_seek.get_node_with_first_prefix(node)
@@ -96,7 +96,7 @@ def _make_namespace_replacement(old, new, node):
     if ender:
         new_child_contents.append(ender)
 
-    node.children[0].children[:end] = [tree.Name(tail, (0, 0), prefix=prefix_node.prefix)]
+    node.children[:end] = [tree.Name(tail, (0, 0), prefix=prefix_node.prefix)]
     # children[children.index(node)] = tree.PythonNode(
     #     "simple_stmt",
     #     new_child_contents,

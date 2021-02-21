@@ -66,6 +66,45 @@ class Imports(common.Common):
     #
     #     self._test(expected, code, namespaces, partial=True)
 
+    def test_method(self):
+        """Replace a name reference within class methods."""
+        code = textwrap.dedent(
+            """\
+            import something
+
+            def foo():
+
+                class Inner(object):
+
+                    thing = something.blah
+
+                    def _something(self):
+                        something.another()
+            """
+        )
+        namespaces = [
+            ("something", "something"),
+            ("something.blah", "thing.another.blah"),
+            ("something.another", "thing.another.another"),
+        ]
+        expected = textwrap.dedent(
+            """\
+            from thing import another
+            import something
+
+            def foo():
+
+                class Inner(object):
+
+                    thing = another.blah
+
+                    def _something(self):
+                        another.another()
+            """
+        )
+
+        self._test(expected, code, namespaces, partial=True)
+
     def test_module_001(self):
         """Replace a basic, minimum import and a name reference."""
         code = textwrap.dedent(
