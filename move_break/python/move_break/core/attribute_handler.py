@@ -2,10 +2,11 @@
 # -*- coding: utf-8 -*-
 
 import copy
-import itertools
 
 from parso_helper import node_seek
 from parso.python import tree
+
+from . import creator
 
 
 def _get_ender(node):
@@ -35,31 +36,11 @@ def _get_replacement_range(namespace, node):
 
 def _make_import_node(namespace):
     if "." not in namespace:
-        return tree.ImportName(
-            [
-                tree.Keyword("import", (0, 0)),
-                tree.Name(namespace, (0, 0), prefix=" "),
-            ],
-        )
+        return creator.make_import(namespace)
 
     base, tail = namespace.rsplit(".", 1)
-    # TODO : Consider reusing from the adapter module. Or placing in a more common place
-    base_nodes = [tree.Name(part, (0, 0)) for part in base.split(".")]
 
-    for index in reversed(range(1, len(base_nodes), 1)):
-        base_nodes.insert(index, tree.Operator(".", (0, 0)))
-
-    base_nodes[0].prefix = " "
-
-    return tree.PythonNode(
-        "simple_stmt",
-        [
-            tree.Keyword("from", (0, 0)),
-            tree.PythonNode("dotted_name", base_nodes),
-            tree.Keyword("import", (0, 0), prefix=" "),
-            tree.Name(tail, (0, 0), prefix=" "),
-        ],
-    )
+    return creator.make_from_import_using_parts(base, tail)
 
 
 def _get_inner_python_node(node):

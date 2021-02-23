@@ -11,9 +11,7 @@ from parso.python import tree
 from parso_helper import node_seek
 from python_compatibility import iterbot
 
-import six
-
-from .. import import_helper
+from .. import creator, import_helper
 from . import base as base_
 
 
@@ -124,6 +122,9 @@ class ImportFromAdapter(base_.BaseAdapter):
                 The namespace to replace `node` with. e.g. ["foo", "bar"].
 
         """
+        # TODO : Consider replacing the the parent, instead of directly
+        # modifying the current node
+        #
         base_names = _get_base_names(node.children[1])
         prefix = base_names[0].prefix
 
@@ -524,7 +525,7 @@ def _adjust_imported_names(old, new_namespace, nodes):
                 "import_as_name", [tail, tree.Keyword("as", (0, 0), prefix=" "), alias]
             )
 
-        return make_using_parts(base, tail, prefix=prefix)
+        return creator.make_from_import_using_parts(base, tail, prefix=prefix)
 
     def _add_new_import(node, new_namespace, alias=None):
         """Add a new from-import of `new_namespace` as a sibling of `node`."""
@@ -545,31 +546,3 @@ def _adjust_imported_names(old, new_namespace, nodes):
         _add_new_import(current_ending_node, new_namespace, alias=alias)
 
         return
-
-
-def make_using_parts(base, tail, prefix=""):
-    import_base = base
-
-    if isinstance(base, six.string_types):
-        base_nodes = [tree.Name(part, (0, 0)) for part in base.split(".")]
-
-        for index in reversed(range(1, len(base_nodes), 1)):
-            base_nodes.insert(index, tree.Operator(".", (0, 0)))
-
-        base_nodes[0].prefix = " "
-        import_base = tree.PythonNode("dotted_name", base_nodes)
-
-    import_tail = tail
-
-    if isinstance(tail, six.string_types):
-        import_tail = tree.Name(tail, (0, 0), prefix=" ")
-
-    return tree.PythonNode(
-        "simple_stmt",
-        [
-            tree.Keyword("from", (0, 0), prefix=prefix),
-            import_base,
-            tree.Keyword("import", (0, 0), prefix=" "),
-            import_tail,
-        ],
-    )

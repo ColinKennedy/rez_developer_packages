@@ -26,7 +26,7 @@ def _get_import_match(text):
 def _process_namespaces(namespaces):
     output = []
     explicits = set()
-    unknowns = set()
+    unknowns = []
     attributes = []
 
     for old, new in namespaces:
@@ -39,7 +39,7 @@ def _process_namespaces(namespaces):
 
             continue
 
-        unknowns.add((old, new))
+        unknowns.append((old, new))
 
     for old, new in unknowns:
         for explicit in explicits:
@@ -109,6 +109,12 @@ def move_imports(  # pylint: disable=too-many-arguments
 
     if not namespaces:
         raise ValueError("Namespaces cannot be empty.")
+
+    for old, new in namespaces:
+        if old == new:
+            raise ValueError(
+                'Pair "{old}/{new}" cannot be the same.'.format(old=old, new=new)
+            )
 
     namespaces, attributes = _process_namespaces(namespaces)
 

@@ -244,7 +244,7 @@ class Imports(common.Common):
         expected = "from something import *"
         self._test(expected, code, namespaces, partial=True)
 
-    def test_complex_partial(self):
+    def test_complex_partial_001(self):
         """Check that difficult formatting still replaces the imports, correctly."""
         code = textwrap.dedent(
             """\
@@ -274,6 +274,18 @@ class Imports(common.Common):
         )
         self._test(expected, code, namespaces, partial=True)
 
+    def test_complex_partial_002(self):
+        """Check that difficult formatting still replaces the imports, correctly."""
+        code = textwrap.dedent(
+            """\
+            from foo.more import (
+                blah as whatever, bazz,
+                etc,
+                another_line as thing,
+                    bad_formatting
+            )
+            """
+        )
         namespaces = [
             ("foo.more.another_line", "new.namespace.new_name"),
             ("foo.more.etc", "new.namespace.etc"),
@@ -295,14 +307,6 @@ class Imports(common.Common):
 
 class ImportFrom(common.Common):
     """A series of tests for `from X import Y` style imports."""
-
-    def test_collapse(self):
-        """Change a `from X import Y` import into `import X`."""
-        code = "from foo.bar import thing"
-        namespaces = [("foo.bar", "blah")]
-        expected = "import blah"
-
-        self._test(expected, code, namespaces, partial=True)
 
     def test_from_001(self):
         """Replace a from import with a different nested namespace."""

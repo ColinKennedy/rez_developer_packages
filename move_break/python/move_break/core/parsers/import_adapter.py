@@ -8,7 +8,8 @@ import operator
 from parso.python import tree
 from parso_helper import node_seek
 
-from . import base as base_, import_from_adapter
+from . import base as base_
+from .. import creator
 
 
 class ImportAdapter(base_.BaseAdapter):
@@ -44,7 +45,7 @@ class ImportAdapter(base_.BaseAdapter):
             tail = new_parts[-1]
             prefix_node = node_seek.get_node_with_first_prefix(node)
             index = node.parent.children.index(node)
-            new_node = import_from_adapter.make_using_parts(
+            new_node = creator.make_from_import_using_parts(
                 ".".join(base),
                 tail,
                 prefix=prefix_node.prefix,
@@ -53,6 +54,9 @@ class ImportAdapter(base_.BaseAdapter):
 
             return
 
+        # TODO : Consider changing this to replace the parent index,
+        # instead of modify the existing node
+        #
         for name_index, name in enumerate(node.get_defined_names()):
             parent = name.parent
             real_index = parent.children.index(name)
