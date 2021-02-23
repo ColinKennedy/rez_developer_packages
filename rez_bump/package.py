@@ -2,7 +2,7 @@
 
 name = "rez_bump"
 
-version = "1.5.0"
+version = "1.5.1"
 
 description = "Control the version value of Rez packages"
 
@@ -24,14 +24,21 @@ build_command = "python -m rez_build_helper --items python"
 
 tests = {
     "black_diff": {
-        "command": "rez-env black -- black --diff --check package.py python tests"
+        "command": "black --diff --check package.py python tests",
+        "requires": ["black-19"],
     },
     "black": {
-        "command": "rez-env black -- black package.py python tests",
+        "command": "black package.py python tests",
+        "requires": ["black-19"],
         "run_on": "explicit",
     },
     "coverage": {
-        "command": "coverage erase && coverage run --parallel-mode --include=python/* -m unittest discover && coverage combine --append && coverage html",
+        "command": (
+            "coverage erase "
+            "&& coverage run --parallel-mode --include=python/* -m unittest discover "
+            "&& coverage combine --append "
+            "&& coverage html"
+        ),
         "requires": ["coverage-4+<5"],
         "run_on": "explicit",
     },
@@ -48,7 +55,8 @@ tests = {
         # Need to disable D202 for now, until a new pydocstyle version is released
         # Reference: https://github.com/psf/black/issues/1159
         #
-        "command": "rez-env pydocstyle -- pydocstyle --ignore=D213,D202,D203,D406,D407 python tests/*"
+        "command": "pydocstyle --ignore=D213,D202,D203,D406,D407 python tests/*",
+        "requires": ["pydocstyle-5"],
     },
     "pylint": {
         "command": "pylint --disable=bad-continuation python/rez_bump",

@@ -3,6 +3,8 @@
 
 """A series of unittests for the CLI of ``rez_move_imports``."""
 
+import atexit
+import functools
 import os
 import shutil
 import tempfile
@@ -16,6 +18,25 @@ from rez_move_imports.core import exception
 
 class Invalids(common.Common):
     """Check that different CLI options fail in predictable ways."""
+
+    def test_bump_conflict(self):
+        """Fail argument parsing when --no-bump and --force-requirements-bump are used."""
+        directory = tempfile.mkdtemp(suffix="_test_bump_conflict")
+        atexit.register(functools.partial(shutil.rmtree, directory))
+
+        command = [
+            r'"{directory} "foo,bar""'.format(directory=directory),
+            '--requirements="a_new_package-2+<4,a_new_namespace"',
+            '--requirements="second_new_package-1+<2,second.location"',
+            '--deprecate="old_dependency_package,old_dependency"',
+            '--deprecate="some_another_package,another_thing"',
+            '--package-directory="{directory}"'.format(directory=directory),
+            "--no-bump",
+            "--force-requirements-bump",
+        ]
+
+        with self.assertRaises(exception.InvalidInput):
+            cli.main(command)
 
     def test_no_deprecate(self):
         """Don't run the command if the user doesn't provide at least one package to replace."""
@@ -239,6 +260,93 @@ class Options(common.Common):
 
             from second.location.stuff import some_module
             from a_new_namespace import somewhere_else
+
+            def something():
+                pass
+            """
+        )
+
+        with open(some_module, "r") as handler:
+            code = handler.read()
+
+        self.assertEqual(expected_code, code)
+
+    def test_force_requirements_bump(self):
+        """Bump the required version, even if no namespaces were replaced."""
+        directory = tempfile.mkdtemp(suffix="_test_force_requirements_bmp")
+        atexit.register(functools.partial(shutil.rmtree, directory))
+
+        some_module = os.path.join(directory, "some_module_inside.py")
+        text = textwrap.dedent(
+            """\
+            # some module with stuff in it
+
+            import os
+            import textwrap
+
+            def something():
+                pass
+            """
+        )
+
+        with open(some_module, "w") as handler:
+            handler.write(text)
+
+        package = os.path.join(directory, "package.py")
+
+        with open(package, "w") as handler:
+            handler.write(
+                textwrap.dedent(
+                    """\
+                    name = "some_test_package"
+
+                    version = "3.2"
+
+                    requires = [
+                        "dependency_package-1.3+<2",
+                        "something_more",
+                        "python-2",
+                    ]
+                    """
+                )
+            )
+
+        command = [
+            '"{directory} old_dependency.does_not_exist,old_dependency.does_not_exist_zz"'
+            "".format(directory=directory),
+            '--requirements="dependency_package-2+<3,old_dependency.does_not_exist_zz"',
+            '--deprecate="dependency_package,old_dependency.does_not_exist"',
+            '--package-directory="{directory}"'.format(directory=directory),
+            "--force-requirements-bump",
+        ]
+
+        cli.main(command)
+
+        expected_package = textwrap.dedent(
+            """\
+            name = "some_test_package"
+
+            version = "3.3"
+
+            requires = [
+                "dependency_package-2+<3",
+                "something_more",
+                "python-2",
+            ]
+            """
+        )
+
+        with open(package, "r") as handler:
+            code = handler.read()
+
+        self.assertEqual(expected_package, code)
+
+        expected_code = textwrap.dedent(
+            """\
+            # some module with stuff in it
+
+            import os
+            import textwrap
 
             def something():
                 pass

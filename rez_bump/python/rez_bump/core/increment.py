@@ -20,8 +20,7 @@ def _write_package_to_disk(package, version):
     Args:
         package (:class:`rez.packages_.DeveloperPackage`):
             Some package on-disk to write out.
-        version (str):
-            The new semantic version that will be written to-disk.
+        version (str): The new semantic version that will be written to-disk.
 
     """
     with open(package, "r") as handler:
