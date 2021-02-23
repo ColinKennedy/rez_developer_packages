@@ -43,6 +43,7 @@ def _make_import_node(namespace):
         )
 
     base, tail = namespace.rsplit(".", 1)
+    # TODO : Consider reusing from the adapter module. Or placing in a more common place
     base_nodes = [tree.Name(part, (0, 0)) for part in base.split(".")]
 
     for index in reversed(range(1, len(base_nodes), 1)):

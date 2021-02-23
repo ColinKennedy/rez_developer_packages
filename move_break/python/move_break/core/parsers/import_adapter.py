@@ -8,10 +8,10 @@ import operator
 from parso.python import tree
 from parso_helper import node_seek
 
-from . import base
+from . import base as base_, import_from_adapter
 
 
-class ImportAdapter(base.BaseAdapter):
+class ImportAdapter(base_.BaseAdapter):
     """The main class used for a regular `import foo` Python import."""
 
     @staticmethod
@@ -39,6 +39,20 @@ class ImportAdapter(base.BaseAdapter):
                 The namespace to replace `node` with. e.g. ["foo", "bar"].
 
         """
+        if len(new_parts) > 1:
+            base = new_parts[:-1]
+            tail = new_parts[-1]
+            prefix_node = node_seek.get_node_with_first_prefix(node)
+            index = node.parent.children.index(node)
+            new_node = import_from_adapter.make_using_parts(
+                ".".join(base),
+                tail,
+                prefix=prefix_node.prefix,
+            )
+            node.parent.children[index] = new_node
+
+            return
+
         for name_index, name in enumerate(node.get_defined_names()):
             parent = name.parent
             real_index = parent.children.index(name)

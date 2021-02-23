@@ -118,11 +118,11 @@ class Imports(common.Common):
 
     def test_expand(self):
         """Change a `import X` import into `from X import Y`."""
-        expected = "from foo.bar import thing"
-        namespaces = [("foo.bar", "blah")]
         code = "import blah"
+        namespaces = [("blah", "foo.bar")]
+        expected = "from foo import bar"
 
-        self._test(expected, code, namespaces, partial=True)
+        self._test(expected, code, namespaces)
 
     def test_same_namespaces(self):
         """If any old and new namespace pair is the same, then raise an exception."""

@@ -136,14 +136,15 @@ class Imports(common.Common):
             """
         )
         namespaces = [
-            ("import:something", "import:something"),
-            ("something.blah", "thing.another.blah"),
-            ("something.another", "thing.another.another"),
+            ("import:something", "import:another"),
+            ("something.blah", "another.blah"),
+            ("something.another", "another.another"),
         ]
+        # TODO : Make it so there's no redundant imports, later
         expected = textwrap.dedent(
             """\
-            from thing import another
-            import something
+            import another
+            import another
 
             def foo():
                 def bar():
@@ -172,7 +173,7 @@ class Imports(common.Common):
             """
         )
         namespaces = [
-            ("import:something", "import:something"),
+            ("import:something", "import:thing.another"),
             ("something.blah", "thing.another.blah"),
             ("something.another", "thing.another.another"),
         ]
@@ -205,7 +206,7 @@ class Imports(common.Common):
             """
         )
         namespaces = [
-            ("import:something", "import:something"),
+            ("import:something", "import:thing.another"),
             ("something.blah", "thing.another.blah"),
             ("something.another", "thing.another.another"),
         ]
@@ -236,7 +237,7 @@ class Imports(common.Common):
             """
         )
         namespaces = [
-            ("import:something", "import:something"),
+            ("import:something", "import:another2"),
             ("something.blah", "another2.blah"),
             ("something.inner_function", "another2.get_inner"),
         ]
@@ -272,7 +273,7 @@ class Imports(common.Common):
             """
         )
         namespaces = [
-            ("import:something", "import:something"),
+            ("import:something", "import:another2"),
             ("something.blah", "another2.blah"),
             ("something.inner_function", "another2.get_inner"),
         ]
