@@ -132,7 +132,33 @@ def _make_namespace_replacement(old, new, node):
     node.parent.children[node.parent.children.index(node)] = replacement
 
 
-def replace(attributes, graph, namespaces=tuple()):
+def replace(attributes, graph, namespaces):
+    """Replace each old / new `attributes` pair in `graph`.
+
+    Note:
+        `namespaces` must be fully qualified imports.
+        For a file like this:
+
+        .. code-block:: python
+            from foo import blah
+            import thing
+
+        `namespaces` would be `[("foo.blah", "some.new.foo"), ("thing", "another")]`
+
+    Args:
+        attributes (container[str, str]):
+            Each namespace attribute name and the value which is must be
+            replaced by.
+        graph (:class:`parso.tree.Module`):
+            The root of the Python module which will be directly editted
+            by this function.
+        namespaces (container[str]):
+            Each old / new import namespace pair which the user would
+            like to substitute in `graph`, in **other** functions (not
+            this one). This function uses this information to determine
+            if a found parso Name node needs replacement.
+
+    """
     changed = []
 
     # TODO : Consider merging these for-loops into a single for-loop

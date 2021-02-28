@@ -48,17 +48,41 @@ def _get_import_match(text):
 def _find_longest_parent(text, references):
     for base in sorted(references, key=len, reverse=True):
         if text.startswith(base):
-            # We want the **parent** module, not the literal, closest
-            # match. Because the parent is how the user would refer
-            # to the namespace in code. So we get all but the last
-            # namespace.
-            #
-            return ".".join(base.split(".")[:-1])
+            if "." in base:
+                # We want the **parent** module, not the literal,
+                # closest match. Because the parent is how the user
+                # would refer to the namespace in code. So we get all
+                # but the last namespace.
+                #
+                return ".".join(base.split(".")[:-1])
+
+            return base
 
     return ""
 
 
+# TODO : Add a new parameter to the CLI arguments to specify imports from attributes
 def _process_namespaces(namespaces):
+    """Split `namespaces` by whether or not the namespace is meant to be an import.
+
+    All namespaces which aren't expected as imports are just called
+    "attributes". But in truth, the list of attributes could be a class,
+    method, function, or attribute. It just refers to any namespace that
+    the user might refer to in a module.
+
+    Example:
+        >>> _process_namespaces([("import:foo", "import:blah"), ("foo.thing", "blah.another")])
+        >>> # Result: ([("foo", "blah")], [("foo.thing", "blah.another")])
+
+    Args:
+        namespaces (container[tuple[str, str]]): Each old and new namespace.
+
+    Returns:
+        tuple[list[tuple[str, str]], list[tuple[str, str]]]:
+            Each found importable namespace and the module's expected
+            inner namespaces.
+
+    """
     output = []
     old_explicits = set()
     new_explicits = set()
