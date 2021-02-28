@@ -291,7 +291,6 @@ class Imports(common.Common):
         expected = textwrap.dedent(
             """\
             from thing import another
-            import something
 
             another.blah
             another.another()
