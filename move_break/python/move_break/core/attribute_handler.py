@@ -9,6 +9,14 @@ from parso.python import tree
 from . import creator
 
 
+def _is_eligible(node):
+    for parent in node_seek.iter_parents(node):
+        if isinstance(parent, (tree.ImportName, tree.ImportFrom)):
+            return False
+
+    return True
+
+
 def _get_ender(node):
     for child in reversed(list(node_seek.iter_nested_children(node))):
         if isinstance(child, tree.Newline):
@@ -133,6 +141,9 @@ def replace(attributes, graph, namespaces=tuple()):
 
         node = _get_inner_python_node(child) or child
 
+        if not _is_eligible(node):
+            continue
+
         for old, new in attributes:
             if not code.startswith(old):
                 continue
@@ -149,6 +160,9 @@ def replace(attributes, graph, namespaces=tuple()):
             continue
 
         node = _get_inner_python_node(child) or child
+
+        if not _is_eligible(node):
+            continue
 
         for old, new in namespaces:
             if not code.startswith(old):

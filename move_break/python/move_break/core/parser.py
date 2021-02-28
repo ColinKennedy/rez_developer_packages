@@ -3,9 +3,15 @@
 
 """The main module that gets import statements in a form that's easy to query and overwrite."""
 
+import re
+
+from parso.python import tree
 from parso_helper import node_seek
 
 from . import import_registry
+
+
+_NAMESPACE_EXPRESSION = re.compile(r"^(?P<namespace>[\w\.]+)")
 
 
 def get_imports(graph, partial=False, namespaces=frozenset(), aliases=False):
@@ -62,3 +68,26 @@ def get_imports(graph, partial=False, namespaces=frozenset(), aliases=False):
         processed.add(child)
 
     return imports
+
+
+def get_used_namespaces(graph):
+    namespaces = set()
+
+    for references in graph.get_used_names().values():
+        for node in references:
+            parent = node.parent
+
+            if not isinstance(parent, tree.PythonNode):
+                continue
+
+            if parent.type != "power":
+                continue
+
+            match = _NAMESPACE_EXPRESSION.search(parent.get_code(include_prefix=False))
+
+            if not match:
+                raise NotImplementedError('Node "{node}" could not be parsed.'.format(node=node))
+
+            namespaces.add(match.group())
+
+    return namespaces

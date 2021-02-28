@@ -131,6 +131,15 @@ def move_imports(  # pylint: disable=too-many-arguments
 
             continue
 
+        changed_attributes = []
+
+        if partial or attributes:
+            changed_attributes = attribute_handler.replace(
+                attributes,
+                graph,
+                namespaces,
+            )
+
         imports = parser.get_imports(
             graph, partial=partial, namespaces=namespaces, aliases=aliases
         )
@@ -143,18 +152,9 @@ def move_imports(  # pylint: disable=too-many-arguments
                 statement.replace(old, new)
                 changed = True
 
-        new_imports = parser.get_imports(
+        parser.get_imports(
             graph, partial=partial, namespaces=namespaces, aliases=aliases
         )
-
-        changed_attributes = []
-
-        if partial or attributes:
-            changed_attributes = attribute_handler.replace(
-                attributes,
-                graph,
-                namespaces,
-            )
 
         if changed_attributes:
             attribute_handler.add_imports([new for _, new in changed_attributes], graph)
