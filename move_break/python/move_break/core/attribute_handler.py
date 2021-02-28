@@ -1,6 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""The module used to parse and replace attribute name referenes in a Python file.
+
+This module has lots of logic for automatically parsing Python modules,
+finding relevant attribute information, and only replacing what needs t
+o be replaced.
+
+"""
+
 import copy
 import logging
 
@@ -13,6 +21,23 @@ _LOGGER = logging.getLogger(__name__)
 
 
 def _is_eligible(node):
+    """Check if `node` is an import. If it is, then it is not eligible.
+
+    Eligibility in this case means "A Python name node which is not
+    meant to be replaced by some **other** module than this one".
+
+    Since imports are replaced by other modules, we need to exclude them
+    from functions which run in this module.
+
+    Args:
+        node (:class:`parso.python.tree.BaseNode`): Some node to check.
+
+    Returns:
+        bool:
+            If this `node` is okay to treat as an attribute name and
+            manipulate, return True. Otherwise, return false.
+
+    """
     for parent in node_seek.iter_parents(node):
         if isinstance(parent, (tree.ImportName, tree.ImportFrom)):
             return False
@@ -21,6 +46,19 @@ def _is_eligible(node):
 
 
 def _get_ender(node):
+    """Find trailing whitespace on `node`, if there is any.
+
+    Args:
+        node (:class:`parso.python.tree.BaseNode`):
+            A parso node which may contain whitespace details directly
+            within its child nodes.
+
+    Returns:
+        :class:`parso.python.tree.BaseNode` or NoneType:
+            The found whitespace trailing suffix, if any.
+
+    """
+    # TODO : Shouldn't this be returning `child`?
     for child in reversed(list(node_seek.iter_nested_children(node))):
         if isinstance(child, tree.Newline):
             return copy.deepcopy(node)
@@ -29,12 +67,40 @@ def _get_ender(node):
 
 
 def _get_module_and_attribute(namespace):
+    """Get a module + attribute namespace to describe `namespace`.
+
+    `namespace` could be fully qualified import space, like
+    "foo.bar.bazz.thing".  But users would normally import that as
+    `from foo.bar import bazz`.  This function gets the tail bit,
+    "bazz.thing".
+
+    Args:
+        namespace (str): The full, qualified Python dot-separated namespace.
+
+    Returns:
+        str: The found module + name.
+
+    """
     parts = namespace.split(".")
 
     return "{module}.{name}".format(module=parts[-2], name=parts[-1])
 
 
-def _get_replacement_range(namespace, node):
+def _get_replacement_index(namespace, node):
+    """Find the child index of `node` which defines all of `namespace`.
+
+    Args:
+        namespace (str):
+            An attribute namespace to check for. This is **not** the
+            fully qualified namespace of the attribute but the namespace
+            which users would refer to that attribute in code.
+        node (:class:`parso.python.tree.PythonNode`):
+            A parso object to check for children for `namespace`.
+
+    Returns:
+        int: The found index, if any. If no index is found, -1 is returned.
+
+    """
     for index in range(1, len(node.children) + 1):
         copied = copy.deepcopy(node)
         copied.children[:] = copied.children[:index]
@@ -46,6 +112,18 @@ def _get_replacement_range(namespace, node):
 
 
 def _make_import_node(namespace):
+    """Create a new import parso object, to represent `namespace`.
+
+    Args:
+        namespace (str): A Python dot-namespace to make into an import.
+
+    Returns:
+        :class:`parso.python.tree.PythonNode`
+        or :class:`parso.python.tree.ImportName`
+    :
+        The created import.
+
+    """
     if "." not in namespace:
         return creator.make_import(namespace)
 
@@ -55,6 +133,17 @@ def _make_import_node(namespace):
 
 
 def _get_inner_python_node(node):
+    """Find the node which represents the Python namespace which must be replaced.
+
+    Args:
+        node (:class:`parso.python.tree.PythonNode`):
+            Some parent node which usually wraps the node which is
+            actually needed to be replaced.
+
+    Returns:
+        :class:`parso.python.tree.PythonNode` or NoneType: The found node, if any.
+
+    """
     previous = node
 
     while True:
@@ -80,8 +169,19 @@ def _get_inner_python_node(node):
 
 
 def _make_attribute_replacement(old, new, node):
+    """Replace the `old` attribute with `new`.
+
+    Args:
+        old (str):
+            The attribute namespace to replace from.
+        new (str):
+            The attribute namespace to change to.
+        node (:class:`parso.python.tree.PythonNode`):
+            The parso object which will be directly modified by this function.,
+
+    """
     node = _get_inner_python_node(node) or node
-    end = _get_replacement_range(old, node)
+    end = _get_replacement_index(old, node)
 
     tail = _get_module_and_attribute(new)
     prefix_node = node_seek.get_node_with_first_prefix(node)
@@ -98,6 +198,17 @@ def _make_attribute_replacement(old, new, node):
 
 
 def _make_namespace_replacement(old, new, node):
+    """Replace `node`'s `old` part with `new`.
+
+    Args:
+        old (str):
+            The attribute namespace to replace.
+        new (str):
+            A tail attribue namespace to replace with.
+        node (:class:`parso.python.tree.PythonNode`):
+            The parso object which will be directly modified by this function.,
+
+    """
     names = []
 
     for child in node_seek.iter_nested_children(node):
@@ -209,6 +320,19 @@ def replace(attributes, graph, namespaces):
 
 
 def add_imports(namespaces, graph, existing=tuple()):
+    """Add `namespaces` as imports to `graph` if they are missing.
+
+    Args:
+        namespaces (iter[str]):
+            Each fully qualified import namespace to potentially add
+            onto `graph` (but only if needed).
+        graph (:class:`parso.tree.Module`):
+            The root of the Python module which will be directly editted
+            by this function.
+        existing (:class:`.BaseAdapter`, optional):
+            An import description which already exists within `graph`.
+
+    """
     imports = set(namespace for import_ in existing for namespace in import_.get_node_namespaces())
     tails = set(import_.split(".")[-1] for import_ in imports)
 
@@ -220,7 +344,7 @@ def add_imports(namespaces, graph, existing=tuple()):
 
         if module_namespace not in tails:
             node = _make_import_node(module_namespace)
-            imports.add(module_namespace)
+            imports.add(module_namespace)  # TODO : Do I need this? Remove?
             graph.children.insert(0, tree.Newline("\n", (0, 0)))
             graph.children.insert(0, node)
 

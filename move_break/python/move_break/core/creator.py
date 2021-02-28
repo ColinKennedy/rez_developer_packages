@@ -1,11 +1,27 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""A module for creating import parso objects."""
+
 from parso.python import tree
 import six
 
 
 def make_import(name, prefix=""):
+    """Make a regular `import X` import.
+
+    Args:
+        name (str):
+            The namespace to import.
+        prefix (str, optional):
+            Leading whitespace to add to the beginning of the
+            import. Default: "".
+
+    Returns:
+        :class:`parso.python.tree.ImportName`:
+            The created parso import object.
+
+    """
     return tree.ImportName(
         [
             tree.Keyword("import", (0, 0), prefix=prefix),
@@ -15,6 +31,21 @@ def make_import(name, prefix=""):
 
 
 def make_from_import_using_parts(base, tail, prefix=""):
+    """Create a `from X import Y` object.
+
+    Args:
+        base (list[str] or str):
+            The `from X` part of the import.
+        tail (str):
+            The `import Y` part of the import.
+        prefix (str, optional):
+            Leading whitespace to add to the beginning of the
+            import. Default: "".
+
+    Returns:
+        :class:`parso.python.tree.PythonNode`: The created node.
+
+    """
     import_base = base
 
     if isinstance(base, six.string_types):

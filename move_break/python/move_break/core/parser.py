@@ -71,6 +71,20 @@ def get_imports(graph, partial=False, namespaces=frozenset(), aliases=False):
 
 
 def get_used_namespaces(graph):
+    """Find all attribute namespaces within `graph`.
+
+    Args:
+        graph (:class:`parso.tree.Module`):
+            The root of the Python module used to query all attribute
+            namespaces.
+
+    Raises:
+        NotImplementedError: If a node which cannot be parsed is found.
+
+    Returns:
+        set[str]: The found namespaces.
+
+    """
     namespaces = set()
 
     for references in graph.get_used_names().values():

@@ -490,6 +490,23 @@ def _remove_comma(node):
 
 
 def _still_has_used_namespace(names, used_namespaces):
+    """Check if any `names` are found within `used_namespaces`.
+
+    It's assumed that `names` is the "end" of an attribute namespace and
+    `used_namespaces` are attribute namespaces.
+
+    Args:
+        names (iter[str]):
+            Root attribute namespaces. e.g. `["module"]`
+        used_namespaces (iter[str]):
+            Full attribute namespaces. e.g. `["module.attribute"]`
+
+    Returns:
+        bool:
+            If `names` and `used_namespaces` have anything in common,
+            return True. Otherwise, return False.
+
+    """
     dot_names = tuple(name + "." for name in names if name)
 
     for namespace in used_namespaces:

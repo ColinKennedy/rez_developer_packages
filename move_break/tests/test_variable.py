@@ -7,6 +7,7 @@ from . import common
 
 
 # TODO : A nested index , dict, etc thing
+# TODO : make sure that nested attributes replace correctly (e.g. "foo.bar.MyClass.thing"
 class Imports(common.Common):
     def test_bracket_expressions_001(self):
         """Replace name references within []s and {}s."""

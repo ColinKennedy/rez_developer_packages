@@ -40,6 +40,23 @@ def _get_import_match(text):
 
 
 def _find_longest_parent(text, references):
+    """Find the namespace in `references` that most closely matches `text`.
+
+    Important:
+        If the longest parent is found from `references` and that parent
+        looks like "some.parent.here", it's assumed that probably it is
+        imported into the module as `from some.parent import here`. As
+        a result of that, this function will ignore the tail and return
+        "some.parent".
+
+    Args:
+        text (str): A Python dot-separated namespace to check. e.g. "foo.bar".
+        references (iter[str]): All possible matches. e.g. ["bb.ttt.zz", "foo.bart", "foo"].
+
+    Returns:
+        str: The found parent, if any.
+
+    """
     for base in sorted(references, key=len, reverse=True):
         if text.startswith(base):
             if "." in base:
