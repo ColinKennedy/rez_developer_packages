@@ -96,7 +96,7 @@ class ImportFromAdapter(base_.BaseAdapter):
         children = _get_tail_children(node.children[3:])
         _maybe_replace_imported_names(old_parts[-1], new_parts[-1], children)
 
-    def _replace(self, node, old_parts, new_parts):
+    def _replace(self, node, old_parts, new_parts, namespaces=frozenset()):
         """Change `node` from `old_parts` to `new_parts`.
 
         Warning:
@@ -127,6 +127,18 @@ class ImportFromAdapter(base_.BaseAdapter):
         #
         base_names = _get_base_names(node.children[1])
         prefix = base_names[0].prefix
+
+        known_namespaces = self._get_namespaces(self._node)
+        known_tails = [namespace.split(".")[-1] for namespace in known_namespaces]
+
+        if _still_has_used_namespace(known_tails, namespaces):
+            # We need to split the import statement in two because
+            # `namespaces` are still in-use.
+            #
+            children = _get_tail_children(node.children[3:])
+            _adjust_imported_names(old_parts[-1], new_parts, children)
+
+            return
 
         if self._partial and _old_parts_equals_base(base_names, old_parts):
             # Replace "from foo.bar.thing"
@@ -429,6 +441,15 @@ def _remove_comma(node):
         if _is_comma(node):
             del node.parent.children[-1]
 
+    parents = _get_parents_up_to_import_from(node)
+
+    if len(parents) == 1:
+        # This only happens when you have a `from X import Y` import If
+        # you have `from X import Y as Z, etc` then the number of parents
+        # is greater than 1.
+        #
+        return None
+
     parent = _get_parents_up_to_import_from(node)[-2]
     alias = _get_alias(node)
 
@@ -466,6 +487,16 @@ def _remove_comma(node):
         del parent.children[real_comma_index]
 
     return alias
+
+
+def _still_has_used_namespace(names, used_namespaces):
+    dot_names = tuple(name + "." for name in names if name)
+
+    for namespace in used_namespaces:
+        if namespace.startswith(dot_names):
+            return True
+
+    return False
 
 
 def _adjust_imported_names(old, new_namespace, nodes):

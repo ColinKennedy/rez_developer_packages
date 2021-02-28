@@ -2,11 +2,14 @@
 # -*- coding: utf-8 -*-
 
 import copy
+import logging
 
 from parso_helper import node_seek
 from parso.python import tree
 
 from . import creator
+
+_LOGGER = logging.getLogger(__name__)
 
 
 def _is_eligible(node):
@@ -142,6 +145,8 @@ def replace(attributes, graph, namespaces=tuple()):
         node = _get_inner_python_node(child) or child
 
         if not _is_eligible(node):
+            _LOGGER.debug('Node "%s" was not eligible so it was skipped.', node)
+
             continue
 
         for old, new in attributes:
@@ -178,6 +183,7 @@ def replace(attributes, graph, namespaces=tuple()):
 
 def add_imports(namespaces, graph, existing=tuple()):
     imports = set(namespace for import_ in existing for namespace in import_.get_node_namespaces())
+    tails = set(import_.split(".")[-1] for import_ in imports)
 
     for namespace in namespaces:
         module_namespace = namespace
@@ -185,7 +191,7 @@ def add_imports(namespaces, graph, existing=tuple()):
         if "." in namespace:
             module_namespace, _ = namespace.rsplit(".", 1)
 
-        if module_namespace not in imports:
+        if module_namespace not in tails:
             node = _make_import_node(module_namespace)
             imports.add(module_namespace)
             graph.children.insert(0, tree.Newline("\n", (0, 0)))

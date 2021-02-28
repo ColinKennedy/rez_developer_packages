@@ -144,7 +144,6 @@ class Imports(common.Common):
         expected = textwrap.dedent(
             """\
             import another
-            import another
 
             def foo():
                 def bar():
@@ -155,6 +154,42 @@ class Imports(common.Common):
         )
 
         self._test(expected, code, namespaces, partial=True)
+
+    def test_keep_import_001(self):
+        """Don't replace an import if it is still in-use in the module."""
+        code = textwrap.dedent(
+            """\
+            from something import parse
+
+            parse.foo
+            parse.bar
+            """
+        )
+        namespaces = [
+            ("import:something.parse", "import:blah.another"),
+            ("something.parse.foo", "blah.another.thing"),
+        ]
+        expected = textwrap.dedent(
+            """\
+            from blah import another
+            from something import parse
+
+            another.thing
+            parse.bar
+            """
+        )
+
+        self._test(expected, code, namespaces, partial=True)
+
+    def test_keep_import_002(self):
+        """Don't replace an import if it is still in-use in the module."""
+        # TODO : Add a test for `import X` as well
+        raise ValueError()
+
+    def test_keep_import_003(self):
+        """Don't replace an import if it is still in-use in the module."""
+        # TODO : Add a test for this with aliases, too
+        raise ValueError()
 
     def test_method(self):
         """Replace a name reference within class methods."""

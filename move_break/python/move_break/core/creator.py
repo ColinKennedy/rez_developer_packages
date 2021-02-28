@@ -34,9 +34,13 @@ def make_from_import_using_parts(base, tail, prefix=""):
     return tree.PythonNode(
         "simple_stmt",
         [
-            tree.Keyword("from", (0, 0), prefix=prefix),
-            import_base,
-            tree.Keyword("import", (0, 0), prefix=" "),
-            import_tail,
+            tree.ImportFrom(
+                [
+                    tree.Keyword("from", (0, 0), prefix=prefix),
+                    import_base,
+                    tree.Keyword("import", (0, 0), prefix=" "),
+                    import_tail,
+                ]
+            ),
         ],
     )

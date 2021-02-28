@@ -30,7 +30,7 @@ class ImportAdapter(base_.BaseAdapter):
         return {_get_dotted_namespace(node)}
 
     @staticmethod
-    def _replace(node, _, new_parts):
+    def _replace(node, _, new_parts, namespaces=frozenset()):
         """Change `node` to `new_parts`.
 
         Args:
