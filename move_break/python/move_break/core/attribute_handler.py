@@ -215,6 +215,7 @@ def _make_namespace_replacement(old, new, node):
         if isinstance(child, tree.Name):
             names.append(child)
 
+    end = _get_replacement_index(old, node)
     found_namespace = ".".join(name.value for name in names)
 
     if found_namespace == old:
@@ -228,6 +229,7 @@ def _make_namespace_replacement(old, new, node):
 
     prefix_node = node_seek.get_node_with_first_prefix(node)
 
+    tail = node.children[end + 1:]
     replacement = tree.PythonNode(
         "power",
         [tree.Name(beginning, (0, 0), prefix=prefix_node.prefix)]
@@ -237,7 +239,8 @@ def _make_namespace_replacement(old, new, node):
                 [tree.Operator(".", (0, 0)), tree.Name(value, (0, 0))],
             )
             for value in endings
-        ],
+        ]
+        + tail,
     )
 
     node.parent.children[node.parent.children.index(node)] = replacement

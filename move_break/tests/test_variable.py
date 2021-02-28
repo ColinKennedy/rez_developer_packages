@@ -184,13 +184,55 @@ class Imports(common.Common):
 
     def test_keep_import_002(self):
         """Don't replace an import if it is still in-use in the module."""
-        # TODO : Add a test for `import X` as well
-        raise ValueError()
+        code = textwrap.dedent(
+            """\
+            import parse
+
+            parse.foo
+            parse.bar
+            """
+        )
+        namespaces = [
+            ("import:parse", "import:another"),
+            ("parse.foo", "another.thing"),
+        ]
+        expected = textwrap.dedent(
+            """\
+            import another
+            import parse
+
+            another.thing
+            parse.bar
+            """
+        )
+
+        self._test(expected, code, namespaces, partial=True)
 
     def test_keep_import_003(self):
         """Don't replace an import if it is still in-use in the module."""
-        # TODO : Add a test for this with aliases, too
-        raise ValueError()
+        code = textwrap.dedent(
+            """\
+            from something import parse as testout
+
+            testout.foo
+            testout.bar
+            """
+        )
+        namespaces = [
+            ("import:something.parse", "import:blah.another"),
+            ("something.parse.foo", "blah.another.thing"),
+        ]
+        expected = textwrap.dedent(
+            """\
+            from blah import another
+            from something import parse as testout
+
+            another.thing
+            testout.bar
+            """
+        )
+
+        self._test(expected, code, namespaces, partial=True)
 
     def test_method(self):
         """Replace a name reference within class methods."""
