@@ -258,7 +258,6 @@ class Imports(common.Common):
         expected = textwrap.dedent(
             """\
             from thing import another
-            import something
 
             def foo():
 
