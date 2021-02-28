@@ -70,13 +70,12 @@ def get_imports(graph, partial=False, namespaces=frozenset(), aliases=False):
     return imports
 
 
-def get_used_namespaces(graph):
+def get_used_namespaces(nodes):
     """Find all attribute namespaces within `graph`.
 
     Args:
-        graph (:class:`parso.tree.Module`):
-            The root of the Python module used to query all attribute
-            namespaces.
+        nodes (iter[:class:`parso.python.tree.PythonNode`]):
+            Each node to check for namespaces.
 
     Raises:
         NotImplementedError: If a node which cannot be parsed is found.
@@ -87,21 +86,20 @@ def get_used_namespaces(graph):
     """
     namespaces = set()
 
-    for references in graph.get_used_names().values():
-        for node in references:
-            parent = node.parent
+    for node in nodes:
+        parent = node.parent
 
-            if not isinstance(parent, tree.PythonNode):
-                continue
+        if not isinstance(parent, tree.PythonNode):
+            continue
 
-            if parent.type != "power":
-                continue
+        if parent.type != "power":
+            continue
 
-            match = _NAMESPACE_EXPRESSION.search(parent.get_code(include_prefix=False))
+        match = _NAMESPACE_EXPRESSION.search(parent.get_code(include_prefix=False))
 
-            if not match:
-                raise NotImplementedError('Node "{node}" could not be parsed.'.format(node=node))
+        if not match:
+            raise NotImplementedError('Node "{node}" could not be parsed.'.format(node=node))
 
-            namespaces.add(match.group())
+        namespaces.add(match.group())
 
     return namespaces

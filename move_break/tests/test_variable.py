@@ -33,7 +33,7 @@ class Imports(common.Common):
             import another
 
             another.inner.key_1 = {
-                "asdfasdf": bar.here(something.key_1),
+                "asdfasdf": bar.here(another.key_1),
             }
             """
         )

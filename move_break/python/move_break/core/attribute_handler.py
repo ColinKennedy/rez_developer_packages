@@ -15,7 +15,7 @@ import logging
 from parso_helper import node_seek
 from parso.python import tree
 
-from . import creator
+from . import creator, parser
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -101,12 +101,29 @@ def _get_replacement_index(namespace, node):
         int: The found index, if any. If no index is found, -1 is returned.
 
     """
-    for index in range(1, len(node.children) + 1):
+    count = len(node.children)
+
+    for index in range(1, count + 1):
         copied = copy.deepcopy(node)
         copied.children[:] = copied.children[:index]
 
         if copied.get_code().strip() == namespace:
-            return index
+            if index + 1 >= count:
+                return index
+
+            child_index = 0
+
+            for index_, child in enumerate(
+                node_seek.iter_nested_children(node.children[index + 1])
+            ):
+                child_index = index_
+
+                if not (
+                    isinstance(child, tree.Operator) and child.value == "."
+                ) and not isinstance(child, tree.Name):
+                    break
+
+            return index + child_index
 
     return -1
 
@@ -209,19 +226,21 @@ def _make_namespace_replacement(old, new, node):
             The parso object which will be directly modified by this function.,
 
     """
-    names = []
-
-    for child in node_seek.iter_nested_children(node):
-        if isinstance(child, tree.Name):
-            names.append(child)
-
-    end = _get_replacement_index(old, node)
-    found_namespace = ".".join(name.value for name in names)
+    namespaces_in_node = parser.get_used_namespaces(
+        node_seek.iter_nested_children(node)
+    )
+    found_namespaces = sorted(
+        (namespace for namespace in namespaces_in_node if namespace.startswith(old)),
+        key=len,
+    )
+    found_namespace = found_namespaces[-1]  # Get the longest match
 
     if found_namespace == old:
         replaced_namespace = new
     else:
-        replaced_namespace = new + "." + found_namespace[len(old) + 1:]  # `+ 1` removes a trailing "."
+        replaced_namespace = (
+            new + "." + found_namespace[len(old) + 1 :]
+        )  # `+ 1` removes a trailing "."
 
     parts = replaced_namespace.split(".")
     beginning = parts[0]
@@ -229,14 +248,14 @@ def _make_namespace_replacement(old, new, node):
 
     prefix_node = node_seek.get_node_with_first_prefix(node)
 
-    tail = node.children[end + 1:]
+    end = _get_replacement_index(old, node)
+    tail = node.children[end + 1 :]
     replacement = tree.PythonNode(
         "power",
         [tree.Name(beginning, (0, 0), prefix=prefix_node.prefix)]
         + [
             tree.PythonNode(
-                "trailer",
-                [tree.Operator(".", (0, 0)), tree.Name(value, (0, 0))],
+                "trailer", [tree.Operator(".", (0, 0)), tree.Name(value, (0, 0))],
             )
             for value in endings
         ]
@@ -336,7 +355,9 @@ def add_imports(namespaces, graph, existing=tuple()):
             An import description which already exists within `graph`.
 
     """
-    imports = set(namespace for import_ in existing for namespace in import_.get_node_namespaces())
+    imports = set(
+        namespace for import_ in existing for namespace in import_.get_node_namespaces()
+    )
     tails = set(import_.split(".")[-1] for import_ in imports)
 
     for namespace in namespaces:

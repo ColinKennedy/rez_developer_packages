@@ -223,7 +223,9 @@ def move_imports(  # pylint: disable=too-many-arguments
         # Every name reference within `graph` that is still in-use even
         # after the attribute substitution.
         #
-        used_namespaces = parser.get_used_namespaces(graph)
+        used_namespaces = parser.get_used_namespaces(
+            [node for nodes in graph.get_used_names().values() for node in nodes],
+        )
 
         for statement, (old, new) in itertools.product(imports, namespaces):
             if import_types and statement.get_import_type() not in import_types:
