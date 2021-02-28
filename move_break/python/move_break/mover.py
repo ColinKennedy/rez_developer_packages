@@ -10,33 +10,27 @@ import re
 from . import finder
 from .core import attribute_handler, parser
 
-_IMPORT_EXPRESSION = re.compile("^import:(?P<namespace>[\w\.]+)$")
+_IMPORT_EXPRESSION = re.compile(r"^import:(?P<namespace>[\w\.]+)$")
 _LOGGER = logging.getLogger(__name__)
 
 
-def _crop_namespace_prefixes(tails, bases):
-    output = []
-
-    for namespace in tails:
-        match = _find_longest_parent(namespace, bases)
-
-        if not match:
-            raise RuntimeError(
-                'Namespace "{namespace}" has nothing in common with '
-                'bases "{bases}".'.format(
-                    namespace=namespace, bases=bases
-                )
-            )
-
-            continue
-
-        # We `+ 1` here to remove the trailing "." in `namespace`
-        output.append(namespace[match + 1:])
-
-    return output
-
-
 def _get_import_match(text):
+    """Check if `text` is meant to represent an importable namespace or not.
+
+    If it's not an import namespace, it's assumed that the namespace is
+    meant to be referred directly within the module.
+
+    Example:
+        >>> _get_import_match("import:foo.bar")  # Result: "foo.bar"
+        >>> _get_import_match("foo.bar")  # Result: ""
+
+    Args:
+        text (str): Some namespace to check.
+
+    Returns:
+        str: A found import namespace, if any.
+
+    """
     match = _IMPORT_EXPRESSION.match(text)
 
     if not match:

@@ -199,7 +199,8 @@ def replace(attributes, graph, namespaces):
             if not code.startswith(old):
                 continue
 
-            _make_namespace_replacement(old, new, node)
+            new_tail = new.split(".")[-1]
+            _make_namespace_replacement(old, new_tail, node)
             changed.append((old, new))
 
             break
