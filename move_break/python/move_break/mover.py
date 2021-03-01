@@ -128,8 +128,6 @@ def _process_namespaces(namespaces):
                 new = new[len(new_match) + 1:]
 
             attributes.append((old, new))
-
-            break
         else:
             output.append((old, new))
 

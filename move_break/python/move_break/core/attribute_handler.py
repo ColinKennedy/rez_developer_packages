@@ -400,9 +400,7 @@ def add_imports(namespaces, graph, old_import_candidates=tuple(), existing=tuple
             module_namespace = namespace.split(".")[-1]
 
         if module_namespace not in tails:
-            node = _make_import_node(module_namespace)
+            node = _make_import_node(namespace)
             imports.add(module_namespace)  # TODO : Do I need this? Remove?
             graph.children.insert(0, tree.Newline("\n", (0, 0)))
             graph.children.insert(0, node)
-
-            break

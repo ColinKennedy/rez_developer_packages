@@ -98,22 +98,23 @@ class Imports(common.Common):
             ("import:third_party", "import:new_zone.core"),
             ("more.things.inner", "somewhere_else.blah"),
             ("something.key_1", "another.key_x"),
-            ("something.key_3", "zzz"),
+            ("something.key_3", "new_zone.core.blah"),
             ("third_party.MyKlass", "new_zone.core.MyClass"),
         ]
 
         expected = textwrap.dedent(
             """\
+            from new_zone import core
+            import another
             import newer_place
-
             another.key_x = {
                 "asdfasdf": (
-                            ['blah.blah', newer_place.here(
+                            ['blah.blah', more.things.here(
                                     another.key_x,
                             ),
 
                             {
-                                zzz: 8 + "expression" + new_zone.core.MyClass() + \
+                                core.blah: 8 + "expression" + core.MyClass() + \
                                     somewhere_else.blah['blah':'fizz']
                             }
                         ]
@@ -122,7 +123,7 @@ class Imports(common.Common):
             """
         )
 
-        self._test(expected, code, namespaces, partial=True)
+        self._test(expected, code, namespaces, partial=False)
 
     def test_function(self):
         """Replace a name reference within functions."""
