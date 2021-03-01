@@ -84,7 +84,7 @@ class Imports(common.Common):
 
                             {
                                 something.key_3: 8 + "expression" + third_party.MyKlass() + \
-                                    more.things.inner['blah':'fizz']
+                                    more.things.inner.place['blah':'fizz']
                             }
                         ]
                 ),
@@ -94,9 +94,10 @@ class Imports(common.Common):
 
         namespaces = [
             ("import:more.things", "import:newer_place"),
+            ("import:more.things.inner", "import:somewhere_else"),
             ("import:something", "import:another"),
             ("import:third_party", "import:new_zone.core"),
-            ("more.things.inner", "somewhere_else.blah"),
+            ("more.things.inner.place", "somewhere_else.blah"),
             ("something.key_1", "another.key_x"),
             ("something.key_3", "new_zone.core.blah"),
             ("third_party.MyKlass", "new_zone.core.MyClass"),
@@ -106,6 +107,7 @@ class Imports(common.Common):
             """\
             from new_zone import core
             import another
+            import somewhere_else
             import newer_place
             another.key_x = {
                 "asdfasdf": (
