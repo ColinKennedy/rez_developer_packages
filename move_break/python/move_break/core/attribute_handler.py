@@ -185,6 +185,10 @@ def _get_inner_python_node(node):
     return None
 
 
+def _get_tail(text):
+    return text.split(".")[-1]
+
+
 def _make_attribute_replacement(old, new, node):
     """Replace the `old` attribute with `new`.
 
@@ -265,7 +269,7 @@ def _make_namespace_replacement(old, new, node):
     node.parent.children[node.parent.children.index(node)] = replacement
 
 
-def replace(attributes, graph, namespaces):
+def replace(attributes, graph, namespaces, partial=False):
     """Replace each old / new `attributes` pair in `graph`.
 
     Note:
@@ -329,8 +333,12 @@ def replace(attributes, graph, namespaces):
             continue
 
         for old, new in namespaces:
-            if not code.startswith(old):
-                continue
+            if partial:
+                if not code.startswith(old):
+                    continue
+            else:
+                if code != old:
+                    continue
 
             new_tail = new.split(".")[-1]
             _make_namespace_replacement(old, new_tail, node)
@@ -341,7 +349,7 @@ def replace(attributes, graph, namespaces):
     return changed
 
 
-def add_imports(namespaces, graph, existing=tuple()):
+def add_imports(namespaces, graph, old_import_candidates=tuple(), existing=tuple()):
     """Add `namespaces` as imports to `graph` if they are missing.
 
     Args:
@@ -351,6 +359,10 @@ def add_imports(namespaces, graph, existing=tuple()):
         graph (:class:`parso.tree.Module`):
             The root of the Python module which will be directly editted
             by this function.
+        old_import_candidates (container[str], optional):
+            Fully qualified imports. If any attribute name within
+            `graph` is still in this list, an import will be added back
+            into `graph`.
         existing (:class:`.BaseAdapter`, optional):
             An import description which already exists within `graph`.
 
@@ -358,8 +370,29 @@ def add_imports(namespaces, graph, existing=tuple()):
     imports = set(
         namespace for import_ in existing for namespace in import_.get_node_namespaces()
     )
-    tails = set(import_.split(".")[-1] for import_ in imports)
+    tails = set(_get_tail(import_) for import_ in imports)
+    used_namespaces = parser.get_used_namespaces(
+        [node for nodes in graph.get_used_names().values() for node in nodes],
+    )
 
+    # 1. If there's an attribute in the module that requires an import that
+    # we don't have, add it back.
+    #
+    for import_ in old_import_candidates:
+        if import_ in imports:
+            continue
+
+        tail = _get_tail(import_)
+
+        for namespace in used_namespaces:
+            if namespace.startswith(tail):
+                node = _make_import_node(import_)
+                graph.children.insert(0, tree.Newline("\n", (0, 0)))
+                graph.children.insert(0, node)
+
+    # 2. All remaining namespaces will be added as long as there's no
+    #    import that does not already satify it.
+    #
     for namespace in namespaces:
         module_namespace = namespace
 

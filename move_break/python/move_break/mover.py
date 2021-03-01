@@ -118,9 +118,16 @@ def _process_namespaces(namespaces):
 
         if old_match:
             new_match = _find_longest_parent(new, new_explicits)
-            shortened_old = old[len(old_match) + 1:]
-            shortened_new = new[len(new_match) + 1:]
-            attributes.append((shortened_old, shortened_new))
+
+            # if "." in old_match:
+            if old.count(".") > 1:
+                old = old[len(old_match) + 1:]
+
+            # if "." in new_match:
+            if new.count(".") > 1:
+                new = new[len(new_match) + 1:]
+
+            attributes.append((old, new))
 
             break
         else:
@@ -214,6 +221,7 @@ def move_imports(  # pylint: disable=too-many-arguments
                 attributes,
                 graph,
                 namespaces,
+                partial=partial,
             )
 
         imports = parser.get_imports(
@@ -226,6 +234,7 @@ def move_imports(  # pylint: disable=too-many-arguments
         used_namespaces = parser.get_used_namespaces(
             [node for nodes in graph.get_used_names().values() for node in nodes],
         )
+        imports_to_re_add_if_needed = []
 
         for statement, (old, new) in itertools.product(imports, namespaces):
             if import_types and statement.get_import_type() not in import_types:
@@ -234,6 +243,7 @@ def move_imports(  # pylint: disable=too-many-arguments
             if old in statement:
                 statement.replace(old, new, namespaces=used_namespaces)
                 changed = True
+                imports_to_re_add_if_needed.append(old)
 
         new_imports = parser.get_imports(
             graph, partial=partial, namespaces=namespaces, aliases=aliases
@@ -243,6 +253,7 @@ def move_imports(  # pylint: disable=too-many-arguments
             attribute_handler.add_imports(
                 [new for _, new in namespaces],
                 graph,
+                old_import_candidates=imports_to_re_add_if_needed,
                 existing=new_imports,
             )
 

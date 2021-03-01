@@ -8,6 +8,7 @@ from . import common
 
 # TODO : A nested index , dict, etc thing
 # TODO : make sure that nested attributes replace correctly (e.g. "foo.bar.MyClass.thing"
+# TODO : Check if if I need to add `partial=False` to any of these tests
 class Imports(common.Common):
     def test_bracket_expressions_001(self):
         """Replace name references within []s and {}s."""
@@ -180,7 +181,7 @@ class Imports(common.Common):
             """
         )
 
-        self._test(expected, code, namespaces, partial=True)
+        self._test(expected, code, namespaces, partial=False)
 
     def test_keep_import_002(self):
         """Don't replace an import if it is still in-use in the module."""
@@ -198,15 +199,15 @@ class Imports(common.Common):
         ]
         expected = textwrap.dedent(
             """\
-            import another
             import parse
+            import another
 
             another.thing
             parse.bar
             """
         )
 
-        self._test(expected, code, namespaces, partial=True)
+        self._test(expected, code, namespaces, partial=False)
 
     def test_keep_import_003(self):
         """Don't replace an import if it is still in-use in the module."""
@@ -232,7 +233,7 @@ class Imports(common.Common):
             """
         )
 
-        self._test(expected, code, namespaces, partial=True)
+        self._test(expected, code, namespaces, partial=False)
 
     def test_method(self):
         """Replace a name reference within class methods."""
