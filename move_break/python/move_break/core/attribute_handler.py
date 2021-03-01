@@ -364,7 +364,7 @@ def add_imports(namespaces, graph, existing=tuple()):
         module_namespace = namespace
 
         if "." in namespace:
-            module_namespace, _ = namespace.rsplit(".", 1)
+            module_namespace = namespace.split(".")[-1]
 
         if module_namespace not in tails:
             node = _make_import_node(module_namespace)

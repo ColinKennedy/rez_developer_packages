@@ -241,7 +241,7 @@ def move_imports(  # pylint: disable=too-many-arguments
 
         if changed_attributes:
             attribute_handler.add_imports(
-                [new for _, new in changed_attributes],
+                [new for _, new in namespaces],
                 graph,
                 existing=new_imports,
             )
