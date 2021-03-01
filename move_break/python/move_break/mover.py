@@ -116,20 +116,24 @@ def _process_namespaces(namespaces):
     for old, new in unknowns:
         old_match = _find_longest_parent(old, old_explicits)
 
-        if old_match:
-            new_match = _find_longest_parent(new, new_explicits)
+        if not old_match:
+            _LOGGER.warning(
+                'Old / New "%s / %s" were skipped because no parent module could be found.',
+                old,
+                new,
+            )
 
-            # if "." in old_match:
-            if old.count(".") > 1:
-                old = old[len(old_match) + 1:]
+            continue
 
-            # if "." in new_match:
-            if new.count(".") > 1:
-                new = new[len(new_match) + 1:]
+        new_match = _find_longest_parent(new, new_explicits)
 
-            attributes.append((old, new))
-        else:
-            output.append((old, new))
+        if old.count(".") > 1:
+            old = old[len(old_match) + 1 :]
+
+        if new.count(".") > 1:
+            new = new[len(new_match) + 1 :]
+
+        attributes.append((old, new))
 
     return output, attributes
 
