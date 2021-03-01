@@ -17,7 +17,7 @@ class Imports(common.Common):
             import something
 
             something.inner.key_1 = {
-                "asdfasdf": more.things.here(something.key_1),
+                "asdfasdf": more.things.here(something.key_1()),
             }
             """
         )
@@ -33,7 +33,7 @@ class Imports(common.Common):
             import another
 
             another.inner.key_1 = {
-                "asdfasdf": bar.here(another.key_1),
+                "asdfasdf": bar.here(another.key_1()),
             }
             """
         )
@@ -47,7 +47,7 @@ class Imports(common.Common):
             from more import things
             import something
 
-            something.key_1 = {
+            something.key_1["tt"] = {
                 "asdfasdf": more.things.here(something.key_1),
             }
             """
@@ -63,8 +63,8 @@ class Imports(common.Common):
             from newer_place import bar
             import another
 
-            another.key_1 = {
-                "asdfasdf": bar.here(something.key_1),
+            another.key_1["tt"] = {
+                "asdfasdf": bar.here(another.key_1),
             }
             """
         )
