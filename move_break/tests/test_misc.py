@@ -20,7 +20,7 @@ class DontChange(common.Common):
             """
         )
 
-        namespaces = [("something", "another")]
+        namespaces = [("import:something", "import:another")]
         expected = textwrap.dedent(
             """\
             import another
@@ -39,7 +39,7 @@ class DontChange(common.Common):
             """
         )
 
-        namespaces = [("something", "another")]
+        namespaces = [("import:something", "import:another")]
         expected = textwrap.dedent(
             """\
             import another.parse
@@ -58,7 +58,7 @@ class DontChange(common.Common):
             """
         )
 
-        namespaces = [("foo.bar", "bazz.something")]
+        namespaces = [("import:foo.bar", "import:bazz.something")]
         expected = textwrap.dedent(
             """\
             from bazz import something
@@ -77,7 +77,7 @@ class DontChange(common.Common):
             """
         )
 
-        namespaces = [("foo.something.bar", "bazz.something.else_here")]
+        namespaces = [("import:foo.something.bar", "import:bazz.something.else_here")]
         expected = textwrap.dedent(
             """\
             from bazz.something import else_here
@@ -99,8 +99,8 @@ class DontChange(common.Common):
         )
 
         namespaces = [
-            ("foo.something.bar", "bazz.something.else_here"),
-            ("something.parse", "another.parse"),
+            ("import:foo.something.bar", "import:bazz.something.else_here"),
+            ("import:something.parse", "import:another.parse"),
         ]
 
         expected = textwrap.dedent(
@@ -127,7 +127,7 @@ class Backslashes(common.Common):
             """
         )
 
-        namespaces = [("textwrap", "another")]
+        namespaces = [("import:textwrap", "import:another")]
 
         expected = textwrap.dedent(
             """\
@@ -147,7 +147,7 @@ class Backslashes(common.Common):
             """
         )
 
-        namespaces = [("os.path", "another")]
+        namespaces = [("import:os.path", "import:another")]
 
         expected = textwrap.dedent(
             """\
@@ -168,7 +168,7 @@ class Backslashes(common.Common):
             """
         )
 
-        namespaces = [("os.path", "something_else")]
+        namespaces = [("import:os.path", "import:something_else")]
         expected = textwrap.dedent(
             """\
             import something_else, \\
@@ -179,7 +179,7 @@ class Backslashes(common.Common):
         self._test(expected, code, namespaces, partial=False)
         self._test(expected, code, namespaces, partial=True)
 
-        namespaces = [("textwrap", "blah")]
+        namespaces = [("import:textwrap", "import:blah")]
         expected = textwrap.dedent(
             """\
             import os.path, \\
@@ -190,8 +190,8 @@ class Backslashes(common.Common):
         self._test(expected, code, namespaces, partial=False)
 
         namespaces = [
-            ("os.path", "blah"),
-            ("textwrap", "blah"),
+            ("import:os.path", "import:blah"),
+            ("import:textwrap", "import:blah"),
         ]
         expected = textwrap.dedent(
             """\
@@ -211,7 +211,7 @@ class Backslashes(common.Common):
             """
         )
 
-        namespaces = [("os", "another")]
+        namespaces = [("import:os", "import:another")]
 
         expected = textwrap.dedent(
             """\
@@ -233,8 +233,8 @@ class Backslashes(common.Common):
         )
 
         namespaces = [
-            ("os.path", "something_else"),
-            ("os", "something_else"),
+            ("import:os.path", "import:something_else"),
+            ("import:os", "import:something_else"),
         ]
         expected = textwrap.dedent(
             """\
@@ -254,7 +254,7 @@ class Backslashes(common.Common):
             """
         )
 
-        namespaces = [("thing", "blah")]
+        namespaces = [("import:thing", "import:blah")]
         expected = textwrap.dedent(
             """\
             from blah import path, \\
@@ -263,7 +263,7 @@ class Backslashes(common.Common):
         )
         self._test(expected, code, namespaces, partial=True)
 
-        namespaces = [("thing.textwrap", "blah.another")]
+        namespaces = [("import:thing.textwrap", "import:blah.another")]
         expected = textwrap.dedent(
             """\
             from blah import another
@@ -282,8 +282,8 @@ class Backslashes(common.Common):
         )
 
         namespaces = [
-            ("blah.path", "another.thingy"),
-            ("blah", "another"),
+            ("import:blah.path", "import:another.thingy"),
+            ("import:blah", "import:another"),
         ]
         expected = textwrap.dedent(
             """\
@@ -294,7 +294,7 @@ class Backslashes(common.Common):
         )
         self._test(expected, code, namespaces, partial=True)
 
-        namespaces = [("blah.path", "another.thingy")]
+        namespaces = [("import:blah.path", "import:another.thingy")]
         expected = textwrap.dedent(
             """\
             from another import thingy
@@ -315,7 +315,7 @@ class Backslashes(common.Common):
             """
         )
 
-        namespaces = [("mit", "cornell")]
+        namespaces = [("import:mit", "import:cornell")]
         expected = textwrap.dedent(
             """\
             from cornell import path, \\
@@ -325,7 +325,7 @@ class Backslashes(common.Common):
         )
         self._test(expected, code, namespaces, partial=True)
 
-        namespaces = [("mit.textwrap", "cornell.blah")]
+        namespaces = [("import:mit.textwrap", "import:cornell.blah")]
         expected = textwrap.dedent(
             """\
             from cornell import blah
@@ -336,8 +336,8 @@ class Backslashes(common.Common):
         self._test(expected, code, namespaces, partial=True)
 
         namespaces = [
-            ("mit.textwrap", "cornell.blah"),
-            ("mit", "cornell"),
+            ("import:mit.textwrap", "import:cornell.blah"),
+            ("import:mit", "import:cornell"),
         ]
 
         expected = textwrap.dedent(
@@ -356,7 +356,9 @@ class Parentheses(common.Common):
     def test_001(self):
         """Replace a single-namespace import that uses parentheses."""
         code = "from thing.something import (parse as blah)"
-        namespaces = [("thing.something.parse", "another.jpeg.many.items")]
+        namespaces = [
+            ("import:thing.something.parse", "import:another.jpeg.many.items"),
+        ]
         expected = "from another.jpeg.many import (items as blah)"
 
         self._test(expected, code, namespaces)
@@ -365,7 +367,7 @@ class Parentheses(common.Common):
         """Replace a multi-namespace import that uses parentheses."""
         code = "from thing.something import (parse as blah, more_items)"
 
-        namespaces = [("thing.something", "another.jpeg.many")]
+        namespaces = [("import:thing.something", "import:another.jpeg.many")]
         expected = "from another.jpeg.many import (parse as blah, more_items)"
         self._test(expected, code, namespaces, partial=True)
 
@@ -373,8 +375,8 @@ class Parentheses(common.Common):
         """Replace a multi-namespace import that uses parentheses."""
         code = "from thing.something import (parse as blah, more_items)"
         namespaces = [
-            ("thing.something.parse", "another.jpeg.many.items"),
-            ("thing.something", "another.jpeg.many"),
+            ("import:thing.something.parse", "import:another.jpeg.many.items"),
+            ("import:thing.something", "import:another.jpeg.many"),
         ]
         expected = textwrap.dedent(
             """\
@@ -393,7 +395,7 @@ class Parentheses(common.Common):
             """
         )
 
-        namespaces = [("thing.something", "another.jpeg.many")]
+        namespaces = [("import:thing.something", "import:another.jpeg.many")]
         expected = textwrap.dedent(
             """\
             from another.jpeg.many import (
@@ -403,7 +405,7 @@ class Parentheses(common.Common):
         )
         self._test(expected, code, namespaces, partial=True)
 
-        namespaces = [("thing.something.parse", "another.jpeg.many.thing")]
+        namespaces = [("import:thing.something.parse", "import:another.jpeg.many.thing")]
         expected = textwrap.dedent(
             """\
             from another.jpeg.many import thing as blah
@@ -424,7 +426,7 @@ class Parentheses(common.Common):
             """
         )
 
-        namespaces = [("thing.something", "another.jpeg.many")]
+        namespaces = [("import:thing.something", "import:another.jpeg.many")]
         expected = textwrap.dedent(
             """\
             from another.jpeg.many import (
@@ -446,7 +448,7 @@ class Parentheses(common.Common):
             """
         )
 
-        namespaces = [("thing.something.parse", "another.jpeg.many.doom")]
+        namespaces = [("import:thing.something.parse", "import:another.jpeg.many.doom")]
         expected = textwrap.dedent(
             """\
             from another.jpeg.many import doom as blah
@@ -468,8 +470,8 @@ class Parentheses(common.Common):
             """
         )
         namespaces = [
-            ("thing.something.parse", "another.jpeg.many.doom"),
-            ("thing.something", "another.jpeg.many"),
+            ("import:thing.something.parse", "import:another.jpeg.many.doom"),
+            ("import:thing.something", "import:another.jpeg.many"),
         ]
         expected = textwrap.dedent(
             """\
