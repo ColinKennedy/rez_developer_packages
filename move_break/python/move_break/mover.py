@@ -220,10 +220,7 @@ def move_imports(  # pylint: disable=too-many-arguments
 
         if partial or attributes:
             changed_attributes = attribute_handler.replace(
-                attributes,
-                graph,
-                namespaces,
-                partial=partial,
+                attributes, graph, namespaces, partial=partial,
             )
 
         imports = parser.get_imports(

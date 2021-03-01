@@ -84,7 +84,7 @@ class Imports(common.Common):
 
                             {
                                 something.key_3: 8 + "expression" + third_party.MyKlass() + \
-                                    more.things.inner.place['blah':'fizz']
+                                    inner.place['blah':'fizz']
                             }
                         ]
                 ),
@@ -324,7 +324,6 @@ class Imports(common.Common):
         expected = textwrap.dedent(
             """\
             import another2
-            import something
 
             blah.blah(inner[another2.get_inner()])
             a_module.SomeClass.class_method(
@@ -360,7 +359,6 @@ class Imports(common.Common):
         expected = textwrap.dedent(
             """\
             import another2
-            import something
 
             blah.blah.something.inner_function()
             thing.another.something.blah
