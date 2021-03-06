@@ -91,7 +91,10 @@ class ImportAdapter(base_.BaseAdapter):
         """
         output = dict()
 
-        for path, alias in self._node._dotted_as_names():
+        for (
+            path,
+            alias,
+        ) in self._node._dotted_as_names():  # pylint: disable=protected-access
             name = path[0]
             name = serializer.to_dot_namespace([name])
 

@@ -190,7 +190,7 @@ class ImportFromAdapter(base_.BaseAdapter):
         """
         aliases = {
             name: alias
-            for name, alias in self._node._as_name_tuples()
+            for name, alias in self._node._as_name_tuples()  # pylint: disable=protected-access
             if alias is not None
         }
 

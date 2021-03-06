@@ -48,27 +48,6 @@ def _is_eligible(node):
     return True
 
 
-def _get_ender(node):
-    """Find trailing whitespace on `node`, if there is any.
-
-    Args:
-        node (:class:`parso.python.tree.BaseNode`):
-            A parso node which may contain whitespace details directly
-            within its child nodes.
-
-    Returns:
-        :class:`parso.python.tree.BaseNode` or NoneType:
-            The found whitespace trailing suffix, if any.
-
-    """
-    # TODO : Shouldn't this be returning `child`?
-    for child in reversed(list(node_seek.iter_nested_children(node))):
-        if isinstance(child, tree.Newline):
-            return copy.deepcopy(node)
-
-        return None
-
-
 def _get_module_and_attribute(namespace):
     """Get a module + attribute namespace to describe `namespace`.
 
@@ -189,14 +168,6 @@ def _make_attribute_replacement(old, new, node):
 
     tail = _get_module_and_attribute(new)
     prefix_node = node_seek.get_node_with_first_prefix(node)
-    children = node.parent.children
-    current = children[children.index(node)]
-
-    ender = _get_ender(current)
-    new_child_contents = [tree.Name(tail, (0, 0), prefix=prefix_node.prefix)]
-
-    if ender:
-        new_child_contents.append(ender)
 
     node.children[:end] = [tree.Name(tail, (0, 0), prefix=prefix_node.prefix)]
 
@@ -294,7 +265,6 @@ def replace(attributes, graph, namespaces, partial=False):
 
     changed = []
 
-    # TODO : Consider merging these for-loops into a single for-loop
     for child in node_seek.iter_nested_children(graph):
         code = child.get_code().strip()
 
@@ -402,6 +372,5 @@ def add_imports(namespaces, graph, old_import_candidates=tuple(), existing=tuple
 
         if module_namespace not in tails:
             node = creator.make_import_from_namespace(namespace)
-            imports.add(module_namespace)  # TODO : Do I need this? Remove?
             graph.children.insert(0, tree.Newline("\n", (0, 0)))
             graph.children.insert(0, node)

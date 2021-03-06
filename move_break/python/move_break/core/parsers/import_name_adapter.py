@@ -16,9 +16,8 @@ from .. import import_helper
 from . import base as base_
 
 
-# TODO : When is this class used?
 class ImportNameAdapter(base_.BaseAdapter):
-    """The main class used for a regular `import foo.bar.bazz` Python import."""
+    """The main class used for a regular `import foo, bar, bazz` Python import."""
 
     @staticmethod
     def _get_namespaces(node):
@@ -102,6 +101,16 @@ class ImportNameAdapter(base_.BaseAdapter):
             _replace_namespace(
                 nodes[0].children, old_parts, new_parts, partial=self._partial
             )
+
+    @staticmethod
+    def get_node_namespace_mappings():
+        """An unused method.
+
+        Returns:
+            dict[str, str]: The unique, found for this import namespaces.
+
+        """
+        return dict()
 
     @staticmethod
     def is_valid(node):

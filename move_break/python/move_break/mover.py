@@ -105,8 +105,12 @@ class _Dotted(object):
 
     def __repr__(self):
         """str: Create an example of how to reproduce this instance."""
-        return "{self.__class__.__name__}({self._full_namespace!r}, reference_namespace={self._reference_namespace!r}, aliases={self._aliases!r})".format(
-            self=self
+        return (
+            "{self.__class__.__name__}("
+            "{self._full_namespace!r}, "
+            "reference_namespace={self._reference_namespace!r}, "
+            "aliases={self._aliases!r}"
+            ")".format(self=self)
         )
 
     def __str__(self):
@@ -282,7 +286,7 @@ def _process_namespaces(namespaces):
     return output, attributes
 
 
-def move_imports(  # pylint: disable=too-many-arguments
+def move_imports(  # pylint: disable=too-many-arguments,too-many-locals
     files,
     namespaces,
     partial=False,

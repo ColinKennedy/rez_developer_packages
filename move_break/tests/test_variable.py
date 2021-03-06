@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""Make sure replacing classes, attributes, and variables works as expected."""
+
 import textwrap
 
 from . import common
@@ -10,6 +12,8 @@ from . import common
 # TODO : make sure that nested attributes replace correctly (e.g. "foo.bar.MyClass.thing"
 # TODO : Check if if I need to add `partial=False` to any of these tests
 class Imports(common.Common):
+    """Make sure replacing classes, attributes, and variables works as expected."""
+
     def test_bracket_expressions_001(self):
         """Replace name references within []s and {}s."""
         code = textwrap.dedent(
