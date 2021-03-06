@@ -8,8 +8,8 @@ import operator
 from parso.python import tree
 from parso_helper import node_seek
 
-from . import base as base_
 from .. import creator, serializer
+from . import base as base_
 
 
 class ImportAdapter(base_.BaseAdapter):

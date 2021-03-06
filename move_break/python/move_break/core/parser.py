@@ -10,7 +10,6 @@ from parso_helper import node_seek
 
 from . import import_registry
 
-
 _NAMESPACE_EXPRESSION = re.compile(r"^(?P<namespace>[\w\.]+)")
 
 

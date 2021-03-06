@@ -13,8 +13,8 @@ import copy
 import itertools
 import logging
 
-from parso_helper import node_seek
 from parso.python import tree
+from parso_helper import node_seek
 
 from . import creator, parser
 

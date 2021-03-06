@@ -3,8 +3,8 @@
 
 """A module for creating import parso objects."""
 
-from parso.python import tree
 import six
+from parso.python import tree
 
 
 def make_import(name, prefix=""):
