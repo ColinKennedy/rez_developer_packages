@@ -120,6 +120,8 @@ class ImportFromAdapter(base_.BaseAdapter):
                 namespace that `node` defines.
             new_parts (list[str]):
                 The namespace to replace `node` with. e.g. ["foo", "bar"].
+            namespaces (iter[str]):
+                Full attribute namespaces. e.g. `["module.attribute"]`
 
         """
         # TODO : Consider replacing the the parent, instead of directly
@@ -177,6 +179,15 @@ class ImportFromAdapter(base_.BaseAdapter):
         return "import_from"
 
     def get_node_namespace_mappings(self):
+        """Get each "real" namespace and its "aliased" counterpart.
+
+        If the namespace has no alias then the key / value pair will
+        both point to the "real" namespace.
+
+        Returns:
+            dict[str, str]: The unique, found for this import namespaces.
+
+        """
         aliases = {
             name: alias
             for name, alias in self._node._as_name_tuples()

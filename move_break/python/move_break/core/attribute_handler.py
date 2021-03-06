@@ -129,27 +129,6 @@ def _get_replacement_index(namespace, node):
     return -1
 
 
-def _make_import_node(namespace):
-    """Create a new import parso object, to represent `namespace`.
-
-    Args:
-        namespace (str): A Python dot-namespace to make into an import.
-
-    Returns:
-        :class:`parso.python.tree.PythonNode`
-        or :class:`parso.python.tree.ImportName`
-    :
-        The created import.
-
-    """
-    if "." not in namespace:
-        return creator.make_import(namespace)
-
-    base, tail = namespace.rsplit(".", 1)
-
-    return creator.make_from_import_using_parts(base, tail)
-
-
 def _get_inner_python_node(node):
     """Find the node which represents the Python namespace which must be replaced.
 
@@ -187,6 +166,7 @@ def _get_inner_python_node(node):
 
 
 def _get_tail(text):
+    """str: Get the last part of dot-separated a namespace."""
     return text.split(".")[-1]
 
 
@@ -278,13 +258,14 @@ def replace(attributes, graph, namespaces, partial=False):
         For a file like this:
 
         .. code-block:: python
+
             from foo import blah
             import thing
 
         `namespaces` would be `[("foo.blah", "some.new.foo"), ("thing", "another")]`
 
     Args:
-        attributes (container[str, str]):
+        attributes (container[tuple[:class:`._Dotted`, :class:`._Dotted`]]):
             Each namespace attribute name and the value which is must be
             replaced by.
         graph (:class:`parso.tree.Module`):
@@ -295,6 +276,10 @@ def replace(attributes, graph, namespaces, partial=False):
             like to substitute in `graph`, in **other** functions (not
             this one). This function uses this information to determine
             if a found parso Name node needs replacement.
+
+    Returns:
+        list[tuple[:class:`._Dotted`, :class:`._Dotted`]]:
+            Each old namespace attribute and the namespace which replaced it.
 
     """
 
@@ -400,7 +385,7 @@ def add_imports(namespaces, graph, old_import_candidates=tuple(), existing=tuple
 
         for namespace in used_namespaces:
             if namespace.startswith(tail):
-                node = _make_import_node(import_)
+                node = creator.make_import_from_namespace(import_)
                 graph.children.insert(0, tree.Newline("\n", (0, 0)))
                 graph.children.insert(0, node)
 
@@ -414,7 +399,7 @@ def add_imports(namespaces, graph, old_import_candidates=tuple(), existing=tuple
             module_namespace = namespace.split(".")[-1]
 
         if module_namespace not in tails:
-            node = _make_import_node(namespace)
+            node = creator.make_import_from_namespace(namespace)
             imports.add(module_namespace)  # TODO : Do I need this? Remove?
             graph.children.insert(0, tree.Newline("\n", (0, 0)))
             graph.children.insert(0, node)

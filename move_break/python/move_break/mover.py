@@ -16,7 +16,25 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class _Dotted(object):
+    """A wrapper for dot-separated Python namespaces.
+
+    These are **not** just import paths. It can also represent attributes.
+
+    """
+
     def __init__(self, full_namespace, reference_namespace="", aliases=frozenset()):
+        """Add namespace-related information to this instance.
+
+        Args:
+            full_namespace (str):
+                An object's full namespace e.g. "foo.bar.bazz.thing".
+            reference_namespace (str, optional):
+                An object's full namespace e.g. "bazz.thing".
+            aliases (set[str], optional):
+                The dot-separated extra namespaces which can also be
+                used to refer to the base of `full_namespace`.
+
+        """
         super(_Dotted, self).__init__()
 
         self._full_namespace = full_namespace
@@ -24,9 +42,19 @@ class _Dotted(object):
         self._aliases = aliases or set()
 
     def add_namespace_alias(self, namespace):
+        """Add `namespace` as an alternative root namespace for this instance.
+
+        Args:
+            namespace (str):
+                A dot-separated Python namespace which may or may not
+                describe **all** of this instance's full namespace or
+                just part of the beginning of the namespace.
+
+        """
         self._aliases.add(namespace)
 
     def get_alias_references(self):
+        """set[str]: Every dot-separated namespace which represents this instance."""
         reference = self.get_reference_namespace() or self.get_full_namespace()
 
         tail = reference.split(".")[1:]
@@ -41,22 +69,67 @@ class _Dotted(object):
         return output
 
     def get_import_namespace(self):
+        """Get the full namespace of what a user might import into a module.
+
+        Basically, it's "everything but the end of the namespace".
+
+        Returns:
+            str: The namespace.
+
+        """
         return ".".join(self.get_full_namespace().split(".")[:-1])
 
     def get_reference_namespace(self):
+        """Get the namespace which would be used, in a module, to refer to the namespace.
+
+        For example, if "foo.bar.bazz" is the full namespace, we expect
+        that the user would have a module like
+
+        .. code-block:: python
+
+            from foo import bar
+
+            bar.bazz
+
+        In this example, the reference namespace is "bar.bazz".
+
+        Returns:
+            str: The found dot-separated namespace.
+
+        """
         return self._reference_namespace
 
     def get_full_namespace(self):
+        """str: The fully qualified dot-separated namespace."""
         return self._full_namespace
 
     def __repr__(self):
+        """str: Create an example of how to reproduce this instance."""
         return "{self.__class__.__name__}({self._full_namespace!r}, reference_namespace={self._reference_namespace!r}, aliases={self._aliases!r})".format(self=self)
 
     def __str__(self):
+        """str: Get a shorthand view of this instance."""
         return "<{namespace}>".format(namespace=self.get_full_namespace())
 
 
 def _attach_aliases(attributes, imports):
+    """Add aliased imports as aliased to `attributes`.
+
+    Important:
+        `attributes` may be modified in this function.
+
+    Args:
+        attributes (list[tuple[:class:`._Dotted`, :class:`._Dotted`]]):
+            The "old / new" dot-separated Python namespace pairs. The
+            old represents "the namespace that we want to refactor". The
+            new is "what it should be changed to".
+        imports (iter[:class:`.BaseAdapter`]):
+            All Python imports within a module. These imports may or may
+            not contain aliases.  If they are aliased, those aliases are
+            directly added into `attributes`, if there is a namespace
+            match.
+
+    """
     namespaces_and_aliases = dict()
 
     for import_ in imports:
@@ -114,8 +187,10 @@ def _find_longest_parent(text, references):
         "some.parent".
 
     Args:
-        text (str): A Python dot-separated namespace to check. e.g. "foo.bar".
-        references (iter[str]): All possible matches. e.g. ["bb.ttt.zz", "foo.bart", "foo"].
+        text (str):
+            A Python dot-separated namespace to check. e.g. "foo.bar".
+        references (iter[str]):
+            All possible matches. e.g. ["bb.ttt.zz", "foo.bart", "foo"].
 
     Returns:
         str: The found parent, if any.
@@ -136,7 +211,6 @@ def _find_longest_parent(text, references):
     return ""
 
 
-# TODO : Add a new parameter to the CLI arguments to specify imports from attributes
 def _process_namespaces(namespaces):
     """Split `namespaces` by whether or not the namespace is meant to be an import.
 
@@ -153,7 +227,7 @@ def _process_namespaces(namespaces):
         namespaces (container[tuple[str, str]]): Each old and new namespace.
 
     Returns:
-        tuple[list[tuple[str, str]], list[tuple[str, str]]]:
+        tuple[list[tuple[str, str]], list[tuple[:class:`._Dotted`, :class:`_Dotted`]]]:
             Each found importable namespace and the module's expected
             inner namespaces.
 

@@ -30,6 +30,29 @@ def make_import(name, prefix=""):
     )
 
 
+def make_import_from_namespace(namespace):
+    """Convert a dot-separated string to a parso object.
+
+    if `namespace` has no dots, it imports using `import X`. If it does,
+    it is `from X import Y`.
+
+    Args:
+        namespace (str): Something like "foo.bar.thing".
+
+    Returns:
+        :class:`parso.python.tree.ImportName` or :class:`parso.python.tree.PythonNode`:
+            The created node.
+
+
+    """
+    if "." not in namespace:
+        return make_import(namespace)
+
+    base, tail = namespace.rsplit(".", 1)
+
+    return make_from_import_using_parts(base, tail)
+
+
 def make_from_import_using_parts(base, tail, prefix=""):
     """Create a `from X import Y` object.
 

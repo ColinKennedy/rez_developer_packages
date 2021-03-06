@@ -38,6 +38,8 @@ class ImportAdapter(base_.BaseAdapter):
                 A parso object that represents a Python import.
             new_parts (list[str]):
                 The namespace to replace `node` with. e.g. ["foo", "bar"].
+            namespaces (container[str]):
+                Full attribute namespaces. e.g. `["module.attribute"]`
 
         """
         if len(new_parts) > 1:
@@ -80,6 +82,15 @@ class ImportAdapter(base_.BaseAdapter):
         return "import"
 
     def get_node_namespace_mappings(self):
+        """Get each "real" namespace and its "aliased" counterpart.
+
+        If the namespace has no alias then the key / value pair will
+        both point to the "real" namespace.
+
+        Returns:
+            dict[str, str]: The unique, found for this import namespaces.
+
+        """
         output = dict()
 
         for path, alias in self._node._dotted_as_names():

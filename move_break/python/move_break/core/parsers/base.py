@@ -83,6 +83,8 @@ class BaseAdapter(object):
                 namespace that `node` defines.
             new_parts (list[str]):
                 The namespace to replace `node` with. e.g. ["foo", "bar"].
+            namespaces (container[str]):
+                Full attribute namespaces. e.g. `["module.attribute"]`
 
         """
         raise NotImplementedError("Implement in subclasses.")  # pragma: no cover
@@ -111,6 +113,15 @@ class BaseAdapter(object):
     @staticmethod
     @abc.abstractmethod
     def get_node_namespace_mappings():
+        """Get each "real" namespace and its "aliased" counterpart.
+
+        If the namespace has no alias then the key / value pair will
+        both point to the "real" namespace.
+
+        Returns:
+            dict[str, str]: The unique, found for this import namespaces.
+
+        """
         return dict()
 
     def get_node_namespaces(self):
@@ -140,6 +151,8 @@ class BaseAdapter(object):
                 namespace that `node` defines.
             new (str):
                 The namespace to replace `node` with. e.g. "foo.bar".
+            namespaces (container[str]):
+                Full attribute namespaces. e.g. `["module.attribute"]`
 
         """
         self._replace(self._node, old.split("."), new.split("."), namespaces=namespaces)
@@ -173,4 +186,5 @@ class BaseAdapter(object):
         )
 
     def __repr__(self):
+        """str: Show how to reproduce this instance."""
         return "{self.__class__.__name__}({self._node!r}, partial={self._partial!r}, namespaces={self._namespaces!r}, aliases={self._aliases!r})".format(self=self)

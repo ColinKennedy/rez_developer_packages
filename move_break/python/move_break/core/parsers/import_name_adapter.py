@@ -75,6 +75,8 @@ class ImportNameAdapter(base_.BaseAdapter):
                 namespace that `node` defines.
             new_parts (list[str]):
                 The namespace to replace `node` with. e.g. ["foo", "bar"].
+            namespaces (container[str]):
+                Full attribute namespaces. e.g. `["module.attribute"]`
 
         """
         pairs = _get_pairs(node.children)
