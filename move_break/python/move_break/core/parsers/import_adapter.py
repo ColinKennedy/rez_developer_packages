@@ -87,7 +87,7 @@ class ImportAdapter(base_.BaseAdapter):
             name = serializer.to_dot_namespace([name])
 
             if alias:
-                output[serializer.to_dot_namespace([alias])] = name
+                output[name] = serializer.to_dot_namespace([alias])
             else:
                 output[name] = name
 

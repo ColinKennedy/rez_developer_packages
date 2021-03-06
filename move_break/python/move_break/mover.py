@@ -27,14 +27,16 @@ class _Dotted(object):
         self._aliases.add(namespace)
 
     def get_alias_references(self):
-        tail = self.get_reference_namespace().split(".")[1:]
-        output = set()
+        reference = self.get_reference_namespace() or self.get_full_namespace()
+
+        tail = reference.split(".")[1:]
+        output = {reference}
 
         for alias in self._aliases:
-            alias_tail = ".".join(alias.split(".")[1:])
-            output.add(".".join([alias_tail] + tail))
+            if "." in alias:
+                alias = ".".join(alias.split(".")[1:])
 
-        output.add(self.get_reference_namespace() or self.get_full_namespace())
+            output.add(".".join([alias] + tail))
 
         return output
 

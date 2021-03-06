@@ -254,10 +254,10 @@ class Imports(common.Common):
         ]
         expected = textwrap.dedent(
             """\
-            from blah import another
-            from something import parse as testout
+            import blah
+            import something as testout
 
-            another.thing
+            blah.thing
             testout.bar
             """
         )
