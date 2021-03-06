@@ -104,7 +104,7 @@ class ImportNameAdapter(base_.BaseAdapter):
 
     @staticmethod
     def get_node_namespace_mappings():
-        """An unused method.
+        """Don't return anything. This method is unused.
 
         Returns:
             dict[str, str]: The unique, found for this import namespaces.
