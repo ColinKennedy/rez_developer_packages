@@ -216,6 +216,58 @@ class Imports(common.Common):
         """Don't replace an import if it is still in-use in the module."""
         code = textwrap.dedent(
             """\
+            from something import parse as testout
+
+            testout.foo
+            testout.bar
+            """
+        )
+        namespaces = [
+            ("import:something.parse", "import:blah.another"),
+            ("something.parse.foo", "blah.another.thing"),
+        ]
+        expected = textwrap.dedent(
+            """\
+            from blah import another
+            from something import parse as testout
+
+            another.thing
+            testout.bar
+            """
+        )
+
+        self._test(expected, code, namespaces, partial=False)
+
+    def test_keep_import_003b(self):
+        """Don't replace an import if it is still in-use in the module."""
+        code = textwrap.dedent(
+            """\
+            import something as testout
+
+            testout.foo
+            testout.bar
+            """
+        )
+        namespaces = [
+            ("import:something", "import:blah"),
+            ("something.foo", "blah.thing"),
+        ]
+        expected = textwrap.dedent(
+            """\
+            from blah import another
+            from something import parse as testout
+
+            another.thing
+            testout.bar
+            """
+        )
+
+        self._test(expected, code, namespaces, partial=False)
+
+    def test_keep_import_004(self):
+        """Don't replace an import if it is still in-use in the module."""
+        code = textwrap.dedent(
+            """\
             from something import parse
             from something import parse as testout
 

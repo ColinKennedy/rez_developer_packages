@@ -10,6 +10,7 @@ o be replaced.
 """
 
 import copy
+import itertools
 import logging
 
 from parso_helper import node_seek
@@ -38,7 +39,7 @@ def _is_eligible(node):
             manipulate, return True. Otherwise, return false.
 
     """
-    for parent in node_seek.iter_parents(node):
+    for parent in itertools.chain(node_seek.iter_parents(node), node_seek.iter_nested_children(node)):
         if isinstance(parent, (tree.ImportName, tree.ImportFrom)):
             return False
 
@@ -296,6 +297,14 @@ def replace(attributes, graph, namespaces, partial=False):
             if a found parso Name node needs replacement.
 
     """
+
+    def _get_closest_match(text, options):
+        for option in sorted(options, key=len, reverse=True):
+            if text.startswith(option):
+                return option
+
+        return ""
+
     changed = []
 
     # TODO : Consider merging these for-loops into a single for-loop
@@ -313,12 +322,13 @@ def replace(attributes, graph, namespaces, partial=False):
             continue
 
         for old, new in attributes:
-            old_reference = old.get_reference_namespace()
+            old_references = old.get_alias_references()
+            old_reference = _get_closest_match(code, old_references)
 
-            if not code.startswith(old_reference):
+            if not old_reference:
                 continue
 
-            new_reference = new.get_reference_namespace()
+            new_reference = new.get_reference_namespace() or new.get_full_namespace()
 
             _make_attribute_replacement(old_reference, new_reference, node)
             changed.append((old, new))

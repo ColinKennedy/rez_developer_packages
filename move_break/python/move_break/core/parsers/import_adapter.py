@@ -9,7 +9,7 @@ from parso.python import tree
 from parso_helper import node_seek
 
 from . import base as base_
-from .. import creator
+from .. import creator, serializer
 
 
 class ImportAdapter(base_.BaseAdapter):
@@ -78,6 +78,20 @@ class ImportAdapter(base_.BaseAdapter):
     def get_import_type():
         """str: An identifier used to categorize instances of this class."""
         return "import"
+
+    def get_node_namespace_mappings(self):
+        output = dict()
+
+        for path, alias in self._node._dotted_as_names():
+            name = path[0]
+            name = serializer.to_dot_namespace([name])
+
+            if alias:
+                output[serializer.to_dot_namespace([alias])] = name
+            else:
+                output[name] = name
+
+        return output
 
 
 def _get_dotted_namespace(node):

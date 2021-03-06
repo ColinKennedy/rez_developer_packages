@@ -16,6 +16,7 @@ from .. import import_helper
 from . import base as base_
 
 
+# TODO : When is this class used?
 class ImportNameAdapter(base_.BaseAdapter):
     """The main class used for a regular `import foo.bar.bazz` Python import."""
 

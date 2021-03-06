@@ -11,7 +11,7 @@ from parso.python import tree
 from parso_helper import node_seek
 from python_compatibility import iterbot
 
-from .. import creator, import_helper
+from .. import creator, import_helper, serializer
 from . import base as base_
 
 
@@ -175,6 +175,24 @@ class ImportFromAdapter(base_.BaseAdapter):
     def get_import_type():
         """str: An identifier used to categorize instances of this class."""
         return "import_from"
+
+    def get_node_namespace_mappings(self):
+        aliases = {
+            name: alias
+            for name, alias in self._node._as_name_tuples()
+            if alias is not None
+        }
+
+        output = dict()
+
+        for paths in self._node.get_paths():
+            tail = paths[-1]
+            aliased_or_paths = paths[:-1] + [aliases.get(tail, paths[-1])]
+
+            output[serializer.to_dot_namespace(paths)] = serializer.to_dot_namespace(aliased_or_paths)
+
+
+        return output
 
     def __contains__(self, namespace):
         """Check if this instance defines a given Python dot-separated namespace.

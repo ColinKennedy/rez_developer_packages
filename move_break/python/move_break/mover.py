@@ -3,6 +3,7 @@
 
 """The main "worker" module for the command-line `move_break` tool."""
 
+import copy
 import itertools
 import logging
 import re
@@ -12,6 +13,67 @@ from .core import attribute_handler, parser
 
 _IMPORT_EXPRESSION = re.compile(r"^import:(?P<namespace>[\w\.]+)$")
 _LOGGER = logging.getLogger(__name__)
+
+
+class _Dotted(object):
+    def __init__(self, full_namespace, reference_namespace="", aliases=frozenset()):
+        super(_Dotted, self).__init__()
+
+        self._full_namespace = full_namespace
+        self._reference_namespace = reference_namespace
+        self._aliases = aliases or set()
+
+    def add_namespace_alias(self, namespace):
+        self._aliases.add(namespace)
+
+    def get_alias_references(self):
+        tail = self.get_reference_namespace().split(".")[1:]
+        output = set()
+
+        for alias in self._aliases:
+            alias_tail = ".".join(alias.split(".")[1:])
+            output.add(".".join([alias_tail] + tail))
+
+        output.add(self.get_reference_namespace() or self.get_full_namespace())
+
+        return output
+
+    def get_import_namespace(self):
+        return ".".join(self.get_full_namespace().split(".")[:-1])
+
+    def get_reference_namespace(self):
+        return self._reference_namespace
+
+    def get_full_namespace(self):
+        return self._full_namespace
+
+    def __repr__(self):
+        return "{self.__class__.__name__}({self._full_namespace!r}, reference_namespace={self._reference_namespace!r}, aliases={self._aliases!r})".format(self=self)
+
+    def __str__(self):
+        return "<{namespace}>".format(namespace=self.get_full_namespace())
+
+
+def _attach_aliases(attributes, imports):
+    namespaces_and_aliases = dict()
+
+    for import_ in imports:
+        namespaces_and_aliases.update(import_.get_node_namespace_mappings())
+
+    for old, _ in attributes:
+        namespace = old.get_import_namespace()
+
+        if namespace not in namespaces_and_aliases:
+            # It means that `namespace` has no matching import. Skip it.
+            continue
+
+        alias = namespaces_and_aliases[namespace]
+
+        if alias == namespace:
+            # The namespace has no alias. Skip it.
+            continue
+
+        old.add_namespace_alias(alias)
 
 
 def _get_import_match(text):
@@ -70,20 +132,6 @@ def _find_longest_parent(text, references):
             return base
 
     return ""
-
-
-class _Dotted(object):
-    def __init__(self, full_namespace, reference_namespace=""):
-        super(_Dotted, self).__init__()
-
-        self._full_namespace = full_namespace
-        self._reference_namespace = reference_namespace
-
-    def get_reference_namespace(self):
-        return self._reference_namespace or self.get_full_namespace()
-
-    def get_full_namespace(self):
-        return self._full_namespace
 
 
 # TODO : Add a new parameter to the CLI arguments to specify imports from attributes
@@ -234,16 +282,21 @@ def move_imports(  # pylint: disable=too-many-arguments
 
             continue
 
+        imports = parser.get_imports(
+            graph, partial=partial, namespaces=namespaces, aliases=aliases
+        )
+        module_attributes = copy.deepcopy(attributes)
+        _attach_aliases(module_attributes, imports)
+
         changed_attributes = []
 
         if partial or attributes:
             changed_attributes = attribute_handler.replace(
-                attributes, graph, namespaces, partial=partial,
+                module_attributes, graph, namespaces, partial=partial,
             )
 
-        imports = parser.get_imports(
-            graph, partial=partial, namespaces=namespaces, aliases=aliases
-        )
+        # raise ValueError(module_attributes)
+        # raise ValueError(graph.get_code())
 
         # Every name reference within `graph` that is still in-use even
         # after the attribute substitution.

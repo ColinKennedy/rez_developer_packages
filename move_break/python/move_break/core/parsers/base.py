@@ -108,6 +108,11 @@ class BaseAdapter(object):
         """str: An identifier used to categorize instances of this class."""
         return ""
 
+    @staticmethod
+    @abc.abstractmethod
+    def get_node_namespace_mappings():
+        return dict()
+
     def get_node_namespaces(self):
         """Get all defined namespaces from the given adapter node.
 
@@ -166,3 +171,6 @@ class BaseAdapter(object):
             for namespace_ in namespaces
             if namespace_.startswith(namespace + ".")
         )
+
+    def __repr__(self):
+        return "{self.__class__.__name__}({self._node!r}, partial={self._partial!r}, namespaces={self._namespaces!r}, aliases={self._aliases!r})".format(self=self)
