@@ -295,9 +295,6 @@ def move_imports(  # pylint: disable=too-many-arguments
                 module_attributes, graph, namespaces, partial=partial,
             )
 
-        # raise ValueError(module_attributes)
-        # raise ValueError(graph.get_code())
-
         # Every name reference within `graph` that is still in-use even
         # after the attribute substitution.
         #

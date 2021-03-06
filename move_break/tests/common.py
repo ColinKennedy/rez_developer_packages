@@ -71,6 +71,4 @@ class Common(unittest.TestCase):
         with open(handler.name, "r") as handler:
             new_code = handler.read()
 
-        raise ValueError(new_code)
-
         self.assertEqual(expected, new_code)
