@@ -313,10 +313,14 @@ def replace(attributes, graph, namespaces, partial=False):
             continue
 
         for old, new in attributes:
-            if not code.startswith(old):
+            old_reference = old.get_reference_namespace()
+
+            if not code.startswith(old_reference):
                 continue
 
-            _make_attribute_replacement(old, new, node)
+            new_reference = new.get_reference_namespace()
+
+            _make_attribute_replacement(old_reference, new_reference, node)
             changed.append((old, new))
 
             break

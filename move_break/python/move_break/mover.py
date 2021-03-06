@@ -72,6 +72,20 @@ def _find_longest_parent(text, references):
     return ""
 
 
+class _Dotted(object):
+    def __init__(self, full_namespace, reference_namespace=""):
+        super(_Dotted, self).__init__()
+
+        self._full_namespace = full_namespace
+        self._reference_namespace = reference_namespace
+
+    def get_reference_namespace(self):
+        return self._reference_namespace or self.get_full_namespace()
+
+    def get_full_namespace(self):
+        return self._full_namespace
+
+
 # TODO : Add a new parameter to the CLI arguments to specify imports from attributes
 def _process_namespaces(namespaces):
     """Split `namespaces` by whether or not the namespace is meant to be an import.
@@ -128,10 +142,14 @@ def _process_namespaces(namespaces):
         new_match = _find_longest_parent(new, new_explicits)
 
         if old.count(".") > 1:
-            old = old[len(old_match) + 1 :]
+            old = _Dotted(old, old[len(old_match) + 1 :])
+        else:
+            old = _Dotted(old)
 
         if new.count(".") > 1:
-            new = new[len(new_match) + 1 :]
+            new = _Dotted(new, new[len(new_match) + 1 :])
+        else:
+            new = _Dotted(new)
 
         attributes.append((old, new))
 

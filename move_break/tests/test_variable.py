@@ -216,8 +216,11 @@ class Imports(common.Common):
         """Don't replace an import if it is still in-use in the module."""
         code = textwrap.dedent(
             """\
+            from something import parse
             from something import parse as testout
 
+            parse.foo
+            parse.bar
             testout.foo
             testout.bar
             """
@@ -229,8 +232,11 @@ class Imports(common.Common):
         expected = textwrap.dedent(
             """\
             from blah import another
+            from something import parse
             from something import parse as testout
 
+            another.thing
+            parse.bar
             another.thing
             testout.bar
             """
