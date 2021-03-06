@@ -105,7 +105,9 @@ class _Dotted(object):
 
     def __repr__(self):
         """str: Create an example of how to reproduce this instance."""
-        return "{self.__class__.__name__}({self._full_namespace!r}, reference_namespace={self._reference_namespace!r}, aliases={self._aliases!r})".format(self=self)
+        return "{self.__class__.__name__}({self._full_namespace!r}, reference_namespace={self._reference_namespace!r}, aliases={self._aliases!r})".format(
+            self=self
+        )
 
     def __str__(self):
         """str: Get a shorthand view of this instance."""

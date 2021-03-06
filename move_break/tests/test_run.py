@@ -185,7 +185,10 @@ class Imports(common.Common):
         """Replace multiple imports at once."""
         code = "import something, lots.of.items, another, os.path, textwrap"
         namespaces = [
-            ("import:another", "import:new_location.more.parts.here"),  # extra dots replacement
+            (
+                "import:another",
+                "import:new_location.more.parts.here",
+            ),  # extra dots replacement
             ("import:os", "import:new_os"),  # beginning replacement
             ("import:lots.of.items", "import:foo"),  # less dots replacement
             ("import:textwrap", "import:os"),  # full replacement

@@ -187,4 +187,6 @@ class BaseAdapter(object):
 
     def __repr__(self):
         """str: Show how to reproduce this instance."""
-        return "{self.__class__.__name__}({self._node!r}, partial={self._partial!r}, namespaces={self._namespaces!r}, aliases={self._aliases!r})".format(self=self)
+        return "{self.__class__.__name__}({self._node!r}, partial={self._partial!r}, namespaces={self._namespaces!r}, aliases={self._aliases!r})".format(
+            self=self
+        )

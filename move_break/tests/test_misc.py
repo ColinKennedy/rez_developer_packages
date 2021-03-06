@@ -405,7 +405,9 @@ class Parentheses(common.Common):
         )
         self._test(expected, code, namespaces, partial=True)
 
-        namespaces = [("import:thing.something.parse", "import:another.jpeg.many.thing")]
+        namespaces = [
+            ("import:thing.something.parse", "import:another.jpeg.many.thing")
+        ]
         expected = textwrap.dedent(
             """\
             from another.jpeg.many import thing as blah

@@ -39,7 +39,9 @@ def _is_eligible(node):
             manipulate, return True. Otherwise, return false.
 
     """
-    for parent in itertools.chain(node_seek.iter_parents(node), node_seek.iter_nested_children(node)):
+    for parent in itertools.chain(
+        node_seek.iter_parents(node), node_seek.iter_nested_children(node)
+    ):
         if isinstance(parent, (tree.ImportName, tree.ImportFrom)):
             return False
 

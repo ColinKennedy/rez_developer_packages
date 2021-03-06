@@ -48,9 +48,7 @@ class ImportAdapter(base_.BaseAdapter):
             prefix_node = node_seek.get_node_with_first_prefix(node)
             index = node.parent.children.index(node)
             new_node = creator.make_from_import_using_parts(
-                ".".join(base),
-                tail,
-                prefix=prefix_node.prefix,
+                ".".join(base), tail, prefix=prefix_node.prefix,
             )
             node.parent.children[index] = new_node
 

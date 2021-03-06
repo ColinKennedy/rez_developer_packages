@@ -200,8 +200,9 @@ class ImportFromAdapter(base_.BaseAdapter):
             tail = paths[-1]
             aliased_or_paths = paths[:-1] + [aliases.get(tail, paths[-1])]
 
-            output[serializer.to_dot_namespace(paths)] = serializer.to_dot_namespace(aliased_or_paths)
-
+            output[serializer.to_dot_namespace(paths)] = serializer.to_dot_namespace(
+                aliased_or_paths
+            )
 
         return output
 

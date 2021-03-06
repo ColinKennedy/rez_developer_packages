@@ -98,7 +98,9 @@ def get_used_namespaces(nodes):
         match = _NAMESPACE_EXPRESSION.search(parent.get_code(include_prefix=False))
 
         if not match:
-            raise NotImplementedError('Node "{node}" could not be parsed.'.format(node=node))
+            raise NotImplementedError(
+                'Node "{node}" could not be parsed.'.format(node=node)
+            )
 
         namespaces.add(match.group())
 
