@@ -451,6 +451,9 @@ def _remove_comma(node):
     Args:
         node (:class:`parso.python.tree.Name`): Some part of a Python from-import.
 
+    Raises:
+        RuntimeError: If `node` is not a multi-comma import.
+
     """
 
     def _is_comma(node):
@@ -481,6 +484,16 @@ def _remove_comma(node):
         return None
 
     parent = _get_parents_up_to_import_from(node)[-2]
+
+    try:
+        next(index_ for index_, node_ in enumerate(parent.children) if _is_comma(node_))
+    except StopIteration:
+        raise RuntimeError(
+            'Node "{parent}" has no commas. This function is meant to split a multi-comma import.'.format(
+                parent=parent
+            )
+        )
+
     alias = _get_alias(node)
 
     try:
@@ -497,24 +510,25 @@ def _remove_comma(node):
 
     # We must be at the beginning or somewhere in the middle of the import.
     del parent.children[index]  # Remove the name
-    children = parent.children
 
-    if index == len(children):
+    if index == len(parent.children):
         # We've removed the last import in an multi-import
         # e.g. Removing "fizz" from `from foo import bar, fizz`
         #
         # To prevent `from foo import bar,` - remove the trailing `,`
         #
-        _remove_trailing_node(children[-1])
+        _remove_trailing_node(parent.children[-1])
 
         return alias
 
-    if children:
-        commas = [index_ for index_, node in enumerate(children) if _is_comma(node)]
-        comma_occurrence_index = index // 2
-        real_comma_index = commas[comma_occurrence_index]
+    if not parent.children:
+        return alias
 
-        del parent.children[real_comma_index]
+    commas = [index_ for index_, node_ in enumerate(parent.children) if _is_comma(node_)]
+    comma_occurrence_index = index // 2
+    real_comma_index = commas[comma_occurrence_index]
+
+    del parent.children[real_comma_index]
 
     return alias
 

@@ -8,6 +8,7 @@ import textwrap
 from . import common
 
 
+# TODO : Add a from import and import which uses commas!
 # TODO : A nested index , dict, etc thing
 # TODO : make sure that nested attributes replace correctly (e.g. "foo.bar.MyClass.thing"
 # TODO : Check if if I need to add `partial=False` to any of these tests
