@@ -286,6 +286,10 @@ def _is_alias_name(node):
     return _is_alias(keyword)
 
 
+def _is_comma(node):
+    return isinstance(node, tree.Operator) and node.value == ","
+
+
 def _fully_replace_base(base_names, nodes):
     """Replace ever node in `base_names` with a new Python namespace.
 
@@ -445,7 +449,7 @@ def _old_parts_exceeds_base(base_names, parts):
     return base_namespace == parts[:-1]
 
 
-def _remove_comma(node):
+def _remove_node_and_comma(node):
     """Delete a sibling comma, assuming that `node` comes from a from-import.
 
     Args:
@@ -455,9 +459,6 @@ def _remove_comma(node):
         RuntimeError: If `node` is not a multi-comma import.
 
     """
-
-    def _is_comma(node):
-        return isinstance(node, tree.Operator) and node.value == ","
 
     def _get_alias(node):
         parent = node.parent
@@ -619,9 +620,8 @@ def _adjust_imported_names(old, new_namespace, nodes):
 
         return creator.make_from_import_using_parts(base, tail, prefix=prefix)
 
-    def _add_new_import(node, new_namespace, alias=None):
+    def _add_new_import(import_from, new_namespace, alias=None):
         """Add a new from-import of `new_namespace` as a sibling of `node`."""
-        import_from = _get_parents_up_to_import_from(node)[-1]
         parent = import_from.parent
         index = parent.children.index(import_from)
 
@@ -634,7 +634,13 @@ def _adjust_imported_names(old, new_namespace, nodes):
         if current_ending_node.value != old:
             continue
 
-        alias = _remove_comma(current_ending_node)
-        _add_new_import(current_ending_node, new_namespace, alias=alias)
+        parent = _get_parents_up_to_import_from(current_ending_node)[-1]
+        commas = [index_ for index_, node_ in enumerate(parent.children) if _is_comma(node_)]
+
+        if commas:
+            raise RuntimeError()
+
+        alias = _remove_node_and_comma(current_ending_node)
+        _add_new_import(parent, new_namespace, alias=alias)
 
         return
