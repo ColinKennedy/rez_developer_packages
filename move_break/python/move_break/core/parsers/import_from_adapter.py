@@ -272,8 +272,9 @@ class ImportFromAdapter(base_.BaseAdapter):
 
 
 def _has_comma(node):
+    """bool: Check if `node` or some child within `node` is a comma."""
     for child in node_seek.iter_nested_children(node):
-        if _is_comma(node):
+        if _is_comma(child):
             return True
 
     return False
@@ -537,7 +538,8 @@ def _remove_node_and_comma(node):
         next(index_ for index_, node_ in enumerate(parent.children) if _is_comma(node_))
     except StopIteration:
         raise RuntimeError(
-            'Node "{parent}" has no commas. This function is meant to split a multi-comma import.'.format(
+            'Node "{parent}" has no commas. This function is meant '
+            'to split a multi-comma import.'.format(
                 parent=parent
             )
         )
@@ -689,7 +691,8 @@ def _adjust_imported_names(new_namespace, nodes):
 
         if len(parents) < 2:
             raise RuntimeError(
-                'Node "{current_ending_node.parent}" has no commas. This function is meant to split a multi-comma import.'.format(
+                'Node "{current_ending_node.parent}" has no commas. This function is meant '
+                'to split a multi-comma import.'.format(
                     current_ending_node=current_ending_node
                 )
             )
@@ -703,7 +706,8 @@ def _adjust_imported_names(new_namespace, nodes):
             if _is_comma(node_)
         ]:
             raise RuntimeError(
-                'Node "{closest_parent}" has no commas. This function is meant to split a multi-comma import.'.format(
+                'Node "{closest_parent}" has no commas. This function is meant '
+                'to split a multi-comma import.'.format(
                     closest_parent=closest_parent
                 )
             )

@@ -55,6 +55,19 @@ class _Dotted(object):
         self._aliases.add(namespace)
 
     def in_import_namespaces(self, namespace):
+        """Check if a Python dot-separated namespace can be expressed by this instance.
+
+        Specifically, we only check **imports** within this
+        instance. Which includes aliases. We do not check at attribute
+        namespace(s).
+
+        Args:
+            namespace (str): Some import dot-separated namespace to check for.
+
+        Returns:
+            bool: If `namespace is in this instance.
+
+        """
         return namespace in self.get_all_import_namespaces()
 
     def get_alias_references(self):
@@ -73,6 +86,14 @@ class _Dotted(object):
         return output
 
     def get_all_import_namespaces(self):
+        """Find all valid **import** namespaces within this instance.
+
+        This includes alias namespaces.
+
+        Returns:
+            set[str]: The found namespaces, if any.
+
+        """
         namespace = self.get_import_namespace()
         head = ".".join(namespace.split(".")[:-1])
         output = set()
