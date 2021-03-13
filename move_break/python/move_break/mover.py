@@ -23,13 +23,13 @@ class _Dotted(object):
 
     """
 
-    def __init__(self, full_namespace, reference_namespace="", aliases=frozenset()):
+    def __init__(self, full_namespace, import_namespace="", aliases=frozenset()):
         """Add namespace-related information to this instance.
 
         Args:
             full_namespace (str):
                 An object's full namespace e.g. "foo.bar.bazz.thing".
-            reference_namespace (str, optional):
+            import_namespace (str, optional):
                 An object's full namespace e.g. "bazz.thing".
             aliases (set[str], optional):
                 The dot-separated extra namespaces which can also be
@@ -39,7 +39,7 @@ class _Dotted(object):
         super(_Dotted, self).__init__()
 
         self._full_namespace = full_namespace
-        self._reference_namespace = reference_namespace
+        self._import_namespace = import_namespace
         self._aliases = aliases or set()
 
     def add_namespace_alias(self, namespace):
@@ -95,6 +95,9 @@ class _Dotted(object):
         """
         return ".".join(self.get_full_namespace().split(".")[:-1])
 
+    def needs_full_namespace(self):
+        return "." not in self._import_namespace
+
     def get_reference_namespace(self):
         """Get the namespace which would be used, in a module, to refer to the namespace.
 
@@ -113,7 +116,12 @@ class _Dotted(object):
             str: The found dot-separated namespace.
 
         """
-        return self._reference_namespace
+        if not self.needs_full_namespace():
+            reference = ".".join(self._import_namespace.split(".")[:-1])
+
+            return self._full_namespace[len(reference) + 1:]
+
+        return self.get_full_namespace()
 
     def get_full_namespace(self):
         """str: The fully qualified dot-separated namespace."""
@@ -124,7 +132,7 @@ class _Dotted(object):
         return (
             "{self.__class__.__name__}("
             "{self._full_namespace!r}, "
-            "reference_namespace={self._reference_namespace!r}, "
+            "import_namespace={self._import_namespace!r}, "
             "aliases={self._aliases!r}"
             ")".format(self=self)
         )
@@ -220,14 +228,6 @@ def _find_longest_parent(text, references):
     """
     for base in sorted(references, key=len, reverse=True):
         if text.startswith(base):
-            if "." in base:
-                # We want the **parent** module, not the literal,
-                # closest match. Because the parent is how the user
-                # would refer to the namespace in code. So we get all
-                # but the last namespace.
-                #
-                return ".".join(base.split(".")[:-1])
-
             return base
 
     return ""
@@ -288,12 +288,12 @@ def _process_namespaces(namespaces):
         new_match = _find_longest_parent(new, new_explicits)
 
         if old.count(".") > 1:
-            old = _Dotted(old, old[len(old_match) + 1 :])
+            old = _Dotted(old, import_namespace=old_match)
         else:
             old = _Dotted(old)
 
         if new.count(".") > 1:
-            new = _Dotted(new, new[len(new_match) + 1 :])
+            new = _Dotted(new, import_namespace=new_match)
         else:
             new = _Dotted(new)
 

@@ -166,7 +166,12 @@ def _make_attribute_replacement(old, new, node):
     node = _get_inner_python_node(node) or node
     end = _get_replacement_index(old, node)
 
-    tail = _get_module_and_attribute(new)
+    if not new.needs_full_namespace():
+        new_reference = new.get_reference_namespace() or new.get_full_namespace()
+        tail = _get_module_and_attribute(new_reference)
+    else:
+        tail = new.get_full_namespace()
+
     prefix_node = node_seek.get_node_with_first_prefix(node)
 
     node.children[:end] = [tree.Name(tail, (0, 0), prefix=prefix_node.prefix)]
@@ -285,9 +290,7 @@ def replace(attributes, graph, namespaces, partial=False):
             if not old_reference:
                 continue
 
-            new_reference = new.get_reference_namespace() or new.get_full_namespace()
-
-            _make_attribute_replacement(old_reference, new_reference, node)
+            _make_attribute_replacement(old_reference, new, node)
             changed.append((old, new))
 
             break
