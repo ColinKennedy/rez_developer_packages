@@ -42,7 +42,7 @@ def get_replacement_indices(names, parts):
     return start, end
 
 
-def make_replacement_nodes(parts, prefix):
+def make_replacement_nodes(parts, prefix, parent=None):
     """Convert namespace tokens into parso nodes.
 
     Args:
@@ -60,10 +60,14 @@ def make_replacement_nodes(parts, prefix):
     new = []
 
     for index, name in enumerate(parts):
-        new.append(tree.Name(name, (0, 0)))
+        node = tree.Name(name, (0, 0))
+        node.parent = parent
+        new.append(node)
 
         if index + 1 < len(parts):
-            new.append(tree.Operator(".", (0, 0)))
+            node = tree.Operator(".", (0, 0))
+            node.parent = parent
+            new.append(node)
 
     new[0].prefix = prefix
 
