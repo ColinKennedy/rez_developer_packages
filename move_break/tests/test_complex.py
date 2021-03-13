@@ -52,13 +52,61 @@ class DotHell(common.Common):
 
         expected = textwrap.dedent(
             """\
-            from some.base import blah as another
+            from a_new.place import here
 
             here.namespace
             """
         )
 
         self._test(expected, code, namespaces, partial=True)
+
+    def test_multi_alias_import_001b(self):
+        code = textwrap.dedent(
+            """\
+            from some.base import blah as another
+
+            another.something
+            """
+        )
+
+        namespaces = [
+            ("import:some.base.blah", "import:a_new.place.here"),
+            ("some.base.blah.something", "a_new.place.here.namespace"),
+        ]
+
+        expected = textwrap.dedent(
+            """\
+            from a_new.place import here as another
+
+            another.namespace
+            """
+        )
+
+        self._test(expected, code, namespaces, aliases=True, partial=True)
+
+    def test_multi_alias_import_001c(self):
+        code = textwrap.dedent(
+            """\
+            import thing as another
+
+            another.something
+            """
+        )
+
+        namespaces = [
+            ("import:thing", "import:a_new_place"),
+            ("thing.something", "a_new_place.namespace"),
+        ]
+
+        expected = textwrap.dedent(
+            """\
+            import a_new_place as another
+
+            another.namespace
+            """
+        )
+
+        self._test(expected, code, namespaces, aliases=True, partial=True)
 
     def test_multi_alias_import_002(self):
         code = textwrap.dedent(

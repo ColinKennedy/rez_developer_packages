@@ -112,10 +112,10 @@ class ImportFromAdapter(base_.BaseAdapter):
             return
 
         # Replace "from foo.bar.thing import something"
-        new_nodes = import_helper.make_replacement_nodes(new_parts[:-1], prefix)
+        new_nodes = import_helper.make_replacement_nodes(new_parts[:-1], prefix, parent=node)
         _fully_replace_base(base_names, new_nodes)
         children = _get_tail_children(node.children[3:])
-        _maybe_replace_imported_names(old_parts[-1], new_parts[-1], children)
+        _maybe_replace_imported_names(old_parts[-1], new_parts[-1], children, clear_alias=not self._aliases)
 
     def _replace(
         self, node, old_parts, new_parts, namespaces=frozenset(), attributes=tuple()
@@ -358,7 +358,7 @@ def _fully_replace_base(base_names, nodes):
     parent.children[start : end + 1] = nodes
 
 
-def _maybe_replace_imported_names(old, new, nodes):
+def _maybe_replace_imported_names(old, new, nodes, clear_alias=False):
     """Replace every node in `nodes` with `new`, if its text is `old`.
 
     Args:
@@ -373,6 +373,15 @@ def _maybe_replace_imported_names(old, new, nodes):
 
     """
 
+    def _is_keyword_and_name(nodes):
+        if len(nodes) < 2:
+            return False
+
+        if not _is_alias(nodes[0]):
+            return False
+
+        return isinstance(nodes[1], tree.Name)
+
     def _get_inner_children(node):
         children = []
 
@@ -386,6 +395,21 @@ def _maybe_replace_imported_names(old, new, nodes):
         if isinstance(current_ending_node, tree.Name):
             if current_ending_node.value == old:
                 current_ending_node.value = new
+
+            if clear_alias:
+                children = current_ending_node.parent.children
+                index = children.index(current_ending_node)
+                next_children = children[index + 1:]
+
+                if _is_keyword_and_name(next_children):
+                    children[index + 1: index + 3] = []
+
+                if len(children) == 1 and isinstance(children[0], tree.Name):
+                    parent = current_ending_node.parent
+                    grand_parent = current_ending_node.parent.parent
+                    index = grand_parent.children.index(parent)
+                    grand_parent.children[index] = children[0]
+
 
             continue
 

@@ -13,7 +13,14 @@ from . import base as base_
 
 
 class ImportAdapter(base_.BaseAdapter):
-    """The main class used for a regular `import foo` Python import."""
+    """The main class used for a regular `import foo` Python import.
+
+    This also covers `import foo as bar`
+
+    If you're looking for `import foo, bazz, bazz`, see
+    :mod:`.import_name_adapter`.
+
+    """
 
     @staticmethod
     def _get_namespaces(node):
@@ -30,7 +37,16 @@ class ImportAdapter(base_.BaseAdapter):
         return {_get_dotted_namespace(node)}
 
     @staticmethod
-    def _replace(node, _, new_parts, namespaces=frozenset(), attributes=tuple()):
+    def _get_known_heads(attributes):
+        heads = set()
+
+        for attribute in attributes:
+            heads.update(attribute.get_all_import_namespaces())
+
+        return heads
+
+    @classmethod
+    def _replace(cls, node, old_parts, new_parts, namespaces=frozenset(), attributes=tuple()):
         """Change `node` to `new_parts`.
 
         Args:
@@ -38,11 +54,26 @@ class ImportAdapter(base_.BaseAdapter):
                 A parso object that represents a Python import.
             new_parts (list[str]):
                 The namespace to replace `node` with. e.g. ["foo", "bar"].
-            namespaces (container[str]):
+            namespaces (iter[str]):
                 Full attribute namespaces. e.g. `["module.attribute"]`
+                These namespaces indicate what is "in-use" in the
+                current graph. If an import statements imports multiple
+                statements but at least one of its imports also is
+                present in `namespaces` then the import is split into
+                a separate import statement, to retain the original
+                behavior.
 
         """
+        known_heads = cls._get_known_heads(attributes)
+
+        for namespace in namespaces:
+            head = namespace.split(".")[0]
+
+            if head in known_heads:
+                return
+
         if len(new_parts) > 1:
+            # If we're expanding `import foo` to `from blah import thing`, do it
             base = new_parts[:-1]
             tail = new_parts[-1]
             prefix_node = node_seek.get_node_with_first_prefix(node)
@@ -57,7 +88,7 @@ class ImportAdapter(base_.BaseAdapter):
         # TODO : Consider changing this to replace the parent index,
         # instead of modify the existing node
         #
-        for name_index, name in enumerate(node.get_defined_names()):
+        for name_index, name in enumerate(_iter_namespace_names(node)):
             parent = name.parent
             real_index = parent.children.index(name)
             parent.children[real_index].value = new_parts[name_index]
@@ -117,4 +148,11 @@ def _get_dotted_namespace(node):
         str: An importable Python namespace e.g. "foo.bar".
 
     """
-    return ".".join(map(operator.attrgetter("value"), node.get_defined_names()))
+    return ".".join(
+        map(operator.attrgetter("value"), _iter_namespace_names(node))
+    )
+
+
+def _iter_namespace_names(node):
+    for path, _ in node._dotted_as_names():
+        yield path[0]

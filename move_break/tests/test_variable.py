@@ -207,8 +207,8 @@ class Imports(common.Common):
         ]
         expected = textwrap.dedent(
             """\
-            import parse
             import another
+            import parse
 
             another.thing
             parse.bar

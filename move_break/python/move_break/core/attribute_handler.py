@@ -48,26 +48,6 @@ def _is_eligible(node):
     return True
 
 
-def _get_module_and_attribute(namespace):
-    """Get a module + attribute namespace to describe `namespace`.
-
-    `namespace` could be fully qualified import space, like
-    "foo.bar.bazz.thing".  But users would normally import that as
-    `from foo.bar import bazz`.  This function gets the tail bit,
-    "bazz.thing".
-
-    Args:
-        namespace (str): The full, qualified Python dot-separated namespace.
-
-    Returns:
-        str: The found module + name.
-
-    """
-    parts = namespace.split(".")
-
-    return "{module}.{name}".format(module=parts[-2], name=parts[-1])
-
-
 def _get_replacement_index(namespace, node):
     """Find the child index of `node` which defines all of `namespace`.
 
@@ -151,7 +131,7 @@ def _get_tail(text):
     return text.split(".")[-1]
 
 
-def _make_attribute_replacement(old, new, node):
+def _make_attribute_replacement(old, new, node, alias=False):
     """Replace the `old` attribute with `new`.
 
     Args:
@@ -166,12 +146,7 @@ def _make_attribute_replacement(old, new, node):
     node = _get_inner_python_node(node) or node
     end = _get_replacement_index(old, node)
 
-    if not new.needs_full_namespace():
-        new_reference = new.get_reference_namespace() or new.get_full_namespace()
-        tail = _get_module_and_attribute(new_reference)
-    else:
-        tail = new.get_full_namespace()
-
+    tail = new.get_tail(alias=alias)
     prefix_node = node_seek.get_node_with_first_prefix(node)
 
     node.children[:end] = [tree.Name(tail, (0, 0), prefix=prefix_node.prefix)]
@@ -228,7 +203,7 @@ def _make_namespace_replacement(old, new, node):
     node.parent.children[node.parent.children.index(node)] = replacement
 
 
-def replace(attributes, graph, namespaces, partial=False):
+def replace(attributes, graph, namespaces, aliases=False, partial=False):
     """Replace each old / new `attributes` pair in `graph`.
 
     Note:
@@ -284,13 +259,16 @@ def replace(attributes, graph, namespaces, partial=False):
             continue
 
         for old, new in attributes:
-            old_references = old.get_alias_references()
+            old_references = old.get_import_references()
             old_reference = _get_closest_match(code, old_references)
 
             if not old_reference:
                 continue
 
-            _make_attribute_replacement(old_reference, new, node)
+            import copy
+            new = copy.deepcopy(new)
+            new._aliases = copy.copy(old._aliases)
+            _make_attribute_replacement(old_reference, new, node, alias=aliases)
             changed.append((old, new))
 
             break

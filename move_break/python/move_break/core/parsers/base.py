@@ -85,8 +85,14 @@ class BaseAdapter(object):
                 namespace that `node` defines.
             new_parts (list[str]):
                 The namespace to replace `node` with. e.g. ["foo", "bar"].
-            namespaces (container[str]):
+            namespaces (iter[str]):
                 Full attribute namespaces. e.g. `["module.attribute"]`
+                These namespaces indicate what is "in-use" in the
+                current graph. If an import statements imports multiple
+                statements but at least one of its imports also is
+                present in `namespaces` then the import is split into
+                a separate import statement, to retain the original
+                behavior.
 
         """
         raise NotImplementedError("Implement in subclasses.")  # pragma: no cover
@@ -153,8 +159,14 @@ class BaseAdapter(object):
                 namespace that `node` defines.
             new (str):
                 The namespace to replace `node` with. e.g. "foo.bar".
-            namespaces (container[str]):
+            namespaces (iter[str]):
                 Full attribute namespaces. e.g. `["module.attribute"]`
+                These namespaces indicate what is "in-use" in the
+                current graph. If an import statements imports multiple
+                statements but at least one of its imports also is
+                present in `namespaces` then the import is split into
+                a separate import statement, to retain the original
+                behavior.
 
         """
         self._replace(

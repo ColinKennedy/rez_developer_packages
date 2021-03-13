@@ -361,6 +361,16 @@ class Parentheses(common.Common):
         ]
         expected = "from another.jpeg.many import (items as blah)"
 
+        self._test(expected, code, namespaces, aliases=True)
+
+    def test_001b(self):
+        """Replace a single-namespace import that uses parentheses."""
+        code = "from thing.something import (parse as blah)"
+        namespaces = [
+            ("import:thing.something.parse", "import:another.jpeg.many.items"),
+        ]
+        expected = "from another.jpeg.many import items"
+
         self._test(expected, code, namespaces)
 
     def test_002_full_replace(self):

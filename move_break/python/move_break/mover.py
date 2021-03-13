@@ -42,18 +42,6 @@ class _Dotted(object):
         self._import_namespace = import_namespace
         self._aliases = aliases or set()
 
-    def add_namespace_alias(self, namespace):
-        """Add `namespace` as an alternative root namespace for this instance.
-
-        Args:
-            namespace (str):
-                A dot-separated Python namespace which may or may not
-                describe **all** of this instance's full namespace or
-                just part of the beginning of the namespace.
-
-        """
-        self._aliases.add(namespace)
-
     def in_import_namespaces(self, namespace):
         """Check if a Python dot-separated namespace can be expressed by this instance.
 
@@ -70,16 +58,32 @@ class _Dotted(object):
         """
         return namespace in self.get_all_import_namespaces()
 
-    def get_alias_references(self):
-        """set[str]: Every dot-separated namespace which represents this instance."""
-        reference = self.get_reference_namespace() or self.get_full_namespace()
+    def _needs_full_namespace(self):
+        return "." not in self._import_namespace
+
+    def add_namespace_alias(self, namespace):
+        """Add `namespace` as an alternative root namespace for this instance.
+
+        Args:
+            namespace (str):
+                A dot-separated Python namespace which may or may not
+                describe **all** of this instance's full namespace or
+                just part of the beginning of the namespace.
+
+        """
+        self._aliases.add(namespace)
+
+    def get_import_references(self):
+        """set[str]: Every alias namespace which represents this instance."""
+        reference = self._get_reference_namespace() or self._get_full_namespace()
 
         tail = reference.split(".")[1:]
+        dots_to_remove = self._import_namespace.count(".")
         output = {reference}
 
         for alias in self._aliases:
             if "." in alias:
-                alias = ".".join(alias.split(".")[1:])
+                alias = ".".join(alias.split(".")[dots_to_remove:])
 
             output.add(".".join([alias] + tail))
 
@@ -96,14 +100,22 @@ class _Dotted(object):
         """
         namespace = self.get_import_namespace()
         head = ".".join(namespace.split(".")[:-1])
+
+        if not head:
+            return {reference.split(".")[0] for reference in self.get_import_references()}
+
         output = set()
 
-        for reference in self.get_alias_references():
+        for reference in self.get_import_references():
             the_alias = reference.split(".")[0]
 
             output.add("{head}.{the_alias}".format(head=head, the_alias=the_alias))
 
         return output
+
+    def _get_full_namespace(self):
+        """str: The fully qualified dot-separated namespace."""
+        return self._full_namespace
 
     def get_import_namespace(self):
         """Get the full namespace of what a user might import into a module.
@@ -114,12 +126,9 @@ class _Dotted(object):
             str: The namespace.
 
         """
-        return ".".join(self.get_full_namespace().split(".")[:-1])
+        return ".".join(self._get_full_namespace().split(".")[:-1])
 
-    def needs_full_namespace(self):
-        return "." not in self._import_namespace
-
-    def get_reference_namespace(self):
+    def _get_reference_namespace(self):
         """Get the namespace which would be used, in a module, to refer to the namespace.
 
         For example, if "foo.bar.bazz" is the full namespace, we expect
@@ -137,16 +146,44 @@ class _Dotted(object):
             str: The found dot-separated namespace.
 
         """
-        if not self.needs_full_namespace():
+        if not self._needs_full_namespace():
             reference = ".".join(self._import_namespace.split(".")[:-1])
 
             return self._full_namespace[len(reference) + 1 :]
 
-        return self.get_full_namespace()
+        return self._get_full_namespace()
 
-    def get_full_namespace(self):
-        """str: The fully qualified dot-separated namespace."""
-        return self._full_namespace
+    def get_tail(self, alias=False):
+        if not alias:
+            if not self._needs_full_namespace():
+                new_reference = self._get_reference_namespace() or self._get_full_namespace()
+
+                return _get_module_and_attribute(new_reference)
+
+            return self._get_full_namespace()
+
+        if not self._aliases:
+            raise RuntimeError('Alias is True but "{self!r}" has no aliases.'.format(self=self))
+
+        if not self._needs_full_namespace():
+            new_reference = self._get_reference_namespace() or self._get_full_namespace()
+
+            imports = self.get_import_references()
+            alias_imports = self.get_import_references() - {new_reference}
+
+            # Pick one of the aliases at random We do this because
+            # any alias should be theoretically "valid", assuming
+            # the user didn't do something weird in their module.
+            #
+            return next(iter(alias_imports))
+
+        # Pick one of the aliases at random We do this because
+        # any alias should be theoretically "valid", assuming
+        # the user didn't do something weird in their module.
+        #
+        alias_import = next(iter(self._aliases))
+
+        return ".".join([alias_import] + self._get_full_namespace().split(".")[1:])
 
     def __repr__(self):
         """str: Create an example of how to reproduce this instance."""
@@ -160,7 +197,7 @@ class _Dotted(object):
 
     def __str__(self):
         """str: Get a shorthand view of this instance."""
-        return "<{namespace}>".format(namespace=self.get_full_namespace())
+        return "<{namespace}>".format(namespace=self._get_full_namespace())
 
 
 def _attach_aliases(attributes, imports):
@@ -225,6 +262,26 @@ def _get_import_match(text):
         return ""
 
     return match.group("namespace")
+
+
+def _get_module_and_attribute(namespace):
+    """Get a module + attribute namespace to describe `namespace`.
+
+    `namespace` could be fully qualified import space, like
+    "foo.bar.bazz.thing".  But users would normally import that as
+    `from foo.bar import bazz`.  This function gets the tail bit,
+    "bazz.thing".
+
+    Args:
+        namespace (str): The full, qualified Python dot-separated namespace.
+
+    Returns:
+        str: The found module + name.
+
+    """
+    parts = namespace.split(".")
+
+    return "{module}.{name}".format(module=parts[-2], name=parts[-1])
 
 
 def _find_longest_parent(text, references):
@@ -411,7 +468,7 @@ def move_imports(  # pylint: disable=too-many-arguments,too-many-locals
 
         if partial or attributes:
             changed_attributes = attribute_handler.replace(
-                module_attributes, graph, namespaces, partial=partial,
+                module_attributes, graph, namespaces, aliases=aliases, partial=partial,
             )
 
         # Every name reference within `graph` that is still in-use even

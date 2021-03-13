@@ -17,7 +17,11 @@ from . import base as base_
 
 
 class ImportNameAdapter(base_.BaseAdapter):
-    """The main class used for a regular `import foo, bar, bazz` Python import."""
+    """The main class used for a regular `import foo, bar, bazz` Python import.
+
+    If you're looking for `import foo`, see :mod:`.import_adapter`.
+
+    """
 
     @staticmethod
     def _get_namespaces(node):
