@@ -47,7 +47,10 @@ class ImportFromAdapter(base_.BaseAdapter):
         for namespace in known_namespaces:
             for attribute in attributes:
                 if attribute.in_import_namespaces(namespace):
-                    output.update(_get_tail(namespace_) for namespace_ in attribute.get_all_import_namespaces())
+                    output.update(
+                        _get_tail(namespace_)
+                        for namespace_ in attribute.get_all_import_namespaces()
+                    )
 
             output.add(_get_tail(namespace))
 
@@ -114,7 +117,9 @@ class ImportFromAdapter(base_.BaseAdapter):
         children = _get_tail_children(node.children[3:])
         _maybe_replace_imported_names(old_parts[-1], new_parts[-1], children)
 
-    def _replace(self, node, old_parts, new_parts, namespaces=frozenset(), attributes=tuple()):
+    def _replace(
+        self, node, old_parts, new_parts, namespaces=frozenset(), attributes=tuple()
+    ):
         """Change `node` from `old_parts` to `new_parts`.
 
         Warning:
@@ -567,7 +572,9 @@ def _remove_node_and_comma(node):
     if not parent.children:
         return alias
 
-    commas = [index_ for index_, node_ in enumerate(parent.children) if _is_comma(node_)]
+    commas = [
+        index_ for index_, node_ in enumerate(parent.children) if _is_comma(node_)
+    ]
     comma_occurrence_index = index // 2
     real_comma_index = commas[comma_occurrence_index]
 
@@ -690,7 +697,11 @@ def _adjust_imported_names(new_namespace, nodes):
         top_parent = parents[-1]
         closest_parent = parents[-2]
 
-        if not [index_ for index_, node_ in enumerate(closest_parent.children) if _is_comma(node_)]:
+        if not [
+            index_
+            for index_, node_ in enumerate(closest_parent.children)
+            if _is_comma(node_)
+        ]:
             raise RuntimeError(
                 'Node "{closest_parent}" has no commas. This function is meant to split a multi-comma import.'.format(
                     closest_parent=closest_parent

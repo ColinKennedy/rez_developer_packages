@@ -119,7 +119,7 @@ class _Dotted(object):
         if not self.needs_full_namespace():
             reference = ".".join(self._import_namespace.split(".")[:-1])
 
-            return self._full_namespace[len(reference) + 1:]
+            return self._full_namespace[len(reference) + 1 :]
 
         return self.get_full_namespace()
 
