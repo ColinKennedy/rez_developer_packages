@@ -405,34 +405,7 @@ def move_imports(  # pylint: disable=too-many-arguments,too-many-locals
             if import_types and statement.get_import_type() not in import_types:
                 continue
 
-            # TODO : Possibly remove this later
-            def _get_namespaces_which_lack_imports(imports, namespaces):
-                tails = set()
-
-                for import_ in imports:
-                    for thing in import_.get_node_namespace_mappings():
-                        tail = thing.split(".")[-1]
-
-                        if tail:
-                            tails.add(tail + ".")
-
-                output = set()
-                tails = tuple(tails)
-
-                for namespace in namespaces:
-                    if not namespace.startswith(tails):
-                        output.add(namespace)
-
-                return output
-
             if old in statement:
-                # zzz = _get_namespaces_which_lack_imports(
-                #     parser.get_imports(
-                #         graph, partial=partial, namespaces=namespaces, aliases=aliases
-                #     ),
-                #     used_namespaces
-                # )
-
                 statement.replace(
                     old,
                     new,
