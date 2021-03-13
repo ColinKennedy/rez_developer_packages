@@ -3,6 +3,7 @@
 
 """The main "worker" module for the command-line `move_break` tool."""
 
+import collections
 import copy
 import itertools
 import logging
@@ -151,10 +152,11 @@ def _attach_aliases(attributes, imports):
             match.
 
     """
-    namespaces_and_aliases = dict()
+    namespaces_and_aliases = collections.defaultdict(set)
 
     for import_ in imports:
-        namespaces_and_aliases.update(import_.get_node_namespace_mappings())
+        for key, value in import_.get_node_namespace_mappings().items():
+            namespaces_and_aliases[key].add(value)
 
     for old, _ in attributes:
         namespace = old.get_import_namespace()
@@ -163,13 +165,12 @@ def _attach_aliases(attributes, imports):
             # It means that `namespace` has no matching import. Skip it.
             continue
 
-        alias = namespaces_and_aliases[namespace]
+        for alias in namespaces_and_aliases[namespace]:
+            if alias == namespace:
+                # The namespace has no alias. Skip it.
+                continue
 
-        if alias == namespace:
-            # The namespace has no alias. Skip it.
-            continue
-
-        old.add_namespace_alias(alias)
+            old.add_namespace_alias(alias)
 
 
 def _get_import_match(text):
