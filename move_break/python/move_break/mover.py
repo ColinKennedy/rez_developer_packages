@@ -53,6 +53,9 @@ class _Dotted(object):
         """
         self._aliases.add(namespace)
 
+    def in_import_namespaces(self, namespace):
+        return namespace in self.get_all_import_namespaces()
+
     def get_alias_references(self):
         """set[str]: Every dot-separated namespace which represents this instance."""
         reference = self.get_reference_namespace() or self.get_full_namespace()
@@ -65,6 +68,18 @@ class _Dotted(object):
                 alias = ".".join(alias.split(".")[1:])
 
             output.add(".".join([alias] + tail))
+
+        return output
+
+    def get_all_import_namespaces(self):
+        namespace = self.get_import_namespace()
+        head = ".".join(namespace.split(".")[:-1])
+        output = set()
+
+        for reference in self.get_alias_references():
+            the_alias = reference.split(".")[0]
+
+            output.add("{head}.{the_alias}".format(head=head, the_alias=the_alias))
 
         return output
 
@@ -389,8 +404,40 @@ def move_imports(  # pylint: disable=too-many-arguments,too-many-locals
             if import_types and statement.get_import_type() not in import_types:
                 continue
 
+            # TODO : Possibly remove this later
+            def _get_namespaces_which_lack_imports(imports, namespaces):
+                tails = set()
+
+                for import_ in imports:
+                    for thing in import_.get_node_namespace_mappings():
+                        tail = thing.split(".")[-1]
+
+                        if tail:
+                            tails.add(tail + ".")
+
+                output = set()
+                tails = tuple(tails)
+
+                for namespace in namespaces:
+                    if not namespace.startswith(tails):
+                        output.add(namespace)
+
+                return output
+
             if old in statement:
-                statement.replace(old, new, namespaces=used_namespaces)
+                # zzz = _get_namespaces_which_lack_imports(
+                #     parser.get_imports(
+                #         graph, partial=partial, namespaces=namespaces, aliases=aliases
+                #     ),
+                #     used_namespaces
+                # )
+
+                statement.replace(
+                    old,
+                    new,
+                    namespaces=used_namespaces,
+                    attributes=[old_ for old_, _ in module_attributes],
+                )
                 changed = True
                 imports_to_re_add_if_needed.append(old)
 

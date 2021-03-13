@@ -37,6 +37,22 @@ class ImportFromAdapter(base_.BaseAdapter):
 
         return namespaces
 
+    def _get_used_tails(self, attributes):
+        def _get_tail(namespace):
+            return namespace.split(".")[-1]
+
+        known_namespaces = self._get_namespaces(self._node)
+        output = set()
+
+        for namespace in known_namespaces:
+            for attribute in attributes:
+                if attribute.in_import_namespaces(namespace):
+                    output.update(_get_tail(namespace_) for namespace_ in attribute.get_all_import_namespaces())
+
+            output.add(_get_tail(namespace))
+
+        return output
+
     @staticmethod
     def _partially_replace_namespace(base_names, old_parts, new_parts, prefix):
         """Replace part (but not all) of a from-import.
@@ -86,7 +102,9 @@ class ImportFromAdapter(base_.BaseAdapter):
         ):
             # We need to split the import statement in two
             children = _get_tail_children(node.children[3:])
-            _adjust_imported_names(old_parts[-1], new_parts, children)
+            old_tail = old_parts[-1]
+            children = [child for child in children if child.value == old_tail]
+            _adjust_imported_names(new_parts, children)
 
             return
 
@@ -96,7 +114,7 @@ class ImportFromAdapter(base_.BaseAdapter):
         children = _get_tail_children(node.children[3:])
         _maybe_replace_imported_names(old_parts[-1], new_parts[-1], children)
 
-    def _replace(self, node, old_parts, new_parts, namespaces=frozenset()):
+    def _replace(self, node, old_parts, new_parts, namespaces=frozenset(), attributes=tuple()):
         """Change `node` from `old_parts` to `new_parts`.
 
         Warning:
@@ -122,6 +140,12 @@ class ImportFromAdapter(base_.BaseAdapter):
                 The namespace to replace `node` with. e.g. ["foo", "bar"].
             namespaces (iter[str]):
                 Full attribute namespaces. e.g. `["module.attribute"]`
+                These namespaces indicate what is "in-use" in the
+                current graph. If an import statements imports multiple
+                statements but at least one of its imports also is
+                present in `namespaces` then the import is split into
+                a separate import statement, to retain the original
+                behavior.
 
         """
         # TODO : Consider replacing the the parent, instead of directly
@@ -130,15 +154,25 @@ class ImportFromAdapter(base_.BaseAdapter):
         base_names = _get_base_names(node.children[1])
         prefix = base_names[0].prefix
 
-        known_namespaces = self._get_namespaces(self._node)
-        known_tails = [namespace.split(".")[-1] for namespace in known_namespaces]
+        known_tails = self._get_used_tails(attributes)
 
         if _still_has_used_namespace(known_tails, namespaces):
             # We need to split the import statement in two because
             # `namespaces` are still in-use.
             #
             children = _get_tail_children(node.children[3:])
-            _adjust_imported_names(old_parts[-1], new_parts, children)
+            old_tail = old_parts[-1]
+            children = [child for child in children if child.value == old_tail]
+
+            if any(not _has_comma(child) for child in children):
+                # If the import isn't a multi-import then running
+                # `_adjust_imported_names` would break the import
+                # completely. Prevent this from happening by checking
+                # for commas, in advance.
+                #
+                return
+
+            _adjust_imported_names(new_parts, children)
 
             return
 
@@ -230,6 +264,14 @@ class ImportFromAdapter(base_.BaseAdapter):
         base_namespace = ".".join(namespace.split(".")[:-1])
 
         return base_namespace in self._get_namespaces(self._node)
+
+
+def _has_comma(node):
+    for child in node_seek.iter_nested_children(node):
+        if _is_comma(node):
+            return True
+
+    return False
 
 
 def _has_fully_described_namespace(required_namespaces, user_provided_namespaces):
@@ -561,12 +603,10 @@ def _still_has_used_namespace(names, used_namespaces):
     return False
 
 
-def _adjust_imported_names(old, new_namespace, nodes):
+def _adjust_imported_names(new_namespace, nodes):
     """Split a from-import into 2 separate import statements.
 
     Args:
-        old (str):
-            The tail of a from-import which will be split into its own import.
         new_namespace (list[str]):
             The items to use for a new import e.g. ["foo", "bar"].
         nodes (iter[:class:`parso.python.tree.Name`]):
@@ -631,16 +671,33 @@ def _adjust_imported_names(old, new_namespace, nodes):
         parent.children.insert(index, new_import_node)
 
     for current_ending_node in nodes:
-        if current_ending_node.value != old:
-            continue
+        parents = _get_parents_up_to_import_from(current_ending_node)
 
-        parent = _get_parents_up_to_import_from(current_ending_node)[-1]
-        commas = [index_ for index_, node_ in enumerate(parent.children) if _is_comma(node_)]
+        if not parents:
+            raise RuntimeError(
+                'Node "{current_ending_node}" has no parents.'.format(
+                    current_ending_node=current_ending_node
+                )
+            )
 
-        if commas:
-            raise RuntimeError()
+        if len(parents) < 2:
+            raise RuntimeError(
+                'Node "{current_ending_node.parent}" has no commas. This function is meant to split a multi-comma import.'.format(
+                    current_ending_node=current_ending_node
+                )
+            )
+
+        top_parent = parents[-1]
+        closest_parent = parents[-2]
+
+        if not [index_ for index_, node_ in enumerate(closest_parent.children) if _is_comma(node_)]:
+            raise RuntimeError(
+                'Node "{closest_parent}" has no commas. This function is meant to split a multi-comma import.'.format(
+                    closest_parent=closest_parent
+                )
+            )
 
         alias = _remove_node_and_comma(current_ending_node)
-        _add_new_import(parent, new_namespace, alias=alias)
+        _add_new_import(top_parent, new_namespace, alias=alias)
 
         return

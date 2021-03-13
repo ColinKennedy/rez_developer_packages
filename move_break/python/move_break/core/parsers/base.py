@@ -69,7 +69,7 @@ class BaseAdapter(object):
 
     @staticmethod
     @abc.abstractmethod
-    def _replace(node, old_parts, new_parts, namespaces=frozenset()):
+    def _replace(node, old_parts, new_parts, namespaces=frozenset(), attributes=tuple()):
         """Change `node` from `old_parts` to `new_parts`.
 
         Warning:
@@ -137,7 +137,7 @@ class BaseAdapter(object):
         """
         return self._get_namespaces(self._node)
 
-    def replace(self, old, new, namespaces=frozenset()):
+    def replace(self, old, new, namespaces=frozenset(), attributes=tuple()):
         """Change `node` from `old` to `new`.
 
         Warning:
@@ -155,7 +155,7 @@ class BaseAdapter(object):
                 Full attribute namespaces. e.g. `["module.attribute"]`
 
         """
-        self._replace(self._node, old.split("."), new.split("."), namespaces=namespaces)
+        self._replace(self._node, old.split("."), new.split("."), namespaces=namespaces, attributes=attributes)
 
     def __contains__(self, namespace):
         """Check if this instance defines a given Python dot-separated namespace.

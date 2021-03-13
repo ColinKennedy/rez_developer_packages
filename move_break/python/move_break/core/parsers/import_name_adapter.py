@@ -51,7 +51,7 @@ class ImportNameAdapter(base_.BaseAdapter):
 
         return namespaces
 
-    def _replace(self, node, old_parts, new_parts, namespaces=frozenset()):
+    def _replace(self, node, old_parts, new_parts, namespaces=frozenset(), attributes=tuple()):
         """Change `node` from `old_parts` to `new_parts`.
 
         Warning:
