@@ -45,8 +45,7 @@ class ImportAdapter(base_.BaseAdapter):
 
         return heads
 
-    @classmethod
-    def _replace(cls, node, old_parts, new_parts, namespaces=frozenset(), attributes=tuple()):
+    def _replace(self, node, old_parts, new_parts, namespaces=frozenset(), attributes=tuple()):
         """Change `node` to `new_parts`.
 
         Args:
@@ -55,21 +54,25 @@ class ImportAdapter(base_.BaseAdapter):
             new_parts (list[str]):
                 The namespace to replace `node` with. e.g. ["foo", "bar"].
             namespaces (iter[str]):
-                Full attribute namespaces. e.g. `["module.attribute"]`
-                These namespaces indicate what is "in-use" in the
-                current graph. If an import statements imports multiple
-                statements but at least one of its imports also is
-                present in `namespaces` then the import is split into
-                a separate import statement, to retain the original
-                behavior.
+                Reference (not full) attribute namespaces. e.g.
+                `["module.attribute"]` These namespaces indicate what
+                is "in-use" in the current graph, post refactoring. If
+                an import statements imports multiple statements but at
+                least one of its imports also is present in `namespaces`
+                then the import is split into a separate import
+                statement, to retain the original behavior.
+            attributes (container[:class:`._Dotted`], optional):
+                Each import namespace / attribute to check for. These
+                attributes are the ones which previously existed in
+                modules, **prior** to any replacing / refactoring.
 
         """
-        known_heads = cls._get_known_heads(attributes)
+        known_heads = self._get_known_heads(attributes)
 
         for namespace in namespaces:
             head = namespace.split(".")[0]
 
-            if head in known_heads:
+            if head in known_heads and not self._aliases:
                 return
 
         if len(new_parts) > 1:

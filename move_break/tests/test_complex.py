@@ -36,7 +36,7 @@ class DotHell(common.Common):
 
         self._test(expected, code, namespaces, partial=False)
 
-    def test_multi_alias_import_001(self):
+    def test_single_alias_import_001(self):
         code = textwrap.dedent(
             """\
             from some.base import blah as another
@@ -60,7 +60,7 @@ class DotHell(common.Common):
 
         self._test(expected, code, namespaces, partial=True)
 
-    def test_multi_alias_import_001b(self):
+    def test_single_alias_import_001b(self):
         code = textwrap.dedent(
             """\
             from some.base import blah as another
@@ -84,7 +84,8 @@ class DotHell(common.Common):
 
         self._test(expected, code, namespaces, aliases=True, partial=True)
 
-    def test_multi_alias_import_001c(self):
+    # TODO : Make sure the dotted version works
+    def test_single_alias_import_001c(self):
         code = textwrap.dedent(
             """\
             import thing as another
@@ -219,7 +220,7 @@ class DotHell(common.Common):
         expected = textwrap.dedent(
             """\
             from a_new.place import here
-            from some.base import fizz
+            from some.base import fizz, another
 
             here.namespace1
             fizz.maker

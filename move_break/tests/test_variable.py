@@ -217,6 +217,7 @@ class Imports(common.Common):
 
         self._test(expected, code, namespaces, partial=False)
 
+    # TODO : Need to add nested imports "something.tt" or something like that
     def test_keep_import_003(self):
         """Don't replace an import if it is still in-use in the module."""
         code = textwrap.dedent(
