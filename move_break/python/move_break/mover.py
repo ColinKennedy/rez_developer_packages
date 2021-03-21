@@ -33,7 +33,8 @@ class _Dotted(object):
                 An object's full namespace e.g. "bazz.thing".
             aliases (set[str], optional):
                 The dot-separated extra namespaces which can also be
-                used to refer to the base of `full_namespace`.
+                used to refer to the base of `import_namespace`. e.g.
+                {"something_else.thing"}.
 
         """
         super(_Dotted, self).__init__()
@@ -42,91 +43,12 @@ class _Dotted(object):
         self._import_namespace = import_namespace
         self._aliases = aliases or set()
 
-    def in_import_namespaces(self, namespace):
-        """Check if a Python dot-separated namespace can be expressed by this instance.
-
-        Specifically, we only check **imports** within this
-        instance. Which includes aliases. We do not check at attribute
-        namespace(s).
-
-        Args:
-            namespace (str): Some import dot-separated namespace to check for.
-
-        Returns:
-            bool: If `namespace is in this instance.
-
-        """
-        return namespace in self.get_all_import_namespaces()
-
     def _needs_full_namespace(self):
         return "." not in self._import_namespace
-
-    def add_namespace_alias(self, namespace):
-        """Add `namespace` as an alternative root namespace for this instance.
-
-        Args:
-            namespace (str):
-                A dot-separated Python namespace which may or may not
-                describe **all** of this instance's full namespace or
-                just part of the beginning of the namespace.
-
-        """
-        self._aliases.add(namespace)
-
-    def get_import_references(self):
-        """set[str]: Every alias namespace which represents this instance."""
-        reference = self._get_reference_namespace() or self._get_full_namespace()
-
-        tail = reference.split(".")[1:]
-        dots_to_remove = self._import_namespace.count(".")
-        output = {reference}
-
-        for alias in self._aliases:
-            if "." in alias:
-                alias = ".".join(alias.split(".")[dots_to_remove:])
-
-            output.add(".".join([alias] + tail))
-
-        return output
-
-    def get_all_import_namespaces(self):
-        """Find all valid **import** namespaces within this instance.
-
-        This includes alias namespaces.
-
-        Returns:
-            set[str]: The found namespaces, if any.
-
-        """
-        namespace = self.get_import_namespace()
-        head = ".".join(namespace.split(".")[:-1])
-
-        if not head:
-            return {reference.split(".")[0] for reference in self.get_import_references()}
-
-        output = set()
-
-        for reference in self.get_import_references():
-            the_alias = reference.split(".")[0]
-
-            output.add("{head}.{the_alias}".format(head=head, the_alias=the_alias))
-
-        return output
 
     def _get_full_namespace(self):
         """str: The fully qualified dot-separated namespace."""
         return self._full_namespace
-
-    def get_import_namespace(self):
-        """Get the full namespace of what a user might import into a module.
-
-        Basically, it's "everything but the end of the namespace".
-
-        Returns:
-            str: The namespace.
-
-        """
-        return ".".join(self._get_full_namespace().split(".")[:-1])
 
     def _get_reference_namespace(self):
         """Get the namespace which would be used, in a module, to refer to the namespace.
@@ -152,6 +74,76 @@ class _Dotted(object):
             return self._full_namespace[len(reference) + 1 :]
 
         return self._get_full_namespace()
+
+    def in_import_namespaces(self, namespace):
+        """Check if a Python dot-separated namespace can be expressed by this instance.
+
+        Specifically, we only check **imports** within this
+        instance. Which includes aliases. We do not check at attribute
+        namespace(s).
+
+        Args:
+            namespace (str): Some import dot-separated namespace to check for.
+
+        Returns:
+            bool: If `namespace is in this instance.
+
+        """
+        return namespace in self.get_all_import_namespaces()
+
+    def get_import_references(self):
+        """set[str]: Every alias namespace which represents this instance."""
+        reference = self._get_reference_namespace() or self._get_full_namespace()
+
+        tail = reference.split(".")[1:]
+        dots_to_remove = self._import_namespace.count(".")
+        output = {reference}
+
+        for alias in self._aliases:
+            if "." in alias:
+                alias = ".".join(alias.split(".")[dots_to_remove:])
+
+            output.add(".".join([alias] + tail))
+
+        return output
+
+    def get_alias_tails(self):
+        return {alias.split(".")[-1] for alias in self._aliases}
+
+    def get_all_import_namespaces(self):
+        """Find all valid **import** namespaces within this instance.
+
+        This includes alias namespaces.
+
+        Returns:
+            set[str]: The found namespaces, if any.
+
+        """
+        namespace = self.get_import_namespace()
+        head = ".".join(namespace.split(".")[:-1])
+
+        if not head:
+            return {reference.split(".")[0] for reference in self.get_import_references()}
+
+        output = set()
+
+        for reference in self.get_import_references():
+            the_alias = reference.split(".")[0]
+
+            output.add("{head}.{the_alias}".format(head=head, the_alias=the_alias))
+
+        return output
+
+    def get_import_namespace(self):
+        """Get the full namespace of what a user might import into a module.
+
+        Basically, it's "everything but the end of the namespace".
+
+        Returns:
+            str: The namespace.
+
+        """
+        return ".".join(self._get_full_namespace().split(".")[:-1])
 
     def get_tail(self, alias=False):
         if not alias:
@@ -184,6 +176,18 @@ class _Dotted(object):
         alias_import = next(iter(self._aliases))
 
         return ".".join([alias_import] + self._get_full_namespace().split(".")[1:])
+
+    def add_namespace_alias(self, namespace):
+        """Add `namespace` as an alternative root namespace for this instance.
+
+        Args:
+            namespace (str):
+                A dot-separated Python namespace which may or may not
+                describe **all** of this instance's full namespace or
+                just part of the beginning of the namespace.
+
+        """
+        self._aliases.add(namespace)
 
     def __repr__(self):
         """str: Create an example of how to reproduce this instance."""

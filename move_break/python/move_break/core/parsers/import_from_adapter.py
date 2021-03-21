@@ -189,26 +189,32 @@ class ImportFromAdapter(base_.BaseAdapter):
         known_tails = self._get_known_tails(attributes)
         used_tails = {tail for tail in known_tails if _is_used(tail, namespaces)}
 
-        if _still_has_used_namespace(used_tails, namespaces):
-            children = _get_tail_children(node.children[3:])
-            self._kill_unneeded_imports(children, known_tails - used_tails)
+        # old_namespace = ".".join(old_parts)
+        # used_tails = set()
+        #
+        # for tail in known_tails:
+        #     if not _is_used(tail, namespaces):
+        #         continue
+        #
+        #     for attribute in attributes:
+        #         if attribute.get_import_namespace() == old_namespace and tail in attribute.get_alias_tails():
+        #             break
+        #     else:
+        #         used_tails.add(tail)
 
-            # We need to split the import statement in two because
-            # `namespaces` are still in-use.
-            #
-            children = _get_tail_children(node.children[3:])
-            old_tail = old_parts[-1]
-            children = [child for child in children if child.value == old_tail]
+        is_still_needed = _is_needed(node, namespaces)
 
-            if any(not _has_comma(child) for child in children):
-                # If the import isn't a multi-import then running
-                # `_adjust_imported_names` would break the import
-                # completely. Prevent this from happening by checking
-                # for commas, in advance.
-                #
+        if not _is_multi_import(node):
+            if is_still_needed:
                 return
 
-            _adjust_imported_names(new_parts, children)
+        if is_still_needed:
+            old_tail = old_parts[-1]
+            index = _get_import_index(node)
+            after_the_import = node.children[index + 1:]
+            children = _get_tail_children(after_the_import)
+            children = [child for child in children if child.value == old_tail]
+            self._kill_unneeded_imports(children, known_tails - used_tails)
 
             return
 
@@ -369,6 +375,39 @@ def _is_comma(node):
     return isinstance(node, tree.Operator) and node.value == ","
 
 
+def _is_import(node):
+    return isinstance(node, tree.Keyword) and node.value == "import"
+
+
+def _is_multi_import(node):
+    index = _get_import_index(node)
+
+    if index == -1:
+        return False
+
+    after_the_import = node.children[index + 1:]
+
+    for child in after_the_import:
+        if _is_comma(child):
+            return True
+
+        for inner in node_seek.iter_nested_children(child):
+            if _is_comma(inner):
+                return True
+
+    return False
+
+
+def _is_needed(node, namespaces):
+    real_tails = tuple(tail.value + "." for tail in node.get_defined_names())
+
+    for namespace in namespaces:
+        if namespace.startswith(real_tails):
+            return True
+
+    return False
+
+
 def _is_used(name, candidates):
     name = name.rstrip(".") + "."
 
@@ -396,9 +435,21 @@ def _delete_name_and_extra_nodes(node):
     parent = node.parent
 
     if isinstance(parent, tree.PythonNode) and parent.type in {"import_as_name", "import_as_names"} and len(_get_non_aliased_names(parent.children)) == 1:
+        # Clean up the parent
         index = parent.parent.children.index(parent)
 
         _delete_node_and_alias_plus_comma(index, parent.parent.children)
+
+        # If cleaning the parent would leave the import in a broken
+        # state then clean up the grandparent, too.
+        #
+        end = parent.parent.children[-1]
+
+        if _is_import(end):
+            super_parent = parent.parent.parent
+            index = super_parent.children.index(parent.parent)
+
+            del super_parent.children[index]
 
         return
 
@@ -555,6 +606,14 @@ def _get_base_names(base):
         base_children = [base]
 
     return [name for name in base_children if isinstance(name, tree.Name)]
+
+
+def _get_import_index(node):
+    for index, child in enumerate(node.children):
+        if _is_import(child):
+            return index
+
+    return -1
 
 
 def _get_parents_up_to_import_from(node):
