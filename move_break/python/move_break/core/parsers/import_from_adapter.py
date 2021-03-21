@@ -209,11 +209,9 @@ class ImportFromAdapter(base_.BaseAdapter):
                 return
 
         if is_still_needed:
-            old_tail = old_parts[-1]
             index = _get_import_index(node)
             after_the_import = node.children[index + 1:]
             children = _get_tail_children(after_the_import)
-            children = [child for child in children if child.value == old_tail]
             self._kill_unneeded_imports(children, known_tails - used_tails)
 
             return
