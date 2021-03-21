@@ -587,6 +587,8 @@ def _maybe_replace_imported_names(old, new, nodes, clear_alias=False):
                     index = grand_parent.children.index(parent)
                     grand_parent.children[index] = children[0]
 
+                    _remove_parentheses_around_name(grand_parent.children[index])
+
 
             continue
 
@@ -792,6 +794,27 @@ def _remove_node_and_comma(node):
     del parent.children[real_comma_index]
 
     return alias
+
+
+def _remove_parentheses_around_name(node):
+    if len(node.parent.children) != 1:
+        return
+
+    children = node.parent.parent.children
+    end = children[-1]
+
+    if isinstance(end, tree.Operator) and end.value == ")":
+        open_parentheses = children[-3]
+        # Delete the "("
+        del children[-3]
+
+        # Make sure that `node` has whitespace, for sure, or it can
+        # cause imports to break.
+        #
+        node.prefix = node.prefix or open_parentheses.prefix
+
+        # Delete the ")"
+        del children[-1]
 
 
 def _still_has_used_namespace(names, used_namespaces):
