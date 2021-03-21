@@ -84,7 +84,6 @@ class DotHell(common.Common):
 
         self._test(expected, code, namespaces, aliases=True, partial=True)
 
-    # TODO : Make sure the dotted version works
     def test_single_alias_import_001c(self):
         code = textwrap.dedent(
             """\
@@ -102,6 +101,30 @@ class DotHell(common.Common):
         expected = textwrap.dedent(
             """\
             import a_new_place as another
+
+            another.namespace
+            """
+        )
+
+        self._test(expected, code, namespaces, aliases=True, partial=True)
+
+    def test_single_alias_import_001d(self):
+        code = textwrap.dedent(
+            """\
+            import foo.bar.thing as another
+
+            another.something
+            """
+        )
+
+        namespaces = [
+            ("import:foo.bar.thing", "import:a_new_place.ttt"),
+            ("foo.bar.thing.something", "a_new_place.ttt.namespace"),
+        ]
+
+        expected = textwrap.dedent(
+            """\
+            import a_new_place.ttt as another
 
             another.namespace
             """

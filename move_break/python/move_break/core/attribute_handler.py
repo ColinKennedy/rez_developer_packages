@@ -265,7 +265,6 @@ def replace(attributes, graph, namespaces, aliases=False, partial=False):
             if not old_reference:
                 continue
 
-            import copy
             new = copy.deepcopy(new)
             new._aliases = copy.copy(old._aliases)
             _make_attribute_replacement(old_reference, new, node, alias=aliases)

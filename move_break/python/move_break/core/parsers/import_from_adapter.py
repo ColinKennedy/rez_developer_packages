@@ -283,7 +283,7 @@ class ImportFromAdapter(base_.BaseAdapter):
         both point to the "real" namespace.
 
         Returns:
-            dict[str, str]: The unique, found for this import namespaces.
+            dict[str, str]: Every unique, full import namespace.
 
         """
         aliases = {

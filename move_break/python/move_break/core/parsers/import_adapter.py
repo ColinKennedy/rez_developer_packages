@@ -120,7 +120,7 @@ class ImportAdapter(base_.BaseAdapter):
         both point to the "real" namespace.
 
         Returns:
-            dict[str, str]: The unique, found for this import namespaces.
+            dict[str, str]: Every unique, full import namespace.
 
         """
         output = dict()
@@ -129,8 +129,7 @@ class ImportAdapter(base_.BaseAdapter):
             path,
             alias,
         ) in self._node._dotted_as_names():  # pylint: disable=protected-access
-            name = path[0]
-            name = serializer.to_dot_namespace([name])
+            name = serializer.to_dot_namespace(path)
 
             if alias:
                 output[name] = serializer.to_dot_namespace([alias])
