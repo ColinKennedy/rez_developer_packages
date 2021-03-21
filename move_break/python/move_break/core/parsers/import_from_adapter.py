@@ -167,7 +167,7 @@ class ImportFromAdapter(base_.BaseAdapter):
             new_parts (list[str]):
                 The namespace to replace `node` with. e.g. ["foo", "bar"].
             namespaces (iter[str]):
-                Full attribute namespaces. e.g. `["module.attribute"]`
+                Reference (not full) attribute namespaces. e.g. `["module.attribute"]`
                 These namespaces indicate what is "in-use" in the
                 current graph, post refactoring. If an import statements
                 imports multiple statements but at least one of its
@@ -210,9 +210,33 @@ class ImportFromAdapter(base_.BaseAdapter):
 
         if is_still_needed:
             index = _get_import_index(node)
+            tails_to_delete = set()
+
+            for tail in known_tails - used_tails:
+                match = False
+
+                for attribute in attributes:
+                    heads = tuple(reference.split(".")[0] for reference in attribute.get_import_references())
+
+                    if tail not in heads:
+                        continue
+
+                    match = True
+                    heads = tuple(head + "." for head in heads)
+
+                    for namespace in namespaces:
+                        if namespace.startswith(heads):
+                            break
+                    else:
+                        tails_to_delete.add(tail)
+
+                if not match:
+                    tails_to_delete.add(tail)
+
             after_the_import = node.children[index + 1:]
             children = _get_tail_children(after_the_import)
-            self._kill_unneeded_imports(children, known_tails - used_tails)
+
+            self._kill_unneeded_imports(children, tails_to_delete)
 
             return
 
