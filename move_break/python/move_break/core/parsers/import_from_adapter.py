@@ -189,19 +189,6 @@ class ImportFromAdapter(base_.BaseAdapter):
         known_tails = self._get_known_tails(attributes)
         used_tails = {tail for tail in known_tails if _is_used(tail, namespaces)}
 
-        # old_namespace = ".".join(old_parts)
-        # used_tails = set()
-        #
-        # for tail in known_tails:
-        #     if not _is_used(tail, namespaces):
-        #         continue
-        #
-        #     for attribute in attributes:
-        #         if attribute.get_import_namespace() == old_namespace and tail in attribute.get_alias_tails():
-        #             break
-        #     else:
-        #         used_tails.add(tail)
-
         is_still_needed = _is_needed(node, namespaces)
 
         if not _is_multi_import(node):
