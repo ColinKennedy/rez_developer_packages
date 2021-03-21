@@ -137,6 +137,36 @@ class DotHell(common.Common):
 
         self._test(expected, code, namespaces, partial=True)
 
+    def test_multi_alias_import_003(self):
+        code = textwrap.dedent(
+            """\
+            from some.base import blah as another, fizz
+
+            another.something
+            fizz.maker
+            another.another
+            """
+        )
+
+        namespaces = [
+            ("import:some.base.blah", "import:a_new.place.here"),
+            ("some.base.blah.something", "a_new.place.here.namespace1"),
+            ("some.base.blah.another", "a_new.place.here.namespace2"),
+        ]
+
+        expected = textwrap.dedent(
+            """\
+            from a_new.place import here
+            from some.base import fizz
+
+            here.namespace1
+            fizz.maker
+            here.namespace2
+            """
+        )
+
+        self._test(expected, code, namespaces, partial=True)
+
     def test_alias_import_which_must_split_and_keep(self):
         """Simultaneously "split" and "keep" an aliased from import, based on module attributes.
 
