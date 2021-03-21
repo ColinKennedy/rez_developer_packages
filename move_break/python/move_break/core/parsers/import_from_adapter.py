@@ -37,7 +37,23 @@ class ImportFromAdapter(base_.BaseAdapter):
 
         return namespaces
 
-    def _get_used_tails(self, attributes):
+    def _get_known_tails(self, attributes):
+        """Find every import from `attributes` that matches the namespaces of this instance.
+
+        In this case, `attributes` could be like
+        ["some.thing.blah.attribute"]. And this instance may contain an
+        import such as `from some.thing import blah, more, things`.  And
+        if that happens, {"blah"} is returned because that's the import
+        name which would be used to refer to `attribute` in a module.
+
+        Args:
+            attributes (container[:class:`._Dotted`]):
+                Each import namespace / attribute to check for.
+
+        Returns:
+            set[str]: Every found namespace, if any.
+
+        """
         def _get_tail(namespace):
             return namespace.split(".")[-1]
 
@@ -55,6 +71,13 @@ class ImportFromAdapter(base_.BaseAdapter):
             output.add(_get_tail(namespace))
 
         return output
+
+    def _kill_unneeded_imports(self, nodes, names):
+        for node in nodes:
+            if node.value not in names:
+                continue
+
+            _delete_name_and_extra_nodes(node)
 
     @staticmethod
     def _partially_replace_namespace(base_names, old_parts, new_parts, prefix):
@@ -146,11 +169,15 @@ class ImportFromAdapter(base_.BaseAdapter):
             namespaces (iter[str]):
                 Full attribute namespaces. e.g. `["module.attribute"]`
                 These namespaces indicate what is "in-use" in the
-                current graph. If an import statements imports multiple
-                statements but at least one of its imports also is
-                present in `namespaces` then the import is split into
-                a separate import statement, to retain the original
-                behavior.
+                current graph, post refactoring. If an import statements
+                imports multiple statements but at least one of its
+                imports also is present in `namespaces` then the import
+                is split into a separate import statement, to retain the
+                original behavior.
+            attributes (container[:class:`._Dotted`], optional):
+                Each import namespace / attribute to check for. These
+                attributes are the ones which previously existed in
+                modules, **prior** to any replacing / refactoring.
 
         """
         # TODO : Consider replacing the the parent, instead of directly
@@ -159,9 +186,13 @@ class ImportFromAdapter(base_.BaseAdapter):
         base_names = _get_base_names(node.children[1])
         prefix = base_names[0].prefix
 
-        known_tails = self._get_used_tails(attributes)
+        known_tails = self._get_known_tails(attributes)
+        used_tails = {tail for tail in known_tails if _is_used(tail, namespaces)}
 
-        if _still_has_used_namespace(known_tails, namespaces):
+        if _still_has_used_namespace(used_tails, namespaces):
+            children = _get_tail_children(node.children[3:])
+            self._kill_unneeded_imports(children, known_tails - used_tails)
+
             # We need to split the import statement in two because
             # `namespaces` are still in-use.
             #
@@ -336,6 +367,92 @@ def _is_alias_name(node):
 
 def _is_comma(node):
     return isinstance(node, tree.Operator) and node.value == ","
+
+
+def _is_used(name, candidates):
+    name = name.rstrip(".") + "."
+
+    for candidate in candidates:
+        if candidate.startswith(name):
+            return True
+
+    return False
+
+
+def _delete_name_and_extra_nodes(node):
+    def _get_non_aliased_names(nodes):
+        names = []
+
+        for index, node in enumerate(nodes):
+            if not isinstance(node, tree.Name):
+                continue
+            elif index == 0:
+                names.append(node)
+            elif not _is_alias(nodes[index - 1]):
+                names.append(node)
+
+        return names
+
+    parent = node.parent
+
+    if isinstance(parent, tree.PythonNode) and parent.type in {"import_as_name", "import_as_names"} and len(_get_non_aliased_names(parent.children)) == 1:
+        index = parent.parent.children.index(parent)
+
+        _delete_node_and_alias_plus_comma(index, parent.parent.children)
+
+        return
+
+    children = node.parent.children
+    index = children.index(node)
+
+    _delete_node_and_alias_plus_comma(index, children)
+
+
+def _delete_node_and_alias_plus_comma(index, children):
+    """Cleanly remove `index` from `children` and clean up any remaining commas.
+
+    If you have an import like `from X import Y as Z, A` and you want
+    to remove the Y-th index, the result would look like `from X import
+    A` by the end. And if you remove the A-th index, it becomes `from X
+    import Y`.
+
+    Basically, no matter what you throw at this function, it'll give you
+    a clean result.
+
+    Args:
+        index (int):
+            A 0-or-greater value of the element to remove from `children`.
+        children (container[:class:`parso.python.tree.PythonNode`]):
+            Some nodes to / remove. It's assumed are the `Y as Z, A`
+            part of a `from X import Y as Z, A` import.
+
+    """
+    def _kill_leading_comma_if_needed(index, children):
+        if index == 0:
+            return
+
+        if _is_comma(children[index - 1]):
+            del children[index - 1]
+
+    del children[index]
+
+    try:
+        next_node = children[index]
+    except IndexError:
+        _kill_leading_comma_if_needed(index, children)
+
+        return
+
+    if _is_comma(next_node):
+        del children[index]  # Delete the comma
+
+        return
+
+    if _is_alias(next_node):
+        del children[index]  # Delete the alias
+
+        if index < len(children):
+            del children[index]  # Delete the comma
 
 
 def _fully_replace_base(base_names, nodes):

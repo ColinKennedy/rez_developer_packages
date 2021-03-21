@@ -101,18 +101,24 @@ def make_import_from_namespace(namespace):
 
 
 def make_name_node(namespace, prefix=None):
+
+    def _add_dots_between_elements(nodes):
+        children = []
+
+        for element in nodes:
+            children.append(element)
+            children.append(tree.Operator(".", (0, 0)))
+
+        children.pop()
+
+        return children
+
     if "." not in namespace:
         return tree.Name(namespace, (0, 0), prefix=prefix)
 
     nodes = [tree.Name(name, (0, 0)) for name in namespace.split(".")]
     nodes[0].prefix = prefix
-    children = []
-
-    for element in nodes:
-        children.append(element)
-        children.append(tree.Operator(".", (0, 0)))
-
-    children.pop()
+    children = _add_dots_between_elements(nodes)
 
     parent = tree.PythonNode("power", children)
 

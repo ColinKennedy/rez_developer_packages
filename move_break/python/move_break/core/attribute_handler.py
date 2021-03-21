@@ -149,7 +149,7 @@ def _make_attribute_replacement(old, new, node, alias=False):
     tail = new.get_tail(alias=alias)
     prefix_node = node_seek.get_node_with_first_prefix(node)
 
-    node.children[:end] = [tree.Name(tail, (0, 0), prefix=prefix_node.prefix)]
+    node.children[:end] = [creator.make_name_node(tail, prefix=prefix_node.prefix)]
 
 
 def _make_namespace_replacement(old, new, node):
