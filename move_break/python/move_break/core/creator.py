@@ -7,7 +7,7 @@ import six
 from parso.python import tree
 
 
-def make_from_import_using_parts(base, tail, prefix=""):
+def make_from_import_using_parts(base, tail, prefix="", alias=""):
     """Create a `from X import Y` object.
 
     Args:
@@ -39,6 +39,16 @@ def make_from_import_using_parts(base, tail, prefix=""):
     if isinstance(tail, six.string_types):
         import_tail = tree.Name(tail, (0, 0), prefix=" ")
 
+    if alias:
+        import_tail = tree.PythonNode(
+            "import_as_name",
+            [
+                import_tail,
+                tree.Keyword("as", (0, 0), prefix=" "),
+                tree.Name(alias, (0, 0), prefix=" "),
+            ],
+        )
+
     return tree.PythonNode(
         "simple_stmt",
         [
@@ -54,7 +64,7 @@ def make_from_import_using_parts(base, tail, prefix=""):
     )
 
 
-def make_import(name, prefix=""):
+def make_import(name, alias="", prefix=""):
     """Make a regular `import X` import.
 
     Args:
@@ -69,15 +79,26 @@ def make_import(name, prefix=""):
             The created parso import object.
 
     """
+    # Note: We don't properly parse `name` if it contains any "."s
+    # like parso does at the moment. But it's mostly harmless to not
+    # do so.
+    #
+    name_node = tree.Name(name, (0, 0), prefix=" "),
+
+    if not alias:
+        tail = name_node
+    else:
+        tail = tree.PythonNode("dotted_as_name", [name_node, tree.Keyword("as", (0, 0), prefix=" "), tree.Name(alias, (0, 0), prefix=" ")])
+
     return tree.ImportName(
         [
             tree.Keyword("import", (0, 0), prefix=prefix),
-            tree.Name(name, (0, 0), prefix=" "),
+            tail,
         ],
     )
 
 
-def make_import_from_namespace(namespace):
+def make_import_from_namespace(namespace, alias=""):
     """Convert a dot-separated string to a parso object.
 
     if `namespace` has no dots, it imports using `import X`. If it does,
@@ -93,11 +114,11 @@ def make_import_from_namespace(namespace):
 
     """
     if "." not in namespace:
-        return make_import(namespace)
+        return make_import(namespace, alias=alias)
 
     base, tail = namespace.rsplit(".", 1)
 
-    return make_from_import_using_parts(base, tail)
+    return make_from_import_using_parts(base, tail, alias=alias)
 
 
 def make_name_node(namespace, prefix=None):
