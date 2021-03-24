@@ -356,3 +356,127 @@ class DotHell(common.Common):
         )
 
         self._test(expected, code, namespaces, partial=False)
+
+
+class InnerImports(common.Common):
+    """Test whenever the modules have different import habits compared to the input.
+
+    e.g. If you define `foo.bar` as the import space but the user tends
+    to do `from foo.bar import Class` instead of `from foo import bar`,
+    these tests need to catch those occurrences and fix them.
+
+    """
+
+    def test_from_001(self):
+        code = textwrap.dedent(
+            """\
+            from foo.bar import Class as Another
+
+            Another.blah
+            """
+        )
+
+        namespaces = [
+            ("import:foo.bar", "import:blah.ttt"),
+            ("foo.bar.Class", "blah.ttt.Place"),
+        ]
+
+        expected = textwrap.dedent(
+            """\
+            from blah.ttt import Place as Another
+
+            Another.blah
+            """
+        )
+
+        self._test(expected, code, namespaces, aliases=True, partial=True)
+
+    def test_from_002(self):
+        code = textwrap.dedent(
+            """\
+            from foo.bar.Class import InnerClass as Another
+
+            Another.blah
+            """
+        )
+
+        namespaces = [
+            ("import:foo.bar", "import:blah"),
+            ("foo.bar.Class", "blah.Place"),
+        ]
+
+        expected = textwrap.dedent(
+            """\
+            from blah import Place as Another
+
+            Another.blah
+            """
+        )
+
+        self._test(expected, code, namespaces, aliases=True, partial=True)
+
+    # def test_import_002(self):
+    #     code = textwrap.dedent(
+    #         """\
+    #         import foo.bar.Class as Another
+    #
+    #         Another.blah
+    #         """
+    #     )
+    #
+    #     namespaces = [("import:foo.bar", "import:blah")]
+    #
+    #     expected = textwrap.dedent(
+    #         """\
+    #         import another
+    #
+    #         another.ffff.zzzzz
+    #         """
+    #     )
+    #
+    #     self._test(expected, code, namespaces, partial=True)
+    #
+    # def test_import_001(self):
+    #     code = textwrap.dedent(
+    #         """\
+    #         import foo.bar.Class as Another
+    #
+    #         Another.blah
+    #         """
+    #     )
+    #
+    #     namespaces = [
+    #         ("import:foo.bar", "import:blah"),
+    #         ("foo.bar.Class", "blah.Place"),
+    #     ]
+    #
+    #     expected = textwrap.dedent(
+    #         """\
+    #         import blah.Place as Another
+    #
+    #         Another.blah
+    #         """
+    #     )
+    #
+    #     self._test(expected, code, namespaces, partial=True)
+    #
+    # def test_import_002(self):
+    #     code = textwrap.dedent(
+    #         """\
+    #         import foo.bar.Class as Another
+    #
+    #         Another.blah
+    #         """
+    #     )
+    #
+    #     namespaces = [("import:foo.bar", "import:blah")]
+    #
+    #     expected = textwrap.dedent(
+    #         """\
+    #         import another
+    #
+    #         another.ffff.zzzzz
+    #         """
+    #     )
+    #
+    #     self._test(expected, code, namespaces, partial=True)

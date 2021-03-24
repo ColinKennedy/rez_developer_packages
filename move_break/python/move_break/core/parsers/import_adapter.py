@@ -40,8 +40,8 @@ class ImportAdapter(base_.BaseAdapter):
     def _get_known_heads(attributes):
         heads = set()
 
-        for attribute in attributes:
-            heads.update(attribute.get_all_import_namespaces())
+        for old, _ in attributes:
+            heads.update(old.get_all_import_namespaces())
 
         return heads
 

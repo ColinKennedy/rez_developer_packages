@@ -110,6 +110,10 @@ class _Dotted(object):
     def get_alias_tails(self):
         return {alias.split(".")[-1] for alias in self._aliases}
 
+    def get_all_full_namespaces(self):
+        # TODO : Add alias support here
+        return {self._full_namespace}
+
     def get_all_import_namespaces(self):
         """Find all valid **import** namespaces within this instance.
 
@@ -492,7 +496,7 @@ def move_imports(  # pylint: disable=too-many-arguments,too-many-locals
                     old,
                     new,
                     namespaces=used_namespaces,
-                    attributes=[old_ for old_, _ in module_attributes],
+                    attributes=module_attributes,
                 )
                 changed = True
                 imports_to_re_add_if_needed.append(old)

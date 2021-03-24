@@ -18,6 +18,23 @@ from . import base as base_
 class ImportFromAdapter(base_.BaseAdapter):
     """The main class used for a regular `from foo import bar` Python import."""
 
+    def _is_import_about_to_be_fully_replaced(self, old_namespace):
+        known_namespaces = self._get_namespaces(self._node)
+
+        if {old_namespace} == known_namespaces:
+            return True
+
+        if not self._partial:
+            raise NotImplementedError("Need to write this case.")
+
+        to_be_replaced = set()
+
+        for namespace in known_namespaces:
+            if namespace.startswith(old_namespace + "."):
+                to_be_replaced.add(namespace)
+
+        return to_be_replaced == known_namespaces
+
     @staticmethod
     def _get_namespaces(node):
         """Find every dot-separated namespace that this instance encapsulates.
@@ -135,11 +152,9 @@ class ImportFromAdapter(base_.BaseAdapter):
             return
 
         # Replace "from foo.bar.thing import something"
-        new_nodes = import_helper.make_replacement_nodes(new_parts[:-1], prefix, parent=node)
-        _fully_replace_base(base_names, new_nodes)
-        children = _get_tail_children(node.children[3:])
-        _maybe_replace_imported_names(old_parts[-1], new_parts[-1], children, clear_alias=not self._aliases)
+        _fully_replace_base_and_tail(node, old_parts, new_parts, base_names, prefix, clear_alias=not self._aliases)
 
+    # TODO : Replace this docstring and all of the others
     def _replace(
         self, node, old_parts, new_parts, namespaces=frozenset(), attributes=tuple()
     ):
@@ -185,41 +200,49 @@ class ImportFromAdapter(base_.BaseAdapter):
         #
         base_names = _get_base_names(node.children[1])
         prefix = base_names[0].prefix
+        old_attributes = [old_ for old_, _ in attributes]
 
-        known_tails = self._get_known_tails(attributes)
+        known_tails = self._get_known_tails(old_attributes)
         used_tails = {tail for tail in known_tails if _is_used(tail, namespaces)}
 
         is_still_needed = _is_needed(node, namespaces)
 
         if not _is_multi_import(node):
             if is_still_needed:
+                old_namespace = ".".join(old_parts)
+
+                if not self._is_import_about_to_be_fully_replaced(old_namespace):
+                    # Don't mess with this import because messing with
+                    # it would cause the import to completely break.
+                    #
+                    return
+
+                known_namespaces = self._get_namespaces(self._node)
+                inner_imports = _get_inner_imports(known_namespaces, attributes, partial=self._partial)
+
+                for old_parts_, new_parts_ in inner_imports:
+                    _fully_replace_base_and_tail(
+                        node, old_parts_, new_parts_, base_names, prefix, clear_alias=not self._aliases,
+                    )
+
+                if not self._partial:
+                    return
+
+                # TODO : Finish this bit
+                # raise ValueError('STOP')
+                # # Replace the entire "from foo.bar.thing import something" import
+                # new_nodes = import_helper.make_replacement_nodes(new_parts, prefix, parent=node)
+                # _fully_replace_base(base_names, new_nodes)
+
                 return
 
         if is_still_needed:
             index = _get_import_index(node)
-            tails_to_delete = set()
-
-            for tail in known_tails - used_tails:
-                match = False
-
-                for attribute in attributes:
-                    heads = tuple(reference.split(".")[0] for reference in attribute.get_import_references())
-
-                    if tail not in heads:
-                        continue
-
-                    match = True
-                    heads = tuple(head + "." for head in heads)
-
-                    for namespace in namespaces:
-                        if namespace.startswith(heads):
-                            break
-                    else:
-                        tails_to_delete.add(tail)
-
-                if not match:
-                    tails_to_delete.add(tail)
-
+            tails_to_delete = _get_tails_to_delete(
+                known_tails - used_tails,
+                old_attributes,
+                namespaces,
+            )
             after_the_import = node.children[index + 1:]
             children = _get_tail_children(after_the_import)
 
@@ -515,6 +538,13 @@ def _delete_node_and_alias_plus_comma(index, children):
             del children[index]  # Delete the comma
 
 
+def _fully_replace_base_and_tail(node, old_parts, new_parts, base_names, prefix, clear_alias=False):
+    new_nodes = import_helper.make_replacement_nodes(new_parts[:-1], prefix, parent=node)
+    _fully_replace_base(base_names, new_nodes)
+    children = _get_tail_children(node.children[3:])
+    _maybe_replace_imported_names(old_parts[-1], new_parts[-1], children, clear_alias=clear_alias)
+
+
 def _fully_replace_base(base_names, nodes):
     """Replace ever node in `base_names` with a new Python namespace.
 
@@ -627,6 +657,32 @@ def _get_import_index(node):
     return -1
 
 
+def _get_inner_imports(namespaces, attributes, partial=False):
+    def _in(namespace, options):
+        return namespace in options
+
+    def _starts_with(namespace, options):
+        for option in options:
+            if namespace.startswith(option):
+                return True
+
+        return False
+
+    if partial:
+        predicate = _starts_with
+    else:
+        predicate = _in
+
+    output = set()
+
+    for namespace in namespaces:
+        for old, new in attributes:
+            if predicate(namespace, old.get_all_full_namespaces()):
+                output.add((tuple(namespace.split(".")), tuple(new._get_full_namespace().split("."))))
+
+    return output
+
+
 def _get_parents_up_to_import_from(node):
     # """Get the :class:`parso.python.tree.ImportFrom` parent of `node`."""
     previous = None
@@ -641,6 +697,33 @@ def _get_parents_up_to_import_from(node):
         parents.append(node)
 
     return parents
+
+
+def _get_tails_to_delete(tails_to_consider, attributes, namespaces):
+    tails = set()
+
+    for tail in tails_to_consider:
+        match = False
+
+        for attribute in attributes:
+            heads = tuple(reference.split(".")[0] for reference in attribute.get_import_references())
+
+            if tail not in heads:
+                continue
+
+            match = True
+            heads = tuple(head + "." for head in heads)
+
+            for namespace in namespaces:
+                if namespace.startswith(heads):
+                    break
+            else:
+                tails.add(tail)
+
+        if not match:
+            tails.add(tail)
+
+    return tails
 
 
 def _get_tail_children(nodes):
