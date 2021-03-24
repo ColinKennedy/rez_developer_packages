@@ -12,7 +12,7 @@ import itertools
 from parso.python import tree
 from parso_helper import node_seek
 
-from .. import import_helper
+from .. import import_helper, parsing_common
 from . import base as base_
 
 
@@ -87,6 +87,16 @@ class ImportNameAdapter(base_.BaseAdapter):
         pairs = _get_pairs(node.children)
 
         if not pairs:
+            known_namespaces = self._get_namespaces(self._node)
+            inner_imports = parsing_common.get_inner_imports(known_namespaces, attributes, partial=self._partial)
+
+            # Replace any class / function imports
+            for old_parts_, new_parts_ in inner_imports:
+                _replace_namespace(
+                    node.children, old_parts_, new_parts_, partial=self._partial
+                )
+
+            # Replace module imports, if possible
             _replace_namespace(
                 node.children, old_parts, new_parts, partial=self._partial
             )

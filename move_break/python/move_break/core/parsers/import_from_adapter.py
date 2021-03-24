@@ -11,7 +11,7 @@ from parso.python import tree
 from parso_helper import node_seek
 from python_compatibility import iterbot
 
-from .. import creator, import_helper, serializer
+from .. import creator, import_helper, parsing_common, serializer
 from . import base as base_
 
 
@@ -218,7 +218,7 @@ class ImportFromAdapter(base_.BaseAdapter):
                     return
 
                 known_namespaces = self._get_namespaces(self._node)
-                inner_imports = _get_inner_imports(known_namespaces, attributes, partial=self._partial)
+                inner_imports = parsing_common.get_inner_imports(known_namespaces, attributes, partial=self._partial)
 
                 for old_parts_, new_parts_ in inner_imports:
                     _fully_replace_base_and_tail(
@@ -655,32 +655,6 @@ def _get_import_index(node):
             return index
 
     return -1
-
-
-def _get_inner_imports(namespaces, attributes, partial=False):
-    def _in(namespace, options):
-        return namespace in options
-
-    def _starts_with(namespace, options):
-        for option in options:
-            if namespace.startswith(option):
-                return True
-
-        return False
-
-    if partial:
-        predicate = _starts_with
-    else:
-        predicate = _in
-
-    output = set()
-
-    for namespace in namespaces:
-        for old, new in attributes:
-            if predicate(namespace, old.get_all_full_namespaces()):
-                output.add((tuple(namespace.split(".")), tuple(new._get_full_namespace().split("."))))
-
-    return output
 
 
 def _get_parents_up_to_import_from(node):
