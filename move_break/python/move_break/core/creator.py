@@ -7,7 +7,7 @@ import six
 from parso.python import tree
 
 
-def make_from_import_using_parts(base, tail, prefix="", alias=""):
+def make_from_import_using_parts(base, tail, alias="", prefix=""):
     """Create a `from X import Y` object.
 
     Args:
@@ -98,7 +98,7 @@ def make_import(name, alias="", prefix=""):
     )
 
 
-def make_import_from_namespace(namespace, alias=""):
+def make_import_from_namespace(namespace, alias="", prefix=""):
     """Convert a dot-separated string to a parso object.
 
     if `namespace` has no dots, it imports using `import X`. If it does,
@@ -114,11 +114,11 @@ def make_import_from_namespace(namespace, alias=""):
 
     """
     if "." not in namespace:
-        return make_import(namespace, alias=alias)
+        return make_import(namespace, alias=alias, prefix=prefix)
 
     base, tail = namespace.rsplit(".", 1)
 
-    return make_from_import_using_parts(base, tail, alias=alias)
+    return make_from_import_using_parts(base, tail, alias=alias, prefix=prefix)
 
 
 def make_name_node(namespace, prefix=None):

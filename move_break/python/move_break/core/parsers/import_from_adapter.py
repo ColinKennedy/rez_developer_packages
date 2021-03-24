@@ -147,7 +147,7 @@ class ImportFromAdapter(base_.BaseAdapter):
             children = _get_tail_children(node.children[3:])
             old_tail = old_parts[-1]
             children = [child for child in children if child.value == old_tail]
-            _adjust_imported_names(new_parts, children)
+            _adjust_imported_names(".".join(new_parts), children)
 
             return
 
@@ -905,8 +905,8 @@ def _adjust_imported_names(new_namespace, nodes):
     """Split a from-import into 2 separate import statements.
 
     Args:
-        new_namespace (list[str]):
-            The items to use for a new import e.g. ["foo", "bar"].
+        new_namespace (str):
+            The items to use for a new import e.g. "foo.bar".
         nodes (iter[:class:`parso.python.tree.Name`]):
             The tail of a from-import whose import namespaces will be split.
 
@@ -920,51 +920,13 @@ def _adjust_imported_names(new_namespace, nodes):
 
         return original
 
-    def _make_import(namespace_parts, prefix="", alias=None):
-        """Make a new from-import node and insert it into an existing parso graph.
-
-        Args:
-            namespace_parts (list[str]):
-                The import that will be converted into a parso from-import node.
-            prefix (str, optional):
-                The leading whitespace (indentation) placed before the new import.
-
-        Returns:
-            :class:`parso.python.tree.ImportFrom`: A newly generated import statement.
-
-        """
-        base_names = namespace_parts[:-1]
-        base_count = len(base_names)
-        base_nodes = []
-
-        if base_count > 1:
-            for is_last, name in iterbot.iter_is_last(base_names):
-                base_nodes.append(tree.Name(name, (0, 0)))
-
-                if not is_last:
-                    base_nodes.append(tree.Operator(".", (0, 0)))
-
-            base_nodes[0].prefix = " "
-            base = tree.PythonNode("dotted_name", base_nodes)
-        else:
-            base = tree.Name(base_names[0], (0, 0), prefix=" ")
-
-        tail = tree.Name(namespace_parts[-1], (0, 0), prefix=" ")
-
-        if alias:
-            tail = tree.PythonNode(
-                "import_as_name", [tail, tree.Keyword("as", (0, 0), prefix=" "), alias]
-            )
-
-        return creator.make_from_import_using_parts(base, tail, prefix=prefix)
-
-    def _add_new_import(import_from, new_namespace, alias=None):
+    def _add_new_import(import_from, new_namespace, alias=""):
         """Add a new from-import of `new_namespace` as a sibling of `node`."""
         parent = import_from.parent
         index = parent.children.index(import_from)
 
         prefix = _adjust_prefix(import_from)
-        new_import_node = _make_import(new_namespace, prefix=prefix, alias=alias)
+        new_import_node = creator.make_import_from_namespace(new_namespace, prefix=prefix, alias=alias)
 
         parent.children.insert(index, new_import_node)
 
@@ -1002,6 +964,12 @@ def _adjust_imported_names(new_namespace, nodes):
             )
 
         alias = _remove_node_and_comma(current_ending_node)
+
+        if alias:
+            alias = alias.value
+        else:
+            alias = ""
+
         _add_new_import(top_parent, new_namespace, alias=alias)
 
         return
