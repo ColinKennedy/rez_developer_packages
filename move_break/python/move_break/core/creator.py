@@ -83,7 +83,7 @@ def make_import(name, alias="", prefix=""):
     # like parso does at the moment. But it's mostly harmless to not
     # do so.
     #
-    name_node = tree.Name(name, (0, 0), prefix=" "),
+    name_node = tree.Name(name, (0, 0), prefix=" ")
 
     if not alias:
         tail = name_node
