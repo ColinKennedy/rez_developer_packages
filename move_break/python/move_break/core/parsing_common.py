@@ -23,6 +23,6 @@ def get_inner_imports(namespaces, attributes, partial=False):
     for namespace in namespaces:
         for old, new in attributes:
             if predicate(namespace, old.get_all_full_namespaces()):
-                output.add((tuple(namespace.split(".")), tuple(new._get_full_namespace().split("."))))
+                output.add((tuple(namespace.split(".")), tuple(new.get_full_namespace().split("."))))
 
     return output

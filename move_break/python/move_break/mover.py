@@ -46,10 +46,6 @@ class _Dotted(object):
     def _needs_full_namespace(self):
         return "." not in self._import_namespace
 
-    def _get_full_namespace(self):
-        """str: The fully qualified dot-separated namespace."""
-        return self._full_namespace
-
     def _get_reference_namespace(self):
         """Get the namespace which would be used, in a module, to refer to the namespace.
 
@@ -73,7 +69,7 @@ class _Dotted(object):
 
             return self._full_namespace[len(reference) + 1 :]
 
-        return self._get_full_namespace()
+        return self.get_full_namespace()
 
     def in_import_namespaces(self, namespace):
         """Check if a Python dot-separated namespace can be expressed by this instance.
@@ -93,7 +89,7 @@ class _Dotted(object):
 
     def get_import_references(self):
         """set[str]: Every alias namespace which represents this instance."""
-        reference = self._get_reference_namespace() or self._get_full_namespace()
+        reference = self._get_reference_namespace() or self.get_full_namespace()
 
         tail = reference.split(".")[1:]
         dots_to_remove = self._import_namespace.count(".")
@@ -138,6 +134,10 @@ class _Dotted(object):
 
         return output
 
+    def get_full_namespace(self):
+        """str: The fully qualified dot-separated namespace."""
+        return self._full_namespace
+
     def get_import_namespace(self):
         """Get the full namespace of what a user might import into a module.
 
@@ -147,22 +147,22 @@ class _Dotted(object):
             str: The namespace.
 
         """
-        return ".".join(self._get_full_namespace().split(".")[:-1])
+        return ".".join(self.get_full_namespace().split(".")[:-1])
 
     def get_tail(self, alias=False):
         if not alias:
             if not self._needs_full_namespace():
-                new_reference = self._get_reference_namespace() or self._get_full_namespace()
+                new_reference = self._get_reference_namespace() or self.get_full_namespace()
 
                 return _get_module_and_attribute(new_reference)
 
-            return self._get_full_namespace()
+            return self.get_full_namespace()
 
         if not self._aliases:
             raise RuntimeError('Alias is True but "{self!r}" has no aliases.'.format(self=self))
 
         if not self._needs_full_namespace():
-            new_reference = self._get_reference_namespace() or self._get_full_namespace()
+            new_reference = self._get_reference_namespace() or self.get_full_namespace()
 
             imports = self.get_import_references()
             alias_imports = self.get_import_references() - {new_reference}
@@ -179,7 +179,7 @@ class _Dotted(object):
         #
         alias_import = next(iter(self._aliases))
 
-        return ".".join([alias_import] + self._get_full_namespace().split(".")[1:])
+        return ".".join([alias_import] + self.get_full_namespace().split(".")[1:])
 
     def add_namespace_alias(self, namespace):
         """Add `namespace` as an alternative root namespace for this instance.
@@ -205,7 +205,7 @@ class _Dotted(object):
 
     def __str__(self):
         """str: Get a shorthand view of this instance."""
-        return "<{namespace}>".format(namespace=self._get_full_namespace())
+        return "<{namespace}>".format(namespace=self.get_full_namespace())
 
 
 def _attach_aliases(attributes, imports):
