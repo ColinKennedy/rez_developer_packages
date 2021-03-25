@@ -243,21 +243,25 @@ def replace(attributes, graph, namespaces, aliases=False, partial=False):
 
         return ""
 
+    def _iter_eligible_nodes(graph):
+        for child in node_seek.iter_nested_children(graph):
+            code = child.get_code().strip()
+
+            if not isinstance(child, tree.PythonNode):
+                continue
+
+            node = _get_inner_python_node(child) or child
+
+            if not _is_eligible(node):
+                _LOGGER.debug('Node "%s" was not eligible so it was skipped.', node)
+
+                continue
+
+            yield node, code
+
     changed = []
 
-    for child in node_seek.iter_nested_children(graph):
-        code = child.get_code().strip()
-
-        if not isinstance(child, tree.PythonNode):
-            continue
-
-        node = _get_inner_python_node(child) or child
-
-        if not _is_eligible(node):
-            _LOGGER.debug('Node "%s" was not eligible so it was skipped.', node)
-
-            continue
-
+    for node, code in _iter_eligible_nodes(graph):
         for old, new in attributes:
             old_references = old.get_import_references()
             old_reference = _get_closest_match(code, old_references)
@@ -272,17 +276,7 @@ def replace(attributes, graph, namespaces, aliases=False, partial=False):
 
             break
 
-    for child in node_seek.iter_nested_children(graph):
-        code = child.get_code().strip()
-
-        if not isinstance(child, tree.PythonNode):
-            continue
-
-        node = _get_inner_python_node(child) or child
-
-        if not _is_eligible(node):
-            continue
-
+    for node, code in _iter_eligible_nodes(graph):
         for old, new in namespaces:
             if partial:
                 if not code.startswith(old):
