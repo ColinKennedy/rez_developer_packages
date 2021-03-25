@@ -98,8 +98,9 @@ class _Dotted(object):
         for alias in self._aliases:
             if "." in alias:
                 alias = ".".join(alias.split(".")[dots_to_remove:])
-
-            output.add(".".join([alias] + tail))
+                output.add(".".join([alias] + tail))
+            else:
+                output.add(".".join([alias, reference.split(".")[-1]]))
 
         return output
 
@@ -226,6 +227,20 @@ def _attach_aliases(attributes, imports):
             match.
 
     """
+
+    def _get_best_key(old, mapping):
+        import_namespace = old.get_import_namespace()
+
+        if import_namespace in mapping:
+            return import_namespace
+
+        full_namespace = old.get_full_namespace()
+
+        if full_namespace in mapping:
+            return full_namespace
+
+        return ""
+
     namespaces_and_aliases = collections.defaultdict(set)
 
     for import_ in imports:
@@ -233,10 +248,9 @@ def _attach_aliases(attributes, imports):
             namespaces_and_aliases[key].add(value)
 
     for old, _ in attributes:
-        namespace = old.get_import_namespace()
+        namespace = _get_best_key(old, namespaces_and_aliases)
 
-        if namespace not in namespaces_and_aliases:
-            # It means that `namespace` has no matching import. Skip it.
+        if not namespace:
             continue
 
         for alias in namespaces_and_aliases[namespace]:
@@ -244,7 +258,7 @@ def _attach_aliases(attributes, imports):
                 # The namespace has no alias. Skip it.
                 continue
 
-            old.add_namespace_alias(alias)
+            old.add_namespace_alias(alias.split(".")[-1])
 
 
 def _get_import_match(text):

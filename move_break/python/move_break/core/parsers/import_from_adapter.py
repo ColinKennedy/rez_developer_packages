@@ -71,9 +71,6 @@ class ImportFromAdapter(base_.BaseAdapter):
             set[str]: Every found namespace, if any.
 
         """
-        def _get_tail(namespace):
-            return namespace.split(".")[-1]
-
         known_namespaces = self._get_namespaces(self._node)
         output = set()
 
@@ -88,6 +85,24 @@ class ImportFromAdapter(base_.BaseAdapter):
             output.add(_get_tail(namespace))
 
         return output
+
+    # TODO : Make this into a proper function
+    @staticmethod
+    def _add_new_imports_if_needed(node, attributes, names):
+        # 1.Find every attribute whose import had been removed
+        removed_import_attributes = set()
+
+        for old, new in attributes:
+            if old.get_full_namespace().split(".")[-1] in names:
+                removed_import_attributes.add((old, new))
+
+        for old, new in removed_import_attributes:
+            try:
+                alias = next(iter(old.get_alias_tails()))
+            except StopIteration:
+                alias = ""
+
+            _add_new_import(node, new.get_full_namespace(), alias=alias)
 
     def _kill_unneeded_imports(self, nodes, names):
         for node in nodes:
@@ -218,21 +233,16 @@ class ImportFromAdapter(base_.BaseAdapter):
                     return
 
                 known_namespaces = self._get_namespaces(self._node)
-                inner_imports = parsing_common.get_inner_imports(known_namespaces, attributes, partial=self._partial)
+                inner_imports = parsing_common.get_inner_imports(
+                    known_namespaces,
+                    attributes,
+                    partial=self._partial,
+                )
 
                 for old_parts_, new_parts_ in inner_imports:
                     _fully_replace_base_and_tail(
                         node, old_parts_, new_parts_, base_names, prefix, clear_alias=not self._aliases,
                     )
-
-                if not self._partial:
-                    return
-
-                # TODO : Finish this bit
-                # raise ValueError('STOP')
-                # # Replace the entire "from foo.bar.thing import something" import
-                # new_nodes = import_helper.make_replacement_nodes(new_parts, prefix, parent=node)
-                # _fully_replace_base(base_names, new_nodes)
 
                 return
 
@@ -245,6 +255,9 @@ class ImportFromAdapter(base_.BaseAdapter):
             )
             after_the_import = node.children[index + 1:]
             children = _get_tail_children(after_the_import)
+            known_namespaces = self._get_namespaces(self._node)
+
+            self._add_new_imports_if_needed(node, attributes, tails_to_delete)
 
             self._kill_unneeded_imports(children, tails_to_delete)
 
@@ -728,6 +741,10 @@ def _get_tail_children(nodes):
     return children
 
 
+def _get_tail(namespace):
+    return namespace.split(".")[-1]
+
+
 def _old_parts_equals_base(base_names, parts):
     """Check if `parts` describes the given parso nodes exactly and nothing more.
 
@@ -911,25 +928,6 @@ def _adjust_imported_names(new_namespace, nodes):
             The tail of a from-import whose import namespaces will be split.
 
     """
-
-    def _adjust_prefix(node):
-        """Put `node` on its own line but retain its original leading indent."""
-        prefix_node = node_seek.get_node_with_first_prefix(node)
-        original = prefix_node.prefix
-        prefix_node.prefix = "\n{original}".format(original=original)
-
-        return original
-
-    def _add_new_import(import_from, new_namespace, alias=""):
-        """Add a new from-import of `new_namespace` as a sibling of `node`."""
-        parent = import_from.parent
-        index = parent.children.index(import_from)
-
-        prefix = _adjust_prefix(import_from)
-        new_import_node = creator.make_import_from_namespace(new_namespace, prefix=prefix, alias=alias)
-
-        parent.children.insert(index, new_import_node)
-
     for current_ending_node in nodes:
         parents = _get_parents_up_to_import_from(current_ending_node)
 
@@ -973,3 +971,23 @@ def _adjust_imported_names(new_namespace, nodes):
         _add_new_import(top_parent, new_namespace, alias=alias)
 
         return
+
+
+def _adjust_prefix(node):
+    """Put `node` on its own line but retain its original leading indent."""
+    prefix_node = node_seek.get_node_with_first_prefix(node)
+    original = prefix_node.prefix
+    prefix_node.prefix = "\n{original}".format(original=original)
+
+    return original
+
+
+def _add_new_import(import_from, new_namespace, alias=""):
+    """Add a new from-import of `new_namespace` as a sibling of `node`."""
+    parent = import_from.parent
+    index = parent.children.index(import_from)
+
+    prefix = _adjust_prefix(import_from)
+    new_import_node = creator.make_import_from_namespace(new_namespace, prefix=prefix, alias=alias)
+
+    parent.children.insert(index, new_import_node)

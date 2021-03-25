@@ -415,7 +415,55 @@ class InnerImports(common.Common):
 
         self._test(expected, code, namespaces, aliases=True, partial=True)
 
-    # def test_import_002(self):
+    def test_import_001(self):
+        code = textwrap.dedent(
+            """\
+            import foo.bar.Class as Another
+
+            Another.blah
+            """
+        )
+
+        namespaces = [
+            ("import:foo.bar.Class", "import:another"),
+            ("foo.bar.Class.blah", "another.ffff.zzzzz"),
+        ]
+
+        expected = textwrap.dedent(
+            """\
+            import another as Another
+
+            Another.ffff.zzzzz
+            """
+        )
+
+        self._test(expected, code, namespaces, aliases=True, partial=True)
+
+    def test_import_002(self):
+        code = textwrap.dedent(
+            """\
+            import foo.bar.Class as Another
+
+            Another.blah
+            """
+        )
+
+        namespaces = [
+            ("import:foo.bar", "import:blah"),
+            ("foo.bar.Class", "blah.Place"),
+        ]
+
+        expected = textwrap.dedent(
+            """\
+            import blah.Place as Another
+
+            Another.blah
+            """
+        )
+
+        self._test(expected, code, namespaces, aliases=True, partial=True)
+
+    # def test_import_003(self):
     #     code = textwrap.dedent(
     #         """\
     #         import foo.bar.Class as Another
@@ -435,48 +483,87 @@ class InnerImports(common.Common):
     #     )
     #
     #     self._test(expected, code, namespaces, partial=True)
-    #
-    # def test_import_001(self):
-    #     code = textwrap.dedent(
-    #         """\
-    #         import foo.bar.Class as Another
-    #
-    #         Another.blah
-    #         """
-    #     )
-    #
-    #     namespaces = [
-    #         ("import:foo.bar", "import:blah"),
-    #         ("foo.bar.Class", "blah.Place"),
-    #     ]
-    #
-    #     expected = textwrap.dedent(
-    #         """\
-    #         import blah.Place as Another
-    #
-    #         Another.blah
-    #         """
-    #     )
-    #
-    #     self._test(expected, code, namespaces, partial=True)
-    #
-    # def test_import_002(self):
-    #     code = textwrap.dedent(
-    #         """\
-    #         import foo.bar.Class as Another
-    #
-    #         Another.blah
-    #         """
-    #     )
-    #
-    #     namespaces = [("import:foo.bar", "import:blah")]
-    #
-    #     expected = textwrap.dedent(
-    #         """\
-    #         import another
-    #
-    #         another.ffff.zzzzz
-    #         """
-    #     )
-    #
-    #     self._test(expected, code, namespaces, partial=True)
+
+
+class InnerImports2(common.Common):
+    """A variation of `InnerImports` which focuses on comma-separated imports."""
+
+    def test_from_001a(self):
+        code = textwrap.dedent(
+            """\
+            from foo.bar import thing, Class as Another, blah
+
+            Another.blah
+            thing.ttt
+            blah.zzzzzz
+            """
+        )
+
+        namespaces = [
+            ("import:foo.bar", "import:blah.ttt"),
+            ("foo.bar.Class", "blah.ttt.Place"),
+        ]
+
+        expected = textwrap.dedent(
+            """\
+            from blah.ttt import Place as Another
+            from foo.bar import thing, blah
+
+            Another.blah
+            thing.ttt
+            blah.zzzzzz
+            """
+        )
+
+        self._test(expected, code, namespaces, aliases=True, partial=True)
+
+    def test_from_001b(self):
+        code = textwrap.dedent(
+            """\
+            from foo.bar import thing, Class as Another, blah
+
+            Another.blah
+            """
+        )
+
+        namespaces = [
+            ("import:foo.bar", "import:blah.ttt"),
+            ("foo.bar.Class", "blah.ttt.Place"),
+        ]
+
+        expected = textwrap.dedent(
+            """\
+            from blah.ttt import Place as Another
+
+            Another.blah
+            """
+        )
+
+        self._test(expected, code, namespaces, aliases=True, partial=True)
+
+
+    def test_from_001c(self):
+        code = textwrap.dedent(
+            """\
+            from foo.bar import thing, Class as Another, blah
+
+            Another.blah
+            """
+        )
+
+        namespaces = [
+            ("import:foo.bar", "import:blah.ttt"),
+            ("foo.bar.Class", "blah.ttt.Place"),
+            ("foo.bar.thing", "blah.ttt.foo"),
+            ("foo.bar.blah", "blah.ttt.another"),
+        ]
+
+        expected = textwrap.dedent(
+            """\
+            from blah.ttt import thing, Place as Another, another
+
+            Another.blah
+            """
+        )
+
+        self._test(expected, code, namespaces, aliases=True, partial=True)
