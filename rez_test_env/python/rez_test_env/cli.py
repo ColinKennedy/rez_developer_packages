@@ -6,6 +6,11 @@
 import argparse
 import os
 
+try:
+    from rez import packages_ as packages
+except ImportError:
+    from rez import packages
+
 from .core import environment, exceptions
 
 
@@ -79,6 +84,16 @@ def _parse_arguments(text):
     _add_tests_parameter(pwd_requester)
     pwd_requester.set_defaults(execute=_pwd_requester)
 
+    query_tests = sub_parsers.add_parser(
+        "query-tests", description="Get the names of the available Rez tests."
+    )
+    query_tests.add_argument(
+        "--directory",
+        default=os.getcwd(),
+        help="The directory to search within for a Rez package. This defaults to $PWD",
+    )
+    query_tests.set_defaults(execute=_query_tests)
+
     return parser.parse_args(text)
 
 
@@ -102,6 +117,30 @@ def _pwd_requester(arguments):
         )
 
     environment.run_from_package(package, arguments.tests, shell=arguments.shell)
+
+
+def _query_tests(arguments):
+    """Print the Rez tests of the package under `arguments`.
+
+    Args:
+        arguments (:class:`argparse.Namespace`): The parsed user input.
+
+    Raises:
+        :class:`.NoValidPackageFound`: If no Rez package could be found.
+
+    """
+    package = packages.get_developer_package(arguments.directory)
+
+    if not packages:
+        if not package:
+            raise exceptions.NoValidPackageFound(
+                'Directory "{arguments.directory}" is not inside of a Rez package.'.format(
+                    arguments=arguments
+                )
+            )
+
+    for name in sorted((package.tests or dict()).keys()):
+        print(name)
 
 
 def main(text):

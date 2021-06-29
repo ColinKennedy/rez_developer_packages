@@ -1,3 +1,9 @@
 #!/usr/bin/env sh
 
-python -m rez_test_env "$@"
+if [ $# -eq 0 ]; then
+    arguments=`python -m rez_test_env query-tests | fzf --select-1`
+else
+    arguments=$@
+fi
+
+python -m rez_test_env "$arguments"
