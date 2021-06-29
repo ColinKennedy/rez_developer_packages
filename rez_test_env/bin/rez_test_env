@@ -13,4 +13,9 @@ else
     arguments=$@
 fi
 
-python -m rez_test_env $arguments
+if [ -z "$arguments" ]
+then
+    python -m rez_test_env
+else
+    python -m rez_test_env $arguments
+fi
