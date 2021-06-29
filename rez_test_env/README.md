@@ -43,3 +43,9 @@ of the tests at once.
 ```sh
 rez_test_env foo unittest_python_*  # Make a resolved environment for "foo", including all tests which match "unittest_python_*"
 ```
+
+## Optional Configurations
+If you have [fzf](https://github.com/junegunn/fzf) installed and you
+run `rez_test_env` with no arguments, you'll be prompted choose a
+rez-test. If [fzf](https://github.com/junegunn/fzf) isn't installed,
+`rez_test_env` fails early.
