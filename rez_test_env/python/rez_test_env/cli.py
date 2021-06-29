@@ -16,7 +16,6 @@ except ImportError:
     from rez import packages
 
 
-
 def _add_tests_parameter(parser):
     """Add a ``tests`` positional parameter to an argparse object.
 
