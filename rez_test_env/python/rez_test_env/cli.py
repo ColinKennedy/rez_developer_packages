@@ -3,6 +3,8 @@
 
 """Parse the user's input from the CLI and run a `rez-env` command using it."""
 
+from __future__ import print_function
+
 import argparse
 import os
 
