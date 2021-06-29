@@ -139,7 +139,7 @@ def _query_tests(arguments):
                 )
             )
 
-    for name in sorted((package.tests or dict()).keys()):
+    for name in sorted((package.tests or dict()).keys(), reverse=True):
         print(name)
 
 

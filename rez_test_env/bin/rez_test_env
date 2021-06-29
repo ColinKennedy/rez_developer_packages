@@ -1,9 +1,16 @@
 #!/usr/bin/env sh
 
-if [ $# -eq 0 ]; then
-    arguments=`python -m rez_test_env query-tests | fzf --select-1`
+arguments=""
+
+if [ $# -eq 0 ]
+then
+    if command -v fzf &> /dev/null
+    then
+        choice=`python -m rez_test_env query-tests | fzf --select-1`
+        arguments="directory $choice"
+    fi
 else
     arguments=$@
 fi
 
-python -m rez_test_env "$arguments"
+python -m rez_test_env $arguments
