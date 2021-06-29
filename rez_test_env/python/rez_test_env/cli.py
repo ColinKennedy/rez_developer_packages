@@ -6,12 +6,13 @@
 import argparse
 import os
 
+from .core import environment, exceptions
+
 try:
     from rez import packages_ as packages
 except ImportError:
     from rez import packages
 
-from .core import environment, exceptions
 
 
 def _add_tests_parameter(parser):
@@ -41,9 +42,7 @@ def _multi_requester(arguments):
 
     """
     environment.run_from_request(
-        arguments.package_request,
-        arguments.tests,
-        shell=arguments.shell,
+        arguments.package_request, arguments.tests, shell=arguments.shell,
     )
 
 
