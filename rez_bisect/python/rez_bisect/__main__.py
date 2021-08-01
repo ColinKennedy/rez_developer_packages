@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """The main entry point for the rez-bisect CLI."""
 
 import logging

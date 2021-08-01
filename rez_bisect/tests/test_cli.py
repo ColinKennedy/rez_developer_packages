@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import textwrap
 import unittest
 
 from rez_bisect import cli
@@ -11,12 +12,27 @@ class RunScenarios(unittest.TestCase):
     def test_bad_single_package(self):
         """Find the package which has some problem."""
         directory = common.make_directory()
-        before, _ = rez_common.make_package(directory, version="1.0.0", is_bad=False)
-        rez_common.make_package(directory, version="1.1.0", is_bad=False)
-        first_bad = rez_common.make_package(directory, version="1.2.0", is_bad=True)
-        rez_common.make_package(directory, version="1.2.1", is_bad=True)
-        rez_common.make_package(directory, version="1.2.2", is_bad=True)
-        after, checker = rez_common.make_package(directory, version="1.3.0", is_bad=True)
+        before = rez_common.make_package(directory, version="1.0.0")
+        rez_common.make_package(directory, version="1.1.0")
+        rez_common.make_package(directory, version="1.2.0")
+        rez_common.make_package(directory, version="1.2.1")
+        rez_common.make_package(directory, version="1.2.2")
+        after = rez_common.make_package(directory, version="1.3.0")
+
+        checker = common.make_script(
+            textwrap.dedent(
+                """\
+                #!/usr/bin/env sh
+
+                if [ "$REZ_FOO_VERSION" == "1.0.0" ] || [ "$REZ_FOO_VERSION" == "1.1.0" ]
+                then
+                    exit 0
+                else
+                    exit 1
+                fi
+                """
+            )
+        )
 
         cli.main(["run", after, checker, "--good", before])
 

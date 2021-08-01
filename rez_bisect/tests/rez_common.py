@@ -33,18 +33,7 @@ def make_package(directory, name="foo", version="1.0.0", is_bad=False):
         maker.name = name
         maker.version = version
 
-    # raise ValueError(sorted(dir(package)))
     variant = maker["installed_variants"][0]
     context = _make_context_from_package(variant)
 
-    suffix = "_checker.sh"
-    text = "return 0"
-
-    if is_bad:
-        suffix = "_checker_bad.sh"
-        text = "return 1"
-
-    with tempfile.NamedTemporaryFile(suffix=suffix, delete=False, mode="w") as handler:
-        handler.write(text)
-
-    return context, handler.name
+    return context
