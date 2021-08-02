@@ -38,27 +38,45 @@ def _get_full_context(bad, diff, command):
             `command` starts failing.
 
     """
+
+    def _get_half_randomly(items):
+        return random.sample(items, (len(items) // 2) + 1)
+
     _validate_keys(diff)
 
     newer_packages = diff.get(_NEWER)
-    keys = set(newer_packages.keys())
-    package_selection = random.sample(keys, (len(newer_packages) // 2) + 1)
-    bad_packages = {variant.name: variant for variant in bad.resolved_packages}
 
-    for name in package_selection:
-        working_package = newer_packages[name][0]
-        bad_packages[name] = working_package
+    # randomly pick half
+    #  - that half - set to the full version
+    #   - if good
+    #    - now set the other half as the full version
+    #     - if bad, follow the bad route
+    #   - if bad
+    # - roll back the change set only half of the group (again,
+    #   randomly) to full. Repeat until nothing left to try or a good state
+    #   is found
+    #     - if good, keep going
+    #     - if bad, keep track of those, too
+    newer_previous = newer_packages[:]
 
-    context = resolved_context.ResolvedContext(
-        _to_request(bad_packages.values()),
-        package_paths=bad.package_paths,
-    )
+    while True:
+        package_selection = _get_half_randomly(list(newer_previous.keys()))
+        bad_packages = {variant.name: variant for variant in bad.resolved_packages}
 
-    if not _check_command(context, command):
-        # TODO : Add support for this later
-        raise NotImplementedError("Need to make a while loop for this part.")
+        for name in package_selection:
+            a_working_package = newer_packages[name][0]
+            bad_packages[name] = a_working_package
 
-    raise ValueError("got this far")
+        context = resolved_context.ResolvedContext(
+            _to_request(bad_packages.values()),
+            package_paths=bad.package_paths,
+        )
+
+        if not _check_command(context, command):
+            # TODO : Add support for this later
+            raise NotImplementedError("Need to make a while loop for this part.")
+
+    return context
 
 
 # TODO : Simplify these parameters, if possible
