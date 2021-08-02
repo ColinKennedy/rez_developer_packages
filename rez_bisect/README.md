@@ -21,6 +21,8 @@ PR to fix resolved_context
 
 - Handle bad, inner resolves to make sure that one bad environment doesn't break the bisect
 
+- Do TODO notes
+- Do NotImplementedError notes
 
 rez-bisect run /tmp/bad.rxt /tmp/checker.sh
 rez-bisect run /tmp/bad.rxt /tmp/checker.sh --good /tmp/good.rxt 

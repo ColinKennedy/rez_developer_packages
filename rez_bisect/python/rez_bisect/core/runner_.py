@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+"""The module which bisects Rez contexts to determine where an issue was introduced."""
+
 import math
 import random
 import subprocess
@@ -12,6 +14,31 @@ _SUPPORTED_KEYS = frozenset((_NEWER,))
 
 
 def _get_full_context(bad, diff, command):
+    """Check groups of Rez packages to find the best resolve which starts to fail `command`.
+
+    Unlike :func:`_get_partial_context`, which is only meant to get a
+    context which is near the root of the problem, this function should
+    always return a context which is very close (if not exactly on)
+    where `command` begins to fail.
+
+    Args:
+        bad (:class:`rez.resolved_context.ResolvedContext`):
+            The context which fails to run `command`.
+        diff (dict[str, list[:class:`rez.utils.formatting.PackageRequest`]]):
+            Each type of Rez package (added, newer, older, removed, etc)
+            and each version found between `bad` and a working resolve.
+        command (str):
+            The path to a shell script which, when run, will pass or succeed.
+
+    Raises:
+        NotImplementedError: This function is still WIP.
+
+    Returns:
+        :class:`rez.resolved_context.ResolvedContext`:
+            The context which determines the exact context where
+            `command` starts failing.
+
+    """
     _validate_keys(diff)
 
     newer_packages = diff.get(_NEWER)
@@ -35,7 +62,32 @@ def _get_full_context(bad, diff, command):
     raise ValueError("got this far")
 
 
-def _get_partial_context(context, diff, command):
+# TODO : Simplify these parameters, if possible
+def _get_partial_context(good, diff, command):
+    """Check all Rez package at once to find a close-ish match that fails `command`.
+
+    The objective of this is not to get a perfect context which shows
+    exactly when `command` begins to fail. The objective is to get close
+    enough so other functions can begin finessing to find the best
+    context.
+
+    For a more exact match, see :func:`_get_full_context`.
+
+    Args:
+        good (:class:`rez.resolved_context.ResolvedContext`):
+            The context which will pass if we run `command` within it.
+        diff (dict[str, list[:class:`rez.utils.formatting.PackageRequest`]]):
+            Each type of Rez package (added, newer, older, removed, etc)
+            and each version found between `good` and a failing resolve.
+        command (str):
+            The path to a shell script which, when run, will pass or succeed.
+
+    Returns:
+        :class:`rez.resolved_context.ResolvedContext`:
+            The context which determines the exact context where
+            `command` starts failing.
+
+    """
     _validate_keys(diff)
 
     weight = 0.5
@@ -55,7 +107,7 @@ def _get_partial_context(context, diff, command):
 
         checker_context = resolved_context.ResolvedContext(
             _to_request(request),
-            package_paths=context.package_paths,
+            package_paths=good.package_paths,
         )
 
         if not _check_command(checker_context, command):
@@ -74,11 +126,23 @@ def _get_partial_context(context, diff, command):
 
     return resolved_context.ResolvedContext(
         _to_request(request),
-        package_paths=context.package_paths,
+        package_paths=good.package_paths,
     )
 
 
 def _check_command(context, command):
+    """Check if `context` can run `command` without failing.
+
+    Args:
+        context (:class:`rez.resolved_context.ResolvedContext`):
+            A Rez resolve which might fail if it runs `command`.
+        command (str):
+            The path to a shell script which, when run, will pass or succeed.
+
+    Returns:
+        bool: If the `command` succeeded.
+
+    """
     process = context.execute_command(
         command,
         stdout=subprocess.PIPE,
@@ -91,6 +155,19 @@ def _check_command(context, command):
 
 
 def _to_request(request):
+    """Convert Rez packages / variants into something Rez contexts can use.
+
+    Todo:
+        Check if this is needed.
+
+    Args:
+        request (iter[:class:`rez.packages.Package` or :class:`rez.packages.Variant`]):
+            The installed package name-version to convert.
+
+    Returns:
+        list[str]: A request which can be sent to a Rez context.
+
+    """
     return [
         "{package.name}=={package.version}".format(package=package)
         for package in request
@@ -98,6 +175,18 @@ def _to_request(request):
 
 
 def _validate_keys(diff):
+    """Make sure `diff` can be processed by functions in this module.
+
+    Todo:
+        Check if this function is actually needed
+
+    Args:
+        diff (dict[str, object]): The Rez diff to check.
+
+    Raises:
+        RuntimeError: If `diff` has any keys which we do not know how to process.
+
+    """
     keys = set(diff.keys())
     unsupported = keys - _SUPPORTED_KEYS
 

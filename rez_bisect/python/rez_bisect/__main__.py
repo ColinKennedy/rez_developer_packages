@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 
-"""The main entry point for the rez-bisect CLI."""
+"""The main entry point for the rez-bisect CLI.
+
+This module is ran any time the user calls `python -m rez_bisect`.
+
+"""
 
 import logging
 import sys
