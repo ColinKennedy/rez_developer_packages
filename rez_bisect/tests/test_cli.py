@@ -34,7 +34,7 @@ class RunScenarios(unittest.TestCase):
         # issue is 1.2.0. And all other packages after that point also
         # have the issue.
         #
-        checker = common.make_script(
+        checker = common.make_temporary_script(
             textwrap.dedent(
                 """\
                 #!/usr/bin/env sh
@@ -92,7 +92,7 @@ class RunScenarios(unittest.TestCase):
         # # issue is 1.2.0. And all other packages after that point also
         # # have the issue.
         # #
-        # checker = common.make_script(
+        # checker = common.make_temporary_script(
         #     textwrap.dedent(
         #         """\
         #         #!/usr/bin/env sh
@@ -223,7 +223,7 @@ class RunScenarios(unittest.TestCase):
         # issue is 1.2.0. And all other packages after that point also
         # have the issue.
         #
-        checker = common.make_script(
+        checker = common.make_temporary_script(
             textwrap.dedent(
                 """\
                 #!/usr/bin/env sh
