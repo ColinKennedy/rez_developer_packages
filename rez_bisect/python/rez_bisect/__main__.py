@@ -7,7 +7,6 @@ import sys
 
 from . import cli
 
-
 _LOGGER = logging.getLogger("rez-bisect")
 _HANDLER = logging.StreamHandler(sys.stdout)
 _HANDLER.setLevel(logging.INFO)

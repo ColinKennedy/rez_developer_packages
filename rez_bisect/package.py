@@ -24,6 +24,30 @@ tests = {
         "requires": ["black-19+<21"],
         "run_on": "explicit",
     },
+    "isort": {
+        "command": "isort package.py python tests",
+        "requires": ["isort-5.9+<6"],
+        "run_on": "explicit",
+    },
+    "isort_check": {
+        "command": "isort --check-only --diff package.py python tests",
+        "requires": ["isort-5.9+<6"],
+    },
+    "pydocstyle": {
+        # Need to disable D202 for now, until a new pydocstyle version is released
+        # Reference: https://github.com/psf/black/issues/1159
+        #
+        "command": "pydocstyle --ignore=D213,D202,D203,D406,D407 python tests/*",
+        "requires": ["pydocstyle-6.1+<7"],
+    },
+    "pylint_source": {
+        "command": "pylint --disable=bad-continuation python/rez_lint",
+        "requires": ["pylint-1.9+<2"],
+    },
+    "pylint_tests": {
+        "command": "pylint --disable=bad-continuation,duplicate-code tests",
+        "requires": ["pylint-1.9+<2"],
+    },
     "unittest_python_2": {
         "command": "python -m unittest discover",
         "requires": _test_requires + ["python-2"],

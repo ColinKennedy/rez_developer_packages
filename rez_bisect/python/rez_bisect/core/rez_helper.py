@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 import json
-import shlex
 import os
+import shlex
 
 from rez import resolved_context
 

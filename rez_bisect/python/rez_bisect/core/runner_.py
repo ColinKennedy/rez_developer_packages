@@ -1,13 +1,11 @@
 #!/usr/bin/env python
 
-import random
 import math
+import random
 import subprocess
 
-from rez import packages_
-from rez import resolved_context
+from rez import packages_, resolved_context
 from rez.vendor.version import version as version_
-
 
 _NEWER = "newer_packages"
 _SUPPORTED_KEYS = frozenset((_NEWER,))
