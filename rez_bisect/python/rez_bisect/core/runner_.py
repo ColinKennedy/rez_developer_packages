@@ -103,6 +103,16 @@ def _get_partial_context(good, diff, command):
             `command` starts failing.
 
     """
+
+    def _newer_indices_to_context(newer_indices):
+        closest_newer = {key: value + 1 for key, value in newer_indices.items()}
+        request = [newer_packages[key][index] for key, index in closest_newer.items()]
+
+        return resolved_context.ResolvedContext(
+            _to_request(request),
+            package_paths=good.package_paths,
+        )
+
     _validate_keys(diff)
 
     weight = 0.5
@@ -117,6 +127,7 @@ def _get_partial_context(good, diff, command):
         for packages in newer:
             index = math.floor(len(packages) * weight)
             package = packages[index]
+
             request.append(package)
             newer_indices[package.name] = index
 
@@ -132,17 +143,11 @@ def _get_partial_context(good, diff, command):
 
         if request == previous:
             break
-        else:
-            weight *= 1.5
-            previous = request
 
-    closest_newer = {key: value + 1 for key, value in newer_indices.items()}
-    request = [newer_packages[key][index] for key, index in closest_newer.items()]
+        weight *= 1.5
+        previous = request
 
-    return resolved_context.ResolvedContext(
-        _to_request(request),
-        package_paths=good.package_paths,
-    )
+    return _newer_indices_to_context(newer_indices)
 
 
 def _get_candidate_packages(tester, all_newer_packages, command):
