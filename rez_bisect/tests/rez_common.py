@@ -41,8 +41,7 @@ def make_combined_context(variants, package_paths=""):
         package_paths=package_paths,
     )
 
-    _, path = tempfile.mkstemp(suffix="_package_context")
-    atexit.register(functools.partial(os.remove, path))
+    _, path = tempfile.mkstemp(suffix="_package_context.rxt")
 
     context.save(path)
 

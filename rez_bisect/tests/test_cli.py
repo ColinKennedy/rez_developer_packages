@@ -180,9 +180,9 @@ class RunScenarios(unittest.TestCase):
             checker,
             textwrap.dedent(
                 """\
-                #!/usr/bin/env
+                #!/usr/bin/env sh
 
-                if [ -z "$REZ_DEPENDENCY_ROOT" ]
+                if [ ! -z "$REZ_DEPENDENCY_ROOT" ]
                 then
                     exit 0
                 fi

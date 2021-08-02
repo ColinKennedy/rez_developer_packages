@@ -14,7 +14,8 @@ import subprocess
 from rez import resolved_context
 
 _NEWER = "newer_packages"
-_SUPPORTED_KEYS = frozenset((_NEWER,))
+_REMOVED = "removed_packages"
+_SUPPORTED_KEYS = frozenset((_NEWER, _REMOVED))
 
 
 def _is_command_successful(context, command):
