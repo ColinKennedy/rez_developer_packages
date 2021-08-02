@@ -178,7 +178,7 @@ def _get_candidate_packages(tester, all_newer_packages, command):
     return to_test
 
 
-def _get_full_context(good, bad_packages):
+def _get_combined_context(good, bad_packages):
     bad_packages_data = {package.name: package for package in bad_packages}
 
     packages = []
@@ -192,6 +192,10 @@ def _get_full_context(good, bad_packages):
     )
 
     return context
+
+
+def _get_full_context(good, diff, command):
+    pass
 
 
 def _get_half_randomly(items):
@@ -317,7 +321,7 @@ def summarize(good, bad):
     for key, data in good.get_resolve_diff(bad).items():
         output.setdefault(key, set())
 
-        for name, packages in data.items():
+        for packages in data.values():
             output[key].add(packages[-1])
 
     return output

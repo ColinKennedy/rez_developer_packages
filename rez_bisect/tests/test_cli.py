@@ -284,6 +284,16 @@ class RunScenarios(unittest.TestCase):
         """
         raise ValueError()
 
+    def test_resolve_fail(self):
+        """Simulate a situation where, while finding the bad package, 1+ resolve fails.
+
+        The bisect code will need to find a way to detect the bad
+        resolve and adjust itself so it can keep testing, but with a
+        different-but-similar resolve.
+
+        """
+        raise ValueError()
+
 
 class RunInputs(unittest.TestCase):
     """Make sure `run` works with a variety of input."""
