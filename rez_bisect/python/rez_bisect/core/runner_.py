@@ -6,8 +6,7 @@ import math
 import random
 import subprocess
 
-from rez import packages_, resolved_context
-from rez.vendor.version import version as version_
+from rez import resolved_context
 
 _NEWER = "newer_packages"
 _SUPPORTED_KEYS = frozenset((_NEWER,))
