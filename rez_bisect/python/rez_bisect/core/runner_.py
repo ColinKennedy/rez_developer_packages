@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 
 """The module which bisects Rez contexts to determine where an issue was introduced."""
+# TODO : clean up this module later
 
+import functools
+import itertools
 import math
 import random
 import subprocess
@@ -12,71 +15,66 @@ _NEWER = "newer_packages"
 _SUPPORTED_KEYS = frozenset((_NEWER,))
 
 
-def _get_full_context(bad, diff, command):
-    """Check groups of Rez packages to find the best resolve which starts to fail `command`.
-
-    Unlike :func:`_get_partial_context`, which is only meant to get a
-    context which is near the root of the problem, this function should
-    always return a context which is very close (if not exactly on)
-    where `command` begins to fail.
+def _is_command_successful(context, command):
+    """Check if `context` can run `command` without failing.
 
     Args:
-        bad (:class:`rez.resolved_context.ResolvedContext`):
-            The context which fails to run `command`.
-        diff (dict[str, list[:class:`rez.utils.formatting.PackageRequest`]]):
-            Each type of Rez package (added, newer, older, removed, etc)
-            and each version found between `bad` and a working resolve.
+        context (:class:`rez.resolved_context.ResolvedContext`):
+            A Rez resolve which might fail if it runs `command`.
         command (str):
             The path to a shell script which, when run, will pass or succeed.
 
-    Raises:
-        NotImplementedError: This function is still WIP.
-
     Returns:
-        :class:`rez.resolved_context.ResolvedContext`:
-            The context which determines the exact context where
-            `command` starts failing.
+        bool: If the `command` succeeded.
 
     """
+    process = context.execute_command(
+        command,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
 
-    def _get_half_randomly(items):
-        return random.sample(items, (len(items) // 2) + 1)
+    process.communicate()
 
+    return process.returncode == 0
+
+
+def _get_required_bad_packages(bad, diff, command):
+    # """Check groups of Rez packages to find the best resolve which starts to fail `command`.
+    #
+    # Unlike :func:`_get_partial_context`, which is only meant to get a
+    # context which is near the root of the problem, this function should
+    # always return a context which is very close (if not exactly on)
+    # where `command` begins to fail.
+    #
+    # Args:
+    #     bad (:class:`rez.resolved_context.ResolvedContext`):
+    #         The context which fails to run `command`.
+    #     diff (dict[str, list[:class:`rez.utils.formatting.PackageRequest`]]):
+    #         Each type of Rez package (added, newer, older, removed, etc)
+    #         and each version found between `bad` and a working resolve.
+    #     command (str):
+    #         The path to a shell script which, when run, will pass or succeed.
+    #
+    # Raises:
+    #     NotImplementedError: This function is still WIP.
+    #
+    # Returns:
+    #     :class:`rez.resolved_context.ResolvedContext`:
+    #         The context which determines the exact context where
+    #         `command` starts failing.
+    #
+    # """
     _validate_keys(diff)
 
     newer_packages = diff.get(_NEWER)
+    all_newer_packages = set(newer_packages.keys())
+    tester = functools.partial(_get_testing_packages, bad, newer_packages)
 
-    # randomly pick half
-    #  - that half - set to the full version
-    #   - if good
-    #    - now set the other half as the full version
-    #     - if bad, follow the bad route
-    #   - if bad
-    # - roll back the change set only half of the group (again,
-    #   randomly) to full. Repeat until nothing left to try or a good state
-    #   is found
-    #     - if good, keep going
-    #     - if bad, keep track of those, too
-    newer_previous = newer_packages[:]
+    to_test = _get_candidate_packages(tester, all_newer_packages, command)
+    required_packages = _get_required_bad_package_names(tester, to_test, command)
 
-    while True:
-        package_selection = _get_half_randomly(list(newer_previous.keys()))
-        bad_packages = {variant.name: variant for variant in bad.resolved_packages}
-
-        for name in package_selection:
-            a_working_package = newer_packages[name][0]
-            bad_packages[name] = a_working_package
-
-        context = resolved_context.ResolvedContext(
-            _to_request(bad_packages.values()),
-            package_paths=bad.package_paths,
-        )
-
-        if not _check_command(context, command):
-            # TODO : Add support for this later
-            raise NotImplementedError("Need to make a while loop for this part.")
-
-    return context
+    return [newer_packages[name][-1] for name in required_packages]
 
 
 # TODO : Simplify these parameters, if possible
@@ -88,7 +86,7 @@ def _get_partial_context(good, diff, command):
     enough so other functions can begin finessing to find the best
     context.
 
-    For a more exact match, see :func:`_get_full_context`.
+    For a more exact match, see :func:`_get_required_bad_packages`.
 
     Args:
         good (:class:`rez.resolved_context.ResolvedContext`):
@@ -127,7 +125,7 @@ def _get_partial_context(good, diff, command):
             package_paths=good.package_paths,
         )
 
-        if not _check_command(checker_context, command):
+        if not _is_command_successful(checker_context, command):
             weight /= 2
 
             continue
@@ -147,28 +145,75 @@ def _get_partial_context(good, diff, command):
     )
 
 
-def _check_command(context, command):
-    """Check if `context` can run `command` without failing.
+def _get_candidate_packages(tester, all_newer_packages, command):
+    to_test = set(_get_half_randomly(all_newer_packages))
 
-    Args:
-        context (:class:`rez.resolved_context.ResolvedContext`):
-            A Rez resolve which might fail if it runs `command`.
-        command (str):
-            The path to a shell script which, when run, will pass or succeed.
+    while True:
+        context = tester(to_test)
 
-    Returns:
-        bool: If the `command` succeeded.
+        if _is_command_successful(context, command):
+            # `to_test` contains enough packages that it turns `bad`
+            # into a good resolve again. So we're done
+            break
 
-    """
-    process = context.execute_command(
-        command,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
+        # We didn't include enough packages. Expand the number of
+        # packages which we will test and re-try.
+        #
+        to_test.update(_get_half_randomly(all_newer_packages - to_test))
+
+    return to_test
+
+
+def _get_half_randomly(items):
+    return random.sample(items, (len(items) // 2) + 1)
+
+
+def _get_required_bad_package_names(tester, all_candidates, command):
+    to_test = set(all_candidates)
+
+    while True:
+        first = set(_get_half_randomly(to_test))
+        context = tester(first)
+
+        if not _is_command_successful(context, command):
+            raise NotImplementedError("Im bad")
+
+            break
+
+        if to_test == first:
+            return first
+
+        context = tester(to_test - first)
+
+        if not _is_command_successful(context, command):
+            raise NotImplementedError(
+                'This should never happen. Fix! "{to_test} {first}"'.format(
+                    to_test=to_test, first=first
+                )
+            )
+
+    raise ValueError("tt")
+
+
+def _get_testing_packages(bad, newer_packages, package_selection):
+    # 1. `packages` is initially filled with only packages which
+    # contribute to a "bad" resolve and not to any "good" resolve. This
+    # will change shortly (see below).
+    #
+    packages = {variant.name: variant for variant in bad.resolved_packages}
+
+    for name in package_selection:
+        a_working_package = newer_packages[name][0]
+        packages[name] = a_working_package
+
+    # 2. By this point, `packages` should be a mix of package name-variants
+    # which create a "bad" resolve. But `package_selection` should include
+    # a few packages which actually contribute to a "good" resolve.
+    #
+    return resolved_context.ResolvedContext(
+        _to_request(packages.values()),
+        package_paths=bad.package_paths,
     )
-
-    process.communicate()
-
-    return process.returncode == 0
 
 
 def _to_request(request):
@@ -228,9 +273,31 @@ def bisect(good, bad, command):
 
     """
     partial_context = _get_partial_context(good, good.get_resolve_diff(bad), command)
-    full_context = _get_full_context(
+    bad_packages = _get_required_bad_packages(
         partial_context, good.get_resolve_diff(partial_context), command
     )
+    bad_packages_data = {package.name: package for package in bad_packages}
 
-    raise ValueError(full_context)
-    # process = full_context.execute_shell(command)
+    packages = []
+
+    for variant in good.resolved_packages:
+        packages.append(bad_packages_data.get(variant.name, variant))
+
+    context = resolved_context.ResolvedContext(
+        _to_request(packages),
+        package_paths=good.package_paths,
+    )
+
+    return context
+
+
+def summarize(good, bad):
+    output = dict()
+
+    for key, data in good.get_resolve_diff(bad).items():
+        output.setdefault(key, set())
+
+        for name, packages in data.items():
+            output[key].add(packages[-1])
+
+    return output

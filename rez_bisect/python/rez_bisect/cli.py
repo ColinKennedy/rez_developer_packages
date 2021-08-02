@@ -3,6 +3,7 @@
 """The module which `__main__.py` uses in order to do any bisect-related work."""
 
 import argparse
+import operator
 
 from .core import rez_helper, runner_
 
@@ -17,7 +18,15 @@ def _runner(arguments):
     good = rez_helper.to_context(arguments.good)
     bad = rez_helper.to_context(arguments.bad)
 
-    runner_.bisect(good, bad, arguments.command)
+    found = runner_.bisect(good, bad, arguments.command)
+
+    print("Now displaying the packages which caused the issue.")
+
+    for key, packages in runner_.summarize(good, found).items():
+        print(key)
+
+        for package in sorted(packages, key=operator.attrgetter("name")):
+            print("    {package.name}-{package.version}".format(package=package))
 
 
 def _parse_arguments(text):

@@ -46,6 +46,18 @@ class RunScenarios(unittest.TestCase):
 
         cli.main(["run", before, after, checker])
 
+    def test_dropped_dependency(self):
+        """Find the Rez dependency which was dropped between versions.
+
+        If 2 Rez packages depend on something but only one of them lists
+        it in their `requires` attribute, if the dependency is dropped,
+        the other Rez package may fail.
+
+        This scenario covers that situation.
+
+        """
+        raise ValueError("asdf")
+
     def test_exact_match(self):
         """Get the exact package where and issue occurs, in a large list of Rez packages."""
         directory = common.make_directory()
@@ -77,6 +89,14 @@ class RunScenarios(unittest.TestCase):
 
         cli.main(["run", before, after, checker])
 
+    def test_multiple_bad_configurations(self):
+        """A resolve where 4 packages all have the same fail condition."""
+        raise ValueError()
+
+
+class RunInputs(unittest.TestCase):
+    """Make sure `run` works with a variety of input."""
+
     def test_command_any(self):
         """Run any shell command to find a specific problem."""
         raise ValueError("asdfs")
@@ -84,10 +104,6 @@ class RunScenarios(unittest.TestCase):
     def test_command_rez_test(self):
         """Run Rez tests to find a specific problem."""
         raise ValueError("asdfs")
-
-
-class RunInputs(unittest.TestCase):
-    """Make sure `run` works with a variety of input."""
 
     def test_context_file(self):
         """Read from a Rez resolve context file."""
