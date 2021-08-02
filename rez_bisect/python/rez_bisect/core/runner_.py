@@ -195,11 +195,28 @@ def _get_combined_context(good, bad_packages):
 
 
 def _get_full_context(good, diff, command):
-    pass
+    def _half_diff(diff):
+        output = dict()
+
+        for key, data in diff.items():
+            halved_data_keys = _get_half_randomly(set(data.keys()))
+            output.setdefault(key, dict())
+            output[key].update(
+                {key: value for key, value in data.items() if key in halved_data_keys}
+            )
+
+        return output
+
+    half_diff = _half_diff(diff)
+
+    raise ValueError(_get_partial_context(good, half_diff, command))
 
 
 def _get_half_randomly(items):
-    return random.sample(items, (len(items) // 2) + 1)
+    if len(items) == 1:
+        return list(items)
+
+    return random.sample(items, (len(items) // 2))
 
 
 def _get_required_bad_package_names(tester, all_candidates, command):
@@ -312,7 +329,12 @@ def bisect(good, bad, command):
         partial_context, good.get_resolve_diff(partial_context), command
     )
 
-    return _get_full_context(good, bad_packages)
+    # `minimum_bad_context` contains all good packages + each Rez
+    # package (`bad_packages`) which contributes to `command` failing.
+    #
+    minimum_bad_context = _get_combined_context(good, bad_packages)
+
+    return _get_full_context(good, good.get_resolve_diff(minimum_bad_context), command)
 
 
 def summarize(good, bad):
