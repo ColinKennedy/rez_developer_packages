@@ -221,7 +221,7 @@ def _get_required_bad_package_names(tester, all_candidates, command):
                 )
             )
 
-    raise ValueError("tt")
+    raise NotImplementedError("Figure out what to do, here.")
 
 
 def _get_testing_packages(bad, newer_packages, package_selection):

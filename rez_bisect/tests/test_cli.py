@@ -109,7 +109,23 @@ class RunScenarios(unittest.TestCase):
         #
         # cli.main(["run", before, after, checker])
 
-    def test_dropped_dependency(self):
+    def test_dependency_added_001(self):
+        """Catch when a dependency is added that causes some kind of issue."""
+        raise ValueError()
+
+    def test_dependency_added_002(self):
+        """Catch when a dependency is added that causes some kind of issue.
+
+        This method differs from :meth:`test_dependency_added_001`
+        because "after" Rez context has packages which are older than
+        they were previously. (In a real world scenario, this happens
+        when someone does a rollback, due to some issue with the latest
+        version releases, usually).
+
+        """
+        raise ValueError()
+
+    def test_dependency_dropped(self):
         """Find the Rez dependency which was dropped between versions.
 
         If 3 Rez packages depend on a package but only 2 of them lists
