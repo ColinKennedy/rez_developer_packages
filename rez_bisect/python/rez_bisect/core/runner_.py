@@ -10,7 +10,7 @@ from rez.vendor.version import version as version_
 
 
 _NEWER = "newer_packages"
-_SUPPORTED_KEYS = frozenset((_NEWER, ))
+_SUPPORTED_KEYS = frozenset((_NEWER,))
 
 
 def _get_full_context(bad, diff, command):
@@ -32,9 +32,9 @@ def _get_full_context(bad, diff, command):
 
     if not _check_command(context, command):
         # TODO : Add support for this later
-        raise NotImplementedError('Need to make a while loop for this part.')
+        raise NotImplementedError("Need to make a while loop for this part.")
 
-    raise ValueError('got this far')
+    raise ValueError("got this far")
 
 
 def _get_partial_context(context, diff, command):
@@ -117,7 +117,9 @@ def run(bad, command, good=None):
         raise NotImplementedError("Need to write this")
 
     partial_context = _get_partial_context(good, good.get_resolve_diff(bad), command)
-    full_context = _get_full_context(partial_context, good.get_resolve_diff(partial_context), command)
+    full_context = _get_full_context(
+        partial_context, good.get_resolve_diff(partial_context), command
+    )
 
     # raise ValueError(full_context)
     # process = full_context.execute_shell(command)

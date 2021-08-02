@@ -17,11 +17,11 @@ _test_requires = ["rez-2.93+<3"]
 tests = {
     "black_diff": {
         "command": "black --diff --check package.py python tests",
-        "requires": ["black-19"],
+        "requires": ["black-19+<21"],
     },
     "black": {
         "command": "black package.py python tests",
-        "requires": ["black-19"],
+        "requires": ["black-19+<21"],
         "run_on": "explicit",
     },
     "unittest_python_2": {
@@ -33,6 +33,7 @@ tests = {
         "requires": _test_requires + ["python-3"],
     },
 }
+
 
 def commands():
     import os

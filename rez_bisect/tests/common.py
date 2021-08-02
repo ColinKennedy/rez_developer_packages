@@ -16,7 +16,9 @@ def make_directory():
 
 
 def make_script(commands):
-    with tempfile.NamedTemporaryFile(suffix="_script.sh", delete=False, mode="w") as handler:
+    with tempfile.NamedTemporaryFile(
+        suffix="_script.sh", delete=False, mode="w"
+    ) as handler:
         handler.writelines(commands)
 
     os.chmod(handler.name, os.stat(handler.name).st_mode | stat.S_IEXEC)
