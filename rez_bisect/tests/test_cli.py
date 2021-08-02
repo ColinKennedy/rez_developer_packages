@@ -2,7 +2,9 @@
 
 """Make sure :mod:`rez_bisect.cli` works as expected."""
 
+import itertools
 import textwrap
+import math
 import unittest
 
 from python_compatibility import wrapping
@@ -74,13 +76,26 @@ class RunScenarios(unittest.TestCase):
 
     def test_exact_match(self):
         """Get the exact package where and issue occurs, in a large list of Rez packages."""
-        directory = common.make_directory()
 
-        for version in ["1.0.0", "1.1.0", "1.2.0", "1.2.1", "1.2.2", "1.3.0"]:
+        def _get_versions(weight, count):
+            return ["1.{value}.0".format(value=value) for value in range(math.floor(count * weight))]
+
+        weight = 0.63
+        count = 300
+
+        good_versions = _get_versions(weight, count)
+        bad_versions = _get_versions(1 - weight, count)
+
+        directory = common.make_directory()
+        versions = []
+
+        for version in itertools.chain(good_versions, bad_versions):
             versions.append(rez_common.make_context(directory, version=version))
 
         before = versions[0]
         after = versions[-1]
+
+        raise ValueError(versions)
 
         # Note: In this `checker`, the first Rez package which has an
         # issue is 1.2.0. And all other packages after that point also
