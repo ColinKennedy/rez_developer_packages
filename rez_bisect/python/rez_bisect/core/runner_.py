@@ -3,6 +3,8 @@
 """The module which bisects Rez contexts to determine where an issue was introduced."""
 # TODO : clean up this module later
 
+from __future__ import division
+
 import functools
 import itertools
 import math
@@ -115,6 +117,7 @@ def _get_partial_context(good, diff, command):
 
     _validate_keys(diff)
 
+    previous_weight = 1
     weight = 0.5
     newer_packages = diff.get(_NEWER)
     newer = newer_packages.values()
@@ -136,15 +139,20 @@ def _get_partial_context(good, diff, command):
             package_paths=good.package_paths,
         )
 
+        average = (weight + previous_weight) / 2
+        offset = abs(average - weight)
+
         if not _is_command_successful(checker_context, command):
-            weight /= 2
+            previous_weight = weight
+            weight = weight - offset
 
             continue
 
         if request == previous:
             break
 
-        weight *= 1.5
+        previous_weight = weight
+        weight += offset
         previous = request
 
     return _newer_indices_to_context(newer_indices)

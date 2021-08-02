@@ -162,7 +162,20 @@ class RunScenarios(unittest.TestCase):
             )
         )
 
-        cli.main(["run", before, after, checker])
+        with wrapping.capture_pipes() as (stdout, stderr):
+            cli.main(["run", before, after, checker])
+
+        self.assertFalse(stderr.getvalue())
+        self.assertEqual(
+            textwrap.dedent(
+                """\
+                These added / removed / changed packages are the cause of the issue:
+                    newer_packages
+                        foo-2.0.0
+                """
+            ),
+            stdout.getvalue(),
+        )
 
     def test_multiple_bad_configurations(self):
         """A resolve where 4 packages all have the same fail condition."""
