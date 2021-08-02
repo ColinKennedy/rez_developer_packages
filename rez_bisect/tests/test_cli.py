@@ -269,6 +269,17 @@ class RunScenarios(unittest.TestCase):
             stdout.getvalue(),
         )
 
+    def test_many_rez_packages(self):
+        """Find the bad resolve which requires many Rez packages to replicate.
+
+        This test is a variant of
+        :meth:`RunScenarios.test_multiple_rez_packages`. The difference
+        is, this method uses many more Rez packages to replicate the
+        fault.
+
+        """
+        raise ValueError()
+
     def test_multiple_bad_configurations(self):
         """A resolve where 4 packages all have the same fail condition."""
         raise ValueError()
