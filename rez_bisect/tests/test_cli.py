@@ -40,9 +40,9 @@ class RunScenarios(unittest.TestCase):
                 if [ "$REZ_FOO_VERSION" == "1.0.0" ] || [ "$REZ_FOO_VERSION" == "1.1.0" ]
                 then
                     exit 0
-                else
-                    exit 1
                 fi
+
+                exit 1
                 """
             )
         )
@@ -77,14 +77,17 @@ class RunScenarios(unittest.TestCase):
     def test_exact_match(self):
         """Get the exact package where and issue occurs, in a large list of Rez packages."""
 
-        def _get_versions(weight, count):
-            return ["1.{value}.0".format(value=value) for value in range(math.floor(count * weight))]
+        def _get_versions(major, weight, count):
+            return [
+                "{major}.{value}.0".format(major=major, value=value)
+                for value in range(math.floor(count * weight))
+            ]
 
         weight = 0.63
         count = 300
 
-        good_versions = _get_versions(weight, count)
-        bad_versions = _get_versions(1 - weight, count)
+        good_versions = _get_versions(1, weight, count)
+        bad_versions = _get_versions(2, 1 - weight, count)
 
         directory = common.make_directory()
         versions = []
@@ -95,8 +98,6 @@ class RunScenarios(unittest.TestCase):
         before = versions[0]
         after = versions[-1]
 
-        raise ValueError(versions)
-
         # Note: In this `checker`, the first Rez package which has an
         # issue is 1.2.0. And all other packages after that point also
         # have the issue.
@@ -106,12 +107,12 @@ class RunScenarios(unittest.TestCase):
                 """\
                 #!/usr/bin/env sh
 
-                if [ "$REZ_FOO_VERSION" == "1.0.0" ] || [ "$REZ_FOO_VERSION" == "1.1.0" ]
+                if [ "$REZ_FOO_VERSION" == "1*" ]
                 then
                     exit 0
-                else
-                    exit 1
                 fi
+
+                exit 1
                 """
             )
         )

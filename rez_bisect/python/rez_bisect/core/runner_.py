@@ -164,6 +164,22 @@ def _get_candidate_packages(tester, all_newer_packages, command):
     return to_test
 
 
+def _get_full_context(good, bad_packages):
+    bad_packages_data = {package.name: package for package in bad_packages}
+
+    packages = []
+
+    for variant in good.resolved_packages:
+        packages.append(bad_packages_data.get(variant.name, variant))
+
+    context = resolved_context.ResolvedContext(
+        _to_request(packages),
+        package_paths=good.package_paths,
+    )
+
+    return context
+
+
 def _get_half_randomly(items):
     return random.sample(items, (len(items) // 2) + 1)
 
@@ -273,22 +289,12 @@ def bisect(good, bad, command):
 
     """
     partial_context = _get_partial_context(good, good.get_resolve_diff(bad), command)
+
     bad_packages = _get_required_bad_packages(
         partial_context, good.get_resolve_diff(partial_context), command
     )
-    bad_packages_data = {package.name: package for package in bad_packages}
 
-    packages = []
-
-    for variant in good.resolved_packages:
-        packages.append(bad_packages_data.get(variant.name, variant))
-
-    context = resolved_context.ResolvedContext(
-        _to_request(packages),
-        package_paths=good.package_paths,
-    )
-
-    return context
+    return _get_full_context(good, bad_packages)
 
 
 def summarize(good, bad):
