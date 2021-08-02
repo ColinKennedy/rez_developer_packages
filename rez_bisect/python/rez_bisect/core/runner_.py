@@ -198,15 +198,22 @@ def _validate_keys(diff):
         )
 
 
-def run(bad, command, good=None):
-    if not good:
-        # TODO : Add test for this
-        raise NotImplementedError("Need to write this")
+def bisect(good, bad, command):
+    """Find the closest resolve between two Rez resolves which fails `command`.
 
+    Args:
+        good (:class:`rez.resolved_context.ResolvedContext`): The context
+            which succeeds in running `command`.
+        bad (:class:`rez.resolved_context.ResolvedContext`): The context
+            which fails to run `command`.
+        command (str): The path
+            to a shell script which, when run, will pass or succeed.
+
+    """
     partial_context = _get_partial_context(good, good.get_resolve_diff(bad), command)
     full_context = _get_full_context(
         partial_context, good.get_resolve_diff(partial_context), command
     )
 
-    # raise ValueError(full_context)
+    raise ValueError(full_context)
     # process = full_context.execute_shell(command)
