@@ -24,6 +24,8 @@ PR to fix resolved_context
 - Do TODO notes
 - Do NotImplementedError notes
 
+- Need to check if before / after are the same environment
+
 rez-bisect run /tmp/bad.rxt /tmp/checker.sh
 rez-bisect run /tmp/bad.rxt /tmp/checker.sh --good /tmp/good.rxt 
 rez-bisect run `cat /tmp/bad.rxt` /tmp/checker.sh --good /tmp/good.rxt 
