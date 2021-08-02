@@ -3,6 +3,8 @@
 """Make sure :mod:`rez_bisect.cli` works as expected."""
 
 import itertools
+import os
+import functools
 import textwrap
 import math
 import unittest
@@ -23,7 +25,7 @@ class RunScenarios(unittest.TestCase):
         versions = []
 
         for version in ["1.0.0", "1.1.0", "1.2.0", "1.2.1", "1.2.2", "1.3.0"]:
-            versions.append(rez_common.make_context(directory, version=version))
+            versions.append(rez_common.make_single_context(directory, version=version))
 
         before = versions[0]
         after = versions[-1]
@@ -64,7 +66,7 @@ class RunScenarios(unittest.TestCase):
 
     def test_command_never_succeeds(self):
         """Fail gracefully if the user-provided command does not actually succeed."""
-        raise
+        raise ValueError()
         # def _get_versions(major, weight, count):
         #     return [
         #         "{major}.{value}.0".format(major=major, value=value)
@@ -81,7 +83,7 @@ class RunScenarios(unittest.TestCase):
         # versions = []
         #
         # for version in itertools.chain(good_versions, bad_versions):
-        #     versions.append(rez_common.make_context(directory, version=version))
+        #     versions.append(rez_common.make_single_context(directory, version=version))
         #
         # before = versions[0]
         # after = versions[-1]
@@ -110,14 +112,88 @@ class RunScenarios(unittest.TestCase):
     def test_dropped_dependency(self):
         """Find the Rez dependency which was dropped between versions.
 
-        If 2 Rez packages depend on something but only one of them lists
-        it in their `requires` attribute, if the dependency is dropped,
-        the other Rez package may fail.
+        If 3 Rez packages depend on a package but only 2 of them lists
+        it in their `requires` attribute, once those packages drop the
+        dependency, the 3rd package will fail because it still uses the
+        dependency but now fails.
 
         This scenario covers that situation.
 
         """
-        raise ValueError("asdf")
+        directory = common.make_directory()
+        rez_common.make_variant(directory, name="dependency", version="1.0.0")
+        _make_variant = functools.partial(rez_common.make_variant, directory)
+
+        # Make 2 packages which each drop `dependency` at some point
+        before_a = _make_variant(name="a", version="1.0.0", requires=["dependency-1"])
+        _make_variant(name="a", version="1.1.0", requires=["dependency-1"])
+        _make_variant(name="a", version="1.1.1")
+        _make_variant(name="a", version="1.2.0")
+        _make_variant(name="a", version="1.3.0")
+        after_a = _make_variant(name="a", version="1.3.1")
+        before_b = _make_variant(name="b", version="3.0.0", requires=["dependency-1"])
+        _make_variant(name="b", version="3.1.0", requires=["dependency-1"])
+        _make_variant(name="b", version="3.1.1", requires=["dependency-1"])
+        _make_variant(name="b", version="3.2.0", requires=["dependency-1"])
+        _make_variant(name="b", version="3.3.0", requires=["dependency-1"])
+        after_b = _make_variant(name="b", version="3.3.1")
+
+        # Add a 3rd package that always depends on `dependency` but
+        # doesn't explicitly state it, in its list of requirements.
+        #
+        variant = rez_common.make_variant(
+            directory,
+            name="c",
+            version="1.0.0",
+            commands=textwrap.dedent(
+                """\
+                def commands():
+                    import os
+
+                    env.PATH.append(os.path.join(root, "bin"))
+                """
+            ),
+        )
+
+        root = os.path.join(
+            variant.resource.location, variant.name, str(variant.version)
+        )
+        checker = os.path.join(root, "bin", "something.sh")
+
+        common.make_script(
+            checker,
+            textwrap.dedent(
+                """\
+                #!/usr/bin/env
+
+                if [ -z "$REZ_DEPENDENCY_ROOT" ]
+                then
+                    exit 0
+                fi
+
+                exit 1
+                """
+            ),
+        )
+
+        before = rez_common.make_combined_context([before_a, before_b])
+        after = rez_common.make_combined_context([after_a, after_b])
+
+        with wrapping.capture_pipes() as (stdout, stderr):
+            cli.main(["run", before, after, checker])
+
+        self.assertFalse(stderr.getvalue())
+        self.assertEqual(
+            textwrap.dedent(
+                """\
+                These added / removed / changed packages are the cause of the issue:
+                    newer_packages
+                        a-1.1.1
+                        b-3.3.1
+                """
+            ),
+            stdout.getvalue(),
+        )
 
     def test_exact_match(self):
         """Get the exact package where and issue occurs, in a large list of Rez packages."""
@@ -138,7 +214,7 @@ class RunScenarios(unittest.TestCase):
         versions = []
 
         for version in itertools.chain(good_versions, bad_versions):
-            versions.append(rez_common.make_context(directory, version=version))
+            versions.append(rez_common.make_single_context(directory, version=version))
 
         before = versions[0]
         after = versions[-1]
@@ -179,6 +255,17 @@ class RunScenarios(unittest.TestCase):
 
     def test_multiple_bad_configurations(self):
         """A resolve where 4 packages all have the same fail condition."""
+        raise ValueError()
+
+    def test_multiple_rez_packages(self):
+        """Find the bad resolve which requires at least 2 Rez packages to replicate.
+
+        This scenario is when both packages are "okay" in isolation but
+        not together at the same time. This can be pretty common with
+        lower-level C++ libraries, where 2 packages are incompatible but
+        may still resolve (for whatever reason).
+
+        """
         raise ValueError()
 
 

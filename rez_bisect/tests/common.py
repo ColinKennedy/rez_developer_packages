@@ -18,11 +18,25 @@ def make_directory():
     return directory
 
 
-def make_script(commands):
+def make_script(path, text):
+    directory = os.path.dirname(path)
+
+    if not os.path.isdir(directory):
+        os.makedirs(directory)
+
+    with open(path, "w") as handler:
+        handler.write(text)
+
+    os.chmod(path, os.stat(path).st_mode | stat.S_IEXEC)
+
+    atexit.register(functools.partial(os.remove, path))
+
+
+def make_temporary_script(commands):
     """Create a temporary shell script with `commands` and delete it later.
 
     Args:
-        commands (iter[str]): Some shell script to run whenever this new file is called.
+        commands (str): Some shell script to run whenever this new file is called.
 
     Returns:
         str: The generated, temporary file.
@@ -31,10 +45,8 @@ def make_script(commands):
     with tempfile.NamedTemporaryFile(
         suffix="_script.sh", delete=False, mode="w"
     ) as handler:
-        handler.writelines(commands)
+        pass
 
-    os.chmod(handler.name, os.stat(handler.name).st_mode | stat.S_IEXEC)
-
-    atexit.register(functools.partial(os.remove, handler.name))
+    make_script(handler.name, commands)
 
     return handler.name
