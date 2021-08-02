@@ -20,13 +20,13 @@ def _runner(arguments):
 
     found = runner_.bisect(good, bad, arguments.command)
 
-    print("Now displaying the packages which caused the issue.")
+    print("These added / removed / changed packages are the cause of the issue:")
 
     for key, packages in runner_.summarize(good, found).items():
-        print(key)
+        print("    {key}".format(key=key))
 
         for package in sorted(packages, key=operator.attrgetter("name")):
-            print("    {package.name}-{package.version}".format(package=package))
+            print("        {package.name}-{package.version}".format(package=package))
 
 
 def _parse_arguments(text):

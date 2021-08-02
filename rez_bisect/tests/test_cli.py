@@ -5,6 +5,7 @@
 import textwrap
 import unittest
 
+from python_compatibility import wrapping
 from rez_bisect import cli
 
 from . import common, rez_common
@@ -44,7 +45,20 @@ class RunScenarios(unittest.TestCase):
             )
         )
 
-        cli.main(["run", before, after, checker])
+        with wrapping.capture_pipes() as (stdout, stderr):
+            cli.main(["run", before, after, checker])
+
+        self.assertFalse(stderr.getvalue())
+        self.assertEqual(
+            textwrap.dedent(
+                """\
+                These added / removed / changed packages are the cause of the issue:
+                    newer_packages
+                        foo-1.2.0
+                """
+            ),
+            stdout.getvalue(),
+        )
 
     def test_dropped_dependency(self):
         """Find the Rez dependency which was dropped between versions.
