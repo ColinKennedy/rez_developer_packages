@@ -28,6 +28,7 @@ PR to fix resolved_context
   creates. See if it can be lower while still passing all tests
 
 - Make sure there's a test to ensure resolves happen as little as possible
+- Need to check if before / after are the same environment
 
 rez-bisect run /tmp/bad.rxt /tmp/checker.sh
 rez-bisect run /tmp/bad.rxt /tmp/checker.sh --good /tmp/good.rxt 
