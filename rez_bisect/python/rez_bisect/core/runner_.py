@@ -5,8 +5,8 @@
 
 from __future__ import division
 
+import collections
 import functools
-import itertools
 import math
 import random
 import subprocess
@@ -149,6 +149,7 @@ def _get_partial_context(good, diff, command):
 
             continue
 
+        # TODO : Check why this is producing a redundant check. Make it more efficient
         if request == previous:
             break
 
@@ -180,6 +181,101 @@ def _get_candidate_packages(tester, all_newer_packages, command):
 
 def _get_combined_context(good, bad_packages):
     bad_packages_data = {package.name: package for package in bad_packages}
+    requested_names = {request.name for request in good.requested_packages()}
+    packages = []
+
+    for variant in good.resolved_packages:
+        if variant.name not in requested_names:
+            continue
+
+        packages.append(bad_packages_data.get(variant.name, variant))
+
+    context = resolved_context.ResolvedContext(
+        _to_request(packages),
+        package_paths=good.package_paths,
+    )
+
+    return context
+
+
+# def _get_full_context(good, diff, command):
+#     # Choose one
+#     # - Partial context it
+#     # - save that result and incorporate it into a new test
+#     # Choose another
+#     # - repeat
+#     # Continue until all packages have had versions chosen
+#
+#     def _choose_one(packages):
+#         return random.sample(packages, 1)[0]
+#
+#     checked = set()
+#     bads = set()
+#     newer = diff.get(_NEWER)
+#
+#     while True:
+#         candidates = set(newer.keys()) - checked - bads
+#
+#         if not candidates:
+#             break
+#
+#         chosen = _choose_one(candidates)
+#         diff_with_chosen = _make_diff_from_packages([chosen], diff)
+#         context = _get_partial_context(good, diff_with_chosen, command)
+#
+#         if _is_command_successful(context, command):
+#             checked.add(chosen)
+#
+#             continue
+#
+#         bads.add(chosen)
+#
+#     # def _half_diff(diff, exclude):
+#     #     output = dict()
+#     #
+#     #     for key, data in diff.items():
+#     #         halved_data_keys = _get_half_randomly(set(data.keys()) - exclude)
+#     #
+#     #         if not halved_data_keys:
+#     #             continue
+#     #
+#     #         output.setdefault(key, dict())
+#     #         output[key].update(
+#     #             {key: value for key, value in data.items() if key in halved_data_keys}
+#     #         )
+#     #
+#     #     return output
+#     #
+#     # original_bad_packages = set()
+#     # bad_names = set()
+#     #
+#     # for data in diff.values():
+#     #     for name, packages in data.items():
+#     #         bad_names.add(name)
+#     #         package = packages[-1]
+#     #         original_bad_packages.add((package.name, package.version))
+#     #
+#     # safe_packages = set()
+#     #
+#     # while True:
+#     #     half_diff = _half_diff(diff, safe_packages)
+#     #
+#     #     if not half_diff:
+#     #         # There is nothing more to check
+#     #         raise ValueError(safe_packages)
+#     #         break
+#     #
+#     #     context = _get_partial_context(good, half_diff, command)
+#     #
+#     #     for name in bad_names:
+#     #         bad_package = context.get_resolved_package(name)
+#     #
+#     #         if (bad_package.name, bad_package.version) in original_bad_packages:
+#     #             safe_packages.add(bad_package.name)
+
+
+def _get_full_context(good, bad_packages):
+    bad_packages_data = {package.name: package for package in bad_packages}
 
     packages = []
 
@@ -192,24 +288,6 @@ def _get_combined_context(good, bad_packages):
     )
 
     return context
-
-
-def _get_full_context(good, diff, command):
-    def _half_diff(diff):
-        output = dict()
-
-        for key, data in diff.items():
-            halved_data_keys = _get_half_randomly(set(data.keys()))
-            output.setdefault(key, dict())
-            output[key].update(
-                {key: value for key, value in data.items() if key in halved_data_keys}
-            )
-
-        return output
-
-    half_diff = _half_diff(diff)
-
-    raise ValueError(_get_partial_context(good, half_diff, command))
 
 
 def _get_half_randomly(items):
@@ -265,6 +343,18 @@ def _get_testing_packages(bad, newer_packages, package_selection):
         _to_request(packages.values()),
         package_paths=bad.package_paths,
     )
+
+
+def _make_diff_from_packages(names, reference_diff):
+    output = dict()
+
+    for key, data in reference_diff.items():
+        if isinstance(data, collections.MutableMapping):
+            output[key] = {name: packages for name, packages in data.items() if name in names}
+        else:
+            output[key] = [package for package in data if package.name in names]
+
+    return output
 
 
 def _to_request(request):
@@ -323,18 +413,49 @@ def bisect(good, bad, command):
             to a shell script which, when run, will pass or succeed.
 
     """
-    partial_context = _get_partial_context(good, good.get_resolve_diff(bad), command)
+    # partial_context = _get_partial_context(good, good.get_resolve_diff(bad), command)
+    #
+    # bad_packages = _get_required_bad_packages(
+    #     partial_context, good.get_resolve_diff(partial_context), command
+    # )
+    #
+    # # `minimum_bad_context` contains all good packages + each Rez
+    # # package (`bad_packages`) which contributes to `command` failing.
+    # #
+    # minimum_bad_context = _get_combined_context(good, bad_packages)
+    #
+    # return _get_full_context(good, good.get_resolve_diff(minimum_bad_context), command)
 
-    bad_packages = _get_required_bad_packages(
-        partial_context, good.get_resolve_diff(partial_context), command
+    def _filter_requests(diff, contexts):
+        request = {package.name for context in contexts for package in context.requested_packages()}
+
+        return _make_diff_from_packages(request, diff)
+
+    def _get_request_diff(left, right):
+        return _filter_requests(left.get_resolve_diff(right), [left, right])
+
+    partial_context = _get_partial_context(
+        good,
+        _get_request_diff(good, bad),
+        command,
     )
 
-    # `minimum_bad_context` contains all good packages + each Rez
-    # package (`bad_packages`) which contributes to `command` failing.
-    #
-    minimum_bad_context = _get_combined_context(good, bad_packages)
+    bad_packages = _get_required_bad_packages(
+        partial_context, _get_request_diff(good, partial_context), command
+    )
 
-    return _get_full_context(good, good.get_resolve_diff(minimum_bad_context), command)
+    return _get_full_context(good, bad_packages)
+
+    # bad_packages = _get_required_bad_packages(
+    #     partial_context, good.get_resolve_diff(partial_context), command
+    # )
+    #
+    # # `minimum_bad_context` contains all good packages + each Rez
+    # # package (`bad_packages`) which contributes to `command` failing.
+    # #
+    # minimum_bad_context = _get_combined_context(good, bad_packages)
+    #
+    # return _get_full_context(good, good.get_resolve_diff(minimum_bad_context), command)
 
 
 def summarize(good, bad):
