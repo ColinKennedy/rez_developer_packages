@@ -15,7 +15,41 @@ from rez_bisect import cli
 from . import common, rez_common
 
 
-class RunScenarios(unittest.TestCase):
+class Diff(unittest.TestCase):
+    """Make sure every key in Rez's diff is supported."""
+
+    def test_added(self):
+        """Make sure an issue caused by multiple added packages is detectable."""
+        raise ValueError()
+
+    def test_older(self):
+        """Make sure an issue caused by multiple older packages is detectable."""
+        raise ValueError()
+
+    def test_removed(self):
+        """Make sure an issue caused by multiple removed packages is detectable."""
+        raise ValueError()
+
+
+class Ephemerals(unittest.TestCase):
+    def test_single_added(self):
+        """Check that adding a single ephemeral causes a fail."""
+        raise ValueError()
+
+    def test_single_removed(self):
+        """Check that removing a single ephemeral causes a fail."""
+        raise ValueError()
+
+    def test_multiple_added(self):
+        """Check that adding a multiple ephemeral causes a fail."""
+        raise ValueError()
+
+    def test_multiple_removed(self):
+        """Check that removing a multiple ephemeral causes a fail."""
+        raise ValueError()
+
+
+class Scenarios(unittest.TestCase):
     """Make sure `run` can properly bisect many different package scenarios."""
 
     def test_bad_single_package(self):
@@ -125,6 +159,15 @@ class RunScenarios(unittest.TestCase):
         """
         raise ValueError()
 
+    def test_dependency_dropped_multiple(self):
+        """Find the Rez dependencies which was dropped between versions.
+
+        This variant of :meth:`RunScenarios.test_dependency_dropped`
+        checks for multiple deleted dependencies at once.
+
+        """
+        raise ValueError()
+
     def test_dependency_dropped(self):
         """Find the Rez dependency which was dropped between versions.
 
@@ -211,6 +254,54 @@ class RunScenarios(unittest.TestCase):
             stdout.getvalue(),
         )
 
+    def test_dependency_rollback(self):
+        """Check if a dependency dropped due to a package version rolling back is caught."""
+        raise ValueError()
+
+    def test_earliest_fails_001(self):
+        """Detect if the earliest package is the failing package.
+
+        As in
+
+        (bad resolve)
+        a-1.0.0 - good
+        a-1.1.0 - bad  <-- We need to detect this bad point
+        a-1.2.0 - bad
+        a-1.3.0 - bad
+
+        Note: We check for the second, not the first, because if the first failed
+        then it means that there isn't a single version of package "a" were the resolve is "good".
+        And of course, that would be a user error.
+
+        """
+        raise ValueError()
+
+    def test_earliest_fails_002(self):
+        """Detect if the earliest package is the failing package.
+
+        As in
+
+        (bad resolve)
+        a-1.0.0 - bad  <-- We need to detect this bad point
+        a-1.1.0 - bad
+        a-1.2.0 - bad
+        a-1.3.0 - bad
+
+        This is user error. It means that they didn't provide a "good"
+        resolve to compare against.
+
+        """
+        raise ValueError()
+
+    def test_environment(self):
+        """Run a bisect on a large, production-ish environment.
+
+        We need at least one test like this. Most of the tests are too
+        simply to be considered a real production case.
+
+        """
+        raise ValueError()
+
     def test_exact_match(self):
         """Get the exact package where and issue occurs, in a large list of Rez packages."""
 
@@ -269,6 +360,20 @@ class RunScenarios(unittest.TestCase):
             stdout.getvalue(),
         )
 
+    def test_latest_fails(self):
+        """Detect if the latest package is the only failing package.
+
+        As in
+
+        (bad resolve)
+        a-1.0.0 - good
+        a-1.1.0 - good
+        a-1.2.0 - good
+        a-1.3.0 - bad  <-- We need to detect this bad point
+
+        """
+        raise ValueError()
+
     def test_many_rez_packages(self):
         """Find the bad resolve which requires many Rez packages to replicate.
 
@@ -296,7 +401,7 @@ class RunScenarios(unittest.TestCase):
         raise ValueError()
 
     def test_resolve_fail(self):
-        """Simulate a situation where, while finding the bad package, 1+ resolve fails.
+        """Simulate and fix when a middle resolve fails, mid-bisect.
 
         The bisect code will need to find a way to detect the bad
         resolve and adjust itself so it can keep testing, but with a
@@ -306,7 +411,19 @@ class RunScenarios(unittest.TestCase):
         raise ValueError()
 
 
-class RunInputs(unittest.TestCase):
+class Invalids(unittest.TestCase):
+    """Make sure invalid input is detected and fails gracefully."""
+
+    def test_not_bad(self):
+        """Fail evaluation because the user's "bad" context passes their "command"."""
+        raise ValueError()
+
+    def test_not_good(self):
+        """Fail evaluation because the user's "good" context doesn't pass their "command"."""
+        raise ValueError()
+
+
+class Inputs(unittest.TestCase):
     """Make sure `run` works with a variety of input."""
 
     def test_command_any(self):
