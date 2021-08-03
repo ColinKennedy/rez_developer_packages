@@ -43,35 +43,30 @@ def _is_command_successful(context, command):
 
 
 def _get_required_bad_packages(bad, diff, command):
-    # """Check groups of Rez packages to find the best resolve which starts to fail `command`.
-    #
-    # Unlike :func:`_get_partial_context`, which is only meant to get a
-    # context which is near the root of the problem, this function should
-    # always return a context which is very close (if not exactly on)
-    # where `command` begins to fail.
-    #
-    # Args:
-    #     bad (:class:`rez.resolved_context.ResolvedContext`):
-    #         The context which fails to run `command`.
-    #     diff (dict[str, list[:class:`rez.utils.formatting.PackageRequest`]]):
-    #         Each type of Rez package (added, newer, older, removed, etc)
-    #         and each version found between `bad` and a working resolve.
-    #     command (str):
-    #         The path to a shell script which, when run, will pass or succeed.
-    #
-    # Raises:
-    #     NotImplementedError: This function is still WIP.
-    #
-    # Returns:
-    #     :class:`rez.resolved_context.ResolvedContext`:
-    #         The context which determines the exact context where
-    #         `command` starts failing.
-    #
-    # """
+    """Get every Rez package name that contributes to some "bad" resolve.
+
+    This function may return a list of only one Rez package name. But
+    it is also possible to return a 2-way, 3-way, or n-way Rez package issue.
+
+    Args:
+        bad (:class:`rez.resolved_context.ResolvedContext`):
+            The context which fails to run `command`.
+        diff (dict[str, list[:class:`rez.utils.formatting.PackageRequest`]]):
+            Each type of Rez package (added, newer, older, removed, etc)
+            and each version found between `bad` and a working, good resolve.
+        command (str):
+            The path to a shell script which, when run, will pass or succeed.
+
+    Returns:
+        list[:class:`rez.packages.Package`]:
+            Each found package which contributes to the bad resolve.
+
+    """
     _validate_keys(diff)
 
     newer_packages = diff.get(_NEWER)
     all_newer_packages = set(newer_packages.keys())
+    # TODO : XXX Simplify this code, here
     tester = functools.partial(_get_testing_packages, bad, newer_packages)
 
     to_test = _get_candidate_packages(tester, all_newer_packages, command)
@@ -161,6 +156,29 @@ def _get_partial_context(good, diff, command):
 
 
 def _get_candidate_packages(tester, all_newer_packages, command):
+    """Find every Rez package needed to create a "good" resolve.
+
+    Args:
+        tester (callable[set[str]] -> :class:`rez.resolved_context.ResolvedContext`):
+            A function which takes Rez packages names and returns
+            a context which includes a resolve containing those
+            names. This function usually contains a "bad" resolve and
+            each Rez package name will test more "good" Rez packages /
+            versions.  In other words, the more packages passed to this
+            function, the more likely the context which it returns will
+            be "good".
+        all_newer_packages (set[str]):
+            The Rez packages which contribute to a "good" resolve.
+        command (str):
+            A script used to determine if more or less packages are
+            needed from `all_newer_packages`.
+
+    Returns:
+        set[str]:
+            Every Rez package name which may or may not contribute to a
+            "bad" resolve.
+
+    """
     to_test = set(_get_half_randomly(all_newer_packages))
 
     while True:
@@ -275,6 +293,22 @@ def _get_combined_context(good, bad_packages):
 
 
 def _get_full_context(good, bad_packages):
+    """Get a Rez context that exactly replaces some issue, using `bad_packages`.
+
+    Args:
+        good (:class:`rez.resolved_context.ResolvedContext`):
+            A context which does not have an issue. This resolve is used
+            as a reference and `bad_packages` are added into it in order
+            to "make it turn bad".
+        bad_packages (iter[:class:`rez.packages.Package`]):
+            All Rez packages whose versions contribute to an issue.
+
+    Returns:
+        :class:`rez.resolved_context.ResolvedContext`:
+            The generated context which contains the exact Rez packages
+            + versions which caused some kind of issue.
+
+    """
     bad_packages_data = {package.name: package for package in bad_packages}
 
     packages = []
@@ -291,6 +325,7 @@ def _get_full_context(good, bad_packages):
 
 
 def _get_half_randomly(items):
+    """Get half of all given `items`."""
     if len(items) == 1:
         return list(items)
 
@@ -324,19 +359,41 @@ def _get_required_bad_package_names(tester, all_candidates, command):
     raise NotImplementedError("Figure out what to do, here.")
 
 
-def _get_testing_packages(bad, newer_packages, package_selection):
+def _get_testing_packages(bad, newer_packages, good_selection):
+    """Create a context which is a combination of `bad` and `newer_packages`.
+
+    Args:
+        bad (:class:`rez.resolved_context.ResolvedContext`):
+            The context which has an issue.
+        newer_packages (dict[str, list[:class:`rez.packages.Package` or :class:`rez.packages.Variant`]]):
+            All package & versions which make up a good and bad resolve.
+            The 0th index should always be a Rez package version which
+            can create a "good" resolve.
+        good_selection (iter[str]):
+            The Rez packages to pick for the new context. If included,
+            the "good" version of the package from `newer_packages` is
+            used. Otherwise, whatever package version from `bad` will
+            remain.
+
+    Returns:
+        :class:`rez.resolved_context.ResolvedContext`:
+            The merged context containing `bad` and the good package
+            version from `good_selection`.
+
+    """
     # 1. `packages` is initially filled with only packages which
     # contribute to a "bad" resolve and not to any "good" resolve. This
     # will change shortly (see below).
     #
+    # TODO : Check if you can use requested packages, instead
     packages = {variant.name: variant for variant in bad.resolved_packages}
 
-    for name in package_selection:
+    for name in good_selection:
         a_working_package = newer_packages[name][0]
         packages[name] = a_working_package
 
     # 2. By this point, `packages` should be a mix of package name-variants
-    # which create a "bad" resolve. But `package_selection` should include
+    # which create a "bad" resolve. But `good_selection` should include
     # a few packages which actually contribute to a "good" resolve.
     #
     return resolved_context.ResolvedContext(
@@ -346,6 +403,22 @@ def _get_testing_packages(bad, newer_packages, package_selection):
 
 
 def _make_diff_from_packages(names, reference_diff):
+    """Filter `reference_diff` with the Rez package `names`.
+
+    Args:
+        names (set[str]):
+            Each Rez package name to filter by. Only variants / packages
+            in `reference_diff` which match a name in this parameter
+            will be returned.
+        reference_diff (dict[str, dict[str, list] or list]):
+            The Rez diff (usually generated using
+            :meth:`rez.resolved_context.ResolvedContext.get_resolve_diff`)
+            to filter by.
+
+    Returns:
+        dict[str, dict[str, list] or list]: The filtered diff.
+
+    """
     output = dict()
 
     for key, data in reference_diff.items():
@@ -459,6 +532,20 @@ def bisect(good, bad, command):
 
 
 def summarize(good, bad):
+    """Explain what in `bad` caused `good` to not work.
+
+    Args:
+        good (:class:`rez.resolved_context.ResolvedContext`):
+            A resolve which doesn't have any command issues.
+        bad (:class:`rez.resolved_context.ResolvedContext`):
+            A minimal resolve, based on `good`, that has 1-or-more Rez
+            packages which cause some kind of "bad-ness" or issue.
+
+    Returns:
+        dict[str, set[:class:`rez.packages.Package`]]:
+            Each found, bad package and the section it is a part of.
+
+    """
     output = dict()
 
     for key, data in good.get_resolve_diff(bad).items():
