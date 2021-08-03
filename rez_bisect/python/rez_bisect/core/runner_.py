@@ -164,7 +164,7 @@ def _get_candidate_packages(tester, all_newer_packages, command):
             a context which includes a resolve containing those
             names. This function usually contains a "bad" resolve and
             each Rez package name will test more "good" Rez packages /
-            versions.  In other words, the more packages passed to this
+            versions. In other words, the more packages passed to this
             function, the more likely the context which it returns will
             be "good".
         all_newer_packages (set[str]):
@@ -202,7 +202,7 @@ def _get_combined_context(good, bad_packages):
     requested_names = {request.name for request in good.requested_packages()}
     packages = []
 
-    for variant in good.resolved_packages:
+    for variant in good.requested_packages():
         if variant.name not in requested_names:
             continue
 
@@ -313,7 +313,7 @@ def _get_full_context(good, bad_packages):
 
     packages = []
 
-    for variant in good.resolved_packages:
+    for variant in good.requested_packages():
         packages.append(bad_packages_data.get(variant.name, variant))
 
     context = resolved_context.ResolvedContext(
