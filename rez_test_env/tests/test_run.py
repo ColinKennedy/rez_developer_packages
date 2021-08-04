@@ -77,8 +77,21 @@ class BuildRequires(unittest.TestCase):
             os.chdir(package_directory)
 
             result = _test(
-                "directory --directory '{directory}' name_A --build-requires --private-build-requires".format(
-                    directory=os.path.join(build_directory, "package_a", "1.0.0"),
+                " ".join(
+                    [
+                        "directory",
+                        "--directory",
+                        "'{directory}'".format(
+                            directory=os.path.join(
+                                build_directory,
+                                "package_a",
+                                "1.0.0",
+                            )
+                        ),
+                        "name_A",
+                        "--build-requires",
+                        "--private-build-requires",
+                    ]
                 ),
                 directory,
                 build_directory=build_directory,
@@ -137,7 +150,7 @@ class Run(unittest.TestCase):
         multiple = _test("request package_a name_A name_B", directory)
 
         self.assertEqual({"package_a", "package_d-1.1.0"}, single)
-        self.assertEqual({"package_a", "package_d-1.1.0", "package_c"}, multiple)
+        self.assertEqual({"package_a", "package_d-1.1.0", "package_c-2.0.0"}, multiple)
 
     def test_glob(self):
         """Make sure glob expressions work."""
@@ -145,7 +158,7 @@ class Run(unittest.TestCase):
 
         multiple = _test("request package_a name_*", directory)
 
-        self.assertEqual({"package_a", "package_d-1.1.0", "package_c"}, multiple)
+        self.assertEqual({"package_a", "package_d-1.1.0", "package_c-2.0.0"}, multiple)
 
     def test_from_package_directory(self):
         """Get the resolve from a package's directory."""
