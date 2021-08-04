@@ -232,7 +232,13 @@ def run_from_request(package_request, tests, shell=""):
         _main.run("env")
 
 
-def run_from_package(package, tests, shell=""):
+def run_from_package(
+    package,
+    tests,
+    shell="",
+    build_requires=False,
+    private_build_requires=False,
+):
     """Create an environment from a Rez package + tests.
 
     Args:
@@ -245,13 +251,38 @@ def run_from_package(package, tests, shell=""):
         shell (str, optional):
             If provided, this shell will be used for rez-env instead of
             the user's current shell. Default: "".
+        build_requires (bool, optional):
+            If added, the package `build_requires` will be included in the resolve.
+        private_build_requires (bool, optional):
+            If added, the package `private_build_requires` will be included in the resolve.
 
     """
-    requirements = list(_expand_requirements(package, tests))
-    package_request = ["{package.name}=={package.version}".format(package=package)]
-    full_request = package_request + sorted(requirements)
+
+    def _to_request(package):
+        try:
+            return "{package.name}=={package.version}".format(package=package)
+        except AttributeError:
+            return str(package)
+
+    requirements = set(_expand_requirements(package, tests))
+    package_request = _to_request(package)
+    full_request = {package_request}
+    full_request.update(requirements)
+
+    if build_requires:
+        full_request.update(
+            [_to_request(requirement) for requirement in package.build_requires or []]
+        )
+
+    if private_build_requires:
+        full_request.update(
+            [
+                _to_request(requirement)
+                for requirement in package.private_build_requires or []
+            ]
+        )
 
     _LOGGER.debug('Making environment for "%s" request.', full_request)
 
-    with _patch_main(full_request, shell=shell):
+    with _patch_main(sorted(full_request), shell=shell):
         _main.run("env")

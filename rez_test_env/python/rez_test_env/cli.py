@@ -43,7 +43,9 @@ def _multi_requester(arguments):
 
     """
     environment.run_from_request(
-        arguments.package_request, arguments.tests, shell=arguments.shell,
+        arguments.package_request,
+        arguments.tests,
+        shell=arguments.shell,
     )
 
 
@@ -61,7 +63,8 @@ def _parse_arguments(text):
     parser = argparse.ArgumentParser(description="")
 
     sub_parsers = parser.add_subparsers(
-        title="sub-parsers", description="All commands within rez_test_env.",
+        title="sub-parsers",
+        description="All commands within rez_test_env.",
     )
 
     multi_requester = sub_parsers.add_parser(
@@ -81,6 +84,19 @@ def _parse_arguments(text):
         default=os.getcwd(),
         help="The directory to search within for a Rez package. This defaults to $PWD",
     )
+    pwd_requester.add_argument(
+        "-b",
+        "--build-requires",
+        action="store_true",
+        help="If enabled, include all requirements in `build_requires` to the resolve",
+    )
+    pwd_requester.add_argument(
+        "-p",
+        "--private-build-requires",
+        action="store_true",
+        help="If enabled, include all requirements in `private_build_requires` to the resolve",
+    )
+
     _add_tests_parameter(pwd_requester)
     pwd_requester.set_defaults(execute=_pwd_requester)
 
@@ -116,7 +132,13 @@ def _pwd_requester(arguments):
             )
         )
 
-    environment.run_from_package(package, arguments.tests, shell=arguments.shell)
+    environment.run_from_package(
+        package,
+        arguments.tests,
+        shell=arguments.shell,
+        build_requires=arguments.build_requires,
+        private_build_requires=arguments.private_build_requires,
+    )
 
 
 def _query_tests(arguments):

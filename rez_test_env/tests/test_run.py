@@ -21,6 +21,103 @@ from rez_test_env.core import exceptions
 from rez_utilities import creator, finder, rez_configuration
 
 
+class BuildRequires(unittest.TestCase):
+    """Make sure build-related options work as expected."""
+
+    def test_build_requires(self):
+        """Include `build_requires` in the Rez resolve."""
+        directory = _make_test_packages()
+
+        build_directory = tempfile.mkdtemp(
+            suffix="_BuildRequires_test_private_build_requires"
+        )
+        atexit.register(functools.partial(shutil.rmtree, build_directory))
+
+        package_directory = os.path.join(directory, "package_b")
+
+        creator.build(
+            finder.get_nearest_rez_package(package_directory),
+            build_directory,
+            quiet=True,
+            packages_path=[directory],
+        )
+
+        with _keep_pwd():
+            os.chdir(package_directory)
+
+            result = _test(
+                "directory --directory '{directory}' unittest_* --build-requires".format(
+                    directory=os.path.join(build_directory, "package_b", "1.1.0"),
+                ),
+                directory,
+                build_directory=build_directory,
+            )
+
+        self.assertEqual({"build_a-1.2.0", "package_a", "package_b-1.1.0"}, result)
+
+    def test_no_requires(self):
+        """Allow the build requires flags even if the Rez package doesn't define them."""
+        directory = _make_test_packages()
+
+        build_directory = tempfile.mkdtemp(
+            suffix="_BuildRequires_test_private_build_requires"
+        )
+        atexit.register(functools.partial(shutil.rmtree, build_directory))
+
+        package_directory = os.path.join(directory, "package_a")
+
+        creator.build(
+            finder.get_nearest_rez_package(package_directory),
+            build_directory,
+            quiet=True,
+            packages_path=[directory],
+        )
+
+        with _keep_pwd():
+            os.chdir(package_directory)
+
+            result = _test(
+                "directory --directory '{directory}' name_A --build-requires --private-build-requires".format(
+                    directory=os.path.join(build_directory, "package_a", "1.0.0"),
+                ),
+                directory,
+                build_directory=build_directory,
+            )
+
+        self.assertEqual({"package_a-1.0.0", "package_d-1.1.0"}, result)
+
+    def test_private_build_requires(self):
+        """Include `private_build_requires` in the Rez resolve."""
+        directory = _make_test_packages()
+
+        build_directory = tempfile.mkdtemp(
+            suffix="_BuildRequires_test_private_build_requires"
+        )
+        atexit.register(functools.partial(shutil.rmtree, build_directory))
+
+        package_directory = os.path.join(directory, "package_b")
+
+        creator.build(
+            finder.get_nearest_rez_package(package_directory),
+            build_directory,
+            quiet=True,
+            packages_path=[directory],
+        )
+
+        with _keep_pwd():
+            os.chdir(package_directory)
+
+            result = _test(
+                "directory --directory '{directory}' unittest_* --private-build-requires".format(
+                    directory=os.path.join(build_directory, "package_b", "1.1.0"),
+                ),
+                directory,
+                build_directory=build_directory,
+            )
+
+        self.assertEqual({"build_b-1.4.0", "package_a", "package_b-1.1.0"}, result)
+
+
 class Run(unittest.TestCase):
     """Run the `rez_test_env` code as if a user wrote it through the CLI."""
 
@@ -91,8 +188,11 @@ class Run(unittest.TestCase):
 
         with _keep_pwd():
             os.chdir(package_directory)
+
             result = _test(
-                "directory unittest_*", directory, build_directory=build_directory,
+                "directory unittest_*",
+                directory,
+                build_directory=build_directory,
             )
 
         self.assertEqual({"package_a", "package_b-1.1.0"}, result)
@@ -116,6 +216,18 @@ class Invalids(unittest.TestCase):
 
 def _make_test_packages():
     """Create a few (very hacky and fake) Rez packages to use for testing."""
+
+    def _make_quick_package(name, version):
+        package = os.path.join(directory, name, version)
+        os.makedirs(package)
+
+        with open(os.path.join(package, "package.py"), "w") as handler:
+            handler.write(
+                'name = "{name}"\nversion = "{version}"'.format(
+                    name=name, version=version
+                )
+            )
+
     directory = tempfile.mkdtemp(prefix="rez_test_env_package_")
     atexit.register(functools.partial(shutil.rmtree, directory))
 
@@ -129,6 +241,8 @@ def _make_test_packages():
                 name = "package_a"
 
                 version = "1.0.0"
+
+                build_command = 'echo "package_a has been built!"'
 
                 tests = {
                     "name_A": {
@@ -157,6 +271,10 @@ def _make_test_packages():
 
                 build_command = 'echo "package_b has been built!"'
 
+                private_build_requires = ["build_b-1"]
+
+                build_requires = ["build_a-1"]
+
                 tests = {
                     "unittest_1": {
                         "command": "echo 'Something'",
@@ -168,33 +286,10 @@ def _make_test_packages():
             )
         )
 
-    package_d = os.path.join(directory, "package_d", "1.1.0")
-    os.makedirs(package_d)
-
-    with open(os.path.join(package_d, "package.py"), "w") as handler:
-        handler.write(
-            textwrap.dedent(
-                """\
-                name = "package_d"
-
-                version = "1.1.0"
-                """
-            )
-        )
-
-    package_c = os.path.join(directory, "package_c")
-    os.makedirs(package_c)
-
-    with open(os.path.join(package_c, "package.py"), "w") as handler:
-        handler.write(
-            textwrap.dedent(
-                """\
-                name = "package_c"
-
-                version = "2.0.0"
-                """
-            )
-        )
+    _make_quick_package("build_a", "1.2.0")
+    _make_quick_package("build_b", "1.4.0")
+    _make_quick_package("package_d", "1.1.0")
+    _make_quick_package("package_c", "2.0.0")
 
     return directory
 
