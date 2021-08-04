@@ -240,6 +240,7 @@ class Scenarios(unittest.TestCase):
 
         with wrapping.capture_pipes() as (stdout, stderr):
             cli.main(["run", before, after, checker])
+        # cli.main(["run", before, after, checker])
 
         self.assertFalse(stderr.getvalue())
         self.assertEqual(

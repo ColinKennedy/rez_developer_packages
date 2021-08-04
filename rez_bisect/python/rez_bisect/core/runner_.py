@@ -70,9 +70,11 @@ def _get_required_bad_packages(bad, diff, command):
     tester = functools.partial(_get_testing_packages, bad, newer_packages)
 
     to_test = _get_candidate_packages(tester, all_newer_packages, command)
+    # raise ValueError((all_newer_packages, to_test))
     required_packages = _get_required_bad_package_names(tester, to_test, command)
 
     return [newer_packages[name][-1] for name in required_packages]
+    # return [bad.get_resolved_package(name) for name in required_packages]
 
 
 # TODO : Simplify these parameters, if possible
@@ -123,13 +125,17 @@ def _get_partial_context(good, diff, command):
         newer_indices = dict()
         request = []
 
+        # print('start', weight)
+
         for packages in newer:
             index = math.floor(len(packages) * weight)
+            # print('package', index)
             package = packages[index]
 
             request.append(package)
             newer_indices[package.name] = index
 
+        # print('end')
         checker_context = resolved_context.ResolvedContext(
             _to_request(request),
             package_paths=good.package_paths,
@@ -185,6 +191,7 @@ def _get_candidate_packages(tester, all_newer_packages, command):
         context = tester(to_test)
 
         if _is_command_successful(context, command):
+            # print('SUCCES')
             # `to_test` contains enough packages that it turns `bad`
             # into a good resolve again. So we're done
             break
@@ -193,6 +200,7 @@ def _get_candidate_packages(tester, all_newer_packages, command):
         # packages which we will test and re-try.
         #
         to_test.update(_get_half_randomly(all_newer_packages - to_test))
+        # print('TO STrin', to_test)
 
     return to_test
 
@@ -314,7 +322,9 @@ def _get_full_context(good, bad_packages):
     packages = []
 
     for variant in good.requested_packages():
-        packages.append(bad_packages_data.get(variant.name, variant))
+        packages.append(
+            bad_packages_data.get(variant.name, good.get_resolved_package(variant.name))
+        )
 
     context = resolved_context.ResolvedContext(
         _to_request(packages),
@@ -517,6 +527,8 @@ def bisect(good, bad, command):
         partial_context, _get_request_diff(good, partial_context), command
     )
 
+    # raise ValueError(_get_full_context(good, bad_packages))
+
     return _get_full_context(good, bad_packages)
 
     # bad_packages = _get_required_bad_packages(
@@ -548,6 +560,9 @@ def summarize(good, bad):
     """
     output = dict()
 
+    # raise ValueError(good)
+    # raise ValueError(bad)
+    #
     for key, data in good.get_resolve_diff(bad).items():
         output.setdefault(key, set())
 
