@@ -12,7 +12,7 @@ requires = ["python-2.7+<4"]
 
 build_command = "python -m rez_build_helper --items bin python"
 
-_test_requires = ["python_compatibility-2.7+<3", "rez-2.93+<3"]
+_test_requires = ["rez_python_compatibility-2.7+<3", "rez-2.93+<3"]
 
 tests = {
     "black_diff": {
