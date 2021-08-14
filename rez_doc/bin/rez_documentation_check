@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+
+python -u -m rez_documentation_check $@
