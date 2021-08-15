@@ -10,6 +10,7 @@ import math
 import unittest
 
 from python_compatibility import wrapping
+from rez_bisect.core import exception
 from rez_bisect import cli
 
 from . import common, rez_common
@@ -101,6 +102,7 @@ class Scenarios(unittest.TestCase):
     def test_command_never_succeeds(self):
         """Fail gracefully if the user-provided command does not actually succeed."""
         raise ValueError()
+        # TODO : Make sure this is a CLI call which ignores the good/bad check
         # def _get_versions(major, weight, count):
         #     return [
         #         "{major}.{value}.0".format(major=major, value=value)
@@ -416,11 +418,55 @@ class Invalids(unittest.TestCase):
 
     def test_not_bad(self):
         """Fail evaluation because the user's "bad" context passes their "command"."""
-        raise ValueError()
+        directory = common.make_directory()
+
+        versions = []
+
+        for version in ["1.0.0", "1.1.0", "1.3.0"]:
+            versions.append(rez_common.make_single_context(directory, version=version))
+
+        before = versions[0]
+        after = versions[-1]
+
+        checker = common.make_temporary_script(
+            textwrap.dedent(
+                """\
+                #!/usr/bin/env sh
+
+                exit 0
+                """
+            )
+        )
+
+        with wrapping.capture_pipes() as (stdout, stderr):
+            with self.assertRaises(exception.IsNotBad):
+                cli.main(["run", before, after, checker])
 
     def test_not_good(self):
         """Fail evaluation because the user's "good" context doesn't pass their "command"."""
-        raise ValueError()
+        directory = common.make_directory()
+
+        versions = []
+
+        for version in ["1.0.0", "1.1.0", "1.3.0"]:
+            versions.append(rez_common.make_single_context(directory, version=version))
+
+        before = versions[0]
+        after = versions[-1]
+
+        checker = common.make_temporary_script(
+            textwrap.dedent(
+                """\
+                #!/usr/bin/env sh
+
+                exit 1
+                """
+            )
+        )
+
+        with wrapping.capture_pipes() as (stdout, stderr):
+            with self.assertRaises(exception.IsNotGood):
+                cli.main(["run", before, after, checker])
 
 
 class Inputs(unittest.TestCase):
