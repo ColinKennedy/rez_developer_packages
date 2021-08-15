@@ -48,7 +48,9 @@ def _get_required_bad_packages(bad, diff, command):
     # TODO : XXX Simplify this code, here
     tester = functools.partial(_get_testing_packages, bad, newer_packages)
 
-    to_test = _get_candidate_packages(tester, all_newer_packages, command)
+    to_test = all_newer_packages
+    # TODO : Add this optimization, if it actually makes bisecting faster, later
+    # to_test = _get_candidate_packages(tester, all_newer_packages, command)
     required_packages = _get_required_bad_package_names(tester, to_test, command)
 
     return [newer_packages[name][-1] for name in required_packages]
@@ -293,9 +295,12 @@ def _get_full_context(good, bad_packages):
     packages = []
 
     for variant in good.requested_packages():
-        packages.append(
-            bad_packages_data.get(variant.name, good.get_resolved_package(variant.name))
-        )
+        try:
+            package = bad_packages_data[variant.name]
+        except KeyError:
+            package = good.get_resolved_package(variant.name)
+
+        packages.append(package)
 
     context = resolved_context.ResolvedContext(
         _to_request(packages),
@@ -315,6 +320,7 @@ def _get_half_randomly(items):
 
 def _get_required_bad_package_names(tester, all_candidates, command):
     to_test = set(all_candidates)
+    checked = set()
 
     while True:
         first = set(_get_half_randomly(to_test))
@@ -325,10 +331,12 @@ def _get_required_bad_package_names(tester, all_candidates, command):
 
             break
 
-        if to_test == first:
-            return first
 
-        context = tester(to_test - first)
+        if to_test == first:
+            return checked.union(first)
+
+        loop_test = to_test - first
+        context = tester(loop_test)
 
         if not check.is_good(context, command):
             raise NotImplementedError(
@@ -336,6 +344,9 @@ def _get_required_bad_package_names(tester, all_candidates, command):
                     to_test=to_test, first=first
                 )
             )
+
+        checked.update(to_test - loop_test)
+        to_test = loop_test
 
     raise NotImplementedError("Figure out what to do, here.")
 
@@ -530,6 +541,11 @@ def summarize(good, bad):
     output = dict()
 
     for key, data in good.get_resolve_diff(bad).items():
+        if not hasattr(data, "values"):
+            output[key] = data
+
+            continue
+
         output.setdefault(key, set())
 
         for packages in data.values():

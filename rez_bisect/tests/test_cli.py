@@ -305,6 +305,8 @@ class Scenarios(unittest.TestCase):
                     newer_packages
                         a-1.1.1
                         b-3.3.1
+                    removed_packages
+                        dependency-1.0.0
                 """
             ),
             stdout.getvalue(),
