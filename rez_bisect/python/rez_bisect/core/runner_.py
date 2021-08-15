@@ -367,7 +367,6 @@ def _get_required_bad_package_names(tester, all_candidates, command):
 
             break
 
-
         if to_test == first:
             return checked.union(first)
 

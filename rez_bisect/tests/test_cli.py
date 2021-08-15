@@ -201,16 +201,77 @@ class Scenarios(unittest.TestCase):
 
     def test_dependency_added_001(self):
         """Catch when a dependency is added that causes some kind of issue."""
-        raise ValueError()
+        directory = common.make_directory()
+        rez_common.make_variant(directory, name="dependency", version="1.0.0")
+        _make_variant = functools.partial(rez_common.make_variant, directory)
+
+        # Make 2 packages which each drop `dependency` at some point
+        before_a = _make_variant(name="a", version="1.0.0")
+        _make_variant(name="a", version="1.1.0")
+        _make_variant(name="a", version="1.1.1")
+        _make_variant(name="a", version="1.2.0")
+        _make_variant(name="a", version="1.3.0")
+        after_a = _make_variant(name="a", version="1.3.1")
+        before_b = _make_variant(name="b", version="3.0.0")
+        _make_variant(name="b", version="3.1.0")
+        _make_variant(name="b", version="3.1.1", requires=["dependency-1"])
+        _make_variant(name="b", version="3.2.0", requires=["dependency-1"])
+        _make_variant(name="b", version="3.3.0", requires=["dependency-1"])
+        after_b = _make_variant(name="b", version="3.3.1", requires=["dependency-1"])
+
+        # Add a 3rd package that always depends on `dependency` but
+        # doesn't explicitly state it, in its list of requirements.
+        #
+        variant = rez_common.make_variant(
+            directory,
+            name="c",
+            version="1.0.0",
+            commands=textwrap.dedent(
+                """\
+                def commands():
+                    import os
+
+                    env.PATH.append(os.path.join(root, "bin"))
+                """
+            ),
+        )
+
+        root = os.path.join(
+            variant.resource.location, variant.name, str(variant.version)
+        )
+        checker = os.path.join(root, "bin", "something.sh")
+
+        common.make_script(
+            checker,
+            textwrap.dedent(
+                """\
+                #!/usr/bin/env sh
+
+                if [ ! -z "$REZ_DEPENDENCY_ROOT" ]
+                then
+                    exit 0
+                fi
+
+                exit 1
+                """
+            ),
+        )
+
+        before = rez_common.make_combined_context([before_a, before_b])
+        after = rez_common.make_combined_context([after_a, after_b])
+
+        cli.main(["run", before, after, checker])
 
     def test_dependency_added_002(self):
         """Catch when a dependency is added that causes some kind of issue.
 
         This method differs from :meth:`test_dependency_added_001`
-        because "after" Rez context has packages which are older than
-        they were previously. (In a real world scenario, this happens
-        when someone does a rollback, due to some issue with the latest
-        version releases, usually).
+        because the "after" Rez context uses an older Rez package
+        version than the package version in "before".
+
+        (In a real world scenario, this happens when someone does a
+        rollback, due to some issue with the latest version releases,
+        usually).
 
         """
         raise ValueError()
