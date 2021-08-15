@@ -19,7 +19,7 @@ def _runner(arguments):
     bad = rez_helper.to_context(arguments.bad)
 
     if not arguments.skip_all_checks and not arguments.skip_good_check:
-        if not check.is_good(good, arguments.command):
+        if check.is_bad(good, arguments.command):
             raise exception.IsNotGood(
                 'Argument {arguments.good} didn\'t pass "{arguments.command}" successfully.'.format(
                     arguments=arguments
@@ -71,9 +71,9 @@ def _parse_arguments(text):
     runner.add_argument(
         "command", help="The command to run in each resolve, to check for some issue."
     )
-    runner.add_argument("--skip-all-checks", help="Don't check whether the good or bad context is correct.")
-    runner.add_argument("--skip-bad-check", help="Don't check whether the bad context is correct.")
-    runner.add_argument("--skip-good-check", help="Don't check whether the good context is correct.")
+    runner.add_argument("--skip-all-checks", action="store_true", help="Don't check whether the good or bad context is correct.")
+    runner.add_argument("--skip-bad-check", action="store_true", help="Don't check whether the bad context is correct.")
+    runner.add_argument("--skip-good-check", action="store_true", help="Don't check whether the good context is correct.")
     runner.set_defaults(execute=_runner)
 
     return parser.parse_args(text)

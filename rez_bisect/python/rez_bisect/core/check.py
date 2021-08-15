@@ -1,6 +1,10 @@
 import subprocess
 
 
+def is_bad(context, command):
+    return not is_good(context, command)
+
+
 def is_good(context, command):
     """Check if `context` can run `command` without failing.
 

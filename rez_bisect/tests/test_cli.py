@@ -12,6 +12,7 @@ import unittest
 from python_compatibility import wrapping
 from rez_bisect.core import exception
 from rez_bisect import cli
+from six.moves import mock
 
 from . import common, rez_common
 
@@ -48,6 +49,56 @@ class Ephemerals(unittest.TestCase):
     def test_multiple_removed(self):
         """Check that removing a multiple ephemeral causes a fail."""
         raise ValueError()
+
+
+class Options(unittest.TestCase):
+    def test_skip_all_checks(self):
+        before, after, checker = _make_quick_command_test(fails=False)
+
+        with wrapping.capture_pipes(), mock.patch(
+            "rez_bisect.core.runner_.bisect"
+        ), mock.patch(
+            "rez_bisect.core.runner_.summarize"
+        ), mock.patch(
+            "rez_bisect.core.check.is_good"
+        ) as is_good:
+            cli.main(["run", before, after, checker, "--skip-all-checks"])
+
+        self.assertEqual(0, is_good.call_count)
+
+    def test_skip_bad_check(self):
+        before, after, checker = _make_quick_command_test(fails=False)
+
+        with wrapping.capture_pipes(), mock.patch(
+            "rez_bisect.core.runner_.bisect"
+        ), mock.patch(
+            "rez_bisect.core.runner_.summarize"
+        ), mock.patch("rez_bisect.core.check.is_good") as is_good, mock.patch(
+            "rez_bisect.core.check.is_bad"
+        ) as is_bad:
+            is_bad.return_value = False
+
+            cli.main(["run", before, after, checker, "--skip-bad-check"])
+
+        self.assertEqual(1, is_bad.call_count)
+        self.assertEqual(0, is_good.call_count)
+
+    def test_skip_good_check(self):
+        before, after, checker = _make_quick_command_test(fails=False)
+
+        with wrapping.capture_pipes(), mock.patch(
+            "rez_bisect.core.runner_.bisect"
+        ), mock.patch(
+            "rez_bisect.core.runner_.summarize"
+        ), mock.patch("rez_bisect.core.check.is_good") as is_good, mock.patch(
+            "rez_bisect.core.check.is_bad"
+        ) as is_bad:
+            is_good.return_value = False
+
+            cli.main(["run", before, after, checker, "--skip-good-check"])
+
+        self.assertEqual(0, is_bad.call_count)
+        self.assertEqual(1, is_good.call_count)
 
 
 class Scenarios(unittest.TestCase):
@@ -101,49 +152,47 @@ class Scenarios(unittest.TestCase):
 
     def test_command_never_succeeds(self):
         """Fail gracefully if the user-provided command does not actually succeed."""
-        raise ValueError()
-        # TODO : Make sure this is a CLI call which ignores the good/bad check
-        # def _get_versions(major, weight, count):
-        #     return [
-        #         "{major}.{value}.0".format(major=major, value=value)
-        #         for value in range(math.floor(count * weight))
-        #     ]
+        def _get_versions(major, weight, count):
+            return [
+                "{major}.{value}.0".format(major=major, value=value)
+                for value in range(math.floor(count * weight))
+            ]
+
+        weight = 0.63
+        count = 5
+
+        good_versions = _get_versions(1, weight, count)
+        bad_versions = _get_versions(2, 1 - weight, count)
+
+        directory = common.make_directory()
+        versions = []
+
+        for version in itertools.chain(good_versions, bad_versions):
+            versions.append(rez_common.make_single_context(directory, version=version))
+
+        before = versions[0]
+        after = versions[-1]
+
+        # Note: In this `checker`, the first Rez package which has an
+        # issue is 1.2.0. And all other packages after that point also
+        # have the issue.
         #
-        # weight = 0.63
-        # count = 5
-        #
-        # good_versions = _get_versions(1, weight, count)
-        # bad_versions = _get_versions(2, 1 - weight, count)
-        #
-        # directory = common.make_directory()
-        # versions = []
-        #
-        # for version in itertools.chain(good_versions, bad_versions):
-        #     versions.append(rez_common.make_single_context(directory, version=version))
-        #
-        # before = versions[0]
-        # after = versions[-1]
-        #
-        # # Note: In this `checker`, the first Rez package which has an
-        # # issue is 1.2.0. And all other packages after that point also
-        # # have the issue.
-        # #
-        # checker = common.make_temporary_script(
-        #     textwrap.dedent(
-        #         """\
-        #         #!/usr/bin/env sh
-        #
-        #         if [[ "$REZ_FOO_VERSION" == 1* ]]
-        #         then
-        #             exit 0
-        #         fi
-        #
-        #         exit 1
-        #         """
-        #     )
-        # )
-        #
-        # cli.main(["run", before, after, checker])
+        checker = common.make_temporary_script(
+            textwrap.dedent(
+                """\
+                #!/usr/bin/env sh
+
+                if [[ "$REZ_FOO_VERSION" == 1* ]]
+                then
+                    exit 0
+                fi
+
+                exit 1
+                """
+            )
+        )
+
+        cli.main(["run", before, after, checker, "--skip-all-checks"])
 
     def test_dependency_added_001(self):
         """Catch when a dependency is added that causes some kind of issue."""
@@ -418,25 +467,7 @@ class Invalids(unittest.TestCase):
 
     def test_not_bad(self):
         """Fail evaluation because the user's "bad" context passes their "command"."""
-        directory = common.make_directory()
-
-        versions = []
-
-        for version in ["1.0.0", "1.1.0", "1.3.0"]:
-            versions.append(rez_common.make_single_context(directory, version=version))
-
-        before = versions[0]
-        after = versions[-1]
-
-        checker = common.make_temporary_script(
-            textwrap.dedent(
-                """\
-                #!/usr/bin/env sh
-
-                exit 0
-                """
-            )
-        )
+        before, after, checker = _make_quick_command_test(fails=False)
 
         with wrapping.capture_pipes() as (stdout, stderr):
             with self.assertRaises(exception.IsNotBad):
@@ -444,25 +475,7 @@ class Invalids(unittest.TestCase):
 
     def test_not_good(self):
         """Fail evaluation because the user's "good" context doesn't pass their "command"."""
-        directory = common.make_directory()
-
-        versions = []
-
-        for version in ["1.0.0", "1.1.0", "1.3.0"]:
-            versions.append(rez_common.make_single_context(directory, version=version))
-
-        before = versions[0]
-        after = versions[-1]
-
-        checker = common.make_temporary_script(
-            textwrap.dedent(
-                """\
-                #!/usr/bin/env sh
-
-                exit 1
-                """
-            )
-        )
+        before, after, checker = _make_quick_command_test(fails=True)
 
         with wrapping.capture_pipes() as (stdout, stderr):
             with self.assertRaises(exception.IsNotGood):
@@ -491,3 +504,32 @@ class Inputs(unittest.TestCase):
     def test_request(self):
         """Resolve + Read from a Rez package request."""
         raise ValueError("asdfs")
+
+
+def _make_quick_command_test(fails=False):
+    directory = common.make_directory()
+
+    versions = []
+
+    for version in ["1.0.0", "1.1.0", "1.3.0"]:
+        versions.append(rez_common.make_single_context(directory, version=version))
+
+    before = versions[0]
+    after = versions[-1]
+
+    if not fails:
+        status = 0
+    else:
+        status = 1
+
+    checker = common.make_temporary_script(
+        textwrap.dedent(
+            """\
+            #!/usr/bin/env sh
+
+            exit {status}
+            """
+        ).format(status=status)
+    )
+
+    return before, after, checker
