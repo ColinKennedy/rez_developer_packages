@@ -52,7 +52,10 @@ class Ephemerals(unittest.TestCase):
 
 
 class Options(unittest.TestCase):
+    """Ensure CLI flags work as expected."""
+
     def test_skip_all_checks(self):
+        """Prevent the CLI from checking the user input before attempting to bisect."""
         before, after, checker = _make_quick_command_test(fails=False)
 
         with wrapping.capture_pipes(), mock.patch(
@@ -67,6 +70,7 @@ class Options(unittest.TestCase):
         self.assertEqual(0, is_good.call_count)
 
     def test_skip_bad_check(self):
+        """Prevent the CLI from checking the user's bad context before bisecting."""
         before, after, checker = _make_quick_command_test(fails=False)
 
         with wrapping.capture_pipes(), mock.patch(
@@ -84,6 +88,7 @@ class Options(unittest.TestCase):
         self.assertEqual(0, is_good.call_count)
 
     def test_skip_good_check(self):
+        """Prevent the CLI from checking the user's good context before bisecting."""
         before, after, checker = _make_quick_command_test(fails=False)
 
         with wrapping.capture_pipes(), mock.patch(
