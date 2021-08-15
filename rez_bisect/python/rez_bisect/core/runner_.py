@@ -22,25 +22,25 @@ _SUPPORTED_KEYS = frozenset((_NEWER, _REMOVED))
 
 
 def _get_required_bad_packages(bad, diff, command):
-    """Get every Rez package name that contributes to some "bad" resolve.
-
-    This function may return a list of only one Rez package name. But
-    it is also possible to return a 2-way, 3-way, or n-way Rez package issue.
-
-    Args:
-        bad (:class:`rez.resolved_context.ResolvedContext`):
-            The context which fails to run `command`.
-        diff (dict[str, list[:class:`rez.utils.formatting.PackageRequest`]]):
-            Each type of Rez package (added, newer, older, removed, etc)
-            and each version found between `bad` and a working, good resolve.
-        command (str):
-            The path to a shell script which, when run, will pass or succeed.
-
-    Returns:
-        list[:class:`rez.packages.Package`]:
-            Each found package which contributes to the bad resolve.
-
-    """
+    # """Get every Rez package name that contributes to some "bad" resolve.
+    #
+    # This function may return a list of only one Rez package name. But
+    # it is also possible to return a 2-way, 3-way, or n-way Rez package issue.
+    #
+    # Args:
+    #     bad (:class:`rez.resolved_context.ResolvedContext`):
+    #         The context which fails to run `command`.
+    #     diff (dict[str, list[:class:`rez.utils.formatting.PackageRequest`]]):
+    #         Each type of Rez package (added, newer, older, removed, etc)
+    #         and each version found between `bad` and a working, good resolve.
+    #     command (str):
+    #         The path to a shell script which, when run, will pass or succeed.
+    #
+    # Returns:
+    #     list[:class:`rez.packages.Package`]:
+    #         Each found package which contributes to the bad resolve.
+    #
+    # """
     _validate_keys(diff)
 
     newer_packages = diff.get(_NEWER)
@@ -53,7 +53,7 @@ def _get_required_bad_packages(bad, diff, command):
     # to_test = _get_candidate_packages(tester, all_newer_packages, command)
     required_packages = _get_required_bad_package_names(tester, to_test, command)
 
-    return [newer_packages[name][-1] for name in required_packages]
+    return {name: newer_packages[name] for name in required_packages}
 
 
 # TODO : Simplify these parameters, if possible
@@ -187,7 +187,12 @@ def _get_combined_context(good, bad_packages):
         if variant.name not in requested_names:
             continue
 
-        packages.append(bad_packages_data.get(variant.name, variant))
+        try:
+            package = bad_packages_data[variant.name]
+        except KeyError:
+            package = good.get_resolved_package(variant.name)
+
+        packages.append(package)
 
     context = resolved_context.ResolvedContext(
         _to_request(packages),
@@ -271,6 +276,37 @@ def _get_combined_context(good, bad_packages):
 #     #
 #     #         if (bad_package.name, bad_package.version) in original_bad_packages:
 #     #             safe_packages.add(bad_package.name)
+
+
+def _get_exact_versions(bad, diff, bad_packages, command):
+    # TODO : This function is unoptimized. It checks packages by-name,
+    # one at a time, to get the exact version that it needs.  We should
+    # do a binary walk or group the packages together at once, so we
+    # don't just walk each package one at a time.
+    #
+    # It also only advances through each version, one at a time. It's very unoptimized
+    #
+    package_names = set(bad_packages.keys())
+    output = set()
+
+    for name in package_names:
+        check_diff = _make_diff_from_packages({name}, diff)
+        newer = check_diff.get(_NEWER, dict())
+
+        for packages in newer.values():
+            previous = None
+
+            for package in reversed(packages):
+                context = _get_combined_context(bad, {package})
+
+                if not check.is_good(context, command):
+                    previous = package
+                else:
+                    output.add(previous)
+
+                    break
+
+    return output
 
 
 def _get_full_context(good, bad_packages):
@@ -415,9 +451,12 @@ def _make_diff_from_packages(names, reference_diff):
 
     for key, data in reference_diff.items():
         if isinstance(data, collections.MutableMapping):
-            output[key] = {name: packages for name, packages in data.items() if name in names}
+            data = {name: packages for name, packages in data.items() if name in names}
         else:
-            output[key] = [package for package in data if package.name in names]
+            data = [package for package in data if package.name in names]
+
+        if data:
+            output[key] = data
 
     return output
 
@@ -505,9 +544,13 @@ def bisect(good, bad, command):
         command,
     )
 
-    bad_packages = _get_required_bad_packages(
-        partial_context, _get_request_diff(good, partial_context), command
+    reduced_diff = _get_request_diff(good, partial_context)
+
+    all_bad_packages = _get_required_bad_packages(
+        partial_context, reduced_diff, command
     )
+
+    bad_packages = _get_exact_versions(bad, reduced_diff, all_bad_packages, command)
 
     return _get_full_context(good, bad_packages)
 
