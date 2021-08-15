@@ -314,7 +314,9 @@ def _get_full_context(good, bad_packages):
     packages = []
 
     for variant in good.requested_packages():
-        packages.append(bad_packages_data.get(variant.name, variant))
+        packages.append(
+            bad_packages_data.get(variant.name, good.get_resolved_package(variant.name))
+        )
 
     context = resolved_context.ResolvedContext(
         _to_request(packages),
