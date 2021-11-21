@@ -9,37 +9,15 @@ import collections
 import functools
 import math
 import random
-import subprocess
 
 from rez import resolved_context
+
+from . import check
+
 
 _NEWER = "newer_packages"
 _REMOVED = "removed_packages"
 _SUPPORTED_KEYS = frozenset((_NEWER, _REMOVED))
-
-
-def _is_command_successful(context, command):
-    """Check if `context` can run `command` without failing.
-
-    Args:
-        context (:class:`rez.resolved_context.ResolvedContext`):
-            A Rez resolve which might fail if it runs `command`.
-        command (str):
-            The path to a shell script which, when run, will pass or succeed.
-
-    Returns:
-        bool: If the `command` succeeded.
-
-    """
-    process = context.execute_command(
-        command,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-    )
-
-    process.communicate()
-
-    return process.returncode == 0
 
 
 def _get_required_bad_packages(bad, diff, command):
@@ -144,7 +122,7 @@ def _get_partial_context(good, diff, command):
         average = (weight + previous_weight) / 2
         offset = abs(average - weight)
 
-        if not _is_command_successful(checker_context, command):
+        if not check.is_good(checker_context, command):
             previous_weight = weight
             weight = weight - offset
 
@@ -190,8 +168,7 @@ def _get_candidate_packages(tester, all_newer_packages, command):
     while True:
         context = tester(to_test)
 
-        if _is_command_successful(context, command):
-            # print('SUCCES')
+        if check.is_good(context, command):
             # `to_test` contains enough packages that it turns `bad`
             # into a good resolve again. So we're done
             break
@@ -249,7 +226,7 @@ def _get_combined_context(good, bad_packages):
 #         diff_with_chosen = _make_diff_from_packages([chosen], diff)
 #         context = _get_partial_context(good, diff_with_chosen, command)
 #
-#         if _is_command_successful(context, command):
+#         if check.is_good(context, command):
 #             checked.add(chosen)
 #
 #             continue
@@ -349,7 +326,7 @@ def _get_required_bad_package_names(tester, all_candidates, command):
         first = set(_get_half_randomly(to_test))
         context = tester(first)
 
-        if not _is_command_successful(context, command):
+        if not check.is_good(context, command):
             raise NotImplementedError("Im bad")
 
             break
@@ -359,7 +336,7 @@ def _get_required_bad_package_names(tester, all_candidates, command):
 
         context = tester(to_test - first)
 
-        if not _is_command_successful(context, command):
+        if not check.is_good(context, command):
             raise NotImplementedError(
                 'This should never happen. Fix! "{to_test} {first}"'.format(
                     to_test=to_test, first=first
