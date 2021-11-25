@@ -6,7 +6,7 @@ description = "Auto build, link, and publish documentation, via Rez"
 
 authors = ["ColinKennedy"]
 
-build_command = "python -m rez_build_helper --items python"
+build_command = "python -m rez_build_helper --items bin python"
 
 private_build_requires = ["rez_build_helper-1.8+<2"]
 

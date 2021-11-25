@@ -1,7 +1,7 @@
 from . import base
 
 
-class Plugin(base.Plugin):
+class Plugin(base.BuilderPlugin):
     @staticmethod
     def get_name():
         return "sphinx"
