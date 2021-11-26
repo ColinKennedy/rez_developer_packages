@@ -1,3 +1,5 @@
+"""The module which parses user input from `rez_docbot` and runs a user command."""
+
 import argparse
 
 from .commands import builder as builder_
@@ -8,13 +10,31 @@ from .core import core_exception
 _ARGUMENT_DELIMITER = " -- "
 
 
-def _build(plug_in_namespace, remainder):
-    adapter = builder_.get_plug_in(plug_in_namespace.builder)
-    build_namespace = adapter.parse_arguments(remainder)
+def _build(full_namespace):
+    """Perform the `rez_docbot build` command, using `full_namespace`.
+
+    Args:
+        full_namespace (:class:`argparse.ArgumentParser`):
+            The parsed user input. A portion of it will be passed directly to a
+            :class:`.BuilderPlugin`.
+
+    """
+    adapter = builder_registry.get_plugin(full_namespace.builder)
+    build_namespace = adapter.parse_arguments(full_namespace.extra_arguments)
     adapter.build(build_namespace)
 
 
 def _parse_arguments(text):
+    """Parse the user-input into something that this Python package can use.
+
+    Args:
+        text (list[str]):
+            Text separated by spaces, e.g. ["github", "--", "documentation/build"]
+
+    Returns:
+        :class:`argparse.ArgumentParser`: The parsed output.
+
+    """
     parser = argparse.ArgumentParser(description="The main CLI which contains sub-commands.")
     sub_parsers = parser.add_subparsers()
     builder = sub_parsers.add_parser("build")

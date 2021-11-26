@@ -39,7 +39,7 @@ tests = {
         # Reference: https://github.com/psf/black/issues/1159
         #
         "command": "pydocstyle --ignore=D213,D202,D203,D406,D407 python tests",  # TODO : Double-check the ignores
-        "requires": ["pydocstyle-4+<5"],  # TODO : Double-check version number. Should be python-3 enabled
+        "requires": ["pydocstyle-3+<4"],  # TODO : Double-check version number. Should be python-3 enabled
 
     },
     "pylint": {
