@@ -3,7 +3,6 @@ import os
 
 from . import sphinx
 
-
 _KNOWN_PLUGINS = {
     sphinx.Plugin.get_name(): sphinx.Plugin,
 }

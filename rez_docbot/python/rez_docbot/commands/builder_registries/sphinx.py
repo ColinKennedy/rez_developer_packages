@@ -2,8 +2,15 @@ from . import base
 
 
 class Plugin(base.BuilderPlugin):
+    # """A class that parses and builds documentation using Sphinx.
+    #
+    # See Also:
+    #
+    # """
+
     @staticmethod
     def get_name():
+        """str: The name used to refer to this plug-in."""
         return "sphinx"
 
     def parse_arguments(text):

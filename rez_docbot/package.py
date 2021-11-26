@@ -35,10 +35,6 @@ tests = {
         "requires": ["isort-4.3+<5"],
     },
     "pydocstyle": {
-        "command": "pydocstyle python tests",
-        "requires": ["pydocstyle-4+<5"],  # TODO : Add version number
-    },
-    "pydocstyle": {
         # Need to disable D202 for now, until a new pydocstyle version is released
         # Reference: https://github.com/psf/black/issues/1159
         #

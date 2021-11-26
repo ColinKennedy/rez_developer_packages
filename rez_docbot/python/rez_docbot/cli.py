@@ -1,9 +1,9 @@
 import argparse
 
-from .core import core_exception
+from .commands import builder as builder_
+from .commands import publisher as publisher_
 from .commands.builder_registries import builder_registry
-from .commands import builder as builder_, publisher as publisher_
-
+from .core import core_exception
 
 _ARGUMENT_DELIMITER = " -- "
 
