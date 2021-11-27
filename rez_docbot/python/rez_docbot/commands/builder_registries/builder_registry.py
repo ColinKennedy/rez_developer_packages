@@ -43,4 +43,4 @@ def register_user_plugins():
         modules = []
 
     for module in modules:
-        raise ValueError('Need to import here')
+        raise ValueError("Need to import here")

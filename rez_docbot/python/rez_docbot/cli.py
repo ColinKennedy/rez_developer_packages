@@ -35,7 +35,9 @@ def _parse_arguments(text):
         :class:`argparse.ArgumentParser`: The parsed output.
 
     """
-    parser = argparse.ArgumentParser(description="The main CLI which contains sub-commands.")
+    parser = argparse.ArgumentParser(
+        description="The main CLI which contains sub-commands."
+    )
     sub_parsers = parser.add_subparsers()
     builder = sub_parsers.add_parser("build")
     builder.add_argument(
@@ -55,14 +57,14 @@ def _parse_arguments(text):
     builder.add_argument(
         "--N0",
         dest="extra_arguments",
-        nargs='*',
+        nargs="*",
         help=argparse.SUPPRESS,
     )
 
     publisher.add_argument(
         "--N0",
         dest="extra_arguments",
-        nargs='*',
+        nargs="*",
         help=argparse.SUPPRESS,
     )
 
@@ -70,7 +72,16 @@ def _parse_arguments(text):
 
 
 def _publish(namespace):
-    raise NotImplementedError('Need to write this')
+    """Send the build documentation to an external location (e.g. GitHub).
+
+    Args:
+        namespace (:class:`argparse.ArgumentParser`):
+            The user-parsed input. It typically it points to a folder of built
+            documentation and may also include other details needed for
+            publishing.
+
+    """
+    raise NotImplementedError("Need to write this")
 
 
 def main(text):
@@ -83,4 +94,4 @@ def main(text):
 
     """
     namespace = _parse_arguments(text)
-    namespace.execute(namespace, remainder)
+    namespace.execute(namespace)
