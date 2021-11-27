@@ -38,9 +38,8 @@ def _parse_arguments(text):
 
     def _add_argument(parser):
         parser.add_argument(
-            "--N0",
-            dest="extra_arguments",
-            nargs="*",
+            "extra_arguments",
+            nargs=argparse.REMAINDER,
             help=argparse.SUPPRESS,
         )
 

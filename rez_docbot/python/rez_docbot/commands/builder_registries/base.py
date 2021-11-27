@@ -13,3 +13,13 @@ class BuilderPlugin(object):
     def get_name():
         """str: The name used to refer to this plug-in."""
         return ""
+
+    @staticmethod
+    @abc.abstractmethod
+    def build(namespace):
+        pass
+
+    @staticmethod
+    @abc.abstractmethod
+    def parse_arguments(text):
+        pass

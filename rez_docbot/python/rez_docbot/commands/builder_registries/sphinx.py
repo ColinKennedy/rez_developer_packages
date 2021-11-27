@@ -19,6 +19,10 @@ class Plugin(base.BuilderPlugin):
         return "sphinx"
 
     @staticmethod
+    def build(namespace):
+        raise NotImplementedError('Need to write this')
+
+    @staticmethod
     def parse_arguments(text):
         """Get the source folder to find documentation and a build folder to send it to.
 

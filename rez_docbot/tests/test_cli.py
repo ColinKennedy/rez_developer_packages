@@ -19,29 +19,27 @@ class DelimiterCases(unittest.TestCase):
         text = stdout.getvalue()
         expected = textwrap.dedent(
             """\
-            usage: python -m unittest build [-h] {sphinx}
+            usage: python -m unittest [-h] [--source SOURCE] [--destination DESTINATION]
 
-            positional arguments:
-              {sphinx}    The plugin to build with. e.g. `sphinx`.
+            Tell Sphinx where the documentation lives and where to build it.
 
             optional arguments:
-              -h, --help  show this help message and exit
+              -h, --help            show this help message and exit
+              --source SOURCE       The root folder containing your index.rst (or
+                                    equivalent file).
+              --destination DESTINATION
+                                    The folder to build all documentation into.
             """
         )
 
         self.assertEqual(expected, text)
 
-    def test_build_rez_help(self):
+    def test_build_rez_help_001(self):
         """Show the help for builder plug-ins."""
         with self.assertRaises(SystemExit), _capture_prints() as stdout:
             _run("rez_docbot build --help")
 
-        text_1 = stdout.getvalue()
-
-        with self.assertRaises(SystemExit), _capture_prints() as stdout:
-            _run("rez_docbot build sphinx --help")
-
-        text_2 = stdout.getvalue()
+        text = stdout.getvalue()
 
         expected = textwrap.dedent(
             """\
@@ -55,8 +53,28 @@ class DelimiterCases(unittest.TestCase):
             """
         )
 
-        self.assertEqual(expected, text_1)
-        self.assertEqual(expected, text_2)
+        self.assertEqual(expected, text)
+
+    def test_build_rez_help_002(self):
+        with self.assertRaises(SystemExit), _capture_prints() as stdout:
+            _run("rez_docbot build sphinx --help")
+
+        text = stdout.getvalue()
+        expected = textwrap.dedent(
+            """\
+            usage: python -m unittest [-h] [--source SOURCE] [--destination DESTINATION]
+
+            Tell Sphinx where the documentation lives and where to build it.
+
+            optional arguments:
+              -h, --help            show this help message and exit
+              --source SOURCE       The root folder containing your index.rst (or
+                                    equivalent file).
+              --destination DESTINATION
+                                    The folder to build all documentation into.
+            """
+        )
+        self.assertEqual(expected, text)
 
     def test_general_help(self):
         """Show the general help."""
@@ -81,32 +99,20 @@ class DelimiterCases(unittest.TestCase):
 
         self.assertEqual(expected, text)
 
-    # TODO : Finish this one
-    # def test_incomplete_left_arguments(self):
-    #     with self.assertRaises(SystemExit), _capture_prints() as stdout:
-    #         _run("rez_docbot -- --help")
-    #
-    #     text = stdout.getvalue()
-    #
-    #     expected = textwrap.dedent(
-    #         """\
-    #         usage: python -m unittest [-h] {build,publish} ...
-    #         python -m unittest: error: invalid choice: '--' (choose from 'build', 'publish')
-    #         """
-    #     )
-    #
-    #     self.assertEqual(expected, text)
+    def test_incomplete_left_arguments(self):
+        with self.assertRaises(SystemExit), _capture_prints() as stdout:
+            _run("rez_docbot -- --help")
 
-    def test_incomplete_right_arguments(self):
-        raise ValueError()
+        text = stdout.getvalue()
 
-    def test_help_is_left_of_delimiter(self):
-        """Show the general help."""
-        raise ValueError()
+        expected = textwrap.dedent(
+            """\
+            usage: python -m unittest [-h] {build,publish} ...
+            python -m unittest: error: invalid choice: '--' (choose from 'build', 'publish')
+            """
+        )
 
-    def test_help_is_right_of_delimiter(self):
-        """Show the plug-in help."""
-        raise ValueError()
+        self.assertEqual(expected, text)
 
 
 class BuilderRegistry(unittest.TestCase):
