@@ -23,8 +23,6 @@ requires = [
     "six-1.16+<2",
 ]
 
-_common_tests = ["wurlitzer-2+<3"]
-
 tests = {
     "black_diff": {
         "command": "black --diff --check package.py python tests",
@@ -58,11 +56,11 @@ tests = {
     },
     "unittest_python_2": {
         "command": "python -m unittest discover",
-        "requires": _common_tests + ["python-2"],
+        "requires": ["python-2"],
     },
     "unittest_python_3": {
         "command": "python -m unittest discover",
-        "requires": _common_tests + ["python-3"],
+        "requires": ["python-3"],
     },
 }
 

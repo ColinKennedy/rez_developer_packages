@@ -1,43 +1,52 @@
 from __future__ import print_function
 
 import contextlib
+import io
 import shlex
+import sys
 import textwrap
 import unittest
 
 from rez_docbot import cli
-import wurlitzer
 
 
 class DelimiterCases(unittest.TestCase):
-    # def test_build_help(self):
-    #     """Show the help for builder plug-ins."""
-    #     with self.assertRaises(SystemExit):
-    #         _run("rez_docbot build --help")
-    #
-    #     expected = textwrap.dedent(
-    #         """\
-    #         usage: __main__.py [-h] {build,publish} ...
-    #
-    #         The main CLI which contains sub-commands.
-    #
-    #         positional arguments:
-    #           {build,publish}
-    #             publish        Send data to some external location. e.g. Send to GitHub.
-    #
-    #         optional arguments:
-    #           -h, --help       show this help message and exit
-    #         """
-    #     )
+    def test_build_rez_help(self):
+        """Show the help for builder plug-ins."""
+        with self.assertRaises(SystemExit), _capture_prints() as stdout:
+            _run("rez_docbot build --help")
 
-    def test_general_help(self):
-        """Show the general help."""
-        with self.assertRaises(SystemExit), _capture_prints():
-            _run("rez_docbot --help")
+        text_1 = stdout.getvalue()
+
+        with self.assertRaises(SystemExit), _capture_prints() as stdout:
+            _run("rez_docbot build sphinx --help")
+
+        text_2 = stdout.getvalue()
 
         expected = textwrap.dedent(
             """\
-            usage: __main__.py [-h] {build,publish} ...
+            usage: python -m unittest build [-h] {sphinx}
+
+            positional arguments:
+              {sphinx}    The plugin to build with. e.g. `sphinx`.
+
+            optional arguments:
+              -h, --help  show this help message and exit
+            """
+        )
+
+        self.assertEqual(expected, text_1)
+        self.assertEqual(expected, text_2)
+
+    def test_general_help(self):
+        """Show the general help."""
+        with self.assertRaises(SystemExit), _capture_prints() as stdout:
+            _run("rez_docbot --help")
+
+        text = stdout.getvalue()
+        expected = textwrap.dedent(
+            """\
+            usage: python -m unittest [-h] {build,publish} ...
 
             The main CLI which contains sub-commands.
 
@@ -49,6 +58,8 @@ class DelimiterCases(unittest.TestCase):
               -h, --help       show this help message and exit
             """
         )
+
+        self.assertEqual(expected, text)
 
     def test_help_with_no_delimiter(self):
         raise ValueError()
@@ -95,7 +106,14 @@ def _run(text):
 
 @contextlib.contextmanager
 def _capture_prints():
-    with wurlitzer.pipes() as (stdout, _):
-        yield stdout
+    stdout = io.BytesIO()
 
-    stdout.close()
+    original = sys.stdout
+    sys.stdout = stdout
+
+    try:
+        yield stdout
+    finally:
+        sys.stdout = original
+
+    atexit.register(stdout.close)
