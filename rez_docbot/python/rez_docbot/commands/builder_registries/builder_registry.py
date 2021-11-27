@@ -1,3 +1,5 @@
+"""The functions for finding and loading interfaces which build documentation."""
+
 import logging
 import os
 
@@ -12,6 +14,18 @@ _LOGGER = logging.getLogger(__name__)
 
 
 def get_plugin(name):
+    """Find the plug-in which matches `name`.
+
+    Args:
+        name (str): The plug-in identifier. e.g. "sphinx".
+
+    Raises:
+        :class:`.NoPluginFound`: If `name` doesn't match a registered plug-in.
+
+    Returns:
+        :class:`.BuilderPlugin`: The found plug-in.
+
+    """
     try:
         return _KNOWN_PLUGINS[name]
     except KeyError:
@@ -27,14 +41,16 @@ def get_plugin(name):
         )
 
 
-def get_allowed_plugins():
+def get_plugin_names():
+    """set[str]: Get every plug-in which can be used to build documentation."""
     names = set(_KNOWN_PLUGINS.keys())
     names.update(_USER_REGISTERED_PLUGINS.keys())
 
-    return sorted(names)
+    return names
 
 
 def register_user_plugins():
+    """Find and load any builder / publisher classes and add them to `rez_docbot`."""
     text = os.getenv("REZ_DOCBOT_BUILDER_PLUGINS", "")
 
     if text:
@@ -43,4 +59,4 @@ def register_user_plugins():
         modules = []
 
     for module in modules:
-        raise ValueError("Need to import here")
+        raise NotImplementedError("Need to import here")

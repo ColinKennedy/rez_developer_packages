@@ -43,7 +43,7 @@ def _parse_arguments(text):
     builder.add_argument(
         "builder",
         help="The plugin to build with. e.g. `sphinx`.",
-        choices=builder_registry.get_allowed_plugins(),
+        choices=builder_registry.get_plugin_names(),
     )
     builder.set_defaults(execute=_build)
 

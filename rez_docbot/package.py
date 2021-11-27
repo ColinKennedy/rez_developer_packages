@@ -6,6 +6,14 @@ description = "Auto build, link, and publish documentation, via Rez"
 
 authors = ["ColinKennedy"]
 
+help = [
+    ["README", "README.md"],
+    [
+        "Sphinx plug-in documentation",
+        "https://www.sphinx-doc.org/en/master/index.html"
+    ],
+]
+
 build_command = "python -m rez_build_helper --items bin python"
 
 private_build_requires = ["rez_build_helper-1.8+<2"]
@@ -14,6 +22,8 @@ requires = [
     "Sphinx-1.8+<2",
     "six-1.16+<2",
 ]
+
+_common_tests = ["wurlitzer-2+<3"]
 
 tests = {
     "black_diff": {
@@ -48,11 +58,11 @@ tests = {
     },
     "unittest_python_2": {
         "command": "python -m unittest discover",
-        "requires": ["python-2"],
+        "requires": _common_tests + ["python-2"],
     },
     "unittest_python_3": {
         "command": "python -m unittest discover",
-        "requires": ["python-3"],
+        "requires": _common_tests + ["python-3"],
     },
 }
 
