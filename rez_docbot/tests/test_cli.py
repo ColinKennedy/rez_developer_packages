@@ -131,15 +131,6 @@ class BuilderRegistry(unittest.TestCase):
         raise ValueError()
 
 
-def _run(text):
-    items = shlex.split(text)
-
-    if items[0] == "rez_docbot":
-        del items[0]
-
-    cli.main(items)
-
-
 @contextlib.contextmanager
 def _capture_prints():
     stdout = io.BytesIO()
@@ -153,3 +144,12 @@ def _capture_prints():
         sys.stdout = original
 
     atexit.register(stdout.close)
+
+
+def _run(text):
+    items = shlex.split(text)
+
+    if items[0] == "rez_docbot":
+        del items[0]
+
+    cli.main(items)
