@@ -11,6 +11,26 @@ from rez_docbot import cli
 
 
 class DelimiterCases(unittest.TestCase):
+    def test_build_plugin_help(self):
+        """Show the help directly from the builder plug-in."""
+        with self.assertRaises(SystemExit), _capture_prints() as stdout:
+            _run("rez_docbot build sphinx -- --help")
+
+        text = stdout.getvalue()
+        expected = textwrap.dedent(
+            """\
+            usage: python -m unittest build [-h] {sphinx}
+
+            positional arguments:
+              {sphinx}    The plugin to build with. e.g. `sphinx`.
+
+            optional arguments:
+              -h, --help  show this help message and exit
+            """
+        )
+
+        self.assertEqual(expected, text)
+
     def test_build_rez_help(self):
         """Show the help for builder plug-ins."""
         with self.assertRaises(SystemExit), _capture_prints() as stdout:
@@ -61,11 +81,21 @@ class DelimiterCases(unittest.TestCase):
 
         self.assertEqual(expected, text)
 
-    def test_help_with_no_delimiter(self):
-        raise ValueError()
-
-    def test_incomplete_left_arguments(self):
-        raise ValueError()
+    # TODO : Finish this one
+    # def test_incomplete_left_arguments(self):
+    #     with self.assertRaises(SystemExit), _capture_prints() as stdout:
+    #         _run("rez_docbot -- --help")
+    #
+    #     text = stdout.getvalue()
+    #
+    #     expected = textwrap.dedent(
+    #         """\
+    #         usage: python -m unittest [-h] {build,publish} ...
+    #         python -m unittest: error: invalid choice: '--' (choose from 'build', 'publish')
+    #         """
+    #     )
+    #
+    #     self.assertEqual(expected, text)
 
     def test_incomplete_right_arguments(self):
         raise ValueError()

@@ -36,6 +36,7 @@ class Plugin(base.BuilderPlugin):
         parser = argparse.ArgumentParser(
             description="Tell Sphinx where the documentation lives and where to build it."
         )
+        # TODO : Needs required=True
         parser.add_argument(
             "--source",
             help="The root folder containing your index.rst (or equivalent file).",

@@ -35,6 +35,15 @@ def _parse_arguments(text):
         :class:`argparse.ArgumentParser`: The parsed output.
 
     """
+
+    def _add_argument(parser):
+        parser.add_argument(
+            "--N0",
+            dest="extra_arguments",
+            nargs="*",
+            help=argparse.SUPPRESS,
+        )
+
     parser = argparse.ArgumentParser(
         description="The main CLI which contains sub-commands."
     )
@@ -54,19 +63,8 @@ def _parse_arguments(text):
     publisher.set_defaults(execute=_publish)
 
     # TODO : Add auto-completion for this, maybe
-    builder.add_argument(
-        "--N0",
-        dest="extra_arguments",
-        nargs="*",
-        help=argparse.SUPPRESS,
-    )
-
-    publisher.add_argument(
-        "--N0",
-        dest="extra_arguments",
-        nargs="*",
-        help=argparse.SUPPRESS,
-    )
+    _add_argument(builder)
+    _add_argument(publisher)
 
     return parser.parse_args(text)
 
