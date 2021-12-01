@@ -43,6 +43,7 @@ class Plugin(base.BuilderPlugin):
         # TODO : Needs required=True
         parser.add_argument(
             "--source",
+            required=True,
             help="The root folder containing your index.rst (or equivalent file).",
         )
         parser.add_argument(

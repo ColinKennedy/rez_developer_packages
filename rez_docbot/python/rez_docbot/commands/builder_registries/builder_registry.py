@@ -3,12 +3,15 @@
 import logging
 import os
 
+from python_compatibility import imports
+
 from . import sphinx
 from ...core import core_exception
 
 _KNOWN_PLUGINS = {
     sphinx.Plugin.get_name(): sphinx.Plugin,
 }
+_USER_PLUGIN_ENVIRONMENT_VARIABLE = "REZ_DOCBOT_BUILDER_PLUGINS"
 _USER_REGISTERED_PLUGINS = dict()
 
 _LOGGER = logging.getLogger(__name__)
@@ -51,14 +54,18 @@ def get_plugin_names():
     return names
 
 
+def clear_user_plugins():
+    _USER_REGISTERED_PLUGINS.clear()
+
+
 def register_user_plugins():
     """Find and load any builder / publisher classes and add them to `rez_docbot`."""
-    text = os.getenv("REZ_DOCBOT_BUILDER_PLUGINS", "")
+    text = os.getenv(_USER_PLUGIN_ENVIRONMENT_VARIABLE, "")
 
     if text:
         modules = text.split(os.pathsep)
     else:
         modules = []
 
-    for module in modules:
-        raise NotImplementedError("Need to import here")
+    for namespace in modules:
+        imports.import_nearest_module(namespace)

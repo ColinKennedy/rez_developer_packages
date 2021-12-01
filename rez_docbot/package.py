@@ -20,6 +20,7 @@ private_build_requires = ["rez_build_helper-1.8+<2"]
 
 requires = [
     "Sphinx-1.8+<2",
+    "rez_python_compatibility-2.7+<3",
     "six-1.16+<2",
 ]
 
