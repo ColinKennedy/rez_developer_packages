@@ -13,6 +13,7 @@ import six
 class Base(Exception):
     """A simple base class to inherit from, for all classes in this module."""
 
+    @staticmethod
     @abc.abstractmethod
     def get_error_code():
         """int: A unique value to refer to this class when calling :func:`sys.exit`."""

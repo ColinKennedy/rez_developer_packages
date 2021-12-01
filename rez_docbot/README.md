@@ -7,6 +7,11 @@
 }
 
 
+- Change the code-base to allow Sphinx through an ephemeral request
+ - Do the same for Doxygen
+ - Do the same for GitHub
+ - And possibly move the core to another location
+
 - Add instructions on how to use test name constants, in Rez package.py files
 
 

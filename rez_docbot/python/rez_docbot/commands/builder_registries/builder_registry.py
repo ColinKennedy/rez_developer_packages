@@ -4,6 +4,7 @@ import logging
 import os
 
 from . import sphinx
+from ...core import core_exception
 
 _KNOWN_PLUGINS = {
     sphinx.Plugin.get_name(): sphinx.Plugin,
@@ -36,7 +37,8 @@ def get_plugin(name):
     except KeyError:
         raise core_exception.NoPluginFound(
             'Plug-in "{name}" does not exist. The options were, "{options}".'.format(
-                options=sorted(get_allowed_plugins())
+                name=name,
+                options=sorted(get_plugin_names())
             )
         )
 
