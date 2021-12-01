@@ -13,7 +13,7 @@ from rez_docbot import cli
 class DelimiterCases(unittest.TestCase):
     def test_build_plugin_help(self):
         """Show the help directly from the builder plug-in."""
-        with self.assertRaises(SystemExit), _capture_prints() as stdout:
+        with self.assertRaises(SystemExit), _capture_stream() as stdout:
             _run("rez_docbot build sphinx -- --help")
 
         text = stdout.getvalue()
@@ -36,7 +36,7 @@ class DelimiterCases(unittest.TestCase):
 
     def test_build_rez_help_001(self):
         """Show the help for builder plug-ins."""
-        with self.assertRaises(SystemExit), _capture_prints() as stdout:
+        with self.assertRaises(SystemExit), _capture_stream() as stdout:
             _run("rez_docbot build --help")
 
         text = stdout.getvalue()
@@ -56,7 +56,7 @@ class DelimiterCases(unittest.TestCase):
         self.assertEqual(expected, text)
 
     def test_build_rez_help_002(self):
-        with self.assertRaises(SystemExit), _capture_prints() as stdout:
+        with self.assertRaises(SystemExit), _capture_stream() as stdout:
             _run("rez_docbot build sphinx --help")
 
         text = stdout.getvalue()
@@ -78,7 +78,7 @@ class DelimiterCases(unittest.TestCase):
 
     def test_general_help(self):
         """Show the general help."""
-        with self.assertRaises(SystemExit), _capture_prints() as stdout:
+        with self.assertRaises(SystemExit), _capture_stream() as stdout:
             _run("rez_docbot --help")
 
         text = stdout.getvalue()
@@ -100,10 +100,10 @@ class DelimiterCases(unittest.TestCase):
         self.assertEqual(expected, text)
 
     def test_incomplete_left_arguments(self):
-        with self.assertRaises(SystemExit), _capture_prints() as stdout:
+        with self.assertRaises(SystemExit), _capture_stream(stream="stderr") as stream:
             _run("rez_docbot -- --help")
 
-        text = stdout.getvalue()
+        text = stream.getvalue()
 
         expected = textwrap.dedent(
             """\
@@ -132,18 +132,28 @@ class BuilderRegistry(unittest.TestCase):
 
 
 @contextlib.contextmanager
-def _capture_prints():
-    stdout = io.BytesIO()
+def _capture_stream(stream=""):
+    # TODO : Replace this with a proper mock.patch, later
+    output = io.BytesIO()
 
-    original = sys.stdout
-    sys.stdout = stdout
+    if stream == "stdout":
+        original = sys.stdout
+        sys.stdout = output
+    elif stream == "stderr":
+        original = sys.stderr
+        sys.stderr = output
+    else:
+        raise NotImplementedError(stream)
 
     try:
-        yield stdout
+        yield output
     finally:
-        sys.stdout = original
-
-    atexit.register(stdout.close)
+        if stream == "stdout":
+            sys.stdout = original
+        elif stream == "stderr":
+            sys.stderr = original
+        else:
+            raise NotImplementedError(stream)
 
 
 def _run(text):
