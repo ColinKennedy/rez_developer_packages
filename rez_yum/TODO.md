@@ -1,0 +1,2 @@
+- Add quality-related CI rez-test commands
+- Add plug-in system so people can append extra behavior for specific macros
