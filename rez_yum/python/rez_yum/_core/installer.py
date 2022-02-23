@@ -1,6 +1,11 @@
+import logging
+
 from rez import config
 
 from . import rpm_helper
+
+
+_LOGGER = logging.getLogger(__name__)
 
 
 def _install(name, destination, seen=frozenset()):
@@ -9,18 +14,21 @@ def _install(name, destination, seen=frozenset()):
     output = []
 
     for rpm in rpms:
-        data = _get_package_details(rpm)
-        full_path = _get_full_qualified_name(data)
+        _LOGGER.debug('Processing "%s" RPM.', rpm)
 
-        if full_path in seen:
+        data = rpm_helper.get_details(rpm)
+
+        if data.name in seen:
             continue
 
-        seen.add(full_path)
+        seen.add(data.name)
 
-        for requirement in data.all_requirements:
-            _install(requirement, destination=destination, seen=seen)
+        for requirement in data.requires:
+            output.extend(_install(requirement, destination=destination, seen=seen))
 
         output.append((rpm, data))
+
+    return output
 
 
 def install(name, destination=""):

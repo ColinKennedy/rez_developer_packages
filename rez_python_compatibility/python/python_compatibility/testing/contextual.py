@@ -8,6 +8,17 @@ import sys
 
 
 @contextlib.contextmanager
+def keep_sys_argv():
+    """Save :attr:`sys.argv` and restore it later."""
+    original = list(sys.argv)
+
+    try:
+        yield
+    finally:
+        sys.argv[:] = original
+
+
+@contextlib.contextmanager
 def keep_sys_path():
     """Save :attr:`sys.path` and restore it later."""
     original = list(sys.path)
