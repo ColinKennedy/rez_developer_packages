@@ -1,3 +1,5 @@
+- If using yum --downloadonly, make sure the user has `yum-plugin-downloadonly` downloaded
+ - Reference: https://ostechnix.com/download-rpm-package-dependencies-centos/
 
 - Add quality-related CI rez-test commands
 - Add plug-in system so people can append extra behavior for specific macros

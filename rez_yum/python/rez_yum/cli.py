@@ -8,13 +8,21 @@ from ._core import converter as converter_, installer as installer_
 def _add_destination_argument(parser):
     parser.add_argument(
         "--destination",
-        default=config.local_packages_path,
+        default=config.local_packages_path or "",
         help="The path to place any generated Rez packages.",
     )
 
 
 def _add_name_argument(parser):
     parser.add_argument("name", help='The name of the Yum package. e.g. "gcc".')
+
+
+def _add_keep_temporary_files_argument(parser):
+    parser.add_argument(
+        "--keep-temporary-files",
+        action="store_true",
+        help="When included, downloaded files and folder will remain on-disk, post-run."
+    )
 
 
 def _convert(namespace):
@@ -43,6 +51,7 @@ def parse_arguments(text):
     )
     installer.set_defaults(execute=_install)
     _add_destination_argument(installer)
+    _add_keep_temporary_files_argument(installer)
     _add_name_argument(installer)
 
     converter = subparsers.add_parser(
@@ -51,6 +60,7 @@ def parse_arguments(text):
     )
     converter.set_defaults(execute=_convert)
     _add_destination_argument(converter)
+    _add_keep_temporary_files_argument(converter)
     _add_name_argument(converter)
 
     return parser.parse_args(text)

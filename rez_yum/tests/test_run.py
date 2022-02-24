@@ -53,6 +53,8 @@ def _make_directory(name):
     directory = tempfile.mkdtemp(suffix=name)
     atexit.register(functools.partial(shutil.rmtree, directory))
 
+    return directory
+
 
 def _test(command):
     parts = shlex.split(command)

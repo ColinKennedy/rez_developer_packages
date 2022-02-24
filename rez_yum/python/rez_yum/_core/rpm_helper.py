@@ -2,12 +2,9 @@ import collections
 import re
 import logging
 import os
-import sys
 
-from python_compatibility.testing import contextual
 from six import moves
 
-import yumdownloader
 import rpmfile
 
 
@@ -57,25 +54,3 @@ def get_details(path):
                 _get_requires(headers["requirename"], headers["requireversion"])
             ),
         )
-
-
-def download_installed_rpms(name, directory):
-    # TODO : The worst part of the code. We should just re-write yumdownloader at this point.
-    _LOGGER.info('Downloading "%s" RPM.', name)
-
-    with contextual.keep_sys_argv():
-        sys.argv = ["yumdownloader", name, "--destdir", directory]
-        yumdownloader.YumDownloader()
-        # base_name = name
-        # version = None
-        #
-        # if "-" in name:
-        #     base_name, version = name.split("-")
-        #
-        # raise ValueError(downloader.get_packages([name], version))
-
-    return [
-        os.path.join(directory, name)
-        for name in os.listdir(directory)
-        if name.endswith(".rpm")
-    ]
