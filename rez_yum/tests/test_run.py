@@ -56,8 +56,11 @@ def _make_directory(name):
     return directory
 
 
-def _test(command):
+def _test(command, keep_temporary_files=False):
     parts = shlex.split(command)
+
+    if keep_temporary_files:
+        parts.append("--keep-temporary-files")
 
     namespace = cli.parse_arguments(parts)
     cli.run(namespace)

@@ -30,7 +30,11 @@ def _convert(namespace):
 
 
 def _install(namespace):
-    installer_.install(namespace.name, destination=namespace.destination)
+    installer_.install(
+        namespace.name,
+        destination=namespace.destination,
+        keep_temporary_files=namespace.keep_temporary_files,
+    )
 
 
 def main(text):

@@ -1,3 +1,25 @@
+- You need to make sure RPM requires dependencies are parsed correctly
+- Also, make sure to include as much as possible about the RPM in the package.py
+- Consider how to use modules!
+- How do I handle version names like 'libX11_common-1.6.7-4.el7_9'? IIRC el7_9 is a variant
+- Can I ignore the ".so.6" part of libc? Some examples:
+    - 'libc.so.6',
+    - 'libdl.so.2',
+    - 'libxcb.so.1',
+
+- for python-libarchive, you must install
+```sh
+yum install libarchive libarchive-devel
+
+Or you may get these errors on-install
+
+libarchive/_libarchive_wrap.c:2963:21: fatal error: archive.h: No such file or directory
+ #include <archive.h>
+
+libarchive/_libarchive_wrap.c:2963:21: fatal error: archive.h: No such file or directory
+ #include <archive.h>
+```
+
 - If using yum --downloadonly, make sure the user has `yum-plugin-downloadonly` downloaded
  - Reference: https://ostechnix.com/download-rpm-package-dependencies-centos/
 

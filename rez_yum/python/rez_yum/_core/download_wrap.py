@@ -14,8 +14,10 @@ def download_all_packages(name, directory):
         "yumdownloader",
         name,
         "--downloadonly",
+        # Important: Do not escape the directory path here in --downloaddir or --destdir. It will not work
+        "--destdir={directory}".format(directory=directory),
+        "--downloaddir={directory}".format(directory=directory),
         "--resolve",
-        "--destdir='{directory}'".format(directory=directory)
     ]
 
     process = subprocess.Popen(
@@ -30,4 +32,4 @@ def download_all_packages(name, directory):
     _LOGGER.debug('yumdownloader stdout: "%s".', stdout)
     _LOGGER.debug('yumdownloader stderr: "%s".', stderr)
 
-    raise ValueError(os.listdir(directory))
+    return [os.path.join(directory, name) for name in os.listdir(directory)]

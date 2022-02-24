@@ -9,9 +9,9 @@ import rpmfile
 
 
 _LOGGER = logging.getLogger(__name__)
-_Details = collections.namedtuple(
-    "_Details",
-    ["name", "os", "requires", "version"],
+_RpmDetails = collections.namedtuple(
+    "_RpmDetails",
+    ["name", "os", "path", "requires", "version"],
 )
 _MODULES = re.compile(r"\([^()]*\)")
 
@@ -26,16 +26,22 @@ def _get_requires(names, versions):
             continue
 
         stripped = _strip_modules(name)
+        rezified = _rezify_name(stripped)
 
         if not version:
-            requires.add(stripped)
+            requires.add(rezified)
 
             continue
 
         # TODO : Determine if it needs to be exact versions here. If so, make it "=="
-        requires.add("{stripped}-{version}".format(stripped=stripped, version=version))
+        requires.add("{rezified}-{version}".format(rezified=rezified, version=version))
 
     return sorted(requires)
+
+
+def _rezify_name(name):
+    # TODO : Replace this with rez-pip's function. Need to find it first though
+    return name.replace("-", "_")
 
 
 def _strip_modules(name):
@@ -45,11 +51,14 @@ def _strip_modules(name):
 def get_details(path):
     with rpmfile.open(path) as handler:
         headers = handler.headers
+        name = _strip_modules(headers["name"])
+        rezified_name = _rezify_name(name)
 
-        return _Details(
-            name=_strip_modules(headers["name"]),
+        return _RpmDetails(
+            name=rezified_name,
             version=headers["version"],
             os=headers["os"],
+            path=path,
             requires=sorted(
                 _get_requires(headers["requirename"], headers["requireversion"])
             ),

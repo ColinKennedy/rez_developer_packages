@@ -10,8 +10,10 @@ private_build_requires = ["rez_build_helper-1+<2"]
 
 requires = [
     "python-2.7+<3",
+    "python_libarchive-4+<5",
     "rez-2.104+<3",
     "rez_python_compatibility-2.8+<3",
+    "rpm2cpio-2017+<2018",
     "rpmfile-1+<2",
     "six-1.15+<2",
 ]
