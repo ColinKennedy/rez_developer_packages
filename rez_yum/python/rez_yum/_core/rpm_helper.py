@@ -7,6 +7,8 @@ from six import moves
 
 import rpmfile
 
+from . import rpm_require_flag
+
 
 _LOGGER = logging.getLogger(__name__)
 _RpmDetails = collections.namedtuple(
@@ -14,18 +16,37 @@ _RpmDetails = collections.namedtuple(
     ["name", "os", "path", "requires", "version"],
 )
 _MODULES = re.compile(r"\([^()]*\)")
+_SYMBOLIC_LINK_EXPRESSION = re.compile(r".+\.so(?:(?:\.\d)+)?")
 
 
-def _get_requires(names, versions):
+def _is_symbolic_link(name):
+    return bool(_SYMBOLIC_LINK_EXPRESSION.match(name))
+
+
+def _get_requires(headers):
     requires = set()
 
-    for name, version in moves.zip(names, versions):
+    for name, version, require_flag in moves.zip(
+        headers["requirename"],
+        headers["requireversion"],
+        headers["requireflags"],
+    ):
         if os.path.isabs(name):
-            _LOGGER.debug('Skipped: "%s" requirement.', name)
+            _LOGGER.debug('Skipped: "%s" requirement because it comes from the host OS.', name)
 
             continue
 
         stripped = _strip_modules(name)
+
+        if _is_symbolic_link(stripped):
+            _LOGGER.debug(
+                'Skipped: "%s" requirement because it comes from the host OS.\n'
+                'See https://man7.org/linux/man-pages/man7/libc.7.html for details.',
+                name,
+            )
+
+            continue
+
         rezified = _rezify_name(stripped)
 
         if not version:
@@ -33,8 +54,14 @@ def _get_requires(names, versions):
 
             continue
 
-        # TODO : Determine if it needs to be exact versions here. If so, make it "=="
-        requires.add("{rezified}-{version}".format(rezified=rezified, version=version))
+        try:
+            formatted_version = rpm_require_flag.get_require_text(version, require_flag)
+        except ValueError:
+            print('TODO : fix this bad thing later', (name, version, require_flag))
+
+            continue
+
+        requires.add("{rezified}{formatted_version}".format(rezified=rezified, formatted_version=formatted_version))
 
     return sorted(requires)
 
@@ -60,6 +87,6 @@ def get_details(path):
             os=headers["os"],
             path=path,
             requires=sorted(
-                _get_requires(headers["requirename"], headers["requireversion"])
+                _get_requires(headers),
             ),
         )

@@ -10,7 +10,7 @@ from six.moves import StringIO
 import rpm2cpio
 from rez import package_maker
 
-from . import cpio_helper, download_wrap, exception, rpm_helper
+from . import cpio_helper, download_wrap, exception, path_registry, rpm_helper
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -21,6 +21,14 @@ def _create_rez_package_file(rpm, destination):
         maker.name = rpm.name
         maker.version = rpm.version
         maker.requires = rpm.requires
+        # TODO : Add this later
+        # maker.help = [["Home Page", rpm.home_page]]
+        commands = path_registry.get_package_commands(
+            os.path.join(destination, maker.name, maker.version)
+        )
+
+        if commands:
+            maker.commands = "\n".join(sorted(commands))
 
 
 def _expand_rpm(rpm, install_folder):

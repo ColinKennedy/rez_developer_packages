@@ -1,11 +1,39 @@
+- Clean up existing code
+- Add CI commands
+- Add `def commands()` as part of auto-generation
+- Add an option to copy the original .rpm file into the installed directory. So users never "lose" the install.
+
+- Check if I can use provides to auto-find the lib files I've been skipping
+
+- Maybe the lib files can come from one of the other, related Rez packages?
+2022-02-23 20:49:52,925 - rez_yum._core.rpm_helper - DEBUG - Skipped: "libplc4.so()(64bit)" requirement because
+2022-02-23 20:49:52,925 - rez_yum._core.rpm_helper - DEBUG - Skipped: "libplds4.so()(64bit)" requirement because
+2022-02-23 20:49:52,925 - rez_yum._core.rpm_helper - DEBUG - Skipped: "libpthread.so.0()(64bit)" requirement be
+2022-02-23 20:49:52,925 - rez_yum._core.rpm_helper - DEBUG - Skipped: "libnspr4.so()(64bit)" requirement because
+2022-02-23 20:49:52,924 - rez_yum._core.rpm_helper - DEBUG - Skipped: "libdl.so.2()(64bit)" requirement because
+2022-02-23 20:49:52,924 - rez_yum._core.rpm_helper - DEBUG - Skipped: "libc.so.6(GLIBC_2.4)(64bit)" requirement
+
 - You need to make sure RPM requires dependencies are parsed correctly
 - Also, make sure to include as much as possible about the RPM in the package.py
 - Consider how to use modules!
 - How do I handle version names like 'libX11_common-1.6.7-4.el7_9'? IIRC el7_9 is a variant
 - Can I ignore the ".so.6" part of libc? Some examples:
-    - 'libc.so.6',
-    - 'libdl.so.2',
-    - 'libxcb.so.1',
+    - 'libc.so.6'
+    - 'libdl.so.2'
+    - 'libxcb.so.1'
+	- from gcc install
+	2022-02-23 22:22:40,756 - rez_yum._core.rpm_helper - DEBUG - Skipped: "libgmp.so.10()(64bit)" requirement becau
+	2022-02-23 22:22:40,756 - rez_yum._core.rpm_helper - DEBUG - Skipped: "libgomp.so.1()(64bit)" requirement becau
+	2022-02-23 22:22:40,756 - rez_yum._core.rpm_helper - DEBUG - Skipped: "liblto_plugin.so.0()(64bit)" requirement
+	2022-02-23 22:22:40,756 - rez_yum._core.rpm_helper - DEBUG - Skipped: "libm.so.6()(64bit)" requirement because
+	2022-02-23 22:22:40,756 - rez_yum._core.rpm_helper - DEBUG - Skipped: "libmpc.so.3()(64bit)" requirement becaus
+	2022-02-23 22:22:40,756 - rez_yum._core.rpm_helper - DEBUG - Skipped: "libmpfr.so.4()(64bit)" requirement becau
+	2022-02-23 22:22:40,756 - rez_yum._core.rpm_helper - DEBUG - Skipped: "libmpc.so.3()(64bit)" requirement becaus
+	e it comes from the host OS.
+	See https://man7.org/linux/man-pages/man7/libc.7.html for details.
+	2022-02-23 22:22:40,756 - rez_yum._core.rpm_helper - DEBUG - Skipped: "libmpfr.so.4()(64bit)" requirement becau
+- Check if https://pypi.org/project/extractcode would be better for cpio extraction
+
 
 - for python-libarchive, you must install
 ```sh

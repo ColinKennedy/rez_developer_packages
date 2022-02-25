@@ -1,3 +1,7 @@
+https://rpm-software-management.github.io/rpm/manual/more_dependencies.html
+
+https://docs.fedoraproject.org/en-US/packaging-guidelines/RPMMacros/
+
 https://unix.stackexchange.com/questions/16133/how-should-i-search-for-packages-to-install-on-centos-5-5
 https://unix.stackexchange.com/questions/62355/is-there-a-tool-website-to-compare-package-status-in-different-linux-distributio/62357#62357
 https://pkgs.org/
