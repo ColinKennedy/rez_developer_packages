@@ -2,15 +2,14 @@
 
 import itertools
 import logging
-import textwrap
 import os
+import textwrap
 import traceback
 
-from rez_utilities import finder
 import six
+from rez_utilities import finder
 
 from . import exception, preference
-
 
 _LOGGER = logging.getLogger(__name__)
 _REZ_SPHINX_BOOTSTRAP_LINES = textwrap.dedent(

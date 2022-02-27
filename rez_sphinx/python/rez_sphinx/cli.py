@@ -1,8 +1,8 @@
 """The entry point for :ref:`rez_sphinx` on the terminal."""
 
-import operator
 import argparse
 import logging
+import operator
 import os
 
 from rez_utilities import finder
