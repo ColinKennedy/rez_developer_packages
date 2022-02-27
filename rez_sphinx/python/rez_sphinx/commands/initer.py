@@ -3,6 +3,7 @@
 import logging
 import os
 import textwrap
+import traceback
 
 from sphinx.cmd import quickstart
 

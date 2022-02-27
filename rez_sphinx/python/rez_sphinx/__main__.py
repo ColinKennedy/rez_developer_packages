@@ -36,6 +36,7 @@ def main(text):
     try:
         cli.main(text)
     except exception.SphinxExecutionError as error:
+        # TODO : Make sure these actually look good
         print(
             'Something errored while Sphinx was running.\n'
             'See the error below for details.',
