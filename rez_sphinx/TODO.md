@@ -41,8 +41,13 @@ Make sure all :ref:`Sphinx` point to Sphinx's website
  - :ref:`Sphinx conf.py` - https://www.sphinx-doc.org/en/master/usage/configuration.html.
  - :ref:`sphinx-quickstart` - https://www.sphinx-doc.org/en/master/man/sphinx-quickstart.html
  - :ref:`rez help attribute` - https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#help
+ - :ref:`intersphinx_mapping` - https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html
  - :ref:`intersphinx` - https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html
  - :ref:`sphinx.ext.autodoc` - https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html
+ - :ref:`private_build_requires` - https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#private_build_requires
+ - :ref:`build_requires` - https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#build_requires
+ - :ref:`requires` - https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#requires
+ - :ref:`build_documentation_key` - The rez_sphinx key information
 
 - Allow template headers so people can link back to company websites and what not
 - Need an option for auto ``help`` attribute or baked in

@@ -4,7 +4,7 @@ from sphinx.cmd import build as sphinx_build
 from rez.config import config
 from rez_utilities import finder
 
-from ..core import sphinx_helper
+from ..core import api_builder, sphinx_helper
 
 
 def _get_documentation_build(source):
@@ -50,13 +50,13 @@ def _get_documentation_source(root):
     return os.path.dirname(configuration)
 
 
-def build(directory, api_mode=api_builder.Mode.full_auto):
+def build(directory, api_mode=api_builder.FULL_AUTO.label):
     """Generate .html files from the Sphinx documentation in ``directory``.
 
     Args:
         directory (str):
             The absolute path to a root Rez package.
-        api_mode (str):
+        api_mode (str, optional):
             A description of what to do about Python API documentation.
             For example, should it be generated or not? See
             :mod:`api_builder` for details.
@@ -65,11 +65,15 @@ def build(directory, api_mode=api_builder.Mode.full_auto):
     # TODO : Add mode support
     source_directory = _get_documentation_source(directory)
     build_directory = _get_documentation_build(source_directory)
+
     parts = [
         directory,
         "-b", "html",  # Always assume .html output
         source_directory,
         build_directory,
     ]
+
+    if not os.path.isdir(build_directory):
+        os.makedirs(build_directory)
 
     sphinx_build.main(parts)

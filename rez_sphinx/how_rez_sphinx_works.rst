@@ -2,7 +2,7 @@
 How rez-sphinx Works
 ====================
 
-Every time a documentation project is built, Sphinx creates an "objects.inv"
+Every time a documentation project is built, Sphinx creates an :ref:`objects.inv`
 file. This is true not just for Rez but any Sphinx-built documentation. Even
 [Python's documentation works the same way](https://docs.python.org/3/objects.inv).
 

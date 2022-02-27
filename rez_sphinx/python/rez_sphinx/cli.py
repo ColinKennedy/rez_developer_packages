@@ -8,7 +8,7 @@ import os
 from rez_utilities import finder
 
 from .commands import builder, initer
-from .core import exception, path_control
+from .core import api_builder, exception, path_control
 
 _LOGGER = logging.getLogger(__name__)
 

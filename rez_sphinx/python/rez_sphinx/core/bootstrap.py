@@ -31,8 +31,21 @@ _REZ_SPHINX_BOOTSTRAP_LINES = textwrap.dedent(
 
 
 def _get_intersphinx_candidates(package):
+    """Find every dependeny of ``package`` which will be checked for a :ref:`objects.inv`.
+
+    Args:
+        package (:class:`rez.developer_package.DeveloperPackage`):
+            A Rez package which the user is attempting to build documentation for.
+
+    Returns:
+        set[:class:`rez.utils.formatting.PackageRequest`]:
+            All requests which the user needs in order to build their
+            documentation.
+
+    """
     output = set()
 
+    # TODO : Add a configuration option here. Default to only consider "requires"
     for request in itertools.chain(
         package.private_build_requires or [],
         package.build_requires or [],
@@ -58,13 +71,35 @@ def _get_intersphinx_candidates(package):
 
 
 def _get_environment_package(name):
+    """Find a Rez package describing ``name``.
+
+    Important:
+        This function assumes that ``name`` is in the current Rez resolve.
+
+    Args:
+        name (str):
+            The Rez package family name to search for. e.g. "rez",
+            "Sphinx", "python", etc.
+
+    Raises:
+        EnvironmentError:
+            If ``name`` is not listed in your Rez environment.
+        RuntimeError:
+            If for some reason ``name`` exists but has no Rez valid Rez
+            package. If this happens, it's almost 100% some kind of Rez
+            build / release issue, caused by **user** error.
+
+    Returns:
+        :class:`rez.developer_package.DeveloperPackage`: The found package.
+
+    """
     # TODO : Replace this with a Rez API call
     variable = "REZ_{name}_ROOT".format(name=name.upper())
 
     try:
         directory = os.environ[variable]
     except KeyError:
-        raise ValueError(
+        raise EnvironmentError(
             'Rez package "{name}" is not found. Are you sure it is in your '
             "current Rez resolve?".format(name=name)
         )
@@ -81,7 +116,32 @@ def _get_environment_package(name):
 
 
 def _get_intersphinx_mappings(package):
-    # TODO : Add a configuration option here. Default to only consider "requires"
+    """Find every :ref`:objects.inv` file for each dependency of ``package``.
+
+    The found :ref`:objects.inv` will be used to populate a
+    :ref:`intersphinx_mapping` for ``package``. This enables
+    cross-linking between external Rez packages, as long as they were
+    also built by Sphinx.
+
+    Note:
+        The searched Rez packages by default are
+
+        - :ref:`requires`
+        - :ref:`build_documentation_key`
+
+        If you want to search for other requests for your package, like
+        :ref:`private_build_requires` or :ref:`build_requires`, consider
+        setting that using :ref:`rez-config`.
+
+    Args:
+        package (:class:`rez.developer_package.DeveloperPackage`):
+            A Rez package which the user is attempting to build documentation for.
+
+    Returns:
+        dict[str, tuple[str] or str]:
+            A suitable :ref:`intersphinx_mapping` for :ref:`Sphinx`.
+
+    """
     output = dict()
 
     for request in _get_intersphinx_candidates(package):
@@ -91,12 +151,28 @@ def _get_intersphinx_mappings(package):
         if not path:
             continue
 
-        raise ValueError()
-
     return output
 
 
 def _get_package_objects_inv(package):
+    """Find the path to a Rez package's :ref:`objects.inv` file.
+
+    The package may have a locally installed :ref:`objects.inv` or it
+    may be pointing to an Internet URL.  Either way, return the string
+    there.
+
+    Args:
+        package (:class:`rez.developer_package.DeveloperPackage`):
+            A Rez package which we assume may have built
+            :ref:`rez_sphinx` documentation and thus also has a
+            :ref:`objects.inv` file.
+
+    Returns:
+        str:
+            The Internet URL or the absolute path for a directory
+            containing the "objects.inv" file.
+
+    """
     help_ = package.help or []
     help_label = preference.get_help_label()
 
@@ -134,6 +210,19 @@ def _get_package_objects_inv(package):
 
 
 def _get_tests_requires(package):
+    """Find every requested requirement of ``package``.
+
+    Args:
+        package (:class:`rez.developer_package.DeveloperPackage`):
+            The Rez package which the user is trying to generate Sphinx
+            documentation for.
+
+    Returns:
+        set[:class:`rez.utils.formatting.PackageRequest`]:
+            All requests which the user needs in order to build their
+            documentation.
+
+    """
     tests = package.tests or dict()
 
     if not tests:
@@ -150,10 +239,19 @@ def _get_tests_requires(package):
         #
         return set()
 
-    return {request.name for request in test.get("requires") or []}
+    return {request for request in test.get("requires") or []}
 
 
 def _get_major_minor_version(version):
+    """Convert ``version`` into a "major.minor" string.
+
+    Args:
+        version (:class:`rez.vendor.version.version.Version`): The object to convert.
+
+    Returns:
+        str: The major + minor.
+
+    """
     # TODO : We need to handle non-semantic versions here
     return "{version.major}.{version.minor}".format(version=version)
 
@@ -172,10 +270,13 @@ def _get_nearest_caller_package():
         :class:`rez.developer_package.DeveloperPackage`: The found package.
 
     """
-    stack = traceback.extract_stack(limit=2)
-    caller = stack[-1]
+    stack = traceback.extract_stack(limit=3)
+    frame = stack[0]
+    caller_path = frame.filename
 
-    directory = os.path.dirname(caller.path)
+    _LOGGER.debug('Found caller "%s" file path.', caller_path)
+
+    directory = os.path.dirname(caller_path)
 
     package = finder.get_nearest_rez_package(directory)
 

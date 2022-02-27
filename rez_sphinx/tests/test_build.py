@@ -9,7 +9,7 @@ class Build(unittest.TestCase):
     """Make sure :ref:`rez_sphinx build` works as expected."""
 
     def test_hello_world(self):
-        """Build documentation and auto-API documentation onto disk."""
+        """Build documentation and auto-API .rst documentation onto disk."""
         directory = package_wrap.make_simple_developer_package()
         run_test.test('init "{directory}"'.format(directory=directory))
         run_test.test('build "{directory}"'.format(directory=directory))
