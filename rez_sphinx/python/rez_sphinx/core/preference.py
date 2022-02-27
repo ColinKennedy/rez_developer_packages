@@ -4,7 +4,16 @@ Most of these functions are just thin wraps around :ref:`rez-config` calls.
 
 """
 
+import platform
+
 from rez.config import config
+
+
+_BASIC_EXTENSIONS = (
+    "--ext-autodoc",  # Needed for auto-documentation generation later
+    "--ext-intersphinx",  # Needed to find + load external Rez package Sphinx data
+    "--ext-viewcode",  # Technically optional, but I think it's cool to always have
+)
 
 
 # TODO : Add caching here
@@ -49,6 +58,15 @@ def _get_quick_start_overridable_options(overrides=tuple()):
         # Assume English, if no language could be found.
         output.extend(["--language", "en"])
 
+    if "--makefile" not in output and "--no-makefile" not in output:
+        output.append("--no-makefile")
+
+    if "--batchfile" not in output and "--no-batchfile" not in output:
+        if platform.system() == "Windows":
+            output.append("--batchfile")
+        else:
+            output.append("--no-batchfile")
+
     return output
 
 
@@ -61,7 +79,7 @@ def get_quick_start_options(options=tuple()):
             :ref:`sphinx-quickstart` values.
 
     Raises:
-        EnvironmentError:
+        :class:`.UserInputError:
             If the user attempted to pass settings which may only be
             edited by :ref:`rez_sphinx`, fail this function early.
             Examples of "reserved" parameters are "--project", which are
@@ -84,26 +102,47 @@ def get_quick_start_options(options=tuple()):
         "",
         "-v",
         "",
+        "--suffix",
+        ".rst",  # Sphinx 1.8 needs this (for Python 2)
+        "--master",
+        "index",  # Sphinx 1.8 needs this (for Python 2)
+        "--dot=_",  # Sphinx 1.8 needs this (for Python 2)
     ]
+
+    output.extend(_BASIC_EXTENSIONS)
 
     rez_sphinx_settings = _get_base_settings()
     settings = rez_sphinx_settings.get("sphinx-quickstart") or []
 
     if "--author" in settings or "-a" in settings:
-        raise EnvironmentError("Do not provide any authors for rez-sphinx.")
+        raise exception.UserInputError("Do not provide any authors for rez-sphinx.")
 
     if "--project" in settings or "-p" in settings:
-        raise EnvironmentError("Do not provide a project name for rez-sphinx.")
+        raise exception.UserInputError("Do not provide a project name for rez-sphinx.")
 
     if "--release" in settings or "-r" in settings:
-        raise EnvironmentError("Do not provide a release version for rez-sphinx.")
+        raise exception.UserInputError(
+            "Do not provide a release version for rez-sphinx."
+        )
 
     if "-v" in settings:
-        raise EnvironmentError("Do not provide a project version for rez-sphinx.")
+        raise exception.UserInputError(
+            "Do not provide a project version for rez-sphinx."
+        )
 
-    if "--ext-intersphinx" in settings:
-        # Prevent ``--ext-intersphinx`` from being added more than once
-        settings.remove("--ext-intersphinx")
+    if "--master" in settings:
+        raise exception.UserInputError(
+            'Do not provide a "--master" argument for rez-sphinx.'
+        )
+
+    if "--suffix" in settings:
+        raise exception.UserInputError(
+            'Do not provide a "--suffix" argument for rez-sphinx.'
+        )
+
+    for extension in _BASIC_EXTENSIONS:
+        while extension in settings:
+            settings.remove(extension)
 
     output.extend(_get_quick_start_overridable_options(settings))
 

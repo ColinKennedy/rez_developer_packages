@@ -11,6 +11,12 @@ class Base(Exception):
     pass
 
 
+class UserInputError(Base):
+    """If the user provided something to the CLI or :ref:`rez-config` which is not allowed."""
+
+    pass
+
+
 class NoPackageFound(Base):
     """If a Rez package is needed but none can be found."""
 

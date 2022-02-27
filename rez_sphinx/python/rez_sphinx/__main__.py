@@ -36,7 +36,12 @@ def main(text):
     try:
         cli.main(text)
     except exception.Base as error:
-        print(str(error), file=sys.stderr)
+        print(
+            "{type_}: {message}".format(
+                type_=error.__class__.__name__, message=str(error)
+            ),
+            file=sys.stderr,
+        )
     except Exception:
         print("An unexpected error occurred. Please read the error below for details.")
         text = "".join(traceback.format_exc())
