@@ -1,5 +1,6 @@
 """Make sure :ref:`rez_sphinx build` works as expected."""
 
+import os
 import unittest
 
 from .common import package_wrap, run_test
@@ -13,6 +14,17 @@ class Build(unittest.TestCase):
         directory = package_wrap.make_simple_developer_package()
         run_test.test('init "{directory}"'.format(directory=directory))
         run_test.test('build "{directory}"'.format(directory=directory))
+
+        source = os.path.join(directory, "documentation", "source")
+        api_source_gitignore = os.path.join(source, "api", ".gitignore")
+
+        build = os.path.join(directory, "documentation", "build")
+        master_path = os.path.join(build, "index.html")
+        example_api_path = os.path.join(build, "api", "file.html")
+
+        self.assertTrue(os.path.isfile(api_source_gitignore))
+        self.assertTrue(os.path.isfile(master_path))
+        self.assertTrue(os.path.isfile(example_api_path))
 
     def test_hello_world_other_folder(self):
         """Build documentation again, but from a different PWD."""

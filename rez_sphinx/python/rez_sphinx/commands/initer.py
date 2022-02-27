@@ -7,8 +7,14 @@ import traceback
 
 from sphinx.cmd import quickstart
 
-from ..core import (bootstrap, exception, package_change, path_control, preference,
-                    sphinx_helper)
+from ..core import (
+    bootstrap,
+    exception,
+    package_change,
+    path_control,
+    preference,
+    sphinx_helper,
+)
 
 _LOGGER = logging.getLogger(__name__)
 

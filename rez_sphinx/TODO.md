@@ -40,6 +40,8 @@ Make sure all :ref:`Sphinx` point to Sphinx's website
  - Same with rez-config https://github.com/nerdvegas/rez/wiki/Command-Line-Tools#rez-config
  - :ref:`Sphinx conf.py` - https://www.sphinx-doc.org/en/master/usage/configuration.html.
  - :ref:`sphinx-quickstart` - https://www.sphinx-doc.org/en/master/man/sphinx-quickstart.html
+ - :ref:`rez_sphinx init`
+ - :ref:`rez_sphinx build`
  - :ref:`rez help attribute` - https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#help
  - :ref:`intersphinx_mapping` - https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html
  - :ref:`intersphinx` - https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html
@@ -48,10 +50,12 @@ Make sure all :ref:`Sphinx` point to Sphinx's website
  - :ref:`build_requires` - https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#build_requires
  - :ref:`requires` - https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#requires
  - :ref:`build_documentation_key` - The rez_sphinx key information
-
+ - :ref:`sphinx-apidoc` - https://www.sphinx-doc.org/en/master/man/sphinx-apidoc.html
 - Add a way to convert to and from API types (full-auto and generate). I guess with ``rez_sphinx add``?
 
 - Add black_isort
+
+- Add the ability to specify autoapi parameters
 
 - Allow template headers so people can link back to company websites and what not
 - Need an option for auto ``help`` attribute or baked in

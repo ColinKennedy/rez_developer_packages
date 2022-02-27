@@ -38,8 +38,8 @@ def main(text):
     except exception.SphinxExecutionError as error:
         # TODO : Make sure these actually look good
         print(
-            'Something errored while Sphinx was running.\n'
-            'See the error below for details.',
+            "Something errored while Sphinx was running.\n"
+            "See the error below for details.",
             file=sys.stderr,
         )
         print(str(error))

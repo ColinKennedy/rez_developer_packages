@@ -4,6 +4,7 @@ Most of these functions are just thin wraps around :ref:`rez-config` calls.
 
 """
 
+import itertools
 import platform
 
 from rez.config import config
@@ -87,6 +88,45 @@ def _get_quick_start_overridable_options(overrides=tuple()):
         output.append("--quiet")
 
     return output
+
+
+def _validate_options(options):
+    """Check ``options`` for issues which prevents :ref:`sphinx-apidoc` from running.
+
+    Args:
+        options (container[str]):
+            User arguments to pass to :ref:`sphinx-apidoc`. This could
+            be a combination of automated arguments or arguments which
+            the user manually provided, via :ref:`rez-config` or from
+            the :ref:`rez_sphinx build` CLI.
+
+    Raises:
+        :class:`.UserInputError`: If there are any found errors.
+
+    """
+    if "--output-dir" in options or "-o" in options:
+        raise exception.UserInputError(
+            'You are not allowed to pass "--output-dir/-o" to sphinx-apidoc.'
+        )
+
+
+def get_api_options(options=tuple()):
+    """Find all arguments to pass to :ref:`sphinx-apidoc`.
+
+    Args:
+        options (container[str]):
+            User arguments to pass to :ref:`sphinx-apidoc`. These
+            options come from :ref:`rez_sphinx build` CLI and may be
+            valid or invalid.
+
+    """
+    rez_sphinx_settings = _get_base_settings()
+    settings = rez_sphinx_settings.get("sphinx-apidoc") or []
+
+    _validate_options(settings)
+    _validate_options(options)
+
+    return list(itertools.chain(options, settings))
 
 
 def get_quick_start_options(options=tuple()):

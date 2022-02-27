@@ -7,7 +7,7 @@ from rez.config import config
 from rez_utilities import finder
 from sphinx.cmd import build as sphinx_build
 
-from ..core import api_builder, exception, sphinx_helper
+from ..core import api_builder, exception, preference, sphinx_helper
 
 
 def _get_documentation_build(source):
@@ -55,7 +55,7 @@ def _get_documentation_source(root):
     return os.path.dirname(configuration)
 
 
-def build(directory, api_mode=api_builder.FULL_AUTO.label):
+def build(directory, api_mode=api_builder.FULL_AUTO.label, api_options=tuple()):
     """Generate .html files from the Sphinx documentation in ``directory``.
 
     Args:
@@ -65,13 +65,16 @@ def build(directory, api_mode=api_builder.FULL_AUTO.label):
             A description of what to do about Python API documentation.
             For example, should it be generated or not? See
             :mod:`api_builder` for details.
+        api_options (list[str], optional):
+            User-provided arguments to pass to :ref:`sphinx-apidoc`.
 
     """
+    api_options = preference.get_api_options(options=api_options)
+
     source_directory = _get_documentation_source(directory)
     build_directory = _get_documentation_build(source_directory)
 
     parts = [
-        directory,
         "-b",
         "html",  # Always assume .html output
         source_directory,
@@ -87,7 +90,7 @@ def build(directory, api_mode=api_builder.FULL_AUTO.label):
         # Skip ``GENERATE`` because it would've already ran during
         # ``rez_sphinx init``.
         #
-        api_mode.execute(source_directory)
+        api_mode.execute(source_directory, options=api_options)
 
     try:
         sphinx_build.main(parts)
