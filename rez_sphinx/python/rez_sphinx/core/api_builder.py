@@ -9,7 +9,6 @@ import collections
 
 from . import _api_builder
 
-
 _Mode = collections.namedtuple("_Mode", "label, description, execute")
 # Reference: https://stackoverflow.com/a/18348004/3626104
 _Mode.__new__.__defaults__ = (None,)

@@ -1,12 +1,13 @@
 """The module which handles the :ref:`rez_sphinx init` command."""
 
 import logging
-import textwrap
 import os
+import textwrap
 
 from sphinx.cmd import quickstart
 
-from ..core import bootstrap, package_change, preference, sphinx_helper
+from ..core import (bootstrap, package_change, path_control, preference,
+                    sphinx_helper)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -25,16 +26,7 @@ def _add_build_directory(directory):
     if not os.path.isdir(build):
         os.makedirs(build)
 
-    with open(os.path.join(build, ".gitignore"), "w") as handler:
-        handler.write(
-            textwrap.dedent(
-                """\
-                *
-                **/
-                !.gitignore
-                """
-            )
-        )
+    path_control.add_gitignore(build)
 
 
 def _run_sphinx_quickstart(directory, options=tuple()):

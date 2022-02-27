@@ -2,9 +2,9 @@
 
 import os
 
-from sphinx.cmd import build as sphinx_build
 from rez.config import config
 from rez_utilities import finder
+from sphinx.cmd import build as sphinx_build
 
 from ..core import api_builder, sphinx_helper
 
