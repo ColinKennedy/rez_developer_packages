@@ -34,7 +34,8 @@ def find_configuration_path(root):
 
     Args:
         root (str):
-            A directory on-disk to search within for the :ref:`Sphinx conf.py <conf.py>`.
+            A directory on-disk to search within for the
+            :ref:`Sphinx conf.py <conf.py>`.
 
     Returns:
         str: The path on-disk to the :ref:`Sphinx conf.py <conf.py>`.

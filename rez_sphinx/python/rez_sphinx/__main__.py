@@ -42,7 +42,7 @@ def main(text):
             ),
             file=sys.stderr,
         )
-    except Exception:
+    except Exception:  # pylint: disable=broad-except
         print("An unexpected error occurred. Please read the error below for details.")
         text = "".join(traceback.format_exc())
         print(text, file=sys.stderr)

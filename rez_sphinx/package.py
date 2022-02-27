@@ -17,6 +17,8 @@ requires = [
     "six-1.15+<2",
 ]
 
+variants = [["python-2", "backports.functools_lru_cache"], ["python-3"]]
+
 build_command = "python -m rez_build_helper --items bin python"
 
 tests = {

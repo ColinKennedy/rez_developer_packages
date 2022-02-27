@@ -8,6 +8,13 @@ import platform
 
 from rez.config import config
 
+try:
+    from functools import lru_cache  # Python 3.2+
+except ImportError:
+    from functools32 import lru_cache
+
+from . import exception
+
 
 _BASIC_EXTENSIONS = (
     "--ext-autodoc",  # Needed for auto-documentation generation later
@@ -16,15 +23,15 @@ _BASIC_EXTENSIONS = (
 )
 
 
-# TODO : Add caching here
+@lru_cache
 def get_build_documentation_key():
-    """str: Get the :ref:`rez tests attribute` key which builds via :ref:`rez_sphinx`."""
+    """str: Get the :ref:`rez tests attribute` key for :ref:`rez_sphinx`."""
     rez_sphinx_settings = _get_base_settings()
 
     return rez_sphinx_settings.get("build_documentation_key") or "build_documentation"
 
 
-# TODO : Add caching here
+@lru_cache
 def get_help_label():
     """str: Get the :ref:`rez help attribute` which connects with :ref:`intersphinx`."""
     rez_sphinx_settings = _get_base_settings()
@@ -34,7 +41,9 @@ def get_help_label():
 
 def _get_base_settings():
     """dict[str, object]: Get all :ref:`rez_sphinx` specific default settings."""
-    return config.optionvars.get("rez_sphinx") or dict()
+    rez_user_options = config.optionvars  # pylint: disable=no-member
+
+    return rez_user_options.get("rez_sphinx") or dict()
 
 
 def _get_quick_start_overridable_options(overrides=tuple()):
@@ -46,7 +55,9 @@ def _get_quick_start_overridable_options(overrides=tuple()):
             defaults, if any. e.g. ``["--sep"]``.
 
     Returns:
-        list[str]: The resolved "user + :ref:`rez_sphinx`" :ref:`sphinx-quickstart` settings.
+        list[str]:
+            The resolved "user + :ref:`rez_sphinx`"
+            settings for :ref:`sphinx-quickstart`.
 
     """
     output = list(overrides)

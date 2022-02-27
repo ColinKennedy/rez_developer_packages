@@ -12,7 +12,7 @@ class Base(Exception):
 
 
 class UserInputError(Base):
-    """If the user provided something to the CLI or :ref:`rez-config` which is not allowed."""
+    """If a user argument to the CLI or :ref:`rez-config` is not allowed."""
 
     pass
 

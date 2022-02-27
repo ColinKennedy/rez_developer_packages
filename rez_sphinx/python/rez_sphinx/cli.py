@@ -11,9 +11,9 @@ from .commands import initer
 from .core import exception, path_control
 
 _LOGGER = logging.getLogger(__name__)
-# TODO : Double-check these choices look good in the CLI
+_FULL_AUTO = "full-auto"
 _AUTO_API_CHOICES = {
-    "full-auto": "completely automatically generate API Python .rst files on-build.",
+    _FULL_AUTO: "completely automatically generate API Python .rst files on-build.",
     "generate": "The same as full-auto but the files are copied here.",
     "none": "Don't generate API .rst files at all.",
 }
@@ -30,13 +30,14 @@ def _add_directory_argument(parser):
         "directory",
         nargs="?",
         default=os.getcwd(),
-        help="The folder to search for a Rez package. Defaults to the current working directory.",
+        help="The folder to search for a Rez package. "
+        "Defaults to the current working directory.",
     )
 
 
 def _build(namespace):
     """Build Sphinx documentation, using details from ``namespace``."""
-    raise ValueError()
+    raise ValueError(namespace)
 
 
 def _init(namespace):
@@ -84,6 +85,7 @@ def _set_up_build(sub_parsers):
     build.add_argument(
         "--api-documentation",
         choices=[key for key, _ in choices],
+        default=_FULL_AUTO,
         help="When building, API .rst files can be generated for your Python files.\n\n"
         + "\n".join(
             "{key}: {value}".format(key=key, value=value) for key, value in choices
@@ -145,7 +147,8 @@ def parse_arguments(text):
     _set_up_build(sub_parsers)
     _set_up_init(sub_parsers)
 
-    # TODO : Fix the error where providing no subparser command DOES NOT show the help message
+    # TODO : Fix the error where providing no subparser command
+    # DOES NOT show the help message
     return parser.parse_args(text)
 
 
