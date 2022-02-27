@@ -37,7 +37,13 @@ docbot needs a plugin for auto-setting the remote
 - Add windows bin support
 
 Make sure all :ref:`Sphinx` point to Sphinx's website
-Same with rez-config https://github.com/nerdvegas/rez/wiki/Command-Line-Tools#rez-config
+ - Same with rez-config https://github.com/nerdvegas/rez/wiki/Command-Line-Tools#rez-config
+ - :ref:`Sphinx conf.py` - https://www.sphinx-doc.org/en/master/usage/configuration.html.
+ - :ref:`sphinx-quickstart` - https://www.sphinx-doc.org/en/master/man/sphinx-quickstart.html
+ - :ref:`rez help attribute` - https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#help
+ - :ref:`intersphinx` - https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html
+
+- Need an option for auto ``help`` attribute or baked in
 
 readthedocs integration?
 

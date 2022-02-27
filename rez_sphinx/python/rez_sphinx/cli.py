@@ -11,6 +11,7 @@ from .commands import initer
 from .core import exception, path_control
 
 _LOGGER = logging.getLogger(__name__)
+# TODO : Double-check these choices look good in the CLI
 _AUTO_API_CHOICES = {
     "full-auto": "completely automatically generate API Python .rst files on-build.",
     "generate": "The same as full-auto but the files are copied here.",
@@ -19,6 +20,12 @@ _AUTO_API_CHOICES = {
 
 
 def _add_directory_argument(parser):
+    """Make ``parser`` include a positional argument pointing to a file path on-disk.
+
+    Args:
+        parser (:class:`argparse.ArgumentParser`): The instance to modify.
+
+    """
     parser.add_argument(
         "directory",
         nargs="?",
@@ -28,6 +35,7 @@ def _add_directory_argument(parser):
 
 
 def _build(namespace):
+    """Build Sphinx documentation, using details from ``namespace``."""
     raise ValueError()
 
 
@@ -60,6 +68,14 @@ def _init(namespace):
 
 
 def _set_up_build(sub_parsers):
+    """Add :ref:`rez_sphinx build` CLI parameters.
+
+    Args:
+        sub_parsers (:class:`argparse._SubParsersAction`):
+            A collection of parsers which the :ref:`rez_sphinx build`
+            will be appended onto.
+
+    """
     build = sub_parsers.add_parser(
         "build", description="Compile Sphinx documentation from a Rez package."
     )
@@ -69,12 +85,22 @@ def _set_up_build(sub_parsers):
         "--api-documentation",
         choices=[key for key, _ in choices],
         help="When building, API .rst files can be generated for your Python files.\n\n"
-        + "\n".join("{key}: {value}" for key, value in choices),
+        + "\n".join(
+            "{key}: {value}".format(key=key, value=value) for key, value in choices
+        ),
     )
     build.set_defaults(execute=_build)
 
 
 def _set_up_init(sub_parsers):
+    """Add :ref:`rez_sphinx init` CLI parameters.
+
+    Args:
+        sub_parsers (:class:`argparse._SubParsersAction`):
+            A collection of parsers which the :ref:`rez_sphinx init`
+            will be appended onto.
+
+    """
     init = sub_parsers.add_parser(
         "init", description="Set up a Sphinx project in a Rez package."
     )

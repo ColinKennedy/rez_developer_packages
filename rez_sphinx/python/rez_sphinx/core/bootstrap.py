@@ -159,6 +159,19 @@ def _get_major_minor_version(version):
 
 
 def _get_nearest_caller_package():
+    """Find the Rez package which called this function.
+
+    Important:
+        This function is fragile. Don't use it outside of the context of
+        :func:`bootstrap`.
+
+    Raises:
+        :class:`.NoPackageFound`: If no Rez package could be found.
+
+    Returns:
+        :class:`rez.developer_package.DeveloperPackage`: The found package.
+
+    """
     stack = traceback.extract_stack(limit=2)
     caller = stack[-1]
 
@@ -190,6 +203,15 @@ def append_bootstrap_lines(path):
 
 
 def bootstrap(data):
+    """Gather Rez package information for :ref:`Sphinx`.
+
+    This data is returned and used to auto-fill-out the values for
+    :ref:`Sphinx conf.py`.
+
+    Returns:
+        dict[str, object]: All Rez data to send to the :ref:`Sphinx conf.py`.
+
+    """
     package = _get_nearest_caller_package()
 
     data["intersphinx_mapping"] = _get_intersphinx_mappings(package)

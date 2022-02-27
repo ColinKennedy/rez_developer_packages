@@ -66,4 +66,5 @@ uuid = "bea3e936-644e-4e82-b0f1-4bec37db58cc"
 def commands():
     import os
 
+    env.PATH.append(os.path.join(root, "bin"))
     env.PYTHONPATH.append(os.path.join(root, "python"))

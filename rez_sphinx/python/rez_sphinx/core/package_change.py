@@ -1,3 +1,5 @@
+"""A collection of functions for modifying in-memory Rez packages."""
+
 import logging
 import os
 
@@ -11,6 +13,13 @@ _LOGGER = logging.getLogger(__name__)
 
 
 def _add_rez_tests(package):
+    """Add :ref:`rez tests attribute` values to make :ref:`rez_sphinx` auto-run.
+
+    Args:
+        package (:class:`rez.developer_package.DeveloperPackage`):
+            The package to directly modify.
+
+    """
     tests = package.tests or dict()
 
     build_key = preference.get_build_documentation_key()
@@ -35,7 +44,23 @@ def _add_rez_tests(package):
 
 
 def _bump_minor_version(package):
+    """Increment the minor version of ``package``.
+
+    E.g. version before / after
+
+    1.2.3 -> 1.3.0
+    4.5.6-beta.1 -> 4.6.0
+
+    Note:
+        If ``package`` has no valid version, this function does not nothing.
+
+    Args:
+        package (:class:`rez.developer_package.DeveloperPackage`):
+            The package to directly modify.
+
+    """
     if not package.version:
+        # TODO : Add a test case for this
         _LOGGER.warning(
             'Package "%s" version will not be bumped because it has no version.',
             package,
@@ -47,12 +72,32 @@ def _bump_minor_version(package):
 
 
 def _re_acquire_package(package):
+    """Re-initialize ``package``.
+
+    Since the functions in this module directly modify ``package``, it's a good
+    idea to just re-get the package from scratch so its values may be re-cached.
+
+    Args:
+        package (:class:`rez.developer_package.DeveloperPackage`):
+            The out-of-date package which needs to be "refreshed".
+
+    Returns:
+        :class:`rez.developer_package.DeveloperPackage`: The refreshed package.
+
+    """
     directory = finder.get_package_root(package)
 
     return finder.get_nearest_rez_package(directory)
 
 
 def initialize_rez_package(package):
+    """Update ``package`` to make it "work" with :ref:`rez_sphinx`.
+
+    Args:
+        package (:class:`rez.developer_package.DeveloperPackage`):
+            The package to directly modify.
+
+    """
     _bump_minor_version(package)
     _add_rez_tests(package)
 
