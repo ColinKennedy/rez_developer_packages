@@ -15,7 +15,6 @@ except ImportError:
 
 from . import exception
 
-
 _BASIC_EXTENSIONS = (
     "--ext-autodoc",  # Needed for auto-documentation generation later
     "--ext-intersphinx",  # Needed to find + load external Rez package Sphinx data
