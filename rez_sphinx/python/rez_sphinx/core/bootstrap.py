@@ -67,7 +67,7 @@ def _get_environment_package(name):
     except KeyError:
         raise ValueError(
             'Rez package "{name}" is not found. Are you sure it is in your '
-            'current Rez resolve?'.format(name=name)
+            "current Rez resolve?".format(name=name)
         )
 
     package = finder.get_nearest_rez_package(directory)
@@ -77,7 +77,7 @@ def _get_environment_package(name):
 
     raise RuntimeError(
         'Found directory "{directory}" for Rez package "{name}" but no Rez package. '
-        'This should not happen.'.format(directory=directory, name=name)
+        "This should not happen.".format(directory=directory, name=name)
     )
 
 
@@ -121,11 +121,15 @@ def _get_package_objects_inv(package):
 
     for label, path in help_:
         if label == help_label:
-            _LOGGER.info('Found: Package "%s" has "%s" defined.', package.name, help_label)
+            _LOGGER.info(
+                'Found: Package "%s" has "%s" defined.', package.name, help_label
+            )
 
             return path
 
-    _LOGGER.info('Package "%s" has tests but no "%s" is defined.', package.name, help_label)
+    _LOGGER.info(
+        'Package "%s" has tests but no "%s" is defined.', package.name, help_label
+    )
 
     return ""
 
@@ -168,8 +172,8 @@ def _get_nearest_caller_package():
 
     raise exception.NoPackageFound(
         'Directory "{directory}" has no Rez package. '
-        'This exception is almost certainly a bug. '
-        'Please contact rez_sphinx maintainers.'.format(directory=directory),
+        "This exception is almost certainly a bug. "
+        "Please contact rez_sphinx maintainers.".format(directory=directory),
     )
 
 

@@ -10,6 +10,10 @@ class Build(unittest.TestCase):
         """Build documentation and auto-API documentation onto disk."""
         raise ValueError()
 
+    def test_hello_world_other_folder(self):
+        """Build documentation again, but from a different PWD."""
+        raise ValueError()
+
     def test_intersphinx_loading(self):
         """Make sure sphinx.ext.intersphinx "sees" Rez packages as expected."""
         raise ValueError()

@@ -22,7 +22,9 @@ def _run_sphinx_quickstart(directory, options=tuple()):
     path = sphinx_helper.find_configuration_path(directory)
 
     if not os.path.isfile(path):
-        raise RuntimeError('Something went wrong, "{path}" was not defined.'.format(path=path))
+        raise RuntimeError(
+            'Something went wrong, "{path}" was not defined.'.format(path=path)
+        )
 
     return path
 

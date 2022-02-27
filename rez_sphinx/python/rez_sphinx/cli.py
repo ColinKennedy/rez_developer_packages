@@ -14,8 +14,9 @@ _LOGGER = logging.getLogger(__name__)
 _AUTO_API_CHOICES = {
     "full-auto": "completely automatically generate API Python .rst files on-build.",
     "generate": "The same as full-auto but the files are copied here.",
-    "none": "Don't generate API .rst files at all."
+    "none": "Don't generate API .rst files at all.",
 }
+
 
 def _add_directory_argument(parser):
     parser.add_argument(
@@ -52,7 +53,9 @@ def _init(namespace):
 
     _LOGGER.debug('Found "%s" Rez package.', package.name)
 
-    documentation_root = os.path.normpath(os.path.join(directory, namespace.documentation_root))
+    documentation_root = os.path.normpath(
+        os.path.join(directory, namespace.documentation_root)
+    )
     initer.init(package, documentation_root)
 
 
@@ -65,7 +68,8 @@ def _set_up_build(sub_parsers):
     build.add_argument(
         "--api-documentation",
         choices=[key for key, _ in choices],
-        help="When building, API .rst files can be generated for your Python files.\n\n" + "\n".join("{key}: {value}" for key, value in choices)
+        help="When building, API .rst files can be generated for your Python files.\n\n"
+        + "\n".join("{key}: {value}" for key, value in choices),
     )
     build.set_defaults(execute=_build)
 
@@ -76,11 +80,7 @@ def _set_up_init(sub_parsers):
     )
     init.set_defaults(execute=_init)
     _add_directory_argument(init)
-    init.add_argument(
-        "--documentation-root",
-        default="documentation",
-        help="The"
-    )
+    init.add_argument("--documentation-root", default="documentation", help="The")
 
 
 def main(text):

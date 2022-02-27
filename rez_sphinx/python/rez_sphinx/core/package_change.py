@@ -28,10 +28,10 @@ def _add_rez_tests(package):
                 minor=minor,
                 next_=next_,
             ),
-        ]
+        ],
     }
 
-    raise ValueError('Apply to the package here')
+    raise ValueError("Apply to the package here")
 
 
 def _bump_minor_version(package):

@@ -17,7 +17,7 @@ def _scan_for_configuration_path(directory):
 def find_configuration_path(root):
     for path in (
         os.path.join(root, "source", _SPHINX_NAME),  # rez-sphinx's default location
-        os.path.join(root, _SPHINX_NAME)  # Another common, non-default spot
+        os.path.join(root, _SPHINX_NAME),  # Another common, non-default spot
     ):
         if os.path.isfile(path):
             return path

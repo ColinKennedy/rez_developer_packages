@@ -41,27 +41,31 @@ def _get_quick_start_overridable_options(overrides=tuple()):
 def get_quick_start_options():
     # """list[str]: Any arguments to pass to sphinx-quickstart by default."""
     output = [  # These options are required to be part of the output
-        "--author", "",
+        "--author",
+        "",
         "--ext-intersphinx",
-        "--project", "",
-        "--release", "",
-        "-v", "",
+        "--project",
+        "",
+        "--release",
+        "",
+        "-v",
+        "",
     ]
 
     rez_sphinx_settings = _get_base_settings()
     settings = rez_sphinx_settings.get("sphinx-quickstart") or []
 
     if "--author" in settings or "-a" in settings:
-        raise EnvironmentError('Do not provide any authors for rez-sphinx.')
+        raise EnvironmentError("Do not provide any authors for rez-sphinx.")
 
     if "--project" in settings or "-p" in settings:
-        raise EnvironmentError('Do not provide a project name for rez-sphinx.')
+        raise EnvironmentError("Do not provide a project name for rez-sphinx.")
 
     if "--release" in settings or "-r" in settings:
-        raise EnvironmentError('Do not provide a release version for rez-sphinx.')
+        raise EnvironmentError("Do not provide a release version for rez-sphinx.")
 
     if "-v" in settings:
-        raise EnvironmentError('Do not provide a project version for rez-sphinx.')
+        raise EnvironmentError("Do not provide a project version for rez-sphinx.")
 
     if "--ext-intersphinx" in settings:
         settings.remove("--ext-intersphinx")

@@ -20,6 +20,31 @@ class Init(unittest.TestCase):
         directory = _make_simple_developer_package()
         _test('init "{directory}"'.format(directory=directory))
 
+    def test_hello_world_other_folder(self):
+        """Initialize documentation again, but from a different PWD."""
+        raise ValueError()
+
+
+class Options(unittest.TestCase):
+    """Make sure users can source options from the CLI / rez-config / etc."""
+
+    def test_required_arguments(self):
+        """Prevent users from setting things like "--project".
+
+        That CLI argument, as well as others, are up to :ref:`rez_sphinx` to
+        control.
+
+        """
+        raise ValueError()
+
+    def test_override_from_cli_argument(self):
+        """Let the user change :ref:`sphinx-quickstart` options from a flag."""
+        raise ValueError()
+
+    def test_override_from_cli_dash_separator(self):
+        """Let the user change :ref:`sphinx-quickstart` options from a " -- "."""
+        raise ValueError()
+
 
 class Invalids(unittest.TestCase):
     """Make sure :ref:`rez_sphinx init` fails when it's supposed to fail."""
