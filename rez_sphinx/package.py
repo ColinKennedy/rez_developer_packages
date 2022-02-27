@@ -12,7 +12,9 @@ requires = [
     "Sphinx-1.8+<4",
     "python-2.7+<3.8",
     "rez-2.42+<3",
+    "rez_bump-1.5+<2",
     "rez_utilities-2.6+<3",
+    "six-1.15+<2",
 ]
 
 build_command = "python -m rez_build_helper --items python"

@@ -7,6 +7,20 @@ Most of these functions are just thin wraps around :ref:`rez-config` calls.
 from rez.config import config
 
 
+# TODO : Add caching here
+def get_build_documentation_key():
+    rez_sphinx_settings = _get_base_settings()
+
+    return rez_sphinx_settings.get("build_documentation_key") or "build_documentation"
+
+
+# TODO : Add caching here
+def get_help_label():
+    rez_sphinx_settings = _get_base_settings()
+
+    return rez_sphinx_settings.get("help_label") or "rez_sphinx_objects_inv"
+
+
 def _get_base_settings():
     return config.optionvars.get("rez_sphinx") or dict()
 

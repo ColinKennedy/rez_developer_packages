@@ -36,6 +36,10 @@ def main(text):
         cli.main(text)
     except exception.Base as error:
         print(str(error), file=sys.stderr)
+    except Exception as error:
+        print("An unexpected error occurred. Please read the error below for details.")
+        # TODO : Add traceback details here
+        print(str(error), file=sys.stderr)
 
 
 if __name__ == "__main__":
