@@ -2,6 +2,7 @@
 
 import os
 import shutil
+import textwrap
 
 
 def add_gitignore(directory):

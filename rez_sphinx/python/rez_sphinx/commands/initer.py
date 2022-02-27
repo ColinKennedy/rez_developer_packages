@@ -6,7 +6,7 @@ import textwrap
 
 from sphinx.cmd import quickstart
 
-from ..core import (bootstrap, package_change, path_control, preference,
+from ..core import (bootstrap, exception, package_change, path_control, preference,
                     sphinx_helper)
 
 _LOGGER = logging.getLogger(__name__)
@@ -40,9 +40,11 @@ def _run_sphinx_quickstart(directory, options=tuple()):
             The arguments which are passed directly to :ref:`sphinx-quickstart`.
 
     Raises:
+        :class:`.SphinxExecutionError`:
+            If :ref:`sphinx-quickstart` failed midway during execution.
         RuntimeError:
-            If for some reason :ref:`sphinx-quickstart` failed to
-            generate the expected files.
+            If for some reason :ref:`sphinx-quickstart` completed but
+            somehow failed to generate the expected files.
 
     """
     options = options or []
@@ -51,7 +53,12 @@ def _run_sphinx_quickstart(directory, options=tuple()):
     _LOGGER.debug('Got sphinx-quickstart arguments "%s".', arguments)
     _LOGGER.info('Now running sphinx-quickstart in "%s" folder.', directory)
 
-    quickstart.main(arguments)
+    try:
+        quickstart.main(arguments)
+    except SystemExit:
+        text = "".join(traceback.format_exc())
+
+        raise exception.SphinxExecutionError(text)
 
     path = sphinx_helper.find_configuration_path(directory)
 

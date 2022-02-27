@@ -11,13 +11,19 @@ class Base(Exception):
     pass
 
 
-class UserInputError(Base):
-    """If a user argument to the CLI or :ref:`rez-config` is not allowed."""
+class NoPackageFound(Base):
+    """If a Rez package is needed but none can be found."""
 
     pass
 
 
-class NoPackageFound(Base):
-    """If a Rez package is needed but none can be found."""
+class SphinxExecutionError(Base):
+    """If some :ref:`Sphinx` CLI program fails to run and stops midway."""
+
+    pass
+
+
+class UserInputError(Base):
+    """If a user argument to the CLI or :ref:`rez-config` is not allowed."""
 
     pass

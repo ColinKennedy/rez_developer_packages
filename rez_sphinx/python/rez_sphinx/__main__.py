@@ -35,6 +35,13 @@ def main(text):
     """
     try:
         cli.main(text)
+    except exception.SphinxExecutionError as error:
+        print(
+            'Something errored while Sphinx was running.\n'
+            'See the error below for details.',
+            file=sys.stderr,
+        )
+        print(str(error))
     except exception.Base as error:
         print(
             "{type_}: {message}".format(
@@ -43,8 +50,8 @@ def main(text):
             file=sys.stderr,
         )
     except Exception:  # pylint: disable=broad-except
-        print("An unexpected error occurred. Please read the error below for details.")
         text = "".join(traceback.format_exc())
+        print("An unexpected error occurred. Please read the error below for details.")
         print(text, file=sys.stderr)
 
 

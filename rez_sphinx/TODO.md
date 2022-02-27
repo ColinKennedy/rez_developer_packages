@@ -51,6 +51,8 @@ Make sure all :ref:`Sphinx` point to Sphinx's website
 
 - Add a way to convert to and from API types (full-auto and generate). I guess with ``rez_sphinx add``?
 
+- Add black_isort
+
 - Allow template headers so people can link back to company websites and what not
 - Need an option for auto ``help`` attribute or baked in
 

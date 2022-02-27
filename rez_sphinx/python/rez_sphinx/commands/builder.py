@@ -6,7 +6,7 @@ from rez.config import config
 from rez_utilities import finder
 from sphinx.cmd import build as sphinx_build
 
-from ..core import api_builder, sphinx_helper
+from ..core import api_builder, exception, sphinx_helper
 
 
 def _get_documentation_build(source):
@@ -88,4 +88,9 @@ def build(directory, api_mode=api_builder.FULL_AUTO.label):
         #
         api_mode.execute(source_directory)
 
-    sphinx_build.main(parts)
+    try:
+        sphinx_build.main(parts)
+    except SystemExit:
+        text = "".join(traceback.format_exc())
+
+        raise exception.SphinxExecutionError(text)
