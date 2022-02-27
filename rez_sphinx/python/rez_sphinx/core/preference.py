@@ -24,22 +24,6 @@ _BASIC_EXTENSIONS = (
 SPHINX_SEPARATE_SOURCE_AND_BUILD = "--sep"
 
 
-@lru_cache()
-def get_build_documentation_key():
-    """str: Get the :ref:`rez tests attribute` key for :ref:`rez_sphinx`."""
-    rez_sphinx_settings = _get_base_settings()
-
-    return rez_sphinx_settings.get("build_documentation_key") or "build_documentation"
-
-
-@lru_cache()
-def get_help_label():
-    """str: Get the :ref:`rez help attribute` which connects with :ref:`intersphinx`."""
-    rez_sphinx_settings = _get_base_settings()
-
-    return rez_sphinx_settings.get("help_label") or "rez_sphinx_objects_inv"
-
-
 def _get_base_settings():
     """dict[str, object]: Get all :ref:`rez_sphinx` specific default settings."""
     rez_user_options = config.optionvars  # pylint: disable=no-member
@@ -108,6 +92,22 @@ def _validate_options(options):
         raise exception.UserInputError(
             'You are not allowed to pass "--output-dir/-o" to sphinx-apidoc.'
         )
+
+
+@lru_cache()
+def get_build_documentation_key():
+    """str: Get the :ref:`rez tests attribute` key for :ref:`rez_sphinx`."""
+    rez_sphinx_settings = _get_base_settings()
+
+    return rez_sphinx_settings.get("build_documentation_key") or "build_documentation"
+
+
+@lru_cache()
+def get_help_label():
+    """str: Get the :ref:`rez help attribute` which connects with :ref:`intersphinx`."""
+    rez_sphinx_settings = _get_base_settings()
+
+    return rez_sphinx_settings.get("help_label") or "rez_sphinx_objects_inv"
 
 
 def get_api_options(options=tuple()):
