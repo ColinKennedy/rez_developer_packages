@@ -11,7 +11,7 @@ from rez.config import config
 try:
     from functools import lru_cache  # Python 3.2+
 except ImportError:
-    from functools32 import lru_cache
+    from backports.functools_lru_cache import lru_cache
 
 from . import exception
 
@@ -20,9 +20,10 @@ _BASIC_EXTENSIONS = (
     "--ext-intersphinx",  # Needed to find + load external Rez package Sphinx data
     "--ext-viewcode",  # Technically optional, but I think it's cool to always have
 )
+SPHINX_SEPARATE_SOURCE_AND_BUILD = "--sep"
 
 
-@lru_cache
+@lru_cache()
 def get_build_documentation_key():
     """str: Get the :ref:`rez tests attribute` key for :ref:`rez_sphinx`."""
     rez_sphinx_settings = _get_base_settings()
@@ -30,7 +31,7 @@ def get_build_documentation_key():
     return rez_sphinx_settings.get("build_documentation_key") or "build_documentation"
 
 
-@lru_cache
+@lru_cache()
 def get_help_label():
     """str: Get the :ref:`rez help attribute` which connects with :ref:`intersphinx`."""
     rez_sphinx_settings = _get_base_settings()
@@ -62,7 +63,7 @@ def _get_quick_start_overridable_options(overrides=tuple()):
     output = list(overrides)
 
     if "--no-sep" not in output:
-        output.append("--sep")  # if specified, separate source and build dirs
+        output.append(SPHINX_SEPARATE_SOURCE_AND_BUILD)  # if specified, separate source and build dirs
 
     if "--language" not in output and "-l" not in output:
         # Assume English, if no language could be found.
@@ -76,6 +77,12 @@ def _get_quick_start_overridable_options(overrides=tuple()):
             output.append("--batchfile")
         else:
             output.append("--no-batchfile")
+
+    if "--quiet" not in output and "-q" not in output:
+        # Note: This is purely optional. Sphinx tends to spit out a lot of
+        # content and we just don't need to see any of it unless there's errors.
+        #
+        output.append("--quiet")
 
     return output
 

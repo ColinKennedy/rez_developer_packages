@@ -42,6 +42,7 @@ Make sure all :ref:`Sphinx` point to Sphinx's website
  - :ref:`sphinx-quickstart` - https://www.sphinx-doc.org/en/master/man/sphinx-quickstart.html
  - :ref:`rez help attribute` - https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#help
  - :ref:`intersphinx` - https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html
+ - :ref:`sphinx.ext.autodoc` - https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html
 
 - Allow template headers so people can link back to company websites and what not
 - Need an option for auto ``help`` attribute or baked in

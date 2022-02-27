@@ -4,6 +4,7 @@ import logging
 import os
 
 from rez_bump import rez_bump_api
+from rez_industry import api
 from rez_utilities import finder
 
 from . import preference
@@ -20,6 +21,19 @@ def _add_rez_tests(package):
             The package to directly modify.
 
     """
+
+    def _get_package_text(package):
+        with open(package.filepath, "r") as handler:
+            return handler.read()
+
+    def _replace_package(package, text):
+        path = package.filepath
+
+        _LOGGER.info('Package "%s" will be modified.', path)
+
+        with open(path, "w") as handler:
+            handler.write(text)
+
     tests = package.tests or dict()
 
     build_key = preference.get_build_documentation_key()
@@ -40,7 +54,9 @@ def _add_rez_tests(package):
         ],
     }
 
-    raise ValueError("Apply to the package here")
+    original = _get_package_text(package)
+    results = api.add_to_attribute("tests", tests, original)
+    _replace_package(package, results)
 
 
 def _bump_minor_version(package):

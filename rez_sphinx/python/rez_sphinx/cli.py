@@ -7,16 +7,10 @@ import os
 
 from rez_utilities import finder
 
-from .commands import initer
+from .commands import builder, initer
 from .core import exception, path_control
 
 _LOGGER = logging.getLogger(__name__)
-_FULL_AUTO = "full-auto"
-_AUTO_API_CHOICES = {
-    _FULL_AUTO: "completely automatically generate API Python .rst files on-build.",
-    "generate": "The same as full-auto but the files are copied here.",
-    "none": "Don't generate API .rst files at all.",
-}
 
 
 def _add_directory_argument(parser):
@@ -37,7 +31,7 @@ def _add_directory_argument(parser):
 
 def _build(namespace):
     """Build Sphinx documentation, using details from ``namespace``."""
-    raise ValueError(namespace)
+    builder.build(namespace.directory, api_mode=namespace.api_documentation)
 
 
 def _init(namespace):
@@ -49,7 +43,7 @@ def _init(namespace):
             attributes to generate Sphinx documentation.
 
     """
-    directory = path_control.expand_path(namespace.directory)
+    directory = namespace.directory
     _LOGGER.debug('Found "%s" directory.', directory)
     package = finder.get_nearest_rez_package(directory)
 
@@ -81,14 +75,14 @@ def _set_up_build(sub_parsers):
         "build", description="Compile Sphinx documentation from a Rez package."
     )
     _add_directory_argument(build)
-    choices = sorted(_AUTO_API_CHOICES.items(), key=operator.itemgetter(0))
+    choices = sorted(api_builder.MODES, key=operator.attrgetter("label"))
     build.add_argument(
         "--api-documentation",
-        choices=[key for key, _ in choices],
-        default=_FULL_AUTO,
+        choices=[mode.label for mode in choices],
+        default=api_builder.FULL_AUTO.label,
         help="When building, API .rst files can be generated for your Python files.\n\n"
         + "\n".join(
-            "{key}: {value}".format(key=key, value=value) for key, value in choices
+            "{mode.label}: {mode.description}".format(mode=mode) for mode in choices
         ),
     )
     build.set_defaults(execute=_build)
@@ -152,13 +146,20 @@ def parse_arguments(text):
     return parser.parse_args(text)
 
 
-def run(namespace):
+def run(namespace, modify=True):
     """Run the selected subparser.
 
     Args:
         namespace (:class:`argparse.Namespace`):
             The parsed user content. It should have a callable method called
             "execute" which takes ``namespace`` as its only argument.
+        modify (bool, optional):
+            If True, run extra calls directly modifying ``namespace``
+            before calling the main execution function. If False, just
+            take ``namespace`` directly as-is.
 
     """
+    if modify:
+        namespace.directory = path_control.expand_path(namespace.directory)
+
     namespace.execute(namespace)

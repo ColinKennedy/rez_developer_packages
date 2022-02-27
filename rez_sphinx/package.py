@@ -13,6 +13,7 @@ requires = [
     "python-2.7+<3.8",
     "rez-2.42+<3",
     "rez_bump-1.5+<2",
+    "rez_industry-3.1+<4",  # TODO : Kill this awful dependency later
     "rez_utilities-2.6+<3",
     "six-1.15+<2",
 ]

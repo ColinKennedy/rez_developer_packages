@@ -1,6 +1,7 @@
 """The module which handles the :ref:`rez_sphinx init` command."""
 
 import logging
+import textwrap
 import os
 
 from sphinx.cmd import quickstart
@@ -8,6 +9,32 @@ from sphinx.cmd import quickstart
 from ..core import bootstrap, package_change, preference, sphinx_helper
 
 _LOGGER = logging.getLogger(__name__)
+
+
+def _add_build_directory(directory):
+    """Add a "build" folder under ``directory``.
+
+    Args:
+        directory (str):
+            The absolute path to the root documentation folder. Usually
+            this is "{rez_root}/documentation"
+
+    """
+    build = os.path.join(directory, "build")
+
+    if not os.path.isdir(build):
+        os.makedirs(build)
+
+    with open(os.path.join(build, ".gitignore"), "w") as handler:
+        handler.write(
+            textwrap.dedent(
+                """\
+                *
+                **/
+                !.gitignore
+                """
+            )
+        )
 
 
 def _run_sphinx_quickstart(directory, options=tuple()):
@@ -63,8 +90,13 @@ def init(package, directory, quick_start_options=tuple()):
             :ref:`sphinx-quickstart` values.
 
     """
+    # TODO : Need to add API documentation support here. Or get it from rez-config settings
     options = preference.get_quick_start_options(options=quick_start_options)
     configuration_path = _run_sphinx_quickstart(directory, options=options)
+
+    if preference.SPHINX_SEPARATE_SOURCE_AND_BUILD in options:
+        _add_build_directory(directory)
+
     bootstrap.append_bootstrap_lines(configuration_path)
 
     package_change.initialize_rez_package(package)
