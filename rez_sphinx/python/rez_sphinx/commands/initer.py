@@ -15,7 +15,7 @@ def _run_sphinx_quickstart(directory, options=tuple()):
     arguments = [directory] + options
 
     _LOGGER.debug('Got sphinx-quickstart arguments "%s".', arguments)
-    _LOGGER.info("Now running sphinx-quickstart")
+    _LOGGER.info('Now running sphinx-quickstart in "%s" folder.', directory)
 
     quickstart.main(arguments)
 
@@ -27,7 +27,7 @@ def _run_sphinx_quickstart(directory, options=tuple()):
     return path
 
 
-def init(directory, quick_start_options=tuple()):
+def init(package, directory, quick_start_options=tuple()):
     # """Connect the Rez package at ``directory`` to :ref:`rez_sphinx`.
     #
     # Warning:

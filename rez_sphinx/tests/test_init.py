@@ -27,6 +27,7 @@ class Invalids(unittest.TestCase):
     # TODO : Do these
     # def test_bad_permissions(self):
     #     raise ValueError()
+
     # def test_no_package(self):
     #     """Fail early if the user isn't in a Rez package."""
     #     raise ValueError()
@@ -49,6 +50,8 @@ def _make_simple_developer_package():
             textwrap.dedent(
                 """\
                 name = "some_package"
+
+                version = "1.0.0"
 
                 def commands():
                     import os

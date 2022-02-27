@@ -4,9 +4,10 @@ from __future__ import print_function
 
 import logging
 import sys
+import traceback
 
 from . import cli
-from ._core import exception
+from .core import exception
 
 
 def _setup_logger():
@@ -36,10 +37,10 @@ def main(text):
         cli.main(text)
     except exception.Base as error:
         print(str(error), file=sys.stderr)
-    except Exception as error:
+    except Exception:
         print("An unexpected error occurred. Please read the error below for details.")
-        # TODO : Add traceback details here
-        print(str(error), file=sys.stderr)
+        text = "".join(traceback.format_exc())
+        print(text, file=sys.stderr)
 
 
 if __name__ == "__main__":

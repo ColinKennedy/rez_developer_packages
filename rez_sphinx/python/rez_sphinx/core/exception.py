@@ -4,7 +4,11 @@ These exceptions are not meant for any third-party package to import or use.
 
 """
 
-class NoPackageFound(Exception):
+class Base(Exception):
+    """A class which all exceptions in this module must inherit from."""
+    pass
+
+class NoPackageFound(Base):
     """If a Rez package is needed but none can be found."""
 
     pass

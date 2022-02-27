@@ -1,3 +1,4 @@
+import logging
 import os
 
 from rez_bump import rez_bump_api
@@ -6,6 +7,7 @@ from rez_utilities import finder
 from . import preference
 
 _CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
+_LOGGER = logging.getLogger(__name__)
 
 
 def _add_rez_tests(package):
@@ -14,8 +16,8 @@ def _add_rez_tests(package):
     build_key = preference.get_build_documentation_key()
 
     rez_sphinx_package = finder.get_nearest_rez_package(_CURRENT_DIRECTORY)
-    major = rez_sphinx_package.version.major
-    minor = rez_sphinx_package.version.minor
+    major = int(str(rez_sphinx_package.version.major))
+    minor = int(str(rez_sphinx_package.version.minor))
     next_ = major + 1
 
     tests[build_key] = {
@@ -33,12 +35,15 @@ def _add_rez_tests(package):
 
 
 def _bump_minor_version(package):
-    package.version = rez_bump_api.bump(
-        package.version,
-        minor=1,
-        absolute=False,
-        normalize=True,
-    )
+    if not package.version:
+        _LOGGER.warning(
+            'Package "%s" version will not be bumped because it has no version.',
+            package,
+        )
+
+        return
+
+    rez_bump_api.bump(package, minor=1, absolute=False, normalize=True)
 
 
 def _re_acquire_package(package):

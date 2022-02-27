@@ -1,5 +1,3 @@
-- Make the initial `init` command
-- Add CI stuff
 - Add base unittests
 
 
@@ -32,6 +30,11 @@ docbot needs a plugin for auto-setting the remote
  - Make sure it can auto-detect reliably if API documentation needs to be explicit or auto-built
   - Could do this with a .gitignore and README.rst file or something
 
+
+- Allow users to specify multiple potential publish keys
+ - Add a configuration for a "try order". e.g. if X, use X, then try Y, etc.
+
+- Add windows bin support
 
 Make sure all :ref:`Sphinx` point to Sphinx's website
 Same with rez-config https://github.com/nerdvegas/rez/wiki/Command-Line-Tools#rez-config

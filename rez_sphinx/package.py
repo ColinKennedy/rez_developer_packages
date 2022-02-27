@@ -17,7 +17,7 @@ requires = [
     "six-1.15+<2",
 ]
 
-build_command = "python -m rez_build_helper --items python"
+build_command = "python -m rez_build_helper --items bin python"
 
 tests = {
     "black_diff": {

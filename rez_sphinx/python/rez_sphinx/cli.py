@@ -1,5 +1,6 @@
 """The entry point for :ref:`rez_sphinx` on the terminal."""
 
+import operator
 import argparse
 import logging
 import os
@@ -10,6 +11,23 @@ from .commands import initer
 from .core import exception, path_control
 
 _LOGGER = logging.getLogger(__name__)
+_AUTO_API_CHOICES = {
+    "full-auto": "completely automatically generate API Python .rst files on-build.",
+    "generate": "The same as full-auto but the files are copied here.",
+    "none": "Don't generate API .rst files at all."
+}
+
+def _add_directory_argument(parser):
+    parser.add_argument(
+        "directory",
+        nargs="?",
+        default=os.getcwd(),
+        help="The folder to search for a Rez package. Defaults to the current working directory.",
+    )
+
+
+def _build(namespace):
+    raise ValueError()
 
 
 def _init(namespace):
@@ -35,9 +53,34 @@ def _init(namespace):
     _LOGGER.debug('Found "%s" Rez package.', package.name)
 
     documentation_root = os.path.normpath(os.path.join(directory, namespace.documentation_root))
-    _LOGGER.debug('Setting up documentation in "%s" folder.', documentation_root)
+    initer.init(package, documentation_root)
 
-    initer.init(documentation_root)
+
+def _set_up_build(sub_parsers):
+    build = sub_parsers.add_parser(
+        "build", description="Compile Sphinx documentation from a Rez package."
+    )
+    _add_directory_argument(build)
+    choices = sorted(_AUTO_API_CHOICES.items(), key=operator.itemgetter(0))
+    build.add_argument(
+        "--api-documentation",
+        choices=[key for key, _ in choices],
+        help="When building, API .rst files can be generated for your Python files.\n\n" + "\n".join("{key}: {value}" for key, value in choices)
+    )
+    build.set_defaults(execute=_build)
+
+
+def _set_up_init(sub_parsers):
+    init = sub_parsers.add_parser(
+        "init", description="Set up a Sphinx project in a Rez package."
+    )
+    init.set_defaults(execute=_init)
+    _add_directory_argument(init)
+    init.add_argument(
+        "--documentation-root",
+        default="documentation",
+        help="The"
+    )
 
 
 def main(text):
@@ -72,22 +115,11 @@ def parse_arguments(text):
     )
 
     sub_parsers = parser.add_subparsers()
-    init = sub_parsers.add_parser(
-        "init", description="Set up a Sphinx project in a Rez package."
-    )
-    init.set_defaults(execute=_init)
-    init.add_argument(
-        "directory",
-        nargs="?",
-        default=os.getcwd(),
-        help="The folder to search for a Rez package. Defaults to the current working directory.",
-    )
-    init.add_argument(
-        "--documentation-root",
-        default="documentation",
-        help="The"
-    )
 
+    _set_up_build(sub_parsers)
+    _set_up_init(sub_parsers)
+
+    # TODO : Fix the error where providing no subparser command DOES NOT show the help message
     return parser.parse_args(text)
 
 
