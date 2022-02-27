@@ -1,0 +1,68 @@
+name = "rez_sphinx"
+
+version = "1.0.0"
+
+description = "Automate the initialization and building of Sphinx documentation."
+
+help = [["README", "README.md"]]
+
+private_build_requires = ["rez_build_helper-1+<2"]
+
+requires = [
+    "python-2.7+<3.8",
+    "rez-2.42+<3",
+    "rez_utilities-2.6+<3",
+]
+
+build_command = "python -m rez_build_helper --items python"
+
+tests = {
+    "black_diff": {
+        "command": "black --diff --check python tests",
+        "requires": ["black-22+<23"],
+    },
+    "black": {
+        "command": "black python tests",
+        "requires": ["black-22+<23"],
+        "run_on": "explicit",
+    },
+    "isort": {
+        "command": "isort python tests",
+        "requires": ["isort-5.9+<6"],
+        "run_on": "explicit",
+    },
+    "isort_check": {
+        "command": "isort --check-only --diff --recursive python tests",
+        "requires": ["isort-5.9+<6"],
+    },
+    "pydocstyle": {
+        # Need to disable D202 for now, until a new pydocstyle version is released
+        #
+        # Reference: https://github.com/PyCQA/pydocstyle/blob/master/docs/release_notes.rst
+        # "Allow for hanging indent when documenting args in Google style. (#449)"
+        # needs a proper pydocstyle release version.
+        #
+        "command": "pydocstyle --ignore=D213,D202,D203,D406,D407 python tests",
+        "requires": ["pydocstyle-6+<7"],
+    },
+    "pylint": {
+        "command": "pylint --disable=bad-continuation python/rez_sphinx tests",
+        "requires": ["pylint-1.9+<2"],
+    },
+    "unittest_python_2": {
+        "command": "python -m unittest discover",
+        "requires": ["python-2"],
+    },
+    "unittest_python_3": {
+        "command": "python -m unittest discover",
+        "requires": ["python-3"],
+    },
+}
+
+uuid = "bea3e936-644e-4e82-b0f1-4bec37db58cc"
+
+
+def commands():
+    import os
+
+    env.PYTHONPATH.append(os.path.join(root, "python"))
