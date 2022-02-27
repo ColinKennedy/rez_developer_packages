@@ -9,6 +9,7 @@ help = [["README", "README.md"]]
 private_build_requires = ["rez_build_helper-1+<2"]
 
 requires = [
+    "Sphinx-1.8+<4",
     "python-2.7+<3.8",
     "rez-2.42+<3",
     "rez_utilities-2.6+<3",
@@ -36,14 +37,12 @@ tests = {
         "requires": ["isort-5.9+<6"],
     },
     "pydocstyle": {
-        # Need to disable D202 for now, until a new pydocstyle version is released
+        # Need to disable D417 for now, until a new pydocstyle version is released
         #
         # Reference: https://github.com/PyCQA/pydocstyle/blob/master/docs/release_notes.rst
-        # "Allow for hanging indent when documenting args in Google style. (#449)"
-        # needs a proper pydocstyle release version.
         #
-        "command": "pydocstyle --ignore=D213,D202,D203,D406,D407 python tests",
-        "requires": ["pydocstyle-6+<7"],
+        "command": "pydocstyle --ignore=D213,D203,D406,D407,D417 python tests",
+        "requires": ["pydocstyle-5+<6"],
     },
     "pylint": {
         "command": "pylint --disable=bad-continuation python/rez_sphinx tests",

@@ -32,10 +32,8 @@ def main(text):
             ``["init", "--directory", "/path/to/rez/package"]``.
 
     """
-    namespace = cli.parse_arguments(text)
-
     try:
-        cli.main(namespace)
+        cli.main(text)
     except exception.Base as error:
         print(str(error), file=sys.stderr)
 
