@@ -2,6 +2,8 @@
 
 import unittest
 
+from rez_utilities import finder
+
 from .common import package_wrap, run_test
 
 
@@ -10,8 +12,9 @@ class Init(unittest.TestCase):
 
     def test_hello_world(self):
         """Initialize a very simple Rez package with Sphinx documentation."""
-        directory = package_wrap.make_simple_developer_package()
-        run_test.test('init "{directory}"'.format(directory=directory))
+        package = package_wrap.make_simple_developer_package()
+        directory = finder.get_package_root(package)
+        run_test.test(["init", directory])
 
     def test_hello_world_other_folder(self):
         """Initialize documentation again, but from a different PWD."""

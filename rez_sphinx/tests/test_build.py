@@ -1,7 +1,10 @@
 """Make sure :ref:`rez_sphinx build` works as expected."""
 
+import contextlib
 import os
 import unittest
+
+from rez_utilities import creator
 
 from .common import package_wrap, run_test
 
@@ -11,9 +14,13 @@ class Build(unittest.TestCase):
 
     def test_hello_world(self):
         """Build documentation and auto-API .rst documentation onto disk."""
-        directory = package_wrap.make_simple_developer_package()
-        run_test.test('init "{directory}"'.format(directory=directory))
-        run_test.test('build "{directory}"'.format(directory=directory))
+        source_package = package_wrap.make_simple_developer_package()
+        install_path = package_wrap.make_directory("Build_test_hello_world_install_root")
+        installed_package = creator.build(source_package, install_path)
+
+        with _quick_resolve(installed_package):
+            run_test.test(["init", source_directory])
+            run_test.test(["build", source_directory])
 
         source = os.path.join(directory, "documentation", "source")
         api_source_gitignore = os.path.join(source, "api", ".gitignore")
@@ -101,3 +108,13 @@ class Invalid(unittest.TestCase):
     def test_auto_api_no_python_files(self):
         """Fail to auto-build API .rst files if there's no Python files."""
         raise ValueError()
+
+
+@contextlib.contextmanager
+def _quick_resolve(installed_package):
+    """Make a resolve with ``installed_package`` and :ref:`rez_sphinx`."""
+    with _resolve(
+        [installed_package.name, "rez_sphinx"],
+        packages_path=[finder.get_package_root(installed_package), config.local_packages_path],
+    ):
+        yield
