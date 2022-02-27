@@ -63,7 +63,9 @@ def _get_quick_start_overridable_options(overrides=tuple()):
     output = list(overrides)
 
     if "--no-sep" not in output:
-        output.append(SPHINX_SEPARATE_SOURCE_AND_BUILD)  # if specified, separate source and build dirs
+        output.append(
+            SPHINX_SEPARATE_SOURCE_AND_BUILD
+        )  # if specified, separate source and build dirs
 
     if "--language" not in output and "-l" not in output:
         # Assume English, if no language could be found.

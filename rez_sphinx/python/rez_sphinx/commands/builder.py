@@ -1,3 +1,5 @@
+"""The module which handles the :ref:`rez_sphinx build` command."""
+
 import os
 
 from sphinx.cmd import build as sphinx_build
@@ -30,7 +32,9 @@ def _get_documentation_build(source):
     root = finder.get_package_root(package)
     build_directory = os.path.join(root, config.build_directory)  # {rez_root}/build
 
-    return os.path.join(build_directory, "documentation")  # {rez_root}/build/documentation
+    return os.path.join(
+        build_directory, "documentation"
+    )  # {rez_root}/build/documentation
 
 
 def _get_documentation_source(root):
@@ -62,18 +66,26 @@ def build(directory, api_mode=api_builder.FULL_AUTO.label):
             :mod:`api_builder` for details.
 
     """
-    # TODO : Add mode support
     source_directory = _get_documentation_source(directory)
     build_directory = _get_documentation_build(source_directory)
 
     parts = [
         directory,
-        "-b", "html",  # Always assume .html output
+        "-b",
+        "html",  # Always assume .html output
         source_directory,
         build_directory,
     ]
 
     if not os.path.isdir(build_directory):
         os.makedirs(build_directory)
+
+    api_mode = api_builder.get_from_label(api_mode)
+
+    if api_mode != api_builder.GENERATE and api_mode.execute:
+        # Skip ``GENERATE`` because it would've already ran during
+        # ``rez_sphinx init``.
+        #
+        api_mode.execute(source_directory)
 
     sphinx_build.main(parts)
