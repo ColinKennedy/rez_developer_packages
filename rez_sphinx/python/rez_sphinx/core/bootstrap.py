@@ -45,24 +45,36 @@ def _get_intersphinx_candidates(package):
     """
     output = set()
 
+    variants = package.variants or []
+
+    # TODO : Find the right variant to select, based on test requires
+    if len(variants) != 1:
+        # Ignore all variants if there's multiple. Let the
+        # :ref:`build_documentation` rez-test handle which variant is selected.
+        #
+        variants = []
+    else:
+        variants = variants[0]
+
     # TODO : Add a configuration option here. Default to only consider "requires"
     for request in itertools.chain(
         package.private_build_requires or [],
         package.build_requires or [],
         package.requires or [],
+        variants,
     ):
         if request.ephemeral:
             _LOGGER.debug('Skipped loading "%s" ephemeral request.', request)
 
             continue
 
-        if request.conflict:
-            _LOGGER.debug('Skipped loading "%s" excluded request.', request)
+        if request.weak and not _in_resolve(request.name):
+            _LOGGER.debug('Skipped loading "%s" weak request.', request)
 
             continue
 
-        if request.weak and not _in_resolve(request.name):
-            _LOGGER.debug('Skipped loading "%s" weak request.', request)
+        if request.conflict:
+            _LOGGER.debug('Skipped loading "%s" excluded request.', request)
 
             continue
 
@@ -319,18 +331,30 @@ def append_bootstrap_lines(path):
         handler.write("\n\n" + _REZ_SPHINX_BOOTSTRAP_LINES)
 
 
-def bootstrap(data):
+def bootstrap(data, package=None):
     """Gather Rez package information for :ref:`Sphinx`.
 
     This data is returned and used to auto-fill-out the values for
     :ref:`Sphinx conf.py`.
 
+    Args:
+        data (dict[str, object]):
+            Incoming ``locals()`` data from an existing :ref:`conf.py`.
+        package (:class:`rez.developer_package.DeveloperPackage`, optional):
+            The package to query from and extend ``data`` with extra
+            information. If no package is given, the package is
+            determined automatically from the caller's site.
+
     Returns:
         dict[str, object]: All Rez data to send to the :ref:`Sphinx conf.py`.
 
     """
-    package = _get_nearest_caller_package()
+    package = package or _get_nearest_caller_package()
 
+    extensions = set(data.get("extensions") or set())
+    extensions.update(preference.get_sphinx_extensions())
+
+    data["extensions"] = sorted(extensions)
     data["intersphinx_mapping"] = _get_intersphinx_mappings(package)
     data["name"] = package.name
     data["release"] = str(package.version)

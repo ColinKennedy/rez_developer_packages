@@ -11,8 +11,20 @@ class Base(Exception):
     pass
 
 
+class NoDocumentationFound(Base):
+    """If source documentation is required for something, but is missing."""
+
+    pass
+
+
 class NoPackageFound(Base):
     """If a Rez package is needed but none can be found."""
+
+    pass
+
+
+class NoPythonFiles(Base):
+    """If at least one Python file was needed but none were found."""
 
     pass
 

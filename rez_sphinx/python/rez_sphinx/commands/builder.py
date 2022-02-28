@@ -46,11 +46,20 @@ def _get_documentation_source(root):
             A directory on-disk to search within for the
             :ref:`Sphinx conf.py <conf.py>`.
 
+    Raises:
+        :class:`.NoDocumentationFound`:
+            If ``root`` needs to initialize some documentation.
+
     Returns:
         str: The parent directory of :ref:`Sphinx conf.py <conf.py>`.
 
     """
-    configuration = sphinx_helper.find_configuration_path(root)
+    try:
+        configuration = sphinx_helper.find_configuration_path(root)
+    except RuntimeError:
+        raise exception.NoDocumentationFound(
+            'Directory "{root}" has no documentation. Run `rez_sphinx init` to fix this.'
+        )
 
     return os.path.dirname(configuration)
 
@@ -68,7 +77,22 @@ def build(directory, api_mode=api_builder.FULL_AUTO.label, api_options=tuple()):
         api_options (list[str], optional):
             User-provided arguments to pass to :ref:`sphinx-apidoc`.
 
+    Raises:
+        :class:`.NoPackageFound`:
+            If ``directory`` is invalid.
+        :class:`.SphinxExecutionError`:
+            If :ref:`sphinx-build` failed midway before it could be completed.
+
     """
+    package = finder.get_nearest_rez_package(directory)
+
+    if not package:
+        raise exception.NoPackageFound(
+            'Directory "{directory}" is not in a Rez package.'.format(
+                directory=directory
+            )
+        )
+
     api_options = preference.get_api_options(options=api_options)
 
     source_directory = _get_documentation_source(directory)

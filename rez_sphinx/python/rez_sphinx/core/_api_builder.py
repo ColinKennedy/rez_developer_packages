@@ -4,6 +4,7 @@ import logging
 import os
 import sys
 import traceback
+import textwrap
 
 from python_compatibility import filer
 from rez_utilities import finder
@@ -12,6 +13,50 @@ from sphinx.ext import apidoc
 from . import configuration, path_control, preference, sphinx_helper
 
 _LOGGER = logging.getLogger(__name__)
+_MISSING_TOCTREE_TEMPLATE = textwrap.dedent(
+    """\
+    .. toctree::
+        :max-depth: 1
+
+        {toctree_line}
+    """
+)
+
+
+def _add_api_link_to_a_tree(line, trees, data):
+    """Find the appropriate :ref:`toctree` to add ``line`` onto.
+
+    Args:
+        line (str): The API documentation line to append.
+        trees (list[list[str]]): Each found toctree.
+        data (str): The blob of text which ``trees`` are a part of.
+
+    Returns:
+        str: The newly modified ``data``, which now includes ``line``.
+
+    """
+    for tree in trees:
+        for line in tree:
+            if line == toctree_line:
+                _LOGGER.debug(
+                    'API documentation already added in path "%s". Skipping.',
+                    path,
+                )
+
+                return
+
+    tree = trees[0]
+    start, end_line, _ = tree
+
+    lines = data.splitlines()
+    indent = sphinx_helper.get_toctree_indent(lines)
+
+    if sphinx_helper.is_empty_toctree(lines):
+        end_line += 1
+
+    lines.insert(end_line, indent + toctree_line)
+
+    return "\n".join(lines)
 
 
 def _clear_api_directory(directory):
@@ -46,6 +91,9 @@ def _generate_api_files(directory, destination, options=tuple()):
             into. Usually this is "{source_rez_root}/documentation/source/api".
 
     Raises:
+        :class:`.NoPythonFiles`:
+            If no Python files exist then no API .rst files can be built.
+            So this function raises this exception, exiting early.
         :class:`.SphinxExecutionError`:
             If running :ref:`sphinx-apidoc` failed midway and could not complete.
 
@@ -53,7 +101,17 @@ def _generate_api_files(directory, destination, options=tuple()):
     install_package = finder.get_nearest_rez_package(directory)
     install_directory = path_control.get_installed_root(install_package.name)
 
-    for python_source_root in _get_python_source_roots(install_directory):
+    sources = _get_python_source_roots(install_directory)
+
+    if not sources:
+        raise exception.NoPythonFiles(
+            'Install directory "{install_directory}" has no Python files. '
+            "Did your Rez package install Python files correctly?".format(
+                install_directory=install_directory
+            )
+        )
+
+    for python_source_root in sources:
         command = [python_source_root, "--output-dir", destination]
         command.extend(options)
 
@@ -126,27 +184,10 @@ def _update_master_file(directory):
 
     trees = sphinx_helper.get_toctrees(data)
 
-    for tree in trees:
-        for line in tree:
-            if line == toctree_line:
-                _LOGGER.debug(
-                    'API documentation already added in path "%s". Skipping.',
-                    path,
-                )
-
-                return
-
-    tree = trees[0]
-    start, end_line, _ = tree
-
-    lines = data.splitlines()
-    indent = sphinx_helper.get_toctree_indent(lines)
-
-    if sphinx_helper.is_empty_toctree(lines):
-        end_line += 1
-
-    lines.insert(end_line, indent + toctree_line)
-    new_data = "\n".join(lines)
+    if trees:
+        new_data = _add_api_link_to_a_tree(toctree_line, trees, data)
+    else:
+        new_data = data + _MISSING_TOCTREE_TEMPLATE.format(toctree_line=toctree_line)
 
     with open(path, "w") as handler:
         handler.write(new_data)

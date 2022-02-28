@@ -39,7 +39,7 @@ def is_empty_toctree(lines):
 
     Args:
         lines (iter[str]):
-            Some toctree text. 
+            Some toctree text.
             e.g. ``[".. toctree::", "   :maxdepth: 2"]`` would return True.
             e.g. ``[".. toctree::", "   :maxdepth: 2", "", "   something"]``
             would return False.
@@ -87,7 +87,7 @@ def get_toctree_indent(lines):
 
     Args:
         lines (iter[str]):
-            Some toctree text. 
+            Some toctree text.
             e.g. ``[".. toctree::", "   :maxdepth: 2"]`` would return "   ".
             e.g. ``[".. toctree::", "    :maxdepth: 2"]`` would return "    ".
 

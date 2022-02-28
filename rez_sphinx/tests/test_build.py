@@ -5,18 +5,65 @@ import os
 import sys
 import unittest
 import textwrap
+import tempfile
 
+from python_compatibility import wrapping
+from rez_sphinx.core import bootstrap, sphinx_helper, exception
 from rez_utilities import creator, finder
-from rez_sphinx.core import sphinx_helper
 
 from .common import package_wrap, run_test
+
+
+class Bootstrap(unittest.TestCase):
+    """Make sure :func:`rez_sphinx.core.bootstrap.bootstrap` works."""
+
+    def _quick_ignore_test(self, text):
+        """Unittest that including ``text`` does not get add any intersphinx candidates."""
+        directory = package_wrap.make_directory("_quick_ignore_test")
+
+        template = textwrap.dedent(
+            """\
+            name = "foo"
+
+            version = "1.0.0"
+            """
+        )
+
+        with open(os.path.join(directory, "package.py"), "w") as handler:
+            handler.write(template + "\n\n" + text)
+
+        package = finder.get_nearest_rez_package(directory)
+
+        with wrapping.watch_namespace(
+            bootstrap._get_intersphinx_candidates
+        ) as watchers:
+            bootstrap.bootstrap(dict(), package=package)
+
+        for watcher in watchers:
+            self.assertEqual(set(), watcher.get_all_results())
+
+    def test_intersphinx_allow_weak(self):
+        """Allow weak packages if they are part of the resolve."""
+        raise ValueError()
+
+    def test_intersphinx_ignore_conflict(self):
+        """Don't consider excluded packages."""
+        self._quick_ignore_test('requires = ["!excluded_package"]')
+
+    def test_intersphinx_ignore_ephemeral(self):
+        """Don't consider ephemeral packages."""
+        self._quick_ignore_test('variants = [[".some_ephemeral-1"]]')
+
+    def test_intersphinx_ignore_weak(self):
+        """Don't consider weak packages which aren't part of the resolve."""
+        self._quick_ignore_test('requires = ["~some_not_requested_package"]')
 
 
 class Build(unittest.TestCase):
     """Make sure :ref:`rez_sphinx build` works as expected."""
 
-    def test_hello_world(self):
-        """Build documentation and auto-API .rst documentation onto disk."""
+    def _hello_world_test(self):
+        """Create a basic :ref:`rez_sphinx` "init + build"."""
         source_package = package_wrap.make_simple_developer_package()
         source_directory = finder.get_package_root(source_package)
         install_path = package_wrap.make_directory(
@@ -24,7 +71,7 @@ class Build(unittest.TestCase):
         )
         installed_package = creator.build(source_package, install_path)
 
-        with _simulate_resolve(installed_package):
+        with run_test.simulate_resolve([installed_package]):
             run_test.test(["init", source_directory])
             run_test.test(["build", source_directory])
 
@@ -58,13 +105,37 @@ class Build(unittest.TestCase):
         self.assertTrue(os.path.isfile(build_master))
         self.assertTrue(os.path.isfile(example_api_path))
 
+    def test_hello_world(self):
+        """Build documentation and auto-API .rst documentation onto disk."""
+        self._hello_world_test()
+
     def test_hello_world_other_folder(self):
         """Build documentation again, but from a different PWD."""
-        raise ValueError()
+        with wrapping.keep_cwd():
+            os.chdir(tempfile.gettempdir())
+            self._hello_world_test()
 
     def test_intersphinx_loading(self):
         """Make sure sphinx.ext.intersphinx "sees" Rez packages as expected."""
-        raise ValueError()
+        package_directories = package_wrap.make_dependent_packages()
+        install_packages = [install for _, install in package_directories]
+        watchers = []
+
+        for source, install in package_directories:
+            with run_test.simulate_resolve(install_packages):
+                run_test.test(["init", source])
+
+                with wrapping.watch_namespace(
+                    bootstrap._get_intersphinx_mappings
+                ) as watcher:
+                    run_test.test(["build", source])
+
+                watchers.extend(watcher)
+
+        raise ValueError("STOP")
+
+        for watcher in watchers:
+            print("result", watcher.get_all_results())
 
 
 class Options(unittest.TestCase):
@@ -120,42 +191,79 @@ class Invalid(unittest.TestCase):
 
     def test_bad_permissions(self):
         """Fail building if the user lacks permissions to write to-disk."""
-        raise ValueError()
+        directory = package_wrap.make_directory("_test_build_Invalid_test_no_package")
+
+        raise ValueError("Make read-only")
+
+        with self.assertRaises(exception.NoPackageFound):
+            run_test.test(["build", directory])
 
     def test_no_package(self):
         """Fail early if no Rez package was found."""
-        raise ValueError()
+        directory = package_wrap.make_directory("_test_build_Invalid_test_no_package")
+
+        with self.assertRaises(exception.NoPackageFound):
+            run_test.test(["build", directory])
 
     def test_no_source(self):
         """Fail early if documentation source does not exist."""
-        raise ValueError()
+        directory = package_wrap.make_directory("_test_no_source")
+
+        template = textwrap.dedent(
+            """\
+            name = "foo"
+
+            version = "1.0.0"
+            """
+        )
+
+        with open(os.path.join(directory, "package.py"), "w") as handler:
+            handler.write(template)
+
+        with self.assertRaises(exception.NoDocumentationFound):
+            run_test.test(["build", directory])
 
     def test_auto_api_no_python_files(self):
         """Fail to auto-build API .rst files if there's no Python files."""
-        raise ValueError()
+        directory = package_wrap.make_directory("_test_no_source_source_root")
 
+        template = textwrap.dedent(
+            """\
+            name = "foo"
 
-@contextlib.contextmanager
-def _simulate_resolve(installed_package):
-    """Make a resolve with ``installed_package`` and :ref:`rez_sphinx`."""
-    root = finder.get_package_root(installed_package)
-    directory = os.path.join(root, "python")
-
-    if not os.path.isdir(directory):
-        raise RuntimeError(
-            'Directory "{directory}" does not exist.'.format(directory=directory)
+            version = "1.0.0"
+            """
         )
 
-    original_environment = os.environ.copy()
-    original_path = sys.path[:]
+        with open(os.path.join(directory, "package.py"), "w") as handler:
+            handler.write(template)
 
-    # TODO : Do a Rez API call here, instead
-    os.environ["REZ_{name}_ROOT".format(name=installed_package.name.upper())] = root
-    sys.path.append(directory)
+        documentation_root = os.path.join(directory, "documentation", "source")
+        os.makedirs(documentation_root)
+        open(os.path.join(documentation_root, "conf.py"), "a").close()
 
-    try:
-        yield
-    finally:
-        sys.path = original_path
-        os.environ.clear()
-        os.environ.update(original_environment)
+        with open(os.path.join(documentation_root, "index.rst"), "w") as handler:
+            handler.write(
+                textwrap.dedent(
+                    """\
+                    .. toctree::
+                       :maxdepth: 2
+                       :caption: Contents:
+                    """
+                )
+            )
+
+        install_directory = package_wrap.make_directory("_test_no_source_install_root")
+        install_package_root = os.path.join(install_directory, "foo", "1.0.0")
+        os.makedirs(install_package_root)
+
+        with open(os.path.join(directory, "package.py"), "w") as handler:
+            handler.write(template)
+
+        with open(os.path.join(install_package_root, "package.py"), "w") as handler:
+            handler.write(template)
+
+        with self.assertRaises(exception.NoPythonFiles), wrapping.keep_os_environment():
+            os.environ["REZ_FOO_ROOT"] = install_package_root
+
+            run_test.test(["build", directory])
