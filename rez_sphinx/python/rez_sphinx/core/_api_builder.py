@@ -10,7 +10,7 @@ from python_compatibility import filer
 from rez_utilities import finder
 from sphinx.ext import apidoc
 
-from . import configuration, path_control, preference, sphinx_helper
+from . import configuration, exception, path_control, preference, sphinx_helper
 
 _LOGGER = logging.getLogger(__name__)
 _MISSING_TOCTREE_TEMPLATE = textwrap.dedent(
@@ -23,11 +23,11 @@ _MISSING_TOCTREE_TEMPLATE = textwrap.dedent(
 )
 
 
-def _add_api_link_to_a_tree(line, trees, data):
+def _add_api_link_to_a_tree(toctree_line, trees, data):
     """Find the appropriate :ref:`toctree` to add ``line`` onto.
 
     Args:
-        line (str): The API documentation line to append.
+        toctree_line (str): The API documentation line to append.
         trees (list[list[str]]): Each found toctree.
         data (str): The blob of text which ``trees`` are a part of.
 

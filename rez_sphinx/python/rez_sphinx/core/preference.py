@@ -17,9 +17,9 @@ except ImportError:
 from . import exception
 
 _BASIC_EXTENSIONS = (
-    "--ext-autodoc",  # Needed for auto-documentation generation later
-    "--ext-intersphinx",  # Needed to find + load external Rez package Sphinx data
-    "--ext-viewcode",  # Technically optional, but I think it's cool to always have
+    "sphinx.ext.autodoc",  # Needed for auto-documentation generation later
+    "sphinx.ext.intersphinx",  # Needed to find + load external Rez package Sphinx data
+    "sphinx.ext.viewcode",  # Technically optional, but I think it's cool to always have
 )
 SPHINX_SEPARATE_SOURCE_AND_BUILD = "--sep"
 
@@ -138,6 +138,13 @@ def get_master_api_documentation_line():
     )
 
 
+def get_sphinx_extensions():
+    """list[str]: All :ref:`Sphinx` optional add-ons to include in documentation."""
+    rez_sphinx_settings = _get_base_settings()
+
+    return rez_sphinx_settings.get("sphinx_extensions") or list(_BASIC_EXTENSIONS)
+
+
 def get_quick_start_options(package, options=tuple()):
     """Get the arguments :ref:`sphinx-quickstart`.
 
@@ -179,8 +186,6 @@ def get_quick_start_options(package, options=tuple()):
         "--dot=_",  # Sphinx 1.8 needs this (for Python 2)
     ]
 
-    output.extend(_BASIC_EXTENSIONS)
-
     rez_sphinx_settings = _get_base_settings()
     settings = rez_sphinx_settings.get("sphinx-quickstart") or []
 
@@ -209,10 +214,6 @@ def get_quick_start_options(package, options=tuple()):
         raise exception.UserInputError(
             'Do not provide a "--suffix" argument for rez-sphinx.'
         )
-
-    for extension in _BASIC_EXTENSIONS:
-        while extension in settings:
-            settings.remove(extension)
 
     output.extend(_get_quick_start_overridable_options(settings))
 

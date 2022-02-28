@@ -58,6 +58,8 @@ Make sure all :ref:`Sphinx` point to Sphinx's website
 
 - Add black_isort
 
+- Make sure the readthedocs.io theme can be added, via ``rez-config`` settings
+
 - Add the ability to specify autoapi parameters
 
 - Allow template headers so people can link back to company websites and what not
