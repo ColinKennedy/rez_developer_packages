@@ -1,7 +1,7 @@
 """The module which handles the :ref:`rez_sphinx build` command."""
 
-import traceback
 import os
+import traceback
 
 from rez.config import config
 from rez_utilities import finder

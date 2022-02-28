@@ -67,3 +67,28 @@ def expand_path(path):
 
     """
     return os.path.normpath(os.path.realpath(path))
+
+
+def get_installed_root(name):
+    """Find the path on-disk where the resolved ``name`` Rez package lives.
+
+    Args:
+        name (str): A Rez package name. e.g. "python", "Sphinx", etc.
+
+    Raises:
+        EnvironmentError: If ``name`` has no registered directory.
+
+    Returns:
+        str: Some directory on-disk.
+
+    """
+    # TODO : Replace this with a Rez API call
+    variable = "REZ_{name}_ROOT".format(name=name.upper())
+
+    try:
+        return os.environ[variable]
+    except KeyError:
+        raise EnvironmentError(
+            'Rez package "{name}" is not found. Are you sure it is in your '
+            "current Rez resolve?".format(name=name)
+        )

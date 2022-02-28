@@ -1,6 +1,7 @@
 import shlex
 
 import six
+
 from rez_sphinx import cli
 
 

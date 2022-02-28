@@ -9,7 +9,7 @@ import traceback
 import six
 from rez_utilities import finder
 
-from . import exception, preference
+from . import exception, path_control, preference
 
 _LOGGER = logging.getLogger(__name__)
 _REZ_SPHINX_BOOTSTRAP_LINES = textwrap.dedent(
@@ -38,9 +38,9 @@ def _get_intersphinx_candidates(package):
             A Rez package which the user is attempting to build documentation for.
 
     Returns:
-        set[:class:`rez.utils.formatting.PackageRequest`]:
-            All requests which the user needs in order to build their
-            documentation.
+        set[str]:
+            All Rez package family name requests which the user needs in
+            order to build their documentation.
 
     """
     output = set()
@@ -51,8 +51,18 @@ def _get_intersphinx_candidates(package):
         package.build_requires or [],
         package.requires or [],
     ):
-        if request.is_ephemeral or request.negation:
-            _LOGGER.debug('Skipping loading ephemerals from "%s" package.', request)
+        if request.ephemeral:
+            _LOGGER.debug('Skipped loading "%s" ephemeral request.', request)
+
+            continue
+
+        if request.conflict:
+            _LOGGER.debug('Skipped loading "%s" excluded request.', request)
+
+            continue
+
+        if request.weak and not _in_resolve(request.name):
+            _LOGGER.debug('Skipped loading "%s" weak request.', request)
 
             continue
 
@@ -68,6 +78,22 @@ def _get_intersphinx_candidates(package):
     output.update(_get_tests_requires(package))
 
     return output
+
+
+def _in_resolve(name):
+    """Check if ``name`` is a Rez package family which is in the current resolve.
+
+    Args:
+        name (str): A Rez package name. e.g. "python", "Sphinx", etc.
+
+    Returns:
+        bool: If ``name`` has a root path.
+
+    """
+    try:
+        return bool(path_control.get_installed_root(name))
+    except EnvironmentError:
+        return False
 
 
 def _get_environment_package(name):
@@ -93,17 +119,7 @@ def _get_environment_package(name):
         :class:`rez.developer_package.DeveloperPackage`: The found package.
 
     """
-    # TODO : Replace this with a Rez API call
-    variable = "REZ_{name}_ROOT".format(name=name.upper())
-
-    try:
-        directory = os.environ[variable]
-    except KeyError:
-        raise EnvironmentError(
-            'Rez package "{name}" is not found. Are you sure it is in your '
-            "current Rez resolve?".format(name=name)
-        )
-
+    directory = path_control.get_installed_root(name)
     package = finder.get_nearest_rez_package(directory)
 
     if package:
@@ -145,7 +161,7 @@ def _get_intersphinx_mappings(package):
     output = dict()
 
     for request in _get_intersphinx_candidates(package):
-        package = _get_environment_package(request.name)
+        package = _get_environment_package(request)
         path = _get_package_objects_inv(package)
 
         if not path:
@@ -218,7 +234,7 @@ def _get_tests_requires(package):
             documentation for.
 
     Returns:
-        set[:class:`rez.utils.formatting.PackageRequest`]:
+        set[str]:
             All requests which the user needs in order to build their
             documentation.
 
@@ -239,7 +255,7 @@ def _get_tests_requires(package):
         #
         return set()
 
-    return {request for request in test.get("requires") or []}
+    return {request.name for request in test.get("requires") or []}
 
 
 def _get_major_minor_version(version):

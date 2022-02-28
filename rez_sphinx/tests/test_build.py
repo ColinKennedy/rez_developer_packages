@@ -2,9 +2,10 @@
 
 import contextlib
 import os
+import sys
 import unittest
 
-from rez_utilities import creator
+from rez_utilities import creator, finder
 
 from .common import package_wrap, run_test
 
@@ -15,17 +16,20 @@ class Build(unittest.TestCase):
     def test_hello_world(self):
         """Build documentation and auto-API .rst documentation onto disk."""
         source_package = package_wrap.make_simple_developer_package()
-        install_path = package_wrap.make_directory("Build_test_hello_world_install_root")
+        source_directory = finder.get_package_root(source_package)
+        install_path = package_wrap.make_directory(
+            "Build_test_hello_world_install_root"
+        )
         installed_package = creator.build(source_package, install_path)
 
-        with _quick_resolve(installed_package):
+        with _simulate_resolve(installed_package):
             run_test.test(["init", source_directory])
             run_test.test(["build", source_directory])
 
-        source = os.path.join(directory, "documentation", "source")
+        source = os.path.join(source_directory, "documentation", "source")
         api_source_gitignore = os.path.join(source, "api", ".gitignore")
 
-        build = os.path.join(directory, "documentation", "build")
+        build = os.path.join(source_directory, "documentation", "build")
         master_path = os.path.join(build, "index.html")
         example_api_path = os.path.join(build, "api", "file.html")
 
@@ -111,10 +115,26 @@ class Invalid(unittest.TestCase):
 
 
 @contextlib.contextmanager
-def _quick_resolve(installed_package):
+def _simulate_resolve(installed_package):
     """Make a resolve with ``installed_package`` and :ref:`rez_sphinx`."""
-    with _resolve(
-        [installed_package.name, "rez_sphinx"],
-        packages_path=[finder.get_package_root(installed_package), config.local_packages_path],
-    ):
+    root = finder.get_package_root(installed_package)
+    directory = os.path.join(root, "python")
+
+    if not os.path.isdir(directory):
+        raise RuntimeError(
+            'Directory "{directory}" does not exist.'.format(directory=directory)
+        )
+
+    original_environment = os.environ.copy()
+    original_path = sys.path[:]
+
+    # TODO : Do a Rez API call here, instead
+    os.environ["REZ_{name}_ROOT".format(name=installed_package.name.upper())] = root
+    sys.path.append(directory)
+
+    try:
         yield
+    finally:
+        sys.path = original_path
+        os.environ.clear()
+        os.environ.update(original_environment)

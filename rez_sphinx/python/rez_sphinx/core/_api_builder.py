@@ -1,16 +1,15 @@
 """A companion module to :mod:`api_builder` which builds the API .rst files."""
 
-import sys
 import logging
-import traceback
 import os
+import sys
+import traceback
 
-from rez_utilities import finder
 from python_compatibility import filer
+from rez_utilities import finder
 from sphinx.ext import apidoc
 
 from . import path_control
-
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -73,8 +72,11 @@ def generate_api_files(directory, options=tuple()):
     path_control.clear_directory(api_directory)
     path_control.add_gitignore(api_directory)
 
-    for python_source_root in _get_python_source_roots(directory):
-        command = [python_source_root, "--output-dir", destination]
+    package = finder.get_nearest_rez_package(directory)
+    install_directory = path_control.get_installed_root(package.name)
+
+    for python_source_root in _get_python_source_roots(install_directory):
+        command = [python_source_root, "--output-dir", api_directory]
         command.extend(options)
 
         try:
