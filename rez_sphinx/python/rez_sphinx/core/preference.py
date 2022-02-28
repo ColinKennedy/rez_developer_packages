@@ -129,10 +129,12 @@ def get_api_options(options=tuple()):
     return list(itertools.chain(options, settings))
 
 
-def get_quick_start_options(options=tuple()):
+def get_quick_start_options(package, options=tuple()):
     """Get the arguments :ref:`sphinx-quickstart`.
 
     Args:
+        package (str):
+            The name of the Rez package family. e.g. "python", "Sphinx", etc.
         options (list[str], optional):
             User-provided arguments to consider while resolving
             :ref:`sphinx-quickstart` values.
@@ -156,7 +158,7 @@ def get_quick_start_options(options=tuple()):
         "",
         "--ext-intersphinx",
         "--project",
-        "",
+        package,
         "--release",
         "",
         "-v",

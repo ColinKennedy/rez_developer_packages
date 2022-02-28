@@ -4,6 +4,7 @@ import contextlib
 import os
 import sys
 import unittest
+import textwrap
 
 from rez_utilities import creator, finder
 
@@ -28,13 +29,27 @@ class Build(unittest.TestCase):
 
         source = os.path.join(source_directory, "documentation", "source")
         api_source_gitignore = os.path.join(source, "api", ".gitignore")
+        source_master = os.path.join(source, "index.rst")
 
+        master_toctrees = ["\n".join(tree) for tree in _get_toctrees(source_master)]
         build = os.path.join(source_directory, "documentation", "build")
-        master_path = os.path.join(build, "index.html")
+        build_master = os.path.join(build, "index.html")
         example_api_path = os.path.join(build, "api", "file.html")
 
+        self.assertEqual(1, len(master_toctrees))
+        self.assertEqual(
+            textwrap.dedent(
+                """\
+                .. toctree::
+                   :maxdepth: 2
+                   :caption: Contents:
+
+                   API Documentation <api/modules.rst>"""
+            ),
+            master_toctrees[0],
+        )
         self.assertTrue(os.path.isfile(api_source_gitignore))
-        self.assertTrue(os.path.isfile(master_path))
+        self.assertTrue(os.path.isfile(build_master))
         self.assertTrue(os.path.isfile(example_api_path))
 
     def test_hello_world_other_folder(self):
@@ -112,6 +127,68 @@ class Invalid(unittest.TestCase):
     def test_auto_api_no_python_files(self):
         """Fail to auto-build API .rst files if there's no Python files."""
         raise ValueError()
+
+
+def _get_toctrees(path):
+    """Get every :ref:`toctree` in ``path``.
+
+    Args:
+        path (str): The absolute or relative path to a Sphinx .rst file.
+
+    Returns:
+        list[list[str]]: Each :ref:`toctree` as a list of lines.
+
+    """
+    def _get_indent(text):
+        return len(text) - len(text.lstrip())
+
+    def _trim(tree):
+        count = 0
+
+        for index in reversed(range(len(tree))):
+            if tree[index].strip():
+                break
+
+            count += 1
+
+        return tree[: -1 * count]
+
+    with open(path, "r") as handler:
+        data = handler.read()
+
+    start = False
+    trees = []
+    current = []
+    last_indent = 0
+
+    for line in data.splitlines():
+        if line.startswith(".. toctree::"):
+            start = True
+            current.append(line)
+
+            continue
+
+        if not start:
+            continue
+
+        if not line.strip():
+            current.append(line)
+
+            continue
+
+        indent = _get_indent(line)
+
+        if indent < last_indent:
+            last_indent = -1
+            start = False
+            trimmed = _trim(current)
+            trees.append(trimmed)
+            current = []
+        else:
+            last_indent = indent
+            current.append(line)
+
+    return trees
 
 
 @contextlib.contextmanager

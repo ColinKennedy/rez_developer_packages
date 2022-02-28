@@ -51,6 +51,8 @@ Make sure all :ref:`Sphinx` point to Sphinx's website
  - :ref:`requires` - https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#requires
  - :ref:`build_documentation_key` - The rez_sphinx key information
  - :ref:`sphinx-apidoc` - https://www.sphinx-doc.org/en/master/man/sphinx-apidoc.html
+ - :ref:`toctree` - https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html
+
 - Add a way to convert to and from API types (full-auto and generate). I guess with ``rez_sphinx add``?
 
 - Add black_isort

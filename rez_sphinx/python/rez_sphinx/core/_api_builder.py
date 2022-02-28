@@ -14,6 +14,65 @@ from . import path_control
 _LOGGER = logging.getLogger(__name__)
 
 
+def _clear_api_directory(directory):
+    """Delete the contents of the "api" directory and re-make it.
+
+    Args:
+        directory (str):
+            The root source documentation folder. Usually it's
+            "{source_rez_root}/documentation/source".
+
+    """
+    api_directory = os.path.join(directory, "api")
+
+    if not os.path.isdir(api_directory):
+        os.makedirs(api_directory)
+
+    path_control.clear_directory(api_directory)
+    path_control.add_gitignore(api_directory)
+
+    return api_directory
+
+
+def _generate_api_files(directory, destination, options=tuple()):
+    """Fill ``destination`` source documentation with with auto-generated .rst files.
+
+    Args:
+        directory (str):
+            The absolute path to the documentation source directory,
+            within some source Rez package.
+        destination (str):
+            The exact folder where source API .rst files will go
+            into. Usually this is "{source_rez_root}/documentation/source/api".
+
+    Raises:
+        :class:`.SphinxExecutionError`:
+            If running :ref:`sphinx-apidoc` failed midway and could not complete.
+
+    """
+    install_package = finder.get_nearest_rez_package(directory)
+    install_directory = path_control.get_installed_root(install_package.name)
+
+    for python_source_root in _get_python_source_roots(install_directory):
+        command = [python_source_root, "--output-dir", destination]
+        command.extend(options)
+
+        try:
+            # TODO : Double check that this doesn't use $PWD at all
+            apidoc.main(command)
+        except SystemExit:
+            _LOGGER.warning(
+                'sphinx-apidoc failed to run. Rolling back the changes in "%s" folder.',
+                api_directory,
+            )
+
+            path_control.clear_directory(api_directory)
+
+            text = "".join(traceback.format_exc())
+
+            raise SphinxExecutionError(text)
+
+
 def _get_python_source_roots(directory):
     """Find every directory on-disk where ``directory`` contains Python files.
 
@@ -49,47 +108,34 @@ def _get_python_source_roots(directory):
     return {path for path in sys.path if filer.in_directory(path, root)}
 
 
-def generate_api_files(directory, options=tuple()):
-    """Create the "api" folder so :ref:`rez_sphinx build` includes the user's Python files.
+def _update_master_file(directory):
+    """Add the newly-created API entry "modules.rst" file to the master :ref:`toctree`.
 
     Args:
         directory (str):
-            The absolute path to a folder on disk. This folder should be
-            a sub-folder inside of a Rez package to the root of the Rez package.
+            The absolute path to the documentation source directory,
+            within some source Rez package.
+
+    """
+    os.path.join(directory)
+
+
+def generate_api_files(directory, options=tuple()):
+    """Create the "api" folder so :ref:`rez_sphinx build` includes the user's Python files.
+
+    - Create the "api" folder
+    - Fill it with auto-generated .rst files
+    - Update the master index.rst with a reference to the auto-generated
+      "api/modules.rst" file, if it isn't already there.
+
+    Args:
+        directory (str):
+            The absolute path to the documentation source directory,
+            within some Rez package.
         options (container[str], optional):
             All arguments to pass directly to :ref:`sphinx-apidoc`.
 
-    Raises:
-        :class:`.SphinxExecutionError`:
-            If :ref:`sphinx-apidoc` fails midway before it could finish.
-
     """
-    api_directory = os.path.join(directory, "api")
-
-    if not os.path.isdir(api_directory):
-        os.makedirs(api_directory)
-
-    path_control.clear_directory(api_directory)
-    path_control.add_gitignore(api_directory)
-
-    package = finder.get_nearest_rez_package(directory)
-    install_directory = path_control.get_installed_root(package.name)
-
-    for python_source_root in _get_python_source_roots(install_directory):
-        command = [python_source_root, "--output-dir", api_directory]
-        command.extend(options)
-
-        try:
-            # TODO : Double check that this doesn't use $PWD at all
-            apidoc.main(command)
-        except SystemExit:
-            _LOGGER.warning(
-                'sphinx-apidoc failed to run. Rolling back the changes in "%s" folder.',
-                api_directory,
-            )
-
-            path_control.clear_directory(api_directory)
-
-            text = "".join(traceback.format_exc())
-
-            raise SphinxExecutionError(text)
+    api_directory = _clear_api_directory(directory)
+    _generate_api_files(directory, api_directory, options=options)
+    _update_master_file(directory)

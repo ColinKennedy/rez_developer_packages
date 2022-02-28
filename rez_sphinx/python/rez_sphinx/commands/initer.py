@@ -7,8 +7,14 @@ import traceback
 
 from sphinx.cmd import quickstart
 
-from ..core import (bootstrap, exception, package_change, path_control,
-                    preference, sphinx_helper)
+from ..core import (
+    bootstrap,
+    exception,
+    package_change,
+    path_control,
+    preference,
+    sphinx_helper,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -91,7 +97,9 @@ def init(package, directory, quick_start_options=tuple()):
 
     """
     # TODO : Need to add API documentation support here. Or get it from rez-config settings
-    options = preference.get_quick_start_options(options=quick_start_options)
+    options = preference.get_quick_start_options(
+        package.name, options=quick_start_options
+    )
     configuration_path = _run_sphinx_quickstart(directory, options=options)
 
     if preference.SPHINX_SEPARATE_SOURCE_AND_BUILD in options:
