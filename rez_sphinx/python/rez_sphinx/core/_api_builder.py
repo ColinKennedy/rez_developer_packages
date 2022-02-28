@@ -9,7 +9,7 @@ from python_compatibility import filer
 from rez_utilities import finder
 from sphinx.ext import apidoc
 
-from . import path_control
+from . import configuration, path_control, preference, sphinx_helper
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -117,7 +117,39 @@ def _update_master_file(directory):
             within some source Rez package.
 
     """
-    os.path.join(directory)
+    sphinx = configuration.ConfPy.from_path(os.path.join(directory, "conf.py"))
+    path = os.path.join(directory, sphinx.get_master_document_name())
+    toctree_line = preference.get_master_api_documentation_line()
+
+    with open(path, "r") as handler:
+        data = handler.read()
+
+    trees = sphinx_helper.get_toctrees(data)
+
+    for tree in trees:
+        for line in tree:
+            if line == toctree_line:
+                _LOGGER.debug(
+                    'API documentation already added in path "%s". Skipping.',
+                    path,
+                )
+
+                return
+
+    tree = trees[0]
+    start, end_line, _ = tree
+
+    lines = data.splitlines()
+    indent = sphinx_helper.get_toctree_indent(lines)
+
+    if sphinx_helper.is_empty_toctree(lines):
+        end_line += 1
+
+    lines.insert(end_line, indent + toctree_line)
+    new_data = "\n".join(lines)
+
+    with open(path, "w") as handler:
+        handler.write(new_data)
 
 
 def generate_api_files(directory, options=tuple()):

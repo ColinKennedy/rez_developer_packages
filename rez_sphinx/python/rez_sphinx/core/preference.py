@@ -129,6 +129,15 @@ def get_api_options(options=tuple()):
     return list(itertools.chain(options, settings))
 
 
+def get_master_api_documentation_line():
+    """str: Get the line that typically is added to the main :ref:`index.rst`."""
+    rez_sphinx_settings = _get_base_settings()
+
+    return (
+        rez_sphinx_settings.get("api_toctree_line") or "API Documentation <api/modules>"
+    )
+
+
 def get_quick_start_options(package, options=tuple()):
     """Get the arguments :ref:`sphinx-quickstart`.
 

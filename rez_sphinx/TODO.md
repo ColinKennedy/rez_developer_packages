@@ -52,6 +52,7 @@ Make sure all :ref:`Sphinx` point to Sphinx's website
  - :ref:`build_documentation_key` - The rez_sphinx key information
  - :ref:`sphinx-apidoc` - https://www.sphinx-doc.org/en/master/man/sphinx-apidoc.html
  - :ref:`toctree` - https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html
+ - :ref:`index.rst` - https://sphinx-tutorial.readthedocs.io/step-1/
 
 - Add a way to convert to and from API types (full-auto and generate). I guess with ``rez_sphinx add``?
 

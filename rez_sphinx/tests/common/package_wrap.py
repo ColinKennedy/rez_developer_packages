@@ -83,6 +83,13 @@ def make_simple_developer_package():
     os.makedirs(python_directory)
 
     with open(os.path.join(python_directory, "file.py"), "w") as handler:
-        handler.write('print("Hello, World!")')
+        handler.write(
+            textwrap.dedent(
+                '''\
+                def some_function():
+                    """Do a function."""
+                '''
+            )
+        )
 
     return finder.get_nearest_rez_package(directory)
