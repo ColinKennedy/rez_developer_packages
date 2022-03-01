@@ -63,7 +63,7 @@ def _validate(attribute, data, code):
     return parso.parse(code), adapter_class
 
 
-def add_to_attribute(attribute, data, code, append=False):
+def add_to_attribute(attribute, data, code, append=False, serialize=False):
     """Add (override) new data onto some Rez package.py attribute.
 
     Args:
@@ -79,11 +79,20 @@ def add_to_attribute(attribute, data, code, append=False):
             in `graph` if there are any conflicts between the two.
             If True, the conflicts are ignored and `data` is just
             added to `graph` is if no conflict exists. Default is False.
+        serialize (bool, optional):
+            If True, ``data`` is converted into a JSON-friendly
+            reprensentation. If False, ``data`` is taken as-is, with no
+            modification. Default is False.
 
     Returns:
-        str: The modified code that now contains `data` as a part of the given `attribute`.
+        str:
+            The modified code that now contains `data` as a part of the given
+            `attribute`.
 
     """
+    if serialize:
+        data = schema_validator.serialize(attribute, data)
+
     graph, adapter_class = _validate(attribute, data, code)
 
     if adapter_class.supports_appending():
