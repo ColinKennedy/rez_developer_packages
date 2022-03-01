@@ -1,8 +1,6 @@
 """Make sure :ref:`rez_sphinx build` works as expected."""
 
-import contextlib
 import os
-import sys
 import unittest
 import textwrap
 import tempfile

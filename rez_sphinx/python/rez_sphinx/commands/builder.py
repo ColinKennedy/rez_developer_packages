@@ -31,11 +31,14 @@ def _get_documentation_build(source):
 
     package = finder.get_nearest_rez_package(source)
     root = finder.get_package_root(package)
-    build_directory = os.path.join(root, config.build_directory)  # {rez_root}/build
+    build_directory = os.path.join(  # {rez_root}/build
+        root,  # {rez_root}
+        config.build_directory,  # build (default name)
+    )
 
-    return os.path.join(
+    return os.path.join(  # {rez_root}/build/documentation
         build_directory, "documentation"
-    )  # {rez_root}/build/documentation
+    )
 
 
 def _get_documentation_source(root):
@@ -58,7 +61,8 @@ def _get_documentation_source(root):
         configuration = sphinx_helper.find_configuration_path(root)
     except RuntimeError:
         raise exception.NoDocumentationFound(
-            'Directory "{root}" has no documentation. Run `rez_sphinx init` to fix this.'
+            'Directory "{root}" has no documentation. '
+            'Run `rez_sphinx init` to fix this.'
         )
 
     return os.path.dirname(configuration)

@@ -2,7 +2,6 @@
 
 import logging
 import os
-import textwrap
 import traceback
 
 from sphinx.cmd import quickstart
@@ -96,7 +95,9 @@ def init(package, directory, quick_start_options=tuple()):
             :ref:`sphinx-quickstart` values.
 
     """
-    # TODO : Need to add API documentation support here. Or get it from rez-config settings
+    # TODO : Need to add API documentation support here.
+    # Or get it from rez-config settings
+    #
     options = preference.get_quick_start_options(
         package.name, options=quick_start_options
     )

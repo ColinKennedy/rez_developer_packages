@@ -1,3 +1,5 @@
+"""Miscellaneous functions for making Rez packages easier."""
+
 import atexit
 import functools
 import os
@@ -10,19 +12,25 @@ from rez_utilities import creator, finder
 
 
 def _delete_later(directory):
+    """Schedule ``directory`` for deletion.
+
+    Args:
+        directory (str): The absolute path to a folder on-disk to delete.
+
+    """
     atexit.register(functools.partial(shutil.rmtree, directory))
 
 
 def make_directory(name):
     """Make a directory with ``name`` and delete it later."""
     directory = tempfile.mkdtemp(suffix=name)
-    # _delete_later(directory)
+    _delete_later(directory)
 
     return directory
 
 
 def make_dependent_packages():
-    """Create a Rez package that depends on another package - both have documentation."""
+    """Create a Rez package with a dependent package - both have documentation."""
     install_path = make_directory("_make_dependent_a_package_install_root")
 
     # TODO : Add a proper python package or find a way to build without it
@@ -56,7 +64,11 @@ def make_dependent_packages():
     installed_package_2 = creator.build(
         dependency_package,
         install_path,
-        packages_path=[install_path, config.release_packages_path],
+        packages_path=[
+            install_path,
+            # TODO : Remove all `release_packages_path` references
+            config.release_packages_path,  # pylint: disable=no-member
+        ],
     )
 
     source_package = make_simple_developer_package(
@@ -90,7 +102,11 @@ def make_dependent_packages():
     installed_package_1 = creator.build(
         source_package,
         install_path,
-        packages_path=[install_path, config.release_packages_path],
+        packages_path=[
+            install_path,
+            # TODO : Remove all `release_packages_path` references
+            config.release_packages_path,  # pylint: disable=no-member
+        ],
     )
 
     source_directory_2 = finder.get_package_root(dependency_package)

@@ -31,7 +31,7 @@ _REZ_SPHINX_BOOTSTRAP_LINES = textwrap.dedent(
 
 
 def _get_intersphinx_candidates(package):
-    """Find every dependeny of ``package`` which will be checked for a :ref:`objects.inv`.
+    """Search dependencies of ``package`` for a :ref:`objects.inv`.
 
     Args:
         package (:class:`rez.developer_package.DeveloperPackage`):

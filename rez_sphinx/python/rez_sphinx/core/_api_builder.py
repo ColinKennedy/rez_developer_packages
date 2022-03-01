@@ -31,6 +31,9 @@ def _add_api_link_to_a_tree(toctree_line, trees, data):
         trees (list[list[str]]): Each found toctree.
         data (str): The blob of text which ``trees`` are a part of.
 
+    Raises:
+        RuntimeError: If ``trees`` already contains ``toctree_line`` at least once.
+
     Returns:
         str: The newly modified ``data``, which now includes ``line``.
 
@@ -39,14 +42,14 @@ def _add_api_link_to_a_tree(toctree_line, trees, data):
         for line in tree:
             if line == toctree_line:
                 _LOGGER.debug(
-                    'API documentation already added in path "%s". Skipping.',
-                    path,
+                    'API documentation already added in tree "%s". Skipping.',
+                    tree,
                 )
 
-                return
+                raise RuntimeError("API link already exists.")
 
     tree = trees[0]
-    start, end_line, _ = tree
+    _, end_line, _ = tree
 
     lines = data.splitlines()
     indent = sphinx_helper.get_toctree_indent(lines)
@@ -121,14 +124,14 @@ def _generate_api_files(directory, destination, options=tuple()):
         except SystemExit:
             _LOGGER.warning(
                 'sphinx-apidoc failed to run. Rolling back the changes in "%s" folder.',
-                api_directory,
+                destination,
             )
 
-            path_control.clear_directory(api_directory)
+            path_control.clear_directory(destination)
 
             text = "".join(traceback.format_exc())
 
-            raise SphinxExecutionError(text)
+            raise exception.SphinxExecutionError(text)
 
 
 def _get_python_source_roots(directory):
@@ -185,7 +188,10 @@ def _update_master_file(directory):
     trees = sphinx_helper.get_toctrees(data)
 
     if trees:
-        new_data = _add_api_link_to_a_tree(toctree_line, trees, data)
+        try:
+            new_data = _add_api_link_to_a_tree(toctree_line, trees, data)
+        except RuntimeError:
+            return
     else:
         new_data = data + _MISSING_TOCTREE_TEMPLATE.format(toctree_line=toctree_line)
 
@@ -194,7 +200,7 @@ def _update_master_file(directory):
 
 
 def generate_api_files(directory, options=tuple()):
-    """Create the "api" folder so :ref:`rez_sphinx build` includes the user's Python files.
+    """Create the "api" folder so :ref:`rez_sphinx build` uses the user's Python files.
 
     - Create the "api" folder
     - Fill it with auto-generated .rst files

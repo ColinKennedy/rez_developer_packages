@@ -1,3 +1,5 @@
+"""Make running :ref:`rez_sphinx` in unittests easier."""
+
 import os
 import contextlib
 import sys
@@ -37,6 +39,14 @@ def simulate_resolve(installed_packages):
 
 
 def test(text):
+    """Run ``text`` as if it were run from the terminal.
+
+    Args:
+        text (list[str] or str):
+            The raw arguments to pass to the "terminal".
+            e.g. "build /path/to/directory" or "init".
+
+    """
     parts = text
 
     if isinstance(parts, six.string_types):
