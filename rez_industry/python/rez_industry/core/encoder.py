@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""A fake JSON Encoder class so we can intercept javascript code before it causes problems."""
+"""A fake JSON Encoder class to make converting JSON slightly easier."""
 
 import json
 
 
 class BuiltinEncoder(json.JSONEncoder):
-    """A fake JSON Encoder class so we can intercept javascript code before it causes problems."""
+    """A fake JSON Encoder class to make converting JSON slightly easier."""
 
     def iterencode(self, o, _one_shot=False):
         """Replace boolean and null values with "Python-safe" alternatives."""
@@ -21,8 +21,6 @@ class BuiltinEncoder(json.JSONEncoder):
             new = new.replace("true", "True")
 
             if new != item:
-                results[  # pylint: disable=unsupported-assignment-operation
-                    index
-                ] = new
+                results[index] = new  # pylint: disable=unsupported-assignment-operation
 
         return results

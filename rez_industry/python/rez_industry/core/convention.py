@@ -136,7 +136,8 @@ def insert_or_append(node, graph, assignment, attribute):
             The name of the Rez-related object to use.
 
     Returns:
-        :class:`parso.python.tree.PythonNode`: The main module with a modified `attribute`.
+        :class:`parso.python.tree.PythonNode`:
+            The main module with a modified `attribute`.
 
     """
     if assignment:
@@ -204,7 +205,8 @@ def insert_or_append_raw_node(node, graph, assignment, attribute):
             The name of the Rez-related object to use.
 
     Returns:
-        :class:`parso.python.tree.PythonNode`: The main module with a modified `attribute`.
+        :class:`parso.python.tree.PythonNode`:
+            The main module with a modified `attribute`.
 
     """
     if assignment:

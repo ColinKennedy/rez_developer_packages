@@ -83,7 +83,8 @@ class TestsAdapter(base_.BaseAdapter):
             assignment = parso_utility.find_assignment_nodes("tests", graph)[-1]
         except IndexError:
             _LOGGER.warning(
-                'Graph "%s" has no assignment. Tests will be appended instead of inserted.',
+                'Graph "%s" has no assignment. '
+                "Tests will be appended instead of inserted.",
                 graph,
             )
             assignment = None
@@ -310,7 +311,7 @@ def _get_tests_data(graph):
 
 
 def _make_makeshift_node_dict(node):
-    """Find every key / value of a parso dict and partially cast it back to a Python object.
+    """Find every key / value of a parso dict and partially cast it.
 
     Args:
         node (:class:`parso.python.tree.PythonBaseNode`):
@@ -427,7 +428,12 @@ def _make_dict_nodes(data, prefix=""):
     "tests" attribute frequently defines.
 
     Args:
-        data (iter[tuple[str, str or list or :class:`parso.python.tree.PythonBaseNode`]]):
+        data (
+            iter[
+                tuple[str, str or list or :class:`parso.python.tree.PythonBaseNode`]
+            ]
+        ):
+            The data to convert into a parso object.
 
     Returns:
         :class:`parso.python.tree.PythonNode`:

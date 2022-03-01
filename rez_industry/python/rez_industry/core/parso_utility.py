@@ -10,7 +10,7 @@ from parso_helper import node_seek
 
 
 def find_assignment_nodes(attribute, graph, inclusive=False):
-    """Get a parso node each time a certain Python attribute is declared and given a value.
+    """Get a parso node each time a certain Python attribute is declared.
 
     Args:
         attribute (str):
@@ -103,7 +103,7 @@ def find_definition_root_nodes(attribute, graph, inclusive=False):
 
 
 def find_definition_nodes(attribute, nodes):
-    """Get a parso node each time a certain Python function is declared and given a value.
+    """Get a parso node each time a certain Python function is declared.
 
     Args:
         attribute (str):

@@ -25,7 +25,6 @@ tests = {
     "black_diff": {
         "command": "black --diff --check package.py python tests",
         "requires": ["black-19.10+<20"],
-        "run_on": "explicit",
     },
     "black": {
         "command": "black package.py python tests",

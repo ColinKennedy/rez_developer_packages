@@ -39,7 +39,9 @@ class RequiresAdapter(base.BaseAdapter):
         return ""
 
     @staticmethod
-    def modify_with_existing(graph, data, append=False):  # pylint: disable=arguments-differ
+    def modify_with_existing(
+        graph, data, append=False
+    ):  # pylint: disable=arguments-differ
         """Add `data` to a parso node `graph`.
 
         Args:
@@ -115,7 +117,7 @@ class RequiresAdapter(base.BaseAdapter):
 
     @staticmethod
     def supports_appending():
-        """bool: Allow force-replacing a package family's required package version if True."""
+        """bool: Allow force-replacing a package family's version if True."""
         return True
 
 
@@ -251,10 +253,11 @@ def _make_nodes(data, prefix=""):
 
     Args:
         data (iter[str]): Some Rez requirement objects to convert into parso nodes.
-        prefix (str, optional): Leading indentation for each generated node. Default: "".
+        prefix (str, optional): Leading indentation to add to each node. Default: "".
 
     Returns:
-        list[:class:`parso.python.tree.String`]: The parso nodes which represent the given `data`.
+        list[:class:`parso.python.tree.String`]:
+            The parso nodes which represent the given `data`.
 
     """
     return [
@@ -302,7 +305,16 @@ def _merge_list_entries(old, new):
 
 
 def _node_to_requirement(node):
-    """:class:`rez.vendor.version.requirement.Requirement`: Convert an AST node to a Rez."""
+    """Convert a parso node to a Rez requirement.
+
+    Args:
+        node (:class:`parso.python.tree.PythonBaseNode`):
+            The node to convert.
+
+    Returns:
+        :class:`rez.vendor.version.requirement.Requirement`: The converted object.
+
+    """
     requirement_text = _escape(node.value)
 
     return rez_requirement.Requirement(requirement_text)

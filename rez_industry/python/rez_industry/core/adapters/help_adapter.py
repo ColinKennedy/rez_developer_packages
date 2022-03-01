@@ -97,7 +97,8 @@ class HelpAdapter(base.BaseAdapter):
                 that the label points to.
 
         Returns:
-            list[:class:`parso.python.tree.PythonNode`]: The resolved label / value entries.
+            list[:class:`parso.python.tree.PythonNode`]:
+                The resolved label / value entries.
 
         """
         help_keys = collections.OrderedDict(
@@ -122,7 +123,7 @@ class HelpAdapter(base.BaseAdapter):
 
     @staticmethod
     def supports_appending():
-        """bool: Allow appending duplicate data in :meth:`HelpAdapter.modify_with_existing`."""
+        """bool: Allow duplicate data in :meth:`HelpAdapter.modify_with_existing`."""
         return True
 
     @staticmethod
@@ -345,7 +346,8 @@ def _apply_formatting(node):
             of strings" that defines a Rez help attribute.
 
     Returns:
-        :class:`parso.python.Tree.PythonBaseNode`: The copy of `node` that has nice newlines.
+        :class:`parso.python.Tree.PythonBaseNode`:
+            The copy of `node` that has nice newlines.
 
     """
 
@@ -384,7 +386,8 @@ def _separate_with_commas(nodes):
     """Add a comma between every parso node, starting at the first element.
 
     Args:
-        nodes (list): Some objects that will get parso nodes inserted between its elements.
+        nodes (list):
+            Some objects that will get parso nodes inserted between its elements.
 
     Returns:
         list[:class:`parso.python.Tree.PythonBaseNode`]:
