@@ -35,7 +35,6 @@ def _add_rez_tests(package):
             handler.write(text)
 
     tests = package.tests or dict()
-
     build_key = preference.get_build_documentation_key()
 
     rez_sphinx_package = finder.get_nearest_rez_package(_CURRENT_DIRECTORY)
@@ -55,7 +54,7 @@ def _add_rez_tests(package):
     }
 
     original = _get_package_text(package)
-    results = api.add_to_attribute("tests", tests, original)
+    results = api.add_to_attribute("tests", tests, original, serialize=True)
     _replace_package(package, results)
 
 

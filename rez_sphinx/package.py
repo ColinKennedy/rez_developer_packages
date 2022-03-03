@@ -24,14 +24,18 @@ variants = [["python-2", "backports.functools_lru_cache"], ["python-3"]]
 build_command = "python -m rez_build_helper --items bin python"
 
 tests = {
-    "black_diff": {
-        "command": "black --diff --check python tests",
-        "requires": ["black-22+<23"],
-    },
     "black": {
         "command": "black python tests",
         "requires": ["black-22+<23"],
         "run_on": "explicit",
+    },
+    "black_diff": {
+        "command": "black --diff --check python tests",
+        "requires": ["black-22+<23"],
+    },
+    "build_documentation": {
+        "command": "rez_sphinx build",
+        "requires": ["rez_sphinx-1.9+<2"],
     },
     "isort": {
         "command": "isort python tests",

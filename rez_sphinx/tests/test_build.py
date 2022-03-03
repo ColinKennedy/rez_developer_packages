@@ -130,8 +130,6 @@ class Build(unittest.TestCase):
 
                 watchers.extend(watcher)
 
-        raise ValueError("STOP")
-
         for watcher in watchers:
             print("result", watcher.get_all_results())
 

@@ -46,6 +46,15 @@ class ConfPy(object):
         except AttributeError:
             return ".rst"  # A reasonable default
 
+    def get_extensions(self):
+        """Get all registered :ref:`Sphinx` extensions. e.g. "sphinx.ext.viewcode".
+
+        Returns:
+            list[str]: The registered extensions.
+
+        """
+        return self._module.extensions or []
+
     def get_master_document_name(self):
         """str: Get the full name of the documentation "front page" file."""
         return self._get_master_doc() + self._get_source_suffix()

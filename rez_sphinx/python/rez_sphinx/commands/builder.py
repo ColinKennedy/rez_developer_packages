@@ -62,7 +62,7 @@ def _get_documentation_source(root):
     except RuntimeError:
         raise exception.NoDocumentationFound(
             'Directory "{root}" has no documentation. '
-            'Run `rez_sphinx init` to fix this.'
+            "Run `rez_sphinx init` to fix this."
         )
 
     return os.path.dirname(configuration)

@@ -1,10 +1,21 @@
 - Add base unittests
+- Check what sphinx.ext.githubpages is!!
 
+
+- Make unittests more quiet
 
 - Auto-discover python code based on the appends to PYTHONPATH
 
+init config
+ - should also allow users to describe auto-added. e.g. API Documentation, User Documentation, Developer Documentation, etc. And their default messages
+  - provide a default message ?
+  - On build / on publish allow an auto-check to fail if the page has not been edited
+  - Allow disabling of this functionality
+
+
 init
  ---add-remote
+ - add the ability to add a manual config file
 build
  - build --dry-run
 add

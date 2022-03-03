@@ -3,9 +3,11 @@
 import argparse
 import logging
 import operator
+import shlex
 import os
 
 from rez_utilities import finder
+from rez.cli import _complete_util
 
 from .commands import builder, initer
 from .core import api_builder, exception, path_control
@@ -43,6 +45,8 @@ def _init(namespace):
             attributes to generate Sphinx documentation.
 
     """
+    _split_init_arguments(namespace)
+
     directory = namespace.directory
     _LOGGER.debug('Found "%s" directory.', directory)
     package = finder.get_nearest_rez_package(directory)
@@ -59,7 +63,9 @@ def _init(namespace):
     documentation_root = os.path.normpath(
         os.path.join(directory, namespace.documentation_root)
     )
-    initer.init(package, documentation_root)
+    initer.init(
+        package, documentation_root, quick_start_options=namespace.quick_start_arguments
+    )
 
 
 def _set_up_build(sub_parsers):
@@ -74,6 +80,7 @@ def _set_up_build(sub_parsers):
     build = sub_parsers.add_parser(
         "build", description="Compile Sphinx documentation from a Rez package."
     )
+    build.required = True
     _add_directory_argument(build)
     choices = sorted(api_builder.MODES, key=operator.attrgetter("label"))
     build.add_argument(
@@ -100,9 +107,50 @@ def _set_up_init(sub_parsers):
     init = sub_parsers.add_parser(
         "init", description="Set up a Sphinx project in a Rez package."
     )
+    init.required = True
+    init.add_argument(
+        "--quickstart-arguments",
+        dest="quick_start_arguments",
+        help='Anything you\'d like to send for sphinx-quickstart. e.g. "--ext-coverage"',
+    )
     init.set_defaults(execute=_init)
     _add_directory_argument(init)
-    init.add_argument("--documentation-root", default="documentation", help="The")
+    init.add_argument(
+        "--documentation-root",
+        default="documentation",
+        help="The directory where you want source documentation (.rst files) to be placed.",
+    )
+
+    remainder = init.add_argument(
+        "remainder",
+        nargs="*",
+        help=argparse.SUPPRESS,
+    )
+    remainder.completer = _complete_util.SequencedCompleter(
+        "remainder",
+        _complete_util.ExecutablesCompleter,
+        _complete_util.FilesCompleter(),
+    )
+
+
+def _split_init_arguments(namespace):
+    """Conform ``namespace`` attributes so other functions can use it more easily.
+
+    Warning:
+        This function will modify ``namespace`` in-place.
+
+    Args:
+        namespace (:class:`argparse.Namespace`):
+            The parsed user content. It contains all of the necessary
+            attributes to generate Sphinx documentation.
+
+    """
+    namespace.quick_start_arguments = shlex.split(namespace.quick_start_arguments or "")
+
+    if not namespace.remainder:
+        return
+
+    namespace.quick_start_arguments.extend(namespace.remainder)
 
 
 def main(text):
