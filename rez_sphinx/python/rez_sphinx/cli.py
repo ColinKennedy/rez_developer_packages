@@ -31,6 +31,26 @@ def _add_directory_argument(parser):
     )
 
 
+def _add_remainder_argument(parser):
+    """Tell ``parser`` to collect all text into a single namespace parameter.
+
+    Args:
+        parser (:class:`argparse.ArgumentParser`):
+            The parser to extend with the new parameter.
+
+    """
+    remainder = parser.add_argument(
+        "remainder",
+        nargs="*",
+        help=argparse.SUPPRESS,
+    )
+    remainder.completer = _complete_util.SequencedCompleter(
+        "remainder",
+        _complete_util.ExecutablesCompleter,
+        _complete_util.FilesCompleter(),
+    )
+
+
 def _build(namespace):
     """Build Sphinx documentation, using details from ``namespace``."""
     builder.build(namespace.directory, api_mode=namespace.api_documentation)
@@ -84,6 +104,11 @@ def _set_up_build(sub_parsers):
     _add_directory_argument(build)
     choices = sorted(api_builder.MODES, key=operator.attrgetter("label"))
     build.add_argument(
+        "--apidoc-arguments",
+        dest="api_doc_arguments",
+        help='Anything you\'d like to send for sphinx-apidoc. e.g. "--private"',
+    )
+    build.add_argument(
         "--api-documentation",
         choices=[mode.label for mode in choices],
         default=api_builder.FULL_AUTO.label,
@@ -93,6 +118,8 @@ def _set_up_build(sub_parsers):
         ),
     )
     build.set_defaults(execute=_build)
+
+    _add_remainder_argument(build)
 
 
 def _set_up_init(sub_parsers):
@@ -121,16 +148,7 @@ def _set_up_init(sub_parsers):
         help="The directory where you want source documentation (.rst files) to be placed.",
     )
 
-    remainder = init.add_argument(
-        "remainder",
-        nargs="*",
-        help=argparse.SUPPRESS,
-    )
-    remainder.completer = _complete_util.SequencedCompleter(
-        "remainder",
-        _complete_util.ExecutablesCompleter,
-        _complete_util.FilesCompleter(),
-    )
+    _add_remainder_argument(init)
 
 
 def _split_init_arguments(namespace):

@@ -12,6 +12,35 @@ from rez_utilities import creator, finder
 from .common import package_wrap, run_test
 
 
+class ApiDocOptions(unittest.TestCase):
+    """Make sure users can source options from the CLI / rez-config / etc."""
+
+    def test_cli_argument(self):
+        """Let the user change :ref:`sphinx-quickstart` options from a flag."""
+        source_package = package_wrap.make_simple_developer_package()
+        source_directory = finder.get_package_root(source_package)
+        install_path = package_wrap.make_directory(
+            "Build_test_hello_world_install_root"
+        )
+        installed_package = creator.build(source_package, install_path)
+
+        with run_test.simulate_resolve([installed_package]):
+            run_test.test(["init", source_directory])
+            run_test.test(["build", source_directory])
+
+        source = os.path.join(source_directory, "documentation", "source")
+
+        self.assertTrue()
+        raise ValueError(os.listdir(os.path.join(source, "api")))
+
+    def test_cli_dash_separator(self):
+        """Let the user change :ref:`sphinx-quickstart` options from a " -- "."""
+        raise ValueError()
+
+    def test_required_arguments(self):
+        raise ValueError()
+
+
 class Bootstrap(unittest.TestCase):
     """Make sure :func:`rez_sphinx.core.bootstrap.bootstrap` works."""
 
@@ -74,7 +103,8 @@ class Build(unittest.TestCase):
             run_test.test(["build", source_directory])
 
         source = os.path.join(source_directory, "documentation", "source")
-        api_source_gitignore = os.path.join(source, "api", ".gitignore")
+        api_directory = os.path.join(source, "api")
+        api_source_gitignore = os.path.join(api_directory, ".gitignore")
         source_master = os.path.join(source, "index.rst")
 
         with open(source_master, "r") as handler:
@@ -86,6 +116,11 @@ class Build(unittest.TestCase):
         build = os.path.join(source_directory, "documentation", "build")
         build_master = os.path.join(build, "index.html")
         example_api_path = os.path.join(build, "api", "file.html")
+
+        self.assertEqual(
+            {'.gitignore', 'modules.rst', 'some_package.file.rst', 'some_package.rst'},
+            set(os.path.listdir(api_directory)),
+        )
 
         self.assertEqual(1, len(master_toctrees))
         self.assertEqual(

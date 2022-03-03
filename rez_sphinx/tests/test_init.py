@@ -11,21 +11,6 @@ from rez_sphinx.core import configuration, exception
 from .common import package_wrap, run_test
 
 
-class ApiDocOptions(unittest.TestCase):
-    """Make sure users can source options from the CLI / rez-config / etc."""
-
-    def test_cli_argument(self):
-        """Let the user change :ref:`sphinx-quickstart` options from a flag."""
-        raise ValueError()
-
-    def test_cli_dash_separator(self):
-        """Let the user change :ref:`sphinx-quickstart` options from a " -- "."""
-        raise ValueError()
-
-    def test_required_arguments(self):
-        raise ValueError()
-
-
 class Init(unittest.TestCase):
     """Make sure :ref:`rez_sphinx init` works with expected cases."""
 
