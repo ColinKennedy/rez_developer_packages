@@ -81,6 +81,9 @@ Make sure all :ref:`Sphinx` point to Sphinx's website
  - :ref:`intersphinx` - https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html
  - :ref:`sphinx.ext.autodoc` - https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html
  - :ref:`index.rst`
+ - :ref:`help`
+ - :ref:`rez_sphinx auto-help` - 
+ - :ref:`rez-build`
  - :ref:`private_build_requires` - https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#private_build_requires
  - :ref:`build_requires` - https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#build_requires
  - :ref:`requires` - https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#requires
