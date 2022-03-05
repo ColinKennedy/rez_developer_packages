@@ -69,7 +69,12 @@ def _get_documentation_source(root):
     return os.path.dirname(configuration)
 
 
-def build(directory, api_mode=api_builder.FULL_AUTO.label, api_options=tuple()):
+def build(
+    directory,
+    api_mode=api_builder.FULL_AUTO.label,
+    api_options=tuple(),
+    no_api_doc=False,
+):
     """Generate .html files from the Sphinx documentation in ``directory``.
 
     Args:
@@ -81,6 +86,9 @@ def build(directory, api_mode=api_builder.FULL_AUTO.label, api_options=tuple()):
             :mod:`api_builder` for details.
         api_options (list[str], optional):
             User-provided arguments to pass to :ref:`sphinx-apidoc`.
+        no_api_doc (bool, optional):
+            If True, don't build any API documentation. If False, API .rst
+            files will be auto-generated just before :ref:`sphinx-build` is ran.
 
     Raises:
         :class:`.NoPackageFound`:
@@ -115,7 +123,7 @@ def build(directory, api_mode=api_builder.FULL_AUTO.label, api_options=tuple()):
 
     api_mode = api_builder.get_from_label(api_mode)
 
-    if preference.is_api_enabled() and api_mode.execute:
+    if not no_api_doc and preference.is_api_enabled() and api_mode.execute:
         api_mode.execute(source_directory, options=api_options)
 
     try:

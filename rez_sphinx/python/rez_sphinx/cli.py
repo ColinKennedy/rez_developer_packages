@@ -72,6 +72,7 @@ def _build(namespace):
         namespace.directory,
         api_mode=namespace.api_documentation,
         api_options=namespace.api_doc_arguments,
+        no_api_doc=namespace.no_api_doc,
     )
 
 
