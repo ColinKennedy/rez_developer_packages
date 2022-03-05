@@ -7,7 +7,7 @@ from rez_bump import rez_bump_api
 from rez_industry import api
 from rez_utilities import finder
 
-from . import preference
+from ..preferences import preference
 
 _CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 _LOGGER = logging.getLogger(__name__)

@@ -53,7 +53,13 @@ def _add_remainder_argument(parser):
 
 def _build(namespace):
     """Build Sphinx documentation, using details from ``namespace``."""
-    builder.build(namespace.directory, api_mode=namespace.api_documentation)
+    _split_build_arguments(namespace)
+
+    builder.build(
+        namespace.directory,
+        api_mode=namespace.api_documentation,
+        api_options=namespace.api_doc_arguments,
+    )
 
 
 def _init(namespace):
@@ -149,6 +155,26 @@ def _set_up_init(sub_parsers):
     )
 
     _add_remainder_argument(init)
+
+
+def _split_build_arguments(namespace):
+    """Conform ``namespace`` attributes so other functions can use it more easily.
+
+    Warning:
+        This function will modify ``namespace`` in-place.
+
+    Args:
+        namespace (:class:`argparse.Namespace`):
+            The parsed user content. It contains all of the necessary
+            attributes to generate Sphinx documentation.
+
+    """
+    namespace.api_doc_arguments = shlex.split(namespace.api_doc_arguments or "")
+
+    if not namespace.remainder:
+        return
+
+    namespace.api_doc_arguments.extend(namespace.remainder)
 
 
 def _split_init_arguments(namespace):

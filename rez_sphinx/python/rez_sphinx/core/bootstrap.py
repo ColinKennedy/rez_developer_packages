@@ -9,7 +9,8 @@ import traceback
 import six
 from rez_utilities import finder
 
-from . import exception, path_control, preference
+from ..preferences import preference
+from . import exception, path_control
 
 _LOGGER = logging.getLogger(__name__)
 _REZ_SPHINX_BOOTSTRAP_LINES = textwrap.dedent(

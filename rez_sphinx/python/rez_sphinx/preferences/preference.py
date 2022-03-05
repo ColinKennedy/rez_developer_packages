@@ -8,13 +8,16 @@ import itertools
 import platform
 
 from rez.config import config
+import schema
 
 try:
     from functools import lru_cache  # Python 3.2+
 except ImportError:
     from backports.functools_lru_cache import lru_cache
 
-from . import exception
+from ..core import exception, schema_helper
+from . import preference_init
+
 
 _BASIC_EXTENSIONS = (
     "sphinx.ext.autodoc",  # Needed for auto-documentation generation later
@@ -23,12 +26,29 @@ _BASIC_EXTENSIONS = (
 )
 SPHINX_SEPARATE_SOURCE_AND_BUILD = "--sep"
 
-
-def _get_base_settings():
-    """dict[str, object]: Get all :ref:`rez_sphinx` specific default settings."""
-    rez_user_options = config.optionvars  # pylint: disable=no-member
-
-    return rez_user_options.get("rez_sphinx") or dict()
+_API_TOCTREE_LINE = "api_toctree_line"
+_BUILD_KEY = "build_documentation_key"
+_DEFAULT_FILES = "default_files"
+_EXTENSIONS_KEY = "sphinx_extensions"
+_INIT_KEY = "init_options"
+_QUICKSTART = "sphinx-quickstart"
+_MASTER_SCHEMA = schema.Schema(
+    {
+        schema.Optional(
+            _BUILD_KEY, default="build_documentation"
+        ): schema_helper.NON_NULL_STR,
+        schema.Optional(_EXTENSIONS_KEY, default=list(_BASIC_EXTENSIONS)): [
+            schema_helper.PYTHON_DOT_PATH
+        ],
+        schema.Optional(_INIT_KEY): {
+            schema.Optional(_DEFAULT_FILES, default=[]): [preference_init.FILE_ENTRY]
+        },
+        schema.Optional(
+            _API_TOCTREE_LINE, default="API Documentation <api/modules>"
+        ): schema_helper.TOCTREE_LINE,
+        schema.Optional(_QUICKSTART, default=[]): [],
+    }
+)
 
 
 def _get_quick_start_overridable_options(overrides=tuple()):
@@ -128,18 +148,31 @@ def _validate_quick_start_options(settings):
         )
 
 
+def _validate_all(data):
+    return _MASTER_SCHEMA.validate(data)
+
+
+# TODO : Is caching really necessary? Maybe remove it from these functions
 @lru_cache()
+def get_base_settings():
+    """dict[str, object]: Get all :ref:`rez_sphinx` specific default settings."""
+    rez_user_options = config.optionvars  # pylint: disable=no-member
+
+    data = rez_user_options.get("rez_sphinx") or dict()
+
+    return _validate_all(data)
+
+
 def get_build_documentation_key():
     """str: Get the :ref:`rez tests attribute` key for :ref:`rez_sphinx`."""
-    rez_sphinx_settings = _get_base_settings()
+    rez_sphinx_settings = get_base_settings()
 
-    return rez_sphinx_settings.get("build_documentation_key") or "build_documentation"
+    return rez_sphinx_settings.get(_BUILD_KEY) or "build_documentation"
 
 
-@lru_cache()
 def get_help_label():
     """str: Get the :ref:`rez help attribute` which connects with :ref:`intersphinx`."""
-    rez_sphinx_settings = _get_base_settings()
+    rez_sphinx_settings = get_base_settings()
 
     return rez_sphinx_settings.get("help_label") or "rez_sphinx_objects_inv"
 
@@ -154,36 +187,46 @@ def get_api_options(options=tuple()):
             valid or invalid.
 
     """
-    rez_sphinx_settings = _get_base_settings()
-    settings = rez_sphinx_settings.get("sphinx-apidoc") or []
+    rez_sphinx_settings = get_base_settings()
+    settings = rez_sphinx_settings.get("sphinx-apidoc") or ["--separate"]
 
     try:
         _validate_api_options(settings)
     except exception.UserInputError as error:
-        raise exception.UserInputError('Error from rez-config: {error}'.format(error=error))
+        raise exception.UserInputError(
+            "Error from rez-config: {error}".format(error=error)
+        )
 
     try:
         _validate_api_options(options)
     except exception.UserInputError as error:
-        raise exception.UserInputError('Error from the terminal: {error}'.format(error=error))
+        raise exception.UserInputError(
+            "Error from the terminal: {error}".format(error=error)
+        )
 
     return list(itertools.chain(options, settings))
 
 
+def get_initial_files_from_configuration():
+    """list[:class:`.Entry`]: A description of files to make during :ref:`rez_sphinx init`."""
+    settings = get_base_settings()
+    options = settings.get(_INIT_KEY) or dict()
+
+    return options.get(_DEFAULT_FILES) or []
+
+
 def get_master_api_documentation_line():
     """str: Get the line that typically is added to the main :ref:`index.rst`."""
-    rez_sphinx_settings = _get_base_settings()
+    rez_sphinx_settings = get_base_settings()
 
-    return (
-        rez_sphinx_settings.get("api_toctree_line") or "API Documentation <api/modules>"
-    )
+    return rez_sphinx_settings[_API_TOCTREE_LINE]
 
 
 def get_sphinx_extensions():
     """list[str]: All :ref:`Sphinx` optional add-ons to include in documentation."""
-    rez_sphinx_settings = _get_base_settings()
+    rez_sphinx_settings = get_base_settings()
 
-    return rez_sphinx_settings.get("sphinx_extensions") or list(_BASIC_EXTENSIONS)
+    return rez_sphinx_settings.get(_EXTENSIONS_KEY) or list(_BASIC_EXTENSIONS)
 
 
 def get_quick_start_options(package, options=tuple()):
@@ -224,18 +267,22 @@ def get_quick_start_options(package, options=tuple()):
         "--dot=_",  # Sphinx 1.8 needs this (for Python 2)
     ]
 
-    rez_sphinx_settings = _get_base_settings()
-    settings = rez_sphinx_settings.get("sphinx-quickstart") or []
+    rez_sphinx_settings = get_base_settings()
+    settings = rez_sphinx_settings.get(_QUICKSTART) or []
 
     try:
         _validate_quick_start_options(options)
     except exception.UserInputError as error:
-        raise exception.UserInputError('Error from the terminal: {error}'.format(error=error))
+        raise exception.UserInputError(
+            "Error from the terminal: {error}".format(error=error)
+        )
 
     try:
         _validate_quick_start_options(settings)
     except exception.UserInputError as error:
-        raise exception.UserInputError('Error from the rez-config: {error}'.format(error=error))
+        raise exception.UserInputError(
+            "Error from the rez-config: {error}".format(error=error)
+        )
 
     output.extend(_get_quick_start_overridable_options(settings))
     output.extend(options)

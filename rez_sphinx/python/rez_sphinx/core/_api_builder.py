@@ -10,7 +10,8 @@ from python_compatibility import filer
 from rez_utilities import finder
 from sphinx.ext import apidoc
 
-from . import configuration, exception, path_control, preference, sphinx_helper
+from ..preferences import preference
+from . import configuration, exception, path_control, sphinx_helper
 
 _LOGGER = logging.getLogger(__name__)
 _MISSING_TOCTREE_TEMPLATE = textwrap.dedent(

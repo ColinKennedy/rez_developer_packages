@@ -16,6 +16,7 @@ requires = [
     "rez_industry-3.1+<4",  # TODO : Kill this awful dependency later
     "rez_python_compatibility-2.8+<3",
     "rez_utilities-2.6+<3",
+    "schema-0.7+<1",
     "six-1.15+<2",
 ]
 

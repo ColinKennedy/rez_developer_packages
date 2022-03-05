@@ -19,26 +19,41 @@ class ApiDocOptions(unittest.TestCase):
         """Let the user change :ref:`sphinx-quickstart` options from a flag."""
         source_package = package_wrap.make_simple_developer_package()
         source_directory = finder.get_package_root(source_package)
-        install_path = package_wrap.make_directory(
-            "Build_test_hello_world_install_root"
-        )
+        install_path = package_wrap.make_directory("Build_test_cli_argument")
         installed_package = creator.build(source_package, install_path)
 
         with run_test.simulate_resolve([installed_package]):
             run_test.test(["init", source_directory])
-            run_test.test(["build", source_directory])
+            run_test.test(
+                'build "{source_directory}" --apidoc-arguments "--suffix .txt"'.format(
+                    source_directory=source_directory
+                )
+            )
 
         source = os.path.join(source_directory, "documentation", "source")
 
-        self.assertTrue()
-        raise ValueError(os.listdir(os.path.join(source, "api")))
+        self.assertEqual(
+            {".gitignore", "some_package.txt", "some_package.file.txt", "modules.txt"},
+            set(os.listdir(os.path.join(source, "api"))),
+        )
 
     def test_cli_dash_separator(self):
         """Let the user change :ref:`sphinx-quickstart` options from a " -- "."""
-        raise ValueError()
+        source_package = package_wrap.make_simple_developer_package()
+        source_directory = finder.get_package_root(source_package)
+        install_path = package_wrap.make_directory("Build_test_cli_dash_argument")
+        installed_package = creator.build(source_package, install_path)
 
-    def test_required_arguments(self):
-        raise ValueError()
+        with run_test.simulate_resolve([installed_package]):
+            run_test.test(["init", source_directory])
+            run_test.test(["build", source_directory, "--", "--suffix", ".txt"])
+
+        source = os.path.join(source_directory, "documentation", "source")
+
+        self.assertEqual(
+            {".gitignore", "some_package.txt", "some_package.file.txt", "modules.txt"},
+            set(os.listdir(os.path.join(source, "api"))),
+        )
 
 
 class Bootstrap(unittest.TestCase):
@@ -115,11 +130,11 @@ class Build(unittest.TestCase):
         ]
         build = os.path.join(source_directory, "documentation", "build")
         build_master = os.path.join(build, "index.html")
-        example_api_path = os.path.join(build, "api", "file.html")
+        example_api_path = os.path.join(build, "api", "some_package.file.html")
 
         self.assertEqual(
-            {'.gitignore', 'modules.rst', 'some_package.file.rst', 'some_package.rst'},
-            set(os.path.listdir(api_directory)),
+            {".gitignore", "modules.rst", "some_package.file.rst", "some_package.rst"},
+            set(os.listdir(api_directory)),
         )
 
         self.assertEqual(1, len(master_toctrees))

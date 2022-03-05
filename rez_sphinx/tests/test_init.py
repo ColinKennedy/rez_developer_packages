@@ -11,6 +11,33 @@ from rez_sphinx.core import configuration, exception
 from .common import package_wrap, run_test
 
 
+class AutoFiles(unittest.TestCase):
+    def test_custom_files(self):
+        raise ValueError()
+
+    def test_default_files(self):
+        """Make sure :ref:`rez_sphinx` makes example starting files for the user."""
+        package = package_wrap.make_simple_developer_package()
+        directory = finder.get_package_root(package)
+        run_test.test(["init", directory])
+
+        developer = os.path.join(directory, "documentation", "source", "user_documentation.rst")
+
+        with open(developer, "r") as handler:
+            raise ValueError(handler.read())
+
+        user = os.path.join(directory, "documentation", "source", "user_documentation.rst")
+
+        with open(user, "r") as handler:
+            raise ValueError(handler.read())
+
+    def test_enforce_non_default_text(self):
+        raise ValueError()
+
+    def test_no_files(self):
+        raise ValueError()
+
+
 class Init(unittest.TestCase):
     """Make sure :ref:`rez_sphinx init` works with expected cases."""
 
@@ -40,7 +67,9 @@ class QuickStartOptions(unittest.TestCase):
         directory = finder.get_package_root(package)
 
         run_test.test(
-            "init {directory} --quickstart-arguments='--ext-coverage'".format(directory=directory)
+            "init {directory} --quickstart-arguments='--ext-coverage'".format(
+                directory=directory
+            )
         )
 
         sphinx = configuration.ConfPy.from_path(
@@ -54,14 +83,12 @@ class QuickStartOptions(unittest.TestCase):
         package = package_wrap.make_simple_developer_package()
         directory = finder.get_package_root(package)
 
-        run_test.test(
-            "init {directory} -- --ext-coverage".format(directory=directory)
-        )
+        run_test.test("init {directory} -- --ext-coverage".format(directory=directory))
 
         sphinx = configuration.ConfPy.from_path(
             os.path.join(directory, "documentation", "source", "conf.py")
         )
-        
+
         self.assertIn("sphinx.ext.coverage", sphinx.get_extensions())
 
     def test_required_arguments(self):

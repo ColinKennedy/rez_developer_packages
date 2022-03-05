@@ -11,9 +11,10 @@ from ..core import (
     exception,
     package_change,
     path_control,
-    preference,
     sphinx_helper,
 )
+
+from ..preferences import preference
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -33,6 +34,34 @@ def _add_build_directory(directory):
         os.makedirs(build)
 
     path_control.add_gitignore(build)
+
+
+def _add_initial_files(root, configuration):
+    """Add template documentation files to ``root``, based on ``configuration``.
+
+    "Template documentation files" in this case just refers to "A common set of
+    .rst files which users are expected to fill out by hand". Examples could
+    include "Developer Documentation", "User Documentation", etc.
+
+    Args:
+        root (str):
+            The directory on-disk where the source documentation lives. e.g.
+            {rez_root}/documentation/source is the most common path.
+        configuration (list[:class:`.Entry`]):
+            All descriptions of files to make during :ref:`rez_sphinx init`.
+
+    """
+    for entry in configuration:
+        full = os.path.join(root, entry.get_relative_path())
+        directory = os.path.dirname(full)
+
+        if not os.path.isdir(directory):
+            os.makedirs(directory)
+
+        with open(full, "w") as handler:
+            handler.write(entry.get_default_text())
+
+        add_api_link_to_a_tree(entry.get_toctree_line(), master_index)
 
 
 def _run_sphinx_quickstart(directory, options=tuple()):
@@ -88,8 +117,8 @@ def init(package, directory, quick_start_options=tuple()):
         package (:class:`rez.developer_package.DeveloperPackage`):
             The Rez package to apply documentation onto.
         directory (str):
-            The starting folder on-disk where newly created
-            documentation files will live under.
+            The starting folder on-disk where newly created documentation files
+            will live under. e.g. "{rez_root}/documentation"
         quick_start_options (list[str], optional):
             User-provided arguments to consider while resolving
             :ref:`sphinx-quickstart` values.
@@ -98,13 +127,18 @@ def init(package, directory, quick_start_options=tuple()):
     # TODO : Need to add API documentation support here.
     # Or get it from rez-config settings
     #
+    initial_files = preference.get_initial_files_from_configuration()
     options = preference.get_quick_start_options(
         package.name, options=quick_start_options
     )
     configuration_path = _run_sphinx_quickstart(directory, options=options)
 
     if preference.SPHINX_SEPARATE_SOURCE_AND_BUILD in options:
+        # TODO : Check if "source" can be some variable instead of hard-coded
+        _add_initial_files(os.path.join(directory, "source"), initial_files)
         _add_build_directory(directory)
+    else:
+        _add_initial_files(directory, initial_files)
 
     bootstrap.append_bootstrap_lines(configuration_path)
 
