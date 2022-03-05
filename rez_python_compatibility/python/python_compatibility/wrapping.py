@@ -144,6 +144,16 @@ def capture_pipes():
 
 
 @contextlib.contextmanager
+def silence_printing():
+    """Prevent stdout / stderr from printing to the terminal."""
+    with capture_pipes() as (stdout, stderr):
+        yield
+
+    stdout.close()
+    stderr.close()
+
+
+@contextlib.contextmanager
 def keep_cwd(directory=""):
     """After the current Python context exits, cd into the given directory.
 

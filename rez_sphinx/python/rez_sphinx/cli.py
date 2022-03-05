@@ -3,11 +3,11 @@
 import argparse
 import logging
 import operator
-import shlex
 import os
+import shlex
 
-from rez_utilities import finder
 from rez.cli import _complete_util
+from rez_utilities import finder
 
 from .commands import builder, initer
 from .core import api_builder, exception, path_control

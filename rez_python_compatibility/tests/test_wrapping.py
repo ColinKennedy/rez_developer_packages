@@ -19,6 +19,11 @@ from python_compatibility.testing import common
 class ProfileAndPrint(unittest.TestCase):
     """Make sure :func:`python_compatibility.wrapping.profile_and_print`."""
 
+    def test_silence(self):  # pylint: disable=no-self-use
+        """Prevent printing to the terminal."""
+        with wrapping.silence_printing():
+            print("This will not print")
+
     def test_simple(self):  # pylint: disable=no-self-use
         """Profile something."""
         with wrapping.capture_pipes():  # This is to silence printing

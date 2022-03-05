@@ -1,13 +1,13 @@
 """Make running :ref:`rez_sphinx` in unittests easier."""
 
-import os
 import contextlib
-import sys
+import os
 import shlex
+import sys
 
 import six
-
 from rez_utilities import finder
+
 from rez_sphinx import cli
 
 

@@ -7,13 +7,12 @@ This module is a companion module for :mod:`.preference`.
 
 """
 
-import textwrap
 import os
+import textwrap
 
 import schema
 
 from ..core import schema_helper
-
 
 _BASE_TEXT = textwrap.dedent(
     """\
@@ -150,14 +149,16 @@ class Entry(object):
         return "{self.__class__.__name__}({self._data!r})".format(self=self)
 
 
-_FILE_ENTRY = schema.Schema({
-    "base_text": schema_helper.NON_NULL_STR,
-    "file_name": schema_helper.NON_NULL_STR,
-    schema.Optional("add_tag", default=True): bool,
-    schema.Optional("check_pre_build", default=True): bool,
-    schema.Optional("relative_path"): schema_helper.NON_NULL_STR,
-    schema.Optional("sphinx_title"): schema_helper.NON_NULL_STR,
-})
+_FILE_ENTRY = schema.Schema(
+    {
+        "base_text": schema_helper.NON_NULL_STR,
+        "file_name": schema_helper.NON_NULL_STR,
+        schema.Optional("add_tag", default=True): bool,
+        schema.Optional("check_pre_build", default=True): bool,
+        schema.Optional("relative_path"): schema_helper.NON_NULL_STR,
+        schema.Optional("sphinx_title"): schema_helper.NON_NULL_STR,
+    }
+)
 FILE_ENTRY = schema.Use(Entry.validate_data)
 DEFAULT_ENTRIES = (
     Entry.validate_data(

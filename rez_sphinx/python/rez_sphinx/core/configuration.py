@@ -5,7 +5,6 @@ import os
 
 from python_compatibility import imports
 
-
 _CONFIGURATION_FILE_NAME = "conf.py"
 
 

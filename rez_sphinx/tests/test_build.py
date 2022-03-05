@@ -1,13 +1,14 @@
 """Make sure :ref:`rez_sphinx build` works as expected."""
 
 import os
-import unittest
-import textwrap
 import tempfile
+import textwrap
+import unittest
 
 from python_compatibility import wrapping
-from rez_sphinx.core import bootstrap, sphinx_helper, exception
 from rez_utilities import creator, finder
+
+from rez_sphinx.core import bootstrap, exception, sphinx_helper
 
 from .common import package_wrap, run_test
 

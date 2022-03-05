@@ -3,8 +3,8 @@
 import logging
 import os
 import sys
-import traceback
 import textwrap
+import traceback
 
 from python_compatibility import filer
 from rez_utilities import finder

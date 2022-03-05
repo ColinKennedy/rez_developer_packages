@@ -1,35 +1,28 @@
 """A collection of functions for making dealing with :ref:`Sphinx` easier."""
 
-import textwrap
 import logging
 import os
+import textwrap
 
 _LOGGER = logging.getLogger(__name__)
 _SPHINX_NAME = "conf.py"
 _MISSING_TOCTREE_TEMPLATE = (".. toctree::", "   :max-depth: 1")
 
 
-def _get_indent(text):
-    """str: Get the whitespace text leading up to ``text``."""
-    return text[: len(text) - len(text.lstrip())]
-
-
-def _get_toctree_entries(lines):
+def _is_empty(lines):
     """Check if ``lines`` has no existing entries.
 
     Args:
         lines (iter[str]):
             Some toctree text.
-            e.g. ``[".. toctree::", "   :maxdepth: 2"]`` would return ``[]``.
+            e.g. ``[".. toctree::", "   :maxdepth: 2"]`` would return True.
             e.g. ``[".. toctree::", "   :maxdepth: 2", "", "   something"]``
-            would return ``["something"]``.
+            would return False.
 
     Returns:
-        list[str]: Each .rst reference within the ``lines`` toctree.
+        bool: If ``lines`` toctree has an existing entries.
 
     """
-    entries = []
-
     for line in lines:
         if not _get_indent(line):
             continue
@@ -37,9 +30,14 @@ def _get_toctree_entries(lines):
         if line.strip().startswith(":"):
             continue
 
-        entries.append(line.strip())
+        return False
 
-    return entries
+    return True
+
+
+def _get_indent(text):
+    """str: Get the whitespace text leading up to ``text``."""
+    return text[: len(text) - len(text.lstrip())]
 
 
 def _get_toctree_indent(lines):
@@ -67,64 +65,47 @@ def _get_toctree_indent(lines):
     raise RuntimeError('Lines "{lines}" has no indentation.'.format(lines=lines))
 
 
-def _get_toctree_insert_index(text, entries):
-    for index, entry in enumerate(entries):
-        if text > entry:
-            return index - 1
-
-    return len(entries) - 1
-
-
-def _add_link_to_a_tree(toctree_line, trees, data):
+def _add_links_to_a_tree(entries, tree, data):
     """Find the appropriate :ref:`toctree` to add ``line`` onto.
 
     Args:
-        toctree_line (str): The API documentation line to append.
-        trees (list[list[str]]): Each found toctree.
+        entries (list[str]): The documentation line to append to in ``tree``.
+        tree (list[str]): The toctree to modify.
         data (str): The blob of text which ``trees`` are a part of.
 
     Raises:
-        RuntimeError: If ``trees`` already contains ``toctree_line`` at least once.
+        RuntimeError: If ``tree`` already contains ``toctree_line`` at least once.
 
     Returns:
         str: The newly modified ``data``, which now includes ``line``.
 
     """
-    for tree in trees:
-        _, _, lines = tree
-
-        for line in lines:
-            if line == toctree_line.strip():
-                _LOGGER.debug(
-                    'Link already added in tree "%s". Skipping.',
-                    tree,
-                )
-
-                raise RuntimeError(
-                    'Link "{toctree_line}" already exists.'.format(toctree_line=toctree_line)
-                )
-
-    tree = trees[0]
     start_line, end_line, tree_lines = tree
 
     lines = data.splitlines()
-    indent = _get_toctree_indent(lines)
+    indent = _get_toctree_indent(tree_lines)
 
-    print('RTEE LINES', tree_lines)
-    entries = _get_toctree_entries(tree_lines)
-    print('EBNTRIES', tree_lines)
+    if _is_empty(tree_lines):
+        position = end_line + 1
+    else:
+        position = end_line
 
-    # Find a good, alphabetical position to include ``toctree_line`` into ``tree``
-    index = _get_toctree_insert_index(toctree_line, entries)
-    position = end_line - index - 1
-
-    lines.insert(position, indent + toctree_line)
-    trees[0] = start_line, len(lines), lines
+    for line in reversed(entries):
+        lines.insert(position, indent + line)
 
     return "\n".join(lines)
 
 
 def _make_new_tree(entries=tuple()):
+    """Make a brand new toctree, using ``entries``.
+
+    Args:
+        entries (list[str]): The documentation line to append to in ``trees`` later.
+
+    Returns:
+        str: The blob of toctree text.
+
+    """
     indent = _get_indent(_MISSING_TOCTREE_TEMPLATE[-1])
     lines = list(_MISSING_TOCTREE_TEMPLATE) + [indent + line for line in entries]
 
@@ -153,6 +134,38 @@ def _scan_for_configuration_path(directory):
     raise RuntimeError(
         'Directory "{directory}" has no inner conf.py file.'.format(directory=directory)
     )
+
+
+def _skip_existing_entries(entries, trees):
+    """Filter out ``entries`` if any exist in any of ``trees``.
+
+    Args:
+        entries (list[str]): The documentation line to append to in ``trees`` later.
+        trees (list[list[str]]): Each toctree and its lines to search within.
+
+    Returns:
+        list[str]: The ``entries`` which don't already exist in ``trees``.
+
+    """
+    tree_lines = set()
+
+    for tree in trees:
+        _, _, lines = tree
+
+        for line in lines:
+            tree_lines.add(line.strip())
+
+    output = []
+
+    for entry in entries:
+        if entry not in tree_lines:
+            output.append(entry)
+
+            continue
+
+        _LOGGER.debug('Link "%s" already added in an existing tree. Skipping.', entry)
+
+    return output
 
 
 def find_configuration_path(root):
@@ -258,12 +271,15 @@ def add_links_to_a_tree(entries, path):
         return
 
     original = data
+    entries = _skip_existing_entries(entries, trees)
 
-    for text in entries:
-        try:
-            data = _add_link_to_a_tree(text, trees, data)
-        except RuntimeError:
-            continue
+    if not entries:
+        _LOGGER.info('Path "%s" already has every Entry, "%s".', path, entries)
+
+        return
+
+    tree = trees[0]
+    data = _add_links_to_a_tree(entries, tree, data)
 
     if data == original:
         _LOGGER.info('Skipped writing to path "%s" because no changes were made.', path)

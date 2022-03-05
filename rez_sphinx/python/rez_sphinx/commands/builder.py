@@ -7,8 +7,8 @@ from rez.config import config
 from rez_utilities import finder
 from sphinx.cmd import build as sphinx_build
 
-from ..preferences import preference
 from ..core import api_builder, exception, sphinx_helper
+from ..preferences import preference
 
 
 def _get_documentation_build(source):

@@ -3,6 +3,7 @@
 import logging
 import os
 
+from python_compatibility import wrapping
 from rez_bump import rez_bump_api
 from rez_industry import api
 from rez_utilities import finder
@@ -54,7 +55,10 @@ def _add_rez_tests(package):
     }
 
     original = _get_package_text(package)
-    results = api.add_to_attribute("tests", tests, original, serialize=True)
+
+    with wrapping.silence_printing():
+        results = api.add_to_attribute("tests", tests, original, serialize=True)
+
     _replace_package(package, results)
 
 

@@ -1,6 +1,7 @@
+import re
+
 import schema
 import six
-import re
 
 _DOT_EXPRESSION = re.compile(r"[a-zA-Z][\w\.]*[\w]")
 _SPHINX_MODULE = r"[a-zA-Z0-9\.\ /]"

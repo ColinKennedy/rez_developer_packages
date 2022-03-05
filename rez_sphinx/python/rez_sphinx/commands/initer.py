@@ -4,17 +4,17 @@ import logging
 import os
 import traceback
 
+from python_compatibility import wrapping
 from sphinx.cmd import quickstart
 
 from ..core import (
     bootstrap,
-    exception,
     configuration,
+    exception,
     package_change,
     path_control,
     sphinx_helper,
 )
-
 from ..preferences import preference
 
 _LOGGER = logging.getLogger(__name__)
@@ -135,10 +135,13 @@ def init(package, directory, quick_start_options=tuple()):
     # Or get it from rez-config settings
     #
     initial_files = preference.get_initial_files_from_configuration()
+
     options = preference.get_quick_start_options(
         package.name, options=quick_start_options
     )
-    configuration_path = _run_sphinx_quickstart(directory, options=options)
+
+    with wrapping.silence_printing():
+        configuration_path = _run_sphinx_quickstart(directory, options=options)
 
     if preference.SPHINX_SEPARATE_SOURCE_AND_BUILD in options:
         # TODO : Check if "source" can be some variable instead of hard-coded

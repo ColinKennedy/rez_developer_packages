@@ -7,8 +7,8 @@ Most of these functions are just thin wraps around :ref:`rez-config` calls.
 import itertools
 import platform
 
-from rez.config import config
 import schema
+from rez.config import config
 
 try:
     from functools import lru_cache  # Python 3.2+
@@ -17,7 +17,6 @@ except ImportError:
 
 from ..core import exception, schema_helper
 from . import preference_init
-
 
 _BASIC_EXTENSIONS = (
     "sphinx.ext.autodoc",  # Needed for auto-documentation generation later
@@ -212,7 +211,10 @@ def get_initial_files_from_configuration():
     settings = get_base_settings()
     options = settings.get(_INIT_KEY) or dict()
 
-    return options.get(_DEFAULT_FILES) or list(preference_init.DEFAULT_ENTRIES)
+    if _DEFAULT_FILES in options:
+        return options[_DEFAULT_FILES]
+
+    return list(preference_init.DEFAULT_ENTRIES)
 
 
 def get_master_api_documentation_line():
