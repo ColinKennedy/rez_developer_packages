@@ -135,7 +135,7 @@ def _update_master_file(directory):
     sphinx = configuration.ConfPy.from_path(os.path.join(directory, "conf.py"))
     path = sphinx.get_master_document_path()
     toctree_line = preference.get_master_api_documentation_line()
-    sphinx_helper.add_link_to_a_tree(toctree_line, path)
+    sphinx_helper.add_links_to_a_tree([toctree_line], path)
 
 
 def generate_api_files(directory, options=tuple()):

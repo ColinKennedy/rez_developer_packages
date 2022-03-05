@@ -21,15 +21,18 @@ class ApiDocOptions(unittest.TestCase):
         source_package = package_wrap.make_simple_developer_package()
         source_directory = finder.get_package_root(source_package)
         install_path = package_wrap.make_directory("Build_test_cli_argument")
-        installed_package = creator.build(source_package, install_path)
+
+        installed_package = creator.build(source_package, install_path, quiet=True)
 
         with run_test.simulate_resolve([installed_package]):
             run_test.test(["init", source_directory])
-            run_test.test(
-                'build "{source_directory}" --apidoc-arguments "--suffix .txt"'.format(
-                    source_directory=source_directory
+
+            with wrapping.silence_printing():  # Make tests less spammy
+                run_test.test(
+                    'build "{source_directory}" --apidoc-arguments "--suffix .txt"'.format(
+                        source_directory=source_directory
+                    )
                 )
-            )
 
         source = os.path.join(source_directory, "documentation", "source")
 
@@ -43,11 +46,14 @@ class ApiDocOptions(unittest.TestCase):
         source_package = package_wrap.make_simple_developer_package()
         source_directory = finder.get_package_root(source_package)
         install_path = package_wrap.make_directory("Build_test_cli_dash_argument")
-        installed_package = creator.build(source_package, install_path)
+
+        installed_package = creator.build(source_package, install_path, quiet=True)
 
         with run_test.simulate_resolve([installed_package]):
             run_test.test(["init", source_directory])
-            run_test.test(["build", source_directory, "--", "--suffix", ".txt"])
+
+            with wrapping.silence_printing():  # Make tests less spammy
+                run_test.test(["build", source_directory, "--", "--suffix", ".txt"])
 
         source = os.path.join(source_directory, "documentation", "source")
 
@@ -112,11 +118,14 @@ class Build(unittest.TestCase):
         install_path = package_wrap.make_directory(
             "Build_test_hello_world_install_root"
         )
-        installed_package = creator.build(source_package, install_path)
+
+        installed_package = creator.build(source_package, install_path, quiet=True)
 
         with run_test.simulate_resolve([installed_package]):
             run_test.test(["init", source_directory])
-            run_test.test(["build", source_directory])
+
+            with wrapping.silence_printing():  # Make tests less spammy
+                run_test.test(["build", source_directory])
 
         source = os.path.join(source_directory, "documentation", "source")
         api_directory = os.path.join(source, "api")
@@ -146,6 +155,8 @@ class Build(unittest.TestCase):
                    :maxdepth: 2
                    :caption: Contents:
 
+                   developer_documentation
+                   user_documentation
                    API Documentation <api/modules>"""
             ),
             master_toctrees[0],
@@ -176,10 +187,12 @@ class Build(unittest.TestCase):
 
                 with wrapping.watch_namespace(
                     bootstrap._get_intersphinx_mappings
-                ) as watcher:
+                ) as watcher, wrapping.silence_printing():  # Make tests less spammy
                     run_test.test(["build", source])
 
                 watchers.extend(watcher)
+
+        raise ValueError("sTop")
 
         for watcher in watchers:
             print("result", watcher.get_all_results())

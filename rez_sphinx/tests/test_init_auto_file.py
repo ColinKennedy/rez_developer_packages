@@ -1,3 +1,6 @@
+"""Make sure any auto-generated documentation files are made, correctly."""
+
+import copy
 import contextlib
 import os
 import unittest
@@ -10,7 +13,10 @@ from .common import package_wrap, run_test
 
 
 class General(unittest.TestCase):
+    """Make sure any auto-generated documentation files are made, correctly."""
+
     def test_custom_files(self):
+        """Define and generate a custom file, on :ref:`rez_sphinx init`."""
         package = package_wrap.make_simple_developer_package()
         directory = finder.get_package_root(package)
         name = "some_custom_file"
@@ -22,10 +28,42 @@ class General(unittest.TestCase):
         path = os.path.join(directory, "documentation", "source", name + ".rst")
 
         with open(path, "r") as handler:
-            data = handler.read().splitlines(keepends=False)
+            custom_file_data = handler.read().splitlines(keepends=False)
 
-        header = data[0]
-        body = data[-1]
+        master_index = os.path.join(directory, "documentation", "source", "index.rst")
+
+        with open(master_index, "r") as handler:
+            master_data = handler.read()
+
+        master_data = _get_base_master_index_text(
+            os.path.join(directory, "documentation", "source", "index.rst")
+        )
+
+        header = custom_file_data[0]
+        body = custom_file_data[-1]
+
+        self.assertEqual(
+            textwrap.dedent(
+                """\
+                Welcome to some_package's documentation!
+                ========================================
+
+                .. toctree::
+                   :maxdepth: 2
+                   :caption: Contents:
+
+                   some_custom_file
+
+
+                Indices and tables
+                ==================
+
+                * :ref:`genindex`
+                * :ref:`modindex`
+                * :ref:`search`"""
+            ),
+            master_data,
+        )
 
         self.assertEqual("Some Custom File", header)
         self.assertEqual(expected_body, body)
@@ -189,10 +227,9 @@ def _override_default_files(files):
 
 @contextlib.contextmanager
 def _keep_config():
-    original = config.copy()
+    optionvars = copy.deepcopy(config.optionvars)
 
     try:
         yield
     finally:
-        # Restore the old configuration
-        config._swap(original)
+        config.optionvars = optionvars

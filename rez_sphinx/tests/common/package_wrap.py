@@ -61,6 +61,7 @@ def make_dependent_packages():
             '''
         ),
     )
+
     installed_package_2 = creator.build(
         dependency_package,
         install_path,
@@ -69,6 +70,7 @@ def make_dependent_packages():
             # TODO : Remove all `release_packages_path` references
             config.release_packages_path,  # pylint: disable=no-member
         ],
+        quiet=True,
     )
 
     source_package = make_simple_developer_package(
@@ -99,6 +101,7 @@ def make_dependent_packages():
         ),
     )
     source_directory_1 = finder.get_package_root(source_package)
+
     installed_package_1 = creator.build(
         source_package,
         install_path,
@@ -107,6 +110,7 @@ def make_dependent_packages():
             # TODO : Remove all `release_packages_path` references
             config.release_packages_path,  # pylint: disable=no-member
         ],
+        quiet=True,
     )
 
     source_directory_2 = finder.get_package_root(dependency_package)
