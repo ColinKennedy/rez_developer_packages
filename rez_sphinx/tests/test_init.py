@@ -197,14 +197,15 @@ def _get_base_master_index_text(path):
     Args:
         path (str): The absolute or relative path to a Sphinx :ref:`index.rst` on disk.
 
+    Raises:
+        RuntimeError: If the document body could not be found.
+
     Returns:
         str: The document body of ``path``.
 
     """
     with open(path, "r") as handler:
         lines = handler.read().splitlines()
-
-    raise ValueError(lines)
 
     found = -1
 
