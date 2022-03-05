@@ -14,53 +14,6 @@ from ..preferences import preference
 from . import configuration, exception, path_control, sphinx_helper
 
 _LOGGER = logging.getLogger(__name__)
-_MISSING_TOCTREE_TEMPLATE = textwrap.dedent(
-    """\
-    .. toctree::
-        :max-depth: 1
-
-        {toctree_line}
-    """
-)
-
-
-def _add_api_link_to_a_tree(toctree_line, trees, data):
-    """Find the appropriate :ref:`toctree` to add ``line`` onto.
-
-    Args:
-        toctree_line (str): The API documentation line to append.
-        trees (list[list[str]]): Each found toctree.
-        data (str): The blob of text which ``trees`` are a part of.
-
-    Raises:
-        RuntimeError: If ``trees`` already contains ``toctree_line`` at least once.
-
-    Returns:
-        str: The newly modified ``data``, which now includes ``line``.
-
-    """
-    for tree in trees:
-        for line in tree:
-            if line == toctree_line:
-                _LOGGER.debug(
-                    'API documentation already added in tree "%s". Skipping.',
-                    tree,
-                )
-
-                raise RuntimeError("API link already exists.")
-
-    tree = trees[0]
-    _, end_line, _ = tree
-
-    lines = data.splitlines()
-    indent = sphinx_helper.get_toctree_indent(lines)
-
-    if sphinx_helper.is_empty_toctree(lines):
-        end_line += 1
-
-    lines.insert(end_line, indent + toctree_line)
-
-    return "\n".join(lines)
 
 
 def _clear_api_directory(directory):
@@ -180,24 +133,9 @@ def _update_master_file(directory):
 
     """
     sphinx = configuration.ConfPy.from_path(os.path.join(directory, "conf.py"))
-    path = os.path.join(directory, sphinx.get_master_document_name())
+    path = sphinx.get_master_document_path()
     toctree_line = preference.get_master_api_documentation_line()
-
-    with open(path, "r") as handler:
-        data = handler.read()
-
-    trees = sphinx_helper.get_toctrees(data)
-
-    if trees:
-        try:
-            new_data = _add_api_link_to_a_tree(toctree_line, trees, data)
-        except RuntimeError:
-            return
-    else:
-        new_data = data + _MISSING_TOCTREE_TEMPLATE.format(toctree_line=toctree_line)
-
-    with open(path, "w") as handler:
-        handler.write(new_data)
+    sphinx_helper.add_link_to_a_tree(toctree_line, path)
 
 
 def generate_api_files(directory, options=tuple()):

@@ -7,6 +7,11 @@ init config
   - On build / on publish allow an auto-check to fail if the page has not been edited
   - Allow disabling of this functionality
 
+- When converting "Tagged" Sphinx .rst files, add a unittest to make sure ":" is escapable. Since ":" is also the delimiter
+- Need unittest so you cannot accidentally add the same file twice
+- If the .. rez_sphinx comment (tag) is above a sphinx ref like .. _foo::, include that anchor in the text when it gets added to rez-help
+
+
 "init_options": {
 	"default_files": [
 		{
@@ -75,6 +80,7 @@ Make sure all :ref:`Sphinx` point to Sphinx's website
  - :ref:`intersphinx_mapping` - https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html
  - :ref:`intersphinx` - https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html
  - :ref:`sphinx.ext.autodoc` - https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html
+ - :ref:`index.rst`
  - :ref:`private_build_requires` - https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#private_build_requires
  - :ref:`build_requires` - https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#build_requires
  - :ref:`requires` - https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#requires

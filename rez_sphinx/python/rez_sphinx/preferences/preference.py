@@ -212,7 +212,7 @@ def get_initial_files_from_configuration():
     settings = get_base_settings()
     options = settings.get(_INIT_KEY) or dict()
 
-    return options.get(_DEFAULT_FILES) or []
+    return options.get(_DEFAULT_FILES) or list(preference_init.DEFAULT_ENTRIES)
 
 
 def get_master_api_documentation_line():

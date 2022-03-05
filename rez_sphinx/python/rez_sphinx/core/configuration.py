@@ -1,6 +1,12 @@
 """A wrap for accessing data from :ref:`conf.py`, from :ref:`Sphinx`."""
 
+import inspect
+import os
+
 from python_compatibility import imports
+
+
+_CONFIGURATION_FILE_NAME = "conf.py"
 
 
 class ConfPy(object):
@@ -16,6 +22,11 @@ class ConfPy(object):
         super(ConfPy, self).__init__()
 
         self._module = module
+        self._directory = os.path.dirname(inspect.getsourcefile(self._module))
+
+    @classmethod
+    def from_directory(cls, directory):
+        return cls.from_path(os.path.join(directory, _CONFIGURATION_FILE_NAME))
 
     @classmethod
     def from_path(cls, path):
@@ -55,6 +66,7 @@ class ConfPy(object):
         """
         return self._module.extensions or []
 
-    def get_master_document_name(self):
-        """str: Get the full name of the documentation "front page" file."""
-        return self._get_master_doc() + self._get_source_suffix()
+    def get_master_document_path(self):
+        name = self._get_master_doc() + self._get_source_suffix()
+
+        return os.path.join(self._directory, name)

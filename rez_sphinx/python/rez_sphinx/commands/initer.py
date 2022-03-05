@@ -9,6 +9,7 @@ from sphinx.cmd import quickstart
 from ..core import (
     bootstrap,
     exception,
+    configuration,
     package_change,
     path_control,
     sphinx_helper,
@@ -36,7 +37,7 @@ def _add_build_directory(directory):
     path_control.add_gitignore(build)
 
 
-def _add_initial_files(root, configuration):
+def _add_initial_files(root, entries):
     """Add template documentation files to ``root``, based on ``configuration``.
 
     "Template documentation files" in this case just refers to "A common set of
@@ -47,11 +48,15 @@ def _add_initial_files(root, configuration):
         root (str):
             The directory on-disk where the source documentation lives. e.g.
             {rez_root}/documentation/source is the most common path.
-        configuration (list[:class:`.Entry`]):
+        entries (list[:class:`.Entry`]):
             All descriptions of files to make during :ref:`rez_sphinx init`.
 
     """
-    for entry in configuration:
+    sphinx = configuration.ConfPy.from_directory(root)
+    master_index = sphinx.get_master_document_path()
+    lines = []
+
+    for entry in entries:
         full = os.path.join(root, entry.get_relative_path())
         directory = os.path.dirname(full)
 
@@ -61,7 +66,9 @@ def _add_initial_files(root, configuration):
         with open(full, "w") as handler:
             handler.write(entry.get_default_text())
 
-        add_api_link_to_a_tree(entry.get_toctree_line(), master_index)
+        lines.append(entry.get_toctree_line())
+
+    sphinx_helper.add_links_to_a_tree(lines, master_index)
 
 
 def _run_sphinx_quickstart(directory, options=tuple()):
