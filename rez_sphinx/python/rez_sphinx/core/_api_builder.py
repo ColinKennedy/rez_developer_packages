@@ -132,7 +132,7 @@ def _update_master_file(directory):
             within some source Rez package.
 
     """
-    sphinx = configuration.ConfPy.from_path(os.path.join(directory, "conf.py"))
+    sphinx = configuration.ConfPy.from_directory(directory)
     path = sphinx.get_master_document_path()
     toctree_line = preference.get_master_api_documentation_line()
     sphinx_helper.add_links_to_a_tree([toctree_line], path)

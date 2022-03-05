@@ -65,7 +65,7 @@ def _build(namespace):
     if namespace.no_api_doc and namespace.api_doc_arguments:
         raise exception.UserInputError(
             'You cannot specify --apidoc-arguments "{namespace.api_doc_arguments}" '
-            'while also --no-apidoc.'.format(namespace=namespace)
+            "while also --no-apidoc.".format(namespace=namespace)
         )
 
     builder.build(

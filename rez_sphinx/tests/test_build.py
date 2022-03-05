@@ -116,9 +116,7 @@ class Build(unittest.TestCase):
         """Create a basic :ref:`rez_sphinx` "init + build"."""
         source_package = package_wrap.make_simple_developer_package()
         source_directory = finder.get_package_root(source_package)
-        install_path = package_wrap.make_directory(
-            "_Build_hello_world_test"
-        )
+        install_path = package_wrap.make_directory("_Build_hello_world_test")
 
         installed_package = creator.build(source_package, install_path, quiet=True)
 
@@ -223,9 +221,7 @@ class Options(unittest.TestCase):
         """Don't auto-build API documentation because the config said not to."""
         source_package = package_wrap.make_simple_developer_package()
         source_directory = finder.get_package_root(source_package)
-        install_path = package_wrap.make_directory(
-            "_test_api_pass_config"
-        )
+        install_path = package_wrap.make_directory("_test_api_pass_config")
 
         installed_package = creator.build(source_package, install_path, quiet=True)
 
@@ -252,11 +248,15 @@ class Invalid(unittest.TestCase):
         directory = package_wrap.make_directory("_test_apidoc_argument_conflict")
 
         with self.assertRaises(exception.UserInputError):
-            run_test.test(["build", directory, "--no-apidoc", "--apidoc-arguments", "blah"])
+            run_test.test(
+                ["build", directory, "--no-apidoc", "--apidoc-arguments", "blah"]
+            )
 
     def test_bad_permissions(self):
         """Fail building if the user lacks permissions to write to-disk."""
-        directory = package_wrap.make_directory("_test_build_Invalid_test_bad_permissions")
+        directory = package_wrap.make_directory(
+            "_test_build_Invalid_test_bad_permissions"
+        )
 
         _make_read_only(directory)
 

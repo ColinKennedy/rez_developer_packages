@@ -25,6 +25,18 @@ class ConfPy(object):
 
     @classmethod
     def from_directory(cls, directory):
+        """Find and convert a :ref:`conf.py` located directly within ``directory``.
+
+        Args:
+            directory (str):
+                The absolute path to the documentation source directory,
+                within some source Rez package.
+                e.g. ``"{rez_root}/documentaion/source"``.
+
+        Returns:
+            :class:`ConfPy`: The created instance.
+
+        """
         return cls.from_path(os.path.join(directory, _CONFIGURATION_FILE_NAME))
 
     @classmethod
@@ -66,6 +78,7 @@ class ConfPy(object):
         return self._module.extensions or []
 
     def get_master_document_path(self):
+        """str: Get the full path on-disk where this :ref:`conf.py` lives."""
         name = self._get_master_doc() + self._get_source_suffix()
 
         return os.path.join(self._directory, name)

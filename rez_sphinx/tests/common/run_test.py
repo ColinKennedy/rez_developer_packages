@@ -16,6 +16,12 @@ from rez_sphinx import cli
 
 @contextlib.contextmanager
 def keep_config():
+    """Temporarily allow edits to :ref:`rez-config` for the scope of this function.
+
+    Yields:
+        module: The Rez temporary config object to modify.
+
+    """
     # Remove any caching so it can be evaluated again
     preference.get_base_settings.cache_clear()
 

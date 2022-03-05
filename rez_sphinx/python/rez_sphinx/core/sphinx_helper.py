@@ -2,7 +2,6 @@
 
 import logging
 import os
-import textwrap
 
 _LOGGER = logging.getLogger(__name__)
 _SPHINX_NAME = "conf.py"
@@ -257,6 +256,24 @@ def get_toctrees(data):
 
 
 def add_links_to_a_tree(entries, path):
+    """Add ``entries`` as line items within a toctree in ``path``.
+
+    If ``path`` doesn't have at least one toctree defined, a new one will be
+    created and then ``entries`` is added to that.
+
+    Note:
+        If ``entries`` are already in ``path``, this function does nothing.
+        Otherwise, ``path`` will be directly modified.
+
+    Todo:
+        - Make sure adding a brand-new tree works
+        - Make sure skipping works
+
+    Args:
+        entries (list[str]): The documentation line to append to ``path``.
+        path (str): An absolute or relative file path to some ReST file.
+
+    """
     with open(path, "r") as handler:
         data = handler.read()
 
