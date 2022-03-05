@@ -21,7 +21,7 @@ class ApiDocOptions(unittest.TestCase):
         """Let the user change :ref:`sphinx-quickstart` options from a flag."""
         source_package = package_wrap.make_simple_developer_package()
         source_directory = finder.get_package_root(source_package)
-        install_path = package_wrap.make_directory("Build_test_cli_argument")
+        install_path = package_wrap.make_directory("_test_cli_argument")
 
         installed_package = creator.build(source_package, install_path, quiet=True)
 
@@ -117,7 +117,7 @@ class Build(unittest.TestCase):
         source_package = package_wrap.make_simple_developer_package()
         source_directory = finder.get_package_root(source_package)
         install_path = package_wrap.make_directory(
-            "Build_test_hello_world_install_root"
+            "_Build_hello_world_test"
         )
 
         installed_package = creator.build(source_package, install_path, quiet=True)
@@ -204,14 +204,27 @@ class Options(unittest.TestCase):
 
     def test_api_pass_cli(self):
         """Don't auto-build API documentation because the CLI said not to."""
-        raise ValueError()
+        source_package = package_wrap.make_simple_developer_package()
+        source_directory = finder.get_package_root(source_package)
+        install_path = package_wrap.make_directory("_test_api_pass_cli")
+
+        installed_package = creator.build(source_package, install_path, quiet=True)
+
+        with run_test.simulate_resolve([installed_package]):
+            run_test.test(["init", source_directory])
+            run_test.test(["build", source_directory, "--no-apidoc"])
+
+        source = os.path.join(source_directory, "documentation", "source")
+        api_directory = os.path.join(source, "api")
+
+        self.assertFalse(os.path.isdir(api_directory))
 
     def test_api_pass_config(self):
         """Don't auto-build API documentation because the config said not to."""
         source_package = package_wrap.make_simple_developer_package()
         source_directory = finder.get_package_root(source_package)
         install_path = package_wrap.make_directory(
-            "Build_test_hello_world_install_root"
+            "_test_api_pass_config"
         )
 
         installed_package = creator.build(source_package, install_path, quiet=True)
@@ -233,6 +246,13 @@ class Options(unittest.TestCase):
 
 class Invalid(unittest.TestCase):
     """Make sure :ref:`rez_sphinx build` fails when expected."""
+
+    def test_apidoc_argument_conflict(self):
+        """If the user specifies --apidoc-arguments and --no-apidoc at once."""
+        directory = package_wrap.make_directory("_test_apidoc_argument_conflict")
+
+        with self.assertRaises(exception.UserInputError):
+            run_test.test(["build", directory, "--no-apidoc", "--apidoc-arguments", "blah"])
 
     def test_bad_permissions(self):
         """Fail building if the user lacks permissions to write to-disk."""

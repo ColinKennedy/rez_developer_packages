@@ -52,8 +52,21 @@ def _add_remainder_argument(parser):
 
 
 def _build(namespace):
-    """Build Sphinx documentation, using details from ``namespace``."""
+    """Build Sphinx documentation, using details from ``namespace``.
+
+    Raises:
+        :class:`.UserInputError`:
+            If the user passes :ref:`sphinx-apidoc` arguments but also
+            specified that they don't want to build API documentation.
+
+    """
     _split_build_arguments(namespace)
+
+    if namespace.no_api_doc and namespace.api_doc_arguments:
+        raise exception.UserInputError(
+            'You cannot specify --apidoc-arguments "{namespace.api_doc_arguments}" '
+            'while also --no-apidoc.'.format(namespace=namespace)
+        )
 
     builder.build(
         namespace.directory,
@@ -109,6 +122,12 @@ def _set_up_build(sub_parsers):
     build.required = True
     _add_directory_argument(build)
     choices = sorted(api_builder.MODES, key=operator.attrgetter("label"))
+    build.add_argument(
+        "--no-apidoc",
+        dest="no_api_doc",
+        action="store_true",
+        help="Disable API .rst file generation.",
+    )
     build.add_argument(
         "--apidoc-arguments",
         dest="api_doc_arguments",
