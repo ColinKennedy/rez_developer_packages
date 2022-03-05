@@ -1,5 +1,6 @@
 """Make running :ref:`rez_sphinx` in unittests easier."""
 
+import copy
 import contextlib
 import os
 import shlex
@@ -7,8 +8,23 @@ import sys
 
 import six
 from rez_utilities import finder
+from rez_sphinx.preferences import preference
 
+from rez.config import config
 from rez_sphinx import cli
+
+
+@contextlib.contextmanager
+def keep_config():
+    # Remove any caching so it can be evaluated again
+    preference.get_base_settings.cache_clear()
+
+    optionvars = copy.deepcopy(config.optionvars)
+
+    try:
+        yield config
+    finally:
+        config.optionvars = optionvars
 
 
 @contextlib.contextmanager

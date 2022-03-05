@@ -30,7 +30,11 @@ _BUILD_KEY = "build_documentation_key"
 _DEFAULT_FILES = "default_files"
 _EXTENSIONS_KEY = "sphinx_extensions"
 _INIT_KEY = "init_options"
+
+_ENABLE_APIDOC = "enable_apidoc"
+_APIDOC = "sphinx-apidoc"
 _QUICKSTART = "sphinx-quickstart"
+
 _MASTER_SCHEMA = schema.Schema(
     {
         schema.Optional(
@@ -46,6 +50,8 @@ _MASTER_SCHEMA = schema.Schema(
             _API_TOCTREE_LINE, default="API Documentation <api/modules>"
         ): schema_helper.TOCTREE_LINE,
         schema.Optional(_QUICKSTART, default=[]): [],
+        schema.Optional(_ENABLE_APIDOC, default=True): bool,
+        schema.Optional(_APIDOC, default=[]): [],
     }
 )
 
@@ -151,6 +157,17 @@ def _validate_all(data):
     return _MASTER_SCHEMA.validate(data)
 
 
+def is_api_enabled():
+    """bool: Check if the user will generate :ref:`sphinx-apidoc` ReST files."""
+    rez_sphinx_settings = get_base_settings()
+
+    if _ENABLE_APIDOC in rez_sphinx_settings:
+        return rez_sphinx_settings[_ENABLE_APIDOC]
+
+    # TODO : Be smarter about accessing default values from the schema
+    return True
+
+
 # TODO : Is caching really necessary? Maybe remove it from these functions
 @lru_cache()
 def get_base_settings():
@@ -187,7 +204,7 @@ def get_api_options(options=tuple()):
 
     """
     rez_sphinx_settings = get_base_settings()
-    settings = rez_sphinx_settings.get("sphinx-apidoc") or ["--separate"]
+    settings = rez_sphinx_settings.get(_APIDOC) or ["--separate"]
 
     try:
         _validate_api_options(settings)

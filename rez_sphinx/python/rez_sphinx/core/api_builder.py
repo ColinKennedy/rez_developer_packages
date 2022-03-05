@@ -19,15 +19,10 @@ FULL_AUTO = _Mode(
     "completely automatically generate API Python .rst files on-build.",
     _api_builder.generate_api_files,
 )
-GENERATE = _Mode(
-    "generate",
-    "The same as full-auto but the files are copied here.",
-    _api_builder.generate_api_files,
-)
 
 NONE = _Mode("none", "Don't generate API .rst files at all.")
 
-MODES = (FULL_AUTO, GENERATE, NONE)
+MODES = (FULL_AUTO, NONE)
 
 
 def get_from_label(label):

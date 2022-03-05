@@ -6,8 +6,6 @@ import os
 import unittest
 import textwrap
 
-from rez_sphinx.preferences import preference
-from rez.config import config
 from rez_utilities import finder
 from .common import package_wrap, run_test
 
@@ -214,22 +212,9 @@ def _get_base_master_index_text(path):
 
 @contextlib.contextmanager
 def _override_default_files(files):
-    # Remove any caching so it can be evaluated again
-    preference.get_base_settings.cache_clear()
-
-    with _keep_config():
+    with run_test.keep_config() as config:
         config.optionvars["rez_sphinx"] = dict()
         config.optionvars["rez_sphinx"]["init_options"] = dict()
         config.optionvars["rez_sphinx"]["init_options"]["default_files"] = files
 
         yield
-
-
-@contextlib.contextmanager
-def _keep_config():
-    optionvars = copy.deepcopy(config.optionvars)
-
-    try:
-        yield
-    finally:
-        config.optionvars = optionvars

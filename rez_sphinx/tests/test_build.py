@@ -1,6 +1,7 @@
 """Make sure :ref:`rez_sphinx build` works as expected."""
 
 import os
+import stat
 import tempfile
 import textwrap
 import unittest
@@ -45,7 +46,7 @@ class ApiDocOptions(unittest.TestCase):
         """Let the user change :ref:`sphinx-quickstart` options from a " -- "."""
         source_package = package_wrap.make_simple_developer_package()
         source_directory = finder.get_package_root(source_package)
-        install_path = package_wrap.make_directory("Build_test_cli_dash_argument")
+        install_path = package_wrap.make_directory("_test_cli_dash_separator")
 
         installed_package = creator.build(source_package, install_path, quiet=True)
 
@@ -201,49 +202,33 @@ class Build(unittest.TestCase):
 class Options(unittest.TestCase):
     """Make sure options (CLI, rez-config, etc) work as expected."""
 
-    def test_auto_api_config(self):
-        """Build API documentation because the rez-config says to."""
+    def test_api_pass_cli(self):
+        """Don't auto-build API documentation because the CLI said not to."""
         raise ValueError()
 
-    def test_auto_api_explicit(self):
-        """Build API documentation because the CLI flag was explicitly added."""
-        raise ValueError()
+    def test_api_pass_config(self):
+        """Don't auto-build API documentation because the config said not to."""
+        source_package = package_wrap.make_simple_developer_package()
+        source_directory = finder.get_package_root(source_package)
+        install_path = package_wrap.make_directory(
+            "Build_test_hello_world_install_root"
+        )
 
-    def test_auto_api_implicit(self):
-        """Auto-build API documentation if no CLI flag or Rez config option is set."""
-        raise ValueError()
+        installed_package = creator.build(source_package, install_path, quiet=True)
 
-    def test_auto_api_implicit_pass(self):
-        """Don't auto-build API documentation if no CLI / config / auto-detect.
+        with run_test.simulate_resolve([installed_package]):
+            run_test.test(["init", source_directory])
 
-        If all systems fail, just warn the user in a log and build
-        documentation as normal. It would just mean that the user didn't want
-        to have auto-documentation.
+            with run_test.keep_config() as config:
+                config.optionvars["rez_sphinx"] = dict()
+                config.optionvars["rez_sphinx"]["enable_apidoc"] = False
 
-        """
-        raise ValueError()
+                run_test.test(["build", source_directory])
 
-    def test_generate_api_config(self):
-        """Build API documentation because the rez-config says to."""
-        raise ValueError()
+        source = os.path.join(source_directory, "documentation", "source")
+        api_directory = os.path.join(source, "api")
 
-    def test_generate_api_explicit(self):
-        """Build API documentation because the CLI flag was explicitly added."""
-        raise ValueError()
-
-    def test_generate_api_implicit(self):
-        """Auto-build API documentation if no CLI flag or Rez config option is set."""
-        raise ValueError()
-
-    def test_generate_api_implicit_pass(self):
-        """Don't auto-build API documentation if no CLI / config / auto-detect.
-
-        If all systems fail, just warn the user in a log and build
-        documentation as normal. It would just mean that the user didn't want
-        to have auto-documentation.
-
-        """
-        raise ValueError()
+        self.assertFalse(os.path.isdir(api_directory))
 
 
 class Invalid(unittest.TestCase):
@@ -251,9 +236,9 @@ class Invalid(unittest.TestCase):
 
     def test_bad_permissions(self):
         """Fail building if the user lacks permissions to write to-disk."""
-        directory = package_wrap.make_directory("_test_build_Invalid_test_no_package")
+        directory = package_wrap.make_directory("_test_build_Invalid_test_bad_permissions")
 
-        raise ValueError("Make read-only")
+        _make_read_only(directory)
 
         with self.assertRaises(exception.NoPackageFound):
             run_test.test(["build", directory])
@@ -285,7 +270,7 @@ class Invalid(unittest.TestCase):
 
     def test_auto_api_no_python_files(self):
         """Fail to auto-build API .rst files if there's no Python files."""
-        directory = package_wrap.make_directory("_test_no_source_source_root")
+        directory = package_wrap.make_directory("_test_auto_api_no_python_files")
 
         template = textwrap.dedent(
             """\
@@ -313,7 +298,9 @@ class Invalid(unittest.TestCase):
                 )
             )
 
-        install_directory = package_wrap.make_directory("_test_no_source_install_root")
+        install_directory = package_wrap.make_directory(
+            "_test_auto_api_no_python_files_install_root"
+        )
         install_package_root = os.path.join(install_directory, "foo", "1.0.0")
         os.makedirs(install_package_root)
 
@@ -327,3 +314,18 @@ class Invalid(unittest.TestCase):
             os.environ["REZ_FOO_ROOT"] = install_package_root
 
             run_test.test(["build", directory])
+
+
+def _make_read_only(path):
+    """Change ``path`` to not allow writing.
+
+    Reference:
+        https://stackoverflow.com/a/51262451/3626104
+
+    Args:
+        path (str): The absolute or relative path to a file or directory on-disk.
+
+    """
+    mode = os.stat(path).st_mode
+    read_only_mask = 0o777 ^ (stat.S_IWRITE | stat.S_IWGRP | stat.S_IWOTH)
+    os.chmod(path, mode & read_only_mask)

@@ -115,10 +115,7 @@ def build(directory, api_mode=api_builder.FULL_AUTO.label, api_options=tuple()):
 
     api_mode = api_builder.get_from_label(api_mode)
 
-    if api_mode != api_builder.GENERATE and api_mode.execute:
-        # Skip ``GENERATE`` because it would've already ran during
-        # ``rez_sphinx init``.
-        #
+    if preference.is_api_enabled() and api_mode.execute:
         api_mode.execute(source_directory, options=api_options)
 
     try:
