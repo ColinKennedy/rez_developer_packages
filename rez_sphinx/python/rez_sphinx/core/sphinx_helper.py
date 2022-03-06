@@ -79,7 +79,7 @@ def _add_links_to_a_tree(entries, tree, data):
         str: The newly modified ``data``, which now includes ``line``.
 
     """
-    start_line, end_line, tree_lines = tree
+    _, end_line, tree_lines = tree
 
     lines = data.splitlines()
     indent = _get_toctree_indent(tree_lines)
@@ -243,14 +243,14 @@ def get_toctrees(data):
         else:
             last_indent = indent
             current.append(line)
-    else:
-        if current:
-            last_indent = ""
-            trimmed = _trim(current)
-            end = start + len(trimmed)
-            trees.append((start, end, trimmed))
-            current = []
-            start = -1
+
+    if current:
+        last_indent = ""
+        trimmed = _trim(current)
+        end = start + len(trimmed)
+        trees.append((start, end, trimmed))
+        current = []
+        start = -1
 
     return trees
 

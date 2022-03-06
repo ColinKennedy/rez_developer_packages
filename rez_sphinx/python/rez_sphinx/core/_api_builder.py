@@ -3,7 +3,6 @@
 import logging
 import os
 import sys
-import textwrap
 import traceback
 
 from python_compatibility import filer

@@ -1,6 +1,9 @@
+import contextlib
 import unittest
 
 from rez_utilities import creator, finder
+import six
+from rez_sphinx.core import hook
 
 from .common import package_wrap, run_test
 
@@ -36,27 +39,14 @@ class AppendHelp(unittest.TestCase):
         # 3a. Simulate adding the pre-build hook to the user's Rez configuration.
         # 3b. Re-build the Rez package so it can auto-append entries to the package.py ``help``
         #
-        with run_test.keep_config() as config:
-            config.package_preprocess_function = _testout
-
-            installed_package = creator.build(package, install_path, quiet=True)
+        with _override_preprocess():
+            creator.build(package, install_path, quiet=True)
             raise ValueError(install_path)
 
 
-def _testout(this, data):
-    def _expand_help(data):
-        help_ = data.get("help")
+@contextlib.contextmanager
+def _override_preprocess():
+    with run_test.keep_config() as config:
+        config.package_preprocess_function = hook.package_preprocess_function
 
-        if not help_:
-            return []
-
-        if not isinstance(help_, six.string_types):
-            return help_
-
-        return [["Home Page", help_]]
-
-    help_ = _expand_help(data)
-
-    print('HELP', help_)
-
-    data["help"] = data.get("help")
+        yield

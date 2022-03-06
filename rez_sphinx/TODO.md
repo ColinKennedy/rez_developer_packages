@@ -1,15 +1,22 @@
-- Add base unittests
+- Add README.rst in the auto-generated api folder
+- Make sure the readthedocs.io theme can be added, via ``rez-config`` settings
+
+- On-build
+ - Check if any pages are still defaults. And fail early
+  - Add an option to disable this feature
+
+- config subparser
+ - print a default configuration for the user
+  - as yaml
+  - as python?
+
+
+- Rez ``help`` conversion
+
+- Need unittest so you cannot accidentally add the same file twice to the same toctree
+
+
 - Check what sphinx.ext.githubpages is!!
-
-init config
- - should also allow users to describe auto-added. e.g. API Documentation, User Documentation, Developer Documentation, etc. And their default messages
-  - provide a default message ?
-  - On build / on publish allow an auto-check to fail if the page has not been edited
-  - Allow disabling of this functionality
-
-- When converting "Tagged" Sphinx .rst files, add a unittest to make sure ":" is escapable. Since ":" is also the delimiter
-- Need unittest so you cannot accidentally add the same file twice
-- If the .. rez_sphinx comment (tag) is above a sphinx ref like .. _foo::, include that anchor in the text when it gets added to rez-help
 
 
 "init_options": {
@@ -29,10 +36,6 @@ init config
 		},
 	]
 }
-
-
-- Consider replacing parts of preference.py with schema
-
 
 - Auto-discover python code based on the appends to PYTHONPATH
 
@@ -56,14 +59,6 @@ docbot needs a plugin for auto-setting the remote
 
 - need constants to be shared between rez_sphinx and rez_docbot
 - need Qt example of the documentation
-- WRT API documentation
- - From {command line,config}
-  - Allow to explicitly be auto
-  - Allow to be as files on-disk
-  - Do nothing
- - Make sure it can auto-detect reliably if API documentation needs to be explicit or auto-built
-  - Could do this with a .gitignore and README.rst file or something
-
 
 - Allow users to specify multiple potential publish keys
  - Add a configuration for a "try order". e.g. if X, use X, then try Y, etc.
@@ -92,11 +87,7 @@ Make sure all :ref:`Sphinx` point to Sphinx's website
  - :ref:`toctree` - https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html
  - :ref:`index.rst` - https://sphinx-tutorial.readthedocs.io/step-1/
 
-- Add a way to convert to and from API types (full-auto and generate). I guess with ``rez_sphinx add``?
-
 - Add black_isort
-
-- Make sure the readthedocs.io theme can be added, via ``rez-config`` settings
 
 - Make sure the schema parses user options correctly. It should fail when the user provides something wrong
 

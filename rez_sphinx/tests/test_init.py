@@ -21,6 +21,9 @@ class Init(unittest.TestCase):
         directory = finder.get_package_root(package)
         run_test.test(["init", directory])
 
+        path = os.path.join(directory, "documentation", "source", "conf.py")
+        self.assertTrue(os.path.isfile(path))
+
     def test_hello_world_other_folder(self):
         """Initialize documentation again, but from a different PWD."""
         package = package_wrap.make_simple_developer_package()
@@ -30,6 +33,9 @@ class Init(unittest.TestCase):
             os.chdir(tempfile.gettempdir())
 
             run_test.test(["init", directory])
+
+        path = os.path.join(directory, "documentation", "source", "conf.py")
+        self.assertTrue(os.path.isfile(path))
 
 
 class QuickStartOptions(unittest.TestCase):

@@ -18,6 +18,8 @@ except ImportError:
 from ..core import exception, schema_helper
 from . import preference_init
 
+_DOCUMENTATION_DEFAULT = "documentation"
+
 _BASIC_EXTENSIONS = (
     "sphinx.ext.autodoc",  # Needed for auto-documentation generation later
     "sphinx.ext.intersphinx",  # Needed to find + load external Rez package Sphinx data
@@ -28,6 +30,7 @@ SPHINX_SEPARATE_SOURCE_AND_BUILD = "--sep"
 _API_TOCTREE_LINE = "api_toctree_line"
 _BUILD_KEY = "build_documentation_key"
 _DEFAULT_FILES = "default_files"
+_DOCUMENTATION_ROOT_KEY = "documentation_root"
 _EXTENSIONS_KEY = "sphinx_extensions"
 _INIT_KEY = "init_options"
 
@@ -52,6 +55,7 @@ _MASTER_SCHEMA = schema.Schema(
         schema.Optional(_QUICKSTART, default=[]): [],
         schema.Optional(_ENABLE_APIDOC, default=True): bool,
         schema.Optional(_APIDOC, default=[]): [],
+        schema.Optional(_DOCUMENTATION_ROOT_KEY, default=_DOCUMENTATION_DEFAULT): schema_helper.NON_NULL_STR,
     }
 )
 
@@ -168,31 +172,6 @@ def is_api_enabled():
     return True
 
 
-# TODO : Is caching really necessary? Maybe remove it from these functions
-@lru_cache()
-def get_base_settings():
-    """dict[str, object]: Get all :ref:`rez_sphinx` specific default settings."""
-    rez_user_options = config.optionvars  # pylint: disable=no-member
-
-    data = rez_user_options.get("rez_sphinx") or dict()
-
-    return _validate_all(data)
-
-
-def get_build_documentation_key():
-    """str: Get the :ref:`rez tests attribute` key for :ref:`rez_sphinx`."""
-    rez_sphinx_settings = get_base_settings()
-
-    return rez_sphinx_settings.get(_BUILD_KEY) or "build_documentation"
-
-
-def get_help_label():
-    """str: Get the :ref:`rez help attribute` which connects with :ref:`intersphinx`."""
-    rez_sphinx_settings = get_base_settings()
-
-    return rez_sphinx_settings.get("help_label") or "rez_sphinx_objects_inv"
-
-
 def get_api_options(options=tuple()):
     """Find all arguments to pass to :ref:`sphinx-apidoc`.
 
@@ -223,8 +202,40 @@ def get_api_options(options=tuple()):
     return list(itertools.chain(options, settings))
 
 
+# TODO : Is caching really necessary? Maybe remove it from these functions
+@lru_cache()
+def get_base_settings():
+    """dict[str, object]: Get all :ref:`rez_sphinx` specific default settings."""
+    rez_user_options = config.optionvars  # pylint: disable=no-member
+
+    data = rez_user_options.get("rez_sphinx") or dict()
+
+    return _validate_all(data)
+
+
+def get_build_documentation_key():
+    """str: Get the :ref:`rez tests attribute` key for :ref:`rez_sphinx`."""
+    rez_sphinx_settings = get_base_settings()
+
+    return rez_sphinx_settings.get(_BUILD_KEY) or "build_documentation"
+
+
+def get_help_label():
+    """str: Get the :ref:`rez help attribute` which connects with :ref:`intersphinx`."""
+    rez_sphinx_settings = get_base_settings()
+
+    return rez_sphinx_settings.get("help_label") or "rez_sphinx_objects_inv"
+
+
+def get_documentation_root_name():
+    """str: The name of the folder where all documentation-related files will go."""
+    settings = get_base_settings()
+
+    return settings.get(_DOCUMENTATION_ROOT_KEY) or _DOCUMENTATION_DEFAULT
+
+
 def get_initial_files_from_configuration():
-    """list[:class:`.Entry`]: A description of files to make during :ref:`rez_sphinx init`."""
+    """list[:class:`.Entry`]: File data to write during :ref:`rez_sphinx init`."""
     settings = get_base_settings()
     options = settings.get(_INIT_KEY) or dict()
 

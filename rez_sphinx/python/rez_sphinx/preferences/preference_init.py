@@ -8,6 +8,7 @@ This module is a companion module for :mod:`.preference`.
 """
 
 import os
+import re
 import textwrap
 
 import schema
@@ -38,6 +39,8 @@ _TAG_TEMPLATE = textwrap.dedent(
     ..
         rez_sphinx_help:{title}"""
 )
+_SPHINX_REF = re.compile(r"^\.\. _(?P<label>\w+):\s*$")
+_IS_COMMENT = re.compile(r"^\.\.\s*")
 
 
 class Entry(object):
@@ -117,7 +120,7 @@ class Entry(object):
             # "rez_sphinx_help" and then somehow query those smartly. Or just do a
             # raw text parse. Either way is probably fine.
             #
-            # Reference: https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html
+            # Reference: https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html  pylint: disable=line-too-long
             #
             output = _TAG_TEMPLATE.format(title=title) + "\n\n" + output
 
@@ -176,6 +179,45 @@ DEFAULT_ENTRIES = (
         }
     ),
 )
+
+
+def find_tags(lines):
+
+    def _get_destination(starting_index, lines):
+        for line in lines[starting_index:]:
+            if not line.strip():
+                continue
+
+            match = _SPHINX_REF.match(line)
+
+            if not match:
+                return ""
+
+            return match.group("label")
+
+        return ""
+
+    output = []
+    count = len(lines)
+
+    for index, line in enumerate(lines):
+        if not _IS_COMMENT.match(line):
+            continue
+
+        if index + 1 > count:  # `line` is the last line. Skip this.
+            continue
+
+        next_line = lines[index + 1].strip()
+
+        if not next_line.startswith("rez_sphinx_help:"):
+            continue
+
+        _, name = next_line.split(":")
+        destination = _get_destination(index, lines)
+
+        output.append((name, destination))
+
+    return output
 
 
 def _make_title(text):

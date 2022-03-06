@@ -11,6 +11,7 @@ from rez_utilities import finder
 
 from .commands import builder, initer
 from .core import api_builder, exception, path_control
+from .preferences import preference
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -87,7 +88,7 @@ def _init(namespace):
     """
     _split_init_arguments(namespace)
 
-    directory = namespace.directory
+    directory = os.path.normpath(namespace.directory)
     _LOGGER.debug('Found "%s" directory.', directory)
     package = finder.get_nearest_rez_package(directory)
 
@@ -100,9 +101,8 @@ def _init(namespace):
 
     _LOGGER.debug('Found "%s" Rez package.', package.name)
 
-    documentation_root = os.path.normpath(
-        os.path.join(directory, namespace.documentation_root)
-    )
+    documentation_root = os.path.join(directory, preference.get_documentation_root_name())
+
     initer.init(
         package, documentation_root, quick_start_options=namespace.quick_start_arguments
     )
@@ -164,16 +164,11 @@ def _set_up_init(sub_parsers):
     init.add_argument(
         "--quickstart-arguments",
         dest="quick_start_arguments",
-        help='Anything you\'d like to send for sphinx-quickstart. e.g. "--ext-coverage"',
+        help='Anything you\'d like to send for sphinx-quickstart. '
+        'e.g. "--ext-coverage"',
     )
     init.set_defaults(execute=_init)
     _add_directory_argument(init)
-    init.add_argument(
-        "--documentation-root",
-        default="documentation",
-        help="The directory where you want source documentation (.rst files) to be placed.",
-    )
-
     _add_remainder_argument(init)
 
 

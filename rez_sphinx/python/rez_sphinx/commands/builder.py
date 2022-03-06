@@ -32,13 +32,13 @@ def _get_documentation_build(source):
 
     package = finder.get_nearest_rez_package(source)
     root = finder.get_package_root(package)
-    build_directory = os.path.join(  # {rez_root}/build
-        root,  # {rez_root}
-        config.build_directory,  # build (default name)
+    build_directory = os.path.join(  # Usually {rez_root}/build
+        root,
+        config.build_directory,  # pylint: disable=no-member
     )
 
     return os.path.join(  # {rez_root}/build/documentation
-        build_directory, "documentation"
+        build_directory, preference.get_documentation_root_name()
     )
 
 

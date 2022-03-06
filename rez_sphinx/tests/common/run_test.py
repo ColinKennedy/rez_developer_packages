@@ -26,11 +26,13 @@ def keep_config():
     preference.get_base_settings.cache_clear()
 
     optionvars = copy.deepcopy(config.optionvars)
+    package_preprocess_function = config.package_preprocess_function
 
     try:
         yield config
     finally:
         config.optionvars = optionvars
+        config.package_preprocess_function = package_preprocess_function
 
 
 @contextlib.contextmanager

@@ -61,13 +61,6 @@ class ConfPy(object):
         except AttributeError:
             return "index"  # A reasonable default
 
-    def _get_source_suffix(self):
-        """str: Get the extension to search for ReST files."""
-        try:
-            return self._module.source_suffix
-        except AttributeError:
-            return ".rst"  # A reasonable default
-
     def get_extensions(self):
         """Get all registered :ref:`Sphinx` extensions. e.g. "sphinx.ext.viewcode".
 
@@ -79,6 +72,13 @@ class ConfPy(object):
 
     def get_master_document_path(self):
         """str: Get the full path on-disk where this :ref:`conf.py` lives."""
-        name = self._get_master_doc() + self._get_source_suffix()
+        name = self._get_master_doc() + self.get_source_extension()
 
         return os.path.join(self._directory, name)
+
+    def get_source_extension(self):
+        """str: Get the extension to search for ReST files."""
+        try:
+            return self._module.source_suffix
+        except AttributeError:
+            return ".rst"  # A reasonable default
