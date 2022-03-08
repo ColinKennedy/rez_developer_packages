@@ -121,7 +121,7 @@ def make_dependent_packages():
     ]
 
 
-def make_simple_developer_package(package_text="", file_text=""):
+def make_simple_developer_package(package_text="", file_text="", help_=None):
     """:class:`rez.developer_package.DeveloperPackage`: A simple Rez source package.
 
     Args:
@@ -157,6 +157,9 @@ def make_simple_developer_package(package_text="", file_text=""):
             env.PYTHONPATH.append(os.path.join(root, "python"))
         """
     )
+
+    if help_ is not None:
+        package_text += "\n{help_!r}".format(help_=help_)
 
     file_text = file_text or textwrap.dedent(
         '''\

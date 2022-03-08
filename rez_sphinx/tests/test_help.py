@@ -7,7 +7,6 @@ import unittest
 from rez import developer_package
 from python_compatibility import wrapping
 from rez_utilities import creator, finder
-import six
 from rez_sphinx.core import hook
 
 from .common import package_wrap, run_test
@@ -50,7 +49,13 @@ class AppendHelp(unittest.TestCase):
             os.path.join(install_path, package.name, "1.1.0")
         )
 
-        self.assertEqual(expected, install_package.help)
+        self.assertEqual(
+            expected,
+            install_package.help,
+            msg='Package "{install_path}" did not match the expected result.'.format(
+                install_path=install_path
+            ),
+        )
 
     def test_string(self):
         """Add :ref:`package help` to a Rez package that has a single string entry."""
