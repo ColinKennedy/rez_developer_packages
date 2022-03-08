@@ -1,6 +1,6 @@
 """Automatically add :ref:`rez_sphinx tags <rez_sphinx tag>` to built packages."""
 
-import operator
+import functools
 import os
 
 import six
@@ -132,6 +132,28 @@ def _iter_sphinx_source_files(root):
                 yield os.path.join(current_root, name)
 
 
+def _sort(sort_method, original_help, full_help):
+    """Sort ``full_help`` based on the other parameters.
+
+    Args:
+        sort_method (callable[list[list[str, str]], str]):
+            A function that takes ``original_help`` plus some sort term
+            to determine where the sort term should be placed.
+        original_help (list[list[str, str]]):
+            The user's original :ref:`package help` data, if any.
+        full_help (list[list[str, str]]):
+            The user's original :ref:`package help` data, plus any auto-found
+            data, if any.
+
+    Returns:
+        list[list[str, str]]: The final, sorted :ref:`package help`.
+
+    """
+    sorter = functools.partial(sort_method, original_help)
+
+    return sorted(full_help, key=sorter)
+
+
 def package_preprocess_function(this, data):
     """Replace the :ref:`package help` in ``data`` with auto-found Sphinx documentation.
 
@@ -165,8 +187,9 @@ def package_preprocess_function(this, data):
     if not new_labels:
         return
 
-    help_.extend(new_labels)
-    # TODO : Add a test so we don't change the user's manually-written help order
-    help_ = sorted(help_, key=operator.itemgetter(0))
+    original_help = help_
+    full_help = help_ + new_labels
+    sort_method = preference.get_sort_method()
+    full_help = _sort(sort_method, original_help, full_help)
 
     data[_REZ_HELP_KEY] = help_

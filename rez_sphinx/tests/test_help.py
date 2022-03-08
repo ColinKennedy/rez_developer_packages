@@ -8,6 +8,7 @@ from rez import developer_package
 from python_compatibility import wrapping
 from rez_utilities import creator, finder
 from rez_sphinx.core import hook
+from rez_sphinx.preferences import preference_help
 
 from .common import package_wrap, run_test
 
@@ -66,15 +67,18 @@ class AppendHelp(unittest.TestCase):
 
     def test_list_ordered(self):
         """Add :ref:`package help` to a Rez package that has a list of entries."""
-        self._test(
-            [
-                ["Extra thing", "another"],
-                ["A label", "thing"],
-                ['Developer Documentation', 'developer_documentation.html'],
-                ['User Documentation', 'user_documentation.html']
-            ],
-            help_=[["Extra thing", "another"], ["A label", "thing"]],
-        )
+        with run_test.keep_config() as config:
+            config["auto_help_order"] = "preserve_order"
+
+            self._test(
+                [
+                    ["Extra thing", "another"],
+                    ["A label", "thing"],
+                    ['Developer Documentation', 'developer_documentation.html'],
+                    ['User Documentation', 'user_documentation.html']
+                ],
+                help_=[["Extra thing", "another"], ["A label", "thing"]],
+            )
 
     def test_list_sorted(self):
         """Add :ref:`package help` to a Rez package that has a list of entries."""
@@ -97,6 +101,80 @@ class AppendHelp(unittest.TestCase):
             ],
             help_=None,
         )
+
+
+class AutoHelpOrder(unittest.TestCase):
+    # TODO : Add test to ensure invalid order is caught safely
+    def test_alphabetical(self):
+        caller = preference_help.OPTIONS["alphabetical"]
+
+        for original, auto_generated, expected in [
+            (
+                [["b", "b"], ["z", "z"]],
+                [["a", "a"]],
+                [["a", "a"], ["b", "b"], ["z", "z"]],
+            ),
+            (
+                [["a", "a"], ["z", "z"]],
+                [["b", "b"]],
+                [["a", "a"], ["b", "b"], ["z", "z"]],
+            ),
+            (
+                [["a", "a"], ["b", "b"]],
+                [["z", "z"]],
+                [["a", "a"], ["b", "b"], ["z", "z"]],
+            ),
+        ]:
+            sort = hook._sort(caller, original, original + auto_generated)
+
+            self.assertEqual(expected, sort)
+
+    def test_prefer_generated(self):
+        caller = preference_help.OPTIONS["prefer_generated"]
+
+        for original, auto_generated, expected in [
+            (
+                [["z", "z"], ["a", "a"]],
+                [["t", "t"], ["b", "b"]],
+                [["b", "b"], ["t", "t"], ["z", "z"], ["a", "a"]],
+            ),
+        ]:
+            sort = hook._sort(caller, original, original + auto_generated)
+
+            self.assertEqual(expected, sort)
+
+    def test_prefer_original(self):
+        caller = preference_help.OPTIONS["prefer_original"]
+
+        for original, auto_generated, expected in [
+            (
+                [["z", "z"], ["a", "a"]],
+                [["t", "t"], ["b", "b"]],
+                [["z", "z"], ["a", "a"], ["b", "b"], ["t", "t"]],
+            ),
+        ]:
+            sort = hook._sort(caller, original, original + auto_generated)
+
+            self.assertEqual(expected, sort)
+
+    def test_preserve_order(self):
+        caller = preference_help.OPTIONS["preserve_order"]
+
+        for original, auto_generated, expected in [
+            (
+                [["z", "z"], ["b", "b"]],
+                [["a", "a"]],
+                [["z", "z"], ["a", "a"], ["b", "b"]],
+            ),
+            (
+                [["y", "y"], ["b", "b"]],
+                [["z", "z"]],
+                [["y", "y"], ["b", "b"], ["z", "z"]],
+            ),
+        ]:
+            sort = hook._sort(caller, original, original + auto_generated)
+
+            self.assertEqual(expected, sort)
 
 
 class HelpScenarios(unittest.TestCase):

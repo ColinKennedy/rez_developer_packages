@@ -16,7 +16,7 @@ except ImportError:
     from backports.functools_lru_cache import lru_cache
 
 from ..core import exception, schema_helper
-from . import preference_init
+from . import preference_help, preference_init
 
 _DOCUMENTATION_DEFAULT = "documentation"
 
@@ -38,6 +38,8 @@ _ENABLE_APIDOC = "enable_apidoc"
 _APIDOC = "sphinx-apidoc"
 _QUICKSTART = "sphinx-quickstart"
 
+_HELP_ORDER = "auto_help_order"
+
 _MASTER_SCHEMA = schema.Schema(
     {
         schema.Optional(
@@ -53,6 +55,7 @@ _MASTER_SCHEMA = schema.Schema(
             _API_TOCTREE_LINE, default="API Documentation <api/modules>"
         ): schema_helper.TOCTREE_LINE,
         schema.Optional(_QUICKSTART, default=[]): [],
+        schema.Optional(_HELP_ORDER, preference_help.DEFAULT): preference_help.validate_order,
         schema.Optional(_ENABLE_APIDOC, default=True): bool,
         schema.Optional(_APIDOC, default=[]): [],
         schema.Optional(_DOCUMENTATION_ROOT_KEY, default=_DOCUMENTATION_DEFAULT): schema_helper.NON_NULL_STR,
