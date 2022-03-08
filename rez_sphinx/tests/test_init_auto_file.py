@@ -1,6 +1,5 @@
 """Make sure any auto-generated documentation files are made, correctly."""
 
-import copy
 import contextlib
 import os
 import unittest
@@ -157,6 +156,12 @@ class General(unittest.TestCase):
         )
 
     def test_enforce_non_default_text(self):
+        """Forbid documentation building if they haven't modified their files.
+
+        Todo:
+            Add a unittest to disable this feature, if the user chooses to.
+
+        """
         raise ValueError()
 
     def test_no_files(self):
@@ -212,6 +217,17 @@ def _get_base_master_index_text(path):
 
 @contextlib.contextmanager
 def _override_default_files(files):
+    """Use ``files`` when running :ref:`rez_sphinx init` instead of the defaults.
+
+    Args:
+        files (list[dict[str, str or bool]]):
+            The description of each default file to create.
+            See :attr:`.FILE_ENTRY` for details.
+
+    Yields:
+        context: The temporary environment.
+
+    """
     with run_test.keep_config() as config:
         config.optionvars["rez_sphinx"] = dict()
         config.optionvars["rez_sphinx"]["init_options"] = dict()

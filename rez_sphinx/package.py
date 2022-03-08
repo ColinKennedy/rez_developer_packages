@@ -52,8 +52,8 @@ tests = {
         #
         # Reference: https://github.com/PyCQA/pydocstyle/blob/master/docs/release_notes.rst
         #
-        "command": "pydocstyle --ignore=D213,D203,D406,D407,D417 python tests",
-        "requires": ["pydocstyle-5+<6"],
+        "command": "pydocstyle --ignore=D213,D203,D406,D407,D417 python tests/*",
+        "requires": ["pydocstyle-6.1+<7"],
     },
     "pylint": {
         "command": "pylint --disable=bad-continuation python/rez_sphinx tests",

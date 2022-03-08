@@ -122,7 +122,23 @@ def make_dependent_packages():
 
 
 def make_simple_developer_package(package_text="", file_text=""):
-    """:class:`rez.developer_package.DeveloperPackage`: A simple Rez source package."""
+    """:class:`rez.developer_package.DeveloperPackage`: A simple Rez source package.
+
+    Args:
+        package_text (str, optional):
+            The source code for the source Rez package.
+        file_text (str, optional):
+            Some example Python source file within this pretend source Rez package.
+        help_ (list[list[str, str]] or str or NoneType, optional):
+            The initial Rez package :ref:`package help`. If ``None``, no
+            ``help`` will be defined. All other input is used as-is. This
+            data, if provided, is appended directly to ``package_text``.
+
+    Returns:
+        :class:`rez.developer_package.DeveloperPackage`:
+            The found, generated main source Rez package.
+
+    """
     directory = make_directory("_make_simple_developer_package_source_package")
 
     package_text = package_text or textwrap.dedent(

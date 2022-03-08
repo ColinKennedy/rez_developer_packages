@@ -1,9 +1,17 @@
-"""Some Sphinx files may be generated during :ref:`rez_sphinx init`.
+r"""Some Sphinx files may be generated during :ref:`rez_sphinx init`.
 
 This module is in charge of describing those files. e.g. what the file name is,
 its file content, how will Rez / Sphinx refer to that file, etc.
 
 This module is a companion module for :mod:`.preference`.
+
+Attributes:
+    FILE_ENTRY (:class:`schema.Schema`):
+        "base_text" (str): "The documentation text body\nto write to this file."
+        "path" (str): "inner/folder/some_file_name_without_an_extension"
+        "add_tag" (bool, optional): If True, a :ref:`rez_sphinx tag` is added.
+        "check_pre_build" (bool, optional): If True, ensure the file has edits, pre-build.
+        "title" (str, optional): "Custom title name if you want"
 
 """
 
@@ -152,11 +160,11 @@ class Entry(object):
 _FILE_ENTRY = schema.Schema(
     {
         "base_text": schema_helper.NON_NULL_STR,
-        "file_name": schema_helper.NON_NULL_STR,
+        "path": schema_helper.NON_NULL_STR,
         schema.Optional("add_tag", default=True): bool,
         schema.Optional("check_pre_build", default=True): bool,
         schema.Optional("relative_path"): schema_helper.NON_NULL_STR,
-        schema.Optional("sphinx_title"): schema_helper.NON_NULL_STR,
+        schema.Optional("title"): schema_helper.NON_NULL_STR,
     }
 )
 FILE_ENTRY = schema.Use(Entry.validate_data)
@@ -164,22 +172,36 @@ DEFAULT_ENTRIES = (
     Entry.validate_data(
         {
             "base_text": _BASE_TEXT,
-            "file_name": "developer_documentation",
-            "sphinx_title": "Developer Documentation",
+            "path": "developer_documentation",
+            "title": "Developer Documentation",
         }
     ),
     Entry.validate_data(
         {
             "base_text": _BASE_TEXT,
-            "file_name": "user_documentation",
-            "sphinx_title": "User Documentation",
+            "path": "user_documentation",
+            "title": "User Documentation",
         }
     ),
 )
 
 
 def find_tags(lines):
+    """Parse ``lines`` for :ref:`rez_sphinx tags <rez_sphinx tag>`.
 
+    An expected tag looks like this:
+
+    ::
+        ..
+           rez_sphinx_help:My Label Here
+
+    Args:
+        lines (list[str]): The source-code lines of some Sphinx ReST file.
+
+    Returns:
+        list[list[str, str]]: Each hard-coded label + "destination", if any.
+
+    """
     def _get_destination(starting_index, lines):
         for line in lines[starting_index:]:
             if not line.strip():
