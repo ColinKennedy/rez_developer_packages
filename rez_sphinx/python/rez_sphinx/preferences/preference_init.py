@@ -147,7 +147,8 @@ class Entry(object):
 
     def get_relative_path(self):
         """str: Get the path, relative to the documentation root, for this file."""
-        return self._data.get("path")
+        # TODO : Get this .rst from the user's configuration settings. Don't do this
+        return self._data.get("path") + ".rst"
 
     def __repr__(self):
         """str: Create a representation of this instance."""
