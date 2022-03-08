@@ -34,11 +34,8 @@ _DEFAULT_TEXT_TEMPLATE = textwrap.dedent(
 
     {output}"""
 )
-_TAG_TEMPLATE = textwrap.dedent(
-    """\
-    ..
-        rez_sphinx_help:{title}"""
-)
+_TAG_NAME = "rez_sphinx_help"
+_TAG_TEMPLATE = "..\n    %s:{title}" % _TAG_NAME
 _SPHINX_REF = re.compile(r"^\.\. _(?P<label>\w+):\s*$")
 _IS_COMMENT = re.compile(r"^\.\.\s*")
 
@@ -209,11 +206,11 @@ def find_tags(lines):
 
         next_line = lines[index + 1].strip()
 
-        if not next_line.startswith("rez_sphinx_help:"):
+        if not next_line.startswith(_TAG_NAME):
             continue
 
         _, name = next_line.split(":")
-        destination = _get_destination(index, lines)
+        destination = _get_destination(index + 1, lines)
 
         output.append((name, destination))
 

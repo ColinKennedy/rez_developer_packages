@@ -1,6 +1,8 @@
 import contextlib
+import os
 import unittest
 
+from python_compatibility import wrapping
 from rez_utilities import creator, finder
 import six
 from rez_sphinx.core import hook
@@ -39,14 +41,21 @@ class AppendHelp(unittest.TestCase):
         # 3a. Simulate adding the pre-build hook to the user's Rez configuration.
         # 3b. Re-build the Rez package so it can auto-append entries to the package.py ``help``
         #
-        with _override_preprocess():
+        with _override_preprocess(package):
             creator.build(package, install_path, quiet=True)
-            raise ValueError(install_path)
+
+        raise ValueError(install_path)
 
 
 @contextlib.contextmanager
-def _override_preprocess():
-    with run_test.keep_config() as config:
+def _override_preprocess(package):
+    with wrapping.keep_cwd(), run_test.keep_config() as config:
+        # Simulate the user CDing into a developer Rez package, just before
+        # build / release / test.
+        #
+        root = finder.get_package_root(package)
+        os.chdir(root)
+
         config.package_preprocess_function = hook.package_preprocess_function
 
         yield
