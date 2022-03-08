@@ -78,7 +78,6 @@ class AppendHelp(unittest.TestCase):
 
     def test_list_sorted(self):
         """Add :ref:`package help` to a Rez package that has a list of entries."""
-        raise ValueError('Add this')
         self._test(
             [
                 ["A label", "thing"],

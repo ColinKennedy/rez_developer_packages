@@ -159,7 +159,7 @@ def make_simple_developer_package(package_text="", file_text="", help_=None):
     )
 
     if help_ is not None:
-        package_text += "\n{help_!r}".format(help_=help_)
+        package_text += "\nhelp = {help_!r}".format(help_=help_)
 
     file_text = file_text or textwrap.dedent(
         '''\
