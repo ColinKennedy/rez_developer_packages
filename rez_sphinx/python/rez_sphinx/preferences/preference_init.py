@@ -95,11 +95,13 @@ class Entry(object):
 
     def _get_file_name(self):
         """str: Get the "on-disk save name" for this instance (no file extension)."""
-        return self._data["file_name"]
+        path = os.path.basename(self.get_relative_path())
 
-    def _get_sphinx_title(self):
+        return os.path.splitext(path)[0]
+
+    def _get_title(self):
         """str: A human-friendly phrase to describe this instance, in documentation."""
-        return self._data.get("sphinx_title") or _make_title(self._get_file_name())
+        return self._data.get("title") or _make_title(self._get_file_name())
 
     def check_pre_build(self):
         """If True, make sure users have manually filled out the documentation.
@@ -118,7 +120,7 @@ class Entry(object):
     def get_default_text(self):
         """str: The generated Sphinx documentation text body."""
         output = self._data["base_text"]
-        title = self._get_sphinx_title()
+        title = self._get_title()
 
         if self._is_tag_enabled():
             # TODO : Maybe it'd be cool to add a directive to Sphinx called
@@ -143,14 +145,9 @@ class Entry(object):
 
         return name.replace("\\", "/")  # Sphinx uses forward slashes in toctrees
 
-    def get_full_file_name(self):
-        """str: Get the file name.extension for this instance."""
-        # TODO : Get this .rst from the user's configuration settings
-        return self._get_file_name() + ".rst"
-
     def get_relative_path(self):
         """str: Get the path, relative to the documentation root, for this file."""
-        return self._data.get("relative_path") or self.get_full_file_name()
+        return self._data.get("path")
 
     def __repr__(self):
         """str: Create a representation of this instance."""
