@@ -161,18 +161,27 @@ class AutoHelpOrder(unittest.TestCase):
         caller = preference_help.OPTIONS["preserve_order"]
 
         for original, auto_generated, expected in [
+            # ``auto_generated`` inserts at the beginning
+            (
+                [["y", "y"], ["b", "b"]],
+                [["a", "a"]],
+                [["a", "a"], ["y", "y"], ["b", "b"]],
+            ),
+            # ``auto_generated`` inserts into the middle
             (
                 [["z", "z"], ["b", "b"]],
                 [["a", "a"]],
                 [["z", "z"], ["a", "a"], ["b", "b"]],
             ),
-            (
-                [["y", "y"], ["b", "b"]],
-                [["z", "z"]],
-                [["y", "y"], ["b", "b"], ["z", "z"]],
-            ),
+            # # ``auto_generated`` inserts at the end
+            # (
+            #     [["y", "y"], ["b", "b"]],
+            #     [["z", "z"]],
+            #     [["y", "y"], ["b", "b"], ["z", "z"]],
+            # ),
         ]:
             sort = hook._sort(caller, original, original + auto_generated)
+            raise ValueError(sort)
 
             self.assertEqual(expected, sort)
 

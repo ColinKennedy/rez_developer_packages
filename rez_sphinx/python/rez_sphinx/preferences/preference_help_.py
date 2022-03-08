@@ -23,7 +23,7 @@ def preserve_order(original_help, item):
         pass
 
     for index, value in enumerate(original_help):
-        if item < value:
-            return index
+        if item > value:
+            return index - 0.5
 
     return len(original_help)
