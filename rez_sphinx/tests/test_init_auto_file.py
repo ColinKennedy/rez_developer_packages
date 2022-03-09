@@ -19,7 +19,7 @@ class General(unittest.TestCase):
         name = "some_custom_file"
         expected_body = "Some example text"
 
-        with _override_default_files([{"base_text": expected_body, "file_name": name}]):
+        with _override_default_files([{"base_text": expected_body, "path": name}]):
             run_test.test(["init", directory])
 
         path = os.path.join(directory, "documentation", "source", name + ".rst")

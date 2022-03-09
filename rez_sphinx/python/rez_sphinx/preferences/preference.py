@@ -56,7 +56,7 @@ _MASTER_SCHEMA = schema.Schema(
         ): schema_helper.TOCTREE_LINE,
         schema.Optional(_QUICKSTART, default=[]): [],
         schema.Optional(
-            _HELP_ORDER, preference_help.DEFAULT
+            _HELP_ORDER, default=preference_help.DEFAULT
         ): preference_help.validate_order,
         schema.Optional(_ENABLE_APIDOC, default=True): bool,
         schema.Optional(_APIDOC, default=[]): [],

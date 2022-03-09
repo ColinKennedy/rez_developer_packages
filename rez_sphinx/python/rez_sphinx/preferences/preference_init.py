@@ -29,7 +29,7 @@ _BASE_TEXT = textwrap.dedent(
     provide anything that could be useful to the reader such as:
 
     - General Overview
-    - A description of who the intended audience is (developers, artists, etc)
+    - A description of who the intended reader is (developers, artists, etc)
     - Tutorials
     - "Cookbook" style tutorials
     - Table Of Contents (toctree) to other Sphinx pages
