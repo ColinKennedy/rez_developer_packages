@@ -57,7 +57,7 @@ _MASTER_SCHEMA = schema.Schema(
         schema.Optional(_QUICKSTART, default=[]): [],
         schema.Optional(
             _HELP_ORDER, default=preference_help.DEFAULT
-        ): preference_help.validate_order,
+        ): schema.Use(preference_help.validate_order),
         schema.Optional(_ENABLE_APIDOC, default=True): bool,
         schema.Optional(_APIDOC, default=[]): [],
         schema.Optional(
@@ -262,8 +262,12 @@ def get_master_api_documentation_line():
 def get_sort_method():
     """callable[list[str], str] -> object: The sort function for :ref:`package help`."""
     rez_sphinx_settings = get_base_settings()
+    caller = rez_sphinx_settings[_HELP_ORDER]
 
-    return rez_sphinx_settings[_HELP_ORDER]
+    if caller != preference_help.DEFAULT:
+        return caller
+
+    return caller._callable
 
 
 def get_sphinx_extensions():

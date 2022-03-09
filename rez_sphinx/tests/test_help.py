@@ -35,7 +35,7 @@ class AppendHelp(unittest.TestCase):
         # 2. Initialize the documentation
         run_test.test(["init", directory])
 
-        install_path = package_wrap.make_directory("_AppendHelp_test_none")
+        install_path = package_wrap.make_directory("_AppendHelp_test")
 
         # 3a. Simulate adding the pre-build hook to the user's Rez configuration.
         # 3b. Re-build the Rez package so it can auto-append entries to the package.py ``help``
@@ -61,14 +61,19 @@ class AppendHelp(unittest.TestCase):
     def test_string(self):
         """Add :ref:`package help` to a Rez package that has a single string entry."""
         self._test(
-            [],
-            help_=["A help thing"],
+            [
+                ['Developer Documentation', 'developer_documentation.html'],
+                ['Home Page', 'A help thing'],
+                ['User Documentation', 'user_documentation.html'],
+            ],
+            help_="A help thing",
         )
 
     def test_list_ordered(self):
         """Add :ref:`package help` to a Rez package that has a list of entries."""
         with run_test.keep_config() as config:
-            config["auto_help_order"] = "prefer_original"
+            config.optionvars["rez_sphinx"] = dict()
+            config.optionvars["rez_sphinx"]["auto_help_order"] = "prefer_original"
 
             self._test(
                 [

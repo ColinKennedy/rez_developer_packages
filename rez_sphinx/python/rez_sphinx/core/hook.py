@@ -195,4 +195,4 @@ def package_preprocess_function(this, data):  # pylint: disable=unused-argument
     sort_method = preference.get_sort_method()
     full_help = _sort(sort_method, original_help, full_help)
 
-    data[_REZ_HELP_KEY] = help_
+    data[_REZ_HELP_KEY] = full_help
