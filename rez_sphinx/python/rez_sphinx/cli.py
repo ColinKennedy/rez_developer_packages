@@ -101,7 +101,9 @@ def _init(namespace):
 
     _LOGGER.debug('Found "%s" Rez package.', package.name)
 
-    documentation_root = os.path.join(directory, preference.get_documentation_root_name())
+    documentation_root = os.path.join(
+        directory, preference.get_documentation_root_name()
+    )
 
     initer.init(
         package, documentation_root, quick_start_options=namespace.quick_start_arguments
@@ -164,7 +166,7 @@ def _set_up_init(sub_parsers):
     init.add_argument(
         "--quickstart-arguments",
         dest="quick_start_arguments",
-        help='Anything you\'d like to send for sphinx-quickstart. '
+        help="Anything you'd like to send for sphinx-quickstart. "
         'e.g. "--ext-coverage"',
     )
     init.set_defaults(execute=_init)

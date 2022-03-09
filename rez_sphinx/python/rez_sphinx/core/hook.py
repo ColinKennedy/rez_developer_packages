@@ -17,7 +17,8 @@ _SEEN = set()
 def _already_processed(path):
     """Check if ``path`` has already been preprocessed before.
 
-    This function exists to prevent a cyclic loop which may be a bug. See reference for details.
+    This function exists to prevent a cyclic loop which may be a bug. See
+    reference for details.
 
     Reference:
         https://github.com/nerdvegas/rez/issues/1239#issuecomment-1061390415
@@ -154,7 +155,7 @@ def _sort(sort_method, original_help, full_help):
     return sorted(full_help, key=sorter)
 
 
-def package_preprocess_function(this, data):
+def package_preprocess_function(this, data):  # pylint: disable=unused-argument
     """Replace the :ref:`package help` in ``data`` with auto-found Sphinx documentation.
 
     If no :ref:`rez_sphinx tags <rez_sphinx tag>` are found, this function will
@@ -174,7 +175,9 @@ def package_preprocess_function(this, data):
         return
 
     help_ = _expand_help(data.get(_REZ_HELP_KEY))
-    documentation_root = os.path.join(package_source_root, preference.get_documentation_root_name())
+    documentation_root = os.path.join(
+        package_source_root, preference.get_documentation_root_name()
+    )
 
     if not os.path.isdir(documentation_root):
         return

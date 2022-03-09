@@ -68,14 +68,14 @@ class AppendHelp(unittest.TestCase):
     def test_list_ordered(self):
         """Add :ref:`package help` to a Rez package that has a list of entries."""
         with run_test.keep_config() as config:
-            config["auto_help_order"] = "preserve_order"
+            config["auto_help_order"] = "prefer_original"
 
             self._test(
                 [
                     ["Extra thing", "another"],
                     ["A label", "thing"],
-                    ['Developer Documentation', 'developer_documentation.html'],
-                    ['User Documentation', 'user_documentation.html']
+                    ["Developer Documentation", "developer_documentation.html"],
+                    ["User Documentation", "user_documentation.html"],
                 ],
                 help_=[["Extra thing", "another"], ["A label", "thing"]],
             )
@@ -85,9 +85,9 @@ class AppendHelp(unittest.TestCase):
         self._test(
             [
                 ["A label", "thing"],
-                ['Developer Documentation', 'developer_documentation.html'],
+                ["Developer Documentation", "developer_documentation.html"],
                 ["Extra thing", "another"],
-                ['User Documentation', 'user_documentation.html']
+                ["User Documentation", "user_documentation.html"],
             ],
             help_=[["Extra thing", "another"], ["A label", "thing"]],
         )
@@ -96,16 +96,18 @@ class AppendHelp(unittest.TestCase):
         """Add :ref:`package help` to a Rez package that has no defined help."""
         self._test(
             [
-                ['Developer Documentation', 'developer_documentation.html'],
-                ['User Documentation', 'user_documentation.html']
+                ["Developer Documentation", "developer_documentation.html"],
+                ["User Documentation", "user_documentation.html"],
             ],
             help_=None,
         )
 
 
 class AutoHelpOrder(unittest.TestCase):
-    # TODO : Add test to ensure invalid order is caught safely
+    """Make sure :mod:`rez_sphinx.preferences.preference_help_` functions work."""
+
     def test_alphabetical(self):
+        """Sort all items in ascending, alphabetical order."""
         caller = preference_help.OPTIONS["alphabetical"]
 
         for original, auto_generated, expected in [
@@ -129,7 +131,13 @@ class AutoHelpOrder(unittest.TestCase):
 
             self.assertEqual(expected, sort)
 
+    def test_invalid(self):
+        """Stop early if the user's sort option is invalid."""
+        # TODO : Add test to ensure invalid order is caught safely
+        raise ValueError()
+
     def test_prefer_generated(self):
+        """Sort auto-generated help before anything the user defined."""
         caller = preference_help.OPTIONS["prefer_generated"]
 
         for original, auto_generated, expected in [
@@ -144,6 +152,7 @@ class AutoHelpOrder(unittest.TestCase):
             self.assertEqual(expected, sort)
 
     def test_prefer_original(self):
+        """Sort hand-written help before anything the auto-generated."""
         caller = preference_help.OPTIONS["prefer_original"]
 
         for original, auto_generated, expected in [
@@ -154,34 +163,6 @@ class AutoHelpOrder(unittest.TestCase):
             ),
         ]:
             sort = hook._sort(caller, original, original + auto_generated)
-
-            self.assertEqual(expected, sort)
-
-    def test_preserve_order(self):
-        caller = preference_help.OPTIONS["preserve_order"]
-
-        for original, auto_generated, expected in [
-            # ``auto_generated`` inserts at the beginning
-            (
-                [["y", "y"], ["b", "b"]],
-                [["a", "a"]],
-                [["a", "a"], ["y", "y"], ["b", "b"]],
-            ),
-            # ``auto_generated`` inserts into the middle
-            (
-                [["z", "z"], ["b", "b"]],
-                [["a", "a"]],
-                [["z", "z"], ["a", "a"], ["b", "b"]],
-            ),
-            # # ``auto_generated`` inserts at the end
-            # (
-            #     [["y", "y"], ["b", "b"]],
-            #     [["z", "z"]],
-            #     [["y", "y"], ["b", "b"], ["z", "z"]],
-            # ),
-        ]:
-            sort = hook._sort(caller, original, original + auto_generated)
-            raise ValueError(sort)
 
             self.assertEqual(expected, sort)
 

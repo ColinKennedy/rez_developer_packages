@@ -30,7 +30,8 @@ class ApiDocOptions(unittest.TestCase):
 
             with wrapping.silence_printing():  # Make tests less spammy
                 run_test.test(
-                    'build "{source_directory}" --apidoc-arguments "--suffix .txt"'.format(
+                    'build "{source_directory}" '
+                    '--apidoc-arguments "--suffix .txt"'.format(
                         source_directory=source_directory
                     )
                 )
@@ -68,7 +69,14 @@ class Bootstrap(unittest.TestCase):
     """Make sure :func:`rez_sphinx.core.bootstrap.bootstrap` works."""
 
     def _quick_ignore_test(self, text):
-        """Unittest that including ``text`` does not get add any intersphinx candidates."""
+        """Check ``text`` does not find add any intersphinx candidates.
+
+        Args:
+            text (str):
+                Extra Python code to append to the test Rez package. e.g.
+                ``'requires = ["!excluded_package"]'``.
+
+        """
         directory = package_wrap.make_directory("_quick_ignore_test")
 
         template = textwrap.dedent(
@@ -128,7 +136,6 @@ class Build(unittest.TestCase):
 
         source = os.path.join(source_directory, "documentation", "source")
         api_directory = os.path.join(source, "api")
-        api_source_gitignore = os.path.join(api_directory, ".gitignore")
         source_master = os.path.join(source, "index.rst")
 
         with open(source_master, "r") as handler:
@@ -138,8 +145,6 @@ class Build(unittest.TestCase):
             "\n".join(tree) for _, _, tree in sphinx_helper.get_toctrees(data)
         ]
         build = os.path.join(source_directory, "documentation", "build")
-        build_master = os.path.join(build, "index.html")
-        example_api_path = os.path.join(build, "api", "some_package.file.html")
 
         self.assertEqual(
             {".gitignore", "modules.rst", "some_package.file.rst", "some_package.rst"},
@@ -160,9 +165,9 @@ class Build(unittest.TestCase):
             ),
             master_toctrees[0],
         )
-        self.assertTrue(os.path.isfile(api_source_gitignore))
-        self.assertTrue(os.path.isfile(build_master))
-        self.assertTrue(os.path.isfile(example_api_path))
+        self.assertTrue(os.path.isfile(os.path.join(api_directory, ".gitignore")))
+        self.assertTrue(os.path.isfile(os.path.join(build, "index.html")))
+        self.assertTrue(os.path.isfile(os.path.join(build, "api", "some_package.file.html")))
 
     def test_hello_world(self):
         """Build documentation and auto-API .rst documentation onto disk."""

@@ -55,10 +55,14 @@ _MASTER_SCHEMA = schema.Schema(
             _API_TOCTREE_LINE, default="API Documentation <api/modules>"
         ): schema_helper.TOCTREE_LINE,
         schema.Optional(_QUICKSTART, default=[]): [],
-        schema.Optional(_HELP_ORDER, preference_help.DEFAULT): preference_help.validate_order,
+        schema.Optional(
+            _HELP_ORDER, preference_help.DEFAULT
+        ): preference_help.validate_order,
         schema.Optional(_ENABLE_APIDOC, default=True): bool,
         schema.Optional(_APIDOC, default=[]): [],
-        schema.Optional(_DOCUMENTATION_ROOT_KEY, default=_DOCUMENTATION_DEFAULT): schema_helper.NON_NULL_STR,
+        schema.Optional(
+            _DOCUMENTATION_ROOT_KEY, default=_DOCUMENTATION_DEFAULT
+        ): schema_helper.NON_NULL_STR,
     }
 )
 
@@ -253,6 +257,13 @@ def get_master_api_documentation_line():
     rez_sphinx_settings = get_base_settings()
 
     return rez_sphinx_settings[_API_TOCTREE_LINE]
+
+
+def get_sort_method():
+    """callable[list[str], str] -> object: The sort function for :ref:`package help`."""
+    rez_sphinx_settings = get_base_settings()
+
+    return rez_sphinx_settings[_HELP_ORDER]
 
 
 def get_sphinx_extensions():

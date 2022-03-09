@@ -10,7 +10,7 @@ Attributes:
         "base_text" (str): "The documentation text body\nto write to this file."
         "path" (str): "inner/folder/some_file_name_without_an_extension"
         "add_tag" (bool, optional): If True, a :ref:`rez_sphinx tag` is added.
-        "check_pre_build" (bool, optional): If True, ensure the file has edits, pre-build.
+        "check_pre_build" (bool, optional): If True, ensure "path" has edits, pre-build.
         "title" (str, optional): "Custom title name if you want"
 
 """
@@ -200,6 +200,7 @@ def find_tags(lines):
         list[list[str, str]]: Each hard-coded label + "destination", if any.
 
     """
+
     def _get_destination(starting_index, lines):
         for line in lines[starting_index:]:
             if not line.strip():
