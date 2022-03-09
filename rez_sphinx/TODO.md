@@ -84,6 +84,7 @@ Make sure all :ref:`Sphinx` point to Sphinx's website
  - :ref:`private_build_requires` - https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#private_build_requires
  - :ref:`package_preprocess_function`
  - :ref:`package.py`
+ - :ref:`minimal bootstrapper`
  - :ref:`build_requires` - https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#build_requires
  - :ref:`requires` - https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#requires
  - :ref:`build_documentation_key` - The rez_sphinx key information
