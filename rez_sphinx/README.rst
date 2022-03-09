@@ -7,6 +7,16 @@ A tool which makes initializing and building Sphinx documentation using Rez a sn
 Features Overview
 =================
 
+- Auto-inits Sphinx documentation
+- conf.py grabs directly from package.py
+- Link any Rez package's documentation to any other Rez package
+- Auto-submit PRs
+- Auto-append commands building / publishing documentation
+- Auto-configure Rez :ref:`package help`
+- Auto-generate Python API documentation
+- Publish documentation locally, to GitHub, or readthedocs.io
+- Extra documentation-only validation
+
 
 Running :ref:`rez_sphinx init`
 ==============================
@@ -19,7 +29,7 @@ When you generate documentation for the first time, :ref:`rez_sphinx` will...
 - Bump your Rez package minor version
 - Append :ref:`rez-test` entries so the documentation can be built / published
 
-You may be thinking that's nothing special, right? Keep reading my friend.
+So far this is nothing special. But this is just a start.
 
 
 Running :ref:`rez_sphinx build`
@@ -29,7 +39,7 @@ Calling a build is as easy as writing `rez-test your_package_name
 build_documentation`. What happens when you do that? It will...
 
 - Validate that your documentation files are filled out.
-- Auto-generate API documentation just in time :ref:`sphinx-apidoc`
+- Auto-generate Python API documentation just in time :ref:`sphinx-apidoc`
 - Link your current Rez package to other Rez packages containing documentation,
   by parsing your :ref:`package requires`
     - Want more documentation-only interlinking? See :doc:`adding_extra_interlinking`
