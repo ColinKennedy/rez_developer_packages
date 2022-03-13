@@ -1,6 +1,9 @@
 - Get all tests to pass
 - Add README.rst in the auto-generated api folder explaining what the folder is for
 
+- Make sure the "auto-help ref role tagging" feature actually works. I'm almost
+  100% we need the header label, NOT the ref label.
+
 - Make sure the readthedocs.io theme can be added, via ``rez-config`` settings
  - html_theme = "sphinx_rtd_theme"
 
