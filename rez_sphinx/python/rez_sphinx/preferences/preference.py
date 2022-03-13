@@ -62,7 +62,9 @@ _MASTER_SCHEMA = schema.Schema(
             _HELP_PARENT_KEY,
             default={_HELP_SORT_ORDER: preference_help.DEFAULT_SORT},
         ): {
-            schema.Optional(_HELP_FILTER, default=preference_help.DEFAULT_FILTER): schema.Use(preference_help.validate_filter),
+            schema.Optional(
+                _HELP_FILTER, default=preference_help.DEFAULT_FILTER
+            ): schema.Use(preference_help.validate_filter),
             schema.Optional(
                 _HELP_SORT_ORDER, default=preference_help.DEFAULT_SORT
             ): schema.Use(preference_help.validate_sort),

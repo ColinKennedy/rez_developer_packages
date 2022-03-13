@@ -67,15 +67,15 @@ class AppendHelp(unittest.TestCase):
 
             self._test(
                 [
-                    ['Developer Documentation', 'developer_documentation.html'],
-                    ['Developer Documentation', 'foo.html'],
-                    ['Home Page', 'A help thing'],
-                    ['User Documentation', 'user_documentation.html'],
+                    ["Developer Documentation", "developer_documentation.html"],
+                    ["Developer Documentation", "foo.html"],
+                    ["Home Page", "A help thing"],
+                    ["User Documentation", "user_documentation.html"],
                 ],
                 help_=[
-                    ['Developer Documentation', 'foo.html'],
-                    ['Home Page', 'A help thing'],
-                ]
+                    ["Developer Documentation", "foo.html"],
+                    ["Home Page", "A help thing"],
+                ],
             )
 
     def test_forbid_duplicates_001(self):
@@ -83,16 +83,18 @@ class AppendHelp(unittest.TestCase):
         with run_test.keep_config() as config:
             config.optionvars["rez_sphinx"] = dict()
             config.optionvars["rez_sphinx"].setdefault("auto_help", dict())
-            config.optionvars["rez_sphinx"]["auto_help"]["filter_by"] = "prefer_original"
+            config.optionvars["rez_sphinx"]["auto_help"][
+                "filter_by"
+            ] = "prefer_original"
 
             self._test(
                 [
-                    ['Developer Documentation', 'foo.html'],
-                    ['User Documentation', 'user_documentation.html'],
+                    ["Developer Documentation", "foo.html"],
+                    ["User Documentation", "user_documentation.html"],
                 ],
                 help_=[
-                    ['Developer Documentation', 'foo.html'],
-                ]
+                    ["Developer Documentation", "foo.html"],
+                ],
             )
 
     def test_forbid_duplicates_002(self):
@@ -100,25 +102,27 @@ class AppendHelp(unittest.TestCase):
         with run_test.keep_config() as config:
             config.optionvars["rez_sphinx"] = dict()
             config.optionvars["rez_sphinx"].setdefault("auto_help", dict())
-            config.optionvars["rez_sphinx"]["auto_help"]["filter_by"] = "prefer_generated"
+            config.optionvars["rez_sphinx"]["auto_help"][
+                "filter_by"
+            ] = "prefer_generated"
 
             self._test(
                 [
-                    ['Developer Documentation', 'developer_documentation.html'],
-                    ['User Documentation', 'user_documentation.html'],
+                    ["Developer Documentation", "developer_documentation.html"],
+                    ["User Documentation", "user_documentation.html"],
                 ],
                 help_=[
-                    ['Developer Documentation', 'foo.html'],
-                ]
+                    ["Developer Documentation", "foo.html"],
+                ],
             )
 
     def test_string(self):
         """Add :ref:`package help` to a Rez package that has a single string entry."""
         self._test(
             [
-                ['Developer Documentation', 'developer_documentation.html'],
-                ['Home Page', 'A help thing'],
-                ['User Documentation', 'user_documentation.html'],
+                ["Developer Documentation", "developer_documentation.html"],
+                ["Home Page", "A help thing"],
+                ["User Documentation", "user_documentation.html"],
             ],
             help_="A help thing",
         )
@@ -128,7 +132,9 @@ class AppendHelp(unittest.TestCase):
         with run_test.keep_config() as config:
             config.optionvars["rez_sphinx"] = dict()
             config.optionvars["rez_sphinx"].setdefault("auto_help", dict())
-            config.optionvars["rez_sphinx"]["auto_help"]["sort_order"] = "prefer_original"
+            config.optionvars["rez_sphinx"]["auto_help"][
+                "sort_order"
+            ] = "prefer_original"
 
             self._test(
                 [

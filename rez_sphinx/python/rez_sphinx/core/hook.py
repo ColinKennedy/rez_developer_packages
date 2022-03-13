@@ -200,6 +200,8 @@ def package_preprocess_function(this, data):  # pylint: disable=unused-argument
         full_help = _sort(sort_method, original_help, full_help)
     else:
         filtered_original, filtered_labels = filter_method(original_help, new_labels)
-        full_help = _sort(sort_method, filtered_original, filtered_original + filtered_labels)
+        full_help = _sort(
+            sort_method, filtered_original, filtered_original + filtered_labels
+        )
 
     data[_REZ_HELP_KEY] = full_help

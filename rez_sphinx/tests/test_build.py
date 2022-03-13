@@ -167,7 +167,9 @@ class Build(unittest.TestCase):
         )
         self.assertTrue(os.path.isfile(os.path.join(api_directory, ".gitignore")))
         self.assertTrue(os.path.isfile(os.path.join(build, "index.html")))
-        self.assertTrue(os.path.isfile(os.path.join(build, "api", "some_package.file.html")))
+        self.assertTrue(
+            os.path.isfile(os.path.join(build, "api", "some_package.file.html"))
+        )
 
     def test_hello_world(self):
         """Build documentation and auto-API .rst documentation onto disk."""
