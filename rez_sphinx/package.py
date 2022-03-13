@@ -8,17 +8,34 @@ help = [["README", "README.md"]]
 
 private_build_requires = ["rez_build_helper-1+<2"]
 
-requires = [
-    "Sphinx-1.8+<4",
-    "python-2.7+<3.8",
-    "rez-2.42+<3",
-    "rez_bump-1.5+<2",
-    "rez_industry-3.1+<4",  # TODO : Kill this awful dependency later
-    "rez_python_compatibility-2.8+<3",
-    "rez_utilities-2.6+<3",
-    "schema-0.7+<1",
-    "six-1.15+<2",
-]
+@late()
+def requires():
+    from rez.config import config
+
+    output = [
+        "Sphinx-1.8+<4",
+        "python-2.7+<3.8",
+        "rez-2.42+<3",
+        "rez_bump-1.5+<2",
+        "rez_industry-3.1+<4",  # TODO : Kill this awful dependency later
+        "rez_python_compatibility-2.8+<3",
+        "rez_utilities-2.6+<3",
+        "schema-0.7+<1",
+        "six-1.15+<2",
+    ]
+
+    for request in config.optionvars.get("rez_sphinx", dict()).get("extra_requires", []):
+        # TODO : Do better checking here
+        # e.g. check package family name if versions are incompatible, check
+        # for that and report it.
+        #
+        if request in output:
+            continue
+
+        output.append(request)
+
+    return output
+
 
 variants = [["python-2", "backports.functools_lru_cache"], ["python-3"]]
 

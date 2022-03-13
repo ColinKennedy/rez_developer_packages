@@ -9,9 +9,14 @@ import unittest
 from python_compatibility import wrapping
 from rez_utilities import creator, finder
 
+from rez.config import config as config_
+from rez import resolved_context
 from rez_sphinx.core import bootstrap, exception, sphinx_helper
 
 from .common import package_wrap, run_test
+
+
+_CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 
 
 class ApiDocOptions(unittest.TestCase):
@@ -204,6 +209,34 @@ class Build(unittest.TestCase):
             print("result", watcher.get_all_results())
 
 
+class Configuration(unittest.TestCase):
+    """Make sure :ref:`rez_sphinx's <rez_sphinx>` configuration options work."""
+
+    def test_extra_requires(self):
+        """Allow users to pass extra :ref:`requires` to :ref:`rez_sphinx`."""
+        extra_install_path = os.path.join(
+            _CURRENT_DIRECTORY, "data", "installed_packages"
+        )
+        context = _make_current_rez_sphinx_context(
+            package_paths=config_.packages_path + [extra_install_path]
+        )
+        expected_requires = ["something-2"]
+        resolved_nothing = context.get_resolved_package("something")
+
+        with run_test.keep_config() as config:
+            config.optionvars["rez_sphinx"] = dict()
+            config.optionvars["rez_sphinx"]["extra_requires"] = expected_requires
+
+            context = _make_current_rez_sphinx_context(
+                package_paths=config.packages_path + [extra_install_path]
+            )
+
+            resolved_something = context.get_resolved_package("something")
+
+        self.assertIsNone(resolved_nothing)
+        self.assertIsNotNone(resolved_something)
+
+
 class Options(unittest.TestCase):
     """Make sure options (CLI, rez-config, etc) work as expected."""
 
@@ -341,6 +374,14 @@ class Invalid(unittest.TestCase):
             os.environ["REZ_FOO_ROOT"] = install_package_root
 
             run_test.test(["build", directory])
+
+
+def _make_current_rez_sphinx_context(package_paths=tuple()):
+    """:class:`rez.resolved_context.ResolvedContext`: Get the context for :ref:`rez_sphinx`."""
+    package = finder.get_nearest_rez_package(_CURRENT_DIRECTORY)
+    request = ["{package.name}=={package.version}".format(package=package)]
+
+    return resolved_context.ResolvedContext(request, package_paths=package_paths)
 
 
 def _make_read_only(path):
