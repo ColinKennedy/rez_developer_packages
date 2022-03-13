@@ -10,6 +10,9 @@ from . import cli
 from .core import exception
 
 
+_SUCCESS_EXIT_CODE = 0
+
+
 def _setup_logger():
     """Add stdout logging while the CLI is running."""
     logger = logging.getLogger(__name__)
@@ -43,6 +46,8 @@ def main(text):
             file=sys.stderr,
         )
         print(str(error))
+
+        sys.exit(error.exit_code)
     except exception.Base as error:
         print(
             "{type_}: {message}".format(
@@ -50,10 +55,16 @@ def main(text):
             ),
             file=sys.stderr,
         )
+
+        sys.exit(error.exit_code)
     except Exception:  # pylint: disable=broad-except
         text = "".join(traceback.format_exc())
         print("An unexpected error occurred. Please read the error below for details.")
         print(text, file=sys.stderr)
+
+        sys.exit(exception.GENERIC_EXIT_CODE)
+
+    sys.exit(_SUCCESS_EXIT_CODE)
 
 
 if __name__ == "__main__":

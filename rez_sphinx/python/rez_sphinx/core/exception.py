@@ -4,38 +4,40 @@ These exceptions are not meant for any third-party package to import or use.
 
 """
 
+GENERIC_EXIT_CODE = 1
+
 
 class Base(Exception):
     """A class which all exceptions in this module must inherit from."""
 
-    pass
+    exit_code = GENERIC_EXIT_CODE + 1
 
 
 class NoDocumentationFound(Base):
     """If source documentation is required for something, but is missing."""
 
-    pass
+    exit_code = GENERIC_EXIT_CODE + 2
 
 
 class NoPackageFound(Base):
     """If a Rez package is needed but none can be found."""
 
-    pass
+    exit_code = GENERIC_EXIT_CODE + 3
 
 
 class NoPythonFiles(Base):
     """If at least one Python file was needed but none were found."""
 
-    pass
+    exit_code = GENERIC_EXIT_CODE + 4
 
 
 class SphinxExecutionError(Base):
     """If some :ref:`Sphinx` CLI program fails to run and stops midway."""
 
-    pass
+    exit_code = GENERIC_EXIT_CODE + 5
 
 
 class UserInputError(Base):
     """If a user argument to the CLI or :ref:`rez-config` is not allowed."""
 
-    pass
+    exit_code = GENERIC_EXIT_CODE + 6

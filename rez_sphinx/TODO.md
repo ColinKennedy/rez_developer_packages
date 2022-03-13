@@ -87,6 +87,7 @@ Make sure all :ref:`Sphinx` point to Sphinx's website
  - :ref:`minimal bootstrapper`
  - :ref:`build_requires` - https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#build_requires
  - :ref:`requires` - https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#requires
+ - :ref:`sphinx-rtd-theme` - https://pypi.org/project/sphinx-rtd-theme/
  - :ref:`build_documentation_key` - The rez_sphinx key information
  - :ref:`sphinx-apidoc` - https://www.sphinx-doc.org/en/master/man/sphinx-apidoc.html
  - :ref:`toctree` - https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html

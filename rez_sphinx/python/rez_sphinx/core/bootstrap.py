@@ -361,4 +361,8 @@ def bootstrap(data, package=None):
     data["release"] = str(package.version)
     data["version"] = _get_major_minor_version(package.version)
 
+    overrides = preference.get_sphinx_configuration_overrides()
+    _LOGGER.info('Got extra conf.py overrides "%s".', overrides)
+    data.update(overrides)
+
     return data

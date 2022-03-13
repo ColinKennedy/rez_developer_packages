@@ -33,7 +33,7 @@ def requires():
     return output
 
 
-variants = [["python-2", "backports.functools_lru_cache"], ["python-3"]]
+variants = [["python-2", "backports.functools_lru_cache-1.6+<2"], ["python-3"]]
 
 build_command = "python -m rez_build_helper --items bin python"
 
@@ -49,7 +49,7 @@ tests = {
     },
     "build_documentation": {
         "command": "rez_sphinx build",
-        "requires": ["rez_sphinx-1.9+<2"],
+        "requires": ["rez_sphinx-1+<2"],
     },
     "isort": {
         "command": "isort python tests",

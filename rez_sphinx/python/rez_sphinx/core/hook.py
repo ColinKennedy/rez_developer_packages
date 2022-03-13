@@ -88,7 +88,9 @@ def _find_help_labels(root):
             if not destination:
                 destination = fallback_destination
             else:
-                destination = sphinx_helper.htmlize_ref(fallback_destination, destination)
+                destination = sphinx_helper.htmlize_ref(
+                    fallback_destination, destination
+                )
 
             entry = [label, destination]
 

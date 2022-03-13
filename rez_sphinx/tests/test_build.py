@@ -14,10 +14,11 @@ from rez import exceptions as exceptions_
 from rez import resolved_context
 from rez_sphinx.core import bootstrap, exception, sphinx_helper
 
-from .common import package_wrap, run_test
+from .common import package_wrap, pypi_check, run_test
 
 
 _CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
+_PYPI_RTD = "sphinx-rtd-theme==1.0.0"
 
 
 class ApiDocOptions(unittest.TestCase):
@@ -249,6 +250,75 @@ class ExtraRequires(unittest.TestCase):
                 _make_current_rez_sphinx_context(package_paths=config.packages_path)
 
 
+class Miscellaneous(unittest.TestCase):
+    """Any test that doesn't make sense in other places."""
+
+    @unittest.skipIf(
+        not pypi_check.is_request_installed(_PYPI_RTD),
+        "Install sphinx-rtd-theme with `rez-pip --install {_PYPI_RTD} --python-version=3`".format(
+            _PYPI_RTD=_PYPI_RTD,
+        ),
+    )
+    def test_sphinx_rtd_theme(self):
+        """Ensure it's easy to install :ref:`sphinx-rtd-theme`."""
+        source_package = package_wrap.make_simple_developer_package()
+        source_directory = finder.get_package_root(source_package)
+        install_path = package_wrap.make_directory("_test_api_pass_cli")
+
+        creator.build(source_package, install_path, quiet=True)
+
+        with wrapping.keep_cwd():
+            # Simulate the user adding sphinx-rtd-theme as a requirement and
+            # then running rez_sphinx init / build.
+            #
+            # (Technically we only need the requirement :ref:`rez_sphinx build`
+            # but it can't hurt to run it both init + build)
+            #
+            text = textwrap.dedent(
+                """\
+                optionvars = {
+                    "rez_sphinx": {
+                        "extra_requires": %s,
+                        "sphinx_conf_overrides": {
+                            "html_theme": "sphinx_rtd_theme",
+                        },
+                    },
+                }
+                """
+            )
+            quick_configuration = _make_rez_configuration(text % [pypi_check.to_rez_request(_PYPI_RTD)])
+
+            # Simulate the user making a "rez_sphinx + current Rez package environment"
+            os.chdir(source_directory)
+
+            context = _make_current_rez_sphinx_context(
+                extra_request=[
+                    "{source_package.name}=={source_package.version}".format(source_package=source_package),
+                ],
+                package_paths=config_.packages_path + [install_path],
+            )
+
+            # Now simulate rez_sphinx init + build
+            parent_environment = {"REZ_CONFIG_FILE": quick_configuration}
+            process = context.execute_command(
+                "rez_sphinx init",
+                parent_environ=parent_environment,
+            )
+            process.communicate()
+
+            self.assertEqual(0, process.returncode)
+
+            process = context.execute_command(
+                "rez_sphinx build",
+                parent_environ=parent_environment,
+            )
+            process.communicate()
+
+            self.assertEqual(0, process.returncode)
+
+            raise ValueError(source_directory)
+
+
 class Options(unittest.TestCase):
     """Make sure options (CLI, rez-config, etc) work as expected."""
 
@@ -388,12 +458,13 @@ class Invalid(unittest.TestCase):
             run_test.test(["build", directory])
 
 
-def _make_current_rez_sphinx_context(package_paths=tuple()):
+def _make_current_rez_sphinx_context(extra_request=tuple(), package_paths=tuple()):
     """:class:`rez.resolved_context.ResolvedContext`: Get the context for :ref:`rez_sphinx`."""
+    extra_request = extra_request or list(extra_request)
     package = finder.get_nearest_rez_package(_CURRENT_DIRECTORY)
     request = ["{package.name}=={package.version}".format(package=package)]
 
-    return resolved_context.ResolvedContext(request, package_paths=package_paths)
+    return resolved_context.ResolvedContext(request + extra_request, package_paths=package_paths)
 
 
 def _make_read_only(path):
@@ -409,3 +480,14 @@ def _make_read_only(path):
     mode = os.stat(path).st_mode
     read_only_mask = 0o777 ^ (stat.S_IWRITE | stat.S_IWGRP | stat.S_IWOTH)
     os.chmod(path, mode & read_only_mask)
+
+
+def _make_rez_configuration(text):
+    """str: Create a rezconfig.py, using ``text``."""
+    directory = package_wrap.make_directory("_make_rez_configuration")
+    configuration = os.path.join(directory, "rezconfig.py")
+
+    with open(configuration, "w") as handler:
+        handler.write(text)
+
+    return configuration

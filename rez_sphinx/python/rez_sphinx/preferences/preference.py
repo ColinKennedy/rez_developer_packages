@@ -16,7 +16,7 @@ except ImportError:
     from backports.functools_lru_cache import lru_cache
 
 from ..core import exception, schema_helper
-from . import preference_help, preference_init
+from . import preference_configuration, preference_help, preference_init
 
 _DOCUMENTATION_DEFAULT = "documentation"
 
@@ -42,6 +42,8 @@ _HELP_PARENT_KEY = "auto_help"
 _HELP_FILTER = "filter_by"
 _HELP_SORT_ORDER = "sort_order"
 _MASTER_KEY = "rez_sphinx"
+_CONFIG_OVERRIDES = "sphinx_conf_overrides"
+_EXTRA_REQUIRES = "extra_requires"
 
 _MASTER_SCHEMA = schema.Schema(
     {
@@ -73,10 +75,14 @@ _MASTER_SCHEMA = schema.Schema(
             ): schema.Use(preference_help.validate_sort),
         },
         schema.Optional(_ENABLE_APIDOC, default=True): bool,
+        schema.Optional(_CONFIG_OVERRIDES, default=dict()): {
+            schema_helper.NON_NULL_STR: object,
+        },
         schema.Optional(_APIDOC, default=[]): [],
         schema.Optional(
             _DOCUMENTATION_ROOT_KEY, default=_DOCUMENTATION_DEFAULT
         ): schema_helper.NON_NULL_STR,
+        schema.Optional(_EXTRA_REQUIRES, default=[]): [preference_configuration.REQUEST_STR],
     }
 )
 
@@ -312,6 +318,13 @@ def get_sort_method():
         return caller
 
     return caller._callable
+
+
+def get_sphinx_configuration_overrides():
+    """dict[str, object]: Get all values to directly set within :ref:`conf.py`."""
+    rez_sphinx_settings = get_base_settings()
+
+    return rez_sphinx_settings[_CONFIG_OVERRIDES]
 
 
 def get_sphinx_extensions():
