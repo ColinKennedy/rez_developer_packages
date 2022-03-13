@@ -60,7 +60,10 @@ _MASTER_SCHEMA = schema.Schema(
         schema.Optional(_QUICKSTART, default=[]): [],
         schema.Optional(
             _HELP_PARENT_KEY,
-            default={_HELP_SORT_ORDER: preference_help.DEFAULT_SORT},
+            default={
+                _HELP_FILTER: preference_help.DEFAULT_FILTER,
+                _HELP_SORT_ORDER: preference_help.DEFAULT_SORT,
+            },
         ): {
             schema.Optional(
                 _HELP_FILTER, default=preference_help.DEFAULT_FILTER
