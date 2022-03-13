@@ -10,6 +10,7 @@ from python_compatibility import wrapping
 from rez_utilities import creator, finder
 
 from rez.config import config as config_
+from rez import exceptions as exceptions_
 from rez import resolved_context
 from rez_sphinx.core import bootstrap, exception, sphinx_helper
 
@@ -209,10 +210,10 @@ class Build(unittest.TestCase):
             print("result", watcher.get_all_results())
 
 
-class Configuration(unittest.TestCase):
-    """Make sure :ref:`rez_sphinx's <rez_sphinx>` configuration options work."""
+class ExtraRequires(unittest.TestCase):
+    """Make sure :ref:`rez_sphinx's <rez_sphinx>` "extra_requires" works."""
 
-    def test_extra_requires(self):
+    def test_normal(self):
         """Allow users to pass extra :ref:`requires` to :ref:`rez_sphinx`."""
         extra_install_path = os.path.join(
             _CURRENT_DIRECTORY, "data", "installed_packages"
@@ -235,6 +236,17 @@ class Configuration(unittest.TestCase):
 
         self.assertIsNone(resolved_nothing)
         self.assertIsNotNone(resolved_something)
+
+    def test_package_conflict(self):
+        """Prevent using :ref:`rez_sphinx` if "extra_requires" is invalid."""
+        conflict = ["python-1"]
+
+        with run_test.keep_config() as config:
+            config.optionvars["rez_sphinx"] = dict()
+            config.optionvars["rez_sphinx"]["extra_requires"] = conflict
+
+            with self.assertRaises(exceptions_.ResolveError):
+                _make_current_rez_sphinx_context(package_paths=config.packages_path)
 
 
 class Options(unittest.TestCase):

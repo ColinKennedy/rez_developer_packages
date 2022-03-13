@@ -25,10 +25,6 @@ def requires():
     ]
 
     for request in config.optionvars.get("rez_sphinx", dict()).get("extra_requires", []):
-        # TODO : Do better checking here
-        # e.g. check package family name if versions are incompatible, check
-        # for that and report it.
-        #
         if request in output:
             continue
 
