@@ -305,3 +305,20 @@ def add_links_to_a_tree(entries, path):
 
     with open(path, "w") as handler:
         handler.write(data)
+
+
+def htmlize_ref(path, text):
+    """Convert ``text`` to its HTML equivalent. Attach it to ``path``.
+
+    Args:
+        path (str): The relative or absolute path to a HTML page. e.g. "page.html".
+        text (str): A raw string which represents a HTML anchor label. e.g. "Some Thing".
+
+    Returns:
+        str: The converted HTML link. e.g. "page.html#some-thing".
+
+    """
+    # TODO : Make this function cleaner, later. Preferably call whatever Sphinx calls
+    htmlized = text.replace(" ", "-").lower()
+
+    return "{path}#{htmlized}".format(path=path, htmlized=htmlized)

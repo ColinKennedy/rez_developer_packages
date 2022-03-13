@@ -1,6 +1,7 @@
 """Make sure the user's :ref:`package help` features work as expected."""
 
 import contextlib
+import textwrap
 import os
 import unittest
 
@@ -247,9 +248,72 @@ class HelpScenarios(unittest.TestCase):
 
     def test_ref_role(self):
         """Use a custom Sphinx reference if the user explicitly added one."""
-        ".. _foo:"
-        # - If the .. rez_sphinx comment (tag) is above a sphinx ref like .. _foo::, include that anchor in the text when it gets added to rez-help
-        raise ValueError()
+        # 1. Build the initial Rez package
+        package = package_wrap.make_simple_developer_package()
+        directory = finder.get_package_root(package)
+
+        # 2. Initialize the documentation
+        run_test.test(["init", directory])
+
+        # 3. Add a rez_sphinx over a Sphinx ref role.
+        _add_example_ref_role(os.path.join(directory, "documentation", "source"))
+
+        install_path = package_wrap.make_directory("_test_ref_role")
+
+        # 4a. Simulate adding the pre-build hook to the user's Rez configuration.
+        # 4b. Re-build the Rez package so it can auto-append entries to the package.py ``help``
+        #
+        with _override_preprocess(package):
+            creator.build(package, install_path, quiet=True)
+
+        install_package = developer_package.DeveloperPackage.from_path(
+            # `package` is 1.0.0 but we incremented the minor version during
+            # :ref:`rez_sphinx init`. So it's 1.1.0 now.
+            #
+            os.path.join(install_path, package.name, "1.1.0")
+        )
+
+        expected = [
+            ["Developer Documentation", "developer_documentation.html"],
+            ["Some Tag", "some_page.html#some-example-ref"],
+            ["User Documentation", "user_documentation.html"],
+        ]
+
+        self.assertEqual(
+            expected,
+            install_package.help,
+            msg='Package "{install_path}" did not match the expected result.'.format(
+                install_path=install_path
+            ),
+        )
+
+
+def _add_example_ref_role(root):
+    """Add a quick rez_sphinx_help tag above some Sphinx header.
+
+    Args:
+        root (str): The top-level documentation folder. e.g. "{root}/documentation/source".
+
+    """
+    with open(os.path.join(root, "some_page.rst"), "w") as handler:
+        handler.write(
+            textwrap.dedent(
+                """\
+                Some header
+                ===========
+
+                ..
+                    rez_sphinx_help:Some Tag
+
+                .. _some example ref:
+
+                An inner header
+                ---------------
+
+                Some text
+                """
+            )
+        )
 
 
 @contextlib.contextmanager

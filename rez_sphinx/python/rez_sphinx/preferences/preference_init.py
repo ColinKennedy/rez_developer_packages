@@ -44,7 +44,7 @@ _DEFAULT_TEXT_TEMPLATE = textwrap.dedent(
 )
 _TAG_NAME = "rez_sphinx_help"
 _TAG_TEMPLATE = "..\n    %s:{title}" % _TAG_NAME
-_SPHINX_REF = re.compile(r"^\.\. _(?P<label>\w+):\s*$")
+_SPHINX_REF = re.compile(r"^\.\. _(?P<label>[\w ]+):\s*$")
 _IS_COMMENT = re.compile(r"^\.\.\s*")
 
 
@@ -222,16 +222,18 @@ def find_tags(lines):
         if not _IS_COMMENT.match(line):
             continue
 
-        if index + 1 > count:  # `line` is the last line. Skip this.
+        next_index = index + 1
+
+        if next_index > count:  # `line` is the last line. Skip this.
             continue
 
-        next_line = lines[index + 1].strip()
+        next_line = lines[next_index].strip()
 
         if not next_line.startswith(_TAG_NAME):
             continue
 
         _, name = next_line.split(":")
-        destination = _get_destination(index + 1, lines)
+        destination = _get_destination(next_index + 1, lines)
 
         output.append((name, destination))
 

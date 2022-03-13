@@ -1,5 +1,8 @@
-- Add README.rst in the auto-generated api folder
+- Get all tests to pass
+- Add README.rst in the auto-generated api folder explaining what the folder is for
+
 - Make sure the readthedocs.io theme can be added, via ``rez-config`` settings
+ - html_theme = "sphinx_rtd_theme"
 
 - On-build
  - Check if any pages are still defaults. And fail early
@@ -10,8 +13,6 @@
   - as yaml
   - as python?
 
-
-- Rez ``help`` conversion
 
 - Need unittest so you cannot accidentally add the same file twice to the same toctree
 
@@ -37,11 +38,7 @@
 	]
 }
 
-- Auto-discover python code based on the appends to PYTHONPATH
-
 init
- ---add-remote
- - add the ability to add a manual config file
 build
  - build --dry-run
 add
@@ -96,10 +93,7 @@ Make sure all :ref:`Sphinx` point to Sphinx's website
 
 - Make sure the schema parses user options correctly. It should fail when the user provides something wrong
 
-- Add the ability to specify autoapi parameters
-
 - Allow template headers so people can link back to company websites and what not
-- Need an option for auto ``help`` attribute or baked in
 
 readthedocs integration?
 
