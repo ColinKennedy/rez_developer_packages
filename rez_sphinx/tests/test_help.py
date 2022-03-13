@@ -58,6 +58,60 @@ class AppendHelp(unittest.TestCase):
             ),
         )
 
+    def test_allow_duplicates(self):
+        """Include the user's help labels, if they clash with auto-generated ones."""
+        with run_test.keep_config() as config:
+            config.optionvars["rez_sphinx"] = dict()
+            config.optionvars["rez_sphinx"].setdefault("auto_help", dict())
+            config.optionvars["rez_sphinx"]["auto_help"]["filter_by"] = "none"
+
+            self._test(
+                [
+                    ['Developer Documentation', 'developer_documentation.html'],
+                    ['Developer Documentation', 'foo.html'],
+                    ['Home Page', 'A help thing'],
+                    ['User Documentation', 'user_documentation.html'],
+                ],
+                help_=[
+                    ['Developer Documentation', 'foo.html'],
+                    ['Home Page', 'A help thing'],
+                ]
+            )
+
+    def test_forbid_duplicates_001(self):
+        """Remove duplicate auto-generated keys, prefer original keys."""
+        with run_test.keep_config() as config:
+            config.optionvars["rez_sphinx"] = dict()
+            config.optionvars["rez_sphinx"].setdefault("auto_help", dict())
+            config.optionvars["rez_sphinx"]["auto_help"]["filter_by"] = "prefer_original"
+
+            self._test(
+                [
+                    ['Developer Documentation', 'foo.html'],
+                    ['User Documentation', 'user_documentation.html'],
+                ],
+                help_=[
+                    ['Developer Documentation', 'foo.html'],
+                ]
+            )
+
+    def test_forbid_duplicates_002(self):
+        """Remove duplicate original keys, prefer auto-generated keys."""
+        with run_test.keep_config() as config:
+            config.optionvars["rez_sphinx"] = dict()
+            config.optionvars["rez_sphinx"].setdefault("auto_help", dict())
+            config.optionvars["rez_sphinx"]["auto_help"]["filter_by"] = "prefer_generated"
+
+            self._test(
+                [
+                    ['Developer Documentation', 'developer_documentation.html'],
+                    ['User Documentation', 'user_documentation.html'],
+                ],
+                help_=[
+                    ['Developer Documentation', 'foo.html'],
+                ]
+            )
+
     def test_string(self):
         """Add :ref:`package help` to a Rez package that has a single string entry."""
         self._test(
@@ -73,7 +127,8 @@ class AppendHelp(unittest.TestCase):
         """Add :ref:`package help` to a Rez package that has a list of entries."""
         with run_test.keep_config() as config:
             config.optionvars["rez_sphinx"] = dict()
-            config.optionvars["rez_sphinx"]["auto_help_order"] = "prefer_original"
+            config.optionvars["rez_sphinx"].setdefault("auto_help", dict())
+            config.optionvars["rez_sphinx"]["auto_help"]["sort_order"] = "prefer_original"
 
             self._test(
                 [
@@ -141,7 +196,7 @@ class AutoHelpOrder(unittest.TestCase):
         # TODO : Add test to ensure invalid order is caught safely
         raise ValueError()
 
-    def test_prefer_generated(self):
+    def test_sort_prefer_generated(self):
         """Sort auto-generated help before anything the user defined."""
         caller = preference_help.OPTIONS["prefer_generated"]
 
@@ -156,7 +211,7 @@ class AutoHelpOrder(unittest.TestCase):
 
             self.assertEqual(expected, sort)
 
-    def test_prefer_original(self):
+    def test_sort_prefer_original(self):
         """Sort hand-written help before anything the auto-generated."""
         caller = preference_help.OPTIONS["prefer_original"]
 

@@ -142,7 +142,7 @@ def _sort(sort_method, original_help, full_help):
             to determine where the sort term should be placed.
         original_help (list[list[str, str]]):
             The user's original :ref:`package help` data, if any.
-        full_help (list[list[str, str]]):
+        full_help (iter[list[str, str]]):
             The user's original :ref:`package help` data, plus any auto-found
             data, if any.
 
@@ -191,8 +191,15 @@ def package_preprocess_function(this, data):  # pylint: disable=unused-argument
         return
 
     original_help = help_
-    full_help = help_ + new_labels
     sort_method = preference.get_sort_method()
-    full_help = _sort(sort_method, original_help, full_help)
+
+    try:
+        filter_method = preference.get_filter_method()
+    except EnvironmentError:
+        full_help = help_ + new_labels
+        full_help = _sort(sort_method, original_help, full_help)
+    else:
+        filtered_original, filtered_labels = filter_method(original_help, new_labels)
+        full_help = _sort(sort_method, filtered_original, filtered_original + filtered_labels)
 
     data[_REZ_HELP_KEY] = full_help

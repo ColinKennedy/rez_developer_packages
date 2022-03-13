@@ -38,7 +38,10 @@ _ENABLE_APIDOC = "enable_apidoc"
 _APIDOC = "sphinx-apidoc"
 _QUICKSTART = "sphinx-quickstart"
 
-_HELP_ORDER = "auto_help_order"
+_HELP_PARENT_KEY = "auto_help"
+_HELP_FILTER = "filter_by"
+_HELP_SORT_ORDER = "sort_order"
+_MASTER_KEY = "rez_sphinx"
 
 _MASTER_SCHEMA = schema.Schema(
     {
@@ -56,8 +59,14 @@ _MASTER_SCHEMA = schema.Schema(
         ): schema_helper.TOCTREE_LINE,
         schema.Optional(_QUICKSTART, default=[]): [],
         schema.Optional(
-            _HELP_ORDER, default=preference_help.DEFAULT
-        ): schema.Use(preference_help.validate_order),
+            _HELP_PARENT_KEY,
+            default={_HELP_SORT_ORDER: preference_help.DEFAULT_SORT},
+        ): {
+            schema.Optional(_HELP_FILTER, default=preference_help.DEFAULT_FILTER): schema.Use(preference_help.validate_filter),
+            schema.Optional(
+                _HELP_SORT_ORDER, default=preference_help.DEFAULT_SORT
+            ): schema.Use(preference_help.validate_sort),
+        },
         schema.Optional(_ENABLE_APIDOC, default=True): bool,
         schema.Optional(_APIDOC, default=[]): [],
         schema.Optional(
@@ -215,7 +224,7 @@ def get_base_settings():
     """dict[str, object]: Get all :ref:`rez_sphinx` specific default settings."""
     rez_user_options = config.optionvars  # pylint: disable=no-member
 
-    data = rez_user_options.get("rez_sphinx") or dict()
+    data = rez_user_options.get(_MASTER_KEY) or dict()
 
     return _validate_all(data)
 
@@ -241,6 +250,33 @@ def get_documentation_root_name():
     return settings.get(_DOCUMENTATION_ROOT_KEY) or _DOCUMENTATION_DEFAULT
 
 
+def get_filter_method():
+    """Get a function to process original / auto-generated :ref:`package help` values.
+
+    Returns:
+        callable[
+            list[list[str, str]],
+            list[list[str, str]]
+        ] -> tuple[
+            list[list[str, str]],
+            list[list[str, str]]
+        ]:
+            A function that takes two :ref:`package help` lists and may return
+            unique results from either of them.
+
+    """
+    rez_sphinx_settings = get_base_settings()
+    parent = rez_sphinx_settings[_HELP_PARENT_KEY]
+
+    caller = parent[_HELP_FILTER]
+
+    # TODO : Consider simplifying this section
+    if caller != preference_help.DEFAULT_FILTER:
+        return caller
+
+    return caller._callable
+
+
 def get_initial_files_from_configuration():
     """list[:class:`.Entry`]: File data to write during :ref:`rez_sphinx init`."""
     settings = get_base_settings()
@@ -262,9 +298,12 @@ def get_master_api_documentation_line():
 def get_sort_method():
     """callable[list[str], str] -> object: The sort function for :ref:`package help`."""
     rez_sphinx_settings = get_base_settings()
-    caller = rez_sphinx_settings[_HELP_ORDER]
+    parent = rez_sphinx_settings[_HELP_PARENT_KEY]
 
-    if caller != preference_help.DEFAULT:
+    caller = parent[_HELP_SORT_ORDER]
+
+    # TODO : Consider simplifying this section
+    if caller != preference_help.DEFAULT_SORT:
         return caller
 
     return caller._callable
