@@ -82,7 +82,9 @@ _MASTER_SCHEMA = schema.Schema(
         schema.Optional(
             _DOCUMENTATION_ROOT_KEY, default=_DOCUMENTATION_DEFAULT
         ): schema_helper.NON_NULL_STR,
-        schema.Optional(_EXTRA_REQUIRES, default=[]): [preference_configuration.REQUEST_STR],
+        schema.Optional(_EXTRA_REQUIRES, default=[]): [
+            preference_configuration.REQUEST_STR
+        ],
     }
 )
 

@@ -1,6 +1,9 @@
 - Get all tests to pass
 - Add README.rst in the auto-generated api folder explaining what the folder is for
 
+- Make sure per-package config overriding is allowed
+
+
 - Make sure the "auto-help ref role tagging" feature actually works. I'm almost
   100% we need the header label, NOT the ref label.
 

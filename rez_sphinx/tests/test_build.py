@@ -267,56 +267,59 @@ class Miscellaneous(unittest.TestCase):
 
         creator.build(source_package, install_path, quiet=True)
 
-        with wrapping.keep_cwd():
+        with wrapping.keep_cwd(), run_test.keep_config() as config:
             # Simulate the user adding sphinx-rtd-theme as a requirement and
             # then running rez_sphinx init / build.
             #
             # (Technically we only need the requirement :ref:`rez_sphinx build`
             # but it can't hurt to run it both init + build)
             #
-            text = textwrap.dedent(
-                """\
-                optionvars = {
-                    "rez_sphinx": {
-                        "extra_requires": %s,
-                        "sphinx_conf_overrides": {
-                            "html_theme": "sphinx_rtd_theme",
-                        },
+            optionvars = {
+                "rez_sphinx": {
+                    "extra_requires": [pypi_check.to_rez_request(_PYPI_RTD)],
+                    "sphinx_conf_overrides": {
+                        "html_theme": "sphinx_rtd_theme",
                     },
-                }
-                """
-            )
-            quick_configuration = _make_rez_configuration(text % [pypi_check.to_rez_request(_PYPI_RTD)])
-
+                },
+            }
+            config.optionvars = optionvars
             # Simulate the user making a "rez_sphinx + current Rez package environment"
             os.chdir(source_directory)
 
             context = _make_current_rez_sphinx_context(
                 extra_request=[
-                    "{source_package.name}=={source_package.version}".format(source_package=source_package),
+                    "{source_package.name}=={source_package.version}".format(
+                        source_package=source_package
+                    ),
                 ],
                 package_paths=config_.packages_path + [install_path],
             )
 
             # Now simulate rez_sphinx init + build
+            quick_configuration = _make_rez_configuration(
+                "optionvars = {optionvars!r}".format(optionvars=optionvars)
+            )
             parent_environment = {"REZ_CONFIG_FILE": quick_configuration}
-            process = context.execute_command(
+
+            init = context.execute_command(
                 "rez_sphinx init",
                 parent_environ=parent_environment,
             )
-            process.communicate()
-
-            self.assertEqual(0, process.returncode)
-
-            process = context.execute_command(
+            init.communicate()
+            build = context.execute_command(
                 "rez_sphinx build",
                 parent_environ=parent_environment,
             )
-            process.communicate()
+            build.communicate()
+            self.assertEqual(0, init.returncode)
+            self.assertEqual(0, build.returncode)
 
-            self.assertEqual(0, process.returncode)
+        with open(
+            os.path.join(source_directory, "documentation", "build", "index.html"), "r"
+        ) as handler:
+            contents = handler.read()
 
-            raise ValueError(source_directory)
+        self.assertIn("Read the Docs", contents)
 
 
 class Options(unittest.TestCase):
@@ -464,7 +467,9 @@ def _make_current_rez_sphinx_context(extra_request=tuple(), package_paths=tuple(
     package = finder.get_nearest_rez_package(_CURRENT_DIRECTORY)
     request = ["{package.name}=={package.version}".format(package=package)]
 
-    return resolved_context.ResolvedContext(request + extra_request, package_paths=package_paths)
+    return resolved_context.ResolvedContext(
+        request + extra_request, package_paths=package_paths
+    )
 
 
 def _make_read_only(path):
