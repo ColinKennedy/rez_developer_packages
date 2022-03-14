@@ -153,7 +153,13 @@ class Build(unittest.TestCase):
         build = os.path.join(source_directory, "documentation", "build")
 
         self.assertEqual(
-            {".gitignore", "modules.rst", "some_package.file.rst", "some_package.rst"},
+            {
+                ".gitignore",
+                "README",
+                "modules.rst",
+                "some_package.file.rst",
+                "some_package.rst",
+            },
             set(os.listdir(api_directory)),
         )
 
