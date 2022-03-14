@@ -1,5 +1,5 @@
 - Get all tests to pass
-- Add README.rst in the auto-generated api folder explaining what the folder is for
+- Need unittest so you cannot accidentally add the same file twice to the same toctree
 
 - Make sure per-package config overriding is allowed
 
@@ -7,20 +7,15 @@
 - Make sure the "auto-help ref role tagging" feature actually works. I'm almost
   100% we need the header label, NOT the ref label.
 
-- Make sure the readthedocs.io theme can be added, via ``rez-config`` settings
- - html_theme = "sphinx_rtd_theme"
-
 - On-build
  - Check if any pages are still defaults. And fail early
   - Add an option to disable this feature
+
 
 - config subparser
  - print a default configuration for the user
   - as yaml
   - as python?
-
-
-- Need unittest so you cannot accidentally add the same file twice to the same toctree
 
 
 - Check what sphinx.ext.githubpages is!!

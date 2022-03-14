@@ -3,6 +3,7 @@
 import logging
 import os
 import sys
+import textwrap
 import traceback
 
 from python_compatibility import filer
@@ -13,6 +14,25 @@ from ..preferences import preference
 from . import configuration, exception, path_control, sphinx_helper
 
 _LOGGER = logging.getLogger(__name__)
+
+
+def _add_disclaimer_readme(directory):
+    """Add a README file for API documentation into ``directory``.
+
+    Args:
+        directory (str):
+            The folder where API documentation + disclaimer must be placed.
+            e.g. ``"{root}/documentation/source/api"``.
+
+    """
+    with open(os.path.join(directory, "README"), "w") as handler:
+        handler.write(
+            textwrap.dedent(
+                """\
+                This directory and its contents are auto-generated and ignored by git.
+                Do not place any files here that you wish to keep!"""
+            )
+        )
 
 
 def _clear_api_directory(directory):
@@ -31,6 +51,7 @@ def _clear_api_directory(directory):
 
     path_control.clear_directory(api_directory)
     path_control.add_gitignore(api_directory)
+    _add_disclaimer_readme(api_directory)
 
     return api_directory
 
