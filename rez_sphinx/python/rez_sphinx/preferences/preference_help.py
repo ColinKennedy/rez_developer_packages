@@ -11,7 +11,6 @@ import schema
 
 from . import preference_help_
 
-
 DEFAULT_FILTER = schema.Use(preference_help_.filter_generated)
 DEFAULT_SORT = schema.Use(preference_help_.alphabetical)
 OPTIONS = {

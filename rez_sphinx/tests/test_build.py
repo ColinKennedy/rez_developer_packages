@@ -7,15 +7,14 @@ import textwrap
 import unittest
 
 from python_compatibility import wrapping
-from rez_utilities import creator, finder
-
-from rez.config import config as config_
 from rez import exceptions as exceptions_
 from rez import resolved_context
+from rez.config import config as config_
+from rez_utilities import creator, finder
+
 from rez_sphinx.core import bootstrap, exception, sphinx_helper
 
 from .common import package_wrap, pypi_check, run_test
-
 
 _CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 _PYPI_RTD = "sphinx-rtd-theme==1.0.0"

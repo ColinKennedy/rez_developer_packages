@@ -1,17 +1,17 @@
 """Make running :ref:`rez_sphinx` in unittests easier."""
 
-import copy
 import contextlib
+import copy
 import os
 import shlex
 import sys
 
 import six
-from rez_utilities import finder
-from rez_sphinx.preferences import preference
-
 from rez.config import config
+from rez_utilities import finder
+
 from rez_sphinx import cli
+from rez_sphinx.preferences import preference
 
 
 @contextlib.contextmanager

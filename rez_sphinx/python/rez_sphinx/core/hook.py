@@ -8,7 +8,6 @@ import six
 from ..preferences import preference, preference_init
 from . import configuration, sphinx_helper
 
-
 _DEFAULT_LABEL = "Home Page"
 _REZ_HELP_KEY = "help"
 _SEEN = set()

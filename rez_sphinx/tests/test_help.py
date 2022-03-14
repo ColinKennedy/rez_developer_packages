@@ -1,13 +1,14 @@
 """Make sure the user's :ref:`package help` features work as expected."""
 
 import contextlib
-import textwrap
 import os
+import textwrap
 import unittest
 
-from rez import developer_package
 from python_compatibility import wrapping
+from rez import developer_package
 from rez_utilities import creator, finder
+
 from rez_sphinx.core import hook
 from rez_sphinx.preferences import preference_help
 

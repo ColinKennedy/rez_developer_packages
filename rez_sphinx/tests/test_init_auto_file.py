@@ -2,10 +2,11 @@
 
 import contextlib
 import os
-import unittest
 import textwrap
+import unittest
 
 from rez_utilities import finder
+
 from .common import package_wrap, run_test
 
 
