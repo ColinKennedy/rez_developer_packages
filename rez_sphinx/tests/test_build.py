@@ -72,7 +72,13 @@ class ApiDocOptions(unittest.TestCase):
         source = os.path.join(source_directory, "documentation", "source")
 
         self.assertEqual(
-            {".gitignore", "some_package.txt", "some_package.file.txt", "modules.txt"},
+            {
+                ".gitignore",
+                "README",
+                "modules.txt",
+                "some_package.file.txt",
+                "some_package.txt",
+            },
             set(os.listdir(os.path.join(source, "api"))),
         )
 
