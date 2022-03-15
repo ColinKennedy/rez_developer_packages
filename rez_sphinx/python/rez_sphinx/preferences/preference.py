@@ -140,7 +140,7 @@ def _validate_api_options(options):
             User arguments to pass to :ref:`sphinx-apidoc`. This could
             be a combination of automated arguments or arguments which
             the user manually provided, via :ref:`rez-config` or from
-            the :ref:`rez_sphinx build` CLI.
+            the :doc:`init_command` CLI.
 
     Raises:
         :class:`.UserInputError`: If there are any found errors.
@@ -207,7 +207,7 @@ def get_api_options(options=tuple()):
     Args:
         options (container[str]):
             User arguments to pass to :ref:`sphinx-apidoc`. These
-            options come from :ref:`rez_sphinx build` CLI and may be
+            options come from :doc:`build_command` CLI and may be
             valid or invalid.
 
     """
@@ -291,7 +291,7 @@ def get_filter_method():
 
 
 def get_initial_files_from_configuration():
-    """list[:class:`.Entry`]: File data to write during :ref:`rez_sphinx init`."""
+    """list[:class:`.Entry`]: File data to write during :doc:`init_command`."""
     settings = get_base_settings()
     options = settings.get(_INIT_KEY) or dict()
 

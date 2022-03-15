@@ -18,8 +18,8 @@ Features Overview
 - Extra documentation-only validation
 
 
-Running :ref:`rez_sphinx init`
-==============================
+Running rez_sphinx init
+=======================
 
 When you generate documentation for the first time, :ref:`rez_sphinx` will...
 
@@ -32,8 +32,8 @@ When you generate documentation for the first time, :ref:`rez_sphinx` will...
 So far this is nothing special. But this is just a start.
 
 
-Running :ref:`rez_sphinx build`
-===============================
+Running rez_sphinx build
+========================
 
 Calling a build is as easy as writing `rez-test your_package_name
 build_documentation`. What happens when you do that? It will...
@@ -79,7 +79,7 @@ To get started, here's all you need to do.
 TODO: Revisit these instructions later
 
 1. `cd` into the Rez Python package that you want (e.g. my_package)
-2. Create a Rez resolve of your package + rez_sphinx and run rez_sphinx init
+2. Create a Rez resolve of your package + rez_sphinx and run :doc:`init_command`
 
 ```sh
 rez-env my_package rez_sphinx -- rez-sphinx init

@@ -14,7 +14,7 @@ class General(unittest.TestCase):
     """Make sure any auto-generated documentation files are made, correctly."""
 
     def test_custom_files(self):
-        """Define and generate a custom file, on :ref:`rez_sphinx init`."""
+        """Define and generate a custom file, on :doc:`init_command`."""
         package = package_wrap.make_simple_developer_package()
         directory = finder.get_package_root(package)
         name = "some_custom_file"
@@ -218,7 +218,7 @@ def _get_base_master_index_text(path):
 
 @contextlib.contextmanager
 def _override_default_files(files):
-    """Use ``files`` when running :ref:`rez_sphinx init` instead of the defaults.
+    """Use ``files`` when running :doc:`init_command` instead of the defaults.
 
     Args:
         files (list[dict[str, str or bool]]):

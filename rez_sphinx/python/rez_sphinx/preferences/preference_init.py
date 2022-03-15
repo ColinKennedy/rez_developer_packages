@@ -1,4 +1,4 @@
-r"""Some Sphinx files may be generated during :ref:`rez_sphinx init`.
+r"""Some Sphinx files may be generated during :doc:`init_command`.
 
 This module is in charge of describing those files. e.g. what the file name is,
 its file content, how will Rez / Sphinx refer to that file, etc.
@@ -49,7 +49,7 @@ _IS_COMMENT = re.compile(r"^\.\.\s*")
 
 
 class Entry(object):
-    """A description for Sphinx files to generate during :ref:`rez_sphinx init`."""
+    """A description for Sphinx files to generate during :doc:`init_command`."""
 
     def __init__(self, data):
         """Store ``data`` for reference, later.

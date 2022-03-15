@@ -1,4 +1,4 @@
-"""The module which handles the :ref:`rez_sphinx build` command."""
+"""The module which handles the :doc:`init_command` command."""
 
 import os
 import traceback

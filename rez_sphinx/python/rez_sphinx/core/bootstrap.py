@@ -58,12 +58,7 @@ def _get_intersphinx_candidates(package):
         variants = variants[0]
 
     # TODO : Add a configuration option here. Default to only consider "requires"
-    for request in itertools.chain(
-        package.private_build_requires or [],
-        package.build_requires or [],
-        package.requires or [],
-        variants,
-    ):
+    for request in itertools.chain(package.requires or [], variants):
         if request.ephemeral:
             _LOGGER.debug('Skipped loading "%s" ephemeral request.', request)
 

@@ -111,12 +111,12 @@ def _init(namespace):
 
 
 def _set_up_build(sub_parsers):
-    """Add :ref:`rez_sphinx build` CLI parameters.
+    """Add :doc:`build_command` CLI parameters.
 
     Args:
         sub_parsers (:class:`argparse._SubParsersAction`):
-            A collection of parsers which the :ref:`rez_sphinx build`
-            will be appended onto.
+            A collection of parsers which the :doc:`build_command` will be
+            appended onto.
 
     """
     build = sub_parsers.add_parser(
@@ -151,12 +151,12 @@ def _set_up_build(sub_parsers):
 
 
 def _set_up_init(sub_parsers):
-    """Add :ref:`rez_sphinx init` CLI parameters.
+    """Add :doc:`init_command` CLI parameters.
 
     Args:
         sub_parsers (:class:`argparse._SubParsersAction`):
-            A collection of parsers which the :ref:`rez_sphinx init`
-            will be appended onto.
+            A collection of parsers which the :doc:`init_command` will be
+            appended onto.
 
     """
     init = sub_parsers.add_parser(

@@ -63,34 +63,6 @@ docbot needs a plugin for auto-setting the remote
 
 - Add windows bin support
 
-Make sure all :ref:`Sphinx` point to Sphinx's website
- - Same with rez-config https://github.com/nerdvegas/rez/wiki/Command-Line-Tools#rez-config
- - :ref:`Sphinx conf.py` - https://www.sphinx-doc.org/en/master/usage/configuration.html.
- - :ref:`sphinx-quickstart` - https://www.sphinx-doc.org/en/master/man/sphinx-quickstart.html
- - :ref:`rez_sphinx init`
- - :ref:`rez_sphinx build`
- - :ref:`rez help attribute` - https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#help
- - :ref:`intersphinx_mapping` - https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html
- - :ref:`intersphinx` - https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html
- - :ref:`sphinx.ext.autodoc` - https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html
- - :ref:`index.rst`
- - :ref:`help`
- - :ref:`rez_sphinx auto-help` - 
- - :ref:`rez-build`
- - :ref:`package help` - https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#help
- - :ref:`rez_sphinx tag` - documentation to where I explain the ..
- - :ref:`private_build_requires` - https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#private_build_requires
- - :ref:`package_preprocess_function`
- - :ref:`package.py`
- - :ref:`minimal bootstrapper`
- - :ref:`build_requires` - https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#build_requires
- - :ref:`requires` - https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#requires
- - :ref:`sphinx-rtd-theme` - https://pypi.org/project/sphinx-rtd-theme/
- - :ref:`build_documentation_key` - The rez_sphinx key information
- - :ref:`sphinx-apidoc` - https://www.sphinx-doc.org/en/master/man/sphinx-apidoc.html
- - :ref:`toctree` - https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html
- - :ref:`index.rst` - https://sphinx-tutorial.readthedocs.io/step-1/
-
 - Add black_isort
 
 - Make sure the schema parses user options correctly. It should fail when the user provides something wrong
