@@ -42,7 +42,7 @@ class QuickStartOptions(unittest.TestCase):
     """Make sure users can source options from the CLI / rez-config / etc."""
 
     def test_cli_argument(self):
-        """Let the user change :ref:`sphinx-quickstart` options from a flag."""
+        """Let the user change `sphinx-quickstart`_ options from a flag."""
         package = package_wrap.make_simple_developer_package()
         directory = finder.get_package_root(package)
 
@@ -59,7 +59,7 @@ class QuickStartOptions(unittest.TestCase):
         self.assertIn("sphinx.ext.coverage", sphinx.get_extensions())
 
     def test_cli_dash_separator(self):
-        """Let the user change :ref:`sphinx-quickstart` options from a " -- "."""
+        """Let the user change `sphinx-quickstart`_ options from a " -- "."""
         package = package_wrap.make_simple_developer_package()
         directory = finder.get_package_root(package)
 

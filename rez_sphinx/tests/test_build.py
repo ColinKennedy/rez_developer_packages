@@ -24,7 +24,7 @@ class ApiDocOptions(unittest.TestCase):
     """Make sure users can source options from the CLI / rez-config / etc."""
 
     def test_cli_argument(self):
-        """Let the user change :ref:`sphinx-quickstart` options from a flag."""
+        """Let the user change `sphinx-quickstart`_ options from a flag."""
         source_package = package_wrap.make_simple_developer_package()
         source_directory = finder.get_package_root(source_package)
         install_path = package_wrap.make_directory("_test_cli_argument")
@@ -45,12 +45,18 @@ class ApiDocOptions(unittest.TestCase):
         source = os.path.join(source_directory, "documentation", "source")
 
         self.assertEqual(
-            {".gitignore", "some_package.txt", "some_package.file.txt", "modules.txt"},
+            {
+                ".gitignore",
+                "README",
+                "modules.txt",
+                "some_package.file.txt",
+                "some_package.txt",
+            },
             set(os.listdir(os.path.join(source, "api"))),
         )
 
     def test_cli_dash_separator(self):
-        """Let the user change :ref:`sphinx-quickstart` options from a " -- "."""
+        """Let the user change `sphinx-quickstart`_ options from a " -- "."""
         source_package = package_wrap.make_simple_developer_package()
         source_directory = finder.get_package_root(source_package)
         install_path = package_wrap.make_directory("_test_cli_dash_separator")
@@ -200,27 +206,26 @@ class Build(unittest.TestCase):
         watchers = []
 
         for source, install in package_directories:
-            with run_test.simulate_resolve(install_packages):
+            with run_test.simulate_resolve(install_packages), wrapping.keep_cwd():
                 run_test.test(["init", source])
 
-                with wrapping.watch_namespace(
-                    bootstrap._get_intersphinx_mappings
-                ) as watcher, wrapping.silence_printing():  # Make tests less spammy
+                with wrapping.watch_namespace(bootstrap._get_intersphinx_mappings) as watcher:
                     run_test.test(["build", source])
 
-                watchers.extend(watcher)
-
+            break
+        #         watchers.extend(watcher)
+        #
+        # for watcher in watchers:
+        #     print("result", watcher.get_all_results())
+        #
         raise ValueError("sTop")
-
-        for watcher in watchers:
-            print("result", watcher.get_all_results())
 
 
 class ExtraRequires(unittest.TestCase):
     """Make sure :ref:`rez_sphinx's <rez_sphinx>` "extra_requires" works."""
 
     def test_normal(self):
-        """Allow users to pass extra :ref:`requires` to :ref:`rez_sphinx`."""
+        """Allow users to pass extra `requires`_ to :ref:`rez_sphinx`."""
         extra_install_path = os.path.join(
             _CURRENT_DIRECTORY, "data", "installed_packages"
         )
@@ -265,7 +270,7 @@ class Miscellaneous(unittest.TestCase):
         ),
     )
     def test_sphinx_rtd_theme(self):
-        """Ensure it's easy to install :ref:`sphinx-rtd-theme`."""
+        """Ensure it's easy to install `sphinx-rtd-theme`_."""
         source_package = package_wrap.make_simple_developer_package()
         source_directory = finder.get_package_root(source_package)
         install_path = package_wrap.make_directory("_test_api_pass_cli")

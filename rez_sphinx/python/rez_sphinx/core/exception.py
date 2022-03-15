@@ -32,12 +32,12 @@ class NoPythonFiles(Base):
 
 
 class SphinxExecutionError(Base):
-    """If some :ref:`Sphinx` CLI program fails to run and stops midway."""
+    """If some `Sphinx`_ CLI program fails to run and stops midway."""
 
     exit_code = GENERIC_EXIT_CODE + 5
 
 
 class UserInputError(Base):
-    """If a user argument to the CLI or :ref:`rez-config` is not allowed."""
+    """If a user argument to the CLI or `rez-config`_ is not allowed."""
 
     exit_code = GENERIC_EXIT_CODE + 6

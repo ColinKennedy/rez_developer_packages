@@ -1,4 +1,4 @@
-"""A wrap for accessing data from :ref:`conf.py`, from :ref:`Sphinx`."""
+"""A wrap for accessing data from `Sphinx conf.py`_, from `Sphinx`_."""
 
 import inspect
 import os
@@ -9,13 +9,13 @@ _CONFIGURATION_FILE_NAME = "conf.py"
 
 
 class ConfPy(object):
-    """A wrap for accessing data from :ref:`conf.py`, from :ref:`Sphinx`."""
+    """A wrap for accessing data from `Sphinx conf.py`_, from `Sphinx`_."""
 
     def __init__(self, module):
-        """Keep track of a :ref:`conf.py` module.
+        """Keep track of a `Sphinx conf.py`_ module.
 
         Args:
-            module (module): The Python :ref:`conf.py` to keep.
+            module (module): The Python `Sphinx conf.py`_ to keep.
 
         """
         super(ConfPy, self).__init__()
@@ -25,7 +25,7 @@ class ConfPy(object):
 
     @classmethod
     def from_directory(cls, directory):
-        """Find and convert a :ref:`conf.py` located directly within ``directory``.
+        """Find and convert a `Sphinx conf.py`_ located directly within ``directory``.
 
         Args:
             directory (str):
@@ -62,7 +62,7 @@ class ConfPy(object):
             return "index"  # A reasonable default
 
     def get_extensions(self):
-        """Get all registered :ref:`Sphinx` extensions. e.g. "sphinx.ext.viewcode".
+        """Get all registered `Sphinx`_ extensions. e.g. "sphinx.ext.viewcode".
 
         Returns:
             list[str]: The registered extensions.
@@ -71,7 +71,7 @@ class ConfPy(object):
         return self._module.extensions or []
 
     def get_master_document_path(self):
-        """str: Get the full path on-disk where this :ref:`conf.py` lives."""
+        """str: Get the full path on-disk where this `Sphinx conf.py`_ lives."""
         name = self._get_master_doc() + self.get_source_extension()
 
         return os.path.join(self._directory, name)

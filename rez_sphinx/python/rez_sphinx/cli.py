@@ -57,7 +57,7 @@ def _build(namespace):
 
     Raises:
         :class:`.UserInputError`:
-            If the user passes :ref:`sphinx-apidoc` arguments but also
+            If the user passes `sphinx-apidoc`_ arguments but also
             specified that they don't want to build API documentation.
 
     """

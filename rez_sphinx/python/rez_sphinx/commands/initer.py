@@ -72,20 +72,20 @@ def _add_initial_files(root, entries):
 
 
 def _run_sphinx_quickstart(directory, options=tuple()):
-    """Run :ref:`sphinx-quickstart`.
+    """Run `sphinx-quickstart`_.
 
     Args:
         directory (str):
             The starting folder on-disk where newly created
             documentation files will live under.
         options (list[str], optional):
-            The arguments which are passed directly to :ref:`sphinx-quickstart`.
+            The arguments which are passed directly to `sphinx-quickstart`_.
 
     Raises:
         :class:`.SphinxExecutionError`:
-            If :ref:`sphinx-quickstart` failed midway during execution.
+            If `sphinx-quickstart`_ failed midway during execution.
         RuntimeError:
-            If for some reason :ref:`sphinx-quickstart` completed but
+            If for some reason `sphinx-quickstart`_ completed but
             somehow failed to generate the expected files.
 
     """
@@ -128,7 +128,7 @@ def init(package, directory, quick_start_options=tuple()):
             will live under. e.g. "{rez_root}/documentation"
         quick_start_options (list[str], optional):
             User-provided arguments to consider while resolving
-            :ref:`sphinx-quickstart` values.
+            `sphinx-quickstart`_ values.
 
     """
     # TODO : Need to add API documentation support here.

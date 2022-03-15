@@ -12,7 +12,7 @@ Features Overview
 - Link any Rez package's documentation to any other Rez package
 - Auto-submit PRs
 - Auto-append commands building / publishing documentation
-- Auto-configure Rez :ref:`package help`
+- Auto-configure Rez `package help`_
 - Auto-generate Python API documentation
 - Publish documentation locally, to GitHub, or readthedocs.io
 - Extra documentation-only validation
@@ -23,8 +23,8 @@ Running rez_sphinx init
 
 When you generate documentation for the first time, :ref:`rez_sphinx` will...
 
-- Generate a default Sphinx :ref:`conf.py`
-    - ``rez_sphinx`` adds a :ref:`minimal bootstrapper` directly to the :ref:`conf.py`.
+- Generate a default Sphinx `Sphinx conf.py`_
+    - ``rez_sphinx`` adds a :ref:`minimal bootstrapper` directly to the `Sphinx conf.py`_.
 - Auto-add extra documentation files for users to fill out
 - Bump your Rez package minor version
 - Append :ref:`rez-test` entries so the documentation can be built / published
@@ -39,20 +39,20 @@ Calling a build is as easy as writing `rez-test your_package_name
 build_documentation`. What happens when you do that? It will...
 
 - Validate that your documentation files are filled out.
-- Auto-generate Python API documentation just in time :ref:`sphinx-apidoc`
+- Auto-generate Python API documentation just in time `sphinx-apidoc`_
 - Link your current Rez package to other Rez packages containing documentation,
-  by parsing your :ref:`package requires`
+  by parsing your `package requires`_
     - Want more documentation-only interlinking? See :doc:`adding_extra_interlinking`
-- Auto-configure Sphinx, using your :ref:`package.py` contents
+- Auto-configure Sphinx, using your `package.py`_ contents
 - Auto-appends entries to your installed Rez package's
-  :ref:`package help <help attribute>`
+  `package help <help attribute>`_
 
 Some important things to note:
 
-- The "Auto-generate API documentation" feature just calls :ref:`sphinx-apidoc`
+- The "Auto-generate API documentation" feature just calls `sphinx-apidoc`_
   under the hood. But because the API documentation files are generated before
   the documentation builds, they are always kept up to date with your source
-  code. To top it off, A common problem with :ref:`sphinx-apidoc` is it
+  code. To top it off, A common problem with `sphinx-apidoc`_ is it
   generates thousands of tiny, "10 lines or less" .rst files. This feature
   fixes that problem.
 - Interlinking one Rez package's documentation to another will **always** work,

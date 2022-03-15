@@ -16,7 +16,7 @@ def _get_documentation_build(source):
 
     Args:
         source (str):
-            The parent directory of :ref:`Sphinx conf.py <conf.py>`.
+            The parent directory of `Sphinx conf.py <conf.py>`_.
 
     Returns:
         str:
@@ -43,19 +43,18 @@ def _get_documentation_build(source):
 
 
 def _get_documentation_source(root):
-    """Find the directory which contains :ref:`Sphinx conf.py` or fail trying.
+    """Find the directory which contains `Sphinx conf.py`_ or fail trying.
 
     Args:
         root (str):
-            A directory on-disk to search within for the
-            :ref:`Sphinx conf.py <conf.py>`.
+            A directory on-disk to search within for the `Sphinx conf.py <conf.py>`_.
 
     Raises:
         :class:`.NoDocumentationFound`:
             If ``root`` needs to initialize some documentation.
 
     Returns:
-        str: The parent directory of :ref:`Sphinx conf.py <conf.py>`.
+        str: The parent directory of `Sphinx conf.py <conf.py>`_.
 
     """
     try:
@@ -85,16 +84,16 @@ def build(
             For example, should it be generated or not? See
             :mod:`api_builder` for details.
         api_options (list[str], optional):
-            User-provided arguments to pass to :ref:`sphinx-apidoc`.
+            User-provided arguments to pass to `sphinx-apidoc`_.
         no_api_doc (bool, optional):
             If True, don't build any API documentation. If False, API .rst
-            files will be auto-generated just before :ref:`sphinx-build` is ran.
+            files will be auto-generated just before `sphinx-build`_ is ran.
 
     Raises:
         :class:`.NoPackageFound`:
             If ``directory`` is invalid.
         :class:`.SphinxExecutionError`:
-            If :ref:`sphinx-build` failed midway before it could be completed.
+            If `sphinx-build`_ failed midway before it could be completed.
 
     """
     package = finder.get_nearest_rez_package(directory)

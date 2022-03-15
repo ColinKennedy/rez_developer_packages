@@ -25,8 +25,11 @@ rst_epilog = textwrap.dedent(
     """
 )
 
+# TODO : Consider remove rez-config references
+
 # TODO : Add these
 # - build_documentation_key` - The rez_sphinx key information
+# `objects.inv`_.
 # - :ref:`rez_sphinx tag` - documentation to where I explain the ..
 # - :ref:`rez_sphinx auto-help` -
 # - :ref:`minimal bootstrapper`

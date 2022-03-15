@@ -1,6 +1,6 @@
 """A module for handling API Python .rst Sphinx files.
 
-This module has strong tie-ins with :ref:`sphinx.ext.autodoc`. Read that
+This module has strong tie-ins with `sphinx.ext.autodoc`_. Read that
 documentation for mode details.
 
 """

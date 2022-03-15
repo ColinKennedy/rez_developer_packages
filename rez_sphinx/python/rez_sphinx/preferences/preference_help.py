@@ -1,4 +1,4 @@
-"""A module to determine how new Rez help entries may be added to :ref:`package help`.
+"""A module to determine how new Rez help entries may be added to `package help`_.
 
 Attributes:
     OPTIONS (dict[str, callable[list[str], str] -> int or str or tuple]):
@@ -42,7 +42,7 @@ def validate_filter(item):
             list[list[str, str]],
             list[list[str, str]]
         ]:
-            A function that takes two :ref:`package help` lists and may return
+            A function that takes two `package help`_ lists and may return
             unique results from either of them.
 
     """
@@ -67,9 +67,9 @@ def validate_sort(item):
 
     Returns:
         callable[list[str], str] -> int or str or tuple:
-            A function which takes a list of "user preferred" :ref:`package
-            help` values, the current value to consider for sorting, and
-            returns some kind of sort category.
+            A function which takes a list of "user preferred" `package help`_
+            values, the current value to consider for sorting, and returns some
+            kind of sort category.
 
     """
     try:

@@ -72,7 +72,7 @@ def _generate_api_files(directory, destination, options=tuple()):
             If no Python files exist then no API .rst files can be built.
             So this function raises this exception, exiting early.
         :class:`.SphinxExecutionError`:
-            If running :ref:`sphinx-apidoc` failed midway and could not complete.
+            If running `sphinx-apidoc`_ failed midway and could not complete.
 
     """
     install_package = finder.get_nearest_rez_package(directory)
@@ -144,7 +144,7 @@ def _get_python_source_roots(directory):
 
 
 def _update_master_file(directory):
-    """Add the newly-created API entry "modules.rst" file to the master :ref:`toctree`.
+    """Add the newly-created API entry "modules.rst" file to the master `toctree`_.
 
     Args:
         directory (str):
@@ -171,7 +171,7 @@ def generate_api_files(directory, options=tuple()):
             The absolute path to the documentation source directory,
             within some Rez package.
         options (container[str], optional):
-            All arguments to pass directly to :ref:`sphinx-apidoc`.
+            All arguments to pass directly to `sphinx-apidoc`_.
 
     """
     api_directory = _clear_api_directory(directory)

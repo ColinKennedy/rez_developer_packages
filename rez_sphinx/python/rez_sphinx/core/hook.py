@@ -57,17 +57,17 @@ def _expand_help(help_):
 
 
 def _find_help_labels(root):
-    """Auto-find all :ref:`package help` links, using :ref:`rez_sphinx`.
+    """Auto-find all `package help`_ links, using :ref:`rez_sphinx`.
 
     It works by querying all Sphinx .rst files at ``root`` (or whatever your
     source extension is), checks each file to a known :ref:`rez_sphinx tag`,
-    and then adds those entries directly into the users's :ref:`package help`
+    and then adds those entries directly into the users's `package help`_
     just before it is built.
 
     Args:
         root (str):
             The root documentation source directory. It should directly contain
-            a :ref:`conf.py`.
+            a `Sphinx conf.py`_.
 
     Returns:
         list[list[str, str]]:
@@ -121,7 +121,7 @@ def _iter_sphinx_source_files(root):
     Args:
         root (str):
             The root documentation source directory. It should directly contain
-            a :ref:`conf.py`.
+            a `Sphinx conf.py`_.
 
     Yields:
         str: The absolute path to every Sphinx ReST file, if any.
@@ -144,13 +144,13 @@ def _sort(sort_method, original_help, full_help):
             A function that takes ``original_help`` plus some sort term
             to determine where the sort term should be placed.
         original_help (list[list[str, str]]):
-            The user's original :ref:`package help` data, if any.
+            The user's original `package help`_ data, if any.
         full_help (iter[list[str, str]]):
-            The user's original :ref:`package help` data, plus any auto-found
+            The user's original `package help`_ data, plus any auto-found
             data, if any.
 
     Returns:
-        list[list[str, str]]: The final, sorted :ref:`package help`.
+        list[list[str, str]]: The final, sorted `package help`_.
 
     """
     sorter = functools.partial(sort_method, original_help)
@@ -159,7 +159,7 @@ def _sort(sort_method, original_help, full_help):
 
 
 def package_preprocess_function(this, data):  # pylint: disable=unused-argument
-    """Replace the :ref:`package help` in ``data`` with auto-found Sphinx documentation.
+    """Replace the `package help`_ in ``data`` with auto-found Sphinx documentation.
 
     If no :ref:`rez_sphinx tags <rez_sphinx tag>` are found, this function will
     exit early and do nothing.

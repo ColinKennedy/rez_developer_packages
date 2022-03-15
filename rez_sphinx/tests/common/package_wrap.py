@@ -130,7 +130,7 @@ def make_simple_developer_package(package_text="", file_text="", help_=None):
         file_text (str, optional):
             Some example Python source file within this pretend source Rez package.
         help_ (list[list[str, str]] or str or NoneType, optional):
-            The initial Rez package :ref:`package help`. If ``None``, no
+            The initial Rez package `package help`_. If ``None``, no
             ``help`` will be defined. All other input is used as-is. This
             data, if provided, is appended directly to ``package_text``.
 

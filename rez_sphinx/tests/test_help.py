@@ -1,4 +1,4 @@
-"""Make sure the user's :ref:`package help` features work as expected."""
+"""Make sure the user's `package help`_ features work as expected."""
 
 import contextlib
 import os
@@ -16,7 +16,7 @@ from .common import package_wrap, run_test
 
 
 class AppendHelp(unittest.TestCase):
-    """Make sure the user's :ref:`package help` is appended as expected."""
+    """Make sure the user's `package help`_ is appended as expected."""
 
     def _test(self, expected, help_=None):
         """Create a base Rez package, run :ref:`rez_sphinx` and check ``expected``.
@@ -26,7 +26,7 @@ class AppendHelp(unittest.TestCase):
                 The help entries which should be in the installed package by
                 the end of this method.
             help_ (list[list[str, str]] or str or NoneType, optional):
-                The initial Rez package :ref:`package help`. If ``None``,
+                The initial Rez package `package help`_. If ``None``,
                 no ``help`` will be defined. All other input is used as-is.
 
         """
@@ -119,7 +119,7 @@ class AppendHelp(unittest.TestCase):
             )
 
     def test_string(self):
-        """Add :ref:`package help` to a Rez package that has a single string entry."""
+        """Add `package help`_ to a Rez package that has a single string entry."""
         self._test(
             [
                 ["Developer Documentation", "developer_documentation.html"],
@@ -130,7 +130,7 @@ class AppendHelp(unittest.TestCase):
         )
 
     def test_list_ordered(self):
-        """Add :ref:`package help` to a Rez package that has a list of entries."""
+        """Add `package help`_ to a Rez package that has a list of entries."""
         with run_test.keep_config() as config:
             config.optionvars["rez_sphinx"] = dict()
             config.optionvars["rez_sphinx"].setdefault("auto_help", dict())
@@ -149,7 +149,7 @@ class AppendHelp(unittest.TestCase):
             )
 
     def test_list_sorted(self):
-        """Add :ref:`package help` to a Rez package that has a list of entries."""
+        """Add `package help`_ to a Rez package that has a list of entries."""
         self._test(
             [
                 ["A label", "thing"],
@@ -161,7 +161,7 @@ class AppendHelp(unittest.TestCase):
         )
 
     def test_none(self):
-        """Add :ref:`package help` to a Rez package that has no defined help."""
+        """Add `package help`_ to a Rez package that has no defined help."""
         self._test(
             [
                 ["Developer Documentation", "developer_documentation.html"],
@@ -236,10 +236,10 @@ class AutoHelpOrder(unittest.TestCase):
 
 
 class HelpScenarios(unittest.TestCase):
-    """Make sure the all automation revolving :ref:`package help` works."""
+    """Make sure the all automation revolving `package help`_ works."""
 
     def test_do_nothing(self):
-        """Don't change the user's :ref:`package help` if there's no documentation."""
+        """Don't change the user's `package help`_ if there's no documentation."""
         raise ValueError()
 
     def test_escaped_colon(self):
@@ -324,8 +324,8 @@ def _override_preprocess(package):
     In this case "proper" means:
 
     - They're cd'ed into the Rez package
-    - Their :ref:`package_preprocess_function` is set properly so that
-      :ref:`package help` is auto-generated.
+    - Their `package_preprocess_function`_ is set properly so that
+      `package help`_ is auto-generated.
     - Any other environment related details.
 
     Args:

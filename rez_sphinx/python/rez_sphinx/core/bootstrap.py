@@ -1,4 +1,4 @@
-"""Connect :ref:`Sphinx` to :ref:`rez_sphinx`."""
+"""Connect `Sphinx`_ to :ref:`rez_sphinx`."""
 
 import itertools
 import logging
@@ -32,7 +32,7 @@ _REZ_SPHINX_BOOTSTRAP_LINES = textwrap.dedent(
 
 
 def _get_intersphinx_candidates(package):
-    """Search dependencies of ``package`` for a :ref:`objects.inv`.
+    """Search dependencies of ``package`` for a `objects.inv`_.
 
     Args:
         package (:class:`rez.developer_package.DeveloperPackage`):
@@ -142,28 +142,27 @@ def _get_environment_package(name):
 def _get_intersphinx_mappings(package):
     """Find every :ref`:objects.inv` file for each dependency of ``package``.
 
-    The found :ref`:objects.inv` will be used to populate a
-    :ref:`intersphinx_mapping` for ``package``. This enables
+    The found `objects.inv`_ will be used to populate a
+    `intersphinx_mapping`_ for ``package``. This enables
     cross-linking between external Rez packages, as long as they were
     also built by Sphinx.
 
     Note:
         The searched Rez packages by default are
 
-        - :ref:`requires`
+        - `requires`_
         - :ref:`build_documentation_key`
 
         If you want to search for other requests for your package, like
-        :ref:`private_build_requires` or :ref:`build_requires`, consider
-        setting that using :ref:`rez-config`.
+        `private_build_requires`_ or `build_requires`_, consider
+        setting that using `rez-config`_.
 
     Args:
         package (:class:`rez.developer_package.DeveloperPackage`):
             A Rez package which the user is attempting to build documentation for.
 
     Returns:
-        dict[str, tuple[str] or str]:
-            A suitable :ref:`intersphinx_mapping` for :ref:`Sphinx`.
+        dict[str, tuple[str] or str]: A suitable `intersphinx_mapping`_ for `Sphinx`_.
 
     """
     output = dict()
@@ -179,17 +178,16 @@ def _get_intersphinx_mappings(package):
 
 
 def _get_package_objects_inv(package):
-    """Find the path to a Rez package's :ref:`objects.inv` file.
+    """Find the path to a Rez package's `objects.inv`_ file.
 
-    The package may have a locally installed :ref:`objects.inv` or it
+    The package may have a locally installed `objects.inv`_ or it
     may be pointing to an Internet URL.  Either way, return the string
     there.
 
     Args:
         package (:class:`rez.developer_package.DeveloperPackage`):
-            A Rez package which we assume may have built
-            :ref:`rez_sphinx` documentation and thus also has a
-            :ref:`objects.inv` file.
+            A Rez package which we assume may have built :ref:`rez_sphinx`
+            documentation and thus also has a `objects.inv`_ file.
 
     Returns:
         str:
@@ -315,11 +313,11 @@ def _get_nearest_caller_package():
 
 
 def append_bootstrap_lines(path):
-    """Append :ref:`rez_sphinx` specific commands to a :ref:`Sphinx` conf.py file.
+    """Append :ref:`rez_sphinx` specific commands to a `Sphinx`_ conf.py file.
 
     Args:
         path (str):
-            The absolute path to a conf.py which :ref:`Sphinx` uses to source
+            The absolute path to a conf.py which `Sphinx`_ uses to source
             and build the user's documentation.
 
     """
@@ -328,21 +326,21 @@ def append_bootstrap_lines(path):
 
 
 def bootstrap(data, package=None):
-    """Gather Rez package information for :ref:`Sphinx`.
+    """Gather Rez package information for `Sphinx`_.
 
     This data is returned and used to auto-fill-out the values for
-    :ref:`Sphinx conf.py`.
+    `Sphinx conf.py`_.
 
     Args:
         data (dict[str, object]):
-            Incoming ``locals()`` data from an existing :ref:`conf.py`.
+            Incoming ``locals()`` data from an existing `Sphinx conf.py`_.
         package (:class:`rez.developer_package.DeveloperPackage`, optional):
             The package to query from and extend ``data`` with extra
             information. If no package is given, the package is
             determined automatically from the caller's site.
 
     Returns:
-        dict[str, object]: All Rez data to send to the :ref:`Sphinx conf.py`.
+        dict[str, object]: All Rez data to send to the `Sphinx conf.py`_.
 
     """
     package = package or _get_nearest_caller_package()

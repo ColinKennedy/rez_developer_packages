@@ -1,1 +1,1 @@
-"""All modules related to :ref:`rez-config` preferences."""
+"""All modules related to `rez-config`_ preferences."""

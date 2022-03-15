@@ -5,7 +5,7 @@ def alphabetical(_, item):
     """Sort ``item`` in ascending, alphabetical order.
 
     Args:
-        item (list[str, str]): Some :ref:`package help` entry to consider for sorting.
+        item (list[str, str]): Some `package help`_ entry to consider for sorting.
 
     Returns:
         str: The original ``item``.
@@ -19,16 +19,16 @@ def filter_generated(original_help, generated_help):
 
     Args:
         original_help (list[list[str, str]):
-            The :ref:`package help` which came directly from the user's Rez
-            :ref:`package.py`.
+            The `package help`_ which came directly from the user's Rez
+            `package.py`_.
         generated_help (list[list[str, str]):
-            The :ref:`package help` which :ref:`rez_sphinx` created, based on
+            The `package help`_ which :ref:`rez_sphinx` created, based on
             the content in the user's source Rez package.
 
     Returns:
         list[list[str, str], list[str, str]]:
-            The filtered :ref:`package help` and the original, unedited
-            auto-generated :ref:`package help`.
+            The filtered `package help`_ and the original, unedited
+            auto-generated `package help`_.
 
     """
     labels = {label for label, _ in original_help}
@@ -47,10 +47,10 @@ def filter_none(original_help, generated_help):
 
     Args:
         original_help (list[list[str, str]):
-            The :ref:`package help` which came directly from the user's Rez
-            :ref:`package.py`.
+            The `package help`_ which came directly from the user's Rez
+            `package.py`_.
         generated_help (list[list[str, str]):
-            The :ref:`package help` which :ref:`rez_sphinx` created, based on
+            The `package help`_ which :ref:`rez_sphinx` created, based on
             the content in the user's source Rez package.
 
     Returns:
@@ -65,16 +65,16 @@ def filter_original(original_help, generated_help):
 
     Args:
         original_help (list[list[str, str]):
-            The :ref:`package help` which came directly from the user's Rez
-            :ref:`package.py`.
+            The `package help`_ which came directly from the user's Rez
+            `package.py`_.
         generated_help (list[list[str, str]):
-            The :ref:`package help` which :ref:`rez_sphinx` created, based on
+            The `package help`_ which :ref:`rez_sphinx` created, based on
             the content in the user's source Rez package.
 
     Returns:
         list[list[str, str], list[str, str]]:
-            The original, unedited :ref:`package help` and the filtered
-            auto-generated :ref:`package help`.
+            The original, unedited `package help`_ and the filtered
+            auto-generated `package help`_.
 
     """
     labels = {label for label, _ in generated_help}
@@ -93,10 +93,10 @@ def sort_generated(original_help, item):
 
     Args:
         original_help (list[list[str, str]]):
-            All :ref:`package help` entries which the user already defined on
-            their :ref:`package.py` prior to running this sort function.
+            All `package help`_ entries which the user already defined on
+            their `package.py`_ prior to running this sort function.
         item (list[str, str]):
-            Some :ref:`package help` entry to consider for sorting.
+            Some `package help`_ entry to consider for sorting.
 
     Returns:
         tuple[int, int or str]: The group index, followed by a secondary sort term.
@@ -113,10 +113,10 @@ def sort_original(original_help, item):
 
     Args:
         original_help (list[list[str, str]]):
-            All :ref:`package help` entries which the user already defined on
-            their :ref:`package.py` prior to running this sort function.
+            All `package help`_ entries which the user already defined on
+            their `package.py`_ prior to running this sort function.
         item (list[str, str]):
-            Some :ref:`package help` entry to consider for sorting.
+            Some `package help`_ entry to consider for sorting.
 
     Returns:
         tuple[int, int or str]: The group index, followed by a secondary sort term.

@@ -1,4 +1,4 @@
-"""A collection of functions for making dealing with :ref:`Sphinx` easier."""
+"""A collection of functions for making dealing with `Sphinx`_ easier."""
 
 import logging
 import os
@@ -40,7 +40,7 @@ def _get_indent(text):
 
 
 def _get_toctree_indent(lines):
-    """Get the inner text indentation of a :ref:`toctree`, using ``lines``.
+    """Get the inner text indentation of a `toctree`_, using ``lines``.
 
     Args:
         lines (iter[str]):
@@ -65,7 +65,7 @@ def _get_toctree_indent(lines):
 
 
 def _add_links_to_a_tree(entries, tree, data):
-    """Find the appropriate :ref:`toctree` to add ``line`` onto.
+    """Find the appropriate `toctree`_ to add ``line`` onto.
 
     Args:
         entries (list[str]): The documentation line to append to in ``tree``.
@@ -112,17 +112,17 @@ def _make_new_tree(entries=tuple()):
 
 
 def _scan_for_configuration_path(directory):
-    """Recursively look for the :ref:`Sphinx conf.py` or fail trying.
+    """Recursively look for the `Sphinx conf.py`_ or fail trying.
 
     Args:
         directory (str):
-            A path on-disk to search within for the :ref:`Sphinx conf.py <conf.py>`.
+            A path on-disk to search within for the `Sphinx conf.py <conf.py>`_.
 
     Raises:
-        RuntimeError: If no :ref:`Sphinx conf.py <conf.py>` could be found.
+        RuntimeError: If no `Sphinx conf.py <conf.py>`_ could be found.
 
     Returns:
-        str: The path on-disk to the :ref:`Sphinx conf.py <conf.py>`.
+        str: The path on-disk to the `Sphinx conf.py <conf.py>`_.
 
     """
     for root, _, files in os.walk(directory):
@@ -168,15 +168,14 @@ def _skip_existing_entries(entries, trees):
 
 
 def find_configuration_path(root):
-    """Find the :ref:`Sphinx conf.py` or fail trying.
+    """Find the `Sphinx conf.py`_ or fail trying.
 
     Args:
         root (str):
-            A directory on-disk to search within for the
-            :ref:`Sphinx conf.py <conf.py>`.
+            A directory on-disk to search within for the `Sphinx conf.py <conf.py>`_.
 
     Returns:
-        str: The path on-disk to the :ref:`Sphinx conf.py <conf.py>`.
+        str: The path on-disk to the `Sphinx conf.py <conf.py>`_.
 
     """
     for path in (
@@ -190,13 +189,13 @@ def find_configuration_path(root):
 
 
 def get_toctrees(data):
-    """Get every :ref:`toctree` in ``path``.
+    """Get every `toctree`_ in ``path``.
 
     Args:
         path (str): The absolute or relative path to a Sphinx .rst file.
 
     Returns:
-        list[tuple[int, int, list[str]]]: Each :ref:`toctree` as a list of lines.
+        list[tuple[int, int, list[str]]]: Each `toctree`_ as a list of lines.
 
     """
 

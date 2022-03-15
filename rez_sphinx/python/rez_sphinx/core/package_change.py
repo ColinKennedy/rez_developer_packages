@@ -15,7 +15,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 def _add_rez_tests(package):
-    """Add :ref:`rez tests attribute` values to make :ref:`rez_sphinx` auto-run.
+    """Add `rez tests attribute`_ values to make :ref:`rez_sphinx` auto-run.
 
     Args:
         package (:class:`rez.developer_package.DeveloperPackage`):

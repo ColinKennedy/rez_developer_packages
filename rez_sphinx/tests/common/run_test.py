@@ -16,7 +16,7 @@ from rez_sphinx.preferences import preference
 
 @contextlib.contextmanager
 def keep_config():
-    """Temporarily allow edits to :ref:`rez-config` for the scope of this function.
+    """Temporarily allow edits to `rez-config`_ for the scope of this function.
 
     Yields:
         module: The Rez temporary config object to modify.

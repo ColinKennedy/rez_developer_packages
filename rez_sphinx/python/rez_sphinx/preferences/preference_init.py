@@ -78,7 +78,7 @@ class Entry(object):
         return cls(data)
 
     def _is_tag_enabled(self):
-        """If True, add an tag for Rez to generate a :ref:`help` for later, on-build.
+        """If True, add an tag for Rez to generate a `help`_ for later, on-build.
 
         References:
             :ref:`rez_sphinx auto-help`.
@@ -88,7 +88,7 @@ class Entry(object):
                 If True, this instance is auto-registered by Rez, pre-build. If
                 False, this document is still added to Sphinx but it is not
                 auto-discovered by Rez nor appended to the user's package
-                :ref:`help` attribute during :ref:`rez-build`.
+                `help`_ attribute during `rez-build`_.
 
         """
         return self._data.get("add_tag") or True

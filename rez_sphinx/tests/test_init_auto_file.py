@@ -191,7 +191,7 @@ def _get_base_master_index_text(path):
     """Get the text from ``path`` but without any top-level Sphinx comments.
 
     Args:
-        path (str): The absolute or relative path to a Sphinx :ref:`index.rst` on disk.
+        path (str): The absolute or relative path to a Sphinx `index.rst`_ on disk.
 
     Raises:
         RuntimeError: If the document body could not be found.

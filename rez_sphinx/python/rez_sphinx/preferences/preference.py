@@ -1,6 +1,6 @@
 """The module which managers user configuration settings.
 
-Most of these functions are just thin wraps around :ref:`rez-config` calls.
+Most of these functions are just thin wraps around `rez-config`_ calls.
 
 """
 
@@ -90,17 +90,16 @@ _MASTER_SCHEMA = schema.Schema(
 
 
 def _get_quick_start_overridable_options(overrides=tuple()):
-    """Get all :ref:`sphinx-quickstart` parameters which the user can modify.
+    """Get all `sphinx-quickstart`_ parameters which the user can modify.
 
     Args:
         overrides (list[str], optional):
-            :ref:`sphinx-quickstart` user settings to prefer over the
+            `sphinx-quickstart`_ user settings to prefer over the
             defaults, if any. e.g. ``["--sep"]``.
 
     Returns:
         list[str]:
-            The resolved "user + :ref:`rez_sphinx`"
-            settings for :ref:`sphinx-quickstart`.
+            The resolved "user + :ref:`rez_sphinx`" settings for `sphinx-quickstart`_.
 
     """
     output = list(overrides)
@@ -133,13 +132,13 @@ def _get_quick_start_overridable_options(overrides=tuple()):
 
 
 def _validate_api_options(options):
-    """Check ``options`` for issues which prevents :ref:`sphinx-apidoc` from running.
+    """Check ``options`` for issues which prevents `sphinx-apidoc`_ from running.
 
     Args:
         options (container[str]):
-            User arguments to pass to :ref:`sphinx-apidoc`. This could
+            User arguments to pass to `sphinx-apidoc`_. This could
             be a combination of automated arguments or arguments which
-            the user manually provided, via :ref:`rez-config` or from
+            the user manually provided, via `rez-config`_ or from
             the :doc:`init_command` CLI.
 
     Raises:
@@ -153,7 +152,7 @@ def _validate_api_options(options):
 
 
 def _validate_quick_start_options(settings):
-    """Check if the :ref:`sphinx-quickstart` settings are invalid.
+    """Check if the `sphinx-quickstart`_ settings are invalid.
 
     Raises:
         :class:`.UserInputError`: If ``settings`` contains invalid or missing data.
@@ -191,7 +190,7 @@ def _validate_all(data):
 
 
 def is_api_enabled():
-    """bool: Check if the user will generate :ref:`sphinx-apidoc` ReST files."""
+    """bool: Check if the user will generate `sphinx-apidoc`_ ReST files."""
     rez_sphinx_settings = get_base_settings()
 
     if _ENABLE_APIDOC in rez_sphinx_settings:
@@ -202,11 +201,11 @@ def is_api_enabled():
 
 
 def get_api_options(options=tuple()):
-    """Find all arguments to pass to :ref:`sphinx-apidoc`.
+    """Find all arguments to pass to `sphinx-apidoc`_.
 
     Args:
         options (container[str]):
-            User arguments to pass to :ref:`sphinx-apidoc`. These
+            User arguments to pass to `sphinx-apidoc`_. These
             options come from :doc:`build_command` CLI and may be
             valid or invalid.
 
@@ -243,14 +242,14 @@ def get_base_settings():
 
 
 def get_build_documentation_key():
-    """str: Get the :ref:`rez tests attribute` key for :ref:`rez_sphinx`."""
+    """str: Get the `rez tests attribute`_ key for :ref:`rez_sphinx`."""
     rez_sphinx_settings = get_base_settings()
 
     return rez_sphinx_settings.get(_BUILD_KEY) or "build_documentation"
 
 
 def get_help_label():
-    """str: Get the :ref:`rez help attribute` which connects with :ref:`intersphinx`."""
+    """str: Get the `rez help attribute`_ which connects with `intersphinx`_."""
     rez_sphinx_settings = get_base_settings()
 
     return rez_sphinx_settings.get("help_label") or "rez_sphinx_objects_inv"
@@ -264,7 +263,7 @@ def get_documentation_root_name():
 
 
 def get_filter_method():
-    """Get a function to process original / auto-generated :ref:`package help` values.
+    """Get a function to process original / auto-generated `package help`_ values.
 
     Returns:
         callable[
@@ -274,7 +273,7 @@ def get_filter_method():
             list[list[str, str]],
             list[list[str, str]]
         ]:
-            A function that takes two :ref:`package help` lists and may return
+            A function that takes two `package help`_ lists and may return
             unique results from either of them.
 
     """
@@ -302,14 +301,14 @@ def get_initial_files_from_configuration():
 
 
 def get_master_api_documentation_line():
-    """str: Get the line that typically is added to the main :ref:`index.rst`."""
+    """str: Get the line that typically is added to the main `index.rst`_."""
     rez_sphinx_settings = get_base_settings()
 
     return rez_sphinx_settings[_API_TOCTREE_LINE]
 
 
 def get_sort_method():
-    """callable[list[str], str] -> object: The sort function for :ref:`package help`."""
+    """callable[list[str], str] -> object: The sort function for `package help`_."""
     rez_sphinx_settings = get_base_settings()
     parent = rez_sphinx_settings[_HELP_PARENT_KEY]
 
@@ -323,28 +322,28 @@ def get_sort_method():
 
 
 def get_sphinx_configuration_overrides():
-    """dict[str, object]: Get all values to directly set within :ref:`conf.py`."""
+    """dict[str, object]: Get all values to directly set within `Sphinx conf.py`_."""
     rez_sphinx_settings = get_base_settings()
 
     return rez_sphinx_settings[_CONFIG_OVERRIDES]
 
 
 def get_sphinx_extensions():
-    """list[str]: All :ref:`Sphinx` optional add-ons to include in documentation."""
+    """list[str]: All `Sphinx`_ optional add-ons to include in documentation."""
     rez_sphinx_settings = get_base_settings()
 
     return rez_sphinx_settings.get(_EXTENSIONS_KEY) or list(_BASIC_EXTENSIONS)
 
 
 def get_quick_start_options(package, options=tuple()):
-    """Get the arguments :ref:`sphinx-quickstart`.
+    """Get the arguments `sphinx-quickstart`_.
 
     Args:
         package (str):
             The name of the Rez package family. e.g. "python", "Sphinx", etc.
         options (list[str], optional):
             User-provided arguments to consider while resolving
-            :ref:`sphinx-quickstart` values.
+            `sphinx-quickstart`_ values.
 
     Raises:
         :class:`.UserInputError`:
