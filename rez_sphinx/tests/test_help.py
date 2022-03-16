@@ -8,9 +8,8 @@ import unittest
 from python_compatibility import wrapping
 from rez import developer_package
 from rez_utilities import creator, finder
-import schema
 
-from rez_sphinx.core import hook
+from rez_sphinx.core import exception, hook
 from rez_sphinx.preferences import preference_help
 
 from .common import package_wrap, run_test
@@ -214,15 +213,8 @@ class AutoHelpOrder(_Base):
                 "sort_order"
             ] = "some_invalid_text"
 
-            self._test(
-                [
-                    ["Extra thing", "another"],
-                    ["A label", "thing"],
-                    ["Developer Documentation", "developer_documentation.html"],
-                    ["User Documentation", "user_documentation.html"],
-                ],
-                help_=[["Extra thing", "another"], ["A label", "thing"]],
-            )
+            with self.assertRaises(exception.ConfigurationError):
+                self._test([])
 
     def test_sort_prefer_generated(self):
         """Sort auto-generated help before anything the user defined."""

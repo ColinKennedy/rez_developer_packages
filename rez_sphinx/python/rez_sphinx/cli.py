@@ -103,7 +103,7 @@ def _init(namespace):
             attributes to generate Sphinx documentation.
 
     """
-    preference.validate_global_settings()
+    preference.validate_base_settings()
 
     _split_init_arguments(namespace)
 
