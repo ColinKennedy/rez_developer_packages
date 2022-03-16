@@ -77,6 +77,23 @@ def _build(namespace):
     )
 
 
+def _check(namespace):
+    """Make :doc:`rez_sphinx_config` are valid, globally and within ``namespace``.
+
+    Raises:
+        :class:`.UserInputError`:
+            If the user passes `sphinx-apidoc`_ arguments but also
+            specified that they don't want to build API documentation.
+
+    """
+    directory = os.path.normpath(namespace.directory)
+    _LOGGER.debug('Found "%s" directory.', directory)
+
+    preference.validate_base_settings()
+
+    print("All rez_sphinx settings are valid!")
+
+
 def _init(namespace):
     """Create a Sphinx project, rooted at ``namespace``.
 
@@ -86,6 +103,8 @@ def _init(namespace):
             attributes to generate Sphinx documentation.
 
     """
+    preference.validate_global_settings()
+
     _split_init_arguments(namespace)
 
     directory = os.path.normpath(namespace.directory)
@@ -122,7 +141,6 @@ def _set_up_build(sub_parsers):
     build = sub_parsers.add_parser(
         "build", description="Compile Sphinx documentation from a Rez package."
     )
-    build.required = True
     _add_directory_argument(build)
     choices = sorted(api_builder.MODES, key=operator.attrgetter("label"))
     build.add_argument(
@@ -150,6 +168,29 @@ def _set_up_build(sub_parsers):
     _add_remainder_argument(build)
 
 
+def _set_up_config(sub_parsers):
+    """Add :doc:`config_command` CLI parameters.
+
+    Args:
+        sub_parsers (:class:`argparse._SubParsersAction`):
+            A collection of parsers which the :doc:`init_command` will be
+            appended onto.
+
+    """
+    config = sub_parsers.add_parser(
+        "config",
+        help="All commands related to rez_sphinx configuration settings.",
+    )
+    # TODO : Figure out how to make sure a subparser is chosen
+    inner_parser = config.add_subparsers()
+
+    check = inner_parser.add_parser(
+        "check", description="Report if the current rez_sphinx user settings are valid."
+    )
+    _add_directory_argument(check)
+    check.set_defaults(execute=_check)
+
+
 def _set_up_init(sub_parsers):
     """Add :doc:`init_command` CLI parameters.
 
@@ -162,7 +203,6 @@ def _set_up_init(sub_parsers):
     init = sub_parsers.add_parser(
         "init", description="Set up a Sphinx project in a Rez package."
     )
-    init.required = True
     init.add_argument(
         "--quickstart-arguments",
         dest="quick_start_arguments",
@@ -245,9 +285,11 @@ def parse_arguments(text):
         description="Auto-generate Sphinx documentation for Rez packages.",
     )
 
-    sub_parsers = parser.add_subparsers()
+    sub_parsers = parser.add_subparsers(dest="commands")
+    sub_parsers.required = True
 
     _set_up_build(sub_parsers)
+    _set_up_config(sub_parsers)
     _set_up_init(sub_parsers)
 
     # TODO : Fix the error where providing no subparser command

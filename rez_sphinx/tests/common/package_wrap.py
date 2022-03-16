@@ -103,7 +103,9 @@ def make_dependent_packages():
     source_directory_1 = finder.get_package_root(source_package)
 
     installed_package_1 = creator.build(
-        source_package, install_path, packages_path=[
+        source_package,
+        install_path,
+        packages_path=[
             install_path,
             # TODO : Remove all `release_packages_path` references
             config.release_packages_path,  # pylint: disable=no-member

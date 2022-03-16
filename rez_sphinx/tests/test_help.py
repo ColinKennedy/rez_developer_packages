@@ -8,6 +8,7 @@ import unittest
 from python_compatibility import wrapping
 from rez import developer_package
 from rez_utilities import creator, finder
+import schema
 
 from rez_sphinx.core import hook
 from rez_sphinx.preferences import preference_help
@@ -15,8 +16,8 @@ from rez_sphinx.preferences import preference_help
 from .common import package_wrap, run_test
 
 
-class AppendHelp(unittest.TestCase):
-    """Make sure the user's `package help`_ is appended as expected."""
+class _Base(unittest.TestCase):
+    """A quick test class for common methods."""
 
     def _test(self, expected, help_=None):
         """Create a base Rez package, run :ref:`rez_sphinx` and check ``expected``.
@@ -59,6 +60,10 @@ class AppendHelp(unittest.TestCase):
                 install_path=install_path
             ),
         )
+
+
+class AppendHelp(_Base):
+    """Make sure the user's `package help`_ is appended as expected."""
 
     def test_allow_duplicates(self):
         """Include the user's help labels, if they clash with auto-generated ones."""
@@ -171,7 +176,7 @@ class AppendHelp(unittest.TestCase):
         )
 
 
-class AutoHelpOrder(unittest.TestCase):
+class AutoHelpOrder(_Base):
     """Make sure :mod:`rez_sphinx.preferences.preference_help_` functions work."""
 
     def test_alphabetical(self):
@@ -202,7 +207,22 @@ class AutoHelpOrder(unittest.TestCase):
     def test_invalid(self):
         """Stop early if the user's sort option is invalid."""
         # TODO : Add test to ensure invalid order is caught safely
-        raise ValueError()
+        with run_test.keep_config() as config:
+            config.optionvars["rez_sphinx"] = dict()
+            config.optionvars["rez_sphinx"].setdefault("auto_help", dict())
+            config.optionvars["rez_sphinx"]["auto_help"][
+                "sort_order"
+            ] = "some_invalid_text"
+
+            self._test(
+                [
+                    ["Extra thing", "another"],
+                    ["A label", "thing"],
+                    ["Developer Documentation", "developer_documentation.html"],
+                    ["User Documentation", "user_documentation.html"],
+                ],
+                help_=[["Extra thing", "another"], ["A label", "thing"]],
+            )
 
     def test_sort_prefer_generated(self):
         """Sort auto-generated help before anything the user defined."""

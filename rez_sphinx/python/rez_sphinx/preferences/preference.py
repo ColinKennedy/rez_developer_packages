@@ -394,3 +394,21 @@ def get_quick_start_options(package, options=tuple()):
     output.extend(options)
 
     return output
+
+
+def validate_base_settings():
+    """Check if the user's settings won't cause :ref:`rez_sphinx` to break.
+
+    Raises:
+        :class:`.ConfigurationError`: Raised if a configuration-related issue is found.
+
+    """
+    try:
+        get_base_settings()
+    except schema.SchemaError as error:
+        raise exception.ConfigurationError(
+            'Invalid rez-config settings were found. '
+            'See `rez_sphinx config check` for details. Summary here "{error!s}".'.format(
+                error=error,
+            )
+        )

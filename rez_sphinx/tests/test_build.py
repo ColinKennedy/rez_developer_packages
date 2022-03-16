@@ -216,7 +216,9 @@ class Build(unittest.TestCase):
             with run_test.simulate_resolve(install_packages), wrapping.keep_cwd():
                 run_test.test(["init", source])
 
-                with wrapping.watch_namespace(bootstrap._get_intersphinx_mappings) as watcher:
+                with wrapping.watch_namespace(
+                    bootstrap._get_intersphinx_mappings
+                ) as watcher:
                     run_test.test(["build", source])
 
             break
