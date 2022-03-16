@@ -185,6 +185,122 @@ DEFAULT_ENTRIES = (
 )
 
 
+def _get_header_text_at(offset, lines):
+    """Find the appropriate header text, starting from ``offset``.
+
+    If a document looks like this:
+
+    ::
+
+        <(1)
+
+        ===============
+        Overline Header
+        ===============
+
+        <(2)
+
+        More text
+
+        <(3)
+
+        .. A sphinx role / comment
+
+        <(4)
+
+        underline header
+        ****************
+
+        <(5)
+
+        Last line
+
+    Imagine each <(1/2/3/4/5) is your cursor position for ``offset``.
+
+    - <(1) returns ``"Overline Header"``.
+    - <(2) returns nothing, because it's obstructed by "More text".
+    - <(3) returns ``"underline header"`` (it ignores the sphinx comment line)
+    - <(4) returns ``"underline header"``, too
+    - <(5) returns nothing, because it's at the end of the lines
+
+    Todo:
+        Add unittests for all of these situations.
+
+    Args:
+        offset (int): A 0-or-more value where we'll start looking for a header.
+        lines (list[str]): The ReST source code to look within for the header.
+
+    Returns:
+        str: The found header line, if any.
+
+    """
+    def _uses_one_character(text):
+        return len(set(text)) == 1
+
+    def _get_underline_header_text(index, lines, line_length):
+        after_index = index + 1
+
+        if after_index >= line_length:
+            return ""
+
+        expected_text = lines[index].rstrip()
+        after = lines[after_index].rstrip()
+
+        if (
+            _uses_one_character(after)
+            and len(after) == len(expected_text)
+        ):
+            return expected_text
+
+        return ""
+
+    def _get_overline_header_text(index, lines, line_length):
+        before_index = index - 1
+
+        if before_index < 0:
+            return ""
+
+        after_index = index + 1
+
+        if after_index >= line_length:
+            return ""
+
+        before = lines[before_index].rstrip()
+        expected_text = lines[index].rstrip()
+        after = lines[after_index].rstrip()
+
+        if (
+            _uses_one_character(before)
+            and before == after
+            and len(before) == len(expected_text)
+            and len(expected_text) == len(after)
+            and len(after) == len(before)
+        ):
+            return expected_text
+
+        return ""
+
+    line_length = len(lines)
+
+    for index, line in enumerate(lines[offset:]):
+        if not line.strip() or _IS_COMMENT.match(line) or _HAS_INDENT.match(line):
+            continue
+
+        header = _get_overline_header_text(offset + index, lines, line_length)
+
+        if header:
+            return header
+
+        header = _get_underline_header_text(offset + index, lines, line_length)
+
+        if header:
+            return header
+
+        return ""
+
+    return ""
+
+
 def find_tags(lines):
     """Parse ``lines`` for :ref:`rez_sphinx tags <rez_sphinx tag>`.
 
@@ -219,7 +335,7 @@ def find_tags(lines):
             continue
 
         _, name = next_line.split(":")
-        destination = _get_destination(next_index + 1, lines)
+        destination = _get_header_text_at(next_index + 1, lines)
 
         output.append((name, destination))
 
