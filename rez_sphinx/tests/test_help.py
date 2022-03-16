@@ -240,7 +240,46 @@ class HelpScenarios(unittest.TestCase):
 
     def test_do_nothing(self):
         """Don't change the user's `package help`_ if there's no documentation."""
-        raise ValueError()
+        # 1. Build the initial Rez package
+        package = package_wrap.make_simple_developer_package()
+        directory = finder.get_package_root(package)
+
+        # 2. Initialize the documentation
+        run_test.test(["init", directory])
+
+        # 2b. Remove the files for the sake of this unittest
+        documentation_root = os.path.join(directory, "documentation", "source")
+
+        os.remove(os.path.join(documentation_root, "developer_documentation.rst"))
+        os.remove(os.path.join(documentation_root, "user_documentation.rst"))
+
+        # 3. Add a rez_sphinx over a Sphinx ref role.
+        _add_example_ref_role(os.path.join(directory, "documentation", "source"))
+
+        install_path = package_wrap.make_directory("_test_ref_role")
+
+        # 4a. Simulate adding the pre-build hook to the user's Rez configuration.
+        # 4b. Re-build the Rez package so it can auto-append entries to the package.py ``help``
+        #
+        with _override_preprocess(package):
+            creator.build(package, install_path, quiet=True)
+
+        install_package = developer_package.DeveloperPackage.from_path(
+            # `package` is 1.0.0 but we incremented the minor version during
+            # :doc:`init_command`. So it's 1.1.0 now.
+            #
+            os.path.join(install_path, package.name, "1.1.0")
+        )
+
+        expected = [["Some Tag", "some_page.html#some-example-ref"]]
+
+        self.assertEqual(
+            expected,
+            install_package.help,
+            msg='Package "{install_path}" did not match the expected result.'.format(
+                install_path=install_path
+            ),
+        )
 
     def test_escaped_colon(self):
         """Make sure a documentation label containing a separator still works."""
