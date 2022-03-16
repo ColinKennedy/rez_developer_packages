@@ -4,6 +4,7 @@ import os
 import stat
 import tempfile
 import textwrap
+import shutil
 import unittest
 
 from python_compatibility import wrapping
@@ -336,6 +337,51 @@ class Miscellaneous(unittest.TestCase):
             contents = handler.read()
 
         self.assertIn("Read the Docs", contents)
+
+    def test_symlinks(self):
+        """Ensure Rez packages with symlinked Python content build as expected."""
+        # 1. Make the package
+        source_package = package_wrap.make_simple_developer_package()
+        source_directory = finder.get_package_root(source_package)
+        install_path = package_wrap.make_directory("_test_cli_argument")
+        installed_package = creator.build(source_package, install_path, quiet=True)
+
+        # 2. (Manually) build symlinks from the installed package to the source
+        source_python_directory = os.path.join(source_directory, "python")
+        destination = os.path.join(
+            install_path,
+            installed_package.name,
+            str(installed_package.version),
+            "python",
+        )
+        shutil.rmtree(destination)
+        os.symlink(source_python_directory, destination)
+
+        self.assertTrue(os.path.islink(destination))
+
+        with run_test.simulate_resolve([installed_package]):
+            run_test.test(["init", source_directory])
+
+            with wrapping.silence_printing():  # Make tests less spammy
+                run_test.test(
+                    'build "{source_directory}" '
+                    '--apidoc-arguments "--suffix .txt"'.format(
+                        source_directory=source_directory
+                    )
+                )
+
+        source = os.path.join(source_directory, "documentation", "source")
+
+        self.assertEqual(
+            {
+                ".gitignore",
+                "README",
+                "modules.txt",
+                "some_package.file.txt",
+                "some_package.txt",
+            },
+            set(os.listdir(os.path.join(source, "api"))),
+        )
 
 
 class Options(unittest.TestCase):

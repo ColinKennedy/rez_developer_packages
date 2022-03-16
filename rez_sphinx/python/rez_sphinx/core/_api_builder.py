@@ -140,7 +140,7 @@ def _get_python_source_roots(directory):
 
     root = finder.get_package_root(package)
 
-    return {path for path in sys.path if filer.in_directory(path, root)}
+    return {path for path in sys.path if filer.in_directory(path, root, follow=False)}
 
 
 def _update_master_file(directory):
