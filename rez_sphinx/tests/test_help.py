@@ -283,7 +283,7 @@ class HelpScenarios(unittest.TestCase):
             os.path.join(install_path, package.name, "1.1.0")
         )
 
-        expected = [["Some Tag", "some_page.html#some-example-ref"]]
+        expected = [["Some Tag", "some_page.html#an-inner-header"]]
 
         self.assertEqual(
             expected,
@@ -293,10 +293,82 @@ class HelpScenarios(unittest.TestCase):
             ),
         )
 
-    def test_escaped_colon(self):
-        """Make sure a documentation label containing a separator still works."""
-        # - When converting "Tagged" Sphinx .rst files, add a unittest to make sure ":" is escapable. Since ":" is also the delimiter
-        raise ValueError()
+    def test_ref_role_header_not_found(self):
+        """Handle `package help`_ when a :ref:`rez_sphinx_help` tag has no destination.
+
+        For example, if a user has documentation like this
+
+        ::
+
+            ..
+                rez_sphinx_help:Some Tag
+
+            thing
+
+            Header Here
+            ===========
+
+        Then we should **not** auto-attach ``"Header Here"`` as an anchor like
+        ``"#header-here.html"``.  Instead, leave the destination blank.
+
+        """
+        # 1. Build the initial Rez package
+        package = package_wrap.make_simple_developer_package()
+        directory = finder.get_package_root(package)
+
+        # 2. Initialize the documentation
+        run_test.test(["init", directory])
+
+        # 3. Add a rez_sphinx over a Sphinx ref role.
+        _add_example_ref_role(
+            os.path.join(directory, "documentation", "source"),
+            textwrap.dedent(
+                """\
+                ==========
+                Top Header
+                ==========
+
+                Text here
+
+                ..
+                    rez_sphinx_help:Some Tag
+
+                thing
+
+                Header Here
+                ===========
+                """
+            ),
+        )
+
+        install_path = package_wrap.make_directory("_test_ref_role_header_not_found")
+
+        # 4a. Simulate adding the pre-build hook to the user's Rez configuration.
+        # 4b. Re-build the Rez package so it can auto-append entries to the package.py ``help``
+        #
+        with _override_preprocess(package):
+            creator.build(package, install_path, quiet=True)
+
+        install_package = developer_package.DeveloperPackage.from_path(
+            # `package` is 1.0.0 but we incremented the minor version during
+            # :doc:`init_command`. So it's 1.1.0 now.
+            #
+            os.path.join(install_path, package.name, "1.1.0")
+        )
+
+        expected = [
+            ["Developer Documentation", "developer_documentation.html"],
+            ["Some Tag", "some_page.html"],
+            ["User Documentation", "user_documentation.html"],
+        ]
+
+        self.assertEqual(
+            expected,
+            install_package.help,
+            msg='Package "{install_path}" did not match the expected result.'.format(
+                install_path=install_path
+            ),
+        )
 
     def test_ref_role(self):
         """Use a custom Sphinx reference if the user explicitly added one."""
@@ -327,7 +399,7 @@ class HelpScenarios(unittest.TestCase):
 
         expected = [
             ["Developer Documentation", "developer_documentation.html"],
-            ["Some Tag", "some_page.html#some-example-ref"],
+            ["Some Tag", "some_page.html#an-inner-header"],
             ["User Documentation", "user_documentation.html"],
         ]
 
@@ -340,32 +412,33 @@ class HelpScenarios(unittest.TestCase):
         )
 
 
-def _add_example_ref_role(root):
+def _add_example_ref_role(root, text=""):
     """Add a quick rez_sphinx_help tag above some Sphinx header.
 
     Args:
         root (str): The top-level documentation folder. e.g. "{root}/documentation/source".
+        text (str, optional): A .rst file contents to use for this function.
 
     """
+    text = text or textwrap.dedent(
+        """\
+        Some header
+        ===========
+
+        ..
+            rez_sphinx_help:Some Tag
+
+        .. _some example ref:
+
+        An inner header
+        ---------------
+
+        Some text
+        """
+    )
+
     with open(os.path.join(root, "some_page.rst"), "w") as handler:
-        handler.write(
-            textwrap.dedent(
-                """\
-                Some header
-                ===========
-
-                ..
-                    rez_sphinx_help:Some Tag
-
-                .. _some example ref:
-
-                An inner header
-                ---------------
-
-                Some text
-                """
-            )
-        )
+        handler.write(text)
 
 
 @contextlib.contextmanager

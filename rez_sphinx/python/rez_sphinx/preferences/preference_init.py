@@ -45,6 +45,7 @@ _DEFAULT_TEXT_TEMPLATE = textwrap.dedent(
 _TAG_NAME = "rez_sphinx_help"
 _TAG_TEMPLATE = "..\n    %s:{title}" % _TAG_NAME
 _SPHINX_REF = re.compile(r"^\.\. _(?P<label>[\w ]+):\s*$")
+_HAS_INDENT = re.compile(r"^\s+[^\s]*")
 _IS_COMMENT = re.compile(r"^\.\.\s*")
 
 
@@ -200,21 +201,6 @@ def find_tags(lines):
         list[list[str, str]]: Each hard-coded label + "destination", if any.
 
     """
-
-    def _get_destination(starting_index, lines):
-        for line in lines[starting_index:]:
-            if not line.strip():
-                continue
-
-            match = _SPHINX_REF.match(line)
-
-            if not match:
-                return ""
-
-            return match.group("label")
-
-        return ""
-
     output = []
     count = len(lines)
 
