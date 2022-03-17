@@ -3,31 +3,20 @@
  - e.g. the default files must all have unique names, or error
 - Make sure per-package config overriding is allowed
 
+- Make sure all :doc: and :ref: tags are written
+
 - On-build
  - Check if any pages are still defaults. And fail early
   - Add an option to disable this feature
 
 
+- Add rez-config customization
+ - source directory path
+ - build directory path
+ - sphinx default settings
+
+
 - Check what sphinx.ext.githubpages is!!
-
-
-"init_options": {
-	"default_files": [
-		{
-			"sphinx_title": "User Documentation",
-			"file_name": "user_documentation",  # suffix is auto-added
-			"default_text": "blah blah",
-			"check_pre_build": True,
-			"add_rez_sphinx_tag": True,
-		},
-		{
-			"sphinx_title": "Developer Documentation",
-			"file_name": "developer_documentation",  # suffix is auto-added
-			"default_text": "blah blah",
-			"check_pre_build": True,
-		},
-	]
-}
 
 init
 build
@@ -39,12 +28,6 @@ clean?
 
 docbot needs a plugin for auto-setting the remote
 
-- Add rez-config customization
- - source directory path
- - build directory path
- - sphinx default settings
- - sphinx extensions (like theme)
-
 - need constants to be shared between rez_sphinx and rez_docbot
 - need Qt example of the documentation
 
@@ -55,17 +38,13 @@ docbot needs a plugin for auto-setting the remote
 
 - Add black_isort
 
-- Make sure the schema parses user options correctly. It should fail when the user provides something wrong
-
 - Allow template headers so people can link back to company websites and what not
 
 readthedocs integration?
 
 - Add a warning message that the user's preprocess function is not set
 
-- Make main documentation in README.rst
-
-- Make sure all :doc: and :ref: tags are written
+- Make main documentation as README.rst
 
 - Go through BIG_IDEAS.md
 

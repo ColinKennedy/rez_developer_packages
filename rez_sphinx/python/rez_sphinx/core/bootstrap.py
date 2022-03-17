@@ -21,6 +21,7 @@ _REZ_SPHINX_BOOTSTRAP_LINES = textwrap.dedent(
     # These lines are needed for rez-sphinx to work
     #
     from rez_sphinx import api
+
     locals().update(api.bootstrap(locals()))
     #
     # If you want to add extra user customizations, please feel free to add any
