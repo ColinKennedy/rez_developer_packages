@@ -4,6 +4,8 @@
  - e.g. the default files must all have unique names, or error
 - Make sure per-package config overriding is allowed
 
+- Make sure the API tree looks pretty and isn't ugly
+
 - Fix arrowed Sphinx conf.py references. They're broken
 - Make sure all :doc: and :ref: tags are written
 
