@@ -1,10 +1,10 @@
 """Make sure :doc:`build_command` works as expected."""
 
 import os
+import shutil
 import stat
 import tempfile
 import textwrap
-import shutil
 import unittest
 
 from python_compatibility import wrapping
@@ -18,6 +18,7 @@ from rez_sphinx.core import bootstrap, exception, sphinx_helper
 from .common import package_wrap, pypi_check, run_test
 
 _CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
+_PACKAGE_ROOT = os.path.dirname(_CURRENT_DIRECTORY)
 _PYPI_RTD = "sphinx-rtd-theme==1.0.0"
 
 
@@ -121,11 +122,11 @@ class Bootstrap(unittest.TestCase):
 
     def test_intersphinx_allow_weak(self):
         """Allow weak packages if they are part of the resolve."""
-        raise ValueError('do it')
+        raise ValueError("do it")
 
         # root = os.path.join(
-        #     _CURRENT_DIRECTORY,
-        #     "data",
+        #     _PACKAGE_ROOT,
+        #     "_test_data",
         #     "intersphinx_allow_weak",
         # )
         # source_root = os.path.join(root, "source_packages")
@@ -271,7 +272,7 @@ class ExtraRequires(unittest.TestCase):
     def test_normal(self):
         """Allow users to pass extra `requires`_ to :ref:`rez_sphinx`."""
         extra_install_path = os.path.join(
-            _CURRENT_DIRECTORY, "data", "installed_packages"
+            _PACKAGE_ROOT, "_test_data", "installed_packages"
         )
         context = _make_current_rez_sphinx_context(
             package_paths=config_.packages_path + [extra_install_path]

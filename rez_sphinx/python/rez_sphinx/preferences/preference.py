@@ -45,6 +45,8 @@ _MASTER_KEY = "rez_sphinx"
 _CONFIG_OVERRIDES = "sphinx_conf_overrides"
 _EXTRA_REQUIRES = "extra_requires"
 
+_DEFAULT_ENTRIES = list(preference_init.DEFAULT_ENTRIES)
+
 _MASTER_SCHEMA = schema.Schema(
     {
         schema.Optional(
@@ -53,8 +55,10 @@ _MASTER_SCHEMA = schema.Schema(
         schema.Optional(_EXTENSIONS_KEY, default=list(_BASIC_EXTENSIONS)): [
             schema_helper.PYTHON_DOT_PATH
         ],
-        schema.Optional(_INIT_KEY): {
-            schema.Optional(_DEFAULT_FILES, default=[]): [preference_init.FILE_ENTRY]
+        schema.Optional(_INIT_KEY, default={_DEFAULT_FILES: _DEFAULT_ENTRIES}): {
+            schema.Optional(_DEFAULT_FILES, default=_DEFAULT_ENTRIES): [
+                preference_init.FILE_ENTRY
+            ]
         },
         schema.Optional(
             _API_TOCTREE_LINE, default="API Documentation <api/modules>"
@@ -248,13 +252,6 @@ def get_build_documentation_key():
     return rez_sphinx_settings.get(_BUILD_KEY) or "build_documentation"
 
 
-def get_help_label():
-    """str: Get the `rez help attribute`_ which connects with `intersphinx`_."""
-    rez_sphinx_settings = get_base_settings()
-
-    return rez_sphinx_settings.get("help_label") or "rez_sphinx_objects_inv"
-
-
 def get_documentation_root_name():
     """str: The name of the folder where all documentation-related files will go."""
     settings = get_base_settings()
@@ -289,15 +286,19 @@ def get_filter_method():
     return caller._callable
 
 
+def get_help_label():
+    """str: Get the `rez help attribute`_ which connects with `intersphinx`_."""
+    rez_sphinx_settings = get_base_settings()
+
+    return rez_sphinx_settings.get("help_label") or "rez_sphinx_objects_inv"
+
+
 def get_initial_files_from_configuration():
     """list[:class:`.Entry`]: File data to write during :doc:`init_command`."""
     settings = get_base_settings()
     options = settings.get(_INIT_KEY) or dict()
 
-    if _DEFAULT_FILES in options:
-        return options[_DEFAULT_FILES]
-
-    return list(preference_init.DEFAULT_ENTRIES)
+    return options[_DEFAULT_FILES]
 
 
 def get_master_api_documentation_line():
@@ -396,6 +397,69 @@ def get_quick_start_options(package, options=tuple()):
     return output
 
 
+def serialize_default_settings():
+    """Get all :ref:`rez_sphinx` default values.
+
+    This function can be very long. :func:`serialize_default_sparse_settings`
+    shows a briefer (but still valid) set of default settings.
+
+    Returns:
+        dict[str, object]: A simple key / value pair dict.
+
+    """
+    output = dict()
+
+    for key, value in _MASTER_SCHEMA.schema.items():
+        if hasattr(key, "default"):
+            output[key.key] = key.default
+        else:
+            raise NotImplementedError(
+                'Key "{key}" needs to be supported.'.format(key=key)
+            )
+
+    return output
+
+
+def serialize_default_sparse_settings():
+    """Get the default settings for :ref:`rez_sphinx`.
+
+    These settings ignore nested content and just shows the simple, top-level data.
+
+    See Also:
+        :func:`serialize_default_settings`
+
+    Returns:
+        dict[str, object]: A simple key / value pair dict.
+
+    """
+
+    def _is_iterable(value):
+        try:
+            iter(value)
+        except TypeError:
+            return False
+
+        return True
+
+    required = {
+        key
+        for key in _MASTER_SCHEMA.schema.keys()
+        if not isinstance(key, schema.Optional)
+    }
+
+    output = dict()
+
+    for key, value in serialize_default_settings().items():
+        if not _is_iterable(value):
+            output[key] = value
+        elif key in required:
+            output[key] = value
+        else:
+            output[key] = value.__class__()  # Probably not the best way to do this
+
+    return output
+
+
 def validate_base_settings():
     """Check if the user's settings won't cause :ref:`rez_sphinx` to break.
 
@@ -407,8 +471,8 @@ def validate_base_settings():
         get_base_settings()
     except schema.SchemaError as error:
         raise exception.ConfigurationError(
-            'Invalid rez-config settings were found. '
-            'See `rez_sphinx config check` for details. Summary here "{error!s}".'.format(
+            "Invalid rez-config settings were found. "
+            'See `rez_sphinx config check` for details. Summary here: "{error!s}".'.format(
                 error=error,
             )
         )

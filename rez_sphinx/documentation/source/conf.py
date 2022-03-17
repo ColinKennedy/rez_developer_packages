@@ -27,6 +27,11 @@ rst_epilog = textwrap.dedent(
 
 # TODO : Consider remove rez-config references
 
+# :ref:`rez_sphinx config check` works."""
+# :ref:`rez_sphinx config list-default` works."""
+# :ref:`rez_sphinx config` works."""
+# :ref:`rez_sphinx config list-overrides`
+
 # TODO : Add these
 # - build_documentation_key` - The rez_sphinx key information
 # `objects.inv`_.

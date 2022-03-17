@@ -13,6 +13,7 @@ def requires():
     from rez.config import config
 
     output = [
+        "PyYAML-5.4+<7",
         "Sphinx-1.8+<4",
         "python-2.7+<3.8",
         "rez-2.42+<3",

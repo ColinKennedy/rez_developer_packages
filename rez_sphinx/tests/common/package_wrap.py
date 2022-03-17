@@ -24,7 +24,7 @@ def _delete_later(directory):
 def make_directory(name):
     """Make a directory with ``name`` and delete it later."""
     directory = tempfile.mkdtemp(suffix=name)
-    _delete_later(directory)
+    # _delete_later(directory)
 
     return directory
 

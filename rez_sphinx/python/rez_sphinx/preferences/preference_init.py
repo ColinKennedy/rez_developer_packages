@@ -234,6 +234,7 @@ def _get_header_text_at(offset, lines):
         str: The found header line, if any.
 
     """
+
     def _uses_one_character(text):
         return len(set(text)) == 1
 
@@ -246,10 +247,7 @@ def _get_header_text_at(offset, lines):
         expected_text = lines[index].rstrip()
         after = lines[after_index].rstrip()
 
-        if (
-            _uses_one_character(after)
-            and len(after) == len(expected_text)
-        ):
+        if _uses_one_character(after) and len(after) == len(expected_text):
             return expected_text
 
         return ""

@@ -4,13 +4,14 @@ import argparse
 import logging
 import operator
 import os
+import pprint
 import shlex
 
 from rez.cli import _complete_util
 from rez_utilities import finder
 
 from .commands import builder, initer
-from .core import api_builder, exception, path_control
+from .core import api_builder, exception, path_control, print_format
 from .preferences import preference
 
 _LOGGER = logging.getLogger(__name__)
@@ -129,6 +130,22 @@ def _init(namespace):
     )
 
 
+def _list_default(namespace):
+    """Print default :ref:`rez_sphinx` configuration settings.
+
+    The default will show everything. ``--sparse`` will only print the simplest
+    arguments.
+
+    """
+    if namespace.sparse:
+        data = preference.serialize_default_sparse_settings()
+    else:
+        data = preference.serialize_default_settings()
+
+    caller = print_format.get_format_caller(namespace.format)
+    caller(data)
+
+
 def _set_up_build(sub_parsers):
     """Add :doc:`build_command` CLI parameters.
 
@@ -189,6 +206,23 @@ def _set_up_config(sub_parsers):
     )
     _add_directory_argument(check)
     check.set_defaults(execute=_check)
+
+    list_default = inner_parser.add_parser(
+        "list-default",
+        description="Show the rez_sphinx's default settings.",
+    )
+    list_default.add_argument(
+        "--format",
+        choices=sorted(print_format.CHOICES.keys()),
+        default=print_format.PYTHON_FORMAT,
+        help="Change the printed output, at will.",
+    )
+    list_default.add_argument(
+        "--sparse",
+        action="store_true",
+        help="If included, the reported config will only show top-level items.",
+    )
+    list_default.set_defaults(execute=_list_default)
 
 
 def _set_up_init(sub_parsers):
@@ -310,7 +344,7 @@ def run(namespace, modify=True):
             take ``namespace`` directly as-is.
 
     """
-    if modify:
+    if modify and hasattr(namespace, "directory"):
         namespace.directory = path_control.expand_path(namespace.directory)
 
     namespace.execute(namespace)
