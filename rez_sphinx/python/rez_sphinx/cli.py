@@ -79,7 +79,7 @@ def _build(namespace):
 
 
 def _check(namespace):
-    """Make :doc:`rez_sphinx_config` are valid, globally and within ``namespace``.
+    """Make sure :doc:`configuring_rez_sphinx` are valid, globally and within ``namespace``.
 
     Raises:
         :class:`.UserInputError`:
@@ -289,7 +289,7 @@ def _split_init_arguments(namespace):
 
 
 def main(text):
-    """Parse and run ``text``, the user's terminal arguments for :rez:`rez_sphinx`.
+    """Parse and run ``text``, the user's terminal arguments for :ref:`rez_sphinx`.
 
     Args:
         text (list[str]):

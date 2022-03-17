@@ -82,7 +82,7 @@ def build(
         api_mode (str, optional):
             A description of what to do about Python API documentation.
             For example, should it be generated or not? See
-            :mod:`api_builder` for details.
+            :mod:`.api_builder` for details.
         api_options (list[str], optional):
             User-provided arguments to pass to `sphinx-apidoc`_.
         no_api_doc (bool, optional):
@@ -107,7 +107,10 @@ def build(
 
     api_options = preference.get_api_options(options=api_options)
 
-    source_directory = _get_documentation_source(directory)
+    source_directory = _get_documentation_source(
+        # TODO : Don't hard-code "documentation" here
+        os.path.join(finder.get_package_root(package), "documentation")
+    )
     build_directory = _get_documentation_build(source_directory)
 
     parts = [

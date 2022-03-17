@@ -1,8 +1,10 @@
 - Get all tests to pass
+- Follow the default header Python style (overlines) for all default pages
 - Need unittest so you cannot accidentally add the same file twice to the same toctree
  - e.g. the default files must all have unique names, or error
 - Make sure per-package config overriding is allowed
 
+- Fix arrowed Sphinx conf.py references. They're broken
 - Make sure all :doc: and :ref: tags are written
 
 - On-build

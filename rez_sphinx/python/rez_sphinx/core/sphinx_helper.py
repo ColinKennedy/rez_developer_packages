@@ -116,13 +116,13 @@ def _scan_for_configuration_path(directory):
 
     Args:
         directory (str):
-            A path on-disk to search within for the `Sphinx conf.py <conf.py>`_.
+            A path on-disk to search within for the `conf.py <Sphinx conf.py>`_.
 
     Raises:
-        RuntimeError: If no `Sphinx conf.py <conf.py>`_ could be found.
+        RuntimeError: If no `conf.py <Sphinx conf.py>`_ could be found.
 
     Returns:
-        str: The path on-disk to the `Sphinx conf.py <conf.py>`_.
+        str: The path on-disk to the `conf.py <Sphinx conf.py>`_.
 
     """
     for root, _, files in os.walk(directory):
@@ -172,10 +172,10 @@ def find_configuration_path(root):
 
     Args:
         root (str):
-            A directory on-disk to search within for the `Sphinx conf.py <conf.py>`_.
+            A directory on-disk to search within for the `conf.py <Sphinx conf.py>`_.
 
     Returns:
-        str: The path on-disk to the `Sphinx conf.py <conf.py>`_.
+        str: The path on-disk to the `conf.py <Sphinx conf.py>`_.
 
     """
     for path in (
