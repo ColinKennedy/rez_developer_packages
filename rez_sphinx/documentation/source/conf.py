@@ -113,6 +113,7 @@ rst_epilog = textwrap.dedent(
 
 # TODO : Consider remove rez-config references
 
+# :ref:`rez_sphinx apidoc templates`
 # :ref:`rez_sphinx config check` works."""
 # :ref:`rez_sphinx config list-default` works."""
 # :ref:`rez_sphinx config` works."""

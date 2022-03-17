@@ -35,7 +35,10 @@ _EXTENSIONS_KEY = "sphinx_extensions"
 _INIT_KEY = "init_options"
 
 _ENABLE_APIDOC = "enable_apidoc"
+_ALLOW_APIDOC_TEMPLATES = "allow_apidoc_templates"
 _APIDOC = "sphinx-apidoc"
+_APIDOC_OPTIONS = "arguments"
+# TODO : Change sphinx-quickstart to a dict too like sphinx-apidoc, maybe?
 _QUICKSTART = "sphinx-quickstart"
 
 _HELP_PARENT_KEY = "auto_help"
@@ -44,6 +47,9 @@ _HELP_SORT_ORDER = "sort_order"
 _MASTER_KEY = "rez_sphinx"
 _CONFIG_OVERRIDES = "sphinx_conf_overrides"
 _EXTRA_REQUIRES = "extra_requires"
+
+# TODO : Move _SPHINX_MODULE_KEY to a better place
+_SPHINX_MODULE_KEY = "add_module_names"
 
 _DEFAULT_ENTRIES = list(preference_init.DEFAULT_ENTRIES)
 
@@ -78,11 +84,21 @@ _MASTER_SCHEMA = schema.Schema(
                 _HELP_SORT_ORDER, default=preference_help.DEFAULT_SORT
             ): schema.Use(preference_help.validate_sort),
         },
-        schema.Optional(_ENABLE_APIDOC, default=True): bool,
-        schema.Optional(_CONFIG_OVERRIDES, default=dict()): {
+        schema.Optional(_CONFIG_OVERRIDES, default={_SPHINX_MODULE_KEY: False}): {
+            _SPHINX_MODULE_KEY: bool,
             schema_helper.NON_NULL_STR: object,
         },
-        schema.Optional(_APIDOC, default=[]): [],
+        schema.Optional(
+            _APIDOC,
+            default={
+                _ALLOW_APIDOC_TEMPLATES: True,
+                _ENABLE_APIDOC: True,
+            },
+        ): {
+            schema.Optional(_ALLOW_APIDOC_TEMPLATES, default=True): bool,
+            schema.Optional(_APIDOC_OPTIONS): [],
+            schema.Optional(_ENABLE_APIDOC, default=True): bool,
+        },
         schema.Optional(
             _DOCUMENTATION_ROOT_KEY, default=_DOCUMENTATION_DEFAULT
         ): schema_helper.NON_NULL_STR,
@@ -193,15 +209,20 @@ def _validate_all(data):
     return _MASTER_SCHEMA.validate(data)
 
 
+def allow_apidoc_templates():
+    """bool: Enable / Disable :ref:`rez_sphinx apidoc templates`."""
+    rez_sphinx_settings = get_base_settings()
+    apidoc = rez_sphinx_settings[_APIDOC]
+
+    return apidoc[_ALLOW_APIDOC_TEMPLATES]
+
+
 def is_api_enabled():
     """bool: Check if the user will generate `sphinx-apidoc`_ ReST files."""
     rez_sphinx_settings = get_base_settings()
+    apidoc = rez_sphinx_settings[_APIDOC]
 
-    if _ENABLE_APIDOC in rez_sphinx_settings:
-        return rez_sphinx_settings[_ENABLE_APIDOC]
-
-    # TODO : Be smarter about accessing default values from the schema
-    return True
+    return apidoc[_ENABLE_APIDOC]
 
 
 def get_api_options(options=tuple()):
@@ -215,7 +236,8 @@ def get_api_options(options=tuple()):
 
     """
     rez_sphinx_settings = get_base_settings()
-    settings = rez_sphinx_settings.get(_APIDOC) or ["--separate"]
+    apidoc = rez_sphinx_settings[_APIDOC]
+    settings = apidoc.get(_APIDOC_OPTIONS) or ["--separate"]
 
     try:
         _validate_api_options(settings)

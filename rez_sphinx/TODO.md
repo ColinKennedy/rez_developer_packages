@@ -4,6 +4,22 @@
  - e.g. the default files must all have unique names, or error
 - Make sure per-package config overriding is allowed
 
+- Default settings should include the easy stuff. like api default arguments
+
+- Add bootstrap / configuration options for
+ - add_module_names = False
+
+
+- Add option to prevent API documentation from being overwritten
+
+- apidoc stuff
+ - make sure the tree looks nice
+  - names should be sparse
+  - no duplicates (lol)
+  - API documentation modules
+   - Make sure the functions are just the short names. No long names
+
+
 - Make sure the API tree looks pretty and isn't ugly
 - Add a re-release procedure
  - So that spam-adding documentation is possible

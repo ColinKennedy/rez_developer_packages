@@ -14,6 +14,9 @@ from ..preferences import preference
 from . import configuration, exception, path_control, sphinx_helper
 
 _LOGGER = logging.getLogger(__name__)
+_CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
+_PACKAGE_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(_CURRENT_DIRECTORY)))
+_TEMPLATES_DIRECTORY = os.path.join(_PACKAGE_ROOT, "templates")
 
 
 def _add_disclaimer_readme(directory):
@@ -66,8 +69,12 @@ def _generate_api_files(directory, destination, options=tuple()):
         destination (str):
             The exact folder where source API .rst files will go
             into. Usually this is "{source_rez_root}/documentation/source/api".
+        options (list[str], optional):
+            User-provided arguments to add into the `sphinx-apidoc`_ command.
 
     Raises:
+        EnvironmentError:
+            If the user needs the default "templates" directory but it is missing.
         :class:`.NoPythonFiles`:
             If no Python files exist then no API .rst files can be built.
             So this function raises this exception, exiting early.
@@ -88,9 +95,28 @@ def _generate_api_files(directory, destination, options=tuple()):
             )
         )
 
+    allow_default_templates = (
+        "-t" not in options
+        and "--templatedir" not in options
+        and preference.allow_apidoc_templates()
+    )
+
+    if allow_default_templates and not os.path.isdir(_TEMPLATES_DIRECTORY):
+        raise EnvironmentError(
+            'Directory "{_TEMPLATES_DIRECTORY}" does not exist.'.format(
+                _TEMPLATES_DIRECTORY=_TEMPLATES_DIRECTORY
+            )
+        )
+
     for python_source_root in sources:
         command = [python_source_root, "--output-dir", destination]
+
+        # TODO : Move this elsewhere, more central
+        if allow_default_templates:
+            command.extend(["--templatedir", _TEMPLATES_DIRECTORY])
+
         command.extend(options)
+        _LOGGER.debug('Generating API documentation using "%s" command.', command)
 
         try:
             # TODO : Double check that this doesn't use $PWD at all
