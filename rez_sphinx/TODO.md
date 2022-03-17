@@ -1,19 +1,11 @@
 - Get all tests to pass
-- Make sure source file finding works, even with symlinked, installed Rez packages
-- Make sure the "auto-help ref role tagging" feature actually works. I'm almost
-  100% we need the header label, NOT the ref label.
 - Need unittest so you cannot accidentally add the same file twice to the same toctree
+ - e.g. the default files must all have unique names, or error
 - Make sure per-package config overriding is allowed
 
 - On-build
  - Check if any pages are still defaults. And fail early
   - Add an option to disable this feature
-
-
-- config subparser
- - print a default configuration for the user
-  - as yaml
-  - as python?
 
 
 - Check what sphinx.ext.githubpages is!!
