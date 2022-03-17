@@ -33,3 +33,4 @@ Advanced Topics
 
    adding_extra_interlinking
    configuring_rez_sphinx
+   auto_append_help_tags

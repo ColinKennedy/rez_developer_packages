@@ -5,6 +5,8 @@
 - Make sure per-package config overriding is allowed
 
 - Make sure the API tree looks pretty and isn't ugly
+- Add a re-release procedure
+ - So that spam-adding documentation is possible
 
 - Fix arrowed Sphinx conf.py references. They're broken
 - Make sure all :doc: and :ref: tags are written
