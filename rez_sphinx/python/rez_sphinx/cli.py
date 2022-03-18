@@ -140,6 +140,10 @@ def _list_default(namespace):
     caller(data)
 
 
+def _list_overrides(namespace):
+    raise ValueError('here')
+
+
 def _set_up_build(sub_parsers):
     """Add :doc:`build_command` CLI parameters.
 
@@ -188,6 +192,44 @@ def _set_up_config(sub_parsers):
             appended onto.
 
     """
+
+    def _add_format_argument(parser):
+        """Allow the user to choose :ref:`rez_sphinx config` output (.yaml)."""
+        parser.add_argument(
+            "--format",
+            choices=sorted(print_format.CHOICES.keys()),
+            default=print_format.PYTHON_FORMAT,
+            help="Change the printed output, at will.",
+        )
+
+    def _set_up_list_default(inner_parser):
+        """Define the parser for :ref:`rez_sphinx config list-default`."""
+        list_default = inner_parser.add_parser(
+            "list-default",
+            description="Show the rez_sphinx's default settings.",
+        )
+        _add_format_argument(list_default)
+        list_default.add_argument(
+            "--sparse",
+            action="store_true",
+            help="If included, the reported config will only show top-level items.",
+        )
+        list_default.set_defaults(execute=_list_default)
+
+    def _set_up_list_overrides(inner_parser):
+        """Define the parser for :ref:`rez_sphinx config list-overrides`."""
+        list_overrides = inner_parser.add_parser(
+            "list-overrides",
+            description="Show non-default rez_sphinx's settings.",
+        )
+        _add_format_argument(list_overrides)
+        list_overrides.add_argument(
+            "--sparse",
+            action="store_true",
+            help="If included, the reported config will only show top-level items.",
+        )
+        list_overrides.set_defaults(execute=_list_overrides)
+
     config = sub_parsers.add_parser(
         "config",
         help="All commands related to rez_sphinx configuration settings.",
@@ -201,22 +243,8 @@ def _set_up_config(sub_parsers):
     _add_directory_argument(check)
     check.set_defaults(execute=_check)
 
-    list_default = inner_parser.add_parser(
-        "list-default",
-        description="Show the rez_sphinx's default settings.",
-    )
-    list_default.add_argument(
-        "--format",
-        choices=sorted(print_format.CHOICES.keys()),
-        default=print_format.PYTHON_FORMAT,
-        help="Change the printed output, at will.",
-    )
-    list_default.add_argument(
-        "--sparse",
-        action="store_true",
-        help="If included, the reported config will only show top-level items.",
-    )
-    list_default.set_defaults(execute=_list_default)
+    _set_up_list_default(inner_parser)
+    _set_up_list_overrides(inner_parser)
 
 
 def _set_up_init(sub_parsers):

@@ -145,6 +145,11 @@ class ListDefault(unittest.TestCase):
         self.assertEqual(expected, actual)
 
 
+# TODO : Need tests for
+# - format yaml
+# - overrides only
+# - overrides + everything
+
 class ListOverrides(unittest.TestCase):
     """Make sure :ref:`rez_sphinx config list-overrides` works."""
 
@@ -156,8 +161,11 @@ class ListOverrides(unittest.TestCase):
             config.optionvars["rez_sphinx"] = dict()
             config.optionvars["rez_sphinx"]["enable_apidoc"] = False
 
-            run_test.test("config list")
+            run_test.test("config list-overrides")
 
     def test_invalid(self):
         """Report that the user's applied overrides are invalid."""
-        raise ValueError()
+        with run_test.keep_config() as config:
+            config.optionvars["rez_sphinx"] = "invalid thing"
+
+            run_test.test("config list-overrides")
