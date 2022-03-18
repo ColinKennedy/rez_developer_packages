@@ -15,6 +15,17 @@ from rez_sphinx.preferences import preference
 
 
 @contextlib.contextmanager
+def allow_defaults():
+    """Allow users to run :ref:`rez_sphinx build` even with default files."""
+    with keep_config() as config:
+        config.optionvars["rez_sphinx"] = dict()
+        config.optionvars["rez_sphinx"]["init_options"] = dict()
+        config.optionvars["rez_sphinx"]["init_options"]["check_default_files"] = False
+
+        yield
+
+
+@contextlib.contextmanager
 def keep_config():
     """Temporarily allow edits to `rez-config`_ for the scope of this function.
 

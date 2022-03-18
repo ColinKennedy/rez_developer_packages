@@ -15,7 +15,7 @@ from rez_utilities import creator, finder
 
 from rez_sphinx.core import bootstrap, exception, sphinx_helper
 
-from .common import package_wrap, pypi_check, run_test
+from .common import doc_test, package_wrap, pypi_check, run_test
 
 _CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 _PACKAGE_ROOT = os.path.dirname(_CURRENT_DIRECTORY)
@@ -36,7 +36,7 @@ class ApiDocOptions(unittest.TestCase):
         with run_test.simulate_resolve([installed_package]):
             run_test.test(["init", source_directory])
 
-            with wrapping.silence_printing():  # Make tests less spammy
+            with wrapping.silence_printing(), run_test.allow_defaults():
                 run_test.test(
                     'build "{source_directory}" '
                     '--apidoc-arguments "--suffix .txt"'.format(
@@ -68,7 +68,7 @@ class ApiDocOptions(unittest.TestCase):
         with run_test.simulate_resolve([installed_package]):
             run_test.test(["init", source_directory])
 
-            with wrapping.silence_printing():  # Make tests less spammy
+            with wrapping.silence_printing(), run_test.allow_defaults():
                 run_test.test(["build", source_directory, "--", "--suffix", ".txt"])
 
         source = os.path.join(source_directory, "documentation", "source")
@@ -186,7 +186,7 @@ class Build(unittest.TestCase):
         with run_test.simulate_resolve([installed_package]):
             run_test.test(["init", source_directory])
 
-            with wrapping.silence_printing():  # Make tests less spammy
+            with wrapping.silence_printing(), run_test.allow_defaults():
                 run_test.test(["build", source_directory])
 
         source = os.path.join(source_directory, "documentation", "source")
@@ -252,7 +252,7 @@ class Build(unittest.TestCase):
             with run_test.simulate_resolve(install_packages), wrapping.keep_cwd():
                 run_test.test(["init", source])
 
-                with wrapping.watch_namespace(
+                with run_test.allow_defaults(), wrapping.watch_namespace(
                     bootstrap._get_intersphinx_mappings
                 ) as watcher:
                     run_test.test(["build", source])
@@ -361,6 +361,9 @@ class Miscellaneous(unittest.TestCase):
                 parent_environ=parent_environment,
             )
             init.communicate()
+
+            doc_test.add_to_default_text(source_directory)
+
             build = context.execute_command(
                 "rez_sphinx build",
                 parent_environ=parent_environment,
@@ -400,7 +403,7 @@ class Miscellaneous(unittest.TestCase):
         with run_test.simulate_resolve([installed_package]):
             run_test.test(["init", source_directory])
 
-            with wrapping.silence_printing():  # Make tests less spammy
+            with wrapping.silence_printing(), run_test.allow_defaults():
                 run_test.test(
                     'build "{source_directory}" '
                     '--apidoc-arguments "--suffix .txt"'.format(
@@ -433,7 +436,7 @@ class Options(unittest.TestCase):
 
         installed_package = creator.build(source_package, install_path, quiet=True)
 
-        with run_test.simulate_resolve([installed_package]):
+        with run_test.simulate_resolve([installed_package]), run_test.allow_defaults():
             run_test.test(["init", source_directory])
             run_test.test(["build", source_directory, "--no-apidoc"])
 
@@ -455,7 +458,9 @@ class Options(unittest.TestCase):
 
             with run_test.keep_config() as config:
                 config.optionvars["rez_sphinx"] = dict()
+                config.optionvars["rez_sphinx"]["init_options"] = dict()
                 config.optionvars["rez_sphinx"]["sphinx-apidoc"] = dict()
+                config.optionvars["rez_sphinx"]["init_options"]["check_default_files"] = False
                 config.optionvars["rez_sphinx"]["sphinx-apidoc"]["enable_apidoc"] = False
 
                 run_test.test(["build", source_directory])

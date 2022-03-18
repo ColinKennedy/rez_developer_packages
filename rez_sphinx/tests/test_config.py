@@ -99,7 +99,10 @@ class ListDefault(unittest.TestCase):
             "build_documentation_key": "build_documentation",
             "documentation_root": "documentation",
             "extra_requires": [],
-            "init_options": {"default_files": preference._DEFAULT_ENTRIES},
+            "init_options": {
+                "check_default_files": True,
+                "default_files": preference._DEFAULT_ENTRIES,
+            },
             "sphinx-apidoc": {'allow_apidoc_templates': True, 'enable_apidoc': True},
             "sphinx_conf_overrides": {"add_module_names": False},
             "sphinx_extensions": [

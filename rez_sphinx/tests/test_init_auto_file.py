@@ -9,7 +9,7 @@ from rez_utilities import creator, finder
 from rez_sphinx.core import exception
 from six.moves import mock
 
-from .common import package_wrap, run_test
+from .common import doc_test, package_wrap, run_test
 
 
 class General(unittest.TestCase):
@@ -161,7 +161,13 @@ class General(unittest.TestCase):
         self.assertEqual(expected_body, body)
 
     def test_default_files(self):
-        self._test()
+        """Build the default documentation files."""
+        with run_test.keep_config() as config:
+            config.optionvars["rez_sphinx"] = dict()
+            config.optionvars["rez_sphinx"]["init_options"] = dict()
+            config.optionvars["rez_sphinx"]["init_options"]["check_default_files"] = False
+
+            self._test()
 
     def test_enforce_non_default_text(self):
         """Forbid documentation building if they haven't modified their files.
@@ -170,14 +176,6 @@ class General(unittest.TestCase):
             Add a unittest to disable this feature, if the user chooses to.
 
         """
-
-        def _add_no_default_text(package_directory):
-            source = os.path.join(directory, "documentation", "source")
-
-            for path in (os.path.join(source, "developer_documentation.rst"), os.path.join(source, "user_documentation.rst")):
-                with open(path, "a") as handler:
-                    handler.write("Extra text here")
-
         source_package, directory = self._test()
         source_directory = finder.get_package_root(source_package)
         install_path = package_wrap.make_directory("_test_api_pass_cli")
@@ -188,7 +186,7 @@ class General(unittest.TestCase):
             run_test.test(["build", source_directory])
 
         # 2. Succeed because there is no more default text
-        _add_no_default_text(source_directory)
+        doc_test.add_to_default_text(source_directory)
 
         with run_test.simulate_resolve([installed_package]):
             run_test.test(["build", source_directory])

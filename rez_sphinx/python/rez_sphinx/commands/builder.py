@@ -136,10 +136,6 @@ def build(
 
     """
     package = finder.get_nearest_rez_package(directory)
-    source_directory = doc_finder.get_source_from_package(package)
-
-    if preference.check_default_files():
-        _validate_non_default_files(doc_finder.get_source_from_package(package))
 
     if not package:
         raise exception.NoPackageFound(
@@ -147,6 +143,17 @@ def build(
                 directory=directory
             )
         )
+
+    try:
+        source_directory = doc_finder.get_source_from_package(package)
+    except ValueError:
+        raise exception.NoDocumentationFound(
+            'Directory "{root}" has no documentation. '
+            "Run `rez_sphinx init` to fix this."
+        )
+
+    if preference.check_default_files():
+        _validate_non_default_files(source_directory)
 
     api_options = preference.get_api_options(options=api_options)
 
