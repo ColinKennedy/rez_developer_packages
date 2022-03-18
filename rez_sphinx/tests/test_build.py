@@ -455,7 +455,8 @@ class Options(unittest.TestCase):
 
             with run_test.keep_config() as config:
                 config.optionvars["rez_sphinx"] = dict()
-                config.optionvars["rez_sphinx"]["enable_apidoc"] = False
+                config.optionvars["rez_sphinx"]["sphinx-apidoc"] = dict()
+                config.optionvars["rez_sphinx"]["sphinx-apidoc"]["enable_apidoc"] = False
 
                 run_test.test(["build", source_directory])
 

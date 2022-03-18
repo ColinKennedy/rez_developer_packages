@@ -43,7 +43,8 @@ class Check(unittest.TestCase):
 
         with run_test.keep_config() as config:
             config.optionvars["rez_sphinx"] = dict()
-            config.optionvars["rez_sphinx"]["enable_apidoc"] = False
+            config.optionvars["rez_sphinx"]["sphinx-apidoc"] = dict()
+            config.optionvars["rez_sphinx"]["sphinx-apidoc"]["enable_apidoc"] = False
 
             with wrapping.silence_printing():
                 run_test.test("config check")
@@ -65,10 +66,9 @@ class ListDefault(unittest.TestCase):
             auto_help: {}
             build_documentation_key: ''
             documentation_root: ''
-            enable_apidoc: true
             extra_requires: []
             init_options: {}
-            sphinx-apidoc: []
+            sphinx-apidoc: {}
             sphinx-quickstart: []
             sphinx_conf_overrides: {}
             sphinx_extensions: []
@@ -81,9 +81,9 @@ class ListDefault(unittest.TestCase):
         """Print default :ref:`rez_sphinx` settings."""
         with run_test.keep_config() as config:
             config.optionvars["rez_sphinx"] = dict()
-            config.optionvars["rez_sphinx"][
-                "enable_apidoc"
-            ] = False  # A non-default value
+            config.optionvars["rez_sphinx"]["sphinx-apidoc"] = dict()
+            # Set a non-default value
+            config.optionvars["rez_sphinx"]["sphinx-apidoc"]["enable_apidoc"] = False
 
             with mock.patch("pprint.pprint") as patch:
                 run_test.test("config list-default")
@@ -98,11 +98,10 @@ class ListDefault(unittest.TestCase):
             },
             "build_documentation_key": "build_documentation",
             "documentation_root": "documentation",
-            "enable_apidoc": True,
             "extra_requires": [],
             "init_options": {"default_files": preference._DEFAULT_ENTRIES},
-            "sphinx-apidoc": [],
-            "sphinx_conf_overrides": {},
+            "sphinx-apidoc": {'allow_apidoc_templates': True, 'enable_apidoc': True},
+            "sphinx_conf_overrides": {"add_module_names": False},
             "sphinx_extensions": [
                 "sphinx.ext.autodoc",
                 "sphinx.ext.intersphinx",
@@ -119,7 +118,8 @@ class ListDefault(unittest.TestCase):
 
         with run_test.keep_config() as config:
             config.optionvars["rez_sphinx"] = dict()
-            config.optionvars["rez_sphinx"]["enable_apidoc"] = value
+            config.optionvars["rez_sphinx"]["sphinx-apidoc"] = dict()
+            config.optionvars["rez_sphinx"]["sphinx-apidoc"]["enable_apidoc"] = value
 
             with mock.patch("pprint.pprint") as patch:
                 run_test.test("config list-default --sparse")
@@ -127,12 +127,11 @@ class ListDefault(unittest.TestCase):
         args, kwargs = patch.call_args
         actual = args[0]
         expected = {
-            "enable_apidoc": not value,
             "documentation_root": "",
             "init_options": {},
             "sphinx_conf_overrides": {},
             "sphinx_extensions": [],
-            "sphinx-apidoc": [],
+            "sphinx-apidoc": dict(),
             "extra_requires": [],
             "sphinx-quickstart": [],
             "build_documentation_key": "",
