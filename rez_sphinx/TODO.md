@@ -4,7 +4,9 @@
 - Need unittest so you cannot accidentally add the same file twice to the same toctree
  - e.g. the default files must all have unique names, or error
 - Make sure per-package config overriding is allowed
+- Consider adding refs to "documentation source root" so people know what I'm talking about
 
+- Needs to be able to run / exit early when there's no Python files
 - Default settings should include the easy stuff. like api default arguments
 
 - Add bootstrap / configuration options for

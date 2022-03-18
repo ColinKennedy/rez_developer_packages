@@ -5,7 +5,9 @@ import os
 import textwrap
 import unittest
 
-from rez_utilities import finder
+from rez_utilities import creator, finder
+from rez_sphinx.core import exception
+from six.moves import mock
 
 from .common import package_wrap, run_test
 
@@ -13,60 +15,7 @@ from .common import package_wrap, run_test
 class General(unittest.TestCase):
     """Make sure any auto-generated documentation files are made, correctly."""
 
-    def test_custom_files(self):
-        """Define and generate a custom file, on :doc:`init_command`."""
-        package = package_wrap.make_simple_developer_package()
-        directory = finder.get_package_root(package)
-        name = "some_custom_file"
-        expected_body = "Some example text"
-
-        with _override_default_files([{"base_text": expected_body, "path": name}]):
-            run_test.test(["init", directory])
-
-        path = os.path.join(directory, "documentation", "source", name + ".rst")
-
-        with open(path, "r") as handler:
-            custom_file_data = handler.read().splitlines(keepends=False)
-
-        master_index = os.path.join(directory, "documentation", "source", "index.rst")
-
-        with open(master_index, "r") as handler:
-            master_data = handler.read()
-
-        master_data = _get_base_master_index_text(
-            os.path.join(directory, "documentation", "source", "index.rst")
-        )
-
-        header = custom_file_data[0]
-        body = custom_file_data[-1]
-
-        self.assertEqual(
-            textwrap.dedent(
-                """\
-                Welcome to some_package's documentation!
-                ========================================
-
-                .. toctree::
-                   :maxdepth: 2
-                   :caption: Contents:
-
-                   some_custom_file
-
-
-                Indices and tables
-                ==================
-
-                * :ref:`genindex`
-                * :ref:`modindex`
-                * :ref:`search`"""
-            ),
-            master_data,
-        )
-
-        self.assertEqual("Some Custom File", header)
-        self.assertEqual(expected_body, body)
-
-    def test_default_files(self):
+    def _test(self):
         """Make sure :ref:`rez_sphinx` makes example starting files for the user."""
         package = package_wrap.make_simple_developer_package()
         directory = finder.get_package_root(package)
@@ -156,6 +105,64 @@ class General(unittest.TestCase):
             master_text,
         )
 
+        return package, directory
+
+    def test_custom_files(self):
+        """Define and generate a custom file, on :doc:`init_command`."""
+        package = package_wrap.make_simple_developer_package()
+        directory = finder.get_package_root(package)
+        name = "some_custom_file"
+        expected_body = "Some example text"
+
+        with _override_default_files([{"base_text": expected_body, "path": name}]):
+            run_test.test(["init", directory])
+
+        path = os.path.join(directory, "documentation", "source", name + ".rst")
+
+        with open(path, "r") as handler:
+            custom_file_data = handler.read().splitlines(keepends=False)
+
+        master_index = os.path.join(directory, "documentation", "source", "index.rst")
+
+        with open(master_index, "r") as handler:
+            master_data = handler.read()
+
+        master_data = _get_base_master_index_text(
+            os.path.join(directory, "documentation", "source", "index.rst")
+        )
+
+        header = custom_file_data[0]
+        body = custom_file_data[-1]
+
+        self.assertEqual(
+            textwrap.dedent(
+                """\
+                Welcome to some_package's documentation!
+                ========================================
+
+                .. toctree::
+                   :maxdepth: 2
+                   :caption: Contents:
+
+                   some_custom_file
+
+
+                Indices and tables
+                ==================
+
+                * :ref:`genindex`
+                * :ref:`modindex`
+                * :ref:`search`"""
+            ),
+            master_data,
+        )
+
+        self.assertEqual("Some Custom File", header)
+        self.assertEqual(expected_body, body)
+
+    def test_default_files(self):
+        self._test()
+
     def test_enforce_non_default_text(self):
         """Forbid documentation building if they haven't modified their files.
 
@@ -163,7 +170,41 @@ class General(unittest.TestCase):
             Add a unittest to disable this feature, if the user chooses to.
 
         """
-        raise ValueError()
+
+        def _add_no_default_text(package_directory):
+            source = os.path.join(directory, "documentation", "source")
+
+            for path in (os.path.join(source, "developer_documentation.rst"), os.path.join(source, "user_documentation.rst")):
+                with open(path, "a") as handler:
+                    handler.write("Extra text here")
+
+        source_package, directory = self._test()
+        source_directory = finder.get_package_root(source_package)
+        install_path = package_wrap.make_directory("_test_api_pass_cli")
+        installed_package = creator.build(source_package, install_path, quiet=True)
+
+        # 1. Fail early due to default text
+        with run_test.simulate_resolve([installed_package]), self.assertRaises(exception.NoDocumentationWritten):
+            run_test.test(["build", source_directory])
+
+        # 2. Succeed because there is no more default text
+        _add_no_default_text(source_directory)
+
+        with run_test.simulate_resolve([installed_package]):
+            run_test.test(["build", source_directory])
+
+        # 3. Don't run the check if the user asks not to.
+        with run_test.keep_config() as config:
+            config.optionvars["rez_sphinx"] = dict()
+            config.optionvars["rez_sphinx"]["init_options"] = dict()
+            config.optionvars["rez_sphinx"]["init_options"]["check_default_files"] = False
+
+            with run_test.simulate_resolve([installed_package]), mock.patch(
+                "rez_sphinx.commands.builder._validate_non_default_files"
+            ) as patch:
+                run_test.test(["build", source_directory])
+
+            self.assertEqual(0, patch.call_count)
 
     def test_no_files(self):
         """Make sure users can opt-out of the default files, if they wish."""

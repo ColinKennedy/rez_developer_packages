@@ -121,13 +121,7 @@ def _init(namespace):
 
     _LOGGER.debug('Found "%s" Rez package.', package.name)
 
-    documentation_root = os.path.join(
-        directory, preference.get_documentation_root_name()
-    )
-
-    initer.init(
-        package, documentation_root, quick_start_options=namespace.quick_start_arguments
-    )
+    initer.init(package, quick_start_options=namespace.quick_start_arguments)
 
 
 def _list_default(namespace):

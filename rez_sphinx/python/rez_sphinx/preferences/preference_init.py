@@ -147,9 +147,29 @@ class Entry(object):
         return name.replace("\\", "/")  # Sphinx uses forward slashes in toctrees
 
     def get_relative_path(self):
-        """str: Get the path, relative to the documentation root, for this file."""
+        """str: Get the path, relative to the documentation source root, for this file."""
         # TODO : Get this .rst from the user's configuration settings. Don't do this
         return self._data.get("path") + ".rst"
+
+    def write(self, root):
+        """Write this instance to disk, starting at ``root``.
+
+        This method may make inner directories as needed.
+
+        Args:
+            root (str):
+                A directory to start writing the file within. Usually this is
+                the documentation source root.
+
+        """
+        full = os.path.join(root, self.get_relative_path())
+        directory = os.path.dirname(full)
+
+        if not os.path.isdir(directory):
+            os.makedirs(directory)
+
+        with open(full, "w") as handler:
+            handler.write(self.get_default_text())
 
     def __repr__(self):
         """str: Create a representation of this instance."""

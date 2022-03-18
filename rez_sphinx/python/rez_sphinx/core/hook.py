@@ -180,14 +180,12 @@ def package_preprocess_function(this, data):  # pylint: disable=unused-argument
         return
 
     help_ = _expand_help(data.get(_REZ_HELP_KEY))
-    documentation_root = os.path.join(
-        package_source_root, preference.get_documentation_root_name()
-    )
 
-    if not os.path.isdir(documentation_root):
-        return
+    source_path = sphinx_helper.find_configuration_path(package_source_root)
 
-    source_path = sphinx_helper.find_configuration_path(documentation_root)
+    if not source_path:
+        return ""
+
     source_root = os.path.dirname(source_path)
 
     new_labels = _find_help_labels(source_root)

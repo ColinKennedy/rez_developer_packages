@@ -5,11 +5,13 @@ import os
 import traceback
 
 from python_compatibility import wrapping
+from rez_utilities import finder
 from sphinx.cmd import quickstart
 
 from ..core import (
     bootstrap,
     configuration,
+    doc_finder,
     exception,
     package_change,
     path_control,
@@ -57,15 +59,7 @@ def _add_initial_files(root, entries):
     lines = []
 
     for entry in entries:
-        full = os.path.join(root, entry.get_relative_path())
-        directory = os.path.dirname(full)
-
-        if not os.path.isdir(directory):
-            os.makedirs(directory)
-
-        with open(full, "w") as handler:
-            handler.write(entry.get_default_text())
-
+        entry.write(root)
         lines.append(entry.get_toctree_line())
 
     sphinx_helper.add_links_to_a_tree(lines, master_index)
@@ -76,8 +70,8 @@ def _run_sphinx_quickstart(directory, options=tuple()):
 
     Args:
         directory (str):
-            The starting folder on-disk where newly created
-            documentation files will live under.
+            The starting folder on-disk where newly created documentation files
+            will live under. e.g. ``"{root}/documentation"``.
         options (list[str], optional):
             The arguments which are passed directly to `sphinx-quickstart`_.
 
@@ -102,7 +96,9 @@ def _run_sphinx_quickstart(directory, options=tuple()):
 
         raise exception.SphinxExecutionError(text)
 
-    path = sphinx_helper.find_configuration_path(directory)
+    source = doc_finder.get_source_from_directory(os.path.dirname(directory))
+    # TODO : Don't hard-code
+    path = os.path.join(source, "conf.py")
 
     if not os.path.isfile(path):
         raise RuntimeError(
@@ -112,7 +108,7 @@ def _run_sphinx_quickstart(directory, options=tuple()):
     return path
 
 
-def init(package, directory, quick_start_options=tuple()):
+def init(package, quick_start_options=tuple()):
     """Connect the Rez package at ``directory`` to :ref:`rez_sphinx`.
 
     Warning:
@@ -123,9 +119,6 @@ def init(package, directory, quick_start_options=tuple()):
     Args:
         package (:class:`rez.developer_package.DeveloperPackage`):
             The Rez package to apply documentation onto.
-        directory (str):
-            The starting folder on-disk where newly created documentation files
-            will live under. e.g. "{rez_root}/documentation"
         quick_start_options (list[str], optional):
             User-provided arguments to consider while resolving
             `sphinx-quickstart`_ values.
@@ -140,15 +133,29 @@ def init(package, directory, quick_start_options=tuple()):
         package.name, options=quick_start_options
     )
 
+    root = finder.get_package_root(package)
+
+    if preference.SPHINX_SEPARATE_SOURCE_AND_BUILD in options:
+        # TODO : Don't hard-code here
+        documentation_source_root = os.path.join(root, "documentation", "source")
+    else:
+        # TODO : Don't hard-code here
+        documentation_source_root = os.path.join(root, "documentation")
+
     with wrapping.silence_printing():
-        configuration_path = _run_sphinx_quickstart(directory, options=options)
+        if preference.SPHINX_SEPARATE_SOURCE_AND_BUILD in options:
+            quickstart_root = os.path.dirname(documentation_source_root)
+        else:
+            quickstart_root = documentation_source_root
+
+        configuration_path = _run_sphinx_quickstart(quickstart_root, options=options)
 
     if preference.SPHINX_SEPARATE_SOURCE_AND_BUILD in options:
         # TODO : Check if "source" can be some variable instead of hard-coded
-        _add_initial_files(os.path.join(directory, "source"), initial_files)
-        _add_build_directory(directory)
+        _add_initial_files(documentation_source_root, initial_files)
+        _add_build_directory(os.path.dirname(documentation_source_root))
     else:
-        _add_initial_files(directory, initial_files)
+        _add_initial_files(documentation_source_root, initial_files)
 
     bootstrap.append_bootstrap_lines(configuration_path)
 

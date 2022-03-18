@@ -7,7 +7,7 @@ from rez.config import config
 from rez_utilities import finder
 from sphinx.cmd import build as sphinx_build
 
-from ..core import api_builder, exception, sphinx_helper
+from ..core import api_builder, doc_finder, exception, sphinx_helper
 from ..preferences import preference
 
 
@@ -68,6 +68,45 @@ def _get_documentation_source(root):
     return os.path.dirname(configuration)
 
 
+def _validate_non_default_files(directory):
+    """Check if ``directory`` has non-default documentation.
+
+    Args:
+        directory (str):
+            The documentation source root to look within for expected files.
+            If a file is found, it must have hand-written documentation applied
+            or it is rejected.
+
+    Raises:
+        :class:`.NoDocumentationWritten`:
+            If any default, known file was never changed by the user.
+
+    """
+    invalids = set()
+
+    for entry in preference.get_init_default_entries():
+        full = os.path.join(directory, entry.get_relative_path())
+
+        if not os.path.isfile(full):
+            continue
+
+        with open(full, "r") as handler:
+            data = handler.read()
+
+        if data == entry.get_default_text():
+            invalids.add(full)
+
+    if not invalids:
+        return
+
+    raise exception.NoDocumentationWritten(
+        'Paths "{invalids}" have no hand-written documentation. '
+        'Please add some documentation here!'.format(
+            invalids=", ".join(sorted(invalids)),
+        )
+    )
+
+
 def build(
     directory,
     api_mode=api_builder.FULL_AUTO.label,
@@ -97,6 +136,10 @@ def build(
 
     """
     package = finder.get_nearest_rez_package(directory)
+    source_directory = doc_finder.get_source_from_package(package)
+
+    if preference.check_default_files():
+        _validate_non_default_files(doc_finder.get_source_from_package(package))
 
     if not package:
         raise exception.NoPackageFound(
@@ -107,10 +150,10 @@ def build(
 
     api_options = preference.get_api_options(options=api_options)
 
-    source_directory = _get_documentation_source(
-        # TODO : Don't hard-code "documentation" here
-        os.path.join(finder.get_package_root(package), "documentation")
-    )
+    # TODO : This doesn't take into account split builds (it needs to fall back
+    # to the Rez build folder if the user doesn't have a documentation/source
+    # folder
+    #
     build_directory = _get_documentation_build(source_directory)
 
     parts = [

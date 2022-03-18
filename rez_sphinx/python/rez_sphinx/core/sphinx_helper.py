@@ -3,6 +3,9 @@
 import logging
 import os
 
+from . import doc_finder, exception
+
+
 _LOGGER = logging.getLogger(__name__)
 _SPHINX_NAME = "conf.py"
 _MISSING_TOCTREE_TEMPLATE = (".. toctree::", "   :max-depth: 1")
@@ -178,12 +181,17 @@ def find_configuration_path(root):
         str: The path on-disk to the `conf.py <Sphinx conf.py>`_.
 
     """
-    for path in (
-        os.path.join(root, "source", _SPHINX_NAME),  # rez-sphinx's default location
-        os.path.join(root, _SPHINX_NAME),  # Another common, non-default spot
-    ):
-        if os.path.isfile(path):
-            return path
+    try:
+        source = doc_finder.get_source_from_directory(root)
+    except exception.NoDocumentationFound:
+        _LOGGER.warning('Directory "%s" has no documentation.', root)
+
+        return ""
+
+    path = os.path.join(source, _SPHINX_NAME)
+
+    if os.path.isfile(path):
+        return path
 
     return _scan_for_configuration_path(root)
 

@@ -29,10 +29,11 @@ SPHINX_SEPARATE_SOURCE_AND_BUILD = "--sep"
 
 _API_TOCTREE_LINE = "api_toctree_line"
 _BUILD_KEY = "build_documentation_key"
+_CHECK_DEFAULT_FILES = "check_default_files"
 _DEFAULT_FILES = "default_files"
 _DOCUMENTATION_ROOT_KEY = "documentation_root"
 _EXTENSIONS_KEY = "sphinx_extensions"
-_INIT_KEY = "init_options"
+_INIT_KEY = "init_options"  # TODO : Consider renaming to "init_command"
 
 _ENABLE_APIDOC = "enable_apidoc"
 _ALLOW_APIDOC_TEMPLATES = "allow_apidoc_templates"
@@ -61,10 +62,14 @@ _MASTER_SCHEMA = schema.Schema(
         schema.Optional(_EXTENSIONS_KEY, default=list(_BASIC_EXTENSIONS)): [
             schema_helper.PYTHON_DOT_PATH
         ],
-        schema.Optional(_INIT_KEY, default={_DEFAULT_FILES: _DEFAULT_ENTRIES}): {
+        schema.Optional(_INIT_KEY, default={
+            _DEFAULT_FILES: _DEFAULT_ENTRIES,
+            _CHECK_DEFAULT_FILES: True,
+        }): {
             schema.Optional(_DEFAULT_FILES, default=_DEFAULT_ENTRIES): [
                 preference_init.FILE_ENTRY
-            ]
+            ],
+            schema.Optional(_CHECK_DEFAULT_FILES, default=True): bool,
         },
         schema.Optional(
             _API_TOCTREE_LINE, default="API Documentation <api/modules>"
@@ -85,7 +90,7 @@ _MASTER_SCHEMA = schema.Schema(
             ): schema.Use(preference_help.validate_sort),
         },
         schema.Optional(_CONFIG_OVERRIDES, default={_SPHINX_MODULE_KEY: False}): {
-            _SPHINX_MODULE_KEY: bool,
+            schema.Optional(_SPHINX_MODULE_KEY, default=False): bool,
             schema_helper.NON_NULL_STR: object,
         },
         schema.Optional(
@@ -217,6 +222,14 @@ def allow_apidoc_templates():
     return apidoc[_ALLOW_APIDOC_TEMPLATES]
 
 
+def check_default_files():
+    """bool: If True, :ref:`rez_sphinx build` checks files for user edits."""
+    settings = get_base_settings()
+    options = settings.get(_INIT_KEY) or dict()
+
+    return options[_CHECK_DEFAULT_FILES]
+
+
 def is_api_enabled():
     """bool: Check if the user will generate `sphinx-apidoc`_ ReST files."""
     rez_sphinx_settings = get_base_settings()
@@ -321,6 +334,20 @@ def get_initial_files_from_configuration():
     options = settings.get(_INIT_KEY) or dict()
 
     return options[_DEFAULT_FILES]
+
+
+def get_init_default_entries():
+    """Get documentation files which will be auto-generated during :ref:`rez_sphinx init`.
+
+    Returns:
+        list[:class:`.Entry`]:
+            A description of each file's contents and where it should live,
+            on-disk, within the source documentation root.
+
+    """
+    settings = get_base_settings()
+
+    return settings[_INIT_KEY][_DEFAULT_FILES]
 
 
 def get_master_api_documentation_line():
