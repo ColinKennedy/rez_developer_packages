@@ -13,6 +13,7 @@ from rez_utilities import finder
 from .common import run_test
 
 _CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
+_PACKAGE_ROOT = os.path.dirname(_CURRENT_DIRECTORY)
 
 
 class _Base(unittest.TestCase):
@@ -21,11 +22,7 @@ class _Base(unittest.TestCase):
         """Getting common directories for testing within this class."""
         super(_Base, cls).setUpClass()
 
-        root = os.path.join(
-            _CURRENT_DIRECTORY,
-            "data",
-            "suggestion_test_nested",
-        )
+        root = os.path.join(_PACKAGE_ROOT, "_test_data", "suggestion_test_nested")
         cls.source_packages = os.path.join(root, "source_packages")
         cls.installed_packages = os.path.join(root, "installed_packages")
 
@@ -222,7 +219,7 @@ class Options(_Base):
 
     def test_search_recursive(self):
         """Look for Rez packages recursively, in an unknown folder structure."""
-        root = os.path.join(_CURRENT_DIRECTORY, "data", "unknown_folder_structure")
+        root = os.path.join(_PACKAGE_ROOT, "_test_data", "unknown_folder_structure")
         source_packages = os.path.join(root, "source_packages")
         installed_packages = os.path.join(root, "installed_packages")
 
