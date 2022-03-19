@@ -4,13 +4,19 @@ import operator
 from ...core import package_query
 
 
-def _compute_package_depth(package, all_family_names):
+def _get_regular_dependencies(package):
+    return {request.name for request in package_query.get_dependencies(package)}
+
+
+def _compute_package_depth(package, all_family_names, dependencies_getter=_get_regular_dependencies):
     def _compute(package, seen, computed_depths):
-        dependencies = package_query.get_dependencies(package)
         depths = set()
 
-        for request in dependencies:
-            name = request.name
+        for name in dependencies_getter(package):
+            if name in computed_depths:
+                depths.add(computed_depths[name])
+
+                continue
 
             if name in seen:
                 continue
@@ -58,13 +64,47 @@ def _config(packages):
 
 
 def _guess(packages):
+
+    def _guess_dependencies(data, all_family_names):
+
+        def wrapper(package):
+            result = _get_regular_dependencies(package)
+            # {
+            #     name
+            #     for name in all_family_names
+            #     if name != package.name  # Prevent infinite RecursionError
+            #     and name in data
+            # }
+            # )
+            result.update(
+                {
+                    name
+                    for name in all_family_names
+                    if name != package.name  # Prevent infinite RecursionError
+                    and name in data
+                }
+            )
+
+            return result
+
+        return wrapper
+
+    all_family_names = {package.name: package for package in packages}
+    depths = collections.defaultdict(set)
+
     for package in packages:
-        path = package.filepath
+        with open(package.filepath, "r") as handler:
+            data = handler.read()
 
-        with open(path, "r") as handler:
-            raise NotImplementedError(handler.read())
+        _guesser = _guess_dependencies(data, set(all_family_names.keys()))
 
-    raise NotImplementedError('stop')
+        depth = _compute_package_depth(package, all_family_names, dependencies_getter=_guesser)
+        depths[depth].add(package)
+
+    return [
+        packages
+        for _, packages in sorted(depths.items(), key=operator.itemgetter(0))
+    ]
 
 
 def get_mode_by_name(name):

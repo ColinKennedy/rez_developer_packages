@@ -3,6 +3,7 @@
 import functools
 import glob
 import os
+import textwrap
 import unittest
 
 from python_compatibility import wrapping
@@ -14,13 +15,11 @@ from .common import run_test
 _CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 
 
-class Depth(unittest.TestCase):
-    """Ensure package traversal order works as expected."""
-
+class _Base(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """Getting common directories for testing within this class."""
-        super(Depth, cls).setUpClass()
+        super(_Base, cls).setUpClass()
 
         root = os.path.join(
             _CURRENT_DIRECTORY,
@@ -29,6 +28,10 @@ class Depth(unittest.TestCase):
         )
         cls.source_packages = os.path.join(root, "source_packages")
         cls.installed_packages = os.path.join(root, "installed_packages")
+
+
+class Depth(_Base):
+    """Ensure package traversal order works as expected."""
 
     def test_depth_check(self):
         """Check packages individually to make sure they have the correct depth."""
@@ -54,8 +57,8 @@ class Depth(unittest.TestCase):
         for package, expected in [
             (pure_dependency, 0),
             (package_plus_pure_dependency, 1),
-            (nested_dependency, 2),
-            (another_nested, 3),
+            (another_nested, 2),
+            (nested_dependency, 3),
             (complex_package, 4),
         ]:
             found = suggestion_mode._compute_package_depth(package, installed_family_names)
@@ -96,10 +99,12 @@ class Depth(unittest.TestCase):
         expected = [
             os.path.join(self.source_packages, name) for name in [
                 "pure_dependency",
+                "guessable_package",
                 "package_plus_pure_dependency",
                 "another_nested",
                 "nested_dependency",
                 "complex_package",
+                "second_complex_package",
             ]
         ]
 
@@ -122,7 +127,7 @@ class Invalid(unittest.TestCase):
         raise ValueError()
 
     def test_cyclic(self):
-        """Fail / Warn if packages have cyclic dependencies."""
+        """Fail if packages have cyclic dependencies."""
         raise ValueError()
 
     def test_no_resolve(self):
@@ -139,8 +144,42 @@ class Invalid(unittest.TestCase):
         raise ValueError()
 
 
-class Options(unittest.TestCase):
+class Options(_Base):
     """Check the miscellaneous flags in :ref:`rez_sphinx suggest`."""
+
+    def test_allow_cyclic(self):
+        """Warn if packages have cyclic dependencies."""
+        raise ValueError()
+
+    def test_display_as_names(self):
+        """Show the ordered packages like how `rez-depends`_ does."""
+        with wrapping.capture_pipes() as (stdout, _):
+            run_test.test(
+                [
+                    "suggest",
+                    "build-order",
+                    self.source_packages,
+                    "--packages-path",
+                    self.installed_packages,
+                    "--display-as",
+                    "names",
+                ]
+            )
+
+        value = stdout.getvalue()
+        stdout.close()
+
+        expected = textwrap.dedent(
+            """\
+            #0: pure_dependency
+            #1: guessable_package package_plus_pure_dependency
+            #2: another_nested
+            #3: nested_dependency
+            #4: complex_package second_complex_package
+            """
+        )
+
+        self.assertEqual(expected, value)
 
     def test_exclude_invalid(self):
         """Non-Python packages should not be included in the output."""
@@ -148,7 +187,34 @@ class Options(unittest.TestCase):
 
     def test_guess_mode(self):
         """Find Rez dependencies which aren't located in a Package's `requires`_."""
-        raise ValueError()
+        with wrapping.capture_pipes() as (stdout, _):
+            run_test.test(
+                [
+                    "suggest",
+                    "build-order",
+                    self.source_packages,
+                    "--packages-path",
+                    self.installed_packages,
+                    "--suggestion-mode=guess",
+                    "--display-as=names",
+                ]
+            )
+
+        value = stdout.getvalue()
+        stdout.close()
+
+        expected = textwrap.dedent(
+            """\
+            #0: pure_dependency
+            #1: package_plus_pure_dependency
+            #2: another_nested
+            #3: nested_dependency
+            #4: complex_package guessable_package
+            #5: second_complex_package
+            """
+        )
+
+        self.assertEqual(expected, value)
 
     def test_include_existing(self):
         """Show Rez packages in the output, even if they already have documentation."""
