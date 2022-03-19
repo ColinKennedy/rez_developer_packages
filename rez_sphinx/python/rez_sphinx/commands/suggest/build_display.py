@@ -1,3 +1,5 @@
+"""Implement all code for :ref:`build-order --display-as`."""
+
 from __future__ import print_function
 
 import operator

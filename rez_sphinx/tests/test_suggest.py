@@ -17,9 +17,11 @@ _PACKAGE_ROOT = os.path.dirname(_CURRENT_DIRECTORY)
 
 
 class _Base(unittest.TestCase):
+    """A common class to make dealing with unittests in this module easier."""
+
     @classmethod
     def setUpClass(cls):
-        """Getting common directories for testing within this class."""
+        """Store common directories for testing within this class."""
         super(_Base, cls).setUpClass()
 
         root = os.path.join(_PACKAGE_ROOT, "_test_data", "suggestion_test_nested")

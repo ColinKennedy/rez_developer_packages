@@ -214,7 +214,7 @@ class ListOverrides(unittest.TestCase):
 
 @contextlib.contextmanager
 def _example_override():
-    """A quick function to save some unittest code bootstrapping."""
+    """Create a Python context minimize any extra unittest-related code."""
     with run_test.keep_config() as config:
         config.optionvars["rez_sphinx"] = dict()
         config.optionvars["rez_sphinx"]["sphinx-apidoc"] = dict()

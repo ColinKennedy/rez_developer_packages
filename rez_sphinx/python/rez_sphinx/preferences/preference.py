@@ -504,6 +504,7 @@ def serialize_default_sparse_settings():
 
 
 def serialize_override_settings():
+    """dict: Get all user-set values, without any default schema values."""
     settings = get_base_settings()
 
     return schema_optional.serialize_sparsely(settings, _MASTER_SCHEMA)
