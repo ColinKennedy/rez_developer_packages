@@ -49,6 +49,8 @@ class Depth(unittest.TestCase):
         package_plus_pure_dependency = _get("package_plus_pure_dependency")
         pure_dependency = _get("pure_dependency")
 
+        installed_family_names = {package.name: package for package in installed_packages}
+
         for package, expected in [
             (pure_dependency, 0),
             (package_plus_pure_dependency, 1),
@@ -56,13 +58,13 @@ class Depth(unittest.TestCase):
             (another_nested, 3),
             (complex_package, 4),
         ]:
-            found = suggestion_mode._compute_package_depth(package, installed_packages)
+            found = suggestion_mode._compute_package_depth(package, installed_family_names)
 
             self.assertEqual(
                 expected,
                 found,
-                msg='Package "{package.name}" has depth "{found}" which does not match '
-                'expected depth, "{expected}".'.format(package=package, found=found, expected=expected),
+                msg='Package "{package.name}" expected depth "{expected}" but got '
+                'depth "{found}".'.format(package=package, found=found, expected=expected),
             )
 
     def test_depth_mixed(self):
