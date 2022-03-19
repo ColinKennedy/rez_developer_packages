@@ -141,6 +141,12 @@ def _list_default(namespace):
 
 
 def _list_overrides(namespace):
+    """Print any :ref:`rez_sphinx config` settings the user has changed.
+
+    The default will show everything, the default settings along with their
+    overrides. ``--sparse`` will only print the overrides and nothing else.
+
+    """
     if not namespace.sparse:
         data = preference.get_base_settings()
     else:
@@ -200,7 +206,7 @@ def _set_up_config(sub_parsers):
     """
 
     def _add_format_argument(parser):
-        """Allow the user to choose :ref:`rez_sphinx config` output (.yaml)."""
+        """Allow the user to choose :ref:`rez_sphinx config` output (`yaml`_)."""
         parser.add_argument(
             "--format",
             choices=sorted(print_format.CHOICES.keys()),

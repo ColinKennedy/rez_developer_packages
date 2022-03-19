@@ -2,12 +2,15 @@
 
 from __future__ import print_function
 
+import ast
+import contextlib
 import textwrap
 import unittest
 
-import schema
 from python_compatibility import wrapping
 from six.moves import mock
+import schema
+import yaml
 
 from rez_sphinx.core import exception
 from rez_sphinx.preferences import preference, preference_help
@@ -56,7 +59,7 @@ class ListDefault(unittest.TestCase):
     """Make sure :ref:`rez_sphinx config list-default` works."""
 
     def test_format_sparse(self):
-        """Print to yaml, instead of as Python objects."""
+        """Print to `yaml`_, instead of as Python objects."""
         with mock.patch("builtins.print") as patch:
             run_test.test("config list-default --sparse --format yaml")
 
@@ -159,12 +162,24 @@ class ListOverrides(unittest.TestCase):
 
     def test_applied(self):
         """Print all current settings."""
+        with _example_override(), wrapping.silence_printing():
+            run_test.test("config list-overrides")
+
+    def test_complex_types(self):
+        """Make sure nested objects with non-dict types override correctly."""
         with run_test.keep_config() as config:
             config.optionvars["rez_sphinx"] = dict()
-            config.optionvars["rez_sphinx"]["sphinx-apidoc"] = dict()
-            config.optionvars["rez_sphinx"]["sphinx-apidoc"]["enable_apidoc"] = False
+            config.optionvars["rez_sphinx"]["init_options"] = dict()
+            config.optionvars["rez_sphinx"]["init_options"]["default_files"] = []
 
-            run_test.test("config list-overrides")
+            with wrapping.capture_pipes() as (stdout, _):
+                run_test.test("config list-overrides --sparse")
+
+        value = stdout.getvalue()
+        stdout.close()
+        data = ast.literal_eval(value)
+
+        self.assertEqual({'init_options': {'default_files': []}}, data)
 
     def test_invalid(self):
         """Report that the user's applied overrides are invalid."""
@@ -176,9 +191,33 @@ class ListOverrides(unittest.TestCase):
 
     def test_sparse(self):
         """Print only the user's overwritten settings."""
-        with run_test.keep_config() as config:
-            config.optionvars["rez_sphinx"] = dict()
-            config.optionvars["rez_sphinx"]["sphinx-apidoc"] = dict()
-            config.optionvars["rez_sphinx"]["sphinx-apidoc"]["enable_apidoc"] = False
-
+        with wrapping.capture_pipes() as (stdout, _), _example_override():
             run_test.test("config list-overrides --sparse")
+
+        value = stdout.getvalue()
+        stdout.close()
+        data = ast.literal_eval(value)
+
+        self.assertEqual({'sphinx-apidoc': {'enable_apidoc': False}}, data)
+
+    def test_yaml(self):
+        """Ensure `yaml`_ outputting works as expected."""
+        with wrapping.capture_pipes() as (stdout, _), _example_override():
+            run_test.test("config list-overrides --sparse --format yaml")
+
+        value = stdout.getvalue()
+        stdout.close()
+        data = yaml.safe_load(value)
+
+        self.assertEqual({'sphinx-apidoc': {'enable_apidoc': False}}, data)
+
+
+@contextlib.contextmanager
+def _example_override():
+    """A quick function to save some unittest code bootstrapping."""
+    with run_test.keep_config() as config:
+        config.optionvars["rez_sphinx"] = dict()
+        config.optionvars["rez_sphinx"]["sphinx-apidoc"] = dict()
+        config.optionvars["rez_sphinx"]["sphinx-apidoc"]["enable_apidoc"] = False
+
+        yield

@@ -62,7 +62,7 @@ class ConfPy(object):
             return "index"  # A reasonable default
 
     def get_extensions(self):
-        """Get all registered `Sphinx`_ extensions. e.g. "sphinx.ext.viewcode".
+        """Get all registered `Sphinx`_ extensions. e.g. `sphinx.ext.viewcode`_.
 
         Returns:
             list[str]: The registered extensions.

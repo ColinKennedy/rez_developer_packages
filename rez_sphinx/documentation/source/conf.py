@@ -115,6 +115,10 @@ rst_epilog = textwrap.dedent(
 
 # :ref:`rez_sphinx apidoc templates`
 # :ref:`rez_sphinx config check` works."""
+# `sphinx.ext.viewcode`_
+# :ref:`rez_sphinx config`
+# `yaml`_
+# `sphinx.ext.intersphinx`_
 # :ref:`rez_sphinx config list-default` works."""
 # :ref:`rez_sphinx config` works."""
 # :ref:`rez_sphinx config list-overrides`

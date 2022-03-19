@@ -18,7 +18,7 @@ def _print_python(data):
 
 
 def _print_yaml(data):
-    """Convert ``data`` to yaml, then print."""
+    """Convert ``data`` to `yaml`_, then print."""
     print(yaml.dump(data, sort_keys=True))
 
 

@@ -146,7 +146,7 @@ def build(
 
     try:
         source_directory = doc_finder.get_source_from_package(package)
-    except ValueError:
+    except RuntimeError:
         raise exception.NoDocumentationFound(
             'Directory "{root}" has no documentation. '
             "Run `rez_sphinx init` to fix this."

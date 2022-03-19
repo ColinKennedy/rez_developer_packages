@@ -12,6 +12,7 @@ from rez import exceptions as exceptions_
 from rez import resolved_context
 from rez.config import config as config_
 from rez_utilities import creator, finder
+from six.moves import mock
 
 from rez_sphinx.core import bootstrap, exception, sphinx_helper
 
@@ -243,7 +244,7 @@ class Build(unittest.TestCase):
             self._hello_world_test()
 
     def test_intersphinx_loading(self):
-        """Make sure sphinx.ext.intersphinx "sees" Rez packages as expected."""
+        """Make sure `sphinx.ext.intersphinx`_ "sees" Rez packages as expected."""
         package_directories = package_wrap.make_dependent_packages()
         install_packages = [install for _, install in package_directories]
         watchers = []
@@ -252,18 +253,29 @@ class Build(unittest.TestCase):
             with run_test.simulate_resolve(install_packages), wrapping.keep_cwd():
                 run_test.test(["init", source])
 
-                with run_test.allow_defaults(), wrapping.watch_namespace(
-                    bootstrap._get_intersphinx_mappings
-                ) as watcher:
+                with run_test.allow_defaults(), _watch_mappings() as watcher:
                     run_test.test(["build", source])
 
-            break
-        #         watchers.extend(watcher)
+                watchers.extend(watcher)
+
+        # Whenever a DeveloperPackage is acquired or when a Rez package is
+        # built, etc. The preprocess function is called. We expect the code to
+        # run preprocess twice per :ref:`rez_sphinx build` as a result (just
+        # because that's what it happens to do).
         #
-        # for watcher in watchers:
-        #     print("result", watcher.get_all_results())
+        # Multiply that by the number of builds and you get ``expected_times_called``
         #
-        raise ValueError("sTop")
+        expected_times_called = len(package_directories) * 2
+
+        self.assertEqual(4, expected_times_called)
+
+        for args, _, results in watchers:
+            package = args[0]
+
+            if package.name != "a_package":
+                continue
+
+            self.assertEqual({"dependency", "python"}, results)
 
 
 class ExtraRequires(unittest.TestCase):
