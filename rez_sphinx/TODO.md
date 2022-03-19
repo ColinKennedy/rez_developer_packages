@@ -1,3 +1,4 @@
+- Do pydocstyle + pylint
 - Get all tests to pass
 - Follow the default header Python style (overlines) for all default pages
 - Need unittest so you cannot accidentally add the same file twice to the same toctree
