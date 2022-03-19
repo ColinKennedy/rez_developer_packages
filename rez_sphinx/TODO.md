@@ -4,6 +4,7 @@
  - e.g. the default files must all have unique names, or error
 - Make sure per-package config overriding is allowed
 - Consider adding refs to "documentation source root" so people know what I'm talking about
+- Consider adding refs to "documentation build root" so people know what I'm talking about
 
 - Needs to be able to run / exit early when there's no Python files
 - Default settings should include the easy stuff. like api default arguments
@@ -33,6 +34,9 @@
  - Check if any pages are still defaults. And fail early
   - Add an option to disable this feature
 
+
+- Make sure the CLI feels good
+ - not specifying a command should always show the help menu
 
 - Add rez-config customization
  - source directory path
@@ -72,8 +76,9 @@ readthedocs integration?
 
 - Go through BIG_IDEAS.md
 
-
 test_existing_documentation_folder
 test_existing_build_documentation_key
 test_ignore_negated_packages (!foo-1 should not be auto-linked by rez-Sphinx)
 test_ignore_ephemeral_packages (.foo-1 should not be auto-linked by rez-Sphinx)
+
+- Check unittest for printed errors after everything is working, everywhere

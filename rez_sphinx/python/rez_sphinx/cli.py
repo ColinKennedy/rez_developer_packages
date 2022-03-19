@@ -4,14 +4,14 @@ import argparse
 import logging
 import operator
 import os
-import pprint
 import shlex
 
+from rez.config import config as config_
 from rez.cli import _complete_util
 from rez_utilities import finder
 
 from .commands import builder, initer
-from .core import api_builder, exception, path_control, print_format
+from .core import api_builder, exception, path_control, print_format, search_mode, suggestion_mode
 from .preferences import preference
 
 _LOGGER = logging.getLogger(__name__)
@@ -56,6 +56,11 @@ def _add_remainder_argument(parser):
 def _build(namespace):
     """Build Sphinx documentation, using details from ``namespace``.
 
+    Args:
+        namespace (:class:`argparse.Namespace`):
+            The parsed user content. It contains all of the necessary
+            attributes to generate Sphinx documentation.
+
     Raises:
         :class:`.UserInputError`:
             If the user passes `sphinx-apidoc`_ arguments but also
@@ -78,8 +83,31 @@ def _build(namespace):
     )
 
 
+def _build_order(namespace):
+    """Show the user the order which documentation must be built.
+
+    Args:
+        namespace (:class:`argparse.Namespace`):
+            The parsed user content. It contains all of the necessary
+            attributes to generate Sphinx documentation.
+
+    """
+    normalized = [path_control.expand_path(path) for path in namespace.packages_path]
+    raise ValueError("uniquify paths here")
+
+    _LOGGER.info('Searching within "%s" for Rez packages.', normalized)
+
+    caller = suggestion_mode.get_mode_by_name(namespace.suggestion_mode)
+    caller(normalized)
+
+
 def _check(namespace):
     """Make sure :doc:`configuring_rez_sphinx` are valid, globally and within ``namespace``.
+
+    Args:
+        namespace (:class:`argparse.Namespace`):
+            The parsed user content. It contains all of the necessary
+            attributes to generate Sphinx documentation.
 
     Raises:
         :class:`.UserInputError`:
@@ -200,7 +228,7 @@ def _set_up_config(sub_parsers):
 
     Args:
         sub_parsers (:class:`argparse._SubParsersAction`):
-            A collection of parsers which the :doc:`init_command` will be
+            A collection of parsers which the :doc:`config_command` will be
             appended onto.
 
     """
@@ -282,6 +310,56 @@ def _set_up_init(sub_parsers):
     _add_remainder_argument(init)
 
 
+def _set_up_suggest(sub_parsers):
+    """Add :doc:`suggest_command` CLI parameters.
+
+    Args:
+        sub_parsers (:class:`argparse._SubParsersAction`):
+            A collection of parsers which the :doc:`suggest_command` will be
+            appended onto.
+
+    """
+    suggest = sub_parsers.add_parser(
+        "suggest", description="Check the order which packages should run."
+    )
+    inner_parsers = suggest.add_subparsers()
+    build_order = inner_parsers.add_parser("build-order")
+    build_order.add_argument(
+        "packages_path",
+        default=config_.packages_path,
+        help="The folders to search within for **source** Rez packages.",
+    )
+    build_order.add_argument(
+        "--allow-cyclic",
+        action="store_true",
+        default=False,
+        help="If packages recursively depend on each other, "
+        "fail early unless this flag is added.",
+    )
+    build_order.add_argument(
+        "--search-mode",
+        choices=sorted(search_mode.CHOICES.keys()),
+        default=search_mode.DEFAULT,
+        help='Define how to search for the source Rez packages. '
+        '"flat" searches the first folder down. '
+        '"recursive" searches everywhere for valid Rez packages.',
+    )
+    build_order.add_argument(
+        "--include-existing",
+        action="store_true",
+        default=False,
+        help="Packages which have documentation will be included in the results.",
+    )
+    build_order.add_argument(
+        "--suggestion-mode",
+        choices=sorted(suggestion_mode.CHOICES.keys()),
+        default=suggestion_mode.DEFAULT,
+        help='Determines the way package dependency tracking runs. '
+        'e.g. "config" searches package ``requires``. "guess" is hacky but may cover more cases.',
+    )
+    build_order.set_defaults(execute=_build_order)
+
+
 def _split_build_arguments(namespace):
     """Conform ``namespace`` attributes so other functions can use it more easily.
 
@@ -359,6 +437,7 @@ def parse_arguments(text):
     _set_up_build(sub_parsers)
     _set_up_config(sub_parsers)
     _set_up_init(sub_parsers)
+    _set_up_suggest(sub_parsers)
 
     # TODO : Fix the error where providing no subparser command
     # DOES NOT show the help message
@@ -378,6 +457,7 @@ def run(namespace, modify=True):
             take ``namespace`` directly as-is.
 
     """
+    # TODO : This is weird. Remove it
     if modify and hasattr(namespace, "directory"):
         namespace.directory = path_control.expand_path(namespace.directory)
 
