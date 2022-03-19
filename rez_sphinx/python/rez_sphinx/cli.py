@@ -141,7 +141,13 @@ def _list_default(namespace):
 
 
 def _list_overrides(namespace):
-    raise ValueError('here')
+    if not namespace.sparse:
+        data = preference.get_base_settings()
+    else:
+        data = preference.serialize_override_settings()
+
+    caller = print_format.get_format_caller(namespace.format)
+    caller(data)
 
 
 def _set_up_build(sub_parsers):

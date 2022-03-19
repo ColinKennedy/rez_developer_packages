@@ -187,29 +187,22 @@ class General(unittest.TestCase):
         # 1. Fail early due to default text
         with run_test.simulate_resolve([installed_package]), self.assertRaises(
             exception.NoDocumentationWritten
-        ):
+        ), _check_defaults(True):
             run_test.test(["build", source_directory])
 
         # 2. Succeed because there is no more default text
         doc_test.add_to_default_text(source_directory)
 
-        with run_test.simulate_resolve([installed_package]):
+        with run_test.simulate_resolve([installed_package]), _check_defaults(True):
             run_test.test(["build", source_directory])
 
         # 3. Don't run the check if the user asks not to.
-        with run_test.keep_config() as config:
-            config.optionvars["rez_sphinx"] = dict()
-            config.optionvars["rez_sphinx"]["init_options"] = dict()
-            config.optionvars["rez_sphinx"]["init_options"][
-                "check_default_files"
-            ] = False
+        with run_test.simulate_resolve([installed_package]), mock.patch(
+            "rez_sphinx.commands.builder._validate_non_default_files"
+        ) as patch, _check_defaults(False):
+            run_test.test(["build", source_directory])
 
-            with run_test.simulate_resolve([installed_package]), mock.patch(
-                "rez_sphinx.commands.builder._validate_non_default_files"
-            ) as patch:
-                run_test.test(["build", source_directory])
-
-            self.assertEqual(0, patch.call_count)
+        self.assertEqual(0, patch.call_count)
 
     def test_no_files(self):
         """Make sure users can opt-out of the default files, if they wish."""
@@ -260,6 +253,17 @@ def _get_base_master_index_text(path):
         raise RuntimeError("No title line was found")
 
     return "\n".join(lines[found:])
+
+
+@contextlib.contextmanager
+def _check_defaults(value):
+    """For :ref:`rez_sphinx` to check or ignore default files, using ``value``."""
+    with run_test.keep_config() as config:
+        config.optionvars["rez_sphinx"] = dict()
+        config.optionvars["rez_sphinx"]["init_options"] = dict()
+        config.optionvars["rez_sphinx"]["init_options"]["check_default_files"] = value
+
+        yield
 
 
 @contextlib.contextmanager
