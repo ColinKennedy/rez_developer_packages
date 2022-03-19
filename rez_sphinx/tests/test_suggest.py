@@ -1,7 +1,13 @@
 """Make sure :ref:`rez_sphinx suggest` works as expected."""
 
+import functools
+import glob
 import os
 import unittest
+
+from python_compatibility import wrapping
+from rez_sphinx.commands.suggest import suggestion_mode
+from rez_utilities import finder
 
 from .common import run_test
 
@@ -11,9 +17,53 @@ _CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 class Depth(unittest.TestCase):
     """Ensure package traversal order works as expected."""
 
+    @classmethod
+    def setUpClass(cls):
+        """Getting common directories for testing within this class."""
+        super(Depth, cls).setUpClass()
+
+        root = os.path.join(
+            _CURRENT_DIRECTORY,
+            "data",
+            "suggestion_test_nested",
+        )
+        cls.source_packages = os.path.join(root, "source_packages")
+        cls.installed_packages = os.path.join(root, "installed_packages")
+
     def test_depth_check(self):
         """Check packages individually to make sure they have the correct depth."""
-        raise ValueError()
+
+        def _get_from_packages(packages, name):
+            return [package for package in packages if package.name == name][0]
+
+        installed_packages = [
+            finder.get_nearest_rez_package(path)
+            for path in glob.glob(os.path.join(self.installed_packages, "*", "*"))
+        ]
+
+        _get = functools.partial(_get_from_packages, installed_packages)
+
+        another_nested = _get("another_nested")
+        complex_package = _get("complex_package")
+        nested_dependency = _get("nested_dependency")
+        package_plus_pure_dependency = _get("package_plus_pure_dependency")
+        pure_dependency = _get("pure_dependency")
+
+        for package, expected in [
+            (pure_dependency, 0),
+            (package_plus_pure_dependency, 1),
+            (nested_dependency, 2),
+            (another_nested, 3),
+            (complex_package, 4),
+        ]:
+            found = suggestion_mode._compute_package_depth(package, installed_packages)
+
+            self.assertEqual(
+                expected,
+                found,
+                msg='Package "{package.name}" has depth "{found}" which does not match '
+                'expected depth, "{expected}".'.format(package=package, found=found, expected=expected),
+            )
 
     def test_depth_mixed(self):
         """Run a real test, with unittest-friendly Rez packages.
@@ -27,23 +77,31 @@ class Depth(unittest.TestCase):
         3 + 1. This test ensures it has the right value.
 
         """
-        root = os.path.join(
-            _CURRENT_DIRECTORY,
-            "data",
-            "suggestion_test_nested",
-        )
-        source_packages = os.path.join(root, "source_packages")
-        installed_packages = os.path.join(root, "installed_packages")
+        with wrapping.capture_pipes() as (stdout, _):
+            run_test.test(
+                [
+                    "suggest",
+                    "build-order",
+                    self.source_packages,
+                    "--packages-path",
+                    self.installed_packages,
+                ]
+            )
 
-        run_test.test(
-            [
-                "suggest",
-                "build-order",
-                source_packages,
-                "--packages-path",
-                installed_packages,
+        value = stdout.getvalue()
+        stdout.close()
+
+        expected = [
+            os.path.join(self.source_packages, name) for name in [
+                "pure_dependency",
+                "package_plus_pure_dependency",
+                "another_nested",
+                "nested_dependency",
+                "complex_package",
             ]
-        )
+        ]
+
+        self.assertEqual(expected, value.splitlines())
 
     def test_late_bindings(self):
         """Make sure packages with `late()`_ bindings still work."""

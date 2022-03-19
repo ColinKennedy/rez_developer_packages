@@ -1,6 +1,5 @@
 """Connect `Sphinx`_ to :ref:`rez_sphinx`."""
 
-import itertools
 import logging
 import os
 import textwrap
@@ -10,7 +9,7 @@ import six
 from rez_utilities import finder
 
 from ..preferences import preference
-from . import exception, path_control
+from . import exception, package_query, path_control
 
 _LOGGER = logging.getLogger(__name__)
 _REZ_SPHINX_BOOTSTRAP_LINES = textwrap.dedent(
@@ -47,19 +46,8 @@ def _get_intersphinx_candidates(package):
     """
     output = set()
 
-    variants = package.variants or []
-
-    # TODO : Find the right variant to select, based on test requires
-    if len(variants) != 1:
-        # Ignore all variants if there's multiple. Let the
-        # :ref:`build_documentation` rez-test handle which variant is selected.
-        #
-        variants = []
-    else:
-        variants = variants[0]
-
     # TODO : Add a configuration option here. Default to only consider "requires"
-    for request in itertools.chain(package.requires or [], variants):
+    for request in package_query.get_dependencies(package):
         if request.ephemeral:
             _LOGGER.debug('Skipped loading "%s" ephemeral request.', request)
 

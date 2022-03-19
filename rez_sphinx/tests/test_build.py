@@ -125,42 +125,40 @@ class Bootstrap(unittest.TestCase):
 
     def test_intersphinx_allow_weak(self):
         """Allow weak packages if they are part of the resolve."""
-        raise ValueError("do it")
+        root = os.path.join(
+            _PACKAGE_ROOT,
+            "_test_data",
+            "intersphinx_allow_weak",
+        )
+        source_root = os.path.join(root, "source_packages")
+        install_root = os.path.join(root, "installed_packages")
+        print('ROOT', root, source_root)
 
-        # root = os.path.join(
-        #     _PACKAGE_ROOT,
-        #     "_test_data",
-        #     "intersphinx_allow_weak",
-        # )
-        # source_root = os.path.join(root, "source_packages")
-        # install_root = os.path.join(root, "installed_packages")
-        # print('ROOT', root, source_root)
-        #
-        # import glob
-        #
-        # for path in glob.glob(os.path.join(install_root, "*", "*")):
-        #     print('check path', path)
-        #     print('packl', finder.get_nearest_rez_package(path))
-        #
-        # installed_packages = [
-        #     finder.get_nearest_rez_package(path)
-        #     for path in glob.glob(os.path.join(install_root, "*", "*"))
-        # ]
+        import glob
+
+        for path in glob.glob(os.path.join(install_root, "*", "*")):
+            print('check path', path)
+            print('packl', finder.get_nearest_rez_package(path))
+
+        installed_packages = [
+            finder.get_nearest_rez_package(path)
+            for path in glob.glob(os.path.join(install_root, "*", "*"))
+        ]
+        raise ValueError(installed_packages)
+        source_directory = os.path.join(source_root, "package_to_test")
+
+        # context = resolved_context.ResolvedContext([name], package_paths=[install_root])
+        # print('context', context)
         # raise ValueError(installed_packages)
-        # source_directory = os.path.join(source_root, "package_to_test")
-        #
-        # # context = resolved_context.ResolvedContext([name], package_paths=[install_root])
-        # #
-        # # print('context', context)
-        #
-        # raise ValueError(installed_packages)
-        # with run_test.simulate_resolve(installed_packages):
-        #     run_test.test(["init", source_directory])
-        #
-        #     with wrapping.silence_printing(), wrapping.watch_namespace() as watcher:
-        #         run_test.test(["build", source_directory])
-        #
-        # print('watcher', watcher.get_all_results())
+
+        with run_test.simulate_resolve(installed_packages):
+            run_test.test(["init", source_directory])
+
+            with wrapping.silence_printing(), wrapping.watch_namespace() as watcher:
+                run_test.test(["build", source_directory])
+
+        print('watcher', watcher.get_all_results())
+        raise ValueError()
 
     def test_intersphinx_ignore_conflict(self):
         """Don't consider excluded packages."""

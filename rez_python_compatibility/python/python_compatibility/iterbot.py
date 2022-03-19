@@ -152,3 +152,16 @@ def make_pairs(sequence):
         raise ValueError('Item "{sequence}" is not iterable.'.format(sequence=sequence))
 
     return moves.zip(iterable, iterable)
+
+
+def uniquify(sequence):
+    # https://stackoverflow.com/a/39835527/3626104
+    seen = set()
+    output = []
+
+    for item in sequence:
+        if item not in seen:
+            output.append(item)
+            seen.add(item)
+
+    return output

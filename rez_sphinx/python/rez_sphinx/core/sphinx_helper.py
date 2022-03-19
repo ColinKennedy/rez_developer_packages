@@ -185,9 +185,9 @@ def find_configuration_path(root):
     try:
         source = doc_finder.get_source_from_directory(root)
     except exception.NoDocumentationFound:
-        _LOGGER.warning('Directory "%s" has no documentation.', root)
+        _LOGGER.debug('Directory "%s" had no known documentation.', root)
 
-        return ""
+        return _scan_for_configuration_path(root)
 
     path = os.path.join(source, _SPHINX_NAME)
 

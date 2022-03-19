@@ -6,7 +6,7 @@ import os
 import six
 
 from ..preferences import preference, preference_init
-from . import configuration, sphinx_helper
+from . import configuration, constant, sphinx_helper
 
 _DEFAULT_LABEL = "Home Page"
 _REZ_HELP_KEY = "help"
@@ -187,11 +187,11 @@ def package_preprocess_function(this, data):  # pylint: disable=unused-argument
         return ""
 
     source_root = os.path.dirname(source_path)
-
     new_labels = _find_help_labels(source_root)
-
-    if not new_labels:
-        return
+    # TODO : Make sure we incorporate user preference here. e.g. if no all
+    # duplicates, only add if we prefer auto-generated.
+    #
+    new_labels.append([constant.REZ_SPHINX_OBJECTS_INV, constant.ROOT_REPLACEMENT])
 
     original_help = help_
     sort_method = preference.get_sort_method()

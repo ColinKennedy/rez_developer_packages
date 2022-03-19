@@ -6,12 +6,13 @@ import operator
 import os
 import shlex
 
+from python_compatibility import iterbot
 from rez.config import config as config_
 from rez.cli import _complete_util
 from rez_utilities import finder
 
-from .commands import builder, initer
-from .core.suggest import build_display, search_mode, suggestion_mode
+from .commands import builder, build_orderer, initer
+from .commands.suggest import build_display, search_mode, suggestion_mode
 from .core import api_builder, exception, path_control, print_format
 from .preferences import preference
 
@@ -93,8 +94,8 @@ def _build_order(namespace):
             attributes to generate Sphinx documentation.
 
     """
-    normalized = [path_control.expand_path(path) for path in namespace.packages_path]
-    raise ValueError("uniquify paths here")
+    normalized = [path_control.expand_path(path) for path in namespace.directories]
+    normalized = iterbot.uniquify(normalized)
 
     _LOGGER.info('Searching within "%s" for Rez packages.', normalized)
 
@@ -104,8 +105,12 @@ def _build_order(namespace):
     if not namespace.include_existing:
         packages = build_orderer.filter_existing_documentation(packages)
 
-    caller = suggestion_mode.get_mode_by_name(namespace.suggestion_mode)
-    caller(normalized)
+    # TODO : Add allow_cyclic support. Here or wherever makes the most sense
+    suggestion_caller = suggestion_mode.get_mode_by_name(namespace.suggestion_mode)
+    ordered = suggestion_caller(packages)
+
+    display_using = build_display.get_mode_by_name(namespace.display_as)
+    display_using(ordered)
 
 
 def _check(namespace):
@@ -335,6 +340,7 @@ def _set_up_suggest(sub_parsers):
         "directories",
         default=config_.packages_path,
         help="The folders to search within for **source** Rez packages.",
+        nargs="+",
     )
     build_order.add_argument(
         "--allow-cyclic",
@@ -361,13 +367,15 @@ def _set_up_suggest(sub_parsers):
         "--packages-path",
         default=config_.packages_path,
         help="The root Rez install folders to check for installed Rez packages.",
+        nargs="+",
     )
     build_order.add_argument(
         "--search-mode",
         choices=sorted(search_mode.CHOICES.keys()),
         default=search_mode.DEFAULT,
         help='Define how to search for the source Rez packages. '
-        '"flat" searches the first folder down. '
+        '"source" searches the first folder down. '
+        '"installed" searches the every 2 folders down. '
         '"recursive" searches everywhere for valid Rez packages.',
     )
     build_order.add_argument(
