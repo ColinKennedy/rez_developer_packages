@@ -11,7 +11,8 @@ from rez.cli import _complete_util
 from rez_utilities import finder
 
 from .commands import builder, initer
-from .core import api_builder, exception, path_control, print_format, search_mode, suggestion_mode
+from .core.suggest import build_display, search_mode, suggestion_mode
+from .core import api_builder, exception, path_control, print_format
 from .preferences import preference
 
 _LOGGER = logging.getLogger(__name__)
@@ -328,6 +329,14 @@ def _set_up_suggest(sub_parsers):
         "packages_path",
         default=config_.packages_path,
         help="The folders to search within for **source** Rez packages.",
+    )
+    build_order.add_argument(
+        "--display-as",
+        choices=build_display.CHOICES,
+        default=build_display.DEFAULT,
+        help='Choose the printed output. '
+        '"names" resembles ``rez-depends``. '
+        '"directories" points to the path on-disk to the Rez package.'
     )
     build_order.add_argument(
         "--allow-cyclic",
