@@ -98,6 +98,12 @@ def _build_order(namespace):
 
     _LOGGER.info('Searching within "%s" for Rez packages.', normalized)
 
+    searcher = search_mode.get_mode_by_name(namespace.search_mode)
+    packages = build_orderer.collect_packages(normalized, searcher)
+
+    if not namespace.include_existing:
+        packages = build_orderer.filter_existing_documentation(packages)
+
     caller = suggestion_mode.get_mode_by_name(namespace.suggestion_mode)
     caller(normalized)
 
@@ -326,9 +332,16 @@ def _set_up_suggest(sub_parsers):
     inner_parsers = suggest.add_subparsers()
     build_order = inner_parsers.add_parser("build-order")
     build_order.add_argument(
-        "packages_path",
+        "directories",
         default=config_.packages_path,
         help="The folders to search within for **source** Rez packages.",
+    )
+    build_order.add_argument(
+        "--allow-cyclic",
+        action="store_true",
+        default=False,
+        help="If packages recursively depend on each other, "
+        "fail early unless this flag is added.",
     )
     build_order.add_argument(
         "--display-as",
@@ -339,11 +352,15 @@ def _set_up_suggest(sub_parsers):
         '"directories" points to the path on-disk to the Rez package.'
     )
     build_order.add_argument(
-        "--allow-cyclic",
+        "--include-existing",
         action="store_true",
         default=False,
-        help="If packages recursively depend on each other, "
-        "fail early unless this flag is added.",
+        help="Packages which have documentation will be included in the results.",
+    )
+    build_order.add_argument(
+        "--packages-path",
+        default=config_.packages_path,
+        help="The root Rez install folders to check for installed Rez packages.",
     )
     build_order.add_argument(
         "--search-mode",
@@ -352,12 +369,6 @@ def _set_up_suggest(sub_parsers):
         help='Define how to search for the source Rez packages. '
         '"flat" searches the first folder down. '
         '"recursive" searches everywhere for valid Rez packages.',
-    )
-    build_order.add_argument(
-        "--include-existing",
-        action="store_true",
-        default=False,
-        help="Packages which have documentation will be included in the results.",
     )
     build_order.add_argument(
         "--suggestion-mode",

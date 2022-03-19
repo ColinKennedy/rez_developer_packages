@@ -1,6 +1,11 @@
 """Make sure :ref:`rez_sphinx suggest` works as expected."""
 
+import os
 import unittest
+
+from .common import run_test
+
+_CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 
 
 class Depth(unittest.TestCase):
@@ -22,23 +27,55 @@ class Depth(unittest.TestCase):
         3 + 1. This test ensures it has the right value.
 
         """
-        raise ValueError("")
+        root = os.path.join(
+            _CURRENT_DIRECTORY,
+            "data",
+            "suggestion_test_nested",
+        )
+        source_packages = os.path.join(root, "source_packages")
+        installed_packages = os.path.join(root, "installed_packages")
+
+        run_test.test(
+            [
+                "suggest",
+                "build-order",
+                source_packages,
+                "--packages-path",
+                installed_packages,
+            ]
+        )
+
+    def test_late_bindings(self):
+        """Make sure packages with `late()`_ bindings still work."""
+        raise ValueError()
 
 
 class Invalid(unittest.TestCase):
     """Handle bad cases and either fail or warn the user."""
 
-    def test_path_conflict(self):
+    def test_bad_package_flat(self):
+        """Fail early if any directory's package.py is invalid."""
+        raise ValueError()
+
+    def test_bad_package_recursive(self):
+        """Warn if any directory's package.py is invalid."""
+        raise ValueError()
+
+    def test_cyclic(self):
+        """Fail / Warn if packages have cyclic dependencies."""
+        raise ValueError()
+
+    def test_no_resolve(self):
+        """Fail early a found package has no resolve equivalent."""
+        raise ValueError()
+
+    def test_path_conflict_name(self):
         """Fail to run if a source Rez package family is found in more than one place.
 
         The conflicter checks packages first by UUID and if not found, falls back
         to the package name.
 
         """
-        raise ValueError()
-
-    def test_cyclic(self):
-        """Fail / Warn if packages have cyclic dependencies."""
         raise ValueError()
 
 
