@@ -5,6 +5,9 @@ import shutil
 import stat
 import tempfile
 import textwrap
+import contextlib
+import functools
+
 import unittest
 
 from python_compatibility import wrapping
@@ -12,7 +15,6 @@ from rez import exceptions as exceptions_
 from rez import resolved_context
 from rez.config import config as config_
 from rez_utilities import creator, finder
-from six.moves import mock
 
 from rez_sphinx.core import bootstrap, exception, sphinx_helper
 
@@ -618,3 +620,29 @@ def _make_rez_configuration(text):
         handler.write(text)
 
     return configuration
+
+
+@contextlib.contextmanager
+def _watch_mappings():
+    """Track the args, kwargs, and return results of key :ref:`rez_sphinx` functions."""
+    def _watch(appender, function):
+
+        @functools.wraps(function)
+        def wrapped(*args, **kwargs):
+            result = function(*args, **kwargs)
+
+            appender((args, kwargs, result))
+
+            return result
+
+        return wrapped
+
+    original = bootstrap._get_intersphinx_candidates
+    container = []
+
+    bootstrap._get_intersphinx_candidates = _watch(container.append, bootstrap._get_intersphinx_candidates)
+
+    try:
+        yield container
+    finally:
+        bootstrap._get_intersphinx_candidates = original
