@@ -112,7 +112,7 @@ def _generate_api_files(directory, destination, options=tuple()):
         command = [python_source_root, "--output-dir", destination]
 
         # TODO : Move this elsewhere, more central
-        if allow_default_templates:
+        if allow_default_templates and sphinx_helper.supports_apidoc_templates():
             command.extend(["--templatedir", _TEMPLATES_DIRECTORY])
 
         command.extend(options)

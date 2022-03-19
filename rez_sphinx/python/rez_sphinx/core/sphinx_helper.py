@@ -3,6 +3,8 @@
 import logging
 import os
 
+from rez.vendor.version import version as version_
+
 from . import doc_finder, exception
 
 _LOGGER = logging.getLogger(__name__)
@@ -328,3 +330,10 @@ def htmlize_ref(path, text):
     htmlized = text.replace(" ", "-").lower()
 
     return "{path}#{htmlized}".format(path=path, htmlized=htmlized)
+
+
+def supports_apidoc_templates():
+    """bool: Check if ``--templatedir`` is supported in `sphinx-apidoc`_."""
+    version = version_.Version(os.environ["REZ_SPHINX_VERSION"])
+
+    return version > version_.Version("2.2")

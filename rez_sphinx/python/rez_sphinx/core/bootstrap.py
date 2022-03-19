@@ -295,7 +295,11 @@ def _get_nearest_caller_package():
     """
     stack = traceback.extract_stack(limit=3)
     frame = stack[0]
-    caller_path = frame.filename
+
+    if hasattr(frame, "filename"):
+        caller_path = frame.filename  # In Python 3, ``frame`` is :class:`FrameSummary`
+    else:
+        caller_path = frame[0]  # In Python 2, ``frame`` is a tuple
 
     _LOGGER.debug('Found caller "%s" file path.', caller_path)
 

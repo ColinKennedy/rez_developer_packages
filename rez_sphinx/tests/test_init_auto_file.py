@@ -121,7 +121,7 @@ class General(unittest.TestCase):
         path = os.path.join(directory, "documentation", "source", name + ".rst")
 
         with open(path, "r") as handler:
-            custom_file_data = handler.read().splitlines(keepends=False)
+            custom_file_data = handler.read().splitlines()
 
         master_index = os.path.join(directory, "documentation", "source", "index.rst")
 
