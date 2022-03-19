@@ -222,4 +222,34 @@ class Options(_Base):
 
     def test_search_recursive(self):
         """Look for Rez packages recursively, in an unknown folder structure."""
-        raise ValueError()
+        root = os.path.join(_CURRENT_DIRECTORY, "data", "unknown_folder_structure")
+        source_packages = os.path.join(root, "source_packages")
+        installed_packages = os.path.join(root, "installed_packages")
+
+        with wrapping.capture_pipes() as (stdout, _):
+            run_test.test(
+                [
+                    "suggest",
+                    "build-order",
+                    source_packages,
+                    "--packages-path",
+                    installed_packages,
+                    "--search-mode=recursive",
+                    "--display-as=names",
+                ]
+            )
+
+        value = stdout.getvalue()
+        stdout.close()
+
+        expected = textwrap.dedent(
+            """\
+            #0: pure_dependency
+            #1: guessable_package package_plus_pure_dependency
+            #2: another_nested
+            #3: nested_dependency
+            #4: complex_package second_complex_package
+            """
+        )
+
+        self.assertEqual(expected, value)

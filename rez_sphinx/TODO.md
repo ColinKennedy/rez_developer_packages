@@ -38,6 +38,8 @@
 - Make sure the CLI feels good
  - not specifying a command should always show the help menu
 
+- Consider removing build.rxt files from the repository before merging
+
 - Add rez-config customization
  - source directory path
  - build directory path
