@@ -226,7 +226,7 @@ def _set_up_config(sub_parsers):
         list_overrides.add_argument(
             "--sparse",
             action="store_true",
-            help="If included, the reported config will only show top-level items.",
+            help="If included, the reported config shows overrides, only.",
         )
         list_overrides.set_defaults(execute=_list_overrides)
 

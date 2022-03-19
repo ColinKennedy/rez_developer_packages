@@ -15,7 +15,7 @@ try:
 except ImportError:
     from backports.functools_lru_cache import lru_cache
 
-from ..core import exception, schema_helper
+from ..core import exception, generic, schema_helper, schema_optional
 from . import preference_configuration, preference_help, preference_init
 
 _DOCUMENTATION_DEFAULT = "documentation"
@@ -62,10 +62,13 @@ _MASTER_SCHEMA = schema.Schema(
         schema.Optional(_EXTENSIONS_KEY, default=list(_BASIC_EXTENSIONS)): [
             schema_helper.PYTHON_DOT_PATH
         ],
-        schema.Optional(_INIT_KEY, default={
-            _DEFAULT_FILES: _DEFAULT_ENTRIES,
-            _CHECK_DEFAULT_FILES: True,
-        }): {
+        schema.Optional(
+            _INIT_KEY,
+            default={
+                _DEFAULT_FILES: _DEFAULT_ENTRIES,
+                _CHECK_DEFAULT_FILES: True,
+            },
+        ): {
             schema.Optional(_DEFAULT_FILES, default=_DEFAULT_ENTRIES): [
                 preference_init.FILE_ENTRY
             ],
@@ -459,7 +462,7 @@ def serialize_default_settings():
     output = dict()
 
     for key, value in _MASTER_SCHEMA.schema.items():
-        if hasattr(key, "default"):
+        if schema_optional.has_default(key):
             output[key.key] = key.default
         else:
             raise NotImplementedError(
@@ -481,15 +484,6 @@ def serialize_default_sparse_settings():
         dict[str, object]: A simple key / value pair dict.
 
     """
-
-    def _is_iterable(value):
-        try:
-            iter(value)
-        except TypeError:
-            return False
-
-        return True
-
     required = {
         key
         for key in _MASTER_SCHEMA.schema.keys()
@@ -499,7 +493,7 @@ def serialize_default_sparse_settings():
     output = dict()
 
     for key, value in serialize_default_settings().items():
-        if not _is_iterable(value):
+        if not generic.is_iterable(value):
             output[key] = value
         elif key in required:
             output[key] = value
@@ -507,6 +501,12 @@ def serialize_default_sparse_settings():
             output[key] = value.__class__()  # Probably not the best way to do this
 
     return output
+
+
+def serialize_override_settings():
+    settings = get_base_settings()
+
+    return schema_optional.serialize_sparsely(settings, _MASTER_SCHEMA)
 
 
 def validate_base_settings():

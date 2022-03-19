@@ -18,7 +18,9 @@ def get_source_from_directory(directory):
     if os.path.isdir(possible_directory):
         return possible_directory
 
-    raise ValueError('Directory "{directory}" has no documentation.'.format(directory=directory))
+    raise ValueError(
+        'Directory "{directory}" has no documentation.'.format(directory=directory)
+    )
 
 
 def get_source_from_package(package):

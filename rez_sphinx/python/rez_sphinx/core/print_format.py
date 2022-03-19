@@ -9,7 +9,12 @@ import yaml
 
 def _print_python(data):
     """Print ``data``, raw, to the terminal."""
-    pprint.pprint(data, indent=4, sort_dicts=True)
+    try:
+        pprint.pprint(data, indent=4, sort_dicts=True)
+    except TypeError:
+        # `sort_keys` is only in later Python versions. Starting somewhere around
+        # Python 3.7+
+        pprint.pprint(data, indent=4)
 
 
 def _print_yaml(data):

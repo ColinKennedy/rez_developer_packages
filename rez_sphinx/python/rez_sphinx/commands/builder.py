@@ -101,7 +101,7 @@ def _validate_non_default_files(directory):
 
     raise exception.NoDocumentationWritten(
         'Paths "{invalids}" have no hand-written documentation. '
-        'Please add some documentation here!'.format(
+        "Please add some documentation here!".format(
             invalids=", ".join(sorted(invalids)),
         )
     )

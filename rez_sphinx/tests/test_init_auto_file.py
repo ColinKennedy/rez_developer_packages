@@ -6,8 +6,9 @@ import textwrap
 import unittest
 
 from rez_utilities import creator, finder
-from rez_sphinx.core import exception
 from six.moves import mock
+
+from rez_sphinx.core import exception
 
 from .common import doc_test, package_wrap, run_test
 
@@ -165,7 +166,9 @@ class General(unittest.TestCase):
         with run_test.keep_config() as config:
             config.optionvars["rez_sphinx"] = dict()
             config.optionvars["rez_sphinx"]["init_options"] = dict()
-            config.optionvars["rez_sphinx"]["init_options"]["check_default_files"] = False
+            config.optionvars["rez_sphinx"]["init_options"][
+                "check_default_files"
+            ] = False
 
             self._test()
 
@@ -182,7 +185,9 @@ class General(unittest.TestCase):
         installed_package = creator.build(source_package, install_path, quiet=True)
 
         # 1. Fail early due to default text
-        with run_test.simulate_resolve([installed_package]), self.assertRaises(exception.NoDocumentationWritten):
+        with run_test.simulate_resolve([installed_package]), self.assertRaises(
+            exception.NoDocumentationWritten
+        ):
             run_test.test(["build", source_directory])
 
         # 2. Succeed because there is no more default text
@@ -195,7 +200,9 @@ class General(unittest.TestCase):
         with run_test.keep_config() as config:
             config.optionvars["rez_sphinx"] = dict()
             config.optionvars["rez_sphinx"]["init_options"] = dict()
-            config.optionvars["rez_sphinx"]["init_options"]["check_default_files"] = False
+            config.optionvars["rez_sphinx"]["init_options"][
+                "check_default_files"
+            ] = False
 
             with run_test.simulate_resolve([installed_package]), mock.patch(
                 "rez_sphinx.commands.builder._validate_non_default_files"

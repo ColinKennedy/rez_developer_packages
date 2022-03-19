@@ -5,7 +5,6 @@ import os
 
 from . import doc_finder, exception
 
-
 _LOGGER = logging.getLogger(__name__)
 _SPHINX_NAME = "conf.py"
 _MISSING_TOCTREE_TEMPLATE = (".. toctree::", "   :max-depth: 1")

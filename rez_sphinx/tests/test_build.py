@@ -460,8 +460,12 @@ class Options(unittest.TestCase):
                 config.optionvars["rez_sphinx"] = dict()
                 config.optionvars["rez_sphinx"]["init_options"] = dict()
                 config.optionvars["rez_sphinx"]["sphinx-apidoc"] = dict()
-                config.optionvars["rez_sphinx"]["init_options"]["check_default_files"] = False
-                config.optionvars["rez_sphinx"]["sphinx-apidoc"]["enable_apidoc"] = False
+                config.optionvars["rez_sphinx"]["init_options"][
+                    "check_default_files"
+                ] = False
+                config.optionvars["rez_sphinx"]["sphinx-apidoc"][
+                    "enable_apidoc"
+                ] = False
 
                 run_test.test(["build", source_directory])
 

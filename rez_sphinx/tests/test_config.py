@@ -5,6 +5,7 @@ from __future__ import print_function
 import textwrap
 import unittest
 
+import schema
 from python_compatibility import wrapping
 from six.moves import mock
 
@@ -29,7 +30,8 @@ class Check(unittest.TestCase):
 
         with run_test.keep_config() as config:
             config.optionvars["rez_sphinx"] = dict()
-            config.optionvars["rez_sphinx"]["enable_apidoc"] = None
+            config.optionvars["rez_sphinx"]["sphinx-apidoc"] = dict()
+            config.optionvars["rez_sphinx"]["sphinx-apidoc"]["enable_apidoc"] = None
 
             with self.assertRaises(
                 exception.ConfigurationError
@@ -103,7 +105,7 @@ class ListDefault(unittest.TestCase):
                 "check_default_files": True,
                 "default_files": preference._DEFAULT_ENTRIES,
             },
-            "sphinx-apidoc": {'allow_apidoc_templates': True, 'enable_apidoc': True},
+            "sphinx-apidoc": {"allow_apidoc_templates": True, "enable_apidoc": True},
             "sphinx_conf_overrides": {"add_module_names": False},
             "sphinx_extensions": [
                 "sphinx.ext.autodoc",
@@ -148,18 +150,19 @@ class ListDefault(unittest.TestCase):
 # TODO : Need tests for
 # - format yaml
 # - overrides only
+#  - Need to work flat but also for nested structures
 # - overrides + everything
+
 
 class ListOverrides(unittest.TestCase):
     """Make sure :ref:`rez_sphinx config list-overrides` works."""
 
     def test_applied(self):
-        """Print the applied user settings."""
-        raise ValueError()
-
+        """Print all current settings."""
         with run_test.keep_config() as config:
             config.optionvars["rez_sphinx"] = dict()
-            config.optionvars["rez_sphinx"]["enable_apidoc"] = False
+            config.optionvars["rez_sphinx"]["sphinx-apidoc"] = dict()
+            config.optionvars["rez_sphinx"]["sphinx-apidoc"]["enable_apidoc"] = False
 
             run_test.test("config list-overrides")
 
@@ -168,4 +171,14 @@ class ListOverrides(unittest.TestCase):
         with run_test.keep_config() as config:
             config.optionvars["rez_sphinx"] = "invalid thing"
 
-            run_test.test("config list-overrides")
+            with self.assertRaises(schema.SchemaUnexpectedTypeError):
+                run_test.test("config list-overrides")
+
+    def test_sparse(self):
+        """Print only the user's overwritten settings."""
+        with run_test.keep_config() as config:
+            config.optionvars["rez_sphinx"] = dict()
+            config.optionvars["rez_sphinx"]["sphinx-apidoc"] = dict()
+            config.optionvars["rez_sphinx"]["sphinx-apidoc"]["enable_apidoc"] = False
+
+            run_test.test("config list-overrides --sparse")
