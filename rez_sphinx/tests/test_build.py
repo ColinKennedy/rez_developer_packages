@@ -141,8 +141,6 @@ class Bootstrap(unittest.TestCase):
         source_directory = os.path.join(source_root, name)
 
         with wrapping.silence_printing(), run_test.simulate_resolve(installed_packages):
-            run_test.test(["init", source_directory])
-
             with _watch_mappings() as container, run_test.allow_defaults():
                 run_test.test(["build", source_directory])
 

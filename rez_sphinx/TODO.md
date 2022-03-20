@@ -1,4 +1,4 @@
-- Get all tests to pass
+- Make sure rez_sphinx only adds its bootstrap once
 - Follow the default header Python style (overlines) for all default pages
 - Need unittest so you cannot accidentally add the same file twice to the same toctree
  - e.g. the default files must all have unique names, or error
