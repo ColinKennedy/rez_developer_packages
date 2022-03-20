@@ -527,7 +527,7 @@ def validate_base_settings():
     except schema.SchemaError as error:
         raise exception.ConfigurationError(
             "Invalid rez-config settings were found. "
-            'See `rez_sphinx config check` for details. '
+            "See ``rez_sphinx config check`` for details. "
             'Summary here: "{error!s}".'.format(
                 error=error,
             )

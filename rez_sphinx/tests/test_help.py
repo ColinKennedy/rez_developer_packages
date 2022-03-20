@@ -73,10 +73,11 @@ class AppendHelp(_Base):
 
             self._test(
                 [
-                    ["Developer Documentation", "developer_documentation.html"],
                     ["Developer Documentation", "foo.html"],
+                    ["Developer Documentation", "{root}/developer_documentation.html"],
                     ["Home Page", "A help thing"],
-                    ["User Documentation", "user_documentation.html"],
+                    ["User Documentation", "{root}/user_documentation.html"],
+                    ["rez_sphinx objects.inv", "{root}"],
                 ],
                 help_=[
                     ["Developer Documentation", "foo.html"],
@@ -86,6 +87,8 @@ class AppendHelp(_Base):
 
     def test_forbid_duplicates_001(self):
         """Remove duplicate auto-generated keys, prefer original keys."""
+        join = os.path.join
+
         with run_test.keep_config() as config:
             config.optionvars["rez_sphinx"] = dict()
             config.optionvars["rez_sphinx"].setdefault("auto_help", dict())
@@ -96,7 +99,8 @@ class AppendHelp(_Base):
             self._test(
                 [
                     ["Developer Documentation", "foo.html"],
-                    ["User Documentation", "user_documentation.html"],
+                    ["User Documentation", join("{root}", "user_documentation.html")],
+                    ["rez_sphinx objects.inv", "{root}"],
                 ],
                 help_=[
                     ["Developer Documentation", "foo.html"],
@@ -114,8 +118,15 @@ class AppendHelp(_Base):
 
             self._test(
                 [
-                    ["Developer Documentation", "developer_documentation.html"],
-                    ["User Documentation", "user_documentation.html"],
+                    [
+                        "Developer Documentation",
+                        os.path.join("{root}", "developer_documentation.html"),
+                    ],
+                    [
+                        "User Documentation",
+                        os.path.join("{root}", "user_documentation.html"),
+                    ],
+                    ["rez_sphinx objects.inv", "{root}"],
                 ],
                 help_=[
                     ["Developer Documentation", "foo.html"],
@@ -126,9 +137,16 @@ class AppendHelp(_Base):
         """Add `package help`_ to a Rez package that has a single string entry."""
         self._test(
             [
-                ["Developer Documentation", "developer_documentation.html"],
+                [
+                    "Developer Documentation",
+                    os.path.join("{root}", "developer_documentation.html"),
+                ],
                 ["Home Page", "A help thing"],
-                ["User Documentation", "user_documentation.html"],
+                [
+                    "User Documentation",
+                    os.path.join("{root}", "user_documentation.html"),
+                ],
+                ["rez_sphinx objects.inv", "{root}"],
             ],
             help_="A help thing",
         )
@@ -146,8 +164,15 @@ class AppendHelp(_Base):
                 [
                     ["Extra thing", "another"],
                     ["A label", "thing"],
-                    ["Developer Documentation", "developer_documentation.html"],
-                    ["User Documentation", "user_documentation.html"],
+                    [
+                        "Developer Documentation",
+                        os.path.join("{root}", "developer_documentation.html"),
+                    ],
+                    [
+                        "User Documentation",
+                        os.path.join("{root}", "user_documentation.html"),
+                    ],
+                    ["rez_sphinx objects.inv", "{root}"],
                 ],
                 help_=[["Extra thing", "another"], ["A label", "thing"]],
             )
@@ -157,9 +182,16 @@ class AppendHelp(_Base):
         self._test(
             [
                 ["A label", "thing"],
-                ["Developer Documentation", "developer_documentation.html"],
+                [
+                    "Developer Documentation",
+                    os.path.join("{root}", "developer_documentation.html"),
+                ],
                 ["Extra thing", "another"],
-                ["User Documentation", "user_documentation.html"],
+                [
+                    "User Documentation",
+                    os.path.join("{root}", "user_documentation.html"),
+                ],
+                ["rez_sphinx objects.inv", "{root}"],
             ],
             help_=[["Extra thing", "another"], ["A label", "thing"]],
         )
@@ -168,8 +200,15 @@ class AppendHelp(_Base):
         """Add `package help`_ to a Rez package that has no defined help."""
         self._test(
             [
-                ["Developer Documentation", "developer_documentation.html"],
-                ["User Documentation", "user_documentation.html"],
+                [
+                    "Developer Documentation",
+                    os.path.join("{root}", "developer_documentation.html"),
+                ],
+                [
+                    "User Documentation",
+                    os.path.join("{root}", "user_documentation.html"),
+                ],
+                ["rez_sphinx objects.inv", "{root}"],
             ],
             help_=None,
         )
@@ -283,7 +322,10 @@ class HelpScenarios(unittest.TestCase):
             os.path.join(install_path, package.name, "1.1.0")
         )
 
-        expected = [["Some Tag", "some_page.html#an-inner-header"]]
+        expected = [
+            ["Some Tag", os.path.join("{root}", "some_page.html#an-inner-header")],
+            ["rez_sphinx objects.inv", "{root}"],
+        ]
 
         self.assertEqual(
             expected,
@@ -356,10 +398,13 @@ class HelpScenarios(unittest.TestCase):
             os.path.join(install_path, package.name, "1.1.0")
         )
 
+        join = os.path.join
+
         expected = [
-            ["Developer Documentation", "developer_documentation.html"],
-            ["Some Tag", "some_page.html"],
-            ["User Documentation", "user_documentation.html"],
+            ["Developer Documentation", join("{root}", "developer_documentation.html")],
+            ["Some Tag", join("{root}", "some_page.html")],
+            ["User Documentation", join("{root}", "user_documentation.html")],
+            ["rez_sphinx objects.inv", "{root}"],
         ]
 
         self.assertEqual(
@@ -397,10 +442,13 @@ class HelpScenarios(unittest.TestCase):
             os.path.join(install_path, package.name, "1.1.0")
         )
 
+        join = os.path.join
+
         expected = [
-            ["Developer Documentation", "developer_documentation.html"],
-            ["Some Tag", "some_page.html#an-inner-header"],
-            ["User Documentation", "user_documentation.html"],
+            ["Developer Documentation", join("{root}", "developer_documentation.html")],
+            ["Some Tag", join("{root}", "some_page.html#an-inner-header")],
+            ["User Documentation", join("{root}", "user_documentation.html")],
+            ["rez_sphinx objects.inv", "{root}"],
         ]
 
         self.assertEqual(

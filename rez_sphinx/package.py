@@ -66,9 +66,10 @@ tests = {
         "command": "pydocstyle --ignore=D213,D203,D406,D407,D417 python tests/*",
         "requires": ["pydocstyle-6.1+<7"],
     },
+    # TODO : Add configuration files for these changes. And isort and pydocstyle
     "pylint": {
-        "command": "pylint --disable=bad-continuation python/rez_sphinx tests",
-        "requires": ["pylint-1.9+<2"],
+        "command": "pylint --disable=use-dict-literal,use-list-literal,bad-continuation python/rez_sphinx tests",
+        "requires": ["pylint-2.12+<3"],
     },
     "unittest_python_2": {
         "command": "python -m unittest discover",

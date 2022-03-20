@@ -93,7 +93,7 @@ def _find_help_labels(root):
                     fallback_destination, destination
                 )
 
-            entry = [label, destination]
+            entry = [label, os.path.join(constant.ROOT_REPLACEMENT, destination)]
 
             if entry not in tags:
                 tags.append(entry)
@@ -188,6 +188,7 @@ def package_preprocess_function(this, data):  # pylint: disable=unused-argument
 
     source_root = os.path.dirname(source_path)
     new_labels = _find_help_labels(source_root)
+
     # TODO : Make sure we incorporate user preference here. e.g. if no all
     # duplicates, only add if we prefer auto-generated.
     #
