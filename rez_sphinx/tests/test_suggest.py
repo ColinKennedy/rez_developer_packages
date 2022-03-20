@@ -112,11 +112,45 @@ class Depth(_Base):
 
     def test_early_bindings(self):
         """Make sure packages with `early()`_ bindings still work."""
-        raise ValueError()
+        root = os.path.join(_PACKAGE_ROOT, "_test_data", "early_binding")
+        source_packages = os.path.join(root, "source_packages")
+
+        with wrapping.capture_pipes() as (stdout, _):
+            run_test.test(["suggest", "build-order", source_packages, "--display-as=names"])
+
+        value = stdout.getvalue()
+        stdout.close()
+
+        self.assertEqual(
+            textwrap.dedent(
+                """\
+                #0: dependency
+                #1: early_package
+                """
+            ),
+            value,
+        )
 
     def test_late_bindings(self):
         """Make sure packages with `late()`_ bindings still work."""
-        raise ValueError()
+        root = os.path.join(_PACKAGE_ROOT, "_test_data", "late_binding")
+        source_packages = os.path.join(root, "source_packages")
+
+        with wrapping.capture_pipes() as (stdout, _):
+            run_test.test(["suggest", "build-order", source_packages, "--display-as=names"])
+
+        value = stdout.getvalue()
+        stdout.close()
+
+        self.assertEqual(
+            textwrap.dedent(
+                """\
+                #0: dependency
+                #1: late_package
+                """
+            ),
+            value,
+        )
 
 
 class Invalid(unittest.TestCase):
