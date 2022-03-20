@@ -52,9 +52,7 @@ class Depth(_Base):
         package_plus_pure_dependency = _get("package_plus_pure_dependency")
         pure_dependency = _get("pure_dependency")
 
-        installed_family_names = {
-            package.name: package for package in source_packages
-        }
+        installed_family_names = {package.name: package for package in source_packages}
 
         for package, expected in [
             (pure_dependency, 0),
@@ -116,7 +114,9 @@ class Depth(_Base):
         source_packages = os.path.join(root, "source_packages")
 
         with wrapping.capture_pipes() as (stdout, _):
-            run_test.test(["suggest", "build-order", source_packages, "--display-as=names"])
+            run_test.test(
+                ["suggest", "build-order", source_packages, "--display-as=names"]
+            )
 
         value = stdout.getvalue()
         stdout.close()
@@ -137,7 +137,9 @@ class Depth(_Base):
         source_packages = os.path.join(root, "source_packages")
 
         with wrapping.capture_pipes() as (stdout, _):
-            run_test.test(["suggest", "build-order", source_packages, "--display-as=names"])
+            run_test.test(
+                ["suggest", "build-order", source_packages, "--display-as=names"]
+            )
 
         value = stdout.getvalue()
         stdout.close()
@@ -169,7 +171,9 @@ class Invalid(unittest.TestCase):
         root = os.path.join(_PACKAGE_ROOT, "_test_data", "bad_package")
         source_packages = os.path.join(root, "source_packages")
 
-        run_test.test(["suggest", "build-order", source_packages, "--search-mode=recursive"])
+        run_test.test(
+            ["suggest", "build-order", source_packages, "--search-mode=recursive"]
+        )
 
     def test_path_conflict_name(self):
         """Fail to run if a source Rez package family is found in more than one place.

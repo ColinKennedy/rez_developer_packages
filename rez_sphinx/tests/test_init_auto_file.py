@@ -194,7 +194,9 @@ class General(unittest.TestCase):
         # 2. Succeed because there is no more default text
         doc_test.add_to_default_text(source_directory)
 
-        with wrapping.silence_printing(), run_test.simulate_resolve([installed_package]), _check_defaults(True):
+        with wrapping.silence_printing(), run_test.simulate_resolve(
+            [installed_package]
+        ), _check_defaults(True):
             run_test.test(["build", source_directory])
 
         # 3. Don't run the check if the user asks not to.

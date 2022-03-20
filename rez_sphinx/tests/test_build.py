@@ -527,7 +527,9 @@ class Invalid(unittest.TestCase):
         with open(os.path.join(directory, "package.py"), "w") as handler:
             handler.write(template)
 
-        with self.assertRaises(exception.NoDocumentationFound), wrapping.silence_printing():
+        with self.assertRaises(
+            exception.NoDocumentationFound
+        ), wrapping.silence_printing():
             run_test.test(["build", directory])
 
     def test_auto_api_no_python_files(self):

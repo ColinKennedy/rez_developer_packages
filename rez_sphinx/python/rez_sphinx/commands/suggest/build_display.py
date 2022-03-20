@@ -19,8 +19,7 @@ def _directories(all_packages):
 
     Args:
         all_packages (list[list[:class:`rez.packages.Package`]]):
-            Each package to print, ordered by relative "dependency depth". See
-            :mod:`build_display` for details.
+            Each package to print, ordered by relative "dependency depth".
 
     """
     for package in (
@@ -36,8 +35,7 @@ def _names(all_packages):
 
     Args:
         all_packages (list[list[:class:`rez.packages.Package`]]):
-            Each package to print, ordered by relative "dependency depth". See
-            :mod:`build_display` for details.
+            Each package to print, ordered by relative "dependency depth".
 
     """
     depth = 0
@@ -64,8 +62,7 @@ def get_mode_by_name(name):
 
     Returns:
         callable[list[list[:class:`rez.packages.Package`]]]:
-            Each package to print, ordered by relative "dependency depth". See
-            :mod:`build_display` for details.
+            Each package to print, ordered by relative "dependency depth".
 
     """
     try:
