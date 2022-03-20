@@ -1,21 +1,18 @@
+## Document current work
+- Legitimize all WIP :ref: tags
+- Do all TODO notes within the documentation/source folder
+- Consider adding refs to "documentation source root" so people know what I'm talking about
+- Consider adding refs to "documentation build root" so people know what I'm talking about
+- Fix `foo <bar>`_ style Sphinx conf.py references. They're broken
+
+## Make tools more robust
 - Make sure rez_sphinx only adds its bootstrap once
 - Follow the default header Python style (overlines) for all default pages
 - Need unittest so you cannot accidentally add the same file twice to the same toctree
  - e.g. the default files must all have unique names, or error
 - Make sure per-package config overriding is allowed
-- Consider adding refs to "documentation source root" so people know what I'm talking about
-- Consider adding refs to "documentation build root" so people know what I'm talking about
 
-
-- Needs to be able to run / exit early when there's no Python files
-- Default settings should include the easy stuff. like api default arguments
-
-- Add bootstrap / configuration options for
- - add_module_names = False
-
-
-- Add option to prevent API documentation from being overwritten
-
+## apidoc fixes
 - apidoc stuff
  - make sure the tree looks nice
   - names should be sparse
@@ -24,11 +21,12 @@
    - Make sure the functions are just the short names. No long names
 
 
-- Make sure the API tree looks pretty and isn't ugly
-- Add a re-release procedure
- - So that spam-adding documentation is possible
+- Add black_isort
 
-- Fix arrowed Sphinx conf.py references. They're broken
+- Needs to be able to run / exit early when there's no Python files
+
+- Add option to prevent API documentation from being overwritten
+
 - Make sure all :doc: and :ref: tags are written
 
 - On-build
@@ -66,8 +64,6 @@ docbot needs a plugin for auto-setting the remote
  - Add a configuration for a "try order". e.g. if X, use X, then try Y, etc.
 
 - Add windows bin support
-
-- Add black_isort
 
 - Allow template headers so people can link back to company websites and what not
 
