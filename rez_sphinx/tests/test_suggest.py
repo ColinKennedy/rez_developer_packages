@@ -9,8 +9,8 @@ import unittest
 from python_compatibility import wrapping
 from rez_utilities import finder
 
-from rez_sphinx.core import exception
 from rez_sphinx.commands.suggest import suggestion_mode
+from rez_sphinx.core import exception
 
 from .common import run_test
 

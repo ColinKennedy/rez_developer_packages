@@ -1,13 +1,13 @@
 """Implement all code for :ref:`build-order --search-mode`."""
 
-import logging
 import glob
+import logging
 import os
 
-from rez import developer_package, exceptions as rez_exceptions
+from rez import developer_package
+from rez import exceptions as rez_exceptions
 
 from ...core import exception
-
 
 _COMMON_REZ_EXCEPTIONS = (
     rez_exceptions.PackageMetadataError,  # When package.py lacks data
