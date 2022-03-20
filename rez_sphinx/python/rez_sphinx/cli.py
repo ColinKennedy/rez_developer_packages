@@ -366,12 +366,6 @@ def _set_up_suggest(sub_parsers):
         help="Packages which have documentation will be included in the results.",
     )
     build_order.add_argument(
-        "--packages-path",
-        default=config_.packages_path,  # pylint: disable=no-member
-        help="The root Rez install folders to check for installed Rez packages.",
-        nargs="+",
-    )
-    build_order.add_argument(
         "--search-mode",
         choices=sorted(search_mode.CHOICES.keys()),
         default=search_mode.DEFAULT,

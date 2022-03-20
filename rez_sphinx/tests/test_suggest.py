@@ -91,15 +91,7 @@ class Depth(_Base):
 
         """
         with wrapping.capture_pipes() as (stdout, _):
-            run_test.test(
-                [
-                    "suggest",
-                    "build-order",
-                    self.source_packages,
-                    "--packages-path",
-                    self.installed_packages,
-                ]
-            )
+            run_test.test(["suggest", "build-order", self.source_packages])
 
         value = stdout.getvalue()
         stdout.close()
@@ -153,19 +145,9 @@ class Invalid(unittest.TestCase):
         root = os.path.join(_PACKAGE_ROOT, "_test_data", "conflicting_names")
         source_1 = os.path.join(root, "source_1")
         source_2 = os.path.join(root, "source_2")
-        installed_packages = os.path.join(root, "installed_packages")
 
         with self.assertRaises(exception.PackageConflict):
-            run_test.test(
-                [
-                    "suggest",
-                    "build-order",
-                    source_1,
-                    source_2,
-                    "--packages-path",
-                    installed_packages,
-                ]
-            )
+            run_test.test(["suggest", "build-order", source_1, source_2])
 
 
 class Options(_Base):
@@ -183,10 +165,7 @@ class Options(_Base):
                     "suggest",
                     "build-order",
                     self.source_packages,
-                    "--packages-path",
-                    self.installed_packages,
-                    "--display-as",
-                    "names",
+                    "--display-as=names",
                 ]
             )
 
@@ -217,8 +196,6 @@ class Options(_Base):
                     "suggest",
                     "build-order",
                     self.source_packages,
-                    "--packages-path",
-                    self.installed_packages,
                     "--suggestion-mode=guess",
                     "--display-as=names",
                 ]
@@ -244,7 +221,6 @@ class Options(_Base):
         """Show Rez packages in the output, even if they already have documentation."""
         root = os.path.join(_PACKAGE_ROOT, "_test_data", "existing_documentation")
         source_packages = os.path.join(root, "source_packages")
-        installed_packages = os.path.join(root, "installed_packages")
 
         with wrapping.capture_pipes() as (stdout, _):
             run_test.test(
@@ -252,8 +228,6 @@ class Options(_Base):
                     "suggest",
                     "build-order",
                     source_packages,
-                    "--packages-path",
-                    installed_packages,
                     "--display-as=names",
                     "--include-existing",
                 ]
@@ -268,8 +242,6 @@ class Options(_Base):
                     "suggest",
                     "build-order",
                     source_packages,
-                    "--packages-path",
-                    installed_packages,
                     "--display-as=names",
                 ]
             )
@@ -287,7 +259,6 @@ class Options(_Base):
         """Look for Rez packages recursively, in an unknown folder structure."""
         root = os.path.join(_PACKAGE_ROOT, "_test_data", "unknown_folder_structure")
         source_packages = os.path.join(root, "source_packages")
-        installed_packages = os.path.join(root, "installed_packages")
 
         with wrapping.capture_pipes() as (stdout, _):
             run_test.test(
@@ -295,8 +266,6 @@ class Options(_Base):
                     "suggest",
                     "build-order",
                     source_packages,
-                    "--packages-path",
-                    installed_packages,
                     "--search-mode=recursive",
                     "--display-as=names",
                 ]
