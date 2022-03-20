@@ -123,6 +123,7 @@ rst_epilog = textwrap.dedent(
 # `sphinx.ext.viewcode`_
 # :ref:`rez_sphinx config`
 # `requires`_
+# `early()`_
 # `late()`_
 # :ref:`rez_sphinx suggest`
 # `yaml`_

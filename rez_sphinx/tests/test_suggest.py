@@ -110,6 +110,10 @@ class Depth(_Base):
 
         self.assertEqual(expected, value.splitlines())
 
+    def test_early_bindings(self):
+        """Make sure packages with `early()`_ bindings still work."""
+        raise ValueError()
+
     def test_late_bindings(self):
         """Make sure packages with `late()`_ bindings still work."""
         raise ValueError()
