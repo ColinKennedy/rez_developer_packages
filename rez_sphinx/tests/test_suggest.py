@@ -28,7 +28,6 @@ class _Base(unittest.TestCase):
 
         root = os.path.join(_PACKAGE_ROOT, "_test_data", "suggestion_test_nested")
         cls.source_packages = os.path.join(root, "source_packages")
-        cls.installed_packages = os.path.join(root, "installed_packages")
 
 
 class Depth(_Base):
@@ -40,12 +39,12 @@ class Depth(_Base):
         def _get_from_packages(packages, name):
             return [package for package in packages if package.name == name][0]
 
-        installed_packages = [
+        source_packages = [
             finder.get_nearest_rez_package(path)
-            for path in glob.glob(os.path.join(self.installed_packages, "*", "*"))
+            for path in glob.glob(os.path.join(self.source_packages, "*"))
         ]
 
-        _get = functools.partial(_get_from_packages, installed_packages)
+        _get = functools.partial(_get_from_packages, source_packages)
 
         another_nested = _get("another_nested")
         complex_package = _get("complex_package")
@@ -54,7 +53,7 @@ class Depth(_Base):
         pure_dependency = _get("pure_dependency")
 
         installed_family_names = {
-            package.name: package for package in installed_packages
+            package.name: package for package in source_packages
         }
 
         for package, expected in [
@@ -129,10 +128,6 @@ class Invalid(unittest.TestCase):
 
     def test_cyclic(self):
         """Fail if packages have cyclic dependencies."""
-        raise ValueError()
-
-    def test_no_resolve(self):
-        """Fail early when a found package has no resolve equivalent."""
         raise ValueError()
 
     def test_path_conflict_name(self):
