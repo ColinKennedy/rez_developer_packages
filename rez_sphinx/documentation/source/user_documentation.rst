@@ -22,6 +22,7 @@ All Commands
    build_command
    config_command
    init_command
+   suggest_command
 
 
 Advanced Topics
