@@ -171,10 +171,6 @@ class Invalid(unittest.TestCase):
 
         run_test.test(["suggest", "build-order", source_packages, "--search-mode=recursive"])
 
-    def test_cyclic(self):
-        """Fail if packages have cyclic dependencies."""
-        raise ValueError()
-
     def test_path_conflict_name(self):
         """Fail to run if a source Rez package family is found in more than one place.
 
@@ -195,7 +191,18 @@ class Options(_Base):
 
     def test_allow_cyclic(self):
         """Warn if packages have cyclic dependencies."""
-        raise ValueError()
+        root = os.path.join(_PACKAGE_ROOT, "_test_data", "cyclic_dependencies")
+        source_packages = os.path.join(root, "source_packages")
+
+        with wrapping.capture_pipes() as (stdout, _):
+            run_test.test(
+                ["suggest", "build-order", source_packages, "--display-as=names"]
+            )
+
+        value = stdout.getvalue()
+        stdout.close()
+
+        self.assertEqual("#0: a_package another_package", value.rstrip())
 
     def test_display_as_names(self):
         """Show the ordered packages like how `rez-depends`_ does."""
@@ -223,10 +230,6 @@ class Options(_Base):
         )
 
         self.assertEqual(expected, value)
-
-    def test_exclude_invalid(self):
-        """Non-Python packages should not be included in the output."""
-        raise ValueError()
 
     def test_guess_mode(self):
         """Find Rez dependencies which aren't located in a Package's `requires`_."""
