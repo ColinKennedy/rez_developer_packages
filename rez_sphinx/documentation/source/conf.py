@@ -88,11 +88,16 @@ rst_epilog = textwrap.dedent(
     """\
     .. _Sphinx conf.py: https://www.sphinx-doc.org/en/master/usage/configuration.html
     .. _Sphinx: https://www.sphinx-doc.org/en/master
+    .. _`rez-depends`: https://github.com/nerdvegas/rez/wiki/Command-Line-Tools#rez-depends
+    .. _`yaml`: https://pyyaml.org/wiki/PyYAMLDocumentation
     .. _build_requires: https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#build_requires
+    .. _early(): https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#early-binding-functions
     .. _help: https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#help
     .. _index.rst: https://sphinx-tutorial.readthedocs.io/step-1
     .. _intersphinx: https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html
     .. _intersphinx_mapping: https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html
+    .. _late(): https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#late-binding-functions
+    .. _objects.inv: https://sphobjinv.readthedocs.io/en/latest/syntax.html
     .. _package help: https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#help
     .. _package.py: https://github.com/nerdvegas/rez/wiki/Package-Commands
     .. _package_preprocess_function: https://github.com/nerdvegas/rez/wiki/Configuring-Rez#package_preprocess_function
@@ -107,35 +112,29 @@ rst_epilog = textwrap.dedent(
     .. _sphinx-quickstart: https://www.sphinx-doc.org/en/master/man/sphinx-quickstart.html
     .. _sphinx-rtd-theme: https://pypi.org/project/sphinx-rtd-theme/
     .. _sphinx.ext.autodoc: https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html
+    .. _sphinx.ext.intersphinx: https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html
+    .. _sphinx.ext.viewcode: https://www.sphinx-doc.org/en/master/usage/extensions/viewcode.html
     .. _toctree: https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html
     """
 )
 
 # TODO : Consider remove rez-config references
 
+# :ref:`build-order --display-as`
+# :ref:`build-order --search-mode`
+# :ref:`build-order --suggestion-mode`
 # :ref:`rez_sphinx apidoc templates`
 # :ref:`rez_sphinx config check` works."""
-# :ref:`build-order --search-mode`
-# :ref:`build-order --display-as`
-# :ref:`rez_sphinx suggest`
-# :ref:`build-order --suggestion-mode`
-# `rez-depends`_
-# `sphinx.ext.viewcode`_
-# :ref:`rez_sphinx config`
-# `requires`_
-# `early()`_
-# `late()`_
-# :ref:`rez_sphinx suggest`
-# `yaml`_
-# `sphinx.ext.intersphinx`_
 # :ref:`rez_sphinx config list-default` works."""
-# :ref:`rez_sphinx suggest build-order`
-# :ref:`rez_sphinx config` works."""
 # :ref:`rez_sphinx config list-overrides`
+# :ref:`rez_sphinx config`
+# :ref:`rez_sphinx config` works."""
+# :ref:`rez_sphinx suggest build-order`
+# :ref:`rez_sphinx suggest`
+# :ref:`rez_sphinx suggest`
 
 # TODO : Add these
 # - build_documentation_key` - The rez_sphinx key information
-# `objects.inv`_.
 # - :ref:`rez_sphinx tag` - documentation to where I explain the ..
 # - :ref:`rez_sphinx auto-help` -
 # - :ref:`minimal bootstrapper`
