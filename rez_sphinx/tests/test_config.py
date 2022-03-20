@@ -7,10 +7,10 @@ import contextlib
 import textwrap
 import unittest
 
-from python_compatibility import wrapping
-from six.moves import mock
 import schema
 import yaml
+from python_compatibility import wrapping
+from six.moves import mock
 
 from rez_sphinx.core import exception
 from rez_sphinx.preferences import preference, preference_help
@@ -179,7 +179,7 @@ class ListOverrides(unittest.TestCase):
         stdout.close()
         data = ast.literal_eval(value)
 
-        self.assertEqual({'init_options': {'default_files': []}}, data)
+        self.assertEqual({"init_options": {"default_files": []}}, data)
 
     def test_invalid(self):
         """Report that the user's applied overrides are invalid."""
@@ -198,7 +198,7 @@ class ListOverrides(unittest.TestCase):
         stdout.close()
         data = ast.literal_eval(value)
 
-        self.assertEqual({'sphinx-apidoc': {'enable_apidoc': False}}, data)
+        self.assertEqual({"sphinx-apidoc": {"enable_apidoc": False}}, data)
 
     def test_yaml(self):
         """Ensure `yaml`_ outputting works as expected."""
@@ -209,7 +209,7 @@ class ListOverrides(unittest.TestCase):
         stdout.close()
         data = yaml.safe_load(value)
 
-        self.assertEqual({'sphinx-apidoc': {'enable_apidoc': False}}, data)
+        self.assertEqual({"sphinx-apidoc": {"enable_apidoc": False}}, data)
 
 
 @contextlib.contextmanager

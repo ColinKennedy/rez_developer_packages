@@ -43,7 +43,12 @@ def _names(all_packages):
     depth = 0
 
     for packages in all_packages:
-        print("#{depth}: {names}".format(depth=depth, names=" ".join(sorted({package.name for package in packages}))))
+        print(
+            "#{depth}: {names}".format(
+                depth=depth,
+                names=" ".join(sorted({package.name for package in packages})),
+            )
+        )
         depth += 1
 
 
@@ -68,7 +73,8 @@ def get_mode_by_name(name):
     except KeyError:
         raise ValueError(
             'Name "{name}" is invalid. The options were, "{options}".'.format(
-                name=name, options=sorted(CHOICES.keys()))
+                name=name, options=sorted(CHOICES.keys())
+            )
         )
 
 

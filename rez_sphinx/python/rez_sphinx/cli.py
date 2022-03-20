@@ -7,11 +7,11 @@ import os
 import shlex
 
 from python_compatibility import iterbot
-from rez.config import config as config_
 from rez.cli import _complete_util
+from rez.config import config as config_
 from rez_utilities import finder
 
-from .commands import builder, build_orderer, initer
+from .commands import build_orderer, builder, initer
 from .commands.suggest import build_display, search_mode, suggestion_mode
 from .core import api_builder, exception, path_control, print_format
 from .preferences import preference
@@ -353,9 +353,9 @@ def _set_up_suggest(sub_parsers):
         "--display-as",
         choices=build_display.CHOICES,
         default=build_display.DEFAULT,
-        help='Choose the printed output. '
+        help="Choose the printed output. "
         '"names" resembles ``rez-depends``. '
-        '"directories" points to the path on-disk to the Rez package.'
+        '"directories" points to the path on-disk to the Rez package.',
     )
     build_order.add_argument(
         "--include-existing",
@@ -373,7 +373,7 @@ def _set_up_suggest(sub_parsers):
         "--search-mode",
         choices=sorted(search_mode.CHOICES.keys()),
         default=search_mode.DEFAULT,
-        help='Define how to search for the source Rez packages. '
+        help="Define how to search for the source Rez packages. "
         '"source" searches the first folder down. '
         '"installed" searches the every 2 folders down. '
         '"recursive" searches everywhere for valid Rez packages.',
@@ -382,7 +382,7 @@ def _set_up_suggest(sub_parsers):
         "--suggestion-mode",
         choices=sorted(suggestion_mode.CHOICES.keys()),
         default=suggestion_mode.DEFAULT,
-        help='Determines the way package dependency tracking runs. '
+        help="Determines the way package dependency tracking runs. "
         'e.g. "config" searches package ``requires``. "guess" is hacky but may cover more cases.',
     )
     build_order.set_defaults(execute=_build_order)

@@ -1,13 +1,12 @@
 """Make sure :doc:`build_command` works as expected."""
 
+import contextlib
+import functools
 import os
 import shutil
 import stat
 import tempfile
 import textwrap
-import contextlib
-import functools
-
 import unittest
 
 from python_compatibility import wrapping
@@ -132,13 +131,13 @@ class Bootstrap(unittest.TestCase):
         )
         source_root = os.path.join(root, "source_packages")
         install_root = os.path.join(root, "installed_packages")
-        print('ROOT', root, source_root)
+        print("ROOT", root, source_root)
 
         import glob
 
         for path in glob.glob(os.path.join(install_root, "*", "*")):
-            print('check path', path)
-            print('packl', finder.get_nearest_rez_package(path))
+            print("check path", path)
+            print("packl", finder.get_nearest_rez_package(path))
 
         installed_packages = [
             finder.get_nearest_rez_package(path)
@@ -157,7 +156,7 @@ class Bootstrap(unittest.TestCase):
             with wrapping.silence_printing(), wrapping.watch_namespace() as watcher:
                 run_test.test(["build", source_directory])
 
-        print('watcher', watcher.get_all_results())
+        print("watcher", watcher.get_all_results())
         raise ValueError()
 
     def test_intersphinx_ignore_conflict(self):
@@ -623,8 +622,8 @@ def _make_rez_configuration(text):
 @contextlib.contextmanager
 def _watch_mappings():
     """Track the args, kwargs, and return results of key :ref:`rez_sphinx` functions."""
-    def _watch(appender, function):
 
+    def _watch(appender, function):
         @functools.wraps(function)
         def wrapped(*args, **kwargs):
             result = function(*args, **kwargs)
@@ -638,7 +637,9 @@ def _watch_mappings():
     original = bootstrap._get_intersphinx_candidates
     container = []
 
-    bootstrap._get_intersphinx_candidates = _watch(container.append, bootstrap._get_intersphinx_candidates)
+    bootstrap._get_intersphinx_candidates = _watch(
+        container.append, bootstrap._get_intersphinx_candidates
+    )
 
     try:
         yield container

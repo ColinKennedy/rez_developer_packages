@@ -7,8 +7,9 @@ import textwrap
 import unittest
 
 from python_compatibility import wrapping
-from rez_sphinx.commands.suggest import suggestion_mode
 from rez_utilities import finder
+
+from rez_sphinx.commands.suggest import suggestion_mode
 
 from .common import run_test
 
@@ -51,7 +52,9 @@ class Depth(_Base):
         package_plus_pure_dependency = _get("package_plus_pure_dependency")
         pure_dependency = _get("pure_dependency")
 
-        installed_family_names = {package.name: package for package in installed_packages}
+        installed_family_names = {
+            package.name: package for package in installed_packages
+        }
 
         for package, expected in [
             (pure_dependency, 0),
@@ -60,13 +63,18 @@ class Depth(_Base):
             (nested_dependency, 3),
             (complex_package, 4),
         ]:
-            found = suggestion_mode._compute_package_depth(package, installed_family_names)
+            found = suggestion_mode._compute_package_depth(  # pylint: disable=protected-access,line-too-long
+                package,
+                installed_family_names,
+            )
 
             self.assertEqual(
                 expected,
                 found,
                 msg='Package "{package.name}" expected depth "{expected}" but got '
-                'depth "{found}".'.format(package=package, found=found, expected=expected),
+                'depth "{found}".'.format(
+                    package=package, found=found, expected=expected
+                ),
             )
 
     def test_depth_mixed(self):
@@ -96,7 +104,8 @@ class Depth(_Base):
         stdout.close()
 
         expected = [
-            os.path.join(self.source_packages, name) for name in [
+            os.path.join(self.source_packages, name)
+            for name in [
                 "pure_dependency",
                 "guessable_package",
                 "package_plus_pure_dependency",

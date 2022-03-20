@@ -7,7 +7,7 @@ import shlex
 import sys
 
 import six
-from rez.config import config
+from rez.config import config as config_
 from rez_utilities import finder
 
 from rez_sphinx import cli
@@ -36,14 +36,14 @@ def keep_config():
     # Remove any caching so it can be evaluated again
     preference.get_base_settings.cache_clear()
 
-    optionvars = copy.deepcopy(config.optionvars)
-    package_preprocess_function = config.package_preprocess_function
+    optionvars = copy.deepcopy(config_.optionvars)
+    package_preprocess_function = config_.package_preprocess_function
 
     try:
-        yield config
+        yield config_
     finally:
-        config.optionvars = optionvars
-        config.package_preprocess_function = package_preprocess_function
+        config_.optionvars = optionvars
+        config_.package_preprocess_function = package_preprocess_function
 
 
 @contextlib.contextmanager

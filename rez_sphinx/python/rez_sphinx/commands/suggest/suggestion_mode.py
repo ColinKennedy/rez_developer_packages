@@ -110,8 +110,7 @@ def _config(packages):
         depths[depth].add(package)
 
     return [
-        packages
-        for _, packages in sorted(depths.items(), key=operator.itemgetter(0))
+        packages for _, packages in sorted(depths.items(), key=operator.itemgetter(0))
     ]
 
 
@@ -135,7 +134,6 @@ def _guess(packages):
     """
 
     def _guess_dependencies(data, all_family_names):
-
         def wrapper(package):
             result = _get_regular_dependencies(package)
             result.update(
@@ -164,8 +162,7 @@ def _guess(packages):
         depths[depth].add(package)
 
     return [
-        packages
-        for _, packages in sorted(depths.items(), key=operator.itemgetter(0))
+        packages for _, packages in sorted(depths.items(), key=operator.itemgetter(0))
     ]
 
 
@@ -194,7 +191,8 @@ def get_mode_by_name(name):
     except KeyError:
         raise ValueError(
             'Name "{name}" is invalid. The options were, "{options}".'.format(
-                name=name, options=sorted(CHOICES.keys()))
+                name=name, options=sorted(CHOICES.keys())
+            )
         )
 
 

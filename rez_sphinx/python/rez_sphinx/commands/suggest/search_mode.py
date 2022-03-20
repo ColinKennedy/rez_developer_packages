@@ -14,7 +14,10 @@ def _is_valid_rez_package(text):
 
 def _get_packages(directories):
     """list[:class:`rez.developer_package.DeveloperPackage`]: Every found package."""
-    return [developer_package.DeveloperPackage.from_path(directory) for directory in directories]
+    return [
+        developer_package.DeveloperPackage.from_path(directory)
+        for directory in directories
+    ]
 
 
 def _installed(root):
@@ -104,7 +107,8 @@ def get_mode_by_name(name):
     except KeyError:
         raise ValueError(
             'Name "{name}" is invalid. The options were, "{options}".'.format(
-                name=name, options=sorted(CHOICES.keys()))
+                name=name, options=sorted(CHOICES.keys())
+            )
         )
 
 

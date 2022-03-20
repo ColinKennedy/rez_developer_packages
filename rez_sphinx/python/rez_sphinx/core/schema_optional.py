@@ -2,12 +2,11 @@
 
 import logging
 
-from six.moves import collections_abc
 import schema as schema_
 import six
+from six.moves import collections_abc
 
 from . import generic
-
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -57,7 +56,9 @@ def _get_non_default_values(data, optional):
         recorded_value = data[key]
 
         if recorded_value == default_value:
-            _LOGGER.debug('Key "%s" has the same value, "%s". Skipping.', key, default_value)
+            _LOGGER.debug(
+                'Key "%s" has the same value, "%s". Skipping.', key, default_value
+            )
 
             continue
 
