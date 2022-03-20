@@ -1,9 +1,19 @@
 """Implement all code for :ref:`build-order --search-mode`."""
 
+import logging
 import glob
 import os
 
-from rez import developer_package
+from rez import developer_package, exceptions as rez_exceptions
+
+from ...core import exception
+
+
+_COMMON_REZ_EXCEPTIONS = (
+    rez_exceptions.PackageMetadataError,  # When package.py lacks data
+    rez_exceptions.ResourceError,  # When package.py isn't parse-able
+)
+_LOGGER = logging.getLogger(__name__)
 
 
 def _is_valid_rez_package(text):
@@ -13,11 +23,43 @@ def _is_valid_rez_package(text):
 
 
 def _get_packages(directories):
-    """list[:class:`rez.developer_package.DeveloperPackage`]: Every found package."""
-    return [
-        developer_package.DeveloperPackage.from_path(directory)
-        for directory in directories
-    ]
+    """Every found package.
+
+    Important:
+        This function assumes that every directory in ``directories``
+        definitely has a valid Rez package definition. If there isn't one, this
+        function fails.
+
+    Raises:
+        :class:`.BadPackage`:
+            If a directory in ``directories`` has no package definition file or
+            it is invalid.
+
+    Returns:
+        list[:class:`rez.developer_package.DeveloperPackage`]: The found packages.
+
+    """
+    packages = []
+    invalids = set()
+
+    for directory in directories:
+        try:
+            packages.append(developer_package.DeveloperPackage.from_path(directory))
+        except _COMMON_REZ_EXCEPTIONS:
+            invalids.add(
+                'Path "{directory}" has missing / invalid schema data.'.format(
+                    directory=directory,
+                )
+            )
+
+    if not invalids:
+        return packages
+
+    raise exception.BadPackage(
+        "Found directories with missing / invalid Rez packages:\n{blob}".format(
+            blob="\n".join(sorted(invalids))
+        )
+    )
 
 
 def _installed(root):
@@ -80,7 +122,12 @@ def _recursive(top):
                 continue
 
             # TODO : Add invalid checking here
-            output.append(developer_package.DeveloperPackage.from_path(root))
+            try:
+                output.append(developer_package.DeveloperPackage.from_path(root))
+            except _COMMON_REZ_EXCEPTIONS:
+                _LOGGER.debug('Skipped "%s". Its package is invalid.', root)
+
+                continue
 
     return output
 

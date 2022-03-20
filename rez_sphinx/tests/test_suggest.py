@@ -120,11 +120,18 @@ class Invalid(unittest.TestCase):
 
     def test_bad_package_flat(self):
         """Fail early if any directory's package.py is invalid."""
-        raise ValueError()
+        root = os.path.join(_PACKAGE_ROOT, "_test_data", "bad_package")
+        source_packages = os.path.join(root, "source_packages")
+
+        with self.assertRaises(exception.BadPackage):
+            run_test.test(["suggest", "build-order", source_packages])
 
     def test_bad_package_recursive(self):
         """Warn if any directory's package.py is invalid."""
-        raise ValueError()
+        root = os.path.join(_PACKAGE_ROOT, "_test_data", "bad_package")
+        source_packages = os.path.join(root, "source_packages")
+
+        run_test.test(["suggest", "build-order", source_packages, "--search-mode=recursive"])
 
     def test_cyclic(self):
         """Fail if packages have cyclic dependencies."""

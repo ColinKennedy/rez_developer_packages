@@ -10,52 +10,58 @@ GENERIC_EXIT_CODE = 1
 class Base(Exception):
     """A class which all exceptions in this module must inherit from."""
 
-    exit_code = GENERIC_EXIT_CODE + 1
+    exit_code = GENERIC_EXIT_CODE + 10
+
+
+class BadPackage(Base):
+    """If a valid Rez package (e.g. package.py) is expected but not found."""
+
+    exit_code = GENERIC_EXIT_CODE + 20
 
 
 class ConfigurationError(Base):
     """If the user's rez-config would prevent :ref:`rez_sphinx` from running."""
 
-    exit_code = GENERIC_EXIT_CODE + 2
+    exit_code = GENERIC_EXIT_CODE + 30
 
 
 class PackageConflict(Base):
     """When only 1 unique Rez package family name is expected but multiple are found."""
 
-    exit_code = GENERIC_EXIT_CODE + 3
+    exit_code = GENERIC_EXIT_CODE + 40
 
 
 class NoDocumentationFound(Base):
     """If source documentation is required for something, but is missing."""
 
-    exit_code = GENERIC_EXIT_CODE + 4
+    exit_code = GENERIC_EXIT_CODE + 50
 
 
 class NoDocumentationWritten(Base):
     """If source documentation is required for something, but is missing."""
 
-    exit_code = GENERIC_EXIT_CODE + 5
+    exit_code = GENERIC_EXIT_CODE + 60
 
 
 class NoPackageFound(Base):
     """If a Rez package is needed but none can be found."""
 
-    exit_code = GENERIC_EXIT_CODE + 6
+    exit_code = GENERIC_EXIT_CODE + 70
 
 
 class NoPythonFiles(Base):
     """If at least one Python file was needed but none were found."""
 
-    exit_code = GENERIC_EXIT_CODE + 7
+    exit_code = GENERIC_EXIT_CODE + 80
 
 
 class SphinxExecutionError(Base):
     """If some `Sphinx`_ CLI program fails to run and stops midway."""
 
-    exit_code = GENERIC_EXIT_CODE + 8
+    exit_code = GENERIC_EXIT_CODE + 90
 
 
 class UserInputError(Base):
     """If a user argument to the CLI or `rez-config`_ is not allowed."""
 
-    exit_code = GENERIC_EXIT_CODE + 9
+    exit_code = GENERIC_EXIT_CODE + 100
