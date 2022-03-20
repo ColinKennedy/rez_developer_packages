@@ -117,6 +117,7 @@ rst_epilog = textwrap.dedent(
 # :ref:`rez_sphinx config check` works."""
 # :ref:`build-order --search-mode`
 # :ref:`build-order --display-as`
+# :ref:`rez_sphinx suggest`
 # :ref:`build-order --suggestion-mode`
 # `rez-depends`_
 # `sphinx.ext.viewcode`_
@@ -127,6 +128,7 @@ rst_epilog = textwrap.dedent(
 # `yaml`_
 # `sphinx.ext.intersphinx`_
 # :ref:`rez_sphinx config list-default` works."""
+# :ref:`rez_sphinx suggest build-order`
 # :ref:`rez_sphinx config` works."""
 # :ref:`rez_sphinx config list-overrides`
 

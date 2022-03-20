@@ -1,4 +1,21 @@
+"""Find anything within Rez packages more easily."""
+
+
 def get_dependencies(package):
+    """Get the packages which ``package`` depends upon.
+
+    This list doesn't return all dependencies. Just the ones that :ref:`rez_sphinx`
+    requires in order to function.
+
+    Args:
+        package (:class:`rez.packages.Package`): A Rez package to check.
+
+    Returns:
+        list[:class:`rez.packages.Package` or :class:`rez.packages.Variant`]:
+            Each package or "variant of a package" which ``package`` needs
+            during documentation-building.
+
+    """
     variants = package.variants or []
 
     # TODO : Find the right variant to select, based on test requires

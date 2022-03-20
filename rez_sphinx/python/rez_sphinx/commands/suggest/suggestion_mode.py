@@ -187,6 +187,7 @@ def get_mode_by_name(name):
             A function which takes a list of Rez packages, for example, and
             returns a list with each depth's packages, starting from depth=0
             and ascending order.
+
     """
     try:
         return CHOICES[name]
