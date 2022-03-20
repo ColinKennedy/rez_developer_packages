@@ -1,0 +1,42 @@
+{
+    "append_sys_path": true,
+    "arch": "x86_64",
+    "building": true,
+    "caching": true,
+    "created": 1647745879,
+    "default_patch_lock": "no_lock",
+    "failure_description": null,
+    "from_cache": false,
+    "graph": "{'nodes': [((('fillcolor', '#FFFFAA'), ('fontsize', 10), ('style', 'filled,dashed')), [('_1', '~platform==linux'), ('_2', '~arch==x86_64'), ('_3', '~os==CentOS-7.9.2009')])], 'edges': []}",
+    "host": "SelecaoOne.lan",
+    "implicit_packages": [
+        "~platform==linux",
+        "~arch==x86_64",
+        "~os==CentOS-7.9.2009"
+    ],
+    "load_time": 0.0,
+    "num_loaded_packages": 0,
+    "os": "CentOS-7.9.2009",
+    "package_caching": false,
+    "package_filter": [],
+    "package_orderers": null,
+    "package_paths": [
+        "/home/selecaoone/work_area/add_rez_docbot_2",
+        "/home/selecaoone/.rez/packages/int"
+    ],
+    "package_requests": [],
+    "parent_suite_path": null,
+    "patch_locks": {},
+    "platform": "linux",
+    "requested_timestamp": null,
+    "resolved_ephemerals": [],
+    "resolved_packages": [],
+    "rez_path": "/home/selecaoone/rez-2.105.0-python-3.6/lib/python3.6/site-packages/rez",
+    "rez_version": "2.105.0",
+    "serialize_version": "4.7",
+    "solve_time": 0.0006232261657714844,
+    "status": "solved",
+    "suite_context_name": null,
+    "timestamp": 1647745879,
+    "user": "selecaoone"
+}

@@ -1,12 +1,13 @@
 """A set of functions for implementing :ref:`rez_sphinx suggest build-order`."""
 
+import collections
 import logging
 import os
 
 import six
 from rez_utilities import finder
 
-from ..core import constant, sphinx_helper
+from ..core import constant, exception, sphinx_helper
 from ..preferences import preference
 
 _LOGGER = logging.getLogger(__name__)
@@ -50,7 +51,7 @@ def collect_packages(directories, searcher):
             packages **or** installed packages.
 
     Raises:
-        RuntimeError:
+        :class:`.PackageConflict`:
             If any Rez package was found in more than one of the listed
             directories.
 
@@ -59,29 +60,42 @@ def collect_packages(directories, searcher):
 
     """
     packages = []
-    found_names = set()
+    found_names = collections.defaultdict(set)
     found_uuids = dict()
-    invalids = set()
+    invalids = collections.defaultdict(set)
 
     for directory in directories:
         for package in searcher(directory):
             if package.uuid:
                 if package.uuid in found_uuids:
-                    invalids.add(package)
+                    invalids[package.name].add(directory)
 
                     continue
 
                 found_uuids[package.uuid] = package.name
 
             if package.name in found_names:
-                invalids.add(package)
+                invalids[package.name].add(directory)
 
                 continue
 
-            found_names.add(package.name)
+            found_names[package.name].add(directory)
             packages.append(package)
 
-    return packages
+    if not invalids:
+        return packages
+
+    blob = "Multiple packages found when we expected one:\n"
+
+    for package_name, directories_ in invalids.items():
+        directories_.update(found_names[package_name])
+
+        blob += "\n{package_name}: {directories_}".format(
+            package_name=package_name,
+            directories_=", ".join(sorted(directories_)),
+        )
+
+    raise exception.PackageConflict(blob)
 
 
 def filter_existing_documentation(packages):

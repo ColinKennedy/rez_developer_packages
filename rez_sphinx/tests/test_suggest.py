@@ -9,6 +9,7 @@ import unittest
 from python_compatibility import wrapping
 from rez_utilities import finder
 
+from rez_sphinx.core import exception
 from rez_sphinx.commands.suggest import suggestion_mode
 
 from .common import run_test
@@ -139,7 +140,7 @@ class Invalid(unittest.TestCase):
         raise ValueError()
 
     def test_no_resolve(self):
-        """Fail early a found package has no resolve equivalent."""
+        """Fail early when a found package has no resolve equivalent."""
         raise ValueError()
 
     def test_path_conflict_name(self):
@@ -149,7 +150,22 @@ class Invalid(unittest.TestCase):
         to the package name.
 
         """
-        raise ValueError()
+        root = os.path.join(_PACKAGE_ROOT, "_test_data", "conflicting_names")
+        source_1 = os.path.join(root, "source_1")
+        source_2 = os.path.join(root, "source_2")
+        installed_packages = os.path.join(root, "installed_packages")
+
+        with self.assertRaises(exception.PackageConflict):
+            run_test.test(
+                [
+                    "suggest",
+                    "build-order",
+                    source_1,
+                    source_2,
+                    "--packages-path",
+                    installed_packages,
+                ]
+            )
 
 
 class Options(_Base):
@@ -226,7 +242,46 @@ class Options(_Base):
 
     def test_include_existing(self):
         """Show Rez packages in the output, even if they already have documentation."""
-        raise ValueError()
+        root = os.path.join(_PACKAGE_ROOT, "_test_data", "existing_documentation")
+        source_packages = os.path.join(root, "source_packages")
+        installed_packages = os.path.join(root, "installed_packages")
+
+        with wrapping.capture_pipes() as (stdout, _):
+            run_test.test(
+                [
+                    "suggest",
+                    "build-order",
+                    source_packages,
+                    "--packages-path",
+                    installed_packages,
+                    "--display-as=names",
+                    "--include-existing",
+                ]
+            )
+
+        include_existing_value = stdout.getvalue()
+        stdout.close()
+
+        with wrapping.capture_pipes() as (stdout, _):
+            run_test.test(
+                [
+                    "suggest",
+                    "build-order",
+                    source_packages,
+                    "--packages-path",
+                    installed_packages,
+                    "--display-as=names",
+                ]
+            )
+
+        normal_value = stdout.getvalue()
+        stdout.close()
+
+        expected_normal = "#0: no_documentation"
+        expected_include_existing = "#0: has_documentation no_documentation"
+
+        self.assertEqual(expected_normal, normal_value.rstrip())
+        self.assertEqual(expected_include_existing, include_existing_value.rstrip())
 
     def test_search_recursive(self):
         """Look for Rez packages recursively, in an unknown folder structure."""
