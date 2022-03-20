@@ -283,13 +283,13 @@ class ExtraRequires(unittest.TestCase):
     def test_normal(self):
         """Allow users to pass extra `requires`_ to :ref:`rez_sphinx`."""
         extra_install_path = os.path.join(
-            _PACKAGE_ROOT, "_test_data", "installed_packages"
+            _PACKAGE_ROOT, "_test_data", "resolve_requires", "installed_packages"
         )
         context = _make_current_rez_sphinx_context(
             package_paths=config_.packages_path + [extra_install_path]
         )
-        expected_requires = ["something-2"]
-        resolved_nothing = context.get_resolved_package("something")
+        expected_requires = ["pure_dependency-1"]
+        resolved_nothing = context.get_resolved_package("pure_dependency")
 
         with run_test.keep_config() as config:
             config.optionvars["rez_sphinx"] = dict()
@@ -299,7 +299,7 @@ class ExtraRequires(unittest.TestCase):
                 package_paths=config.packages_path + [extra_install_path]
             )
 
-            resolved_something = context.get_resolved_package("something")
+            resolved_something = context.get_resolved_package("pure_dependency")
 
         self.assertIsNone(resolved_nothing)
         self.assertIsNotNone(resolved_something)
