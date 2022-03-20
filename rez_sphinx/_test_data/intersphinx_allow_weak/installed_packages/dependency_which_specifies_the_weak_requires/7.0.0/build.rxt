@@ -1,0 +1,85 @@
+{
+    "append_sys_path": true,
+    "arch": "x86_64",
+    "building": true,
+    "caching": true,
+    "created": 1647750755,
+    "default_patch_lock": "no_lock",
+    "failure_description": null,
+    "from_cache": false,
+    "graph": "{'nodes': [((('fillcolor', '#FFFFAA'), ('fontsize', 10), ('style', 'filled,dashed')), [('_1', 'python'), ('_2', '~platform==linux'), ('_3', '~arch==x86_64'), ('_4', '~os==CentOS-7.9.2009')]), ((('fillcolor', '#AAFFAA'), ('fontsize', 10), ('style', 'filled')), [('_5', 'platform-linux[]'), ('_6', 'arch-x86_64[]'), ('_7', 'os-CentOS-7.9.2009[]'), ('_8', 'python-3.6.8[1]')]), ((('fillcolor', '#F6F6F6'), ('fontsize', 10), ('style', 'filled,dashed')), [('_9', 'platform-linux'), ('_10', 'arch-x86_64'), ('_11', 'os-CentOS-7')])], 'edges': [((('arrowsize', '0.5'),), [('_1', '_8'), ('_2', '_5'), ('_3', '_6'), ('_4', '_7'), ('_7', '_9'), ('_7', '_10'), ('_8', '_10'), ('_8', '_11'), ('_8', '_9'), ('_9', '_5'), ('_10', '_6'), ('_11', '_7')])]}",
+    "host": "SelecaoOne.lan",
+    "implicit_packages": [
+        "~platform==linux",
+        "~arch==x86_64",
+        "~os==CentOS-7.9.2009"
+    ],
+    "load_time": 0.0,
+    "num_loaded_packages": 5,
+    "os": "CentOS-7.9.2009",
+    "package_caching": false,
+    "package_filter": [],
+    "package_orderers": null,
+    "package_paths": [
+        "/home/selecaoone/work_area/add_rez_docbot_2",
+        "/home/selecaoone/.rez/packages/int"
+    ],
+    "package_requests": [
+        "python"
+    ],
+    "parent_suite_path": null,
+    "patch_locks": {},
+    "platform": "linux",
+    "requested_timestamp": null,
+    "resolved_ephemerals": [],
+    "resolved_packages": [
+        {
+            "key": "filesystem.variant",
+            "variables": {
+                "index": null,
+                "location": "/home/selecaoone/.rez/packages/int",
+                "name": "platform",
+                "repository_type": "filesystem",
+                "version": "linux"
+            }
+        },
+        {
+            "key": "filesystem.variant",
+            "variables": {
+                "index": null,
+                "location": "/home/selecaoone/.rez/packages/int",
+                "name": "arch",
+                "repository_type": "filesystem",
+                "version": "x86_64"
+            }
+        },
+        {
+            "key": "filesystem.variant",
+            "variables": {
+                "index": null,
+                "location": "/home/selecaoone/.rez/packages/int",
+                "name": "os",
+                "repository_type": "filesystem",
+                "version": "CentOS-7.9.2009"
+            }
+        },
+        {
+            "key": "filesystem.variant",
+            "variables": {
+                "index": 1,
+                "location": "/home/selecaoone/.rez/packages/int",
+                "name": "python",
+                "repository_type": "filesystem",
+                "version": "3.6.8"
+            }
+        }
+    ],
+    "rez_path": "/home/selecaoone/rez-2.105.0-python-3.6/lib/python3.6/site-packages/rez",
+    "rez_version": "2.105.0",
+    "serialize_version": "4.7",
+    "solve_time": 0.01097249984741211,
+    "status": "solved",
+    "suite_context_name": null,
+    "timestamp": 1647750755,
+    "user": "selecaoone"
+}

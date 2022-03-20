@@ -1,0 +1,97 @@
+{
+    "append_sys_path": true,
+    "arch": "x86_64",
+    "building": true,
+    "caching": true,
+    "created": 1647751508,
+    "default_patch_lock": "no_lock",
+    "failure_description": null,
+    "from_cache": false,
+    "graph": "{'nodes': [((('fillcolor', '#FFFFAA'), ('fontsize', 10), ('style', 'filled,dashed')), [('_1', 'dependency_which_specifies_the_weak_requires-1+'), ('_2', 'python'), ('_3', '~weak_package-1+<2'), ('_4', '~platform==linux'), ('_5', '~arch==x86_64'), ('_6', '~os==CentOS-7.9.2009')]), ((('fillcolor', '#AAFFAA'), ('fontsize', 10), ('style', 'filled')), [('_7', 'platform-linux[]'), ('_8', 'arch-x86_64[]'), ('_9', 'os-CentOS-7.9.2009[]'), ('_10', 'python-2.7.5[1]'), ('_11', 'dependency_which_specifies_the_weak_requires-7.0.0[]')]), ((('fillcolor', '#F6F6F6'), ('fontsize', 10), ('style', 'filled,dashed')), [('_12', 'platform-linux'), ('_13', 'arch-x86_64'), ('_14', 'os-CentOS-7.9.2009')])], 'edges': [((('arrowsize', '0.5'),), [('_1', '_11'), ('_2', '_10'), ('_4', '_7'), ('_5', '_8'), ('_6', '_9'), ('_9', '_12'), ('_9', '_13'), ('_10', '_13'), ('_10', '_14'), ('_10', '_12'), ('_11', '_2'), ('_12', '_7'), ('_13', '_8'), ('_14', '_9')])]}",
+    "host": "SelecaoOne.lan",
+    "implicit_packages": [
+        "~platform==linux",
+        "~arch==x86_64",
+        "~os==CentOS-7.9.2009"
+    ],
+    "load_time": 0.0,
+    "num_loaded_packages": 5,
+    "os": "CentOS-7.9.2009",
+    "package_caching": false,
+    "package_filter": [],
+    "package_orderers": null,
+    "package_paths": [
+        "/home/selecaoone/env/config/rez_developer_packages/rez_sphinx/_test_data/intersphinx_allow_weak/installed_packages",
+        "/home/selecaoone/packages"
+    ],
+    "package_requests": [
+        "dependency_which_specifies_the_weak_requires-1+",
+        "python",
+        "~weak_package-1+<2"
+    ],
+    "parent_suite_path": null,
+    "patch_locks": {},
+    "platform": "linux",
+    "requested_timestamp": null,
+    "resolved_ephemerals": [],
+    "resolved_packages": [
+        {
+            "key": "filesystem.variant",
+            "variables": {
+                "index": null,
+                "location": "/home/selecaoone/packages",
+                "name": "platform",
+                "repository_type": "filesystem",
+                "version": "linux"
+            }
+        },
+        {
+            "key": "filesystem.variant",
+            "variables": {
+                "index": null,
+                "location": "/home/selecaoone/packages",
+                "name": "arch",
+                "repository_type": "filesystem",
+                "version": "x86_64"
+            }
+        },
+        {
+            "key": "filesystem.variant",
+            "variables": {
+                "index": null,
+                "location": "/home/selecaoone/packages",
+                "name": "os",
+                "repository_type": "filesystem",
+                "version": "CentOS-7.9.2009"
+            }
+        },
+        {
+            "key": "filesystem.variant",
+            "variables": {
+                "index": 1,
+                "location": "/home/selecaoone/packages",
+                "name": "python",
+                "repository_type": "filesystem",
+                "version": "2.7.5"
+            }
+        },
+        {
+            "key": "filesystem.variant",
+            "variables": {
+                "index": null,
+                "location": "/home/selecaoone/env/config/rez_developer_packages/rez_sphinx/_test_data/intersphinx_allow_weak/installed_packages",
+                "name": "dependency_which_specifies_the_weak_requires",
+                "repository_type": "filesystem",
+                "version": "7.0.0"
+            }
+        }
+    ],
+    "rez_path": "/home/selecaoone/rez-2.105.0-python-3.6/lib/python3.6/site-packages/rez",
+    "rez_version": "2.105.0",
+    "serialize_version": "4.7",
+    "solve_time": 0.011170625686645508,
+    "status": "solved",
+    "suite_context_name": null,
+    "timestamp": 1647751508,
+    "user": "selecaoone"
+}
