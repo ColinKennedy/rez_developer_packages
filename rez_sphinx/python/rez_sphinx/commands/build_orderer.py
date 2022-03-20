@@ -1,4 +1,4 @@
-"""A set of miscellaneous functions for implementing :ref:`rez_sphinx suggest build-order`."""
+"""A set of functions for implementing :ref:`rez_sphinx suggest build-order`."""
 
 import logging
 import os
@@ -42,7 +42,9 @@ def collect_packages(directories, searcher):
             The absolute path to folders on-disk to look within. It's not
             required for Rez packages to be located directly under each folder.
             And often, they are not.
-        searcher (callable[str] -> list[:class:`rez.developer_package.DeveloperPackage`]):
+        searcher (
+            callable[str] -> list[:class:`rez.developer_package.DeveloperPackage`]
+        ):
             A function which searches within ``directories`` for Rez packages
             and returns those results. These Rez packages could be source
             packages **or** installed packages.

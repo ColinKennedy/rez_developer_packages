@@ -340,7 +340,7 @@ def get_initial_files_from_configuration():
 
 
 def get_init_default_entries():
-    """Get documentation files which will be auto-generated during :ref:`rez_sphinx init`.
+    """Get the documentation files to auto-generate during :ref:`rez_sphinx init`.
 
     Returns:
         list[:class:`.Entry`]:
@@ -371,7 +371,7 @@ def get_sort_method():
     if caller != preference_help.DEFAULT_SORT:
         return caller
 
-    return caller._callable
+    return caller._callable  # Another schema member pylint: disable=protected-access
 
 
 def get_sphinx_configuration_overrides():
@@ -461,7 +461,7 @@ def serialize_default_settings():
     """
     output = dict()
 
-    for key, value in _MASTER_SCHEMA.schema.items():
+    for key in _MASTER_SCHEMA.schema.keys():
         if schema_optional.has_default(key):
             output[key.key] = key.default
         else:
@@ -527,7 +527,8 @@ def validate_base_settings():
     except schema.SchemaError as error:
         raise exception.ConfigurationError(
             "Invalid rez-config settings were found. "
-            'See `rez_sphinx config check` for details. Summary here: "{error!s}".'.format(
+            'See `rez_sphinx config check` for details. '
+            'Summary here: "{error!s}".'.format(
                 error=error,
             )
         )

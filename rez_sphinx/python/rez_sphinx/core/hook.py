@@ -184,7 +184,7 @@ def package_preprocess_function(this, data):  # pylint: disable=unused-argument
     source_path = sphinx_helper.find_configuration_path(package_source_root)
 
     if not source_path:
-        return ""
+        return
 
     source_root = os.path.dirname(source_path)
     new_labels = _find_help_labels(source_root)

@@ -96,7 +96,7 @@ def _get_real_key(key, schema):
         :class:`schema.Optional` or NoneType: The found key or nothing.
 
     """
-    for real_key in schema._schema.keys():
+    for real_key in schema._schema.keys():  # pylint: disable:protected-access
         if not isinstance(real_key, schema_.Optional):
             continue
 

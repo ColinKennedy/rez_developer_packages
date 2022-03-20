@@ -179,7 +179,7 @@ class General(unittest.TestCase):
             Add a unittest to disable this feature, if the user chooses to.
 
         """
-        source_package, directory = self._test()
+        source_package, _ = self._test()
         source_directory = finder.get_package_root(source_package)
         install_path = package_wrap.make_directory("_test_api_pass_cli")
         installed_package = creator.build(source_package, install_path, quiet=True)

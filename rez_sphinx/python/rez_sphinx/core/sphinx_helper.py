@@ -320,7 +320,7 @@ def htmlize_ref(path, text):
 
     Args:
         path (str): The relative or absolute path to a HTML page. e.g. "page.html".
-        text (str): A raw string which represents a HTML anchor label. e.g. "Some Thing".
+        text (str): A raw string which represents a HTML anchor. e.g. "Some Thing".
 
     Returns:
         str: The converted HTML link. e.g. "page.html#some-thing".

@@ -147,7 +147,7 @@ class Entry(object):
         return name.replace("\\", "/")  # Sphinx uses forward slashes in toctrees
 
     def get_relative_path(self):
-        """str: Get the path, relative to the documentation source root, for this file."""
+        """str: Get the path to this file, relative to the documentation source root."""
         # TODO : Get this .rst from the user's configuration settings. Don't do this
         return self._data.get("path") + ".rst"
 

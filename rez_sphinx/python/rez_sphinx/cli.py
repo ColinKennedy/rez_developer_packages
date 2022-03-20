@@ -1,5 +1,7 @@
 """The entry point for :ref:`rez_sphinx` on the terminal."""
 
+from __future__ import print_function
+
 import argparse
 import logging
 import operator
@@ -114,7 +116,7 @@ def _build_order(namespace):
 
 
 def _check(namespace):
-    """Make sure :doc:`configuring_rez_sphinx` are valid, globally and within ``namespace``.
+    """Make sure :doc:`configuring_rez_sphinx` are valid, in/outside ``namespace``.
 
     Args:
         namespace (:class:`argparse.Namespace`):
@@ -338,7 +340,7 @@ def _set_up_suggest(sub_parsers):
     build_order = inner_parsers.add_parser("build-order")
     build_order.add_argument(
         "directories",
-        default=config_.packages_path,
+        default=config_.packages_path,  # pylint: disable=no-member
         help="The folders to search within for **source** Rez packages.",
         nargs="+",
     )
@@ -365,7 +367,7 @@ def _set_up_suggest(sub_parsers):
     )
     build_order.add_argument(
         "--packages-path",
-        default=config_.packages_path,
+        default=config_.packages_path,  # pylint: disable=no-member
         help="The root Rez install folders to check for installed Rez packages.",
         nargs="+",
     )
@@ -383,7 +385,8 @@ def _set_up_suggest(sub_parsers):
         choices=sorted(suggestion_mode.CHOICES.keys()),
         default=suggestion_mode.DEFAULT,
         help="Determines the way package dependency tracking runs. "
-        'e.g. "config" searches package ``requires``. "guess" is hacky but may cover more cases.',
+        'e.g. "config" searches package ``requires``. '
+        '"guess" is hacky but may cover more cases.',
     )
     build_order.set_defaults(execute=_build_order)
 

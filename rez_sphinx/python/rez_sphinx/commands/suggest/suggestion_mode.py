@@ -134,7 +134,7 @@ def _guess(packages):
     """
 
     def _guess_dependencies(data, all_family_names):
-        def wrapper(package):
+        def _wrapper(package):
             result = _get_regular_dependencies(package)
             result.update(
                 {
@@ -147,7 +147,7 @@ def _guess(packages):
 
             return result
 
-        return wrapper
+        return _wrapper
 
     all_family_names = {package.name: package for package in packages}
     depths = collections.defaultdict(set)

@@ -54,7 +54,7 @@ def main(text):
             file=sys.stderr,
         )
 
-        print(traceback.extract_tb(), file=sys.stderr)
+        print(traceback.extract_tb(error), file=sys.stderr)
 
         sys.exit(error.exit_code)
     except exception.Base as error:
