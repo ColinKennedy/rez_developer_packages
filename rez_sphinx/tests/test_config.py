@@ -56,12 +56,12 @@ class Check(unittest.TestCase):
 
 
 class ListDefault(unittest.TestCase):
-    """Make sure :ref:`rez_sphinx config list-default` works."""
+    """Make sure :ref:`rez_sphinx config list-defaults` works."""
 
     def test_format_sparse(self):
         """Print to `yaml`_, instead of as Python objects."""
         with mock.patch("builtins.print") as patch:
-            run_test.test("config list-default --sparse --format yaml")
+            run_test.test("config list-defaults --sparse --format yaml")
 
         args, kwargs = patch.call_args
         actual = args[0]
@@ -91,7 +91,7 @@ class ListDefault(unittest.TestCase):
             config.optionvars["rez_sphinx"]["sphinx-apidoc"]["enable_apidoc"] = False
 
             with mock.patch("pprint.pprint") as patch:
-                run_test.test("config list-default")
+                run_test.test("config list-defaults")
 
         args, kwargs = patch.call_args
         actual = args[0]
@@ -130,7 +130,7 @@ class ListDefault(unittest.TestCase):
             config.optionvars["rez_sphinx"]["sphinx-apidoc"]["enable_apidoc"] = value
 
             with mock.patch("pprint.pprint") as patch:
-                run_test.test("config list-default --sparse")
+                run_test.test("config list-defaults --sparse")
 
         args, kwargs = patch.call_args
         actual = args[0]

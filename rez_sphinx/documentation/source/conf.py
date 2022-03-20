@@ -97,6 +97,7 @@ rst_epilog = textwrap.dedent(
     .. _intersphinx: https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html
     .. _intersphinx_mapping: https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html
     .. _late(): https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#late-binding-functions
+    .. _modules.rst: https://stackoverflow.com/questions/62822605/sphinx-modules-rst-warning-document-isnt-included-in-any-toctree
     .. _objects.inv: https://sphobjinv.readthedocs.io/en/latest/syntax.html
     .. _package help: https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#help
     .. _package.py: https://github.com/nerdvegas/rez/wiki/Package-Commands
@@ -115,26 +116,23 @@ rst_epilog = textwrap.dedent(
     .. _sphinx.ext.intersphinx: https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html
     .. _sphinx.ext.viewcode: https://www.sphinx-doc.org/en/master/usage/extensions/viewcode.html
     .. _toctree: https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html
+    .. _variants: https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#variants
     """
 )
 
+
+# `readthedocs.io`_
+# `sphinx theme`_
+# `sphinx-rtd-theme`_
+# https://sphinx-themes.org/
+# https://sphinx-rtd-theme.readthedocs.io/en/stable/
+
+# `rezconfig.py`_
+
 # TODO : Consider remove rez-config references
 
-# :ref:`build-order --display-as`
-# :ref:`build-order --search-mode`
-# :ref:`build-order --suggestion-mode`
 # :ref:`rez_sphinx apidoc templates`
-# :ref:`rez_sphinx config check` works."""
-# :ref:`rez_sphinx config list-default` works."""
-# :ref:`rez_sphinx config list-overrides`
-# :ref:`rez_sphinx config`
-# :ref:`rez_sphinx config` works."""
-# :ref:`rez_sphinx suggest build-order`
-# :ref:`rez_sphinx suggest`
-# :ref:`rez_sphinx suggest`
 
 # TODO : Add these
 # - build_documentation_key` - The rez_sphinx key information
-# - :ref:`rez_sphinx tag` - documentation to where I explain the ..
-# - :ref:`rez_sphinx auto-help` -
 # - :ref:`minimal bootstrapper`

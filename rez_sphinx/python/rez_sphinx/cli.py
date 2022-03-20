@@ -257,9 +257,9 @@ def _set_up_config(sub_parsers):
         )
 
     def _set_up_list_default(inner_parser):
-        """Define the parser for :ref:`rez_sphinx config list-default`."""
+        """Define the parser for :ref:`rez_sphinx config list-defaults`."""
         list_default = inner_parser.add_parser(
-            "list-default",
+            "list-defaults",
             description="Show the rez_sphinx's default settings.",
         )
         _add_format_argument(list_default)

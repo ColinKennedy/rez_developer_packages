@@ -11,7 +11,11 @@
 - Need unittest so you cannot accidentally add the same file twice to the same toctree
  - e.g. the default files must all have unique names, or error
 - Make sure per-package config overriding is allowed
-
+ - Make sure config settings can be overwritten at the package level, generally
+ - When the user runs ``rez_sphinx config list-overrides`` in a directory
+   within a Rez package, grab the package's config overrides, too
+   - Make sure ``rez_sphinx config check`` does this too
+ 
 ## apidoc fixes
 - apidoc stuff
  - make sure the tree looks nice
@@ -20,6 +24,13 @@
   - API documentation modules
    - Make sure the functions are just the short names. No long names
 
+
+- Add check to reject non-package.py Rez files (error on package.yaml / .yml / .txt)
+- Make sure ``build`` fails if no ``init`` was ran.
+
+- Allow `.. rez_sphinx_help` as a valid key, instead of forcing it to be 2 lines long
+- Change html_theme to be a choice list, with fallbacks
+- Adding environment variables for building rez_sphinx
 
 - Add black_isort
 

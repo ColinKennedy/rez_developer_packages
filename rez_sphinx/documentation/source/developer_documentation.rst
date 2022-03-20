@@ -1,6 +1,6 @@
-=======================
+#######################
 Developer Documentation
-=======================
+#######################
 
 ..
     rez_sphinx_help:Developer Documentation
