@@ -2,6 +2,7 @@
 
 import contextlib
 import functools
+import glob
 import os
 import shutil
 import stat
@@ -131,33 +132,23 @@ class Bootstrap(unittest.TestCase):
         )
         source_root = os.path.join(root, "source_packages")
         install_root = os.path.join(root, "installed_packages")
-        print("ROOT", root, source_root)
-
-        import glob
-
-        for path in glob.glob(os.path.join(install_root, "*", "*")):
-            print("check path", path)
-            print("packl", finder.get_nearest_rez_package(path))
 
         installed_packages = [
             finder.get_nearest_rez_package(path)
             for path in glob.glob(os.path.join(install_root, "*", "*"))
         ]
-        raise ValueError(installed_packages)
-        source_directory = os.path.join(source_root, "package_to_test")
+        name = "package_to_test"
+        source_directory = os.path.join(source_root, name)
 
-        # context = resolved_context.ResolvedContext([name], package_paths=[install_root])
-        # print('context', context)
-        # raise ValueError(installed_packages)
-
-        with run_test.simulate_resolve(installed_packages):
+        with wrapping.silence_printing(), run_test.simulate_resolve(installed_packages):
             run_test.test(["init", source_directory])
 
-            with wrapping.silence_printing(), wrapping.watch_namespace() as watcher:
+            with _watch_mappings() as container, run_test.allow_defaults():
                 run_test.test(["build", source_directory])
 
-        print("watcher", watcher.get_all_results())
-        raise ValueError()
+        watcher = container[-1]
+        _, _, results = watcher
+        self.assertIn("weak_package", results)
 
     def test_intersphinx_ignore_conflict(self):
         """Don't consider excluded packages."""
@@ -252,7 +243,7 @@ class Build(unittest.TestCase):
             with run_test.simulate_resolve(install_packages), wrapping.keep_cwd():
                 run_test.test(["init", source])
 
-                with run_test.allow_defaults(), _watch_mappings() as watcher:
+                with wrapping.silence_printing(), run_test.allow_defaults(), _watch_mappings() as watcher:
                     run_test.test(["build", source])
 
                 watchers.extend(watcher)
@@ -375,11 +366,15 @@ class Miscellaneous(unittest.TestCase):
 
             doc_test.add_to_default_text(source_directory)
 
-            build = context.execute_command(
-                "rez_sphinx build",
-                parent_environ=parent_environment,
-            )
-            build.communicate()
+            with wrapping.silence_printing():
+                build = context.execute_command(
+                    "rez_sphinx build",
+                    parent_environ=parent_environment,
+                    stdout=open(os.devnull, "wb"),
+                    stderr=open(os.devnull, "wb"),
+                )
+                build.communicate()
+
             self.assertEqual(0, init.returncode)
             self.assertEqual(0, build.returncode)
 
@@ -449,7 +444,9 @@ class Options(unittest.TestCase):
 
         with run_test.simulate_resolve([installed_package]), run_test.allow_defaults():
             run_test.test(["init", source_directory])
-            run_test.test(["build", source_directory, "--no-apidoc"])
+
+            with wrapping.silence_printing():
+                run_test.test(["build", source_directory, "--no-apidoc"])
 
         source = os.path.join(source_directory, "documentation", "source")
         api_directory = os.path.join(source, "api")
@@ -478,7 +475,8 @@ class Options(unittest.TestCase):
                     "enable_apidoc"
                 ] = False
 
-                run_test.test(["build", source_directory])
+                with wrapping.silence_printing():
+                    run_test.test(["build", source_directory])
 
         source = os.path.join(source_directory, "documentation", "source")
         api_directory = os.path.join(source, "api")
@@ -493,7 +491,7 @@ class Invalid(unittest.TestCase):
         """If the user specifies --apidoc-arguments and --no-apidoc at once."""
         directory = package_wrap.make_directory("_test_apidoc_argument_conflict")
 
-        with self.assertRaises(exception.UserInputError):
+        with self.assertRaises(exception.UserInputError), wrapping.silence_printing():
             run_test.test(
                 ["build", directory, "--no-apidoc", "--apidoc-arguments", "blah"]
             )
@@ -506,14 +504,14 @@ class Invalid(unittest.TestCase):
 
         _make_read_only(directory)
 
-        with self.assertRaises(exception.NoPackageFound):
+        with self.assertRaises(exception.NoPackageFound), wrapping.silence_printing():
             run_test.test(["build", directory])
 
     def test_no_package(self):
         """Fail early if no Rez package was found."""
         directory = package_wrap.make_directory("_test_build_Invalid_test_no_package")
 
-        with self.assertRaises(exception.NoPackageFound):
+        with self.assertRaises(exception.NoPackageFound), wrapping.silence_printing():
             run_test.test(["build", directory])
 
     def test_no_source(self):
@@ -531,7 +529,7 @@ class Invalid(unittest.TestCase):
         with open(os.path.join(directory, "package.py"), "w") as handler:
             handler.write(template)
 
-        with self.assertRaises(exception.NoDocumentationFound):
+        with self.assertRaises(exception.NoDocumentationFound), wrapping.silence_printing():
             run_test.test(["build", directory])
 
     def test_auto_api_no_python_files(self):
@@ -579,7 +577,8 @@ class Invalid(unittest.TestCase):
         with self.assertRaises(exception.NoPythonFiles), wrapping.keep_os_environment():
             os.environ["REZ_FOO_ROOT"] = install_package_root
 
-            run_test.test(["build", directory])
+            with wrapping.silence_printing():
+                run_test.test(["build", directory])
 
 
 def _make_current_rez_sphinx_context(extra_request=tuple(), package_paths=tuple()):

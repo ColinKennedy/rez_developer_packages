@@ -5,6 +5,7 @@ import os
 import textwrap
 import unittest
 
+from python_compatibility import wrapping
 from rez_utilities import creator, finder
 from six.moves import mock
 
@@ -193,13 +194,13 @@ class General(unittest.TestCase):
         # 2. Succeed because there is no more default text
         doc_test.add_to_default_text(source_directory)
 
-        with run_test.simulate_resolve([installed_package]), _check_defaults(True):
+        with wrapping.silence_printing(), run_test.simulate_resolve([installed_package]), _check_defaults(True):
             run_test.test(["build", source_directory])
 
         # 3. Don't run the check if the user asks not to.
         with run_test.simulate_resolve([installed_package]), mock.patch(
             "rez_sphinx.commands.builder._validate_non_default_files"
-        ) as patch, _check_defaults(False):
+        ) as patch, wrapping.silence_printing(), _check_defaults(False):
             run_test.test(["build", source_directory])
 
         self.assertEqual(0, patch.call_count)

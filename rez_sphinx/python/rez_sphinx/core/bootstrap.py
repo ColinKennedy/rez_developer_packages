@@ -58,7 +58,7 @@ def _get_intersphinx_candidates(package):
 
             continue
 
-        if request.conflict:
+        if not request.weak and request.conflict:
             _LOGGER.debug('Skipped loading "%s" excluded request.', request)
 
             continue

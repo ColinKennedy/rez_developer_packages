@@ -6,6 +6,7 @@
 - Consider adding refs to "documentation source root" so people know what I'm talking about
 - Consider adding refs to "documentation build root" so people know what I'm talking about
 
+
 - Needs to be able to run / exit early when there's no Python files
 - Default settings should include the easy stuff. like api default arguments
 

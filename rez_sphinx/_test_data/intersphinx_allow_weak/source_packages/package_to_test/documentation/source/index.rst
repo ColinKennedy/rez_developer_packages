@@ -12,6 +12,7 @@ Welcome to package_to_test's documentation!
 
    developer_documentation
    user_documentation
+   API Documentation <api/modules>
 
 
 Indices and tables
