@@ -325,7 +325,7 @@ def get_filter_method():
 
 
 def get_help_label():
-    """str: Get the `rez help attribute`_ which connects with `intersphinx`_."""
+    """str: Get the `help`_ which connects with `intersphinx`_."""
     rez_sphinx_settings = get_base_settings()
 
     return rez_sphinx_settings.get("help_label") or "rez_sphinx_objects_inv"

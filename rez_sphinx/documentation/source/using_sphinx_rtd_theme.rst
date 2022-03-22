@@ -9,11 +9,11 @@ TODO make sure that scope("config") doesn't accidentally apply to downstream Rez
 front end for hosting documentation is a fantastic resource. It also open
 sourced a `sphinx theme`_ called `sphinx-rtd-theme`_.
 
-Here's what the default sphinx theme, `alabastor`_ looks like:
+Here's what the default sphinx theme, `alabaster`_ looks like:
 
 TODO, add image
 
-.. image:: images/alabastor_example_page.jpeg
+.. image:: images/alabaster_example_page.jpeg
 
 And here's the same page, using `sphinx-rtd-theme`_.
 

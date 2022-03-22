@@ -1,5 +1,4 @@
 ## Document current work
-- Legitimize all WIP :ref: tags
 - Do all TODO notes within the documentation/source folder
 - Consider adding refs to "documentation source root" so people know what I'm talking about
 - Consider adding refs to "documentation build root" so people know what I'm talking about
@@ -23,6 +22,11 @@
   - no duplicates (lol)
   - API documentation modules
    - Make sure the functions are just the short names. No long names
+
+
+- Make sure custom default_files
+ - Append to the toctree as expected
+ - Are checked for, properly
 
 
 - Add check to reject non-package.py Rez files (error on package.yaml / .yml / .txt)

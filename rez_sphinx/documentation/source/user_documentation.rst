@@ -1,3 +1,6 @@
+..
+    rez_sphinx_help:User Documentation
+
 .. _rez_sphinx:
 
 ##################
@@ -9,6 +12,9 @@ User Documentation
 
 TODO : Visit this tutorial once rez_docbot exists. And possibly update it with
 remote information.
+
+
+.. _getting_started:
 
 Getting Started
 ***************

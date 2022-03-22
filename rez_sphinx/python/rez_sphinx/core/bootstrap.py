@@ -318,7 +318,7 @@ def append_bootstrap_lines(path):
         handler.write("\n\n" + _REZ_SPHINX_BOOTSTRAP_LINES)
 
 
-def bootstrap(data, package=None):
+def bootstrap(data, package=None, skip=frozenset()):
     """Gather Rez package information for `Sphinx`_.
 
     This data is returned and used to auto-fill-out the values for
@@ -331,6 +331,11 @@ def bootstrap(data, package=None):
             The package to query from and extend ``data`` with extra
             information. If no package is given, the package is
             determined automatically from the caller's site.
+        skip (set[str], optional):
+            Any variable which you do not want :ref:`rez_sphinx build` to set.
+            This includes both the built-in variables, such as
+            ``"intersphinx_mapping"`` and even dynamic variables set using
+            :ref:`rez_sphinx.sphinx_conf_overrides`
 
     Returns:
         dict[str, object]: All Rez data to send to the `Sphinx conf.py`_.
@@ -338,16 +343,40 @@ def bootstrap(data, package=None):
     """
     package = package or _get_nearest_caller_package()
 
-    extensions = set(data.get("extensions") or set())
-    extensions.update(preference.get_sphinx_extensions())
+    if "extensions" not in skip:
+        extensions = set(data.get("extensions") or set())
+        extensions.update(preference.get_sphinx_extensions())
+        data["extensions"] = sorted(extensions)
 
-    data["extensions"] = sorted(extensions)
-    data["intersphinx_mapping"] = _get_intersphinx_mappings(package)
-    data["name"] = package.name
-    data["release"] = str(package.version)
-    data["version"] = _get_major_minor_version(package.version)
+    if "intersphinx_mapping" not in skip:
+        data["intersphinx_mapping"] = _get_intersphinx_mappings(package)
 
-    overrides = preference.get_sphinx_configuration_overrides()
+    if "project" not in skip:
+        data["project"] = package.name
+
+    if "release" not in skip:
+        # Confusingly, `Sphinx`_ treats `version`_ as a major.minor release.
+        # And `release`_ is the full version name.
+        #
+        # So a Rez version -> Sphinx release
+        # So a Sphinx version -> Nothing in Rez
+        #
+        data["release"] = str(package.version)
+
+    if "version" not in skip:
+        # Confusingly, `Sphinx`_ treats `version`_ as a major.minor release.
+        # And `release`_ is the full version name.
+        #
+        # So a Rez version -> Sphinx release
+        # So a Sphinx version -> Nothing in Rez
+        #
+        data["version"] = _get_major_minor_version(package.version)
+
+    overrides = {
+        key: value
+        for key, value in preference.get_sphinx_configuration_overrides().items()
+        if key not in skip
+    }
     _LOGGER.info('Got extra conf.py overrides "%s".', overrides)
     data.update(overrides)
 

@@ -88,10 +88,12 @@ rst_epilog = textwrap.dedent(
     """\
     .. _Sphinx conf.py: https://www.sphinx-doc.org/en/master/usage/configuration.html
     .. _Sphinx: https://www.sphinx-doc.org/en/master
-    .. _`rez-depends`: https://github.com/nerdvegas/rez/wiki/Command-Line-Tools#rez-depends
-    .. _`yaml`: https://pyyaml.org/wiki/PyYAMLDocumentation
+    .. _alabaster: https://alabaster.readthedocs.io/en/latest/
+    .. _author: https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-author
     .. _build_requires: https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#build_requires
+    .. _conf.py: https://www.sphinx-doc.org/en/master/usage/configuration.html
     .. _early(): https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#early-binding-functions
+    .. _extensions: https://www.sphinx-doc.org/en/master/usage/extensions/index.html#where-to-put-your-own-extensions
     .. _help: https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#help
     .. _index.rst: https://sphinx-tutorial.readthedocs.io/step-1
     .. _intersphinx: https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html
@@ -102,36 +104,35 @@ rst_epilog = textwrap.dedent(
     .. _package help: https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#help
     .. _package.py: https://github.com/nerdvegas/rez/wiki/Package-Commands
     .. _package_preprocess_function: https://github.com/nerdvegas/rez/wiki/Configuring-Rez#package_preprocess_function
+    .. _package_preprocess_function: https://github.com/nerdvegas/rez/wiki/Configuring-Rez#package_preprocess_function
     .. _private_build_requires: https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#private_build_requires
+    .. _project: https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-project
+    .. _readthedocs.io: https://docs.readthedocs.io/en/stable/
+    .. _release: https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-release
     .. _requires: https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#requires
-    .. _rez help attribute: https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#help
     .. _rez tests attribute: https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#tests
     .. _rez-build: https://github.com/nerdvegas/rez/wiki/Getting-Started#building-your-first-package
     .. _rez-config: https://github.com/nerdvegas/rez/wiki/Command-Line-Tools#rez-config
+    .. _rez-depends: https://github.com/nerdvegas/rez/wiki/Command-Line-Tools#rez-depends
+    .. _rez-help: https://github.com/nerdvegas/rez/wiki/Command-Line-Tools#rez-help
+    .. _rezconfig.py: https://github.com/nerdvegas/rez/blob/fa3fff6f0b7b4b53bbb9baa4357ab42117d06356/src/rez/rezconfig.py
+    .. _sphinx theme: https://sphinx-themes.org/
     .. _sphinx-apidoc: https://www.sphinx-doc.org/en/master/man/sphinx-apidoc.html
     .. _sphinx-build: https://www.sphinx-doc.org/en/master/usage/quickstart.html#running-the-build
     .. _sphinx-quickstart: https://www.sphinx-doc.org/en/master/man/sphinx-quickstart.html
-    .. _sphinx-rtd-theme: https://pypi.org/project/sphinx-rtd-theme/
+    .. _sphinx-rtd-theme: https://sphinx-rtd-theme.readthedocs.io/en/stable/
     .. _sphinx.ext.autodoc: https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html
     .. _sphinx.ext.intersphinx: https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html
     .. _sphinx.ext.viewcode: https://www.sphinx-doc.org/en/master/usage/extensions/viewcode.html
     .. _toctree: https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html
     .. _variants: https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#variants
+    .. _version: https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-version
+    .. _yaml: https://pyyaml.org/wiki/PyYAMLDocumentation
     """
 )
 
 
-# `readthedocs.io`_
-# `sphinx theme`_
-# `sphinx-rtd-theme`_
-# https://sphinx-themes.org/
-# https://sphinx-rtd-theme.readthedocs.io/en/stable/
-
-# `rezconfig.py`_
-
 # TODO : Consider remove rez-config references
-
-# :ref:`rez_sphinx apidoc templates`
 
 # TODO : Add these
 # - build_documentation_key` - The rez_sphinx key information

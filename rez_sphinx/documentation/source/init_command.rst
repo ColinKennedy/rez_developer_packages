@@ -1,3 +1,5 @@
+.. _rez_sphinx init:
+
 ###############
 rez_sphinx init
 ###############

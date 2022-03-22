@@ -19,6 +19,8 @@ default location) or ``{root}/build/documentation`` if you passed you passed
 ``rez_sphinx init --quickstart-arguments="--no-sep"``.
 
 
+.. _rez_sphinx apidoc templates:
+
 A note about Python 2 / 3
 *************************
 
