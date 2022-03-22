@@ -59,7 +59,7 @@ continuing.
    rez-pip --install sphinx-rtd-theme==1.0.0 --python-version=3 --release
 
 You're ready to build. If you haven't set up your documentation once before,
-follow the steps in :ref:`getting_started`. Otherwise, run your usual build
+follow the steps in :doc:`getting_started`. Otherwise, run your usual build
 command:
 
 .. code-block:: sh

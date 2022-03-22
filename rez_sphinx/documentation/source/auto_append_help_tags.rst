@@ -70,3 +70,5 @@ for many, this is easier said than done.
 .. seealso::
 
     `package_preprocess_function`_
+
+TODO : Probably need to also talk about local builds
