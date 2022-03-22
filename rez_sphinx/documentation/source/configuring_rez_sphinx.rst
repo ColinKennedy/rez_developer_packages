@@ -5,10 +5,16 @@ Configuring rez_sphinx
 TODO Add
 
 
+.. _rez_sphinx.build_documentation_key:
+
+rez_sphinx.build_documentation_key
+**********************************
+
+
 .. _sphinx-quickstart customization:
 
-sphinx-quickstart customization
-*******************************
+rez_sphinx.sphinx-quickstart
+****************************
 
 TODO Add
 

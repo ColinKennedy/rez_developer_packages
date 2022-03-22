@@ -86,6 +86,7 @@ import textwrap
 
 rst_epilog = textwrap.dedent(
     """\
+    .. _Rez: https://github.com/nerdvegas/rez/wiki
     .. _Sphinx conf.py: https://www.sphinx-doc.org/en/master/usage/configuration.html
     .. _Sphinx: https://www.sphinx-doc.org/en/master
     .. _alabaster: https://alabaster.readthedocs.io/en/latest/
@@ -132,8 +133,5 @@ rst_epilog = textwrap.dedent(
 )
 
 
-# TODO : Consider remove rez-config references
-
 # TODO : Add these
-# - build_documentation_key` - The rez_sphinx key information
 # - :ref:`minimal bootstrapper`

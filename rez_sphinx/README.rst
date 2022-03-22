@@ -2,6 +2,8 @@
 rez_sphinx
 ==========
 
+TODO Figure out how I'll include this page along with the other, existing documentation.
+
 A tool which makes initializing and building Sphinx documentation using Rez a snap.
 
 Features Overview
@@ -24,7 +26,8 @@ Running rez_sphinx init
 When you generate documentation for the first time, :ref:`rez_sphinx` will...
 
 - Generate a default Sphinx `Sphinx conf.py`_
-    - ``rez_sphinx`` adds a :ref:`minimal bootstrapper` directly to the `Sphinx conf.py`_.
+    - ``rez_sphinx`` adds a :ref:`minimal bootstrapper <rez_sphinx bootstrap>`
+      directly to the `Sphinx conf.py`_.
 - Auto-add extra documentation files for users to fill out
 - Bump your Rez package minor version
 - Append :ref:`rez-test` entries so the documentation can be built / published
