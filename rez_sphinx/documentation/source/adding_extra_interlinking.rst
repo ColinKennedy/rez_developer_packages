@@ -22,21 +22,22 @@ extra checks, like skipping ephemerals, conflicting packages, etc. But that's
 the jist.
 
 
-.. _rez_sphinx build view intersphinx_mapping:
+.. _rez_sphinx build inspect-config intersphinx_mapping:
 
 Checking Your Interlinks
 ************************
 
-Run ``rez_sphinx build view intersphinx_mapping``. It'll tell you exactly what
-:ref:`rez_sphinx build` sees, just before your documentation gets built.
+
+Run ``rez_sphinx build inspect-config intersphinx_mapping``. It'll tell you
+exactly what :ref:`rez_sphinx build` sees, just before your documentation gets built.
 
 
 Adding Extra Links
 ******************
 
 Imagine you want to interlink your project with documentation that isn't listed
-in :ref:`rez_sphinx build view intersphinx_mapping`. To do that, you have two
-options.
+in :ref:`rez_sphinx build inspect-config intersphinx_mapping`. To do that, you
+have two options.
 
 
 Add To build_documentation
@@ -71,8 +72,8 @@ Adding a package to ``build_documentation``'s list of requirements means
 .. important::
 
     If you still have interlinks even after adding the Rez package, confirm
-    with :ref:`rez_sphinx build view intersphinx_mapping` that :ref:`rez_sphinx
-    build` can see it.
+    with :ref:`rez_sphinx build inspect-config intersphinx_mapping` that
+    :ref:`rez_sphinx build` can see it.
 
 
 Manually Adding to intersphinx_mapping
