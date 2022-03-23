@@ -6,7 +6,7 @@ When you call :ref:`rez_sphinx init` for the first time, as mentioned in the
 :doc:`init_command`, several changes happen behind the scenes.
 
 One of the changes, the most important change, happens in the generated
-`Sphinx conf.py`_ file. In that file, these lines are added:
+`Sphinx conf.py`_ file.
 
 
 .. _rez_sphinx bootstrap:
@@ -14,16 +14,17 @@ One of the changes, the most important change, happens in the generated
 The Bootstrap Line
 ******************
 
+In the generated `conf.py`_ file, these lines are added:
 
 .. code-block:: python
 
     from rez_sphinx import api
     locals().update(api.bootstrap(locals()))
 
-It's a bit magical looking but it's actually fairly simple. ``locals()`` is a
-built-in Python variable containing all variables that you can query or modify
-at any given time in a Python file. It's a standard Python ``dict``. `Sphinx
-conf.py`_ is Sphinx's main customization file for your documentation.
+It's a bit magical looking but it's actually simple. ``locals()`` is a built-in
+Python variable containing all variables that you can query or modify at any
+given time in a Python file. It's a standard Python ``dict``. `Sphinx conf.py`_
+is Sphinx's main customization file for your documentation.
 
 What this line is really saying:
 

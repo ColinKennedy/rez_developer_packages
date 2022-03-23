@@ -11,7 +11,7 @@ How It Works
 
 Before the documentation is built:
 
-- Grab all Rez package dependencies, (`requires`_, `variants_`, `tests`_ etc)
+- Grab all Rez package dependencies, (`requires`_, `variants`_, `tests`_ etc)
 - For each item in the list, check if there's a defined ``REZ_{NAME}_ROOT``
   environment variable defined.
   - If it is, check if the `package.py`_ at that directory has defined documentation.
