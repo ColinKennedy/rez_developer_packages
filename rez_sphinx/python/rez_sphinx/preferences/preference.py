@@ -369,6 +369,21 @@ def get_master_api_documentation_line():
 
 
 def get_master_document_name():
+    """Find the first .rst file `Sphinx`_ should point to.
+
+    Ideally this shouldn't be necessary but it looks like, while building
+    :ref:`rez_sphinx` in Python 2 + `sphinx_rtd_theme`_, the name of this file
+    gets swapped to "contents.rst".
+
+    So we name it "index.rst", for consistency.
+
+    References:
+        https://github.com/readthedocs/readthedocs.org/issues/2569#issuecomment-270577290
+
+    Returns:
+        str: The base name, without file extension, of the "entry point" for `Sphinx`_.
+
+    """
     settings = get_sphinx_configuration_overrides()
 
     return settings[_MASTER_DOC]
