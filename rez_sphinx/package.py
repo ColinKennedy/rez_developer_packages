@@ -7,6 +7,8 @@ description = "Automate the initialization and building of Sphinx documentation.
 # TODO : Make sure this goes to a real path
 help = [["README", "README.md"]]
 
+authors = ["ColinKennedy"]
+
 private_build_requires = ["rez_build_helper-1+<2"]
 
 @late()

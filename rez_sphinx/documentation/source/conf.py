@@ -91,6 +91,7 @@ intersphinx_mapping.update(
     {
         "https://docs.python.org/3/": None,
         "https://nerdvegas.github.io/rez": None,
+        "https://schema.readthedocs.io/en/latest": None,
     }
 )
 
@@ -102,6 +103,7 @@ rst_epilog = textwrap.dedent(
     .. _alabaster: https://alabaster.readthedocs.io/en/latest/
     .. _author: https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-author
     .. _build_requires: https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#build_requires
+    .. _copyright: https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-copyright
     .. _early(): https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#early-binding-functions
     .. _extensions: https://www.sphinx-doc.org/en/master/usage/extensions/index.html#where-to-put-your-own-extensions
     .. _help: https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#help
@@ -109,6 +111,7 @@ rst_epilog = textwrap.dedent(
     .. _intersphinx: https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html
     .. _intersphinx_mapping: https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html
     .. _late(): https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#late-binding-functions
+    .. _master_doc: https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-master_doc
     .. _modules.rst: https://stackoverflow.com/questions/62822605/sphinx-modules-rst-warning-document-isnt-included-in-any-toctree
     .. _objects.inv: https://sphobjinv.readthedocs.io/en/latest/syntax.html
     .. _package help: https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#help
@@ -117,6 +120,7 @@ rst_epilog = textwrap.dedent(
     .. _package_preprocess_function: https://github.com/nerdvegas/rez/wiki/Configuring-Rez#package_preprocess_function
     .. _private_build_requires: https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#private_build_requires
     .. _project: https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-project
+    .. _project_copyright: https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-project_copyright
     .. _readthedocs.io: https://docs.readthedocs.io/en/stable/
     .. _release: https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-release
     .. _requires: https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#requires

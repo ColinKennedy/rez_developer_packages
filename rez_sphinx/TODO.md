@@ -1,13 +1,17 @@
-## Document current work
 - rez_sphinx build view intersphinx_mapping unittests
+- :ref:`rez_sphinx config show build_documentation_key`
+ - Implement this
+ - unittests
+
+
+## Document current work
 
 - Do all TODO notes within the documentation/source folder
 - Consider adding refs to "documentation source root" so people know what I'm talking about
 - Consider adding refs to "documentation build root" so people know what I'm talking about
 - Fix `foo <bar>`_ style Sphinx conf.py references. They're broken
 
-- :ref:`rez_sphinx config show build_documentation_key`
- - Implement this
+- Add option to prefer hand-written API documentation, if provided
 
 - If `help`_ rez_sphinx objects.inv points to a non-URL, check if it's
   absolute. If relative, absolute-ize it based onthe package directory and then
