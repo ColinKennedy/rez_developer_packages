@@ -124,3 +124,30 @@ customization` for a full list of the supported variables and what each of them 
             }
         }
     }
+
+
+.. _rez_sphinx.intersphinx_settings.package_link_map:
+
+rez_sphinx.intersphinx_settings.package_link_map
+************************************************
+
+If you're trying to link your Rez package to another Rez package, but that
+package cannot be editted (it could be a third-party PyPI package or something)
+to add documentation, you can use this option to help :ref:`rez_sphinx build`
+find the documentation.
+
+.. code-block:: python
+
+   optionvars = {
+       "rez_sphinx": {
+           "intersphinx_settings": {
+               "package_link_map": {
+                   "schema": "https://schema.readthedocs.io/en/latest",
+               }
+           }
+       }
+   }
+
+When building your documentation, if a Rez package named ``schema`` is found
+but its `package.py`_ doesn't define the documentation properly,
+``https://schema.readthedocs.io/en/latest`` is used as a fallback.

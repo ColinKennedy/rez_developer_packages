@@ -1,11 +1,21 @@
 ## Document current work
-- Remove all errors on documentation build
 - Do all TODO notes within the documentation/source folder
 - Consider adding refs to "documentation source root" so people know what I'm talking about
 - Consider adding refs to "documentation build root" so people know what I'm talking about
 - Fix `foo <bar>`_ style Sphinx conf.py references. They're broken
 
+- rez_sphinx build view intersphinx_mapping
+- :ref:`rez_sphinx config show build_documentation_key`
+ - Implement this
+
+- If `help`_ rez_sphinx objects.inv points to a non-URL, check if it's
+  absolute. If relative, absolute-ize it based onthe package directory and then
+  use that
+  - If they make a mistake and point directly to objects.inv, crop it to the real directory / URL path
+
+
 ## Interlinking
+- Make sure to append build_documentation requires. Make sure they're accounted for
 - Add a configuration thing to look up external library documentation
  - https://pypi.org/project/schema/ - https://readthedocs.org/projects/schema/
  - Add an auto-searcher, maybe. Make it configurable
@@ -36,6 +46,8 @@
 - Allow arguments to the rez_sphinx build
  - from CLI
  - from config
+
+- Make sure auto-linking cannot fail if the Rez package.py has undefined / syntax error in its contents
 
 
 - And an option to specify the destination URL for docbot directly on the package.py

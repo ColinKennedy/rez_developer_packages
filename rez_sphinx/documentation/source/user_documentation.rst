@@ -54,8 +54,6 @@ These pages, in no particular order, explain how to customize :ref:`rez_sphinx`
 to suit your projects. It's aimed towards people who want better documentation
 customization or are administering :ref:`rez_sphinx` at a company / studio.
 
-.. TODO
-
 .. toctree::
    :maxdepth: 1
 
@@ -64,3 +62,4 @@ customization or are administering :ref:`rez_sphinx` at a company / studio.
    publishing_your_documentation
    configuring_rez_sphinx
    auto_append_help_tags
+   linking_rez_sphinx_with_other_documentation_tools
