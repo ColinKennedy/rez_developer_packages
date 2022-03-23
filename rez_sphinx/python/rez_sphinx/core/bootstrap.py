@@ -109,7 +109,7 @@ def _get_copyright(package):
     year = date.today().year
 
     if not authors:
-        return year
+        return str(year)
 
     primary = authors[0]
 
