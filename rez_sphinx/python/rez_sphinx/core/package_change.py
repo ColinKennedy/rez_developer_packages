@@ -44,7 +44,7 @@ def _add_rez_tests(package):
     next_ = major + 1
 
     tests[build_key] = {
-        "command": "rez_sphinx build",
+        "command": "rez_sphinx build run",
         "requires": [
             "rez_sphinx-{major}.{minor}+<{next_}".format(
                 major=major,
