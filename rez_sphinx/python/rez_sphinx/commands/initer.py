@@ -1,4 +1,4 @@
-"""The module which handles the :doc:`init_command` command."""
+"""The module which handles the :ref:`rez_sphinx init` command."""
 
 import logging
 import os
@@ -51,7 +51,7 @@ def _add_initial_files(root, entries):
             The directory on-disk where the source documentation lives. e.g.
             {rez_root}/documentation/source is the most common path.
         entries (list[:class:`.Entry`]):
-            All descriptions of files to make during :doc:`init_command`.
+            All descriptions of files to make during :ref:`rez_sphinx init`.
 
     """
     sphinx = configuration.ConfPy.from_directory(root)

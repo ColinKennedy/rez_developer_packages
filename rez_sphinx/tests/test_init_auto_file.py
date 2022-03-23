@@ -110,7 +110,7 @@ class General(unittest.TestCase):
         return package, directory
 
     def test_custom_files(self):
-        """Define and generate a custom file, on :doc:`init_command`."""
+        """Define and generate a custom file, on :ref:`rez_sphinx init`."""
         package = package_wrap.make_simple_developer_package()
         directory = finder.get_package_root(package)
         name = "some_custom_file"
@@ -271,7 +271,7 @@ def _check_defaults(value):
 
 @contextlib.contextmanager
 def _override_default_files(files):
-    """Use ``files`` when running :doc:`init_command` instead of the defaults.
+    """Use ``files`` when running :ref:`rez_sphinx init` instead of the defaults.
 
     Args:
         files (list[dict[str, str or bool]]):

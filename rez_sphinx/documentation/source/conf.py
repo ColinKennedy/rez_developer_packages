@@ -65,7 +65,6 @@ html_static_path = ['_static']
 # -- Options for intersphinx extension ---------------------------------------
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {'https://docs.python.org/3/': None}
 
 
 # -- rez-sphinx start --
@@ -84,6 +83,17 @@ locals().update(api.bootstrap(locals()))
 
 import textwrap
 
+html_theme = "sphinx_rtd_theme"
+extensions.extend(("sphinx.ext.napoleon", "sphinx.ext.todo"))
+
+# TODO : Consider moving these to my own packages - or some kind of config
+intersphinx_mapping.update(
+    {
+        "https://docs.python.org/3/": None,
+        "https://nerdvegas.github.io/rez": None,
+    }
+)
+
 rst_epilog = textwrap.dedent(
     """\
     .. _Rez: https://github.com/nerdvegas/rez/wiki
@@ -92,7 +102,6 @@ rst_epilog = textwrap.dedent(
     .. _alabaster: https://alabaster.readthedocs.io/en/latest/
     .. _author: https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-author
     .. _build_requires: https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#build_requires
-    .. _conf.py: https://www.sphinx-doc.org/en/master/usage/configuration.html
     .. _early(): https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#early-binding-functions
     .. _extensions: https://www.sphinx-doc.org/en/master/usage/extensions/index.html#where-to-put-your-own-extensions
     .. _help: https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#help
@@ -131,7 +140,3 @@ rst_epilog = textwrap.dedent(
     .. _yaml: https://pyyaml.org/wiki/PyYAMLDocumentation
     """
 )
-
-
-# TODO : Add these
-# - :ref:`minimal bootstrapper`

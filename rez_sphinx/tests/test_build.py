@@ -1,4 +1,4 @@
-"""Make sure :doc:`build_command` works as expected."""
+"""Make sure :ref:`rez_sphinx build` works as expected."""
 
 import contextlib
 import functools
@@ -162,7 +162,7 @@ class Bootstrap(unittest.TestCase):
 
 
 class Build(unittest.TestCase):
-    """Make sure :doc:`build_command` works as expected."""
+    """Make sure :ref:`rez_sphinx build` works as expected."""
 
     def _hello_world_test(self):
         """Create a basic :ref:`rez_sphinx` "init + build"."""
@@ -326,7 +326,7 @@ class Miscellaneous(unittest.TestCase):
             # Simulate the user adding sphinx-rtd-theme as a requirement and
             # then running rez_sphinx init / build.
             #
-            # (Technically we only need the requirement :doc:`build_command`
+            # (Technically we only need the requirement :ref:`rez_sphinx build`
             # but it can't hurt to run it both init + build)
             #
             optionvars = {
@@ -483,7 +483,7 @@ class Options(unittest.TestCase):
 
 
 class Invalid(unittest.TestCase):
-    """Make sure :doc:`build_command` fails when expected."""
+    """Make sure :ref:`rez_sphinx build` fails when expected."""
 
     def test_apidoc_argument_conflict(self):
         """If the user specifies --apidoc-arguments and --no-apidoc at once."""

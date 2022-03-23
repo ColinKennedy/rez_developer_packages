@@ -26,7 +26,7 @@ should be able to run ``rez-test package_name build_documentation`` to create
 The build_documentation rez-test key
 ************************************
 
-TODO : Possibly add "run_on": "pre_release" here. Or just make sure it works.
+TODO : Possibly add "run_on": "post_release" here. Or just make sure it works.
 Or "explicit", at least
 
 A typical key looks like:

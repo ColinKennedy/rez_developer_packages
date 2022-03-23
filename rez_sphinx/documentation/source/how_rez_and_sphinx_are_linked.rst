@@ -6,7 +6,7 @@ When you call :ref:`rez_sphinx init` for the first time, as mentioned in the
 :doc:`init_command`, several changes happen behind the scenes.
 
 One of the changes, the most important change, happens in the generated
-`conf.py`_ file. In that file, these lines are added:
+`Sphinx conf.py`_ file. In that file, these lines are added:
 
 
 .. _rez_sphinx bootstrap:
@@ -22,8 +22,8 @@ The Bootstrap Line
 
 It's a bit magical looking but it's actually fairly simple. ``locals()`` is a
 built-in Python variable containing all variables that you can query or modify
-at any given time in a Python file. It's a standard Python ``dict``. `conf.py`_
-is Sphinx's main customization file for your documentation.
+at any given time in a Python file. It's a standard Python ``dict``. `Sphinx
+conf.py`_ is Sphinx's main customization file for your documentation.
 
 What this line is really saying:
 
@@ -58,6 +58,6 @@ While this is fairly aggressive, please note that:
 Adding Extra Overrides
 **********************
 
-If you find yourself adding the same overrides to your `conf.py`_, consider
-adding it as a configuration value using
+If you find yourself adding the same overrides to your `Sphinx conf.py`_,
+consider adding it as a configuration value using
 :ref:`rez_sphinx.sphinx_conf_overrides`.

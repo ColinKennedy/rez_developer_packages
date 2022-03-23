@@ -28,11 +28,11 @@ The default toctree generated for the API documentation is super ugly.
 
 TODO Add these images
 
-.. image:: images/python_2_api_toctree.jpeg
+.. image:: images/python_2_api_toctree.png
 
 Starting from Sphinx 2.2+, which requires Python 3, the same toctree looks like this:
 
-.. image:: images/python_3_api_toctree.jpeg
+.. image:: images/python_3_api_toctree.png
 
 So in short, if you want a pretty toctree, run :ref:`rez_sphinx` in Python 3.
 If you prefer the default tree, this behavior can be disabled using

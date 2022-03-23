@@ -11,7 +11,7 @@ def get_dependencies(package):
         package (:class:`rez.packages.Package`): A Rez package to check.
 
     Returns:
-        list[:class:`rez.packages.Package` or :class:`rez.packages.Variant`]:
+        list[rez.packages.Package or rez.packages.Variant]:
             Each package or "variant of a package" which ``package`` needs
             during documentation-building.
 

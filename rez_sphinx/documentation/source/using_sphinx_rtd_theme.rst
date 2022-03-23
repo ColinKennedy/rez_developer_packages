@@ -13,13 +13,13 @@ Here's what the default sphinx theme, `alabaster`_ looks like:
 
 TODO, add image
 
-.. image:: images/alabaster_example_page.jpeg
+.. image:: images/alabaster_example_page.png
 
 And here's the same page, using `sphinx-rtd-theme`_.
 
 TODO add
 
-.. image:: images/sphinx_rtd_theme_example_page.jpeg
+.. image:: images/sphinx_rtd_theme_example_page.png
 
 :ref:`rez_sphinx build` supports changing your documentation theme on the fly.
 

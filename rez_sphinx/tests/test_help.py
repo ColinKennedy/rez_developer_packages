@@ -47,7 +47,7 @@ class _Base(unittest.TestCase):
 
         install_package = developer_package.DeveloperPackage.from_path(
             # `package` is 1.0.0 but we incremented the minor version during
-            # :doc:`init_command`. So it's 1.1.0 now.
+            # :ref:`rez_sphinx init`. So it's 1.1.0 now.
             #
             os.path.join(install_path, package.name, "1.1.0")
         )
@@ -317,7 +317,7 @@ class HelpScenarios(unittest.TestCase):
 
         install_package = developer_package.DeveloperPackage.from_path(
             # `package` is 1.0.0 but we incremented the minor version during
-            # :doc:`init_command`. So it's 1.1.0 now.
+            # :ref:`rez_sphinx init`. So it's 1.1.0 now.
             #
             os.path.join(install_path, package.name, "1.1.0")
         )
@@ -393,7 +393,7 @@ class HelpScenarios(unittest.TestCase):
 
         install_package = developer_package.DeveloperPackage.from_path(
             # `package` is 1.0.0 but we incremented the minor version during
-            # :doc:`init_command`. So it's 1.1.0 now.
+            # :ref:`rez_sphinx init`. So it's 1.1.0 now.
             #
             os.path.join(install_path, package.name, "1.1.0")
         )
@@ -437,7 +437,7 @@ class HelpScenarios(unittest.TestCase):
 
         install_package = developer_package.DeveloperPackage.from_path(
             # `package` is 1.0.0 but we incremented the minor version during
-            # :doc:`init_command`. So it's 1.1.0 now.
+            # :ref:`rez_sphinx init`. So it's 1.1.0 now.
             #
             os.path.join(install_path, package.name, "1.1.0")
         )

@@ -1,4 +1,4 @@
-"""Make sure :doc:`init_command` works as expected."""
+"""Make sure :ref:`rez_sphinx init` works as expected."""
 
 import os
 import tempfile
@@ -13,7 +13,7 @@ from .common import package_wrap, run_test
 
 
 class Init(unittest.TestCase):
-    """Make sure :doc:`init_command` works with expected cases."""
+    """Make sure :ref:`rez_sphinx init` works with expected cases."""
 
     def test_hello_world(self):
         """Initialize a very simple Rez package with Sphinx documentation."""
@@ -86,7 +86,7 @@ class QuickStartOptions(unittest.TestCase):
 
 
 class Invalids(unittest.TestCase):
-    """Make sure :doc:`init_command` fails when it's supposed to fail."""
+    """Make sure :ref:`rez_sphinx init` fails when it's supposed to fail."""
 
     # TODO : Do these
     # def test_bad_permissions(self):

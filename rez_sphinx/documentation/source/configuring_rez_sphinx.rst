@@ -104,7 +104,7 @@ If you prefer the default display, use this option to get it back:
     }
 
 As mentioned, `sphinx-apidoc`_ templates are a Python 3+ feature. Specifically
-Sphinx 2.2+. Adding this setting in < Python 2 does nothing.
+Sphinx 2.2+. Adding this setting in Python 2 does nothing.
 
 
 .. _rez_sphinx.sphinx_conf_overrides:
@@ -112,8 +112,8 @@ Sphinx 2.2+. Adding this setting in < Python 2 does nothing.
 rez_sphinx.sphinx_conf_overrides
 ********************************
 
-This setting allows you to change in a `conf.py`_. See `conf.py customization`
-for a full list of the supported variables and what each of them do.
+This setting allows you to change in a `Sphinx conf.py`_. See `conf.py
+customization` for a full list of the supported variables and what each of them do.
 
 .. code-block:: python
 

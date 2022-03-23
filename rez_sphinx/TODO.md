@@ -1,8 +1,16 @@
 ## Document current work
+- Remove all errors on documentation build
 - Do all TODO notes within the documentation/source folder
 - Consider adding refs to "documentation source root" so people know what I'm talking about
 - Consider adding refs to "documentation build root" so people know what I'm talking about
 - Fix `foo <bar>`_ style Sphinx conf.py references. They're broken
+
+## Interlinking
+- Add a configuration thing to look up external library documentation
+ - https://pypi.org/project/schema/ - https://readthedocs.org/projects/schema/
+ - Add an auto-searcher, maybe. Make it configurable
+- Remove all :class: tags that I don't need to manually specify
+
 
 ## Make tools more robust
 - Make sure rez_sphinx only adds its bootstrap once
@@ -23,6 +31,25 @@
   - API documentation modules
    - Make sure the functions are just the short names. No long names
 
+- Bootstrap suffix
+ - Allow the user to append extra lines to the bootstrapper
+- Allow arguments to the rez_sphinx build
+ - from CLI
+ - from config
+
+
+- And an option to specify the destination URL for docbot directly on the package.py
+- When interlinking, check for Internet
+ - Add an option to not check for it
+ - post release, maybe add an option to check that each path in rez-help points to something. Fail if happens
+
+- Make sure to set `latex_documents` in `conf.py`
+ - man_pages
+ - https://github.com/nerdvegas/rez/blob/master/docs/conf.py
+ - texinfo_documents
+
+- Look into if GitHub actions might be a better way of getting documentation to users
+ - Look at nerdvegas's code as a blueprint
 
 - Make sure custom default_files
  - Append to the toctree as expected

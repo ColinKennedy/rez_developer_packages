@@ -343,6 +343,10 @@ def bootstrap(data, package=None, skip=frozenset()):
     """
     package = package or _get_nearest_caller_package()
 
+    if "master_doc" not in skip:
+        # Reference: https://github.com/readthedocs/readthedocs.org/issues/2569#issuecomment-485117471
+        data["master_doc"] = preference.get_master_document_name() or "index"
+
     if "extensions" not in skip:
         extensions = set(data.get("extensions") or set())
         extensions.update(preference.get_sphinx_extensions())

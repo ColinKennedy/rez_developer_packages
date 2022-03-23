@@ -54,6 +54,10 @@ _SPHINX_MODULE_KEY = "add_module_names"
 
 _DEFAULT_ENTRIES = list(preference_init.DEFAULT_ENTRIES)
 
+# Reference: https://github.com/readthedocs/readthedocs.org/issues/2569#issuecomment-485117471
+_MASTER_DOC_DEFAULT = "index"
+_MASTER_DOC = "master_doc"
+
 _MASTER_SCHEMA = schema.Schema(
     {
         schema.Optional(
@@ -92,7 +96,11 @@ _MASTER_SCHEMA = schema.Schema(
                 _HELP_SORT_ORDER, default=preference_help.DEFAULT_SORT
             ): schema.Use(preference_help.validate_sort),
         },
-        schema.Optional(_CONFIG_OVERRIDES, default={_SPHINX_MODULE_KEY: False}): {
+        schema.Optional(_CONFIG_OVERRIDES, default={
+            _SPHINX_MODULE_KEY: False,
+            _MASTER_DOC: _MASTER_DOC_DEFAULT,
+        }): {
+            schema.Optional(_MASTER_DOC, default=_MASTER_DOC_DEFAULT): schema_helper.NON_NULL_STR,
             schema.Optional(_SPHINX_MODULE_KEY, default=False): bool,
             schema_helper.NON_NULL_STR: object,
         },
@@ -167,7 +175,7 @@ def _validate_api_options(options):
             User arguments to pass to `sphinx-apidoc`_. This could
             be a combination of automated arguments or arguments which
             the user manually provided, via `rez-config`_ or from
-            the :doc:`init_command` CLI.
+            the :ref:`rez_sphinx init` CLI.
 
     Raises:
         :class:`.UserInputError`: If there are any found errors.
@@ -247,7 +255,7 @@ def get_api_options(options=tuple()):
     Args:
         options (container[str]):
             User arguments to pass to `sphinx-apidoc`_. These
-            options come from :doc:`build_command` CLI and may be
+            options come from :ref:`rez_sphinx build` CLI and may be
             valid or invalid.
 
     """
@@ -332,7 +340,7 @@ def get_help_label():
 
 
 def get_initial_files_from_configuration():
-    """list[:class:`.Entry`]: File data to write during :doc:`init_command`."""
+    """list[:class:`.Entry`]: File data to write during :ref:`rez_sphinx init`."""
     settings = get_base_settings()
     options = settings.get(_INIT_KEY) or dict()
 
@@ -358,6 +366,12 @@ def get_master_api_documentation_line():
     rez_sphinx_settings = get_base_settings()
 
     return rez_sphinx_settings[_API_TOCTREE_LINE]
+
+
+def get_master_document_name():
+    settings = get_sphinx_configuration_overrides()
+
+    return settings[_MASTER_DOC]
 
 
 def get_sort_method():

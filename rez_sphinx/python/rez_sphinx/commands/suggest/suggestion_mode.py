@@ -176,11 +176,7 @@ def get_mode_by_name(name):
         ValueError: If ``name`` is not a registered command.
 
     Returns:
-        callable[
-            container[:class:`rez.developer_package.DeveloperPackage`] -> list[
-                list[:class:`rez.developer_package.DeveloperPackage`]
-            ]
-        ]:
+        callable[list[rez.developer_package.DeveloperPackage] -> list[list[rez.developer_package.DeveloperPackage]]]:
             A function which takes a list of Rez packages, for example, and
             returns a list with each depth's packages, starting from depth=0
             and ascending order.
