@@ -41,6 +41,10 @@ existing values, which is why ``locals()`` is passed to
       **other** Rez package's documentation.
 - sets these vanilla `Sphinx`_ variables based on what's in your `package.py`_:
     - `author`_
+    - `copyright`_
+    - `extension`_
+    - `master_doc`
+    - `project_copyright`_
     - `project`_
     - `release`_
     - `version`_
