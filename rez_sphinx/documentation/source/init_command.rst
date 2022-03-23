@@ -13,7 +13,7 @@ It's ran once (and then ideally never again).
 - Runs ``sphinx-quickstart`` with automated settings
     - See :ref:`sphinx-quickstart customization` to customize this
 - Creates any pre-defined :ref:`default file entries` and adds them to `index.rst`_.
-- Hijacks your `conf.py`_ with a special :ref:`rez_sphinx bootstrap`
+- Hijacks your `Sphinx conf.py`_ with a special :ref:`rez_sphinx bootstrap`
 - Directly edits your `package.py`_ as needed
     - Increments a new minor version
     - Defines "build_command" key to the `rez tests attribute`_ attribute.

@@ -125,6 +125,7 @@ rst_epilog = textwrap.dedent(
     .. _rez-config: https://github.com/nerdvegas/rez/wiki/Command-Line-Tools#rez-config
     .. _rez-depends: https://github.com/nerdvegas/rez/wiki/Command-Line-Tools#rez-depends
     .. _rez-help: https://github.com/nerdvegas/rez/wiki/Command-Line-Tools#rez-help
+    .. _rez-pip: https://github.com/nerdvegas/rez/wiki/Command-Line-Tools#rez-pip
     .. _rezconfig.py: https://github.com/nerdvegas/rez/blob/fa3fff6f0b7b4b53bbb9baa4357ab42117d06356/src/rez/rezconfig.py
     .. _sphinx theme: https://sphinx-themes.org/
     .. _sphinx-apidoc: https://www.sphinx-doc.org/en/master/man/sphinx-apidoc.html
@@ -134,6 +135,7 @@ rst_epilog = textwrap.dedent(
     .. _sphinx.ext.autodoc: https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html
     .. _sphinx.ext.intersphinx: https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html
     .. _sphinx.ext.viewcode: https://www.sphinx-doc.org/en/master/usage/extensions/viewcode.html
+    .. _tests: https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#tests
     .. _toctree: https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html
     .. _variants: https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#variants
     .. _version: https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-version

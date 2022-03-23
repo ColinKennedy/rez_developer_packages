@@ -372,7 +372,7 @@ def get_master_document_name():
     """Find the first .rst file `Sphinx`_ should point to.
 
     Ideally this shouldn't be necessary but it looks like, while building
-    :ref:`rez_sphinx` in Python 2 + `sphinx_rtd_theme`_, the name of this file
+    :ref:`rez_sphinx` in Python 2 + `sphinx-rtd-theme`_, the name of this file
     gets swapped to "contents.rst".
 
     So we name it "index.rst", for consistency.
