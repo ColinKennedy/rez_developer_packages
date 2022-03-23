@@ -59,6 +59,8 @@
  - man_pages
  - https://github.com/nerdvegas/rez/blob/master/docs/conf.py
  - texinfo_documents
+ - https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-latex_documents
+  - make sure to set authors correctly
 
 - Look into if GitHub actions might be a better way of getting documentation to users
  - Look at nerdvegas's code as a blueprint

@@ -13,12 +13,16 @@ from rez.cli import _complete_util
 from rez.config import config as config_
 from rez_utilities import finder
 
-from .commands import build_orderer, builder, initer
+from .commands import build_orderer, initer
+from .commands.builder import inspector, runner
 from .commands.suggest import build_display, search_mode, suggestion_mode
-from .core import api_builder, exception, path_control, print_format
+from .core import api_builder, configuration, exception, path_control, print_format
 from .preferences import preference
 
 _LOGGER = logging.getLogger(__name__)
+
+
+# TODO : Make sure everything here has documentation
 
 
 def _add_directory_argument(parser):
@@ -57,7 +61,7 @@ def _add_remainder_argument(parser):
     )
 
 
-def _build(namespace):
+def _build_runner(namespace):
     """Build Sphinx documentation, using details from ``namespace``.
 
     Args:
@@ -79,7 +83,7 @@ def _build(namespace):
             "while also --no-apidoc.".format(namespace=namespace)
         )
 
-    builder.build(
+    runner.build(
         namespace.directory,
         api_mode=namespace.api_documentation,
         api_options=namespace.api_doc_arguments,
@@ -113,6 +117,10 @@ def _build_order(namespace):
 
     display_using = build_display.get_mode_by_name(namespace.display_as)
     display_using(ordered)
+
+
+def _build_inspect_conf(namespace):
+    inspector.print_fields_from_directory(namespace.directory, fields=set(namespace.fields))
 
 
 def _check(namespace):
@@ -207,34 +215,60 @@ def _set_up_build(sub_parsers):
             appended onto.
 
     """
+
+    def _add_build_run_parser(commands):
+        build_runner = commands.add_parser(
+            "run",
+            help="Generates documentation from your .rst files.",
+        )
+        _add_directory_argument(build_runner)
+        choices = sorted(api_builder.MODES, key=operator.attrgetter("label"))
+        build_runner.add_argument(
+            "--no-apidoc",
+            dest="no_api_doc",
+            action="store_true",
+            help="Disable API .rst file generation.",
+        )
+        build_runner.add_argument(
+            "--apidoc-arguments",
+            dest="api_doc_arguments",
+            help='Anything you\'d like to send for sphinx-apidoc. e.g. "--private"',
+        )
+        build_runner.add_argument(
+            "--api-documentation",
+            choices=[mode.label for mode in choices],
+            default=api_builder.FULL_AUTO.label,
+            help="When building, API .rst files can be generated for your Python files.\n\n"
+            + "\n".join(
+                "{mode.label}: {mode.description}".format(mode=mode) for mode in choices
+            ),
+        )
+        build_runner.set_defaults(execute=_build_runner)
+
+        _add_remainder_argument(build_runner)
+
+    def _add_build_inspect_parser(commands):
+        build_inspector = commands.add_parser(
+            "inspect-conf",
+            help="Show build related details to the user.",
+        )
+        build_inspector.add_argument(
+            "fields",
+            nargs="*",
+            help="A space-separated list of fields to print. "
+            "If not provided, everything is shown.",
+        )
+
+        _add_directory_argument(build_inspector)
+
+        build.set_defaults(execute=_build_inspect_conf)
+
     build = sub_parsers.add_parser(
         "build", description="Compile Sphinx documentation from a Rez package."
     )
-    _add_directory_argument(build)
-    choices = sorted(api_builder.MODES, key=operator.attrgetter("label"))
-    build.add_argument(
-        "--no-apidoc",
-        dest="no_api_doc",
-        action="store_true",
-        help="Disable API .rst file generation.",
-    )
-    build.add_argument(
-        "--apidoc-arguments",
-        dest="api_doc_arguments",
-        help='Anything you\'d like to send for sphinx-apidoc. e.g. "--private"',
-    )
-    build.add_argument(
-        "--api-documentation",
-        choices=[mode.label for mode in choices],
-        default=api_builder.FULL_AUTO.label,
-        help="When building, API .rst files can be generated for your Python files.\n\n"
-        + "\n".join(
-            "{mode.label}: {mode.description}".format(mode=mode) for mode in choices
-        ),
-    )
-    build.set_defaults(execute=_build)
-
-    _add_remainder_argument(build)
+    commands = build.add_subparsers()
+    _add_build_inspect_parser(commands)
+    _add_build_run_parser(commands)
 
 
 def _set_up_config(sub_parsers):

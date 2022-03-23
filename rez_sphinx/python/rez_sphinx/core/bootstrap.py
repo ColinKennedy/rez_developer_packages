@@ -1,5 +1,6 @@
 """Connect `Sphinx`_ to :ref:`rez_sphinx`."""
 
+from datetime import date
 import logging
 import os
 import textwrap
@@ -91,6 +92,28 @@ def _in_resolve(name):
         return bool(path_control.get_installed_root(name))
     except EnvironmentError:
         return False
+
+
+# TODO : Cache this result
+def _get_copyright(package):
+    """Get a Sphinx-friendly copyright statement for some Rez ``package``.
+
+    Args:
+        package (rez.package.Package): The source / install package to query from.
+
+    Returns:
+        str: The found year or year + author name, if there is any author.
+
+    """
+    authors = package.authors
+    year = date.today().year
+
+    if not authors:
+        return year
+
+    primary = authors[0]
+
+    return "{year}, {primary}".format(year=year, primary=primary)
 
 
 def _get_environment_package(name):
@@ -343,9 +366,14 @@ def bootstrap(data, package=None, skip=frozenset()):
     """
     package = package or _get_nearest_caller_package()
 
-    if "master_doc" not in skip:
-        # Reference: https://github.com/readthedocs/readthedocs.org/issues/2569#issuecomment-485117471
-        data["master_doc"] = preference.get_master_document_name() or "index"
+    if "author" not in skip:
+        # Note: Not sure if ", " separation is expected. I couldn't find
+        # documentation about Sphinx on what the expected format is.
+        #
+        data["author"] = ", ".join(package.authors or [])
+
+    if "copyright" not in skip:
+        data["copyright"] = _get_copyright(package)
 
     if "extensions" not in skip:
         extensions = set(data.get("extensions") or set())
@@ -355,8 +383,20 @@ def bootstrap(data, package=None, skip=frozenset()):
     if "intersphinx_mapping" not in skip:
         data["intersphinx_mapping"] = _get_intersphinx_mappings(package)
 
+    if "master_doc" not in skip:
+        # Reference: https://github.com/readthedocs/readthedocs.org/issues/2569#issuecomment-485117471
+        data["master_doc"] = preference.get_master_document_name() or "index"
+
     if "project" not in skip:
         data["project"] = package.name
+
+    if "project_copyright" not in skip:
+        # An alias for "copyright". It's only Sphinx 3.5+ but it's harmless in
+        # older Sphinx versions so we leave it in, regardless.
+        #
+        # Reference: https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-project_copyright
+        #
+        data["project_copyright"] = _get_copyright(package)
 
     if "release" not in skip:
         # Confusingly, `Sphinx`_ treats `version`_ as a major.minor release.

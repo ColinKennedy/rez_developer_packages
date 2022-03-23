@@ -4,6 +4,7 @@ import inspect
 import os
 
 from python_compatibility import imports
+from sphinx import config
 
 _CONFIGURATION_FILE_NAME = "conf.py"
 
@@ -82,3 +83,13 @@ class ConfPy(object):
             return self._module.source_suffix
         except AttributeError:
             return ".rst"  # A reasonable default
+
+    def get_module_attributes(self):
+        return [
+            (name, getattr(self._module, name))
+            for name in config.Config.config_values.keys()
+            if hasattr(self._module, name)
+        ]
+
+    def get_module_path(self):
+        return self._module.__path__

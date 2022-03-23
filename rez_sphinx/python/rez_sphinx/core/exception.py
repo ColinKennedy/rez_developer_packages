@@ -55,13 +55,19 @@ class NoPythonFiles(Base):
     exit_code = GENERIC_EXIT_CODE + 80
 
 
+class SphinxConfError(Base):
+    """When the user's `Sphinx conf.py`_ is unreadable or has empty content."""
+
+    exit_code = GENERIC_EXIT_CODE + 100
+
+
 class SphinxExecutionError(Base):
     """If some `Sphinx`_ CLI program fails to run and stops midway."""
 
-    exit_code = GENERIC_EXIT_CODE + 90
+    exit_code = GENERIC_EXIT_CODE + 110
 
 
 class UserInputError(Base):
     """If a user argument to the CLI or `rez-config`_ is not allowed."""
 
-    exit_code = GENERIC_EXIT_CODE + 100
+    exit_code = GENERIC_EXIT_CODE + 120

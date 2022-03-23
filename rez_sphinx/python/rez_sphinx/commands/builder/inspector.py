@@ -1,0 +1,63 @@
+from rez_utilities import finder
+
+from ...core import configuration, doc_finder, exception
+
+
+def _get_all_field_attributes(sphinx):
+    attributes = sphinx.get_module_attributes()
+
+    if attributes:
+        return attributes
+
+    path = sphinx.get_module_path()
+
+    raise exception.SphinxConfError(
+        'Configuration "{path}" has no found attributes.'.format(path=path)
+    )
+
+
+def _get_field_attributes(sphinx, fields):
+    attributes = {name: value for name, value in sphinx.get_module_attributes()}
+    invalids = set()
+    output = []
+
+    for name in fields:
+        if name not in attributes:
+            invalids.add(name)
+        else:
+            output.append((name, attributes[name]))
+
+    if not invalids:
+        return output
+
+    raise exception.SphinxConfError(
+        'These conf.py attributes, "{invalids}" could not be found.'.format(
+            invalids=", ".join(sorted(invalids))
+        )
+    )
+
+
+def _print_fields(sphinx, fields=frozenset()):
+    if len(fields) == 1:
+        _, value = _get_field_attributes(sphinx, fields)[0]
+        print(value)
+
+        return
+
+    if not fields:
+        attributes = _get_all_field_attributes(sphinx)
+    else:
+        attributes = _get_field_attributes(sphinx, fields)
+
+    print("Found these conf.py values:")
+
+    for name, value in attributes:
+        print('{name!s}:\n    {value!r}'.format(name=name, value=value))
+
+
+def print_fields_from_directory(directory, fields=frozenset()):
+    package = finder.get_nearest_rez_package(directory)
+    source_directory = doc_finder.get_source_from_package(package)
+    sphinx = configuration.ConfPy.from_directory(source_directory)
+
+    _print_fields(sphinx, fields=fields)

@@ -4,6 +4,7 @@ version = "1.0.0"
 
 description = "Automate the initialization and building of Sphinx documentation."
 
+# TODO : Make sure this goes to a real path
 help = [["README", "README.md"]]
 
 private_build_requires = ["rez_build_helper-1+<2"]
