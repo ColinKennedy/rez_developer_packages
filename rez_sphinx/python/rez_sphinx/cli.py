@@ -472,10 +472,13 @@ def main(text):
     namespace = parse_arguments(text)
 
     if namespace.verbose:
+        # Each Python log level increments by 10. So we decrement by 10 for
+        # each verbosity level
         # If the user wants verbose logging, give it to them
         root_namespace = ".".join(__name__.split(".")[:-1])  # Should be "rez_sphinx"
         root_logger = logging.getLogger(root_namespace)
-        root_logger.setLevel(logging.DEBUG)
+        new_level = root_logger.level - (len(namespace.verbose) * 10)
+        root_logger.setLevel(new_level)
 
     run(namespace)
 
@@ -497,7 +500,13 @@ def parse_arguments(text):
         description="Auto-generate Sphinx documentation for Rez packages.",
     )
 
-    parser.add_argument("--verbose", action="store_true")
+    parser.add_argument(
+        "--verbose",
+        action="append_const",
+        const=None,
+        help="By default, Only warnings and errors are printed. "
+        "In included, info messages are added. Repeat for more verbosity.",
+    )
 
     sub_parsers = parser.add_subparsers(dest="commands")
     sub_parsers.required = True
