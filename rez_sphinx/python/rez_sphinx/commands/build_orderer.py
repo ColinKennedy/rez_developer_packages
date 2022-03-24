@@ -44,19 +44,19 @@ def collect_packages(directories, searcher):
             required for Rez packages to be located directly under each folder.
             And often, they are not.
         searcher (
-            callable[str] -> list[:class:`rez.developer_package.DeveloperPackage`]
+            callable[str] -> list[rez.developer_package.DeveloperPackage]
         ):
             A function which searches within ``directories`` for Rez packages
             and returns those results. These Rez packages could be source
             packages **or** installed packages.
 
     Raises:
-        :class:`.PackageConflict`:
+        PackageConflict:
             If any Rez package was found in more than one of the listed
             directories.
 
     Returns:
-        list[:class:`rez.developer_package.DeveloperPackage`]: The found packages.
+        list[rez.developer_package.DeveloperPackage]: The found packages.
 
     """
     packages = []
@@ -107,12 +107,12 @@ def filter_existing_documentation(packages):
     This function searches specifically for `Sphinx`_ documentation only.
 
     Args:
-        packages (list[:class:`rez.developer_package.DeveloperPackage`]):
+        packages (list[rez.developer_package.DeveloperPackage]):
             The source / installed Rez packages to filter. Usually,
             these are source Rez packages.
 
     Returns:
-        list[:class:`rez.developer_package.DeveloperPackage`]:
+        list[rez.developer_package.DeveloperPackage]:
             Every package from ``packages`` which doesn't have documentation.
 
     """

@@ -1,7 +1,10 @@
+- Remove all :class: tags that I don't need to manually specify
 - rez_sphinx build view intersphinx_mapping unittests
 - :ref:`rez_sphinx config show build_documentation_key`
  - Implement this
  - unittests
+- Make sure to append build_documentation key, if provided.
+- Implement :ref:`rez_sphinx.intersphinx_settings.package_link_map`.
 
 
 ## Document current work
@@ -17,14 +20,6 @@
   absolute. If relative, absolute-ize it based onthe package directory and then
   use that
   - If they make a mistake and point directly to objects.inv, crop it to the real directory / URL path
-
-
-## Interlinking
-- Make sure to append build_documentation requires. Make sure they're accounted for
-- Add a configuration thing to look up external library documentation
- - https://pypi.org/project/schema/ - https://readthedocs.org/projects/schema/
- - Add an auto-searcher, maybe. Make it configurable
-- Remove all :class: tags that I don't need to manually specify
 
 
 ## Make tools more robust

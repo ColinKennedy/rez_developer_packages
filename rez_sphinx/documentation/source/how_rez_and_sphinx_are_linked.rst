@@ -14,7 +14,7 @@ One of the changes, the most important change, happens in the generated
 The Bootstrap Line
 ******************
 
-In the generated `conf.py`_ file, these lines are added:
+In the generated `Sphinx conf.py`_ file, these lines are added:
 
 .. code-block:: python
 
@@ -30,17 +30,16 @@ What this line is really saying:
 
 "override any or all variables with the output of
 :func:`.bootstrap.bootstrap`". The bootstrap also takes into consideration any
-existing values, which is why ``locals()`` is passed to
-``api.bootstrap(locals())``.
+existing values, which is why ``locals()`` is passed to ``api.bootstrap(locals())``.
 
-:func:`.bootstrap.bootstrap`" doesn't change every variable. By default it...:
+:func:`.bootstrap.bootstrap` doesn't change every variable. By default it...:
 
 TODO : Why does the bullet point list below look weird in .html?
 
 * extends `extensions`_ with things :ref:`rez_sphinx` needs.
 * sets `intersphinx_mapping`_, a variable for `sphinx.ext.intersphinx`_.
-  * This extension is what allows your documentation to communicate with **other**
-    Rez package's documentation.
+    * This extension is what allows your documentation to communicate with **other**
+      Rez package's documentation.
 * sets these vanilla `Sphinx`_ variables based on what's in your `package.py`_:
     * `author`_
     * `copyright`_

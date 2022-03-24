@@ -50,7 +50,7 @@ def _get_documentation_source(root):
             A directory on-disk to search within for the `Sphinx conf.py <conf.py>`_.
 
     Raises:
-        :class:`.NoDocumentationFound`:
+        NoDocumentationFound:
             If ``root`` needs to initialize some documentation.
 
     Returns:
@@ -78,7 +78,7 @@ def _validate_non_default_files(directory):
             or it is rejected.
 
     Raises:
-        :class:`.NoDocumentationWritten`:
+        NoDocumentationWritten:
             If any default, known file was never changed by the user.
 
     """
@@ -129,9 +129,9 @@ def build(
             files will be auto-generated just before `sphinx-build`_ is ran.
 
     Raises:
-        :class:`.NoPackageFound`:
+        NoPackageFound:
             If ``directory`` is invalid.
-        :class:`.SphinxExecutionError`:
+        SphinxExecutionError:
             If `sphinx-build`_ failed midway before it could be completed.
 
     """

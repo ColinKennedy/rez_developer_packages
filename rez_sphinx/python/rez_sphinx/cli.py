@@ -29,7 +29,7 @@ def _add_directory_argument(parser):
     """Make ``parser`` include a positional argument pointing to a file path on-disk.
 
     Args:
-        parser (:class:`argparse.ArgumentParser`): The instance to modify.
+        parser (argparse.ArgumentParser): The instance to modify.
 
     """
     parser.add_argument(
@@ -45,7 +45,7 @@ def _add_remainder_argument(parser):
     """Tell ``parser`` to collect all text into a single namespace parameter.
 
     Args:
-        parser (:class:`argparse.ArgumentParser`):
+        parser (argparse.ArgumentParser):
             The parser to extend with the new parameter.
 
     """
@@ -65,12 +65,12 @@ def _build_runner(namespace):
     """Build Sphinx documentation, using details from ``namespace``.
 
     Args:
-        namespace (:class:`argparse.Namespace`):
+        namespace (argparse.Namespace):
             The parsed user content. It contains all of the necessary
             attributes to generate Sphinx documentation.
 
     Raises:
-        :class:`.UserInputError`:
+        UserInputError:
             If the user passes `sphinx-apidoc`_ arguments but also
             specified that they don't want to build API documentation.
 
@@ -95,7 +95,7 @@ def _build_order(namespace):
     """Show the user the order which documentation must be built.
 
     Args:
-        namespace (:class:`argparse.Namespace`):
+        namespace (argparse.Namespace):
             The parsed user content. It contains all of the necessary
             attributes to generate Sphinx documentation.
 
@@ -127,12 +127,12 @@ def _check(namespace):
     """Make sure :doc:`configuring_rez_sphinx` are valid, in/outside ``namespace``.
 
     Args:
-        namespace (:class:`argparse.Namespace`):
+        namespace (argparse.Namespace):
             The parsed user content. It contains all of the necessary
             attributes to generate Sphinx documentation.
 
     Raises:
-        :class:`.UserInputError`:
+        UserInputError:
             If the user passes `sphinx-apidoc`_ arguments but also
             specified that they don't want to build API documentation.
 
@@ -149,7 +149,7 @@ def _init(namespace):
     """Create a Sphinx project, rooted at ``namespace``.
 
     Args:
-        namespace (:class:`argparse.Namespace`):
+        namespace (argparse.Namespace):
             The parsed user content. It contains all of the necessary
             attributes to generate Sphinx documentation.
 
@@ -210,7 +210,7 @@ def _set_up_build(sub_parsers):
     """Add :ref:`rez_sphinx build` CLI parameters.
 
     Args:
-        sub_parsers (:class:`argparse._SubParsersAction`):
+        sub_parsers (argparse._SubParsersAction):
             A collection of parsers which the :ref:`rez_sphinx build` will be
             appended onto.
 
@@ -261,7 +261,7 @@ def _set_up_build(sub_parsers):
 
         _add_directory_argument(build_inspector)
 
-        build.set_defaults(execute=_build_inspect_conf)
+        build_inspector.set_defaults(execute=_build_inspect_conf)
 
     build = sub_parsers.add_parser(
         "build", description="Compile Sphinx documentation from a Rez package."
@@ -275,7 +275,7 @@ def _set_up_config(sub_parsers):
     """Add :doc:`config_command` CLI parameters.
 
     Args:
-        sub_parsers (:class:`argparse._SubParsersAction`):
+        sub_parsers (argparse._SubParsersAction):
             A collection of parsers which the :doc:`config_command` will be
             appended onto.
 
@@ -339,7 +339,7 @@ def _set_up_init(sub_parsers):
     """Add :ref:`rez_sphinx init` CLI parameters.
 
     Args:
-        sub_parsers (:class:`argparse._SubParsersAction`):
+        sub_parsers (argparse._SubParsersAction):
             A collection of parsers which the :ref:`rez_sphinx init` will be
             appended onto.
 
@@ -362,7 +362,7 @@ def _set_up_suggest(sub_parsers):
     """Add :doc:`suggest_command` CLI parameters.
 
     Args:
-        sub_parsers (:class:`argparse._SubParsersAction`):
+        sub_parsers (argparse._SubParsersAction):
             A collection of parsers which the :doc:`suggest_command` will be
             appended onto.
 
@@ -426,7 +426,7 @@ def _split_build_arguments(namespace):
         This function will modify ``namespace`` in-place.
 
     Args:
-        namespace (:class:`argparse.Namespace`):
+        namespace (argparse.Namespace):
             The parsed user content. It contains all of the necessary
             attributes to generate Sphinx documentation.
 
@@ -446,7 +446,7 @@ def _split_init_arguments(namespace):
         This function will modify ``namespace`` in-place.
 
     Args:
-        namespace (:class:`argparse.Namespace`):
+        namespace (argparse.Namespace):
             The parsed user content. It contains all of the necessary
             attributes to generate Sphinx documentation.
 
@@ -483,7 +483,7 @@ def parse_arguments(text):
             ``["init", "--directory", "/path/to/rez/package"]``.
 
     Returns:
-        :class:`argparse.Namespace`: The parsed user content.
+        argparse.Namespace: The parsed user content.
 
     """
     parser = argparse.ArgumentParser(
@@ -507,7 +507,7 @@ def run(namespace, modify=True):
     """Run the selected subparser.
 
     Args:
-        namespace (:class:`argparse.Namespace`):
+        namespace (argparse.Namespace):
             The parsed user content. It should have a callable method called
             "execute" which takes ``namespace`` as its only argument.
         modify (bool, optional):
