@@ -1,4 +1,5 @@
 import logging
+import operator
 
 from rez_utilities import finder
 
@@ -22,7 +23,7 @@ def _get_all_field_attributes(sphinx):
 
 
 def _get_field_attributes(sphinx, fields):
-    attributes = {name: value for name, value in sphinx.get_module_attributes()}
+    attributes = {name: value for name, value in sphinx.get_module_attributes().items()}
     _LOGGER.debug(
         'Found conf.py attributes, "%s". From file, "%s"',
         ", ".join(sorted(attributes.keys())),
@@ -63,12 +64,12 @@ def _print_fields(sphinx, fields=frozenset()):
         print(value)
 
         return
-
-    attributes = _get_field_attributes(sphinx, fields)
+    else:
+        attributes = _get_field_attributes(sphinx, fields)
 
     print("Found these conf.py values:")
 
-    for name, value in attributes:
+    for name, value in sorted(attributes.items(), key=operator.itemgetter(0)):
         print('{name!s}:\n    {value!r}'.format(name=name, value=value))
 
 

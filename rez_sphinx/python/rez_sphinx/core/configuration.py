@@ -1,15 +1,16 @@
 """A wrap for accessing data from `Sphinx conf.py`_, from `Sphinx`_."""
 
-import functools
 import inspect
+import importlib
 import os
+import logging
 
 from python_compatibility import imports
-from sphinx.ext import intersphinx
 from sphinx import config
 from six.moves import mock
 
 _CONFIGURATION_FILE_NAME = "conf.py"
+_LOGGER = logging.getLogger(__name__)
 
 
 class ConfPy(object):
@@ -58,6 +59,13 @@ class ConfPy(object):
 
         return cls(module)
 
+    def _get_extensions(self):
+        """list[str]: Get each Python importable module that `Sphinx`_ will load."""
+        if not hasattr(self._module, "extensions"):
+            return []
+
+        return getattr(self._module, "extensions")
+
     def _get_master_doc(self):
         """str: Get the name of the documentation "front page" file."""
         try:
@@ -87,26 +95,48 @@ class ConfPy(object):
         except AttributeError:
             return ".rst"  # A reasonable default
 
-    def get_module_attributes(self):
-        base_sphinx_attributes = [
-            (name, getattr(self._module, name))
-            for name in config.Config.config_values.keys()
+    def get_module_attributes(self, allow_extensions=True):
+        """Get each found attribute and its values.
+
+        Args:
+            allow_extensions (bool, optional):
+                If True, include `Sphinx`_ extension attributes, like
+                `intersphinx_mapping`_. If False, only return the base
+                `Sphinx`_ attributes and nothing else.
+
+        Returns:
+            dict[tuple[str], object]: The found attribute and its value.
+
+        """
+        names = {
+            name for name in config.Config.config_values.keys()
             if hasattr(self._module, name)
-        ]
+        }
 
-        interspinx_attributes = []
+        if allow_extensions:
+            extensions = self._get_extensions()
+            names.update(name for name in _get_extension_attribute_names(extensions) if hasattr(self._module, name))
 
-        for name in _get_intersphinx_attribute_names():
-            if hasattr(self._module, name):
-                interspinx_attributes.append((name, getattr(self._module, name)))
-
-        return base_sphinx_attributes + interspinx_attributes
+        return {name: getattr(self._module, name) for name in names}
 
     def get_module_path(self):
+        """str: Get the full path to this `conf.py`_ file, on-disk."""
         return self._module.__file__
 
 
-def _get_intersphinx_attribute_names():
+def _get_extension_attribute_names(extensions):
+    """Find every attribute for each `Sphinx`_ extension in ``extensions``.
+
+    Args:
+        extensions (iter[str]):
+            An importable Python namespace to try to get attribute contents
+            from. e.g. ``["sphinx.ext.intersphinx", "sphinx.ext.viewcode"]``.
+
+    Returns:
+        set[str]: Every found attribute name across all extensions.
+
+    """
+
     def _capture_value(appender):
         def _wrap(attribute_name, *args, **kwargs):
             appender(attribute_name)
@@ -115,9 +145,33 @@ def _get_intersphinx_attribute_names():
 
         return _wrap
 
+    modules = []
+
+    for name in extensions:
+        _LOGGER.debug('Now importing "%s" to query its attributes.', name)
+
+        try:
+            modules.append(importlib.import_module(name))
+        except Exception as error:
+            # We're importing arbitrary Python modules based on whatever the
+            # user has set.  So we need to catch generalized errors.
+            #
+            _LOGGER.warning('Skipped loading "%s". Error, "%s".', name, str(error))
+
+            continue
+
+    # Since `Sphinx`_ requires a ``setup`` function on every extension module
+    # which defines attributes, we take advantage of this convention by passing
+    # a fake ``app`` variable and returning its accumulated results.
+    #
+    # Simple but effective.
+    #
     container = set()
     mocker = mock.MagicMock()
     mocker.add_config_value = _capture_value(container.add)
-    intersphinx.setup(mocker)
+
+    for module in modules:
+        if hasattr(module, "setup"):
+            module.setup(mocker)
 
     return container
