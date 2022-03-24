@@ -10,7 +10,7 @@ def _get_regular_dependencies(package):
     """Grab all known / obvious dependencies from ``package``.
 
     Args:
-        package (:class:`rez.developer_package.DeveloperPackage`):
+        package (rez.developer_package.DeveloperPackage):
             The source / installed Rez package to query from.
 
     Returns:
@@ -31,13 +31,13 @@ def _compute_package_depth(package, all_family_names, getter=_get_regular_depend
     return `0` for "no_listed_requires" and `1` for "has_a_requirement".
 
     Args:
-        package (:class:`rez.developer_package.DeveloperPackage`):
+        package (rez.developer_package.DeveloperPackage):
             The source / installed Rez package to query from.
-        all_family_names (dict[str, :class:`rez.developer_package.DeveloperPackage`]):
+        all_family_names (dict[str, rez.developer_package.DeveloperPackage]):
             A store of possible Rez packages to consider while iterating over
             ``package``'s dependencies. Each key is a Rez package family name,
             each value is the in-memory Rez package which the family refers to.
-        getter (callable[:class:`rez.developer_package.DeveloperPackage`] -> set[str]):
+        getter (callable[rez.developer_package.DeveloperPackage] -> set[str]):
             The function which takes ``package`` as input and returns its
             dependencies (e.g. its `requires`_).
 
@@ -93,11 +93,11 @@ def _config(packages):
     """Re-order ``packages`` based on their dependencies.
 
     Args:
-        packages (container[:class:`rez.developer_package.DeveloperPackage`]):
+        packages (container[rez.developer_package.DeveloperPackage]):
             The source / installed Rez packages to re-order.
 
     Returns:
-        list[list[:class:`rez.developer_package.DeveloperPackage`]]:
+        list[list[rez.developer_package.DeveloperPackage]]:
             A list with each depth's packages, starting from depth=0 and
             ascending order.
 
@@ -123,11 +123,11 @@ def _guess(packages):
     possibly computing more dependencies than needed.
 
     Args:
-        packages (container[:class:`rez.developer_package.DeveloperPackage`]):
+        packages (container[rez.developer_package.DeveloperPackage]):
             The source / installed Rez packages to re-order.
 
     Returns:
-        list[list[:class:`rez.developer_package.DeveloperPackage`]]:
+        list[list[rez.developer_package.DeveloperPackage]]:
             A list with each depth's packages, starting from depth=0 and
             ascending order.
 

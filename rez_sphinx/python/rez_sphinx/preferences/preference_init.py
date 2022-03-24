@@ -71,7 +71,7 @@ class Entry(object):
             data (dict[str, object]): All content which describes the current instance.
 
         Returns:
-            :class:`Entry`: The created instance.
+            Entry: The created instance.
 
         """
         data = _FILE_ENTRY.validate(data)

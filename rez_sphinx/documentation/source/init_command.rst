@@ -10,7 +10,7 @@ It's ran once (and then ideally never again).
 ``rez_sphinx init`` does the following:
 
 - Creates a source / build folder for the documentation
-- Runs ``sphinx-quickstart`` with automated settings
+- Runs `sphinx-quickstart`_ with automated settings
     - See :ref:`sphinx-quickstart customization` to customize this
 - Creates any pre-defined :ref:`default file entries` and adds them to `index.rst`_.
 - Hijacks your `Sphinx conf.py`_ with a special :ref:`rez_sphinx bootstrap`
@@ -53,9 +53,9 @@ sphinx-quickstart customization
 You may want to override or influence the creation of your package's
 documentation.  To do that, you can pass ``init
 --quickstart-arguments="--ext-coverage"``, for example, to forcibly pass
-``--ext-coverage`` to the ``sphinx-quickstart`` command.
+``--ext-coverage`` to the `sphinx-quickstart`_ command.
 
-If you find yourself passing the same arguments to ``sphinx-quickstart``, you
+If you find yourself passing the same arguments to `sphinx-quickstart`_, you
 can add those settings to :ref:`sphinx-quickstart customization` so they're
 added automatically.
 

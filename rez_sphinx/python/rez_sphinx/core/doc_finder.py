@@ -41,7 +41,7 @@ def get_source_from_package(package):
     """Find the top-level documentation source root, from ``package``.
 
     Args:
-        package (:class:`rez.packages.Package`): The root of a Rez package.
+        package (rez.packages.Package): The root of a Rez package.
 
     Returns:
         str: The found documentation source root.

@@ -582,7 +582,7 @@ class Invalid(unittest.TestCase):
 
 
 def _make_current_rez_sphinx_context(extra_request=tuple(), package_paths=tuple()):
-    """:class:`rez.resolved_context.ResolvedContext`: Get the context for :ref:`rez_sphinx`."""
+    """rez.resolved_context.ResolvedContext: Get the context for :ref:`rez_sphinx`."""
     extra_request = extra_request or list(extra_request)
     package = finder.get_nearest_rez_package(_CURRENT_DIRECTORY)
     request = ["{package.name}=={package.version}".format(package=package)]

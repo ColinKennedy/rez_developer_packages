@@ -8,7 +8,7 @@ def get_dependencies(package):
     requires in order to function.
 
     Args:
-        package (:class:`rez.packages.Package`): A Rez package to check.
+        package (rez.packages.Package): A Rez package to check.
 
     Returns:
         list[rez.packages.Package or rez.packages.Variant]:

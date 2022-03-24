@@ -1,4 +1,3 @@
-- Remove all :class: tags that I don't need to manually specify
 - rez_sphinx build view intersphinx_mapping unittests
 - :ref:`rez_sphinx config show build_documentation_key`
  - Implement this

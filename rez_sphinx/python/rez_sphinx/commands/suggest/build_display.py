@@ -18,7 +18,7 @@ def _directories(all_packages):
     """Print the directories for every Rez package in ``packages``.
 
     Args:
-        all_packages (list[list[:class:`rez.packages.Package`]]):
+        all_packages (list[list[rez.packages.Package]]):
             Each package to print, ordered by relative "dependency depth".
 
     """
@@ -34,7 +34,7 @@ def _names(all_packages):
     """Print every Rez package name in ``packages``.
 
     Args:
-        all_packages (list[list[:class:`rez.packages.Package`]]):
+        all_packages (list[list[rez.packages.Package]]):
             Each package to print, ordered by relative "dependency depth".
 
     """
@@ -61,7 +61,7 @@ def get_mode_by_name(name):
         ValueError: If ``name`` is not a registered command.
 
     Returns:
-        callable[list[list[:class:`rez.packages.Package`]]]:
+        callable[list[list[rez.packages.Package]]]:
             Each package to print, ordered by relative "dependency depth".
 
     """

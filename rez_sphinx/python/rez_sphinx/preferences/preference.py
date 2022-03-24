@@ -340,7 +340,7 @@ def get_help_label():
 
 
 def get_initial_files_from_configuration():
-    """list[:class:`.Entry`]: File data to write during :ref:`rez_sphinx init`."""
+    """list[Entry]: File data to write during :ref:`rez_sphinx init`."""
     settings = get_base_settings()
     options = settings.get(_INIT_KEY) or dict()
 
@@ -351,7 +351,7 @@ def get_init_default_entries():
     """Get the documentation files to auto-generate during :ref:`rez_sphinx init`.
 
     Returns:
-        list[:class:`.Entry`]:
+        list[Entry]:
             A description of each file's contents and where it should live,
             on-disk, within the source documentation root.
 

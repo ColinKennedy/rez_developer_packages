@@ -18,7 +18,7 @@ def _add_rez_tests(package):
     """Add `rez tests attribute`_ values to make :ref:`rez_sphinx` auto-run.
 
     Args:
-        package (:class:`rez.developer_package.DeveloperPackage`):
+        package (rez.developer_package.DeveloperPackage):
             The package to directly modify.
 
     """
