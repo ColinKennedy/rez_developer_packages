@@ -406,7 +406,7 @@ def get_preference_from_path(path):
             ``"init_options.check_default_files"``
 
     Raises:
-        RuntimeError: If ``path`` isn't a valid setting.
+        ConfigurationError: If ``path`` isn't a valid setting.
 
     Returns:
         object: Whatever value ``path`` points to. It could be anything.
@@ -426,16 +426,17 @@ def get_preference_from_path(path):
         if full:
             full += ".{item}".format(item=item)
         else:
-            full += item
+            full = item
 
         try:
             current = current[item]
         except KeyError:
-            # TODO : Use a better exception here
-            if not full:
-                raise RuntimeError('Path "{item}" was not found. See --list-all for options.'.format(item=item))
+            text = full
 
-            raise RuntimeError('Path "{full}.{item}" was not found. See --list-all for options.'.format(full=full, item=item))
+            if not full:
+                text = item
+
+            raise exception.ConfigurationError('Path "{text}" was not found. See --list-all for options.'.format(text=text))
 
     return current
 
@@ -459,6 +460,9 @@ def get_preference_paths():
                 continue
 
             for inner_key in _get_mapping(value):
+                if isinstance(inner_key, schema.Optional):
+                    inner_key = schema_optional.get_raw_key(inner_key)
+
                 outputs.add("{key}.{inner_key}".format(key=key, inner_key=inner_key))
 
         return outputs

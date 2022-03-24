@@ -113,10 +113,17 @@ def get_raw_key(key):
         object: (Usually this is a ``str``) - The converted object.
 
     """
-    if not hasattr(key, "key"):
-        return key
+    if hasattr(key, "key"):
+        return key.key
 
-    return key.key
+    if hasattr(key, "_schema"):
+        # When you make a ``schema.Optional("foo"), with no ``default=``
+        # parameter, schema won't set the key attribute properly. Very annoying
+        # but at least the work around it's hard.
+        #
+        return str(key._schema)
+
+    return key
 
 
 def serialize_sparsely(settings, schema):

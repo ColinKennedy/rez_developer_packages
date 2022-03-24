@@ -6,6 +6,7 @@ import argparse
 import logging
 import operator
 import os
+import pprint
 import shlex
 
 from python_compatibility import iterbot
@@ -473,12 +474,16 @@ def _show(namespace):
     print('Found Output:')
 
     for name in names:
-        print(
-            '{name}:\n    {value}'.format(
-                name=name,
-                value=preference.get_preference_from_path(name),
+        try:
+            print(
+                '{name}:\n    {value}'.format(
+                    name=name,
+                    value=pprint.pformat(preference.get_preference_from_path(name), indent=4),
+                ),
             )
-        )
+        except exception.ConfigurationError:
+            # This happens only when ``name`` isn't set. It's okay to skip.
+            continue
 
 
 def _split_build_arguments(namespace):
