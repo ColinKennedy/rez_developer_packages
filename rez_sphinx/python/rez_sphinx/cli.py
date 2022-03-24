@@ -333,6 +333,25 @@ def _set_up_config(sub_parsers):
     _add_directory_argument(check)
     check.set_defaults(execute=_check)
 
+    show = inner_parser.add_parser(
+        "show", description="Print the value of any configuration attribute.",
+    )
+    show.add_argument(
+        "names",
+        nargs="*",
+        help='Configuration attributes to check for. Specify inner dicts using '
+        '"foo.bar" syntax. Use --list to show all possible values.',
+    )
+    show.add_argument(
+        "--list-all",
+        action="store_true",
+        help="If included, print available names. Don't actually query anything.",
+    )
+    show.set_defaults(execute=_show)
+
+    _add_directory_argument(check)
+    check.set_defaults(execute=_check)
+
     _set_up_list_default(inner_parser)
     _set_up_list_overrides(inner_parser)
 
@@ -419,6 +438,47 @@ def _set_up_suggest(sub_parsers):
         '"guess" is hacky but may cover more cases.',
     )
     build_order.set_defaults(execute=_build_order)
+
+
+def _show(namespace):
+    """Print the configuration value(s) the user asked for.
+
+    If --list-all is provided, all potential configuration values are printed instead.
+
+    Args:
+        namespace (argparse.Namespace):
+            The parsed user content. It contains all of the necessary
+            attributes to run :ref:`rez_sphinx config show`.
+
+    """
+    if namespace.list_all:
+        print("All available paths:")
+
+        for path in sorted(preference.get_preference_paths()):
+            print(path)
+
+        return
+
+    names = namespace.names
+
+    if not names:
+        # If no name is specified, show everything
+        names = sorted(preference.get_preference_paths())
+
+    if len(names) == 1:
+        print(preference.get_preference_from_path(names[0]))
+
+        return
+
+    print('Found Output:')
+
+    for name in names:
+        print(
+            '{name}:\n    {value}'.format(
+                name=name,
+                value=preference.get_preference_from_path(name),
+            )
+        )
 
 
 def _split_build_arguments(namespace):

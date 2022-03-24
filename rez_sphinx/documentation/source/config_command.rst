@@ -44,6 +44,9 @@ reference or for setting up your own set of overrides.
 
 As usual, ``--sparse`` and ``--format`` customize the output + display.
 
+TODO add this :ref:`rez_sphinx config show`.
+:ref:`rez_sphinx config show --list-all`.
+
 
 Configuration Options
 *********************

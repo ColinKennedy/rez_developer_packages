@@ -73,7 +73,7 @@ Adding a package to ``build_documentation``'s list of requirements means
 .. important::
 
     If you still have interlinks even after adding the Rez package, confirm
-    with :ref:`rez_sphinx build inspect-config intersphinx_mapping` that
+    with :ref:`rez_sphinx build inspect-conf intersphinx_mapping` that
     :ref:`rez_sphinx build run` can see it.
 
 

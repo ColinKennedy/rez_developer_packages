@@ -6,6 +6,8 @@ rez_sphinx build
 
 TODO description here
 
+.. _rez_sphinx build run:
+
 rez_sphinx build run
 ********************
 
@@ -22,6 +24,14 @@ generates .html. The basic steps go as follows
 The documentation is either available in ``{root}/documentation/build`` (the
 default location) or ``{root}/build/documentation`` if you passed you passed
 ``rez_sphinx init --quickstart-arguments="--no-sep"``.
+
+
+.. _rez_sphinx build view-conf:
+
+rez_sphinx build view-conf
+**************************
+
+TODO write how to run this here and what the output is
 
 
 .. _rez_sphinx apidoc templates:

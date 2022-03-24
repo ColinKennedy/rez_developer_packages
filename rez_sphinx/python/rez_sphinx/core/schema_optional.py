@@ -46,7 +46,7 @@ def _get_non_default_values(data, optional):
 
     for key, default_value in optional.default.items():
         if isinstance(key, schema_.Optional):
-            raw_key = _get_raw_key(key)
+            raw_key = get_raw_key(key)
 
             try:
                 new[raw_key] = _get_non_default_values(data[raw_key], key)
@@ -65,23 +65,6 @@ def _get_non_default_values(data, optional):
         new[key] = recorded_value
 
     return new
-
-
-def _get_raw_key(key):
-    """Reduce any potential schema object to its builtin, hashable Python object.
-
-    Args:
-        key (:class:`schema.Optional` or object):
-            Any schema object is converted. Any built-in is ignored.
-
-    Returns:
-        object: (Usually this is a ``str``) - The converted object.
-
-    """
-    if not hasattr(key, "key"):
-        return key
-
-    return key.key
 
 
 def _get_real_key(key, schema):
@@ -117,6 +100,23 @@ def has_default(optional):
 
     """
     return hasattr(optional, "default")
+
+
+def get_raw_key(key):
+    """Reduce any potential schema object to its builtin, hashable Python object.
+
+    Args:
+        key (:class:`schema.Optional` or object):
+            Any schema object is converted. Any built-in is ignored.
+
+    Returns:
+        object: (Usually this is a ``str``) - The converted object.
+
+    """
+    if not hasattr(key, "key"):
+        return key
+
+    return key.key
 
 
 def serialize_sparsely(settings, schema):

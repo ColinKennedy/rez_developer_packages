@@ -2,8 +2,9 @@
 - :ref:`rez_sphinx config show build_documentation_key`
  - Implement this
  - unittests
-- Make sure to append build_documentation key, if provided.
+- Make sure to append build_documentation key, if provided. (?)
 - Implement :ref:`rez_sphinx.intersphinx_settings.package_link_map`.
+ - Add documentation / tests for it
 
 
 ## Document current work

@@ -9,6 +9,7 @@ import platform
 
 import schema
 from rez.config import config
+from six.moves import collections_abc
 
 try:
     from functools import lru_cache  # Python 3.2+
@@ -391,6 +392,78 @@ def get_master_document_name():
     settings = get_sphinx_configuration_overrides()
 
     return settings[_MASTER_DOC]
+
+
+def get_preference_from_path(path):
+    """Find the dict value located at ``path``.
+
+    See Also:
+        :func:`get_preference_paths` and :ref:`rez_sphinx config show --list-all`.
+
+    Args:
+        path (str):
+            Some dot-separated dict key to query. e.g.
+            ``"init_options.check_default_files"``
+
+    Raises:
+        RuntimeError: If ``path`` isn't a valid setting.
+
+    Returns:
+        object: Whatever value ``path`` points to. It could be anything.
+
+    """
+    # TODO : Make sure to incorporate the PWD package, as well
+    rez_sphinx_settings = get_base_settings()
+
+    if not path:
+        return rez_sphinx_settings
+
+    parts = path.split(".")
+    current = rez_sphinx_settings
+    full = ""
+
+    for item in parts:
+        if full:
+            full += ".{item}".format(item=item)
+        else:
+            full += item
+
+        try:
+            current = current[item]
+        except KeyError:
+            # TODO : Use a better exception here
+            if not full:
+                raise RuntimeError('Path "{item}" was not found. See --list-all for options.'.format(item=item))
+
+            raise RuntimeError('Path "{full}.{item}" was not found. See --list-all for options.'.format(full=full, item=item))
+
+    return current
+
+
+def get_preference_paths():
+    """set[str]: All valid paths for :ref:`rez_sphinx config show`."""
+    def _get_mapping(mapping):
+        outputs = set()
+
+        for key, value in mapping.items():
+            if isinstance(key, schema.Optional):
+                key = schema_optional.get_raw_key(key)
+
+            if isinstance(key, schema.Use):
+                # We wouldn't really know how to handle this situation. Just ignore it.
+                continue
+
+            if not isinstance(value, collections_abc.Mapping):
+                outputs.add(key)
+
+                continue
+
+            for inner_key in _get_mapping(value):
+                outputs.add("{key}.{inner_key}".format(key=key, inner_key=inner_key))
+
+        return outputs
+
+    return _get_mapping(_MASTER_SCHEMA._schema)
 
 
 def get_sort_method():
