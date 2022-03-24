@@ -4,6 +4,11 @@
 rez_sphinx build
 ################
 
+TODO description here
+
+rez_sphinx build run
+********************
+
 This command takes documentation built using :ref:`rez_sphinx init` and
 generates .html. The basic steps go as follows
 

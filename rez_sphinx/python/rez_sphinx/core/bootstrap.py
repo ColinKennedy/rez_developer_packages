@@ -355,8 +355,8 @@ def bootstrap(data, package=None, skip=frozenset()):
             information. If no package is given, the package is
             determined automatically from the caller's site.
         skip (set[str], optional):
-            Any variable which you do not want :ref:`rez_sphinx build` to set.
-            This includes both the built-in variables, such as
+            Any variable which you do not want :ref:`rez_sphinx build run` to
+            set.  This includes both the built-in variables, such as
             ``"intersphinx_mapping"`` and even dynamic variables set using
             :ref:`rez_sphinx.sphinx_conf_overrides`
 

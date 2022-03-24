@@ -209,7 +209,7 @@ def _list_overrides(namespace):
 
 
 def _set_up_build(sub_parsers):
-    """Add :ref:`rez_sphinx build` CLI parameters.
+    """Add :ref:`rez_sphinx build run` CLI parameters.
 
     Args:
         sub_parsers (argparse._SubParsersAction):

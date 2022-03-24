@@ -38,7 +38,7 @@ to fill out located at:
 
 .. important::
 
-    The next step, :ref:`rez_sphinx build`, checks those default files for
+    The next step, :ref:`rez_sphinx build run`, checks those default files for
     edits and fails + stops early if they're still default. So let's add some
     text to them.
 
@@ -57,7 +57,7 @@ Run this in your terminal to quickly append some edits to those files:
     :ref:`rez_sphinx.init_options.check_default_files`.
 
 
-Run rez_sphinx build
+rez_sphinx build run
 ********************
 
 Your documentation is initialized and has some hand-written edits. You're ready

@@ -239,7 +239,7 @@ def allow_apidoc_templates():
 
 
 def check_default_files():
-    """bool: If True, :ref:`rez_sphinx build` checks files for user edits."""
+    """bool: If True, :ref:`rez_sphinx build run` checks files for user edits."""
     settings = get_base_settings()
     options = settings.get(_INIT_KEY) or dict()
 
@@ -259,9 +259,8 @@ def get_api_options(options=tuple()):
 
     Args:
         options (container[str]):
-            User arguments to pass to `sphinx-apidoc`_. These
-            options come from :ref:`rez_sphinx build` CLI and may be
-            valid or invalid.
+            User arguments to pass to `sphinx-apidoc`_. These options come from
+            :ref:`rez_sphinx build run` CLI and may be valid or invalid.
 
     """
     rez_sphinx_settings = get_base_settings()

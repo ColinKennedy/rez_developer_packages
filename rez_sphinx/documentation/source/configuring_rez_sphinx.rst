@@ -31,7 +31,7 @@ generated. :ref:`rez_sphinx` does a little extra and adds a
 This is for 2 reasons:
 
 - To give people a good starting ground for documenting their work.
-- To have something to check for, during :ref:`rez_sphinx build`.
+- To have something to check for, during :ref:`rez_sphinx build run`.
 
 If the files are their default state, the build stops early unless
 :ref:`rez_sphinx.init_options.check_default_files` is set to False.  It's a
@@ -133,7 +133,7 @@ rez_sphinx.intersphinx_settings.package_link_map
 
 If you're trying to link your Rez package to another Rez package, but that
 package cannot be editted (it could be a third-party PyPI package or something)
-to add documentation, you can use this option to help :ref:`rez_sphinx build`
+to add documentation, you can use this option to help :ref:`rez_sphinx build run`
 find the documentation.
 
 .. code-block:: python

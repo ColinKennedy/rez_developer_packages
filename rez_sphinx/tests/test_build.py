@@ -203,7 +203,7 @@ class ExtraRequires(unittest.TestCase):
 
 
 class Invalid(unittest.TestCase):
-    """Make sure :ref:`rez_sphinx build` fails when expected."""
+    """Make sure :ref:`rez_sphinx build run` fails when expected."""
 
     def test_apidoc_argument_conflict(self):
         """If the user specifies --apidoc-arguments and --no-apidoc at once."""
@@ -387,7 +387,7 @@ class Miscellaneous(unittest.TestCase):
             # Simulate the user adding sphinx-rtd-theme as a requirement and
             # then running rez_sphinx init / build.
             #
-            # (Technically we only need the requirement :ref:`rez_sphinx build`
+            # (Technically we only need the requirement :ref:`rez_sphinx build run`
             # but it can't hurt to run it both init + build)
             #
             optionvars = {
@@ -544,7 +544,7 @@ class Options(unittest.TestCase):
 
 
 class Runner(unittest.TestCase):
-    """Make sure :ref:`rez_sphinx build` works as expected."""
+    """Make sure :ref:`rez_sphinx build run` works as expected."""
 
     def _hello_world_test(self):
         """Create a basic :ref:`rez_sphinx` "init + build"."""
@@ -630,7 +630,7 @@ class Runner(unittest.TestCase):
 
         # Whenever a DeveloperPackage is acquired or when a Rez package is
         # built, etc. The preprocess function is called. We expect the code to
-        # run preprocess twice per :ref:`rez_sphinx build` as a result (just
+        # run preprocess twice per :ref:`rez_sphinx build run` as a result (just
         # because that's what it happens to do).
         #
         # Multiply that by the number of builds and you get ``expected_times_called``

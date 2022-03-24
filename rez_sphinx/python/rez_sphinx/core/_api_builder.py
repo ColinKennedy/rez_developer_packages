@@ -185,7 +185,7 @@ def _update_master_file(directory):
 
 
 def generate_api_files(directory, options=tuple()):
-    """Create the "api" folder so :ref:`rez_sphinx build` uses the user's Python files.
+    """Create the "api" folder so :ref:`rez_sphinx build run` uses the user's Python files.
 
     - Create the "api" folder
     - Fill it with auto-generated .rst files

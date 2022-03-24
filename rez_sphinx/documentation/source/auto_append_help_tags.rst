@@ -12,8 +12,8 @@ default, the :ref:`default file entries`, ``user_documentation`` and
 ``developer_documentation`` are added to your package.py `help`_ attribute each
 time the Rez package is built.
 
-You can also tell :ref:`rez_sphinx build` to include other files by adding this
-snippet into any .rst file:
+You can also tell :ref:`rez_sphinx build run` to include other files by adding
+this snippet into any .rst file:
 
 ::
 

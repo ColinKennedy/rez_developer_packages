@@ -36,7 +36,7 @@ A typical key looks like:
    tests = {
        # ... more tests ...
        "build_documentation": {
-           "command": "rez_sphinx build",
+           "command": "rez_sphinx build run",
            "requires": ["rez_sphinx-1+<2"],
        },
    }

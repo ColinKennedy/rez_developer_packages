@@ -21,7 +21,7 @@ TODO add
 
 .. image:: images/sphinx_rtd_theme_example_page.png
 
-:ref:`rez_sphinx build` supports changing your documentation theme on the fly.
+:ref:`rez_sphinx build run` supports changing your documentation theme on the fly.
 
 Modifying Your Sphinx Theme
 ***************************
