@@ -41,7 +41,7 @@ class ApiDocOptions(unittest.TestCase):
 
             with wrapping.silence_printing(), run_test.allow_defaults():
                 run_test.test(
-                    'build "{source_directory}" '
+                    'build run "{source_directory}" '
                     '--apidoc-arguments "--suffix .txt"'.format(
                         source_directory=source_directory
                     )
@@ -72,7 +72,7 @@ class ApiDocOptions(unittest.TestCase):
             run_test.test(["init", source_directory])
 
             with wrapping.silence_printing(), run_test.allow_defaults():
-                run_test.test(["build", source_directory, "--", "--suffix", ".txt"])
+                run_test.test(["build", "run", source_directory, "--", "--suffix", ".txt"])
 
         source = os.path.join(source_directory, "documentation", "source")
 
@@ -142,7 +142,7 @@ class Bootstrap(unittest.TestCase):
 
         with wrapping.silence_printing(), run_test.simulate_resolve(installed_packages):
             with _watch_mappings() as container, run_test.allow_defaults():
-                run_test.test(["build", source_directory])
+                run_test.test(["build", "run", source_directory])
 
         watcher = container[-1]
         _, _, results = watcher
@@ -161,7 +161,7 @@ class Bootstrap(unittest.TestCase):
         self._quick_ignore_test('requires = ["~some_not_requested_package"]')
 
 
-class Build(unittest.TestCase):
+class Runner(unittest.TestCase):
     """Make sure :ref:`rez_sphinx build` works as expected."""
 
     def _hello_world_test(self):
@@ -176,7 +176,7 @@ class Build(unittest.TestCase):
             run_test.test(["init", source_directory])
 
             with wrapping.silence_printing(), run_test.allow_defaults():
-                run_test.test(["build", source_directory])
+                run_test.test(["build", "run", source_directory])
 
         source = os.path.join(source_directory, "documentation", "source")
         api_directory = os.path.join(source, "api")
@@ -242,7 +242,7 @@ class Build(unittest.TestCase):
                 run_test.test(["init", source])
 
                 with wrapping.silence_printing(), run_test.allow_defaults(), _watch_mappings() as watcher:
-                    run_test.test(["build", source])
+                    run_test.test(["build", "run", source])
 
                 watchers.extend(watcher)
 
@@ -366,7 +366,7 @@ class Miscellaneous(unittest.TestCase):
 
             with wrapping.silence_printing():
                 build = context.execute_command(
-                    "rez_sphinx build",
+                    "rez_sphinx build run",
                     parent_environ=parent_environment,
                     stdout=open(os.devnull, "wb"),
                     stderr=open(os.devnull, "wb"),
@@ -409,7 +409,7 @@ class Miscellaneous(unittest.TestCase):
 
             with wrapping.silence_printing(), run_test.allow_defaults():
                 run_test.test(
-                    'build "{source_directory}" '
+                    'build run "{source_directory}" '
                     '--apidoc-arguments "--suffix .txt"'.format(
                         source_directory=source_directory
                     )
@@ -444,7 +444,7 @@ class Options(unittest.TestCase):
             run_test.test(["init", source_directory])
 
             with wrapping.silence_printing():
-                run_test.test(["build", source_directory, "--no-apidoc"])
+                run_test.test(["build", "run", source_directory, "--no-apidoc"])
 
         source = os.path.join(source_directory, "documentation", "source")
         api_directory = os.path.join(source, "api")
@@ -474,7 +474,7 @@ class Options(unittest.TestCase):
                 ] = False
 
                 with wrapping.silence_printing():
-                    run_test.test(["build", source_directory])
+                    run_test.test(["build", "run", source_directory])
 
         source = os.path.join(source_directory, "documentation", "source")
         api_directory = os.path.join(source, "api")
@@ -491,7 +491,7 @@ class Invalid(unittest.TestCase):
 
         with self.assertRaises(exception.UserInputError), wrapping.silence_printing():
             run_test.test(
-                ["build", directory, "--no-apidoc", "--apidoc-arguments", "blah"]
+                ["build", "run", directory, "--no-apidoc", "--apidoc-arguments", "blah"]
             )
 
     def test_bad_permissions(self):
@@ -503,14 +503,14 @@ class Invalid(unittest.TestCase):
         _make_read_only(directory)
 
         with self.assertRaises(exception.NoPackageFound), wrapping.silence_printing():
-            run_test.test(["build", directory])
+            run_test.test(["build", "run", directory])
 
     def test_no_package(self):
         """Fail early if no Rez package was found."""
         directory = package_wrap.make_directory("_test_build_Invalid_test_no_package")
 
         with self.assertRaises(exception.NoPackageFound), wrapping.silence_printing():
-            run_test.test(["build", directory])
+            run_test.test(["build", "run", directory])
 
     def test_no_source(self):
         """Fail early if documentation source does not exist."""
@@ -530,7 +530,7 @@ class Invalid(unittest.TestCase):
         with self.assertRaises(
             exception.NoDocumentationFound
         ), wrapping.silence_printing():
-            run_test.test(["build", directory])
+            run_test.test(["build", "run", directory])
 
     def test_auto_api_no_python_files(self):
         """Fail to auto-build API .rst files if there's no Python files."""
@@ -578,7 +578,7 @@ class Invalid(unittest.TestCase):
             os.environ["REZ_FOO_ROOT"] = install_package_root
 
             with wrapping.silence_printing():
-                run_test.test(["build", directory])
+                run_test.test(["build", "run", directory])
 
 
 def _make_current_rez_sphinx_context(extra_request=tuple(), package_paths=tuple()):

@@ -96,26 +96,26 @@ class ListDefault(unittest.TestCase):
         args, kwargs = patch.call_args
         actual = args[0]
         expected = {
-            "api_toctree_line": "API Documentation <api/modules>",
             "auto_help": {
                 "filter_by": preference_help.DEFAULT_FILTER,
                 "sort_order": preference_help.DEFAULT_SORT,
             },
-            "build_documentation_key": "build_documentation",
-            "documentation_root": "documentation",
-            "extra_requires": [],
-            "init_options": {
-                "check_default_files": True,
-                "default_files": preference._DEFAULT_ENTRIES,
+            'api_toctree_line': 'API Documentation <api/modules>',
+            'build_documentation_key': 'build_documentation',
+            'documentation_root': 'documentation',
+            'extra_requires': [],
+            'init_options': {
+                'default_files': preference._DEFAULT_ENTRIES,
+                'check_default_files': True,
             },
-            "sphinx-apidoc": {"allow_apidoc_templates": True, "enable_apidoc": True},
-            "sphinx_conf_overrides": {"add_module_names": False},
-            "sphinx_extensions": [
-                "sphinx.ext.autodoc",
-                "sphinx.ext.intersphinx",
-                "sphinx.ext.viewcode",
+            'sphinx-apidoc': {'allow_apidoc_templates': True, 'enable_apidoc': True},
+            'sphinx_conf_overrides': {'add_module_names': False, 'master_doc': 'index'},
+            'sphinx_extensions': [
+                'sphinx.ext.autodoc',
+                'sphinx.ext.intersphinx',
+                'sphinx.ext.viewcode',
             ],
-            "sphinx-quickstart": [],
+            'sphinx-quickstart': [],
         }
 
         self.assertEqual(expected, actual)
