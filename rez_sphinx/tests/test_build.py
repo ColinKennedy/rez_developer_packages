@@ -161,111 +161,6 @@ class Bootstrap(unittest.TestCase):
         self._quick_ignore_test('requires = ["~some_not_requested_package"]')
 
 
-class Runner(unittest.TestCase):
-    """Make sure :ref:`rez_sphinx build` works as expected."""
-
-    def _hello_world_test(self):
-        """Create a basic :ref:`rez_sphinx` "init + build"."""
-        source_package = package_wrap.make_simple_developer_package()
-        source_directory = finder.get_package_root(source_package)
-        install_path = package_wrap.make_directory("_Build_hello_world_test")
-
-        installed_package = creator.build(source_package, install_path, quiet=True)
-
-        with run_test.simulate_resolve([installed_package]):
-            run_test.test(["init", source_directory])
-
-            with wrapping.silence_printing(), run_test.allow_defaults():
-                run_test.test(["build", "run", source_directory])
-
-        source = os.path.join(source_directory, "documentation", "source")
-        api_directory = os.path.join(source, "api")
-        source_master = os.path.join(source, "index.rst")
-
-        with open(source_master, "r") as handler:
-            data = handler.read()
-
-        master_toctrees = [
-            "\n".join(tree) for _, _, tree in sphinx_helper.get_toctrees(data)
-        ]
-        build = os.path.join(source_directory, "documentation", "build")
-
-        self.assertEqual(
-            {
-                ".gitignore",
-                "README",
-                "modules.rst",
-                "some_package.file.rst",
-                "some_package.rst",
-            },
-            set(os.listdir(api_directory)),
-        )
-
-        self.assertEqual(1, len(master_toctrees))
-        self.assertEqual(
-            textwrap.dedent(
-                """\
-                .. toctree::
-                   :maxdepth: 2
-                   :caption: Contents:
-
-                   developer_documentation
-                   user_documentation
-                   API Documentation <api/modules>"""
-            ),
-            master_toctrees[0],
-        )
-        self.assertTrue(os.path.isfile(os.path.join(api_directory, ".gitignore")))
-        self.assertTrue(os.path.isfile(os.path.join(build, "index.html")))
-        self.assertTrue(
-            os.path.isfile(os.path.join(build, "api", "some_package.file.html"))
-        )
-
-    def test_hello_world(self):
-        """Build documentation and auto-API .rst documentation onto disk."""
-        self._hello_world_test()
-
-    def test_hello_world_other_folder(self):
-        """Build documentation again, but from a different PWD."""
-        with wrapping.keep_cwd():
-            os.chdir(tempfile.gettempdir())
-            self._hello_world_test()
-
-    def test_intersphinx_loading(self):
-        """Make sure `sphinx.ext.intersphinx`_ "sees" Rez packages as expected."""
-        package_directories = package_wrap.make_dependent_packages()
-        install_packages = [install for _, install in package_directories]
-        watchers = []
-
-        for source, install in package_directories:
-            with run_test.simulate_resolve(install_packages), wrapping.keep_cwd():
-                run_test.test(["init", source])
-
-                with wrapping.silence_printing(), run_test.allow_defaults(), _watch_mappings() as watcher:
-                    run_test.test(["build", "run", source])
-
-                watchers.extend(watcher)
-
-        # Whenever a DeveloperPackage is acquired or when a Rez package is
-        # built, etc. The preprocess function is called. We expect the code to
-        # run preprocess twice per :ref:`rez_sphinx build` as a result (just
-        # because that's what it happens to do).
-        #
-        # Multiply that by the number of builds and you get ``expected_times_called``
-        #
-        expected_times_called = len(package_directories) * 2
-
-        self.assertEqual(4, expected_times_called)
-
-        for args, _, results in watchers:
-            package = args[0]
-
-            if package.name != "a_package":
-                continue
-
-            self.assertEqual({"dependency", "python"}, results)
-
-
 class ExtraRequires(unittest.TestCase):
     """Make sure :ref:`rez_sphinx's <rez_sphinx>` "extra_requires" works."""
 
@@ -303,6 +198,170 @@ class ExtraRequires(unittest.TestCase):
 
             with self.assertRaises(exceptions_.ResolveError):
                 _make_current_rez_sphinx_context(package_paths=config.packages_path)
+
+
+class Invalid(unittest.TestCase):
+    """Make sure :ref:`rez_sphinx build` fails when expected."""
+
+    def test_apidoc_argument_conflict(self):
+        """If the user specifies --apidoc-arguments and --no-apidoc at once."""
+        directory = package_wrap.make_directory("_test_apidoc_argument_conflict")
+
+        with self.assertRaises(exception.UserInputError), wrapping.silence_printing():
+            run_test.test(
+                ["build", "run", directory, "--no-apidoc", "--apidoc-arguments", "blah"]
+            )
+
+    def test_bad_permissions(self):
+        """Fail building if the user lacks permissions to write to-disk."""
+        directory = package_wrap.make_directory(
+            "_test_build_Invalid_test_bad_permissions"
+        )
+
+        _make_read_only(directory)
+
+        with self.assertRaises(exception.NoPackageFound), wrapping.silence_printing():
+            run_test.test(["build", "run", directory])
+
+    def test_no_package(self):
+        """Fail early if no Rez package was found."""
+        directory = package_wrap.make_directory("_test_build_Invalid_test_no_package")
+
+        with self.assertRaises(exception.NoPackageFound), wrapping.silence_printing():
+            run_test.test(["build", "run", directory])
+
+    def test_no_source(self):
+        """Fail early if documentation source does not exist."""
+        directory = package_wrap.make_directory("_test_no_source")
+
+        template = textwrap.dedent(
+            """\
+            name = "foo"
+
+            version = "1.0.0"
+            """
+        )
+
+        with open(os.path.join(directory, "package.py"), "w") as handler:
+            handler.write(template)
+
+        with self.assertRaises(
+            exception.NoDocumentationFound
+        ), wrapping.silence_printing():
+            run_test.test(["build", "run", directory])
+
+    def test_auto_api_no_python_files(self):
+        """Fail to auto-build API .rst files if there's no Python files."""
+        directory = package_wrap.make_directory("_test_auto_api_no_python_files")
+
+        template = textwrap.dedent(
+            """\
+            name = "foo"
+
+            version = "1.0.0"
+            """
+        )
+
+        with open(os.path.join(directory, "package.py"), "w") as handler:
+            handler.write(template)
+
+        documentation_root = os.path.join(directory, "documentation", "source")
+        os.makedirs(documentation_root)
+        open(os.path.join(documentation_root, "conf.py"), "a").close()
+
+        with open(os.path.join(documentation_root, "index.rst"), "w") as handler:
+            handler.write(
+                textwrap.dedent(
+                    """\
+                    .. toctree::
+                       :maxdepth: 2
+                       :caption: Contents:
+                    """
+                )
+            )
+
+        install_directory = package_wrap.make_directory(
+            "_test_auto_api_no_python_files_install_root"
+        )
+        install_package_root = os.path.join(install_directory, "foo", "1.0.0")
+        os.makedirs(install_package_root)
+
+        with open(os.path.join(directory, "package.py"), "w") as handler:
+            handler.write(template)
+
+        with open(os.path.join(install_package_root, "package.py"), "w") as handler:
+            handler.write(template)
+
+        with self.assertRaises(exception.NoPythonFiles), wrapping.keep_os_environment():
+            os.environ["REZ_FOO_ROOT"] = install_package_root
+
+            with wrapping.silence_printing():
+                run_test.test(["build", "run", directory])
+
+
+def _make_current_rez_sphinx_context(extra_request=tuple(), package_paths=tuple()):
+    """rez.resolved_context.ResolvedContext: Get the context for :ref:`rez_sphinx`."""
+    extra_request = extra_request or list(extra_request)
+    package = finder.get_nearest_rez_package(_CURRENT_DIRECTORY)
+    request = ["{package.name}=={package.version}".format(package=package)]
+
+    return resolved_context.ResolvedContext(
+        request + extra_request, package_paths=package_paths
+    )
+
+
+def _make_read_only(path):
+    """Change ``path`` to not allow writing.
+
+    Reference:
+        https://stackoverflow.com/a/51262451/3626104
+
+    Args:
+        path (str): The absolute or relative path to a file or directory on-disk.
+
+    """
+    mode = os.stat(path).st_mode
+    read_only_mask = 0o777 ^ (stat.S_IWRITE | stat.S_IWGRP | stat.S_IWOTH)
+    os.chmod(path, mode & read_only_mask)
+
+
+def _make_rez_configuration(text):
+    """str: Create a rezconfig.py, using ``text``."""
+    directory = package_wrap.make_directory("_make_rez_configuration")
+    configuration = os.path.join(directory, "rezconfig.py")
+
+    with open(configuration, "w") as handler:
+        handler.write(text)
+
+    return configuration
+
+
+@contextlib.contextmanager
+def _watch_mappings():
+    """Track the args, kwargs, and return results of key :ref:`rez_sphinx` functions."""
+
+    def _watch(appender, function):
+        @functools.wraps(function)
+        def wrapped(*args, **kwargs):
+            result = function(*args, **kwargs)
+
+            appender((args, kwargs, result))
+
+            return result
+
+        return wrapped
+
+    original = bootstrap._get_intersphinx_candidates
+    container = []
+
+    bootstrap._get_intersphinx_candidates = _watch(
+        container.append, bootstrap._get_intersphinx_candidates
+    )
+
+    try:
+        yield container
+    finally:
+        bootstrap._get_intersphinx_candidates = original
 
 
 class Miscellaneous(unittest.TestCase):
@@ -482,165 +541,106 @@ class Options(unittest.TestCase):
         self.assertFalse(os.path.isdir(api_directory))
 
 
-class Invalid(unittest.TestCase):
-    """Make sure :ref:`rez_sphinx build` fails when expected."""
+class Runner(unittest.TestCase):
+    """Make sure :ref:`rez_sphinx build` works as expected."""
 
-    def test_apidoc_argument_conflict(self):
-        """If the user specifies --apidoc-arguments and --no-apidoc at once."""
-        directory = package_wrap.make_directory("_test_apidoc_argument_conflict")
+    def _hello_world_test(self):
+        """Create a basic :ref:`rez_sphinx` "init + build"."""
+        source_package = package_wrap.make_simple_developer_package()
+        source_directory = finder.get_package_root(source_package)
+        install_path = package_wrap.make_directory("_Build_hello_world_test")
 
-        with self.assertRaises(exception.UserInputError), wrapping.silence_printing():
-            run_test.test(
-                ["build", "run", directory, "--no-apidoc", "--apidoc-arguments", "blah"]
-            )
+        installed_package = creator.build(source_package, install_path, quiet=True)
 
-    def test_bad_permissions(self):
-        """Fail building if the user lacks permissions to write to-disk."""
-        directory = package_wrap.make_directory(
-            "_test_build_Invalid_test_bad_permissions"
+        with run_test.simulate_resolve([installed_package]):
+            run_test.test(["init", source_directory])
+
+            with wrapping.silence_printing(), run_test.allow_defaults():
+                run_test.test(["build", "run", source_directory])
+
+        source = os.path.join(source_directory, "documentation", "source")
+        api_directory = os.path.join(source, "api")
+        source_master = os.path.join(source, "index.rst")
+
+        with open(source_master, "r") as handler:
+            data = handler.read()
+
+        master_toctrees = [
+            "\n".join(tree) for _, _, tree in sphinx_helper.get_toctrees(data)
+        ]
+        build = os.path.join(source_directory, "documentation", "build")
+
+        self.assertEqual(
+            {
+                ".gitignore",
+                "README",
+                "modules.rst",
+                "some_package.file.rst",
+                "some_package.rst",
+            },
+            set(os.listdir(api_directory)),
         )
 
-        _make_read_only(directory)
+        self.assertEqual(1, len(master_toctrees))
+        self.assertEqual(
+            textwrap.dedent(
+                """\
+                .. toctree::
+                   :maxdepth: 2
+                   :caption: Contents:
 
-        with self.assertRaises(exception.NoPackageFound), wrapping.silence_printing():
-            run_test.test(["build", "run", directory])
-
-    def test_no_package(self):
-        """Fail early if no Rez package was found."""
-        directory = package_wrap.make_directory("_test_build_Invalid_test_no_package")
-
-        with self.assertRaises(exception.NoPackageFound), wrapping.silence_printing():
-            run_test.test(["build", "run", directory])
-
-    def test_no_source(self):
-        """Fail early if documentation source does not exist."""
-        directory = package_wrap.make_directory("_test_no_source")
-
-        template = textwrap.dedent(
-            """\
-            name = "foo"
-
-            version = "1.0.0"
-            """
+                   developer_documentation
+                   user_documentation
+                   API Documentation <api/modules>"""
+            ),
+            master_toctrees[0],
+        )
+        self.assertTrue(os.path.isfile(os.path.join(api_directory, ".gitignore")))
+        self.assertTrue(os.path.isfile(os.path.join(build, "index.html")))
+        self.assertTrue(
+            os.path.isfile(os.path.join(build, "api", "some_package.file.html"))
         )
 
-        with open(os.path.join(directory, "package.py"), "w") as handler:
-            handler.write(template)
+    def test_hello_world(self):
+        """Build documentation and auto-API .rst documentation onto disk."""
+        self._hello_world_test()
 
-        with self.assertRaises(
-            exception.NoDocumentationFound
-        ), wrapping.silence_printing():
-            run_test.test(["build", "run", directory])
+    def test_hello_world_other_folder(self):
+        """Build documentation again, but from a different PWD."""
+        with wrapping.keep_cwd():
+            os.chdir(tempfile.gettempdir())
+            self._hello_world_test()
 
-    def test_auto_api_no_python_files(self):
-        """Fail to auto-build API .rst files if there's no Python files."""
-        directory = package_wrap.make_directory("_test_auto_api_no_python_files")
+    def test_intersphinx_loading(self):
+        """Make sure `sphinx.ext.intersphinx`_ "sees" Rez packages as expected."""
+        package_directories = package_wrap.make_dependent_packages()
+        install_packages = [install for _, install in package_directories]
+        watchers = []
 
-        template = textwrap.dedent(
-            """\
-            name = "foo"
+        for source, install in package_directories:
+            with run_test.simulate_resolve(install_packages), wrapping.keep_cwd():
+                run_test.test(["init", source])
 
-            version = "1.0.0"
-            """
-        )
+                with wrapping.silence_printing(), run_test.allow_defaults(), _watch_mappings() as watcher:
+                    run_test.test(["build", "run", source])
 
-        with open(os.path.join(directory, "package.py"), "w") as handler:
-            handler.write(template)
+                watchers.extend(watcher)
 
-        documentation_root = os.path.join(directory, "documentation", "source")
-        os.makedirs(documentation_root)
-        open(os.path.join(documentation_root, "conf.py"), "a").close()
+        # Whenever a DeveloperPackage is acquired or when a Rez package is
+        # built, etc. The preprocess function is called. We expect the code to
+        # run preprocess twice per :ref:`rez_sphinx build` as a result (just
+        # because that's what it happens to do).
+        #
+        # Multiply that by the number of builds and you get ``expected_times_called``
+        #
+        expected_times_called = len(package_directories) * 2
 
-        with open(os.path.join(documentation_root, "index.rst"), "w") as handler:
-            handler.write(
-                textwrap.dedent(
-                    """\
-                    .. toctree::
-                       :maxdepth: 2
-                       :caption: Contents:
-                    """
-                )
-            )
+        self.assertEqual(4, expected_times_called)
 
-        install_directory = package_wrap.make_directory(
-            "_test_auto_api_no_python_files_install_root"
-        )
-        install_package_root = os.path.join(install_directory, "foo", "1.0.0")
-        os.makedirs(install_package_root)
+        for args, _, results in watchers:
+            package = args[0]
 
-        with open(os.path.join(directory, "package.py"), "w") as handler:
-            handler.write(template)
+            if package.name != "a_package":
+                continue
 
-        with open(os.path.join(install_package_root, "package.py"), "w") as handler:
-            handler.write(template)
-
-        with self.assertRaises(exception.NoPythonFiles), wrapping.keep_os_environment():
-            os.environ["REZ_FOO_ROOT"] = install_package_root
-
-            with wrapping.silence_printing():
-                run_test.test(["build", "run", directory])
-
-
-def _make_current_rez_sphinx_context(extra_request=tuple(), package_paths=tuple()):
-    """rez.resolved_context.ResolvedContext: Get the context for :ref:`rez_sphinx`."""
-    extra_request = extra_request or list(extra_request)
-    package = finder.get_nearest_rez_package(_CURRENT_DIRECTORY)
-    request = ["{package.name}=={package.version}".format(package=package)]
-
-    return resolved_context.ResolvedContext(
-        request + extra_request, package_paths=package_paths
-    )
-
-
-def _make_read_only(path):
-    """Change ``path`` to not allow writing.
-
-    Reference:
-        https://stackoverflow.com/a/51262451/3626104
-
-    Args:
-        path (str): The absolute or relative path to a file or directory on-disk.
-
-    """
-    mode = os.stat(path).st_mode
-    read_only_mask = 0o777 ^ (stat.S_IWRITE | stat.S_IWGRP | stat.S_IWOTH)
-    os.chmod(path, mode & read_only_mask)
-
-
-def _make_rez_configuration(text):
-    """str: Create a rezconfig.py, using ``text``."""
-    directory = package_wrap.make_directory("_make_rez_configuration")
-    configuration = os.path.join(directory, "rezconfig.py")
-
-    with open(configuration, "w") as handler:
-        handler.write(text)
-
-    return configuration
-
-
-@contextlib.contextmanager
-def _watch_mappings():
-    """Track the args, kwargs, and return results of key :ref:`rez_sphinx` functions."""
-
-    def _watch(appender, function):
-        @functools.wraps(function)
-        def wrapped(*args, **kwargs):
-            result = function(*args, **kwargs)
-
-            appender((args, kwargs, result))
-
-            return result
-
-        return wrapped
-
-    original = bootstrap._get_intersphinx_candidates
-    container = []
-
-    bootstrap._get_intersphinx_candidates = _watch(
-        container.append, bootstrap._get_intersphinx_candidates
-    )
-
-    try:
-        yield container
-    finally:
-        bootstrap._get_intersphinx_candidates = original
+            self.assertEqual({"dependency", "python"}, results)
