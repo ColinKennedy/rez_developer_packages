@@ -1,6 +1,11 @@
+import logging
+
 from rez_utilities import finder
 
 from ...core import configuration, doc_finder, exception
+
+
+_LOGGER = logging.getLogger(__name__)
 
 
 def _get_all_field_attributes(sphinx):
@@ -18,6 +23,12 @@ def _get_all_field_attributes(sphinx):
 
 def _get_field_attributes(sphinx, fields):
     attributes = {name: value for name, value in sphinx.get_module_attributes()}
+    _LOGGER.debug(
+        'Found conf.py attributes, "%s". From file, "%s"',
+        ", ".join(sorted(attributes.keys())),
+        sphinx.get_module_path(),
+    )
+
     invalids = set()
     output = []
 
@@ -30,6 +41,13 @@ def _get_field_attributes(sphinx, fields):
     if not invalids:
         return output
 
+    if len(fields) == 1:
+        raise exception.SphinxConfError(
+            'This conf.py attribute, "{invalids}" could not be found.'.format(
+                invalids=", ".join(sorted(invalids))
+            )
+        )
+
     raise exception.SphinxConfError(
         'These conf.py attributes, "{invalids}" could not be found.'.format(
             invalids=", ".join(sorted(invalids))
@@ -38,16 +56,15 @@ def _get_field_attributes(sphinx, fields):
 
 
 def _print_fields(sphinx, fields=frozenset()):
-    if len(fields) == 1:
+    if not fields:
+        attributes = _get_all_field_attributes(sphinx)
+    elif len(fields) == 1:
         _, value = _get_field_attributes(sphinx, fields)[0]
         print(value)
 
         return
 
-    if not fields:
-        attributes = _get_all_field_attributes(sphinx)
-    else:
-        attributes = _get_field_attributes(sphinx, fields)
+    attributes = _get_field_attributes(sphinx, fields)
 
     print("Found these conf.py values:")
 

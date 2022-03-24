@@ -37,7 +37,10 @@ def requires():
     return output
 
 
-variants = [["python-2", "backports.functools_lru_cache-1.6+<2"], ["python-3"]]
+variants = [
+    ["python-2", "backports.functools_lru_cache-1.6+<2", "mock-3+<4"],
+    ["python-3.6+<4"],  # `unittest.mock` was added in Python 3.3+
+]
 
 build_command = "python -m rez_build_helper --items bin python"
 

@@ -470,6 +470,13 @@ def main(text):
 
     """
     namespace = parse_arguments(text)
+
+    if namespace.verbose:
+        # If the user wants verbose logging, give it to them
+        root_namespace = ".".join(__name__.split(".")[:-1])  # Should be "rez_sphinx"
+        root_logger = logging.getLogger(root_namespace)
+        root_logger.setLevel(logging.DEBUG)
+
     run(namespace)
 
 
@@ -489,6 +496,8 @@ def parse_arguments(text):
     parser = argparse.ArgumentParser(
         description="Auto-generate Sphinx documentation for Rez packages.",
     )
+
+    parser.add_argument("--verbose", action="store_true")
 
     sub_parsers = parser.add_subparsers(dest="commands")
     sub_parsers.required = True

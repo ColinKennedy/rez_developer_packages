@@ -1,10 +1,13 @@
 """A wrap for accessing data from `Sphinx conf.py`_, from `Sphinx`_."""
 
+import functools
 import inspect
 import os
 
 from python_compatibility import imports
+from sphinx.ext import intersphinx
 from sphinx import config
+from six.moves import mock
 
 _CONFIGURATION_FILE_NAME = "conf.py"
 
@@ -85,11 +88,36 @@ class ConfPy(object):
             return ".rst"  # A reasonable default
 
     def get_module_attributes(self):
-        return [
+        base_sphinx_attributes = [
             (name, getattr(self._module, name))
             for name in config.Config.config_values.keys()
             if hasattr(self._module, name)
         ]
 
+        interspinx_attributes = []
+
+        for name in _get_intersphinx_attribute_names():
+            if hasattr(self._module, name):
+                interspinx_attributes.append((name, getattr(self._module, name)))
+
+        return base_sphinx_attributes + interspinx_attributes
+
     def get_module_path(self):
-        return self._module.__path__
+        return self._module.__file__
+
+
+def _get_intersphinx_attribute_names():
+    def _capture_value(appender):
+        def _wrap(attribute_name, *args, **kwargs):
+            appender(attribute_name)
+
+            return None
+
+        return _wrap
+
+    container = set()
+    mocker = mock.MagicMock()
+    mocker.add_config_value = _capture_value(container.add)
+    intersphinx.setup(mocker)
+
+    return container

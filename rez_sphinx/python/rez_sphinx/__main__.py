@@ -14,12 +14,10 @@ _SUCCESS_EXIT_CODE = 0
 
 def _setup_logger():
     """Add stdout logging while the CLI is running."""
-    logger = logging.getLogger(__name__)
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setLevel(logging.INFO)
-    formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
+    logger = logging.getLogger("rez_sphinx")
+    handler = logging.StreamHandler(sys.stderr)
+    handler.setLevel(logging.DEBUG)
+    formatter = logging.Formatter("%(name)s - %(levelname)s - %(message)s")
     handler.setFormatter(formatter)
     logger.addHandler(handler)
     logger.setLevel(logging.INFO)
