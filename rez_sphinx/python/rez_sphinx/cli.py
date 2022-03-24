@@ -120,7 +120,9 @@ def _build_order(namespace):
 
 
 def _build_inspect_conf(namespace):
-    inspector.print_fields_from_directory(namespace.directory, fields=set(namespace.fields))
+    inspector.print_fields_from_directory(
+        namespace.directory, fields=set(namespace.fields)
+    )
 
 
 def _check(namespace):

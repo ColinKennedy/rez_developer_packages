@@ -96,11 +96,16 @@ _MASTER_SCHEMA = schema.Schema(
                 _HELP_SORT_ORDER, default=preference_help.DEFAULT_SORT
             ): schema.Use(preference_help.validate_sort),
         },
-        schema.Optional(_CONFIG_OVERRIDES, default={
-            _SPHINX_MODULE_KEY: False,
-            _MASTER_DOC: _MASTER_DOC_DEFAULT,
-        }): {
-            schema.Optional(_MASTER_DOC, default=_MASTER_DOC_DEFAULT): schema_helper.NON_NULL_STR,
+        schema.Optional(
+            _CONFIG_OVERRIDES,
+            default={
+                _SPHINX_MODULE_KEY: False,
+                _MASTER_DOC: _MASTER_DOC_DEFAULT,
+            },
+        ): {
+            schema.Optional(
+                _MASTER_DOC, default=_MASTER_DOC_DEFAULT
+            ): schema_helper.NON_NULL_STR,
             schema.Optional(_SPHINX_MODULE_KEY, default=False): bool,
             schema_helper.NON_NULL_STR: object,
         },

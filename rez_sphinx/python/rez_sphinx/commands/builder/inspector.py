@@ -5,7 +5,6 @@ from rez_utilities import finder
 
 from ...core import configuration, doc_finder, exception
 
-
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -70,7 +69,7 @@ def _print_fields(sphinx, fields=frozenset()):
     print("Found these conf.py values:")
 
     for name, value in sorted(attributes.items(), key=operator.itemgetter(0)):
-        print('{name!s}:\n    {value!r}'.format(name=name, value=value))
+        print("{name!s}:\n    {value!r}".format(name=name, value=value))
 
 
 def print_fields_from_directory(directory, fields=frozenset()):

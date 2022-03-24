@@ -72,7 +72,9 @@ class ApiDocOptions(unittest.TestCase):
             run_test.test(["init", source_directory])
 
             with wrapping.silence_printing(), run_test.allow_defaults():
-                run_test.test(["build", "run", source_directory, "--", "--suffix", ".txt"])
+                run_test.test(
+                    ["build", "run", source_directory, "--", "--suffix", ".txt"]
+                )
 
         source = os.path.join(source_directory, "documentation", "source")
 

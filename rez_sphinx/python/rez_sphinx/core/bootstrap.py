@@ -1,10 +1,10 @@
 """Connect `Sphinx`_ to :ref:`rez_sphinx`."""
 
-from datetime import date
 import logging
 import os
 import textwrap
 import traceback
+from datetime import date
 
 import six
 from rez_utilities import finder

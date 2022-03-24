@@ -1,13 +1,13 @@
 """A wrap for accessing data from `Sphinx conf.py`_, from `Sphinx`_."""
 
-import inspect
 import importlib
-import os
+import inspect
 import logging
+import os
 
 from python_compatibility import imports
-from sphinx import config
 from six.moves import mock
+from sphinx import config
 
 _CONFIGURATION_FILE_NAME = "conf.py"
 _LOGGER = logging.getLogger(__name__)
@@ -109,13 +109,18 @@ class ConfPy(object):
 
         """
         names = {
-            name for name in config.Config.config_values.keys()
+            name
+            for name in config.Config.config_values.keys()
             if hasattr(self._module, name)
         }
 
         if allow_extensions:
             extensions = self._get_extensions()
-            names.update(name for name in _get_extension_attribute_names(extensions) if hasattr(self._module, name))
+            names.update(
+                name
+                for name in _get_extension_attribute_names(extensions)
+                if hasattr(self._module, name)
+            )
 
         return {name: getattr(self._module, name) for name in names}
 
