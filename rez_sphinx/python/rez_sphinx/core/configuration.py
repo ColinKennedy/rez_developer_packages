@@ -51,13 +51,32 @@ class ConfPy(object):
         Args:
             path (str): The absolute path to a file or folder on-disk.
 
+        Raises:
+            IOError:
+
         Returns:
-            :class:`ConfPy`: The converted instance.
+            ConfPy: The converted instance.
 
         """
+        if not os.path.isfile(path):
+            raise IOError('Path "{path}" does not exist and cannot be imported.'.format(path=path))
+
         module = imports.import_file("rez_sphinx_conf", path)
 
         return cls(module)
+
+    @staticmethod
+    def is_valid_directory(directory):
+        """Check if ``directory`` has a configuration file that this class can load.
+
+        Args:
+            directory (str): The absolute or relative folder path on-disk.
+
+        Returns:
+            bool: If the configuration can be read, return True.
+
+        """
+        return os.path.isfile(os.path.join(directory, _CONFIGURATION_FILE_NAME))
 
     def _get_extensions(self):
         """list[str]: Get each Python importable module that `Sphinx`_ will load."""
