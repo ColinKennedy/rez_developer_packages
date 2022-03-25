@@ -50,7 +50,7 @@ def _add_initial_files(root, entries):
         root (str):
             The directory on-disk where the source documentation lives. e.g.
             {rez_root}/documentation/source is the most common path.
-        entries (list[:class:`.Entry`]):
+        entries (list[Entry]):
             All descriptions of files to make during :ref:`rez_sphinx init`.
 
     """
@@ -76,7 +76,7 @@ def _run_sphinx_quickstart(directory, options=tuple()):
             The arguments which are passed directly to `sphinx-quickstart`_.
 
     Raises:
-        :class:`.SphinxExecutionError`:
+        SphinxExecutionError:
             If `sphinx-quickstart`_ failed midway during execution.
         RuntimeError:
             If for some reason `sphinx-quickstart`_ completed but

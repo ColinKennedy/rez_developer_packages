@@ -39,7 +39,7 @@ class ConfPy(object):
                 e.g. ``"{rez_root}/documentaion/source"``.
 
         Returns:
-            :class:`ConfPy`: The created instance.
+            ConfPy: The created instance.
 
         """
         return cls.from_path(os.path.join(directory, _CONFIGURATION_FILE_NAME))

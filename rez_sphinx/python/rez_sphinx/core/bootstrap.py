@@ -299,7 +299,7 @@ def _get_nearest_caller_package():
         :func:`bootstrap`.
 
     Raises:
-        :class:`.NoPackageFound`: If no Rez package could be found.
+        NoPackageFound: If no Rez package could be found.
 
     Returns:
         :class:`rez.developer_package.DeveloperPackage`: The found package.
@@ -352,7 +352,7 @@ def _merge_intersphinx_maps(data, package):
         dict[str, tuple[str] or str]: A suitable `intersphinx_mapping`_ for `Sphinx`_.
 
     """
-    existing_mapping = data.get(_INTERSPHINX_MAPPING_KEY)
+    existing_mapping = data.get(_INTERSPHINX_MAPPING_KEY) or dict()
     output = existing_mapping.copy()
 
     # Prefer intersphinx maps we've found using Rez packages

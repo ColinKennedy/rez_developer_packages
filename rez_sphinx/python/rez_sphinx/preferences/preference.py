@@ -203,7 +203,7 @@ def _validate_api_options(options):
             the :ref:`rez_sphinx init` CLI.
 
     Raises:
-        :class:`.UserInputError`: If there are any found errors.
+        UserInputError: If there are any found errors.
 
     """
     if "--output-dir" in options or "-o" in options:
@@ -216,7 +216,7 @@ def _validate_quick_start_options(settings):
     """Check if the `sphinx-quickstart`_ settings are invalid.
 
     Raises:
-        :class:`.UserInputError`: If ``settings`` contains invalid or missing data.
+        UserInputError: If ``settings`` contains invalid or missing data.
 
     """
     if "--author" in settings or "-a" in settings:
@@ -528,7 +528,7 @@ def get_quick_start_options(package, options=tuple()):
             `sphinx-quickstart`_ values.
 
     Raises:
-        :class:`.UserInputError`:
+        UserInputError:
             If the user attempted to pass settings which may only be
             edited by :ref:`rez_sphinx`, fail this function early.
             Examples of "reserved" parameters are "--project", which are
@@ -648,7 +648,7 @@ def validate_base_settings():
     """Check if the user's settings won't cause :ref:`rez_sphinx` to break.
 
     Raises:
-        :class:`.ConfigurationError`: Raised if a configuration-related issue is found.
+        ConfigurationError: Raised if a configuration-related issue is found.
 
     """
     try:

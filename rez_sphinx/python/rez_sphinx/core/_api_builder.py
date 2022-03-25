@@ -75,10 +75,10 @@ def _generate_api_files(directory, destination, options=tuple()):
     Raises:
         EnvironmentError:
             If the user needs the default "templates" directory but it is missing.
-        :class:`.NoPythonFiles`:
+        NoPythonFiles:
             If no Python files exist then no API .rst files can be built.
             So this function raises this exception, exiting early.
-        :class:`.SphinxExecutionError`:
+        SphinxExecutionError:
             If running `sphinx-apidoc`_ failed midway and could not complete.
 
     """
