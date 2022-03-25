@@ -132,9 +132,12 @@ def print_fields_from_directory(directory, fields=frozenset()):
     else:
         source_directory = directory
 
-    try:
-        sphinx = configuration.ConfPy.from_directory(source_directory)
-    except IOError:
-        raise exception.SphinxConfError('Directory "{source_directory}" has no conf.py file.'.format(source_directory=source_directory))
+    if not configuration.ConfPy.is_valid_directory(source_directory):
+        raise exception.SphinxConfError(
+            'Directory "{source_directory}" has no conf.py file.'.format(
+                source_directory=source_directory
+            )
+        )
 
+    sphinx = configuration.ConfPy.from_directory(source_directory)
     _print_fields(sphinx, fields=fields)
