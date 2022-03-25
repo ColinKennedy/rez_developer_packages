@@ -132,9 +132,9 @@ rez_sphinx.intersphinx_settings.package_link_map
 ************************************************
 
 If you're trying to link your Rez package to another Rez package, but that
-package cannot be editted (it could be a third-party PyPI package or something)
-to add documentation, you can use this option to help :ref:`rez_sphinx build run`
-find the documentation.
+package cannot be editted (it could be a third-party PyPI package or
+something), you can use this option to help :ref:`rez_sphinx build run` find
+the documentation for that package.
 
 .. code-block:: python
 
@@ -148,6 +148,8 @@ find the documentation.
        }
    }
 
-When building your documentation, if a Rez package named ``schema`` is found
-but its `package.py`_ doesn't define the documentation properly,
+The value, ``"https://schema.readthedocs.io/en/latest"``, must be the root
+documentation which contains a `objects.inv`_ file. When building your
+documentation, if a Rez package named ``schema`` is found but its `package.py`_
+doesn't define the documentation properly,
 ``https://schema.readthedocs.io/en/latest`` is used as a fallback.

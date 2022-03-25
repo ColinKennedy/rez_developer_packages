@@ -90,8 +90,8 @@ class ApiDocOptions(unittest.TestCase):
         )
 
 
-class Bootstrap(unittest.TestCase):
-    """Make sure :func:`rez_sphinx.core.bootstrap.bootstrap` works."""
+class BootstrapIntersphinx(unittest.TestCase):
+    """Make sure :func:`rez_sphinx.core.bootstrap.bootstrap` gets `intersphinx_mapping`_."""
 
     def _quick_ignore_test(self, text):
         """Check ``text`` does not find add any intersphinx candidates.
@@ -125,7 +125,7 @@ class Bootstrap(unittest.TestCase):
         for watcher in watchers:
             self.assertEqual(set(), watcher.get_all_results())
 
-    def test_intersphinx_allow_weak(self):
+    def test_allow_weak(self):
         """Allow weak packages if they are part of the resolve."""
         root = os.path.join(
             _PACKAGE_ROOT,
@@ -143,22 +143,62 @@ class Bootstrap(unittest.TestCase):
         source_directory = os.path.join(source_root, name)
 
         with wrapping.silence_printing(), run_test.simulate_resolve(installed_packages):
-            with _watch_mappings() as container, run_test.allow_defaults():
+            with _watch_candidates() as container, run_test.allow_defaults():
                 run_test.test(["build", "run", source_directory])
 
         watcher = container[-1]
         _, _, results = watcher
         self.assertIn("weak_package", results)
 
-    def test_intersphinx_ignore_conflict(self):
+    def test_fallback_package_links(self):
+        """A package without documentation is find-able if it has a fallback path."""
+        root = os.path.join(
+            _PACKAGE_ROOT,
+            "_test_data",
+            "intersphinx_allow_weak",
+        )
+        source_root = os.path.join(root, "source_packages")
+        install_root = os.path.join(root, "installed_packages")
+
+        installed_packages = [
+            finder.get_nearest_rez_package(path)
+            for path in glob.glob(os.path.join(install_root, "*", "*"))
+        ]
+        name = "package_to_test"
+        source_directory = os.path.join(source_root, name)
+
+        fallback_map = {
+            "weak_package": "foo",
+        }
+
+        # with wrapping.silence_printing(), run_test.simulate_resolve(installed_packages):
+        with run_test.simulate_resolve(installed_packages):
+            with _watch_intersphinx_mapping() as container, run_test.allow_defaults(), run_test.keep_config() as config:
+                config.optionvars.setdefault("rez_sphinx", dict())
+                config.optionvars["rez_sphinx"]["intersphinx_settings"] = dict()
+                config.optionvars["rez_sphinx"]["intersphinx_settings"]["package_link_map"] = fallback_map
+
+                run_test.test(["build", "run", source_directory])
+
+        watcher = container[0]
+        _, _, results = watcher
+
+        expected = {
+            # This comes directly from ``source_directory/documentation/source/conf.py``
+            "https://docs.python.org/3/": None,
+        }
+        expected.update(fallback_map)
+        self.assertEqual(expected, results)
+
+    def test_ignore_conflict(self):
         """Don't consider excluded packages."""
         self._quick_ignore_test('requires = ["!excluded_package"]')
 
-    def test_intersphinx_ignore_ephemeral(self):
+    def test_ignore_ephemeral(self):
         """Don't consider ephemeral packages."""
         self._quick_ignore_test('variants = [[".some_ephemeral-1"]]')
 
-    def test_intersphinx_ignore_weak(self):
+    def test_ignore_weak(self):
         """Don't consider weak packages which aren't part of the resolve."""
         self._quick_ignore_test('requires = ["~some_not_requested_package"]')
 
@@ -338,21 +378,41 @@ def _make_rez_configuration(text):
     return configuration
 
 
+# TODO : Find a better way of doing this
+def _watch(appender, function):
+    """Run ``function`` and append its information to ``appender``."""
+    @functools.wraps(function)
+    def wrapped(*args, **kwargs):
+        result = function(*args, **kwargs)
+
+        appender((args, kwargs, result))
+
+        return result
+
+    return wrapped
+
+
+# TODO : Find a better way of doing this
 @contextlib.contextmanager
-def _watch_mappings():
+def _watch_intersphinx_mapping():
     """Track the args, kwargs, and return results of key :ref:`rez_sphinx` functions."""
+    original = bootstrap._merge_intersphinx_maps
+    container = []
 
-    def _watch(appender, function):
-        @functools.wraps(function)
-        def wrapped(*args, **kwargs):
-            result = function(*args, **kwargs)
+    bootstrap._merge_intersphinx_maps = _watch(
+        container.append, bootstrap._merge_intersphinx_maps
+    )
 
-            appender((args, kwargs, result))
+    try:
+        yield container
+    finally:
+        bootstrap._merge_intersphinx_maps = original
 
-            return result
 
-        return wrapped
-
+# TODO : Find a better way of doing this
+@contextlib.contextmanager
+def _watch_candidates():
+    """Track the args, kwargs, and return results of key :ref:`rez_sphinx` functions."""
     original = bootstrap._get_intersphinx_candidates
     container = []
 
@@ -623,7 +683,7 @@ class Runner(unittest.TestCase):
             with run_test.simulate_resolve(install_packages), wrapping.keep_cwd():
                 run_test.test(["init", source])
 
-                with wrapping.silence_printing(), run_test.allow_defaults(), _watch_mappings() as watcher:
+                with wrapping.silence_printing(), run_test.allow_defaults(), _watch_candidates() as watcher:
                     run_test.test(["build", "run", source])
 
                 watchers.extend(watcher)
