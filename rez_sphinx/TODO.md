@@ -1,10 +1,12 @@
-- rez_sphinx build view intersphinx_mapping unittests
-- :ref:`rez_sphinx config show build_documentation_key`
- - Implement this
- - unittests
-- Make sure to append build_documentation key, if provided. (?)
+- Make sure, when querying current, config values, to consider arbitrary str keys currently defined in base settings
+ - Add unittest for that
 - Implement :ref:`rez_sphinx.intersphinx_settings.package_link_map`.
  - Add documentation / tests for it
+- rez_sphinx build view intersphinx_mapping unittests
+ - Actually, move this to its own subcommand. Probably.
+- :ref:`rez_sphinx config show build_documentation_key`
+ - unittests
+- Make sure to append build_documentation key, if provided. (?)
 
 
 ## Document current work

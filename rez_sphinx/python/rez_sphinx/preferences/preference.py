@@ -50,6 +50,10 @@ _MASTER_KEY = "rez_sphinx"
 _CONFIG_OVERRIDES = "sphinx_conf_overrides"
 _EXTRA_REQUIRES = "extra_requires"
 
+_INTERSPHINX_SETTINGS = "intersphinx_settings"
+_PACKAGE_LINK_MAP = "package_link_map"
+
+
 # TODO : Move _SPHINX_MODULE_KEY to a better place
 _SPHINX_MODULE_KEY = "add_module_names"
 
@@ -127,8 +131,23 @@ _MASTER_SCHEMA = schema.Schema(
         schema.Optional(_EXTRA_REQUIRES, default=[]): [
             preference_configuration.REQUEST_STR
         ],
+        schema.Optional(_INTERSPHINX_SETTINGS): {
+            _PACKAGE_LINK_MAP: {str: schema_helper.NON_NULL_STR}
+        }
     }
 )
+
+
+def get_package_link_map():
+    """dict[str, str]: Each Rez package family name + its root documentation, if any."""
+    rez_sphinx_settings = get_base_settings()
+
+    if _INTERSPHINX_SETTINGS not in rez_sphinx_settings:
+        return dict()
+
+    settings = rez_sphinx_settings[_INTERSPHINX_SETTINGS]
+
+    return settings.get(_PACKAGE_LINK_MAP, dict())
 
 
 def _get_quick_start_overridable_options(overrides=tuple()):

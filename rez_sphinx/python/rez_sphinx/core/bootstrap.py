@@ -30,6 +30,7 @@ _REZ_SPHINX_BOOTSTRAP_LINES = textwrap.dedent(
     # -- rez-sphinx end --
     """
 )
+_INTERSPHINX_MAPPING_KEY = "intersphinx_mapping"
 
 
 def _get_intersphinx_candidates(package):
@@ -328,6 +329,47 @@ def _get_nearest_caller_package():
     )
 
 
+def _merge_intersphinx_maps(data, package):
+    """Find and combine all links found within ``data`` and ``package``.
+
+    Note:
+        - All documentation exported directly from Rez packages
+          :ref:`rez_sphinx` will be preferred over what the user has previously set.
+        - However if a resolved Rez package has no found documentation and
+          there's an entry in
+          :ref:`rez_sphinx.intersphinx_settings.package_link_map`, that will be
+          used instead.
+
+    Args:
+        data (dict[str, object]):
+            Incoming ``locals()`` data from an existing `Sphinx conf.py`_.
+        package (:class:`rez.developer_package.DeveloperPackage`):
+            The package to query from and extend ``data`` with extra
+            information. If no package is given, the package is
+            determined automatically from the caller's site.
+
+    Returns:
+        dict[str, tuple[str] or str]: A suitable `intersphinx_mapping`_ for `Sphinx`_.
+
+    """
+    existing_mapping = data.get(_INTERSPHINX_MAPPING_KEY)
+    output = existing_mapping.copy()
+
+    # Prefer intersphinx maps we've found using Rez packages
+    output.update(_get_intersphinx_mappings(package))
+
+    # Use any known package paths
+    #
+    # - If the package is in the current resolve
+    # - There is no existing value
+    #
+    for fallback_key, fallback_link in preference.get_package_link_map():
+        if _in_resolve(fallback_key) and fallback_key not in output:
+            output[fallback_key] = fallback_link
+
+    return output
+
+
 def append_bootstrap_lines(path):
     """Append :ref:`rez_sphinx` specific commands to a `Sphinx`_ conf.py file.
 
@@ -380,8 +422,8 @@ def bootstrap(data, package=None, skip=frozenset()):
         extensions.update(preference.get_sphinx_extensions())
         data["extensions"] = sorted(extensions)
 
-    if "intersphinx_mapping" not in skip:
-        data["intersphinx_mapping"] = _get_intersphinx_mappings(package)
+    if _INTERSPHINX_MAPPING_KEY not in skip:
+        data[_INTERSPHINX_MAPPING_KEY] = _merge_intersphinx_maps(data, package)
 
     if "master_doc" not in skip:
         # Reference: https://github.com/readthedocs/readthedocs.org/issues/2569#issuecomment-485117471
