@@ -2,6 +2,7 @@
 
 import contextlib
 import functools
+import io
 import glob
 import os
 import shutil
@@ -113,13 +114,17 @@ class BootstrapIntersphinx(unittest.TestCase):
             """
         )
 
-        with open(os.path.join(directory, "package.py"), "w") as handler:
+        with io.open(
+            os.path.join(directory, "package.py"), "w", encoding="utf-8"
+        ) as handler:
             handler.write(template + "\n\n" + text)
 
         package = finder.get_nearest_rez_package(directory)
 
+        # TODO : Wait, this works? Double check that watch_namespace works for
+        # other tests, too!
         with wrapping.watch_namespace(
-            bootstrap._get_intersphinx_candidates
+            bootstrap._get_intersphinx_candidates  # pylint: disable=protected-access
         ) as watchers:
             bootstrap.bootstrap(dict(), package=package)
 
@@ -250,7 +255,8 @@ class ExtraRequires(unittest.TestCase):
             _PACKAGE_ROOT, "_test_data", "resolve_requires", "installed_packages"
         )
         context = _make_current_rez_sphinx_context(
-            package_paths=config_.packages_path + [extra_install_path]
+            package_paths=config_.packages_path  # pylint: disable=no-member
+            + [extra_install_path]
         )
         expected_requires = ["pure_dependency-1"]
         resolved_nothing = context.get_resolved_package("pure_dependency")
@@ -322,7 +328,9 @@ class Invalid(unittest.TestCase):
             """
         )
 
-        with open(os.path.join(directory, "package.py"), "w") as handler:
+        with io.open(
+            os.path.join(directory, "package.py"), "w", encoding="utf-8"
+        ) as handler:
             handler.write(template)
 
         with self.assertRaises(
@@ -342,14 +350,22 @@ class Invalid(unittest.TestCase):
             """
         )
 
-        with open(os.path.join(directory, "package.py"), "w") as handler:
+        with io.open(
+            os.path.join(directory, "package.py"), "w", encoding="utf-8"
+        ) as handler:
             handler.write(template)
 
         documentation_root = os.path.join(directory, "documentation", "source")
         os.makedirs(documentation_root)
-        open(os.path.join(documentation_root, "conf.py"), "a").close()
 
-        with open(os.path.join(documentation_root, "index.rst"), "w") as handler:
+        with io.open(
+            os.path.join(documentation_root, "conf.py"), "a", encoding="utf-8"
+        ):
+            pass
+
+        with io.open(
+            os.path.join(documentation_root, "index.rst"), "w", encoding="utf-8"
+        ) as handler:
             handler.write(
                 textwrap.dedent(
                     """\
@@ -366,10 +382,14 @@ class Invalid(unittest.TestCase):
         install_package_root = os.path.join(install_directory, "foo", "1.0.0")
         os.makedirs(install_package_root)
 
-        with open(os.path.join(directory, "package.py"), "w") as handler:
+        with io.open(
+            os.path.join(directory, "package.py"), "w", encoding="utf-8"
+        ) as handler:
             handler.write(template)
 
-        with open(os.path.join(install_package_root, "package.py"), "w") as handler:
+        with io.open(
+            os.path.join(install_package_root, "package.py"), "w", encoding="utf-8"
+        ) as handler:
             handler.write(template)
 
         with self.assertRaises(exception.NoPythonFiles), wrapping.keep_os_environment():
@@ -379,98 +399,13 @@ class Invalid(unittest.TestCase):
                 run_test.test(["build", "run", directory])
 
 
-def _make_current_rez_sphinx_context(extra_request=tuple(), package_paths=tuple()):
-    """rez.resolved_context.ResolvedContext: Get the context for :ref:`rez_sphinx`."""
-    extra_request = extra_request or list(extra_request)
-    package = finder.get_nearest_rez_package(_CURRENT_DIRECTORY)
-    request = ["{package.name}=={package.version}".format(package=package)]
-
-    return resolved_context.ResolvedContext(
-        request + extra_request, package_paths=package_paths
-    )
-
-
-def _make_read_only(path):
-    """Change ``path`` to not allow writing.
-
-    Reference:
-        https://stackoverflow.com/a/51262451/3626104
-
-    Args:
-        path (str): The absolute or relative path to a file or directory on-disk.
-
-    """
-    mode = os.stat(path).st_mode
-    read_only_mask = 0o777 ^ (stat.S_IWRITE | stat.S_IWGRP | stat.S_IWOTH)
-    os.chmod(path, mode & read_only_mask)
-
-
-def _make_rez_configuration(text):
-    """str: Create a rezconfig.py, using ``text``."""
-    directory = package_wrap.make_directory("_make_rez_configuration")
-    configuration = os.path.join(directory, "rezconfig.py")
-
-    with open(configuration, "w") as handler:
-        handler.write(text)
-
-    return configuration
-
-
-# TODO : Find a better way of doing this
-def _watch(appender, function):
-    """Run ``function`` and append its information to ``appender``."""
-
-    @functools.wraps(function)
-    def wrapped(*args, **kwargs):
-        result = function(*args, **kwargs)
-
-        appender((args, kwargs, result))
-
-        return result
-
-    return wrapped
-
-
-# TODO : Find a better way of doing this
-@contextlib.contextmanager
-def _watch_intersphinx_mapping():
-    """Track the args, kwargs, and return results of key :ref:`rez_sphinx` functions."""
-    original = bootstrap._merge_intersphinx_maps
-    container = []
-
-    bootstrap._merge_intersphinx_maps = _watch(
-        container.append, bootstrap._merge_intersphinx_maps
-    )
-
-    try:
-        yield container
-    finally:
-        bootstrap._merge_intersphinx_maps = original
-
-
-# TODO : Find a better way of doing this
-@contextlib.contextmanager
-def _watch_candidates():
-    """Track the args, kwargs, and return results of key :ref:`rez_sphinx` functions."""
-    original = bootstrap._get_intersphinx_candidates
-    container = []
-
-    bootstrap._get_intersphinx_candidates = _watch(
-        container.append, bootstrap._get_intersphinx_candidates
-    )
-
-    try:
-        yield container
-    finally:
-        bootstrap._get_intersphinx_candidates = original
-
-
 class Miscellaneous(unittest.TestCase):
     """Any test that doesn't make sense in other places."""
 
     @unittest.skipIf(
         not pypi_check.is_request_installed(_PYPI_RTD),
-        "Install sphinx-rtd-theme with `rez-pip --install {_PYPI_RTD} --python-version=3`".format(
+        "Install sphinx-rtd-theme with "
+        "`rez-pip --install {_PYPI_RTD} --python-version=3`".format(
             _PYPI_RTD=_PYPI_RTD,
         ),
     )
@@ -507,7 +442,8 @@ class Miscellaneous(unittest.TestCase):
                         source_package=source_package
                     ),
                 ],
-                package_paths=config_.packages_path + [install_path],
+                package_paths=config_.packages_path  # pylint: disable=no-member
+                + [install_path],
             )
 
             # Now simulate rez_sphinx init + build
@@ -524,20 +460,24 @@ class Miscellaneous(unittest.TestCase):
 
             doc_test.add_to_default_text(source_directory)
 
+            pipe = open(os.devnull, "wb")  # pylint: disable=consider-using-with
+
             with wrapping.silence_printing():
                 build = context.execute_command(
                     "rez_sphinx build run",
                     parent_environ=parent_environment,
-                    stdout=open(os.devnull, "wb"),
-                    stderr=open(os.devnull, "wb"),
+                    stdout=pipe,
+                    stderr=pipe,
                 )
                 build.communicate()
 
             self.assertEqual(0, init.returncode)
             self.assertEqual(0, build.returncode)
 
-        with open(
-            os.path.join(source_directory, "documentation", "build", "index.html"), "r"
+        with io.open(
+            os.path.join(source_directory, "documentation", "build", "index.html"),
+            "r",
+            encoding="utf-8",
         ) as handler:
             contents = handler.read()
 
@@ -722,7 +662,7 @@ class Runner(unittest.TestCase):
             with run_test.simulate_resolve(install_packages), wrapping.keep_cwd():
                 run_test.test(["init", source])
 
-                with wrapping.silence_printing(), run_test.allow_defaults(), _watch_candidates() as watcher:
+                with wrapping.silence_printing(), run_test.allow_defaults(), _watch_candidates() as watcher:  # pylint: disable=line-too-long
                     run_test.test(["build", "run", source])
 
                 watchers.extend(watcher)
@@ -745,3 +685,93 @@ class Runner(unittest.TestCase):
                 continue
 
             self.assertEqual({"dependency", "python"}, results)
+
+
+def _make_current_rez_sphinx_context(extra_request=tuple(), package_paths=tuple()):
+    """rez.resolved_context.ResolvedContext: Get the context for :ref:`rez_sphinx`."""
+    extra_request = extra_request or list(extra_request)
+    package = finder.get_nearest_rez_package(_CURRENT_DIRECTORY)
+    request = ["{package.name}=={package.version}".format(package=package)]
+
+    return resolved_context.ResolvedContext(
+        request + extra_request, package_paths=package_paths
+    )
+
+
+def _make_read_only(path):
+    """Change ``path`` to not allow writing.
+
+    Reference:
+        https://stackoverflow.com/a/51262451/3626104
+
+    Args:
+        path (str): The absolute or relative path to a file or directory on-disk.
+
+    """
+    mode = os.stat(path).st_mode
+    read_only_mask = 0o777 ^ (stat.S_IWRITE | stat.S_IWGRP | stat.S_IWOTH)
+    os.chmod(path, mode & read_only_mask)
+
+
+def _make_rez_configuration(text):
+    """str: Create a rezconfig.py, using ``text``."""
+    directory = package_wrap.make_directory("_make_rez_configuration")
+    configuration = os.path.join(directory, "rezconfig.py")
+
+    with io.open(configuration, "w", encoding="utf-8") as handler:
+        handler.write(text)
+
+    return configuration
+
+
+# TODO : Find a better way of doing this
+def _watch(appender, function):
+    """Run ``function`` and append its information to ``appender``."""
+
+    @functools.wraps(function)
+    def wrapped(*args, **kwargs):
+        result = function(*args, **kwargs)
+
+        appender((args, kwargs, result))
+
+        return result
+
+    return wrapped
+
+
+# TODO : Find a better way of doing this
+@contextlib.contextmanager
+def _watch_intersphinx_mapping():
+    """Track the args, kwargs, and return results of key :ref:`rez_sphinx` functions."""
+    original = bootstrap._merge_intersphinx_maps  # pylint: disable=protected-access
+    container = []
+
+    bootstrap._merge_intersphinx_maps = _watch(  # pylint: disable=protected-access
+        container.append,
+        bootstrap._merge_intersphinx_maps,  # pylint: disable=protected-access
+    )
+
+    try:
+        yield container
+    finally:
+        bootstrap._merge_intersphinx_maps = original  # pylint: disable=protected-access
+
+
+# TODO : Find a better way of doing this
+@contextlib.contextmanager
+def _watch_candidates():
+    """Track the args, kwargs, and return results of key :ref:`rez_sphinx` functions."""
+    original = bootstrap._get_intersphinx_candidates  # pylint: disable=protected-access
+    container = []
+
+    bootstrap._get_intersphinx_candidates = _watch(  # pylint: disable=protected-access
+        container.append,
+        bootstrap._get_intersphinx_candidates,  # pylint: disable=protected-access
+    )
+
+    try:
+        yield container
+    finally:
+        bootstrap._get_intersphinx_candidates = (
+            original  # pylint: disable=protected-access
+        )

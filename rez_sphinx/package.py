@@ -55,7 +55,7 @@ build_command = "python -m rez_build_helper --items bin python"
 tests = {
     "black": {
         "command": "black python tests",
-        "requires": ["black-22+<23"],
+        "requires": ["black-22.1+<23"],
         "run_on": "explicit",
     },
     "black_diff": {

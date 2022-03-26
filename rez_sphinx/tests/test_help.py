@@ -41,7 +41,7 @@ class _Base(unittest.TestCase):
         install_path = package_wrap.make_directory("_AppendHelp_test")
 
         # 3a. Simulate adding the pre-build hook to the user's Rez configuration.
-        # 3b. Re-build the Rez package so it can auto-append entries to the package.py ``help``
+        # 4b. Re-build the Rez package and auto-append entries to the `help`_.
         #
         with _override_preprocess(package):
             creator.build(package, install_path, quiet=True)
@@ -322,7 +322,7 @@ class HelpScenarios(unittest.TestCase):
         install_path = package_wrap.make_directory("_test_ref_role")
 
         # 4a. Simulate adding the pre-build hook to the user's Rez configuration.
-        # 4b. Re-build the Rez package so it can auto-append entries to the package.py ``help``
+        # 4b. Re-build the Rez package and auto-append entries to the `help`_.
         #
         with _override_preprocess(package):
             creator.build(package, install_path, quiet=True)
@@ -398,7 +398,7 @@ class HelpScenarios(unittest.TestCase):
         install_path = package_wrap.make_directory("_test_ref_role_header_not_found")
 
         # 4a. Simulate adding the pre-build hook to the user's Rez configuration.
-        # 4b. Re-build the Rez package so it can auto-append entries to the package.py ``help``
+        # 4b. Re-build the Rez package and auto-append entries to the `help`_.
         #
         with _override_preprocess(package):
             creator.build(package, install_path, quiet=True)
@@ -442,7 +442,7 @@ class HelpScenarios(unittest.TestCase):
         install_path = package_wrap.make_directory("_test_ref_role")
 
         # 4a. Simulate adding the pre-build hook to the user's Rez configuration.
-        # 4b. Re-build the Rez package so it can auto-append entries to the package.py ``help``
+        # 4b. Re-build the Rez package and auto-append entries to the `help`_.
         #
         with _override_preprocess(package):
             creator.build(package, install_path, quiet=True)
@@ -476,8 +476,10 @@ def _add_example_ref_role(root, text=""):
     """Add a quick rez_sphinx_help tag above some Sphinx header.
 
     Args:
-        root (str): The top-level documentation folder. e.g. "{root}/documentation/source".
-        text (str, optional): A .rst file contents to use for this function.
+        root (str):
+            The top-level documentation folder. e.g. "{root}/documentation/source".
+        text (str, optional):
+            A .rst file contents to use for this function.
 
     """
     text = text or textwrap.dedent(

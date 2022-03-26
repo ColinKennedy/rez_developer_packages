@@ -41,12 +41,12 @@ class Check(unittest.TestCase):
             ), wrapping.silence_printing():
                 run_test.test("config check")
 
-    def test_valid(self):
+    def test_valid(self):  # pylint: disable=no-self-use
         """Report success if the applied overrides are okay."""
         with wrapping.silence_printing():
             run_test.test("config check")
 
-        with run_test.keep_config() as config:
+        with run_test.keep_config() as config:  # pylint: disable=no-self-use
             config.optionvars["rez_sphinx"] = dict()
             config.optionvars["rez_sphinx"]["sphinx-apidoc"] = dict()
             config.optionvars["rez_sphinx"]["sphinx-apidoc"]["enable_apidoc"] = False
