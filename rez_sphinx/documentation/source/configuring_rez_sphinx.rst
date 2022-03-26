@@ -81,7 +81,23 @@ and that's it. All sections in this page can be converted this way.
 api_toctree_line
 ****************
 
-TODO
+When API documentation is built during :ref:`rez_sphinx build run`, this
+setting controls what get's added to your documentation's `toctree`_.
+
+Default: ``"API Documentation <api/modules>"``
+
+You can rename the previous to whatever you like but, for best results, leave
+the ``<api/modules>`` part alone.
+
+.. code-block:: python
+
+   optionvars = {
+       "rez_sphinx": {
+           "api_toctree_line": "API Documentation <api/modules>",
+       }
+   }
+
+TODO : Make unittest for this
 
 
 .. _rez_sphinx.auto_help.filter_by:
@@ -89,7 +105,31 @@ TODO
 auto_help.filter_by
 *******************
 
-TODO
+Part of :ref:`rez_sphinx`'s features is that it can auto-generate your `package
+help`_ automatically. If you have an existing `help`_ attribute already
+defined, an auto-generated `help`_ may conflict with what already exists.
+
+This preference controls which keys should be kept. Your original keys or the
+auto-generated ones.
+
+Default: ``"prefer_generated"``
+
+Options:
+
+- "none": Keep both your original and the auto-generated `help`_ keys.
+- "prefer_generated": Replace original keys with the auto-generated keys.
+- "prefer_original": Replace auto-generated keys with the original keys.
+
+
+.. code-block:: python
+
+    optionvars = {
+        "rez_sphinx": {
+            "auto_help": {
+                "filter_by": "prefer_generated",
+            },
+        },
+    }
 
 
 .. _rez_sphinx.auto_help.sort_order:
@@ -97,7 +137,28 @@ TODO
 auto_help.sort_order
 ********************
 
-TODO
+This setting is similar to :ref:`rez_sphinx.auto_help.filter_by`. However
+:ref:`rez_sphinx.auto_help.filter_by` defines what :ref:`rez_sphinx` should do
+when it encounters conflicting `help`_ keys. But for all other, non-conflicting
+`help`_ keys, :ref:`rez_sphinx.auto_help.sort_order` is used instead.
+
+Default: ``"alphabetical"``
+
+Options:
+
+- "alphabetical": Mix auto-generated and original `help`_ keys together, in ascending order.
+- "prefer_generated": List the auto-generated `help`_ keys first, then originals.
+- "prefer_original": List the original `help`_ keys first, then auto-generated.
+
+.. code-block:: python
+
+    optionvars = {
+        "rez_sphinx": {
+            "auto_help": {
+                "sort_order": "alphabetical",
+            },
+        },
+    }
 
 
 .. _rez_sphinx.build_documentation_key:
@@ -105,7 +166,15 @@ TODO
 build_documentation_key
 ***********************
 
-You can specify a specific key for finding / building documentation:
+Whenever you run :ref:`rez_sphinx init`, a new key is added to `rez tests
+attribute`_, ``build_documentation``. As mentioned in many other documentation
+pages, this key is used to find, build, and even publish documentation. It's a
+very important part of how :ref:`rez_sphinx` works so a good name is important.
+
+This setting allows you to change the name of the key, if you'd prefer to call
+it something else.
+
+Default: ``"build_documentation"``
 
 .. code-block:: python
 
@@ -127,8 +196,14 @@ You can also specify **a list of possible keys**.
 
 However if you do, you must keep in mind the following details:
 
+TODO: Revisit this. Make sure we don't get from the current user environment
+
 - The first key is always used whenever you call :ref:`rez_sphinx init` in a package.
-- The first key in the list that matches an existing test is used.
+- During :ref:`rez_sphinx build run` when the `intersphinx_mapping`_ is generated,
+  the first key in the list defined in your `package.py`_ is used to query
+  extra package "requires".
+
+    - For more information on how this works, see :doc:`adding_extra_interlinking`.
 
 
 .. _rez_sphinx.documentation_root:
@@ -136,7 +211,29 @@ However if you do, you must keep in mind the following details:
 documentation_root
 ******************
 
-TODO
+When you run :ref:`rez_sphinx init`, we need a preferred folder name where the
+initial documentation files will be placed into. This setting controls the name
+of that folder.
+
+Default: ``"documentation"``
+
+.. code-block:: python
+
+    optionvars = {
+        "rez_sphinx": {
+            "documentation_root": "documentation",
+        },
+    }
+
+
+.. important::
+
+   Several other places in :ref:`rez_sphinx` use this folder name while
+   querying things about your documentation. But in general, :ref:`rez_sphinx`
+   tries to not assume what the documentation is called, when it can.
+
+
+TODO: Add unittest
 
 
 .. _rez_sphinx.extra_requires:
@@ -144,7 +241,40 @@ TODO
 extra_requires
 **************
 
-TODO
+If you want to use `sphinx-rtd-theme`_ to make your documentation pretty, In
+order for Rez to "see" it, you would need to add it to every Rez resolve where
+you build documentation.  In practical terms, it means updating all of your Rez
+packages to include a ``sphinx_rtd_theme`` package in the test ``requires``.
+
+.. code-block:: python
+
+    tests = {
+        "build_documentation": {
+            "command": "rez_sphinx build run",
+            "requires": ["rez_sphinx-1+<2", "sphinx_rtd_theme-1+<2"],
+        }
+    }
+
+And you'd have to do that everywhere that you build documentation, potentially
+hundreds of places. Imagine needing to modify the version range one day in the
+future, how much effort that would take!
+
+``extra_requires`` gives you a better alternative. Add those "common" package
+requirements there and any resolve including the ``rez_sphinx`` package will
+bring them along, automatically.
+
+Default: ``[]``
+
+.. code-block:: python
+
+    optionvars = {
+        "rez_sphinx": {
+            "extra_requires": [],  # <-- Your extra packages here
+        },
+    }
+
+If you want to learn more how to use this to customize Sphinx themes, for
+example, see :doc:`using_sphinx_rtd_theme` for details.
 
 
 .. _rez_sphinx.init_options.check_default_files:

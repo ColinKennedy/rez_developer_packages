@@ -11,7 +11,7 @@ And you want to link that "Another package" to Your package. "Another package"
 is built with `Sphinx`_, but not :ref:`rez_sphinx`. Can you still link the two?
 
 Yes. But it requires a small tweak to "Another package". You need to add a
-"rez_sphinx objects.inv" key to its `package.py`_ ``help`` attribute:
+"rez_sphinx objects.inv" key to its `package help`_ attribute:
 
 .. code-block:: python
 

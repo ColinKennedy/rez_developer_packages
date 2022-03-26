@@ -120,8 +120,8 @@ If the package you want to add is:
 It may make sense to define those paths globally with ``rez_sphinx config``.
 
 
-As A package -> Documentation Table
------------------------------------
+As A {"package": "documentation URL"} Dict
+------------------------------------------
 
 There's a way to make a Python dictionary like
 ``{"the_rez_package": "https://www.package.com/the/sphinx/docs"}``.

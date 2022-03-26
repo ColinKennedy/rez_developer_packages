@@ -10,6 +10,8 @@
 - Do all general TODO notes
 - Do all NotImplementedError, where applicable
 
+- Check why rez_sphinx config show sphinx-apidoc.arguments fails
+- Check why rez_sphinx config show --list-all oes not show "intersphinx_settings" or its children
 - silence build commands
 
 - Add unittests for the plugin / preprocess hooks
