@@ -114,10 +114,12 @@ class BootstrapIntersphinx(unittest.TestCase):
             """
         )
 
+        full = template + "\n\n" + text
+
         with io.open(
             os.path.join(directory, "package.py"), "w", encoding="utf-8"
         ) as handler:
-            handler.write(template + "\n\n" + text)
+            handler.write(full.decode("utf-8"))
 
         package = finder.get_nearest_rez_package(directory)
 
@@ -321,7 +323,7 @@ class Invalid(unittest.TestCase):
         directory = package_wrap.make_directory("_test_no_source")
 
         template = textwrap.dedent(
-            """\
+            u"""\
             name = "foo"
 
             version = "1.0.0"
@@ -343,7 +345,7 @@ class Invalid(unittest.TestCase):
         directory = package_wrap.make_directory("_test_auto_api_no_python_files")
 
         template = textwrap.dedent(
-            """\
+            u"""\
             name = "foo"
 
             version = "1.0.0"
@@ -368,7 +370,7 @@ class Invalid(unittest.TestCase):
         ) as handler:
             handler.write(
                 textwrap.dedent(
-                    """\
+                    u"""\
                     .. toctree::
                        :maxdepth: 2
                        :caption: Contents:
@@ -470,6 +472,8 @@ class Miscellaneous(unittest.TestCase):
                     stderr=pipe,
                 )
                 build.communicate()
+
+            pipe.close()
 
             self.assertEqual(0, init.returncode)
             self.assertEqual(0, build.returncode)
@@ -603,7 +607,7 @@ class Runner(unittest.TestCase):
         api_directory = os.path.join(source, "api")
         source_master = os.path.join(source, "index.rst")
 
-        with open(source_master, "r", encoding="utf-8") as handler:
+        with io.open(source_master, "r", encoding="utf-8") as handler:
             data = handler.read()
 
         master_toctrees = [
@@ -719,7 +723,7 @@ def _make_rez_configuration(text):
     configuration = os.path.join(directory, "rezconfig.py")
 
     with io.open(configuration, "w", encoding="utf-8") as handler:
-        handler.write(text)
+        handler.write(text.decode("utf-8"))
 
     return configuration
 

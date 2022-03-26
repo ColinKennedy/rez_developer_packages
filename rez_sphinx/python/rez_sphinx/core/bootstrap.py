@@ -395,7 +395,7 @@ def append_bootstrap_lines(path):
 
     """
     with io.open(path, "a", encoding="utf-8") as handler:
-        handler.write("\n\n" + _REZ_SPHINX_BOOTSTRAP_LINES)
+        handler.write(("\n\n" + _REZ_SPHINX_BOOTSTRAP_LINES).decode("utf-8"))
 
 
 def bootstrap(data, package=None, skip=frozenset()):

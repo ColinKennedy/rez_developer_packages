@@ -7,6 +7,9 @@ import pprint
 import yaml
 
 
+PYTHON_FORMAT = "python"
+
+
 def _print_python(data):
     """Print ``data``, raw, to the terminal."""
     try:
@@ -24,15 +27,15 @@ def _print_yaml(data):
     print(yaml.dump(data, sort_keys=True))
 
 
-PYTHON_FORMAT = "python"
-CHOICES = {PYTHON_FORMAT: _print_python, "yaml": _print_yaml}
+def get_choices():
+    return {PYTHON_FORMAT: _print_python, "yaml": _print_yaml}
 
 
 def get_format_caller(key):
     """Find an appropriate printer, using ``key``.
 
     Args:
-        key (str): An identifier like "python", "yaml", etc. See :attr:`CHOICES`.
+        key (str): An identifier like "python", "yaml", etc. See :attr:`choices`.
 
     Raises:
         ValueError: If ``key`` has no found result.
@@ -42,12 +45,14 @@ def get_format_caller(key):
             A function which takes on parameter and prints to the terminal.
 
     """
+    choices = get_choices()
+
     try:
-        return CHOICES[key]
+        return choices[key]
     except KeyError:
         raise ValueError(
             'Key "{key}" not valid. Options were, "{options}".'.format(
                 key=key,
-                options=sorted(CHOICES.keys()),
+                options=sorted(choices.keys()),
             )
         )

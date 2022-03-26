@@ -13,4 +13,4 @@ def add_to_default_text(directory):
         os.path.join(source, "user_documentation.rst"),
     ):
         with io.open(path, "a", encoding="utf-8") as handler:
-            handler.write("Extra text here")
+            handler.write(u"Extra text here")

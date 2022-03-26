@@ -172,14 +172,14 @@ def make_simple_developer_package(package_text="", file_text="", help_=None):
     with io.open(
         os.path.join(directory, "package.py"), "w", encoding="utf-8"
     ) as handler:
-        handler.write(package_text)
+        handler.write(package_text.decode("utf-8"))
 
     with io.open(
         os.path.join(directory, "rezbuild.py"), "w", encoding="utf-8"
     ) as handler:
         handler.write(
             textwrap.dedent(
-                """\
+                u"""\
                 #!/usr/bin/env python
                 # -*- coding: utf-8 -*-
 
@@ -225,6 +225,6 @@ def make_simple_developer_package(package_text="", file_text="", help_=None):
     with io.open(
         os.path.join(python_package, "file.py"), "w", encoding="utf-8"
     ) as handler:
-        handler.write(file_text)
+        handler.write(file_text.decode("utf-8"))
 
     return package

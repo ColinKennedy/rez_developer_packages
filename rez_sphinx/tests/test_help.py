@@ -500,7 +500,7 @@ def _add_example_ref_role(root, text=""):
     )
 
     with io.open(os.path.join(root, "some_page.rst"), "w", encoding="utf-8") as handler:
-        handler.write(text.encode("utf-8"))
+        handler.write(text.decode("utf-8"))
 
 
 @contextlib.contextmanager

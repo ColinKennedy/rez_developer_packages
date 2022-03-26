@@ -279,7 +279,7 @@ def _set_up_config(sub_parsers):
         """Allow the user to choose :ref:`rez_sphinx config` output (`yaml`_)."""
         parser.add_argument(
             "--format",
-            choices=sorted(print_format.CHOICES.keys()),
+            choices=sorted(print_format.get_choices().keys()),
             default=print_format.PYTHON_FORMAT,
             help="Change the printed output, at will.",
         )

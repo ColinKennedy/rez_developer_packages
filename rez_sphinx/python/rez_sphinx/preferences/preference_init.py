@@ -170,7 +170,7 @@ class Entry(object):
             os.makedirs(directory)
 
         with io.open(full, "w", encoding="utf-8") as handler:
-            handler.write(self.get_default_text())
+            handler.write(self.get_default_text().decode("utf-8"))
 
     def __repr__(self):
         """str: Create a representation of this instance."""

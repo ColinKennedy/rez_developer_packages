@@ -21,7 +21,7 @@ def add_gitignore(directory):
     ) as handler:
         handler.write(
             textwrap.dedent(
-                """\
+                u"""\
                 *
                 **/
                 !.gitignore

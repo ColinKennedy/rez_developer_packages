@@ -13,6 +13,8 @@
 - Do all TODO notes
 - Do all NotImplementedError, where applicable
 
+- silence build commands
+
 - Add unittests for the plugin / preprocess hooks
  - If it needs to be dependency-less, make a unittest that enforces this
 

@@ -581,7 +581,11 @@ def get_preference_paths():
     if not exceptional_cases:
         return output
 
-    output.update(_get_special_preference_paths(case) for case in exceptional_cases)
+    output.update(
+        path
+        for case in exceptional_cases
+        for path in _get_special_preference_paths(case)
+    )
 
     return output
 
