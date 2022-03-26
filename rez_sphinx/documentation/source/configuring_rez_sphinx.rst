@@ -78,8 +78,8 @@ and that's it. All sections in this page can be converted this way.
 
 .. _rez_sphinx.build_documentation_key:
 
-rez_sphinx.build_documentation_key
-**********************************
+build_documentation_key
+***********************
 
 You can specify a specific key for finding / building documentation:
 
@@ -107,18 +107,12 @@ However if you do, you must keep in mind the following details:
 - The first key in the list that matches an existing test is used.
 
 
-.. _sphinx-quickstart customization:
-
-rez_sphinx.sphinx-quickstart
-****************************
-
-TODO Add
-
+.. _rez_sphinx.init_options.default_files:
 
 .. _default file entries:
 
-rez_sphinx.init_options.default_files
-*************************************
+init_options.default_files
+**************************
 
 By default, `sphinx-quickstart`_ adds a `index.rst`_ when your project is first
 generated. :ref:`rez_sphinx` does a little extra and adds a
@@ -173,59 +167,16 @@ If you like the files but don't want the validation check, see
 
 .. _rez_sphinx.init_options.check_default_files:
 
-rez_sphinx.init_options.check_default_files
-*******************************************
+init_options.check_default_files
+********************************
 
 TODO add stuff here
 
 
-.. _rez_sphinx.sphinx-apidoc.allow_apidoc_templates:
-
-rez_sphinx.sphinx-apidoc.allow_apidoc_templates
-***********************************************
-
-This is already covered in :ref:`rez_sphinx apidoc templates` but basically, in
-Python 3+, there's an option to make the Sphinx's `toctree`_ look much cleaner.
-If you prefer the default display, use this option to get it back:
-
-.. code-block:: python
-
-
-    optionvars = {
-        "rez_sphinx": {
-            "sphinx-apidoc": {
-                "allow_apidoc_templates": False,
-            },
-        }
-    }
-
-As mentioned, `sphinx-apidoc`_ templates are a Python 3+ feature. Specifically
-Sphinx 2.2+. Adding this setting in Python 2 does nothing.
-
-
-.. _rez_sphinx.sphinx_conf_overrides:
-
-rez_sphinx.sphinx_conf_overrides
-********************************
-
-This setting allows you to change in a `Sphinx conf.py`_. See `conf.py
-customization` for a full list of the supported variables and what each of them do.
-
-.. code-block:: python
-
-    optionvars = {
-        "rez_sphinx": {
-            "sphinx_conf_overrides": {
-                "add_module_names": True,  # Use full names in API documentation
-            }
-        }
-    }
-
-
 .. _rez_sphinx.intersphinx_settings.package_link_map:
 
-rez_sphinx.intersphinx_settings.package_link_map
-************************************************
+intersphinx_settings.package_link_map
+*************************************
 
 If you're trying to link your Rez package to another Rez package, but that
 package cannot be editted (it could be a third-party PyPI package or
@@ -249,3 +200,56 @@ documentation which contains a `objects.inv`_ file. When building your
 documentation, if a Rez package named ``schema`` is found but its `package.py`_
 doesn't define the documentation properly,
 ``https://schema.readthedocs.io/en/latest`` is used as a fallback.
+
+
+.. _rez_sphinx.sphinx-apidoc.allow_apidoc_templates:
+
+sphinx-apidoc.allow_apidoc_templates
+************************************
+
+This is already covered in :ref:`rez_sphinx apidoc templates` but basically, in
+Python 3+, there's an option to make the Sphinx's `toctree`_ look much cleaner.
+If you prefer the default display, use this option to get it back:
+
+.. code-block:: python
+
+
+    optionvars = {
+        "rez_sphinx": {
+            "sphinx-apidoc": {
+                "allow_apidoc_templates": False,
+            },
+        }
+    }
+
+As mentioned, `sphinx-apidoc`_ templates are a Python 3+ feature. Specifically
+Sphinx 2.2+. Adding this setting in Python 2 does nothing.
+
+
+.. _rez_sphinx.sphinx-quickstart:
+
+.. _sphinx-quickstart customization:
+
+sphinx-quickstart
+*****************
+
+TODO Add
+
+
+.. _rez_sphinx.sphinx_conf_overrides:
+
+sphinx_conf_overrides
+*********************
+
+This setting allows you to change in a `Sphinx conf.py`_. See `conf.py
+customization` for a full list of the supported variables and what each of them do.
+
+.. code-block:: python
+
+    optionvars = {
+        "rez_sphinx": {
+            "sphinx_conf_overrides": {
+                "add_module_names": True,  # Use full names in API documentation
+            }
+        }
+    }
