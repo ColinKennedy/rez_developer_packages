@@ -28,11 +28,19 @@ def requires():
         "six-1.15+<2",
     ]
 
-    for request in config.optionvars.get("rez_sphinx", dict()).get("extra_requires", []):
-        if request in output:
+    # 2. Add extra requires, from the user's configuration
+    for request_ in config.optionvars.get("rez_sphinx", dict()).get("extra_requires", []):
+        if request_ in output:
             continue
 
-        output.append(request)
+        output.append(request_)
+
+    if not in_context():
+        return output
+
+    # TODO : Ask the group for a cleaner way of handling this
+    if request.get(".rez_sphinx.feature.docbot_plugin", "").endswith("1"):
+        output.append("rez_docbot-1+<2")
 
     return output
 
