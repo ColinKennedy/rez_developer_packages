@@ -66,9 +66,9 @@ _MASTER_DOC = "master_doc"
 
 _MASTER_SCHEMA = schema.Schema(
     {
-        schema.Optional(
-            _BUILD_KEY, default="build_documentation"
-        ): schema.Or(schema_helper.NON_NULL_STR, [schema_helper.NON_NULL_STR]),
+        schema.Optional(_BUILD_KEY, default="build_documentation"): schema.Or(
+            schema_helper.NON_NULL_STR, [schema_helper.NON_NULL_STR]
+        ),
         schema.Optional(_EXTENSIONS_KEY, default=list(_BASIC_EXTENSIONS)): [
             schema_helper.PYTHON_DOT_PATH
         ],
@@ -134,7 +134,7 @@ _MASTER_SCHEMA = schema.Schema(
         ],
         schema.Optional(_INTERSPHINX_SETTINGS): {
             _PACKAGE_LINK_MAP: {str: schema_helper.NON_NULL_STR}
-        }
+        },
     }
 )
 
@@ -520,13 +520,18 @@ def get_preference_from_path(path):
             if not full:
                 text = item
 
-            raise exception.ConfigurationError('Path "{text}" was not found. See --list-all for options.'.format(text=text))
+            raise exception.ConfigurationError(
+                'Path "{text}" was not found. See --list-all for options.'.format(
+                    text=text
+                )
+            )
 
     return current
 
 
 def get_preference_paths():
     """set[str]: All valid paths for :ref:`rez_sphinx config show`."""
+
     def _get_mapping(mapping, context):
         outputs = set()
         exceptional_cases = set()

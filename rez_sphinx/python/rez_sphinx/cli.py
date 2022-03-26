@@ -312,12 +312,13 @@ def _set_up_config(sub_parsers):
     check.set_defaults(execute=_check)
 
     show = inner_parser.add_parser(
-        "show", description="Print the value of any configuration attribute.",
+        "show",
+        description="Print the value of any configuration attribute.",
     )
     show.add_argument(
         "names",
         nargs="*",
-        help='Configuration attributes to check for. Specify inner dicts using '
+        help="Configuration attributes to check for. Specify inner dicts using "
         '"foo.bar" syntax. Use --list to show all possible values.',
     )
     show.add_argument(
@@ -490,21 +491,31 @@ def _show(namespace):
 
     if invalids:
         if len(invalids) == 1:
-            print('Name "{invalids}" does not exist.'.format(invalids=", ".join(sorted(invalids))))
+            print(
+                'Name "{invalids}" does not exist.'.format(
+                    invalids=", ".join(sorted(invalids))
+                )
+            )
 
             return
 
-        print('Names "{invalids}" do not exist.'.format(invalids=", ".join(sorted(invalids))))
+        print(
+            'Names "{invalids}" do not exist.'.format(
+                invalids=", ".join(sorted(invalids))
+            )
+        )
 
         return
 
-    print('Found Output:')
+    print("Found Output:")
 
     for name, value in values:
         print(
-            '{name}:\n    {value}'.format(
+            "{name}:\n    {value}".format(
                 name=name,
-                value=pprint.pformat(preference.get_preference_from_path(name), indent=4),
+                value=pprint.pformat(
+                    preference.get_preference_from_path(name), indent=4
+                ),
             ),
         )
 

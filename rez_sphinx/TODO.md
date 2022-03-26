@@ -1,5 +1,11 @@
+- Get tests to pass again
+ - pylint
+ - black
+ - isort
+ - unittests
 - Should make some tests for invalid quickstart / build / API arguments
 - Every command that accepts a directory should have a test for if it isn't found. Probably.
+- Fix `foo <bar>`_ style Sphinx conf.py references. They're broken
 
 
 ## Document current work
@@ -7,8 +13,6 @@
 - Do all TODO notes within the documentation/source folder
 - Consider adding refs to "documentation source root" so people know what I'm talking about
 - Consider adding refs to "documentation build root" so people know what I'm talking about
-- Fix `foo <bar>`_ style Sphinx conf.py references. They're broken
-
 - Add option to prefer hand-written API documentation, if provided
 
 - If `help`_ rez_sphinx objects.inv points to a non-URL, check if it's

@@ -59,7 +59,9 @@ class ConfPy(object):
 
         """
         if not os.path.isfile(path):
-            raise IOError('Path "{path}" does not exist and cannot be imported.'.format(path=path))
+            raise IOError(
+                'Path "{path}" does not exist and cannot be imported.'.format(path=path)
+            )
 
         module = imports.import_file("rez_sphinx_conf", path)
 

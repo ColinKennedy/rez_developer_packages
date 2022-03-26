@@ -167,8 +167,9 @@ class BootstrapIntersphinx(unittest.TestCase):
         name = "package_to_test"
         source_directory = os.path.join(source_root, name)
 
-        with run_test.simulate_resolve(installed_packages), run_test.allow_defaults(
-        ), run_test.keep_config() as config:
+        with run_test.simulate_resolve(
+            installed_packages
+        ), run_test.allow_defaults(), run_test.keep_config() as config:
             config.optionvars.setdefault("rez_sphinx", dict())
             config.optionvars["rez_sphinx"]["build_documentation_key"] = [
                 "build_documentation",
@@ -181,7 +182,9 @@ class BootstrapIntersphinx(unittest.TestCase):
         watcher = container[0]
         _, _, results = watcher
 
-        self.assertEqual({'another_package', 'some_package', 'python', 'rez_sphinx'}, results)
+        self.assertEqual(
+            {"another_package", "some_package", "python", "rez_sphinx"}, results
+        )
 
     def test_fallback_package_links(self):
         """A package without documentation is find-able if it has a fallback path."""
@@ -209,7 +212,9 @@ class BootstrapIntersphinx(unittest.TestCase):
             with _watch_intersphinx_mapping() as container, run_test.allow_defaults(), run_test.keep_config() as config:
                 config.optionvars.setdefault("rez_sphinx", dict())
                 config.optionvars["rez_sphinx"]["intersphinx_settings"] = dict()
-                config.optionvars["rez_sphinx"]["intersphinx_settings"]["package_link_map"] = fallback_map
+                config.optionvars["rez_sphinx"]["intersphinx_settings"][
+                    "package_link_map"
+                ] = fallback_map
 
                 run_test.test(["build", "run", source_directory])
 
@@ -414,6 +419,7 @@ def _make_rez_configuration(text):
 # TODO : Find a better way of doing this
 def _watch(appender, function):
     """Run ``function`` and append its information to ``appender``."""
+
     @functools.wraps(function)
     def wrapped(*args, **kwargs):
         result = function(*args, **kwargs)

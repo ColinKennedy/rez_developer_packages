@@ -69,6 +69,14 @@ sees when it's building your packages's documentation and should be preferred
 for debugging a specific package.
 
 
+.. _rez_sphinx config show --list-all:
+
+rez_sphinx config show --list-all
+*********************************
+
+TODO
+
+
 .. _rez_sphinx config show build_documentation_key:
 
 rez_sphinx config show build_documentation_key
