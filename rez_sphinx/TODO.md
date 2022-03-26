@@ -1,9 +1,5 @@
 - Should make some tests for invalid quickstart / build / API arguments
 - Every command that accepts a directory should have a test for if it isn't found. Probably.
-- rez_sphinx build view intersphinx_mapping unittests
- - Actually, move this to its own subcommand. Probably.
-- :ref:`rez_sphinx config show build_documentation_key`
- - unittests
 - Make sure to append build_documentation key, if provided. (?)
 
 

@@ -48,6 +48,41 @@ TODO add this :ref:`rez_sphinx config show`.
 :ref:`rez_sphinx config show --list-all`.
 
 
+.. _rez_sphinx config show:
+
+rez_sphinx config show
+**********************
+
+``rez_sphinx config show`` is the main command to query configuration values
+for :ref:`rez_sphinx`.  Don't confuse this command with
+:ref:`rez_sphinx view sphinx-conf` because they do different things.
+
+- :ref:`rez_sphinx config show` - Get all :ref:`rez_sphinx` settings.
+    - See :doc:`configuring_rez_sphinx` for example values
+- :ref:`rez_sphinx view sphinx-conf`
+    - Queries your `Sphinx conf.py`_ for resolved values.
+
+:ref:`rez_sphinx config show` returns values that, often times, are only
+suggested fallbacks. They aren't guaranteed to make it into your documentation
+settings. :ref:`rez_sphinx view sphinx-conf` however is what `Sphinx`_ actually
+sees when it's building your packages's documentation and should be preferred
+for debugging a specific package.
+
+
+.. _rez_sphinx config show build_documentation_key:
+
+rez_sphinx config show build_documentation_key
+==============================================
+
+This important command returns a `rez-test`_ string label. By default,
+"build_documentation". This label, which may seem simple and unimportant, is
+the glue that most of :ref:`rez_sphinx` relies on for its automated processes.
+
+Don't change this configuration value unless you know what you're doing. And if
+you must, change it at the :ref:`global configuration` level, affecting all
+packages. Do not set this at the :ref:`per-package configuration` level.
+
+
 Configuration Options
 *********************
 

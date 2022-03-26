@@ -146,3 +146,6 @@ rst_epilog = textwrap.dedent(
     .. _yaml: https://pyyaml.org/wiki/PyYAMLDocumentation
     """
 )
+
+:ref:`global configuration`
+:ref:`per-package configuration`
