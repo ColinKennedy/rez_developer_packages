@@ -14,8 +14,8 @@ from rez.cli import _complete_util
 from rez.config import config as config_
 from rez_utilities import finder
 
-from .commands import build_orderer, initer
-from .commands.builder import inspector, runner
+from .commands import build_orderer, initer, publish_run
+from .commands.builder import inspector, runner as build_run
 from .commands.suggest import build_display, search_mode, suggestion_mode
 from .core import api_builder, configuration, exception, path_control, print_format
 from .preferences import preference
@@ -84,7 +84,7 @@ def _build_runner(namespace):
             "while also --no-apidoc.".format(namespace=namespace)
         )
 
-    runner.build(
+    build_run.build(
         namespace.directory,
         api_mode=namespace.api_documentation,
         api_options=namespace.api_doc_arguments,
@@ -201,6 +201,18 @@ def _list_overrides(namespace):
 
     caller = print_format.get_format_caller(namespace.format)
     caller(data)
+
+
+def _publish_run(namespace):
+    if not publish_run.is_publishing_enabled():
+        raise exception.UserInputError(
+            "Must must include .rez_sphinx.feature.docbot_plugin==1 in your resolve to use this command."
+        )
+
+    all_documentation = publish_run.build_documentation(namespace.directory)
+
+    for documentation in all_documentation:
+        publish_run.publish(documentation)
 
 
 def _set_up_build(sub_parsers):
@@ -354,6 +366,19 @@ def _set_up_init(sub_parsers):
     init.set_defaults(execute=_init)
     _add_directory_argument(init)
     _add_remainder_argument(init)
+
+
+def _set_up_publish(sub_parsers):
+    publish = sub_parsers.add_parser(
+        "publish", description="Check the order which packages should run."
+    )
+    inner_parsers = publish.add_subparsers()
+    publish_runner = inner_parsers.add_parser(
+        "run",
+        help="Builds + publishs your documentation.",
+    )
+    _add_directory_argument(publish_runner)
+    publish_runner.set_defaults(execute=_publish_run)
 
 
 def _set_up_suggest(sub_parsers):
@@ -629,6 +654,7 @@ def parse_arguments(text):
     _set_up_build(sub_parsers)
     _set_up_config(sub_parsers)
     _set_up_init(sub_parsers)
+    _set_up_publish(sub_parsers)
     _set_up_suggest(sub_parsers)
     _set_up_view(sub_parsers)
 

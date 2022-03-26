@@ -18,7 +18,6 @@ _LOGGER = logging.getLogger(__name__)
 
 
 def _get_documentation_destination(name, package):
-
     def _parse_destination(text):
         raise ValueError(text)
 
@@ -33,7 +32,7 @@ def _get_documentation_destination(name, package):
 
 @lru_cache()
 def _get_fallback_destination():
-    raise NotImplementedError('Need to write this')
+    raise NotImplementedError("Need to write this")
 
 
 def _validated_test_keys(runner):
@@ -61,17 +60,18 @@ def _validated_test_keys(runner):
 
     raise exception.BadPackage(
         'Package "{name}" has no rez_sphinx key for building documentation. '
-        'Run ``rez_sphinx init`` to fix this.'.format(name=name)
+        "Run ``rez_sphinx init`` to fix this.".format(name=name)
     )
 
 
 def is_publishing_enabled():
     """bool: Check if the user's current environment is capable of publishing."""
-    return os.getenv("REZ_EPH_REZ_SPHINX_FEATURE_DOCBOT_PLUGIN_REQUEST", "0").endswith("1")
+    return os.getenv("REZ_EPH_REZ_SPHINX_FEATURE_DOCBOT_PLUGIN_REQUEST", "0").endswith(
+        "1"
+    )
 
 
 def build_documentation(directory):
-
     def _to_exact_request(package):
         # TODO : Check if Rez has a function for this
         if not package.version:
@@ -91,7 +91,9 @@ def build_documentation(directory):
         _LOGGER.info('Now building documentation with "%s".', name)
 
         runner.run_test(name)
-        output.append(_get_documentation_destination(name, package) or _get_fallback_destination())
+        output.append(
+            _get_documentation_destination(name, package) or _get_fallback_destination()
+        )
 
     return output
 
