@@ -31,6 +31,7 @@ def _get_documentation_destination(name, package):
         str: The found documentation directory.
 
     """
+
     def _parse_destination(text):
         raise ValueError(text)
 
@@ -146,8 +147,7 @@ def build_documentation(directory):
 
         runner.run_test(name)
         destination = (
-            _get_documentation_destination(name, package)
-            or _get_fallback_destination()
+            _get_documentation_destination(name, package) or _get_fallback_destination()
         )
 
         if not destination:
@@ -157,7 +157,7 @@ def build_documentation(directory):
 
     if invalids:
         raise exception.NoDocumentationFound(
-            'No documentation could be found after '
+            "No documentation could be found after "
             '"{invalids}" commands were ran.'.format(invalids=", ".sorted(invalids))
         )
 

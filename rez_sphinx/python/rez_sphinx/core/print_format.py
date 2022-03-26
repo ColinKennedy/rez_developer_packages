@@ -6,7 +6,6 @@ import pprint
 
 import yaml
 
-
 PYTHON_FORMAT = "python"
 
 
@@ -28,6 +27,7 @@ def _print_yaml(data):
 
 
 def get_choices():
+    """dict[str, callable[str]]: Each allowed print format and its print function."""
     return {PYTHON_FORMAT: _print_python, "yaml": _print_yaml}
 
 

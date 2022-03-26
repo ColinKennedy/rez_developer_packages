@@ -9,8 +9,9 @@ import tempfile
 import textwrap
 
 from rez.config import config
-from rez_sphinx.core import generic
 from rez_utilities import creator, finder
+
+from rez_sphinx.core import generic
 
 
 def _delete_later(directory):

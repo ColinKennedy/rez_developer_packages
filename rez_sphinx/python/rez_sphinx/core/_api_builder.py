@@ -32,7 +32,7 @@ def _add_disclaimer_readme(directory):
     with io.open(os.path.join(directory, "README"), "w", encoding="utf-8") as handler:
         handler.write(
             textwrap.dedent(
-                u"""\
+                """\
                 This directory and its contents are auto-generated and ignored by git.
                 Do not place any files here that you wish to keep!"""
             )
