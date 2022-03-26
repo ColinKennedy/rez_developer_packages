@@ -9,6 +9,7 @@ import tempfile
 import textwrap
 
 from rez.config import config
+from rez_sphinx.core import generic
 from rez_utilities import creator, finder
 
 
@@ -169,10 +170,13 @@ def make_simple_developer_package(package_text="", file_text="", help_=None):
         '''
     )
 
+    file_text = generic.decode(file_text)
+    package_text = generic.decode(package_text)
+
     with io.open(
         os.path.join(directory, "package.py"), "w", encoding="utf-8"
     ) as handler:
-        handler.write(package_text.decode("utf-8"))
+        handler.write(package_text)
 
     with io.open(
         os.path.join(directory, "rezbuild.py"), "w", encoding="utf-8"
@@ -225,6 +229,6 @@ def make_simple_developer_package(package_text="", file_text="", help_=None):
     with io.open(
         os.path.join(python_package, "file.py"), "w", encoding="utf-8"
     ) as handler:
-        handler.write(file_text.decode("utf-8"))
+        handler.write(file_text)
 
     return package

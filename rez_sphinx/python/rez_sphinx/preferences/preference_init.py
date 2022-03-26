@@ -22,7 +22,7 @@ import textwrap
 
 import schema
 
-from ..core import schema_helper
+from ..core import generic, schema_helper
 
 _BASE_TEXT = textwrap.dedent(
     """\
@@ -169,8 +169,10 @@ class Entry(object):
         if not os.path.isdir(directory):
             os.makedirs(directory)
 
+        text = generic.decode(self.get_default_text())
+
         with io.open(full, "w", encoding="utf-8") as handler:
-            handler.write(self.get_default_text().decode("utf-8"))
+            handler.write(text)
 
     def __repr__(self):
         """str: Create a representation of this instance."""

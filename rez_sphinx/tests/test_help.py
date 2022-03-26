@@ -10,7 +10,7 @@ from python_compatibility import wrapping
 from rez import developer_package
 from rez_utilities import creator, finder
 
-from rez_sphinx.core import exception, hook
+from rez_sphinx.core import exception, generic, hook
 from rez_sphinx.preferences import preference_help
 
 from .common import package_wrap, run_test
@@ -500,7 +500,7 @@ def _add_example_ref_role(root, text=""):
     )
 
     with io.open(os.path.join(root, "some_page.rst"), "w", encoding="utf-8") as handler:
-        handler.write(text.decode("utf-8"))
+        handler.write(generic.decode(text))
 
 
 @contextlib.contextmanager

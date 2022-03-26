@@ -18,7 +18,7 @@ from rez.config import config as config_
 from rez.utils import pip
 from rez_utilities import creator, finder
 
-from rez_sphinx.core import bootstrap, exception, sphinx_helper
+from rez_sphinx.core import bootstrap, exception, generic, sphinx_helper
 
 from .common import doc_test, package_wrap, pypi_check, run_test
 
@@ -119,7 +119,7 @@ class BootstrapIntersphinx(unittest.TestCase):
         with io.open(
             os.path.join(directory, "package.py"), "w", encoding="utf-8"
         ) as handler:
-            handler.write(full.decode("utf-8"))
+            handler.write(generic.decode(full))
 
         package = finder.get_nearest_rez_package(directory)
 
@@ -723,7 +723,7 @@ def _make_rez_configuration(text):
     configuration = os.path.join(directory, "rezconfig.py")
 
     with io.open(configuration, "w", encoding="utf-8") as handler:
-        handler.write(text.decode("utf-8"))
+        handler.write(generic.decode(text))
 
     return configuration
 

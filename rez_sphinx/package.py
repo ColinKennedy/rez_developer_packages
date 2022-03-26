@@ -94,11 +94,17 @@ tests = {
     },
     "unittest_python_2": {
         "command": "python -m unittest discover",
-        "requires": ["python-2"],
+        "requires": [
+            "python-2",
+            "sphinx_rtd_theme-1+<2",
+        ],
     },
     "unittest_python_3": {
         "command": "python -m unittest discover",
-        "requires": ["python-3"],
+        "requires": [
+            "python-3",
+            "sphinx_rtd_theme-1+<2",
+        ],
     },
 }
 

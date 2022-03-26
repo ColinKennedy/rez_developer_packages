@@ -17,3 +17,12 @@ def is_iterable(value):
         return False
 
     return True
+
+
+def decode(text):
+    """str or unicode: Convert ``text``, if necessary."""
+    try:
+        return text.decode("utf-8")
+    except AttributeError:
+        # Python 3 doesn't have `str.decode`
+        return text
