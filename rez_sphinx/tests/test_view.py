@@ -17,7 +17,7 @@ class SphinxConf(unittest.TestCase):
     """Ensure :ref:`rez_sphinx view sphinx-conf` works."""
 
     def test_overrides(self):
-        """Test :ref:`sphinx_conf_overrides` and :ref:`rez_sphinx view sphinx-conf` at once."""
+        """Test :ref:`sphinx_conf_overrides` and :ref:`rez_sphinx view sphinx-conf`."""
         package = finder.get_nearest_rez_package(_CURRENT_DIRECTORY)
 
         with wrapping.keep_cwd(), run_test.keep_config() as config:

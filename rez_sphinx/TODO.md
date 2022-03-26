@@ -1,9 +1,11 @@
 - Get tests to pass again
  - pylint
- - unittests
 - Should make some tests for invalid quickstart / build / API arguments
 - Every command that accepts a directory should have a test for if it isn't found. Probably.
 - Fix `foo <bar>`_ style Sphinx conf.py references. They're broken
+
+- Add unittests for the plugin / preprocess hooks
+ - If it needs to be dependency-less, make a unittest that enforces this
 
 
 ## Document current work

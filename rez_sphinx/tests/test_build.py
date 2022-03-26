@@ -14,6 +14,7 @@ from python_compatibility import wrapping
 from rez import exceptions as exceptions_
 from rez import resolved_context
 from rez.config import config as config_
+from rez.utils import pip
 from rez_utilities import creator, finder
 
 from rez_sphinx.core import bootstrap, exception, sphinx_helper
@@ -490,7 +491,7 @@ class Miscellaneous(unittest.TestCase):
             #
             optionvars = {
                 "rez_sphinx": {
-                    "extra_requires": [pypi_check.to_rez_request(_PYPI_RTD)],
+                    "extra_requires": [pip.pip_to_rez_package_name(_PYPI_RTD)],
                     "sphinx_conf_overrides": {
                         "html_theme": "sphinx_rtd_theme",
                     },
@@ -662,7 +663,7 @@ class Runner(unittest.TestCase):
         api_directory = os.path.join(source, "api")
         source_master = os.path.join(source, "index.rst")
 
-        with open(source_master, "r") as handler:
+        with open(source_master, "r", encoding="utf-8") as handler:
             data = handler.read()
 
         master_toctrees = [
@@ -717,7 +718,7 @@ class Runner(unittest.TestCase):
         install_packages = [install for _, install in package_directories]
         watchers = []
 
-        for source, install in package_directories:
+        for source, _ in package_directories:
             with run_test.simulate_resolve(install_packages), wrapping.keep_cwd():
                 run_test.test(["init", source])
 

@@ -1,6 +1,7 @@
 """Make sure the user's `package help`_ features work as expected."""
 
 import contextlib
+import io
 import os
 import textwrap
 import unittest
@@ -238,13 +239,16 @@ class AutoHelpOrder(_Base):
                 [["a", "a"], ["b", "b"], ["z", "z"]],
             ),
         ]:
-            sort = hook._sort(caller, original, original + auto_generated)
+            sort = hook._sort(  # pylint: disable=protected-access
+                caller,
+                original,
+                original + auto_generated,
+            )
 
             self.assertEqual(expected, sort)
 
     def test_invalid(self):
         """Stop early if the user's sort option is invalid."""
-        # TODO : Add test to ensure invalid order is caught safely
         with run_test.keep_config() as config:
             config.optionvars["rez_sphinx"] = dict()
             config.optionvars["rez_sphinx"].setdefault("auto_help", dict())
@@ -266,7 +270,11 @@ class AutoHelpOrder(_Base):
                 [["b", "b"], ["t", "t"], ["z", "z"], ["a", "a"]],
             ),
         ]:
-            sort = hook._sort(caller, original, original + auto_generated)
+            sort = hook._sort(  # pylint: disable=protected-access
+                caller,
+                original,
+                original + auto_generated,
+            )
 
             self.assertEqual(expected, sort)
 
@@ -281,7 +289,11 @@ class AutoHelpOrder(_Base):
                 [["z", "z"], ["a", "a"], ["b", "b"], ["t", "t"]],
             ),
         ]:
-            sort = hook._sort(caller, original, original + auto_generated)
+            sort = hook._sort(  # pylint: disable=protected-access
+                caller,
+                original,
+                original + auto_generated,
+            )
 
             self.assertEqual(expected, sort)
 
@@ -485,8 +497,8 @@ def _add_example_ref_role(root, text=""):
         """
     )
 
-    with open(os.path.join(root, "some_page.rst"), "w") as handler:
-        handler.write(text)
+    with io.open(os.path.join(root, "some_page.rst"), "w", encoding="utf-8") as handler:
+        handler.write(text.encode("utf-8"))
 
 
 @contextlib.contextmanager

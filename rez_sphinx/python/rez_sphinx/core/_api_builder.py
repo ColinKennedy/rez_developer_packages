@@ -1,6 +1,7 @@
 """A companion module to :mod:`api_builder` which builds the API .rst files."""
 
 import logging
+import io
 import os
 import sys
 import textwrap
@@ -28,7 +29,7 @@ def _add_disclaimer_readme(directory):
             e.g. ``"{root}/documentation/source/api"``.
 
     """
-    with open(os.path.join(directory, "README"), "w") as handler:
+    with io.open(os.path.join(directory, "README"), "w", encoding="utf-8") as handler:
         handler.write(
             textwrap.dedent(
                 """\

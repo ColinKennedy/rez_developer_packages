@@ -3,6 +3,7 @@
 import atexit
 import functools
 import os
+import io
 import shutil
 import tempfile
 import textwrap
@@ -168,10 +169,10 @@ def make_simple_developer_package(package_text="", file_text="", help_=None):
         '''
     )
 
-    with open(os.path.join(directory, "package.py"), "w") as handler:
+    with io.open(os.path.join(directory, "package.py"), "w", encoding="utf-8") as handler:
         handler.write(package_text)
 
-    with open(os.path.join(directory, "rezbuild.py"), "w") as handler:
+    with io.open(os.path.join(directory, "rezbuild.py"), "w", encoding="utf-8") as handler:
         handler.write(
             textwrap.dedent(
                 """\
@@ -213,9 +214,11 @@ def make_simple_developer_package(package_text="", file_text="", help_=None):
     python_package = os.path.join(python_directory, package.name)
 
     os.makedirs(python_package)
-    open(os.path.join(python_package, "__init__.py"), "a").close()
 
-    with open(os.path.join(python_package, "file.py"), "w") as handler:
+    with io.open(os.path.join(python_package, "__init__.py"), "a", encoding="utf-8"):
+        pass
+
+    with io.open(os.path.join(python_package, "file.py"), "w", encoding="utf-8") as handler:
         handler.write(file_text)
 
     return package

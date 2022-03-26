@@ -177,10 +177,8 @@ def _get_extension_attribute_names(extensions):
     """
 
     def _capture_value(appender):
-        def _wrap(attribute_name, *args, **kwargs):
+        def _wrap(attribute_name, *_, **__):
             appender(attribute_name)
-
-            return None
 
         return _wrap
 
@@ -191,7 +189,7 @@ def _get_extension_attribute_names(extensions):
 
         try:
             modules.append(importlib.import_module(name))
-        except Exception as error:
+        except Exception as error:  # pylint: disable=broad-except
             # We're importing arbitrary Python modules based on whatever the
             # user has set.  So we need to catch generalized errors.
             #

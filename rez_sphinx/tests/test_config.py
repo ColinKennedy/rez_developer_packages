@@ -63,7 +63,7 @@ class ListDefault(unittest.TestCase):
         with mock.patch("builtins.print") as patch:
             run_test.test("config list-defaults --sparse --format yaml")
 
-        args, kwargs = patch.call_args
+        args, _ = patch.call_args
         actual = args[0]
         expected = textwrap.dedent(
             """\
@@ -94,7 +94,7 @@ class ListDefault(unittest.TestCase):
             with mock.patch("pprint.pprint") as patch:
                 run_test.test("config list-defaults")
 
-        args, kwargs = patch.call_args
+        args, _ = patch.call_args
         actual = args[0]
         expected = {
             "auto_help": {
@@ -106,7 +106,7 @@ class ListDefault(unittest.TestCase):
             "documentation_root": "documentation",
             "extra_requires": [],
             "init_options": {
-                "default_files": preference._DEFAULT_ENTRIES,
+                "default_files": preference._DEFAULT_ENTRIES,  # pylint: disable=protected-access
                 "check_default_files": True,
             },
             "intersphinx_settings": dict(),
@@ -134,7 +134,7 @@ class ListDefault(unittest.TestCase):
             with mock.patch("pprint.pprint") as patch:
                 run_test.test("config list-defaults --sparse")
 
-        args, kwargs = patch.call_args
+        args, _ = patch.call_args
         actual = args[0]
         expected = {
             "documentation_root": "",
@@ -153,17 +153,10 @@ class ListDefault(unittest.TestCase):
         self.assertEqual(expected, actual)
 
 
-# TODO : Need tests for
-# - format yaml
-# - overrides only
-#  - Need to work flat but also for nested structures
-# - overrides + everything
-
-
 class ListOverrides(unittest.TestCase):
     """Make sure :ref:`rez_sphinx config list-overrides` works."""
 
-    def test_applied(self):
+    def test_applied(self):  # pylint: disable=no-self-use
         """Print all current settings."""
         with _example_override(), wrapping.silence_printing():
             run_test.test("config list-overrides")

@@ -166,7 +166,7 @@ class Invalid(unittest.TestCase):
         with self.assertRaises(exception.BadPackage):
             run_test.test(["suggest", "build-order", source_packages])
 
-    def test_bad_package_recursive(self):
+    def test_bad_package_recursive(self):  # pylint: disable=no-self-use
         """Warn if any directory's package.py is invalid."""
         root = os.path.join(_PACKAGE_ROOT, "_test_data", "bad_package")
         source_packages = os.path.join(root, "source_packages")

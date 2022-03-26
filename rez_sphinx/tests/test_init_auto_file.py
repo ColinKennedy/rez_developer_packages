@@ -1,6 +1,7 @@
 """Make sure any auto-generated documentation files are made, correctly."""
 
 import contextlib
+import io
 import os
 import textwrap
 import unittest
@@ -27,14 +28,14 @@ class General(unittest.TestCase):
             directory, "documentation", "source", "developer_documentation.rst"
         )
 
-        with open(developer, "r") as handler:
+        with io.open(developer, "r", encoding="utf-8") as handler:
             developer_text = handler.read()
 
         user = os.path.join(
             directory, "documentation", "source", "user_documentation.rst"
         )
 
-        with open(user, "r") as handler:
+        with io.open(user, "r", encoding="utf-8") as handler:
             user_text = handler.read()
 
         master_text = _get_base_master_index_text(
@@ -121,12 +122,12 @@ class General(unittest.TestCase):
 
         path = os.path.join(directory, "documentation", "source", name + ".rst")
 
-        with open(path, "r") as handler:
+        with io.open(path, "r", encoding="utf-8") as handler:
             custom_file_data = handler.read().splitlines()
 
         master_index = os.path.join(directory, "documentation", "source", "index.rst")
 
-        with open(master_index, "r") as handler:
+        with io.open(master_index, "r", encoding="utf-8") as handler:
             master_data = handler.read()
 
         master_data = _get_base_master_index_text(
@@ -242,7 +243,7 @@ def _get_base_master_index_text(path):
         str: The document body of ``path``.
 
     """
-    with open(path, "r") as handler:
+    with io.open(path, "r", encoding="utf-8") as handler:
         lines = handler.read().splitlines()
 
     found = -1
