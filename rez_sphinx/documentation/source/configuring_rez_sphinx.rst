@@ -76,6 +76,30 @@ This is what the equivalent would look like, in a `package.py`_.
 and that's it. All sections in this page can be converted this way.
 
 
+.. _rez_sphinx.api_toctree_line:
+
+api_toctree_line
+****************
+
+TODO
+
+
+.. _rez_sphinx.auto_help.filter_by:
+
+auto_help.filter_by
+*******************
+
+TODO
+
+
+.. _rez_sphinx.auto_help.sort_order:
+
+auto_help.sort_order
+********************
+
+TODO
+
+
 .. _rez_sphinx.build_documentation_key:
 
 build_documentation_key
@@ -105,6 +129,30 @@ However if you do, you must keep in mind the following details:
 
 - The first key is always used whenever you call :ref:`rez_sphinx init` in a package.
 - The first key in the list that matches an existing test is used.
+
+
+.. _rez_sphinx.documentation_root:
+
+documentation_root
+******************
+
+TODO
+
+
+.. _rez_sphinx.extra_requires:
+
+extra_requires
+**************
+
+TODO
+
+
+.. _rez_sphinx.init_options.check_default_files:
+
+init_options.check_default_files
+********************************
+
+TODO
 
 
 .. _rez_sphinx.init_options.default_files:
@@ -165,14 +213,6 @@ If you like the files but don't want the validation check, see
 :ref:`rez_sphinx.init_options.check_default_files`.
 
 
-.. _rez_sphinx.init_options.check_default_files:
-
-init_options.check_default_files
-********************************
-
-TODO add stuff here
-
-
 .. _rez_sphinx.intersphinx_settings.package_link_map:
 
 intersphinx_settings.package_link_map
@@ -226,6 +266,30 @@ As mentioned, `sphinx-apidoc`_ templates are a Python 3+ feature. Specifically
 Sphinx 2.2+. Adding this setting in Python 2 does nothing.
 
 
+.. _rez_sphinx.sphinx-apidoc.arguments:
+
+sphinx-apidoc.arguments
+***********************
+
+TODO
+
+
+.. _rez_sphinx.sphinx-apidoc.arguments:
+
+sphinx-apidoc.arguments
+***********************
+
+TODO
+
+
+.. _rez_sphinx.sphinx-apidoc.enable_apidoc:
+
+sphinx-apidoc.enable_apidoc
+***************************
+
+TODO
+
+
 .. _rez_sphinx.sphinx-quickstart:
 
 .. _sphinx-quickstart customization:
@@ -253,3 +317,27 @@ customization` for a full list of the supported variables and what each of them 
             }
         }
     }
+
+
+.. _rez_sphinx.sphinx_conf_overrides.add_module_names:
+
+sphinx_conf_overrides.add_module_names
+**************************************
+
+TODO
+
+
+.. _rez_sphinx.sphinx_conf_overrides.master_doc:
+
+sphinx_conf_overrides.master_doc
+********************************
+
+TODO
+
+
+.. _rez_sphinx.sphinx_extensions:
+
+sphinx_extensions
+*****************
+
+TODO
