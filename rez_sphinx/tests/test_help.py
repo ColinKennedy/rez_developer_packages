@@ -515,8 +515,7 @@ def _override_preprocess(package):
     - Any other environment related details.
 
     Args:
-        package (rez.developer_package.DeveloperPackage):
-            Some developer (source) Rez package to cd into.
+        package (rez.packages.Package): Some developer (source) Rez package to cd into.
 
     Yields:
         context: A "proper" environment for :ref:`rez_sphinx`.

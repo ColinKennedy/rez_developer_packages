@@ -38,7 +38,7 @@ def _get_intersphinx_candidates(package):
     """Search dependencies of ``package`` for a `objects.inv`_.
 
     Args:
-        package (:class:`rez.developer_package.DeveloperPackage`):
+        package (rez.packages.Package):
             A Rez package which the user is attempting to build documentation for.
 
     Returns:
@@ -138,7 +138,7 @@ def _get_environment_package(name):
             build / release issue, caused by **user** error.
 
     Returns:
-        :class:`rez.developer_package.DeveloperPackage`: The found package.
+        rez.packages.Package: The found package.
 
     """
     directory = path_control.get_installed_root(name)
@@ -172,7 +172,7 @@ def _get_intersphinx_mappings(package):
         setting that using `rez-config`_.
 
     Args:
-        package (:class:`rez.developer_package.DeveloperPackage`):
+        package (rez.packages.Package):
             A Rez package which the user is attempting to build documentation for.
 
     Returns:
@@ -199,7 +199,7 @@ def _get_package_objects_inv(package):
     there.
 
     Args:
-        package (:class:`rez.developer_package.DeveloperPackage`):
+        package (rez.packages.Package):
             A Rez package which we assume may have built :ref:`rez_sphinx`
             documentation and thus also has a `objects.inv`_ file.
 
@@ -249,7 +249,7 @@ def _get_tests_requires(package):
     """Find every requested requirement of ``package``.
 
     Args:
-        package (:class:`rez.developer_package.DeveloperPackage`):
+        package (rez.packages.Package):
             The Rez package which the user is trying to generate Sphinx
             documentation for.
 
@@ -317,7 +317,7 @@ def _get_nearest_caller_package():
         NoPackageFound: If no Rez package could be found.
 
     Returns:
-        :class:`rez.developer_package.DeveloperPackage`: The found package.
+        rez.packages.Package: The found package.
 
     """
     stack = traceback.extract_stack(limit=3)
@@ -358,7 +358,7 @@ def _merge_intersphinx_maps(data, package):
     Args:
         data (dict[str, object]):
             Incoming ``locals()`` data from an existing `Sphinx conf.py`_.
-        package (:class:`rez.developer_package.DeveloperPackage`):
+        package (rez.packages.Package):
             The package to query from and extend ``data`` with extra
             information. If no package is given, the package is
             determined automatically from the caller's site.
@@ -407,7 +407,7 @@ def bootstrap(data, package=None, skip=frozenset()):
     Args:
         data (dict[str, object]):
             Incoming ``locals()`` data from an existing `Sphinx conf.py`_.
-        package (:class:`rez.developer_package.DeveloperPackage`, optional):
+        package (rez.packages.Package, optional):
             The package to query from and extend ``data`` with extra
             information. If no package is given, the package is
             determined automatically from the caller's site.

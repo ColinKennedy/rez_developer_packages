@@ -43,9 +43,7 @@ def collect_packages(directories, searcher):
             The absolute path to folders on-disk to look within. It's not
             required for Rez packages to be located directly under each folder.
             And often, they are not.
-        searcher (
-            callable[str] -> list[rez.developer_package.DeveloperPackage]
-        ):
+        searcher (callable[str] -> list[rez.packages.Package]):
             A function which searches within ``directories`` for Rez packages
             and returns those results. These Rez packages could be source
             packages **or** installed packages.
@@ -56,7 +54,7 @@ def collect_packages(directories, searcher):
             directories.
 
     Returns:
-        list[rez.developer_package.DeveloperPackage]: The found packages.
+        list[rez.packages.Package]: The found packages.
 
     """
     packages = []
@@ -107,12 +105,12 @@ def filter_existing_documentation(packages):
     This function searches specifically for `Sphinx`_ documentation only.
 
     Args:
-        packages (list[rez.developer_package.DeveloperPackage]):
+        packages (list[rez.packages.Package]):
             The source / installed Rez packages to filter. Usually,
             these are source Rez packages.
 
     Returns:
-        list[rez.developer_package.DeveloperPackage]:
+        list[rez.packages.Package]:
             Every package from ``packages`` which doesn't have documentation.
 
     """

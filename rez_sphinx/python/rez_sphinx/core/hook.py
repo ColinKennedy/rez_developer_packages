@@ -168,7 +168,7 @@ def package_preprocess_function(this, data):  # pylint: disable=unused-argument
     exit early and do nothing.
 
     Args:
-        this (:class:`rez.developer_package.DeveloperPackage`):
+        this (rez.packages.Package):
             The installed (built) Rez package. This package is mostly read-only.
         data (dict[str, object]):
             The contents of ``this``. Changing this instance will have an

@@ -36,7 +36,7 @@ def _get_packages(directories):
             it is invalid.
 
     Returns:
-        list[rez.developer_package.DeveloperPackage]: The found packages.
+        list[rez.packages.Package]: The found packages.
 
     """
     packages = []
@@ -71,7 +71,7 @@ def _installed(root):
             examples include ``"~/packages"``, ``"~/.rez/packages/int"``, etc.
 
     Returns:
-        list[rez.developer_package.DeveloperPackage]: Every found package.
+        list[rez.packages.Package]: Every found package.
 
     """
     paths = glob.glob(os.path.join(root, "*", "*"))
@@ -96,7 +96,7 @@ def _source(root):
             repository, **not** ``"~/packages"``, ``"~/.rez/packages/int"``, etc.
 
     Returns:
-        list[rez.developer_package.DeveloperPackage]: Every found package.
+        list[rez.packages.Package]: Every found package.
 
     """
     paths = glob.glob(os.path.join(root, "*"))
@@ -111,7 +111,7 @@ def _recursive(top):
         top (str): The absolute directory where Rez packages may live underneath.
 
     Returns:
-        list[rez.developer_package.DeveloperPackage]: Every found package.
+        list[rez.packages.Package]: Every found package.
 
     """
     output = []
@@ -144,7 +144,7 @@ def get_mode_by_name(name):
         ValueError: If ``name`` is not a registered command.
 
     Returns:
-        callable[str] -> list[rez.developer_package.DeveloperPackage]:
+        callable[str] -> list[rez.packages.Package]:
             A function that takes an absolute directory path and then finds all
             Rez packages that it can, underneath the directory.
 

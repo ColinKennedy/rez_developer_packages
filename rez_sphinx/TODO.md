@@ -1,7 +1,7 @@
 - Replace all DeveloperPackage docstrings, where applicable, to rez.packages.Package
-- Every command that accepts a directory should have a test for if it isn't found. Probably.
 - Fix `foo <bar>`_ style Sphinx conf.py references. They're broken
 - Add unittest for when docbot is not loaded
+- Every command that accepts a directory should have a test for if it isn't found. Probably.
 - Make sure commands run without subcommands or --help give the right output.
   They shouldn't just AttributeError. e.g. `rez_sphinx view` raises
   AttributeError

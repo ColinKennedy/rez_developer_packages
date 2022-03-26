@@ -117,7 +117,7 @@ def init(package, quick_start_options=tuple()):
         file.  Save your work first before running this function!
 
     Args:
-        package (:class:`rez.developer_package.DeveloperPackage`):
+        package (rez.packages.Package):
             The Rez package to apply documentation onto.
         quick_start_options (list[str], optional):
             User-provided arguments to consider while resolving

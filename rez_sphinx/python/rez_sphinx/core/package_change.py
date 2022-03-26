@@ -19,7 +19,7 @@ def _add_rez_tests(package):
     """Add `rez tests attribute`_ values to make :ref:`rez_sphinx` auto-run.
 
     Args:
-        package (rez.developer_package.DeveloperPackage):
+        package (rez.packages.Package):
             The package to directly modify.
 
     """
@@ -75,8 +75,7 @@ def _bump_minor_version(package):
         If ``package`` has no valid version, this function does not nothing.
 
     Args:
-        package (:class:`rez.developer_package.DeveloperPackage`):
-            The package to directly modify.
+        package (rez.packages.Package): The package to directly modify.
 
     """
     if not package.version:
@@ -98,11 +97,11 @@ def _re_acquire_package(package):
     idea to just re-get the package from scratch so its values may be re-cached.
 
     Args:
-        package (:class:`rez.developer_package.DeveloperPackage`):
+        package (rez.packages.Package):
             The out-of-date package which needs to be "refreshed".
 
     Returns:
-        :class:`rez.developer_package.DeveloperPackage`: The refreshed package.
+        rez.packages.Package: The refreshed package.
 
     """
     directory = finder.get_package_root(package)
@@ -114,8 +113,7 @@ def initialize_rez_package(package):
     """Update ``package`` to make it "work" with :ref:`rez_sphinx`.
 
     Args:
-        package (:class:`rez.developer_package.DeveloperPackage`):
-            The package to directly modify.
+        package (rez.packages.Package): The package to directly modify.
 
     """
     _bump_minor_version(package)

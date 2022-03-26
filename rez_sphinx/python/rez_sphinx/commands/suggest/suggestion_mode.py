@@ -11,7 +11,7 @@ def _get_regular_dependencies(package):
     """Grab all known / obvious dependencies from ``package``.
 
     Args:
-        package (rez.developer_package.DeveloperPackage):
+        package (rez.packages.Package):
             The source / installed Rez package to query from.
 
     Returns:
@@ -32,13 +32,13 @@ def _compute_package_depth(package, all_family_names, getter=_get_regular_depend
     return `0` for "no_listed_requires" and `1` for "has_a_requirement".
 
     Args:
-        package (rez.developer_package.DeveloperPackage):
+        package (rez.packages.Package):
             The source / installed Rez package to query from.
-        all_family_names (dict[str, rez.developer_package.DeveloperPackage]):
+        all_family_names (dict[str, rez.packages.Package]):
             A store of possible Rez packages to consider while iterating over
             ``package``'s dependencies. Each key is a Rez package family name,
             each value is the in-memory Rez package which the family refers to.
-        getter (callable[rez.developer_package.DeveloperPackage] -> set[str]):
+        getter (callable[rez.packages.Package] -> set[str]):
             The function which takes ``package`` as input and returns its
             dependencies (e.g. its `requires`_).
 
@@ -94,11 +94,11 @@ def _config(packages):
     """Re-order ``packages`` based on their dependencies.
 
     Args:
-        packages (container[rez.developer_package.DeveloperPackage]):
+        packages (container[rez.packages.Package]):
             The source / installed Rez packages to re-order.
 
     Returns:
-        list[list[rez.developer_package.DeveloperPackage]]:
+        list[list[rez.packages.Package]]:
             A list with each depth's packages, starting from depth=0 and
             ascending order.
 
@@ -124,11 +124,11 @@ def _guess(packages):
     possibly computing more dependencies than needed.
 
     Args:
-        packages (container[rez.developer_package.DeveloperPackage]):
+        packages (container[rez.packages.Package]):
             The source / installed Rez packages to re-order.
 
     Returns:
-        list[list[rez.developer_package.DeveloperPackage]]:
+        list[list[rez.packages.Package]]:
             A list with each depth's packages, starting from depth=0 and
             ascending order.
 
@@ -177,7 +177,7 @@ def get_mode_by_name(name):
         ValueError: If ``name`` is not a registered command.
 
     Returns:
-        callable[list[rez.developer_package.DeveloperPackage] -> list[list[rez.developer_package.DeveloperPackage]]]:
+        callable[list[rez.packages.Package] -> list[list[rez.packages.Package]]]:
             A function which takes a list of Rez packages, for example, and
             returns a list with each depth's packages, starting from depth=0
             and ascending order.

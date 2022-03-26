@@ -125,7 +125,7 @@ def make_dependent_packages():
 
 
 def make_simple_developer_package(package_text="", file_text="", help_=None):
-    """:class:`rez.developer_package.DeveloperPackage`: A simple Rez source package.
+    """A simple Rez source package.
 
     Args:
         package_text (str, optional):
@@ -138,8 +138,7 @@ def make_simple_developer_package(package_text="", file_text="", help_=None):
             data, if provided, is appended directly to ``package_text``.
 
     Returns:
-        :class:`rez.developer_package.DeveloperPackage`:
-            The found, generated main source Rez package.
+        rez.packages.Package: The found, generated main source Rez package.
 
     """
     directory = make_directory("_make_simple_developer_package_source_package")
