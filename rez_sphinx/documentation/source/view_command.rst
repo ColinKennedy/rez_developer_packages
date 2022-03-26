@@ -12,3 +12,11 @@ rez_sphinx view sphinx-conf
 ***************************
 
 TODO
+
+
+.. _rez_sphinx view sphinx-conf intersphinx_mapping:
+
+rez_sphinx view sphinx-conf
+***************************
+
+TODO

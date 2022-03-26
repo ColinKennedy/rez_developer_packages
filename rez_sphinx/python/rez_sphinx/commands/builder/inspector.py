@@ -1,4 +1,4 @@
-"""Implement the :ref:`rez_sphinx build inspect-conf` command."""
+"""Implement the :ref:`rez_sphinx view sphinx-conf` command."""
 
 import logging
 import operator
@@ -15,7 +15,7 @@ def _get_all_field_attributes(sphinx):
 
     Args:
         sphinx (configuration.ConfPy):
-            The `conf.py`_ to query from for attributes.
+            The `Sphinx conf.py`_ to query from for attributes.
 
     Returns:
         dict[str: object]: Each attribute name and its value.
@@ -38,7 +38,7 @@ def _get_field_attributes(sphinx, fields):
 
     Args:
         sphinx (configuration.ConfPy):
-            The `conf.py`_ to query from for attributes.
+            The `Sphinx conf.py`_ to query from for attributes.
         fields (iter[str]):
             Each attribute name to return from ``sphinx``. All other attributes
             from ``sphinx`` are ignored.
@@ -95,7 +95,7 @@ def _print_fields(sphinx, fields=frozenset()):
 
     Args:
         sphinx (configuration.ConfPy):
-            The `conf.py`_ to query from for attributes.
+            The `Sphinx conf.py`_ to query from for attributes.
         fields (iter[str]):
             Each attribute name to return from ``sphinx``. All other attributes
             from ``sphinx`` are ignored.
@@ -122,10 +122,11 @@ def print_fields_from_directory(directory, fields=frozenset()):
 
     Args:
         directory (str):
-            The absolute folder on-disk to where a Rez package + `conf.py`_ is expected.
+            The absolute folder on-disk to where a Rez package +
+            `Sphinx conf.py`_ is expected.
 
     Raises:
-        SphinxConfError: If `conf.py`_ was not found or unreadable.
+        SphinxConfError: If `Sphinx conf.py`_ was not found or unreadable.
 
     """
     package = finder.get_nearest_rez_package(directory)

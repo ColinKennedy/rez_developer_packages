@@ -125,7 +125,7 @@ class ConfPy(object):
         return self._module.extensions or []
 
     def get_known_attribute_names(self, allow_extensions=True):
-        """Find every `Sphinx`_-known `conf.py`_ attribute.
+        """Find every `Sphinx conf.py`_ attribute.
 
         Args:
             allow_extensions (bool, optional):
@@ -159,7 +159,7 @@ class ConfPy(object):
             return ".rst"  # A reasonable default
 
     def get_module_path(self):
-        """str: Get the full path to this `conf.py`_ file, on-disk."""
+        """str: Get the full path to this `Sphinx conf.py`_ file, on-disk."""
         return self._module.__file__
 
 

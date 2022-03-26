@@ -28,7 +28,7 @@ Checking Your Interlinks
 ************************
 
 
-Run ``rez_sphinx build inspect-conf intersphinx_mapping``. It'll tell you
+Run :ref:`rez_sphinx view sphinx-conf intersphinx_mapping`. It'll tell you
 exactly what :ref:`rez_sphinx build run` sees, just before your documentation
 gets built.
 
@@ -37,7 +37,7 @@ Adding Extra Links
 ******************
 
 Imagine you want to interlink your project with documentation that isn't listed
-in :ref:`rez_sphinx build inspect-conf intersphinx_mapping`. To do that, you
+in :ref:`rez_sphinx view sphinx-conf intersphinx_mapping`. To do that, you
 have two options.
 
 
@@ -73,7 +73,7 @@ Adding a package to ``build_documentation``'s list of requirements means
 .. important::
 
     If you still have interlinks even after adding the Rez package, confirm
-    with :ref:`rez_sphinx build inspect-conf intersphinx_mapping` that
+    with :ref:`rez_sphinx view sphinx-conf intersphinx_mapping` that
     :ref:`rez_sphinx build run` can see it.
 
 
