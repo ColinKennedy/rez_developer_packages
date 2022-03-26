@@ -150,6 +150,39 @@ class BootstrapIntersphinx(unittest.TestCase):
         _, _, results = watcher
         self.assertIn("weak_package", results)
 
+    def test_fallback_test_key(self):
+        """Get extra Rez requires from a non-default `tests`_ key."""
+        root = os.path.join(
+            _PACKAGE_ROOT,
+            "_test_data",
+            "non_standard_build_documentation_key",
+        )
+        source_root = os.path.join(root, "source_packages")
+        install_root = os.path.join(root, "installed_packages")
+
+        installed_packages = [
+            finder.get_nearest_rez_package(path)
+            for path in glob.glob(os.path.join(install_root, "*", "*"))
+        ]
+        name = "package_to_test"
+        source_directory = os.path.join(source_root, name)
+
+        with run_test.simulate_resolve(installed_packages), run_test.allow_defaults(
+        ), run_test.keep_config() as config:
+            config.optionvars.setdefault("rez_sphinx", dict())
+            config.optionvars["rez_sphinx"]["build_documentation_key"] = [
+                "build_documentation",
+                "build_non_standard_documentation",
+            ]
+
+            with _watch_candidates() as container:
+                run_test.test(["build", "run", source_directory])
+
+        watcher = container[0]
+        _, _, results = watcher
+
+        self.assertEqual({'another_package', 'some_package', 'python', 'rez_sphinx'}, results)
+
     def test_fallback_package_links(self):
         """A package without documentation is find-able if it has a fallback path."""
         root = os.path.join(

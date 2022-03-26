@@ -147,5 +147,6 @@ rst_epilog = textwrap.dedent(
     """
 )
 
-:ref:`global configuration`
-:ref:`per-package configuration`
+# TODO : Finish these
+# :ref:`global configuration`
+# :ref:`per-package configuration`

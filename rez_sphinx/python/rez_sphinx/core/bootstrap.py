@@ -263,9 +263,14 @@ def _get_tests_requires(package):
     if not tests:
         return set()
 
-    test = tests.get(preference.get_build_documentation_key())
+    test = ""
 
-    if not test:
+    for key in preference.get_build_documentation_keys():
+        test = tests.get(key)
+
+        if test:
+            break
+    else:
         return set()
 
     if isinstance(test, six.string_types):

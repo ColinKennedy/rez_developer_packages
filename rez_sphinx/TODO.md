@@ -1,6 +1,5 @@
 - Should make some tests for invalid quickstart / build / API arguments
 - Every command that accepts a directory should have a test for if it isn't found. Probably.
-- Make sure to append build_documentation key, if provided. (?)
 
 
 ## Document current work

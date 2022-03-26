@@ -10,6 +10,31 @@ TODO Add
 rez_sphinx.build_documentation_key
 **********************************
 
+You can specify a specific key for finding / building documentation:
+
+.. code-block:: python
+
+    optionvars = {
+        "rez_sphinx": {
+            "build_documentation": "build_documentation",
+        }
+    }
+
+You can also specify **a list of possible keys**.
+
+.. code-block:: python
+
+    optionvars = {
+        "rez_sphinx": {
+            "build_documentation": ["build_documentation", "fallback_test_name"],
+        }
+    }
+
+However if you do, you must keep in mind the following details:
+
+- The first key is always used whenever you call :ref:`rez_sphinx init` in a package.
+- The first key in the list that matches an existing test is used.
+
 
 .. _sphinx-quickstart customization:
 

@@ -68,7 +68,7 @@ _MASTER_SCHEMA = schema.Schema(
     {
         schema.Optional(
             _BUILD_KEY, default="build_documentation"
-        ): schema_helper.NON_NULL_STR,
+        ): schema.Or(schema_helper.NON_NULL_STR, [schema_helper.NON_NULL_STR]),
         schema.Optional(_EXTENSIONS_KEY, default=list(_BASIC_EXTENSIONS)): [
             schema_helper.PYTHON_DOT_PATH
         ],
@@ -368,11 +368,23 @@ def get_base_settings():
     return _validate_all(data)
 
 
+def get_build_documentation_keys():
+    """list[str]: Get the `rez tests attribute`_ key for :ref:`rez_sphinx`."""
+    rez_sphinx_settings = get_base_settings()
+    keys = rez_sphinx_settings.get(_BUILD_KEY)
+
+    if not keys:
+        return ["build_documentation"]
+
+    if isinstance(keys, six.string_types):
+        return [keys]
+
+    return keys
+
+
 def get_build_documentation_key():
     """str: Get the `rez tests attribute`_ key for :ref:`rez_sphinx`."""
-    rez_sphinx_settings = get_base_settings()
-
-    return rez_sphinx_settings.get(_BUILD_KEY) or "build_documentation"
+    return get_build_documentation_keys()[0]
 
 
 def get_documentation_root_name():
