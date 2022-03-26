@@ -418,7 +418,7 @@ def get_filter_method():
     if caller != preference_help.DEFAULT_FILTER:
         return caller
 
-    return caller._callable
+    return caller._callable  # pylint: disable=protected-access
 
 
 def get_help_label():
@@ -542,14 +542,16 @@ def get_preference_paths():
 
             if isinstance(key, schema.Use):
                 # We wouldn't really know how to handle this situation. Just ignore it.
-                exceptional_cases.add((context, key))
+                exceptional_cases.add(context)
 
                 continue
 
             if not isinstance(value, collections_abc.Mapping):
                 if not isinstance(key, six.string_types):
-                    # We wouldn't really know how to handle this situation. Just ignore it.
-                    exceptional_cases.add((context, key))
+                    # We wouldn't really know how to handle this situation.
+                    # Just ignore it.
+                    #
+                    exceptional_cases.add(context)
                 else:
                     outputs.add(key)
 
@@ -571,13 +573,15 @@ def get_preference_paths():
 
         return outputs, exceptional_cases
 
-    output, exceptional_cases = _get_mapping(_MASTER_SCHEMA._schema, context="")
+    output, exceptional_cases = _get_mapping(
+        _MASTER_SCHEMA._schema,  # pylint: disable=protected-access
+        context="",
+    )
 
     if not exceptional_cases:
         return output
 
-    for case, value in exceptional_cases:
-        output.update(_get_special_preference_paths(case))
+    output.update(_get_special_preference_paths(case) for case in exceptional_cases)
 
     return output
 

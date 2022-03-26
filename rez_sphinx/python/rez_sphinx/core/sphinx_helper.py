@@ -1,5 +1,6 @@
 """A collection of functions for making dealing with `Sphinx`_ easier."""
 
+import io
 import logging
 import os
 
@@ -282,7 +283,7 @@ def add_links_to_a_tree(entries, path):
         path (str): An absolute or relative file path to some ReST file.
 
     """
-    with open(path, "r") as handler:
+    with io.open(path, "r", encoding="utf-8") as handler:
         data = handler.read()
 
     trees = get_toctrees(data)
@@ -290,7 +291,7 @@ def add_links_to_a_tree(entries, path):
     if not trees:
         new_data = _make_new_tree(entries=entries)
 
-        with open(path, "w") as handler:
+        with io.open(path, "w", encoding="utf-8") as handler:
             handler.write(new_data)
 
         return
@@ -311,7 +312,7 @@ def add_links_to_a_tree(entries, path):
 
         return
 
-    with open(path, "w") as handler:
+    with io.open(path, "w", encoding="utf-8") as handler:
         handler.write(data)
 
 

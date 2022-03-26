@@ -1,5 +1,6 @@
 """The module which handles the :ref:`rez_sphinx build run` command."""
 
+import io
 import os
 import traceback
 
@@ -90,7 +91,7 @@ def _validate_non_default_files(directory):
         if not os.path.isfile(full):
             continue
 
-        with open(full, "r") as handler:
+        with io.open(full, "r", encoding="utf-8") as handler:
             data = handler.read()
 
         if data == entry.get_default_text():

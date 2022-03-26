@@ -1,9 +1,9 @@
 import logging
 import os
 
-from rez_utilities import finder
-from rez import package_test
 import six
+from rez import package_test
+from rez_utilities import finder
 
 try:
     from functools import lru_cache  # Python 3.2+
@@ -12,7 +12,6 @@ except ImportError:
 
 from ..core import exception
 from ..preferences import preference
-
 
 _LOGGER = logging.getLogger(__name__)
 

@@ -1,6 +1,7 @@
 """Implement all code for :ref:`build-order --search-mode`."""
 
 import collections
+import io
 import operator
 
 from ...core import package_query
@@ -153,7 +154,7 @@ def _guess(packages):
     depths = collections.defaultdict(set)
 
     for package in packages:
-        with open(package.filepath, "r") as handler:
+        with io.open(package.filepath, "r", encoding="utf-8") as handler:
             data = handler.read()
 
         _guesser = _guess_dependencies(data, set(all_family_names.keys()))

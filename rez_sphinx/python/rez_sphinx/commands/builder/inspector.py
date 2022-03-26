@@ -51,7 +51,8 @@ def _get_field_attributes(sphinx, fields):
         list[tuple[str, object]]: Each attribute name and its value.
 
     """
-    attributes = {name: value for name, value in sphinx.get_attributes().items()}
+    attributes = sphinx.get_attributes()
+
     _LOGGER.debug(
         'Found conf.py attributes, "%s". From file, "%s"',
         ", ".join(sorted(attributes.keys())),
@@ -75,7 +76,8 @@ def _get_field_attributes(sphinx, fields):
 
     if count == 1:
         raise exception.SphinxConfError(
-            'This conf.py attribute, "{invalids}" could not be found. Options were, "{options}".'.format(
+            'This conf.py attribute, "{invalids}" could not be found. '
+            'Options were, "{options}".'.format(
                 invalids=", ".join(sorted(invalids)),
                 options=", ".join(sorted(sphinx.get_known_attribute_names())),
             )

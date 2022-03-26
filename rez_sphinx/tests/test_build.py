@@ -2,8 +2,8 @@
 
 import contextlib
 import functools
-import io
 import glob
+import io
 import os
 import shutil
 import stat
@@ -93,7 +93,7 @@ class ApiDocOptions(unittest.TestCase):
 
 
 class BootstrapIntersphinx(unittest.TestCase):
-    """Make sure :func:`rez_sphinx.core.bootstrap.bootstrap` gets `intersphinx_mapping`_."""
+    """Ensure :func:`rez_sphinx.core.bootstrap.bootstrap` + `intersphinx_mapping`_."""
 
     def _quick_ignore_test(self, text):
         """Check ``text`` does not find add any intersphinx candidates.
@@ -772,6 +772,6 @@ def _watch_candidates():
     try:
         yield container
     finally:
-        bootstrap._get_intersphinx_candidates = (
-            original  # pylint: disable=protected-access
+        bootstrap._get_intersphinx_candidates = (  # pylint: disable=protected-access
+            original
         )

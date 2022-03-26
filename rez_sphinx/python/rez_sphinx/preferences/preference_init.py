@@ -15,6 +15,7 @@ Attributes:
 
 """
 
+import io
 import os
 import re
 import textwrap
@@ -168,7 +169,7 @@ class Entry(object):
         if not os.path.isdir(directory):
             os.makedirs(directory)
 
-        with open(full, "w") as handler:
+        with io.open(full, "w", encoding="utf-8") as handler:
             handler.write(self.get_default_text())
 
     def __repr__(self):

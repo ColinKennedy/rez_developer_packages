@@ -1,5 +1,6 @@
 """Miscellaneous functions which make working with file paths easier."""
 
+import io
 import os
 import shutil
 import textwrap
@@ -15,7 +16,9 @@ def add_gitignore(directory):
         directory (str): An absolute or relative path to a directory on-disk.
 
     """
-    with open(os.path.join(directory, ".gitignore"), "w") as handler:
+    with io.open(
+        os.path.join(directory, ".gitignore"), "w", encoding="utf-8"
+    ) as handler:
         handler.write(
             textwrap.dedent(
                 """\

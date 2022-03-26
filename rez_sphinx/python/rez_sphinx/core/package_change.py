@@ -1,5 +1,6 @@
 """A collection of functions for modifying in-memory Rez packages."""
 
+import io
 import logging
 import os
 
@@ -24,7 +25,7 @@ def _add_rez_tests(package):
     """
 
     def _get_package_text(package):
-        with open(package.filepath, "r") as handler:
+        with io.open(package.filepath, "r", encoding="utf-8") as handler:
             return handler.read()
 
     def _replace_package(package, text):
@@ -32,7 +33,7 @@ def _add_rez_tests(package):
 
         _LOGGER.info('Package "%s" will be modified.', path)
 
-        with open(path, "w") as handler:
+        with io.open(path, "w", encoding="utf-8") as handler:
             handler.write(text)
 
     tests = package.tests or dict()

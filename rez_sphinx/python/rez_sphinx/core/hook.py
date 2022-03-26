@@ -1,6 +1,7 @@
 """Automatically add :ref:`rez_sphinx tags <rez_sphinx tag>` to built packages."""
 
 import functools
+import io
 import os
 
 import six
@@ -111,7 +112,7 @@ def _get_rez_sphinx_tags(path):
         list[list[str, str]]: Each hard-coded label + "destination", if any.
 
     """
-    with open(path, "r") as handler:
+    with io.open(path, "r", encoding="utf-8") as handler:
         data = handler.read()
 
     return preference_init.find_tags(data.split("\n"))

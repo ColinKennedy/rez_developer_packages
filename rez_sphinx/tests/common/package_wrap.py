@@ -2,8 +2,8 @@
 
 import atexit
 import functools
-import os
 import io
+import os
 import shutil
 import tempfile
 import textwrap

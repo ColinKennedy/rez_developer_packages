@@ -15,9 +15,10 @@ from rez.config import config as config_
 from rez_utilities import finder
 
 from .commands import build_orderer, initer, publish_run
-from .commands.builder import inspector, runner as build_run
+from .commands.builder import inspector
+from .commands.builder import runner as build_run
 from .commands.suggest import build_display, search_mode, suggestion_mode
-from .core import api_builder, configuration, exception, path_control, print_format
+from .core import api_builder, exception, path_control, print_format
 from .preferences import preference
 
 _LOGGER = logging.getLogger(__name__)
@@ -247,7 +248,8 @@ def _set_up_build(sub_parsers):
             "--api-documentation",
             choices=[mode.label for mode in choices],
             default=api_builder.FULL_AUTO.label,
-            help="When building, API .rst files can be generated for your Python files.\n\n"
+            help="When building, API .rst files can be generated for your Python files."
+            "\n\n"
             + "\n".join(
                 "{mode.label}: {mode.description}".format(mode=mode) for mode in choices
             ),
@@ -510,7 +512,12 @@ def _show(namespace):
 
     for name in names:
         try:
-            values.append((name, preference.get_preference_from_path(name)))
+            values.append(
+                (
+                    name,
+                    pprint.pformat(preference.get_preference_from_path(name), indent=4),
+                )
+            )
         except exception.ConfigurationError:
             invalids.add(name)
 
@@ -535,14 +542,7 @@ def _show(namespace):
     print("Found Output:")
 
     for name, value in values:
-        print(
-            "{name}:\n    {value}".format(
-                name=name,
-                value=pprint.pformat(
-                    preference.get_preference_from_path(name), indent=4
-                ),
-            ),
-        )
+        print("{name}:\n    {value}".format(name=name, value=value))
 
 
 def _split_build_arguments(namespace):

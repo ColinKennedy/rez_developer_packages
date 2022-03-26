@@ -1,7 +1,7 @@
 """A companion module to :mod:`api_builder` which builds the API .rst files."""
 
-import logging
 import io
+import logging
 import os
 import sys
 import textwrap
@@ -186,7 +186,11 @@ def _update_master_file(directory):
 
 
 def generate_api_files(directory, options=tuple()):
-    """Create the "api" folder so :ref:`rez_sphinx build run` uses the user's Python files.
+    """Create the "api" folder for :ref:`rez_sphinx build run`.
+
+    This is a bit confusing but :ref:`rez_sphinx build run` uses the user's
+    **installed** Python files in order to generate an "api" directory in the
+    user's **source** Rez package.
 
     - Create the "api" folder
     - Fill it with auto-generated .rst files

@@ -39,7 +39,8 @@ def _get_non_default_values(data, optional):
         optional.default, six.string_types
     ):
         return data
-    elif not isinstance(optional.default, collections_abc.MutableMapping):
+
+    if not isinstance(optional.default, collections_abc.MutableMapping):
         return data
 
     new = optional.default.__class__()
@@ -79,7 +80,7 @@ def _get_real_key(key, schema):
         :class:`schema.Optional` or NoneType: The found key or nothing.
 
     """
-    for real_key in schema._schema.keys():  # pylint: disable:protected-access
+    for real_key in schema._schema.keys():  # pylint: disable=protected-access
         if not isinstance(real_key, schema_.Optional):
             continue
 
@@ -121,7 +122,7 @@ def get_raw_key(key):
         # parameter, schema won't set the key attribute properly. Very annoying
         # but at least the work around it's hard.
         #
-        return str(key._schema)
+        return str(key._schema)  # pylint: disable=protected-access
 
     return key
 

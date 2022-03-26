@@ -1,7 +1,7 @@
 """A quick module for handling differences between PyPI and Rez versioning syntax."""
 
-from rez.utils import pip
 from rez import packages
+from rez.utils import pip
 
 
 def is_request_installed(pypi_request):

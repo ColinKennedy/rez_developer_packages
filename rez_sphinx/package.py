@@ -87,8 +87,9 @@ tests = {
         "requires": ["pydocstyle-6.1+<7"],
     },
     # TODO : Add configuration files for these changes. And isort and pydocstyle
+    # TODO : Remove "fixme", later
     "pylint": {
-        "command": "pylint --disable=use-dict-literal,use-list-literal,bad-continuation,consider-using-f-string,super-with-arguments,useless-object-inheritance python/rez_sphinx tests",
+        "command": "pylint --disable=use-dict-literal,use-list-literal,bad-continuation,consider-using-f-string,super-with-arguments,useless-object-inheritance,raise-missing-from,fixme python/rez_sphinx tests",
         "requires": ["pylint-2.12+<3"],
     },
     "unittest_python_2": {

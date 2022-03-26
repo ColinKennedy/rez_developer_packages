@@ -1,5 +1,6 @@
 """Connect `Sphinx`_ to :ref:`rez_sphinx`."""
 
+import io
 import logging
 import os
 import textwrap
@@ -393,7 +394,7 @@ def append_bootstrap_lines(path):
             and build the user's documentation.
 
     """
-    with open(path, "a") as handler:
+    with io.open(path, "a", encoding="utf-8") as handler:
         handler.write("\n\n" + _REZ_SPHINX_BOOTSTRAP_LINES)
 
 
