@@ -44,6 +44,7 @@ documentation easier.
    build <build_command>
    config <config_command>
    init <init_command>
+   publish <publish_command>
    suggest <suggest_command>
    view <view_command>
 

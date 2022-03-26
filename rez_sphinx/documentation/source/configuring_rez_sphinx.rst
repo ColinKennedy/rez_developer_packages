@@ -2,7 +2,78 @@
 Configuring rez_sphinx
 ######################
 
-TODO Add
+All :ref:`rez_sphinx` commands and flags have many ways to be changed for your needs.
+There's two main ways to configure documentation:
+
+- Globally, using :ref:`global configuration`
+- Within an individual package, using :ref:`per-package configuration`
+
+Which method you choose will depend on what your intended effect is and your
+pipeline's constraints. This page serves as a guide to both explain every
+:ref:`rez_sphinx` setting and also why you may want one approach, versus
+another.
+
+.. note::
+
+    Every section below asssumes that you're defining these settings for
+    **all** Rez packages. However, every section can be adapted to its
+    "per-package" counterpart very easily.
+
+
+.. _global configuration:
+
+How To Configure All Rez Packages
+*********************************
+
+Rez allows configuration files to influence how it behaves. You can read about
+that more at `Configuring Rez`_. :ref:`rez_sphinx` works the same way. It
+simply places its settings under `optionvars`_, which is a dedicated
+configuration space for "custom" settings.
+
+Anything you set here will be applied to all Rez packages. It also applies
+to those packages immediately. Care and caution should be taken when
+rolling out any change using `optionvars`_.
+
+
+.. _per-package configuration:
+
+Per-Package Configuration
+*************************
+
+As mentioned in other sections, this page assumes that you're changing :ref:`rez_sphinx`
+configuration settings at the "global" level, using `optionvars`_. But you can
+also apply it on an individual Rez package, like so:
+
+TODO : Make sure this tutorial works
+
+- Define a new attribute called ``rez_sphinx`` in your `package.py`_
+- Add your settings to this ``rez_sphinx`` variable like you normally would.
+
+
+So if this is the "global" approach:
+
+.. code-block:: python
+
+    optionvars = {
+        "rez_sphinx": {
+            "sphinx-apidoc": {
+                "allow_apidoc_templates": False,
+            },
+        }
+    }
+
+
+This is what the equivalent would look like, in a `package.py`_.
+
+.. code-block:: python
+
+    rez_sphinx = {
+        "sphinx-apidoc": {
+            "allow_apidoc_templates": False,
+        },
+    }
+
+and that's it. All sections in this page can be converted this way.
 
 
 .. _rez_sphinx.build_documentation_key:

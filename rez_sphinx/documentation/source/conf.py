@@ -97,6 +97,7 @@ intersphinx_mapping.update(
 
 rst_epilog = textwrap.dedent(
     """\
+    .. _Configuring Rez: https://github.com/nerdvegas/rez/wiki/Configuring-Rez#overview
     .. _Rez: https://github.com/nerdvegas/rez/wiki
     .. _Sphinx conf.py: https://www.sphinx-doc.org/en/master/usage/configuration.html
     .. _Sphinx: https://www.sphinx-doc.org/en/master
@@ -114,6 +115,7 @@ rst_epilog = textwrap.dedent(
     .. _master_doc: https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-master_doc
     .. _modules.rst: https://stackoverflow.com/questions/62822605/sphinx-modules-rst-warning-document-isnt-included-in-any-toctree
     .. _objects.inv: https://sphobjinv.readthedocs.io/en/latest/syntax.html
+    .. _optionvars: https://github.com/nerdvegas/rez/wiki/Configuring-Rez#optionvars
     .. _package help: https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#help
     .. _package.py: https://github.com/nerdvegas/rez/wiki/Package-Commands
     .. _package_preprocess_function: https://github.com/nerdvegas/rez/wiki/Configuring-Rez#package_preprocess_function
@@ -130,6 +132,7 @@ rst_epilog = textwrap.dedent(
     .. _rez-depends: https://github.com/nerdvegas/rez/wiki/Command-Line-Tools#rez-depends
     .. _rez-help: https://github.com/nerdvegas/rez/wiki/Command-Line-Tools#rez-help
     .. _rez-pip: https://github.com/nerdvegas/rez/wiki/Command-Line-Tools#rez-pip
+    .. _rez-test: https://github.com/nerdvegas/rez/wiki/Command-Line-Tools#rez-test
     .. _rezconfig.py: https://github.com/nerdvegas/rez/blob/fa3fff6f0b7b4b53bbb9baa4357ab42117d06356/src/rez/rezconfig.py
     .. _sphinx theme: https://sphinx-themes.org/
     .. _sphinx-apidoc: https://www.sphinx-doc.org/en/master/man/sphinx-apidoc.html
@@ -146,7 +149,3 @@ rst_epilog = textwrap.dedent(
     .. _yaml: https://pyyaml.org/wiki/PyYAMLDocumentation
     """
 )
-
-# TODO : Finish these
-# :ref:`global configuration`
-# :ref:`per-package configuration`
