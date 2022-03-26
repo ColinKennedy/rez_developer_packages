@@ -17,6 +17,20 @@ _LOGGER = logging.getLogger(__name__)
 
 
 def _get_documentation_destination(name, package):
+    """Find the directory where built documentation now lives.
+
+    This function assumes that ``name`` has already been run at least once.
+
+    Args:
+        name (str):
+            The name of the Rez `tests`_ key that ran.
+        package (rez.packages.Package):
+            The package which defines `name`_ and was ran from.
+
+    Returns:
+        str: The found documentation directory.
+
+    """
     def _parse_destination(text):
         raise ValueError(text)
 
@@ -31,10 +45,31 @@ def _get_documentation_destination(name, package):
 
 @lru_cache()
 def _get_fallback_destination():
+    # TODO : Add docstring here once it's implemented
     raise NotImplementedError("Need to write this")
 
 
 def _validated_test_keys(runner):
+    """Get every :ref:`rez_sphinx`-registered `tests`_ key in ``runner``.
+
+    Since :ref:`rez_sphinx.build_documentation_key` may be multiple values, we
+    must check and return every matching key in ``runner``.
+
+    Args:
+        runner (rez.package_test.PackageTestRunner): The Rez package to query from.
+
+    Raises:
+        BadPackage:
+            If ``runner`` has no tests or the defined tests have nothing in
+            common with :ref:`rez_sphinx.build_documentation_key`.
+
+    Returns:
+        list[str]:
+            Every found, matching key. In most cases, this will return either
+            ``["build_documentation"]``, which is the default
+            :ref:`rez_sphinx.build_documentation_key`, or nothing.
+
+    """
     tests = runner.get_test_names()
 
     if not tests:
@@ -71,6 +106,25 @@ def is_publishing_enabled():
 
 
 def build_documentation(directory):
+    """Build all :ref:`rez_sphinx` registered documentation at ``directory``.
+
+    Args:
+        directory (str):
+            The absolute path to a folder on disk. This folder should be
+            a sub-folder inside of a Rez package to the root of the Rez package.
+
+    Raises:
+        NoDocumentationFound:
+            If any found `tests`_ attributes ran, succeeded to run, but no
+            destination documentation could be found.
+
+    Returns:
+        list[str]:
+            The root directories on-disk where all documentation was generated
+            into. For typical users, this list contains only one value.
+
+    """
+
     def _to_exact_request(package):
         # TODO : Check if Rez has a function for this
         if not package.version:
@@ -85,13 +139,26 @@ def build_documentation(directory):
     _LOGGER.info('Found "%s" documentation tests.', tests)
 
     output = []
+    invalids = set()
 
     for name in tests:
         _LOGGER.info('Now building documentation with "%s".', name)
 
         runner.run_test(name)
-        output.append(
-            _get_documentation_destination(name, package) or _get_fallback_destination()
+        destination = (
+            _get_documentation_destination(name, package)
+            or _get_fallback_destination()
+        )
+
+        if not destination:
+            invalids.add(name)
+
+        output.append(destination)
+
+    if invalids:
+        raise exception.NoDocumentationFound(
+            'No documentation could be found after '
+            '"{invalids}" commands were ran.'.format(invalids=", ".sorted(invalids))
         )
 
     return output

@@ -1,3 +1,4 @@
+- Replace all DeveloperPackage docstrings, where applicable, to rez.packages.Package
 - Get tests to pass again
  - pylint
 - Should make some tests for invalid quickstart / build / API arguments
@@ -8,6 +9,7 @@
   They shouldn't just AttributeError. e.g. `rez_sphinx view` raises
   AttributeError
 
+- Add pylint configuration to match with black (line length 88)
 - Do all TODO notes
 - Do all NotImplementedError, where applicable
 
