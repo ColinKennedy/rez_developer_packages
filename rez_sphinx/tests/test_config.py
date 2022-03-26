@@ -212,6 +212,71 @@ class ListOverrides(unittest.TestCase):
         self.assertEqual({"sphinx-apidoc": {"enable_apidoc": False}}, data)
 
 
+class Show(unittest.TestCase):
+    """Make sure :ref:`rez_sphinx config show` works."""
+
+    def test_names(self):
+        with wrapping.capture_pipes() as (stdout, _):
+            run_test.test("config show documentation_root extra_requires")
+
+        value = stdout.getvalue()
+        stdout.close()
+
+        self.assertEqual(
+            textwrap.dedent(
+                """\
+                Found Output:
+                documentation_root:
+                    'documentation'
+                extra_requires:
+                    []
+                """
+            ),
+            value,
+        )
+
+    def test_not_found(self):
+        with wrapping.capture_pipes() as (stdout, _):
+            run_test.test("config show does_not_exist documentation_root")
+
+        value = stdout.getvalue()
+        stdout.close()
+
+        self.assertEqual('Name "does_not_exist" does not exist.', value.rstrip())
+
+    def test_list_all(self):
+        with wrapping.capture_pipes() as (stdout, _):
+            run_test.test("config show --list-all")
+
+        value = stdout.getvalue()
+        stdout.close()
+
+        self.assertEqual(
+            textwrap.dedent(
+                """\
+                All available paths:
+                api_toctree_line
+                auto_help.filter_by
+                auto_help.sort_order
+                build_documentation_key
+                documentation_root
+                extra_requires
+                init_options.check_default_files
+                init_options.default_files
+                sphinx-apidoc.allow_apidoc_templates
+                sphinx-apidoc.arguments
+                sphinx-apidoc.enable_apidoc
+                sphinx-quickstart
+                sphinx_conf_overrides
+                sphinx_conf_overrides.add_module_names
+                sphinx_conf_overrides.master_doc
+                sphinx_extensions
+                """
+            ),
+            value,
+        )
+
+
 @contextlib.contextmanager
 def _example_override():
     """Create a Python context minimize any extra unittest-related code."""

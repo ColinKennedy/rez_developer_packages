@@ -92,6 +92,27 @@ class ConfPy(object):
         except AttributeError:
             return "index"  # A reasonable default
 
+    def get_attributes(self, allow_extensions=True):
+        """Get each found attribute and its values.
+
+        Args:
+            allow_extensions (bool, optional):
+                If True, include `Sphinx`_ extension attributes, like
+                `intersphinx_mapping`_. If False, only return the base
+                `Sphinx`_ attributes and nothing else.
+
+        Returns:
+            dict[tuple[str], object]: The found attribute and its value.
+
+        """
+        names = self.get_known_attribute_names(allow_extensions=allow_extensions)
+
+        return {
+            name: getattr(self._module, name)
+            for name in names
+            if hasattr(self._module, name)
+        }
+
     def get_extensions(self):
         """Get all registered `Sphinx`_ extensions. e.g. `sphinx.ext.viewcode`_.
 
@@ -100,6 +121,27 @@ class ConfPy(object):
 
         """
         return self._module.extensions or []
+
+    def get_known_attribute_names(self, allow_extensions=True):
+        """Find every `Sphinx`_-known `conf.py`_ attribute.
+
+        Args:
+            allow_extensions (bool, optional):
+                If True, include `Sphinx`_ extension attributes, like
+                `intersphinx_mapping`_. If False, only return the base
+                `Sphinx`_ attributes and nothing else.
+
+        Returns:
+            set[str]: Each found attribute name.
+
+        """
+        output = set(config.Config.config_values.keys())
+
+        if allow_extensions:
+            extensions = self._get_extensions()
+            output.update(_get_extension_attribute_names(extensions))
+
+        return output
 
     def get_master_document_path(self):
         """str: Get the full path on-disk where this `Sphinx conf.py`_ lives."""
@@ -113,35 +155,6 @@ class ConfPy(object):
             return self._module.source_suffix
         except AttributeError:
             return ".rst"  # A reasonable default
-
-    def get_module_attributes(self, allow_extensions=True):
-        """Get each found attribute and its values.
-
-        Args:
-            allow_extensions (bool, optional):
-                If True, include `Sphinx`_ extension attributes, like
-                `intersphinx_mapping`_. If False, only return the base
-                `Sphinx`_ attributes and nothing else.
-
-        Returns:
-            dict[tuple[str], object]: The found attribute and its value.
-
-        """
-        names = {
-            name
-            for name in config.Config.config_values.keys()
-            if hasattr(self._module, name)
-        }
-
-        if allow_extensions:
-            extensions = self._get_extensions()
-            names.update(
-                name
-                for name in _get_extension_attribute_names(extensions)
-                if hasattr(self._module, name)
-            )
-
-        return {name: getattr(self._module, name) for name in names}
 
     def get_module_path(self):
         """str: Get the full path to this `conf.py`_ file, on-disk."""

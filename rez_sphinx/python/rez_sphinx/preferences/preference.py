@@ -8,6 +8,7 @@ import itertools
 import platform
 
 import schema
+import six
 from rez.config import config
 from six.moves import collections_abc
 
@@ -148,6 +149,58 @@ def get_package_link_map():
     settings = rez_sphinx_settings[_INTERSPHINX_SETTINGS]
 
     return settings.get(_PACKAGE_LINK_MAP, dict())
+
+
+def _get_special_preference_paths(text):
+    """Query the currently-set preference values located at ``text``.
+
+    Args:
+        text (str):
+            A dot-separated string indicating a :ref:`rez_sphinx` configuration
+            setting.  This text usually has dynamic content and is thus
+            "special". e.g. ``"intersphinx_settings.package_link_map"``.  See
+            also: :func:`get_preference_from_path`
+
+    Raises:
+        NotImplementedError:
+            If ``text`` could not be handled. Add support for it, if needed.
+
+    Returns:
+        set[str]: Each found preference path, if any.
+
+    """
+
+    def _get_dynamic_dict_keys(path):
+        output = set()
+
+        try:
+            keys = get_preference_from_path(text).keys()
+        except exception.ConfigurationError:
+            # The user hasn't defined it. Just ignore it.
+            return set()
+
+        output.add(path)
+
+        for key in keys:
+            output.add("{path}.{key}".format(path=path, key=key))
+
+        return output
+
+    output = set()
+
+    if text == "sphinx_conf_overrides":
+        output.update(_get_dynamic_dict_keys("sphinx_conf_overrides"))
+
+        return output
+
+    if text == "intersphinx_settings.package_link_map":
+        output.update(_get_dynamic_dict_keys("intersphinx_settings.package_link_map"))
+
+        return output
+
+    raise NotImplementedError(
+        'Case "{text}" is unknown. Need to write code for this.'.format(text=text)
+    )
 
 
 def _get_quick_start_overridable_options(overrides=tuple()):
@@ -462,8 +515,9 @@ def get_preference_from_path(path):
 
 def get_preference_paths():
     """set[str]: All valid paths for :ref:`rez_sphinx config show`."""
-    def _get_mapping(mapping):
+    def _get_mapping(mapping, context):
         outputs = set()
+        exceptional_cases = set()
 
         for key, value in mapping.items():
             if isinstance(key, schema.Optional):
@@ -471,22 +525,44 @@ def get_preference_paths():
 
             if isinstance(key, schema.Use):
                 # We wouldn't really know how to handle this situation. Just ignore it.
+                exceptional_cases.add((context, key))
+
                 continue
 
             if not isinstance(value, collections_abc.Mapping):
-                outputs.add(key)
+                if not isinstance(key, six.string_types):
+                    # We wouldn't really know how to handle this situation. Just ignore it.
+                    exceptional_cases.add((context, key))
+                else:
+                    outputs.add(key)
 
                 continue
 
-            for inner_key in _get_mapping(value):
+            inner_context = key
+
+            if context:
+                inner_context = "{context}.{key}".format(context=context, key=key)
+
+            inner_output, extra_cases = _get_mapping(value, inner_context)
+            exceptional_cases.update(extra_cases)
+
+            for inner_key in inner_output:
                 if isinstance(inner_key, schema.Optional):
                     inner_key = schema_optional.get_raw_key(inner_key)
 
                 outputs.add("{key}.{inner_key}".format(key=key, inner_key=inner_key))
 
-        return outputs
+        return outputs, exceptional_cases
 
-    return _get_mapping(_MASTER_SCHEMA._schema)
+    output, exceptional_cases = _get_mapping(_MASTER_SCHEMA._schema, context="")
+
+    if not exceptional_cases:
+        return output
+
+    for case, value in exceptional_cases:
+        output.update(_get_special_preference_paths(case))
+
+    return output
 
 
 def get_sort_method():

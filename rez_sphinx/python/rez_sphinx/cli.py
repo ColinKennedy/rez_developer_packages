@@ -120,12 +120,6 @@ def _build_order(namespace):
     display_using(ordered)
 
 
-def _build_inspect_conf(namespace):
-    inspector.print_fields_from_directory(
-        namespace.directory, fields=set(namespace.fields)
-    )
-
-
 def _check(namespace):
     """Make sure :doc:`configuring_rez_sphinx` are valid, in/outside ``namespace``.
 
@@ -250,27 +244,10 @@ def _set_up_build(sub_parsers):
 
         _add_remainder_argument(build_runner)
 
-    def _add_build_inspect_parser(commands):
-        build_inspector = commands.add_parser(
-            "inspect-conf",
-            help="Show build related details to the user.",
-        )
-        build_inspector.add_argument(
-            "fields",
-            nargs="*",
-            help="A space-separated list of fields to print. "
-            "If not provided, everything is shown.",
-        )
-
-        _add_directory_argument(build_inspector)
-
-        build_inspector.set_defaults(execute=_build_inspect_conf)
-
     build = sub_parsers.add_parser(
         "build", description="Compile Sphinx documentation from a Rez package."
     )
     commands = build.add_subparsers()
-    _add_build_inspect_parser(commands)
     _add_build_run_parser(commands)
 
 
@@ -348,10 +325,8 @@ def _set_up_config(sub_parsers):
         action="store_true",
         help="If included, print available names. Don't actually query anything.",
     )
+    _add_directory_argument(show)
     show.set_defaults(execute=_show)
-
-    _add_directory_argument(check)
-    check.set_defaults(execute=_check)
 
     _set_up_list_default(inner_parser)
     _set_up_list_overrides(inner_parser)
@@ -441,6 +416,36 @@ def _set_up_suggest(sub_parsers):
     build_order.set_defaults(execute=_build_order)
 
 
+def _set_up_view(sub_parsers):
+    """Add :doc:`view_command` CLI parameters.
+
+    Args:
+        sub_parsers (argparse._SubParsersAction):
+            A collection of parsers which the :doc:`view_command` will be
+            appended onto.
+
+    """
+    view = sub_parsers.add_parser(
+        "view", description="Check the order which packages should run."
+    )
+    inner_parsers = view.add_subparsers()
+    view_conf = inner_parsers.add_parser(
+        "sphinx-conf",
+        help="Show your documentation's Sphinx conf.py settings. Useful for debugging!",
+    )
+
+    view_conf.add_argument(
+        "fields",
+        nargs="*",
+        help="A space-separated list of fields to print. "
+        "If not provided, everything is shown.",
+    )
+
+    _add_directory_argument(view_conf)
+
+    view_conf.set_defaults(execute=_view_conf)
+
+
 def _show(namespace):
     """Print the configuration value(s) the user asked for.
 
@@ -452,6 +457,9 @@ def _show(namespace):
             attributes to run :ref:`rez_sphinx config show`.
 
     """
+    # TODO : This function needs to take into account the user's directory and
+    # query stuff from the user's package.py
+    #
     if namespace.list_all:
         print("All available paths:")
 
@@ -471,19 +479,34 @@ def _show(namespace):
 
         return
 
-    print('Found Output:')
+    values = []
+    invalids = set()
 
     for name in names:
         try:
-            print(
-                '{name}:\n    {value}'.format(
-                    name=name,
-                    value=pprint.pformat(preference.get_preference_from_path(name), indent=4),
-                ),
-            )
+            values.append((name, preference.get_preference_from_path(name)))
         except exception.ConfigurationError:
-            # This happens only when ``name`` isn't set. It's okay to skip.
-            continue
+            invalids.add(name)
+
+    if invalids:
+        if len(invalids) == 1:
+            print('Name "{invalids}" does not exist.'.format(invalids=", ".join(sorted(invalids))))
+
+            return
+
+        print('Names "{invalids}" do not exist.'.format(invalids=", ".join(sorted(invalids))))
+
+        return
+
+    print('Found Output:')
+
+    for name, value in values:
+        print(
+            '{name}:\n    {value}'.format(
+                name=name,
+                value=pprint.pformat(preference.get_preference_from_path(name), indent=4),
+            ),
+        )
 
 
 def _split_build_arguments(namespace):
@@ -524,6 +547,20 @@ def _split_init_arguments(namespace):
         return
 
     namespace.quick_start_arguments.extend(namespace.remainder)
+
+
+def _view_conf(namespace):
+    """Print every `Sphinx`_ attribute in ``namespace``.
+
+    Args:
+        namespace (argparse.Namespace):
+            The parsed user content. It contains all of the necessary
+            attributes to generate Sphinx documentation.
+
+    """
+    inspector.print_fields_from_directory(
+        namespace.directory, fields=set(namespace.fields)
+    )
 
 
 def main(text):
@@ -582,6 +619,7 @@ def parse_arguments(text):
     _set_up_config(sub_parsers)
     _set_up_init(sub_parsers)
     _set_up_suggest(sub_parsers)
+    _set_up_view(sub_parsers)
 
     # TODO : Fix the error where providing no subparser command
     # DOES NOT show the help message

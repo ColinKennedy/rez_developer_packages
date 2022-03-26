@@ -1,5 +1,5 @@
-- Make sure, when querying current, config values, to consider arbitrary str keys currently defined in base settings
- - Add unittest for that
+- Should make some tests for invalid quickstart / build / API arguments
+- Every command that accepts a directory should have a test for if it isn't found. Probably.
 - rez_sphinx build view intersphinx_mapping unittests
  - Actually, move this to its own subcommand. Probably.
 - :ref:`rez_sphinx config show build_documentation_key`
