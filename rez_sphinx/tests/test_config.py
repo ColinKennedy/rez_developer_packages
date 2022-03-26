@@ -216,6 +216,7 @@ class Show(unittest.TestCase):
     """Make sure :ref:`rez_sphinx config show` works."""
 
     def test_names(self):
+        """Print the results of multiple possible field names."""
         with wrapping.capture_pipes() as (stdout, _):
             run_test.test("config show documentation_root extra_requires")
 
@@ -236,6 +237,7 @@ class Show(unittest.TestCase):
         )
 
     def test_not_found(self):
+        """If a given field doesn't exist, fail early."""
         with wrapping.capture_pipes() as (stdout, _):
             run_test.test("config show does_not_exist documentation_root")
 
@@ -245,6 +247,7 @@ class Show(unittest.TestCase):
         self.assertEqual('Name "does_not_exist" does not exist.', value.rstrip())
 
     def test_list_all(self):
+        """Make sure :ref:`rez_sphinx config show --list-all` works."""
         with wrapping.capture_pipes() as (stdout, _):
             run_test.test("config show --list-all")
 

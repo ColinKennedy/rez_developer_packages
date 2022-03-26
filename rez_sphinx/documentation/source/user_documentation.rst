@@ -45,6 +45,7 @@ documentation easier.
    config <config_command>
    init <init_command>
    suggest <suggest_command>
+   view <view_command>
 
 
 Advanced Topics
