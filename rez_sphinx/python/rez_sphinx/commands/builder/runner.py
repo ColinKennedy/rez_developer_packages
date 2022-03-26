@@ -16,8 +16,7 @@ def _get_documentation_build(source):
     """Find the directory where documentation must be built into.
 
     Args:
-        source (str):
-            The parent directory of `Sphinx conf.py <conf.py>`_.
+        source (str): The parent directory of `Sphinx conf.py`_.
 
     Returns:
         str:
@@ -48,14 +47,14 @@ def _get_documentation_source(root):
 
     Args:
         root (str):
-            A directory on-disk to search within for the `Sphinx conf.py <conf.py>`_.
+            A directory on-disk to search within for the `Sphinx conf.py`_.
 
     Raises:
         NoDocumentationFound:
             If ``root`` needs to initialize some documentation.
 
     Returns:
-        str: The parent directory of `Sphinx conf.py <conf.py>`_.
+        str: The parent directory of `Sphinx conf.py`_.
 
     """
     try:
