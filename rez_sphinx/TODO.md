@@ -1,3 +1,4 @@
+- Do all documentation TODO notes
 - Add unittest for when docbot is not loaded
 - Every command that accepts a directory should have a test for if it isn't found. Probably.
 - Make sure commands run without subcommands or --help give the right output.
@@ -6,7 +7,7 @@
 - Should make some tests for invalid quickstart / build / API arguments
 
 - Add pylint configuration to match with black (line length 88)
-- Do all TODO notes
+- Do all general TODO notes
 - Do all NotImplementedError, where applicable
 
 - silence build commands
