@@ -1,7 +1,5 @@
 - Get tests to pass again
  - pylint
- - black
- - isort
  - unittests
 - Should make some tests for invalid quickstart / build / API arguments
 - Every command that accepts a directory should have a test for if it isn't found. Probably.

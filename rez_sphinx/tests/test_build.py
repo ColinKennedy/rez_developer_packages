@@ -176,7 +176,7 @@ class BootstrapIntersphinx(unittest.TestCase):
                 "build_non_standard_documentation",
             ]
 
-            with _watch_candidates() as container:
+            with _watch_candidates() as container, wrapping.silence_printing():
                 run_test.test(["build", "run", source_directory])
 
         watcher = container[0]
@@ -207,8 +207,7 @@ class BootstrapIntersphinx(unittest.TestCase):
             "weak_package": "foo",
         }
 
-        # with wrapping.silence_printing(), run_test.simulate_resolve(installed_packages):
-        with run_test.simulate_resolve(installed_packages):
+        with wrapping.silence_printing(), run_test.simulate_resolve(installed_packages):
             with _watch_intersphinx_mapping() as container, run_test.allow_defaults(), run_test.keep_config() as config:
                 config.optionvars.setdefault("rez_sphinx", dict())
                 config.optionvars["rez_sphinx"]["intersphinx_settings"] = dict()

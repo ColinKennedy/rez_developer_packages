@@ -73,6 +73,7 @@ class ListDefault(unittest.TestCase):
             documentation_root: ''
             extra_requires: []
             init_options: {}
+            intersphinx_settings: {}
             sphinx-apidoc: {}
             sphinx-quickstart: []
             sphinx_conf_overrides: {}
@@ -108,6 +109,7 @@ class ListDefault(unittest.TestCase):
                 "default_files": preference._DEFAULT_ENTRIES,
                 "check_default_files": True,
             },
+            "intersphinx_settings": dict(),
             "sphinx-apidoc": {"allow_apidoc_templates": True, "enable_apidoc": True},
             "sphinx_conf_overrides": {"add_module_names": False, "master_doc": "index"},
             "sphinx_extensions": [
@@ -137,6 +139,7 @@ class ListDefault(unittest.TestCase):
         expected = {
             "documentation_root": "",
             "init_options": {},
+            "intersphinx_settings": {},
             "sphinx_conf_overrides": {},
             "sphinx_extensions": [],
             "sphinx-apidoc": dict(),

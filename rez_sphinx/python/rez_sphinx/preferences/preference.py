@@ -132,7 +132,7 @@ _MASTER_SCHEMA = schema.Schema(
         schema.Optional(_EXTRA_REQUIRES, default=[]): [
             preference_configuration.REQUEST_STR
         ],
-        schema.Optional(_INTERSPHINX_SETTINGS): {
+        schema.Optional(_INTERSPHINX_SETTINGS, default=dict()): {
             _PACKAGE_LINK_MAP: {str: schema_helper.NON_NULL_STR}
         },
     }
