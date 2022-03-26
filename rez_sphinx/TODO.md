@@ -3,6 +3,13 @@
 - Should make some tests for invalid quickstart / build / API arguments
 - Every command that accepts a directory should have a test for if it isn't found. Probably.
 - Fix `foo <bar>`_ style Sphinx conf.py references. They're broken
+- Add unittest for when docbot is not loaded
+- Make sure commands run without subcommands or --help give the right output.
+  They shouldn't just AttributeError. e.g. `rez_sphinx view` raises
+  AttributeError
+
+- Do all TODO notes
+- Do all NotImplementedError, where applicable
 
 - Add unittests for the plugin / preprocess hooks
  - If it needs to be dependency-less, make a unittest that enforces this

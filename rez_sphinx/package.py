@@ -63,7 +63,7 @@ tests = {
         "requires": ["black-22+<23"],
     },
     "build_documentation": {
-        "command": "rez_sphinx build",
+        "command": "rez_sphinx build run",
         "requires": [
             "python-3+",  # Get the latest Sphinx / python combination
             "sphinx_rtd_theme-1+<2",

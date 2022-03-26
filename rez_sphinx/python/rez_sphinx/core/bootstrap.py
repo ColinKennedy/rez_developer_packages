@@ -265,6 +265,15 @@ def _get_tests_requires(package):
 
     test = ""
 
+    # TODO : I need to add a way to get the exact tests being ran. And if this
+    # this function is called outside of a testing context, THEN fallback to
+    # the current logic that's below.  Ideally, the current test should be
+    # queriable by name. See the reference issue.
+    #
+    # Reference: https://github.com/nerdvegas/rez/issues/1261
+    #
+    # Worse case scenario, fallback to using REZ_USED_REQUEST, instead.
+    #
     for key in preference.get_build_documentation_keys():
         test = tests.get(key)
 
