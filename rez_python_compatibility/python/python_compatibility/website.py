@@ -31,10 +31,7 @@ def is_internet_on(timeout=2):
     )
 
     try:
-        urllib.request.urlopen(
-            "http://216.58.192.142",  # This is the IP address to google
-            timeout=timeout,
-        )
+        urllib.request.urlopen("http://www.google.com", timeout=timeout)
     except known_exceptions:
         return False
 

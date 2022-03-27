@@ -114,6 +114,24 @@ def is_publishing_enabled():
     )
 
 
+def get_all_publishers(package):
+    # Note: This inner import is because it's not a guarantee that users have
+    # rez_docbot loaded as a plugin. They need to include:
+    #
+    # ".rez_sphinx.feature.docbot_plugin-1"
+    #
+    # in their resolves for this import to work.
+    #
+    from rez_docbot import api
+
+    publishers = api.get_all_publishers(package)
+
+    for publisher in publishers:
+        publisher.authenticate()
+
+    return publishers
+
+
 def build_documentation(directory):
     """Build all :ref:`rez_sphinx` registered documentation at ``directory``.
 
@@ -170,27 +188,3 @@ def build_documentation(directory):
         )
 
     return output
-
-
-def publish(directory):
-    # Note: This inner import is because it's not a guarantee that users have
-    # rez_docbot loaded as a plugin. They need to include:
-    #
-    # ".rez_sphinx.feature.docbot_plugin-1"
-    #
-    # in their resolves for this import to work.
-    #
-    from rez_docbot import api
-
-    package = finder.get_nearest_rez_package(directory)
-    configuration = api.get_configuration(package)
-
-    source_directory = runner.get_documentation_source_directory(directory)
-    build_directory = runner.get_documentation_build(source_directory)
-
-    repository = api.get_repository(configuration)
-
-    if not repository:
-        repository = api.create_repository(configuration)
-
-    repository.publish(build_directory)

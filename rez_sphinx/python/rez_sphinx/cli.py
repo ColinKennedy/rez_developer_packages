@@ -210,10 +210,15 @@ def _publish_run(namespace):
             "Must must include .rez_sphinx.feature.docbot_plugin==1 in your resolve to use this command."
         )
 
-    all_documentation = publish_run.build_documentation(namespace.directory)
+    package = finder.get_nearest_rez_package(namespace.directory)
+    publishers = publish_run.get_all_publishers(package)
 
-    for documentation in all_documentation:
-        publish_run.publish(documentation)
+    for documentation in publish_run.build_documentation(namespace.directory):
+        _LOGGER.info('Publishing "%s" documentation.', documentation)
+
+        for publisher in publishers:
+            _LOGGER.debug('Publishing with publisher "%s".', publisher)
+            publisher.quick_publish(documentation)
 
 
 def _set_up_build(sub_parsers):
