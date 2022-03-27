@@ -101,6 +101,7 @@ rst_epilog = textwrap.dedent(
     .. _Rez: https://github.com/nerdvegas/rez/wiki
     .. _Sphinx conf.py: https://www.sphinx-doc.org/en/master/usage/configuration.html
     .. _Sphinx: https://www.sphinx-doc.org/en/master
+    .. _add_module_names: https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-add_module_names
     .. _alabaster: https://alabaster.readthedocs.io/en/latest/
     .. _author: https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-author
     .. _build_requires: https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#build_requires

@@ -534,7 +534,32 @@ customization` for a full list of the supported variables and what each of them 
 sphinx_conf_overrides.add_module_names
 **************************************
 
-TODO
+When you document with `Sphinx`_ it prefers to render API function names with
+the full namespace, like this:
+
+``some_package_root.inner_folder.another_folder.core.you.get.the.point.my_function``
+
+Versus just:
+
+``my_function``
+
+This option is controlled with `add_module_names`_, which you can set directly
+on your `Sphinx conf.py`_.
+
+However in the interest of making documentation pretty by default,
+:ref:`rez_sphinx build run` sets this to ``False`` by default.
+
+If you don't like this decision, use this setting to revert it:
+
+.. code-block:: python
+
+    optionvars = {
+        "rez_sphinx": {
+            "sphinx_conf_overrides": {
+                "add_module_names": False,  # Set this to True to get old behavior back
+            }
+        }
+    }
 
 
 .. _rez_sphinx.sphinx_conf_overrides.master_doc:
@@ -542,7 +567,28 @@ TODO
 sphinx_conf_overrides.master_doc
 ********************************
 
-TODO
+When you open documentation in `Sphinx`_, one .rst file must serve as the
+"starting point" that all other documentation is based on. In web terms, you
+might call this the "landing page".
+
+While well intentioned, this setting causes problems when `Sphinx`_ and its
+extensions `disagree on what the master_doc name should be called
+<https://github.com/readthedocs/readthedocs.org/issues/2569>`_. To make
+:ref:`rez_sphinx` more bullet-proof, the name is set for you by default so you
+don't get burned by this issue by accident later.
+
+
+Default: ``"index"``
+
+.. code-block:: python
+
+    optionvars = {
+        "rez_sphinx": {
+            "sphinx_conf_overrides": {
+                "master_doc": "index",
+            }
+        }
+    }
 
 
 .. _rez_sphinx.sphinx_extensions:
@@ -550,4 +596,4 @@ TODO
 sphinx_extensions
 *****************
 
-TODO
+TODO move this to sphinx_conf_overrides and make sure there's unittests for it.
