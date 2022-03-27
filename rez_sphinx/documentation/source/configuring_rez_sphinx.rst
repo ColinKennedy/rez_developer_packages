@@ -2,7 +2,14 @@
 Configuring rez_sphinx
 ######################
 
-All :ref:`rez_sphinx` commands and flags have many ways to be changed for your needs.
+All :ref:`rez_sphinx` commands and flags have many ways to be changed for your
+needs.
+
+.. important::
+
+   Every setting here can be queried at any time using the :ref:`rez_sphinx
+   config show --list-all` command.
+
 There's two main ways to configure documentation:
 
 - Globally, using :ref:`global configuration`
@@ -59,7 +66,7 @@ So if this is the "global" approach:
             "sphinx-apidoc": {
                 "allow_apidoc_templates": False,
             },
-        }
+        },
     }
 
 
@@ -94,7 +101,7 @@ the ``<api/modules>`` part alone.
    optionvars = {
        "rez_sphinx": {
            "api_toctree_line": "API Documentation <api/modules>",
-       }
+       },
    }
 
 TODO : Make unittest for this
@@ -181,7 +188,7 @@ Default: ``"build_documentation"``
     optionvars = {
         "rez_sphinx": {
             "build_documentation": "build_documentation",
-        }
+        },
     }
 
 You can also specify **a list of possible keys**.
@@ -191,7 +198,7 @@ You can also specify **a list of possible keys**.
     optionvars = {
         "rez_sphinx": {
             "build_documentation": ["build_documentation", "fallback_test_name"],
-        }
+        },
     }
 
 However if you do, you must keep in mind the following details:
@@ -252,7 +259,7 @@ packages to include a ``sphinx_rtd_theme`` package in the test ``requires``.
         "build_documentation": {
             "command": "rez_sphinx build run",
             "requires": ["rez_sphinx-1+<2", "sphinx_rtd_theme-1+<2"],
-        }
+        },
     }
 
 And you'd have to do that everywhere that you build documentation, potentially
@@ -282,7 +289,34 @@ example, see :doc:`using_sphinx_rtd_theme` for details.
 init_options.check_default_files
 ********************************
 
-TODO
+In general, :ref:`rez_sphinx` tries to get out of the user's way and make
+documentation as fast as possible.  The one exception to that is a pre-build
+check during :ref:`rez_sphinx build run`.
+
+If you have default files defined
+(:ref:`rez_sphinx.init_options.default_files`), it's expected that you either
+add handmade documentation to those files or delete the files completely.
+
+If you don't, :ref:`rez_sphinx build run` fails to run.
+
+This check may rub some users the wrong way but the intent is to ensure people
+are using :ref:`rez_sphinx` to write quality documentation and checking their
+work.  As very often, poor documentation is be worse than no documentation.
+
+That said, if you really don't like this check, it can be disabled.
+
+Default: ``True``
+
+.. code-block:: python
+
+    optionvars = {
+        "rez_sphinx": {
+            "init_options.check_default_files": True,
+        },
+    }
+
+The other option for disabling the pre-build check is to remove all default
+files. You can do that, using :ref:`rez_sphinx.init_options.default_files`.
 
 
 .. _rez_sphinx.init_options.default_files:
@@ -383,7 +417,6 @@ If you prefer the default display, use this option to get it back:
 
 .. code-block:: python
 
-
     optionvars = {
         "rez_sphinx": {
             "sphinx-apidoc": {
@@ -401,15 +434,27 @@ Sphinx 2.2+. Adding this setting in Python 2 does nothing.
 sphinx-apidoc.arguments
 ***********************
 
-TODO
+Raw terminal arguments you can pass directly to `sphinx-apidoc`_. These
+arguments get referenced and called during :ref:`rez_sphinx build run`, just
+before `sphinx-build`_ gets called.
 
+A common value for this is ``["--private"]``, if you want to also create API
+documentation for "private" Python modules. See `sphinx-apidoc --private`_ for
+details about that.
 
-.. _rez_sphinx.sphinx-apidoc.arguments:
+Default: ``[]``
 
-sphinx-apidoc.arguments
-***********************
+.. code-block:: python
 
-TODO
+    optionvars = {
+        "rez_sphinx": {
+            "sphinx-apidoc": {
+                "arguments": [],
+            },
+        },
+    }
+
+TODO Add unittest
 
 
 .. _rez_sphinx.sphinx-apidoc.enable_apidoc:
@@ -417,7 +462,25 @@ TODO
 sphinx-apidoc.enable_apidoc
 ***************************
 
-TODO
+Just before documentation is built, :ref:`rez_sphinx build run` generates API
+documentation .rst files based on the Python files for your package that it
+could find.
+
+If you don't want these .rst files to be generated (for example, you're writing
+a Rez package of just hand-written documentation and doesn't contain Python
+files), you can disable this option.
+
+Default: ``True``
+
+.. code-block:: python
+
+    optionvars = {
+        "rez_sphinx": {
+            "sphinx-apidoc": {
+                "enable_apidoc": True,
+            },
+        },
+    }
 
 
 .. _rez_sphinx.sphinx-quickstart:
@@ -427,7 +490,24 @@ TODO
 sphinx-quickstart
 *****************
 
-TODO Add
+TODO: Make this consistent with other options
+
+Like :ref:`rez_sphinx.sphinx-apidoc.arguments`, which allows you to pass
+arguments directly to `sphinx-apidoc`_, this setting customizes the arguments
+passed to ``sphinx-quickstart``.
+
+An example for this would be to enable the `sphinx.ext.coverage`_ extension,
+using ``["--ext-coverage"]``.
+
+.. code-block:: python
+
+    optionvars = {
+        "rez_sphinx": {
+            "sphinx-quickstart": ["--ext-coverage"],
+        },
+    }
+
+TODO Add unittest
 
 
 .. _rez_sphinx.sphinx_conf_overrides:
@@ -443,7 +523,7 @@ customization` for a full list of the supported variables and what each of them 
     optionvars = {
         "rez_sphinx": {
             "sphinx_conf_overrides": {
-                "add_module_names": True,  # Use full names in API documentation
+                "add_module_names": False,  # Use short names in API documentation
             }
         }
     }

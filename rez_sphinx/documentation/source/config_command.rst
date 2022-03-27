@@ -57,9 +57,12 @@ rez_sphinx config show
 for :ref:`rez_sphinx`.  Don't confuse this command with
 :ref:`rez_sphinx view sphinx-conf` because they do different things.
 
-- :ref:`rez_sphinx config show` - Get all :ref:`rez_sphinx` settings.
+- :ref:`rez_sphinx config show`: Get all :ref:`rez_sphinx` settings.
+
     - See :doc:`configuring_rez_sphinx` for example values
+
 - :ref:`rez_sphinx view sphinx-conf`
+
     - Queries your `Sphinx conf.py`_ for resolved values.
 
 :ref:`rez_sphinx config show` returns values that, often times, are only

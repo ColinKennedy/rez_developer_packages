@@ -135,11 +135,13 @@ rst_epilog = textwrap.dedent(
     .. _rez-test: https://github.com/nerdvegas/rez/wiki/Command-Line-Tools#rez-test
     .. _rezconfig.py: https://github.com/nerdvegas/rez/blob/fa3fff6f0b7b4b53bbb9baa4357ab42117d06356/src/rez/rezconfig.py
     .. _sphinx theme: https://sphinx-themes.org/
+    .. _sphinx-apidoc --private: https://www.sphinx-doc.org/en/master/man/sphinx-apidoc.html#cmdoption-sphinx-apidoc-P
     .. _sphinx-apidoc: https://www.sphinx-doc.org/en/master/man/sphinx-apidoc.html
     .. _sphinx-build: https://www.sphinx-doc.org/en/master/usage/quickstart.html#running-the-build
     .. _sphinx-quickstart: https://www.sphinx-doc.org/en/master/man/sphinx-quickstart.html
     .. _sphinx-rtd-theme: https://sphinx-rtd-theme.readthedocs.io/en/stable/
     .. _sphinx.ext.autodoc: https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html
+    .. _sphinx.ext.coverage: https://www.sphinx-doc.org/en/master/usage/extensions/coverage.html
     .. _sphinx.ext.intersphinx: https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html
     .. _sphinx.ext.viewcode: https://www.sphinx-doc.org/en/master/usage/extensions/viewcode.html
     .. _tests: https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#tests
