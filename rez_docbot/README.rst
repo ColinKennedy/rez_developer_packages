@@ -1,0 +1,56 @@
+TODO Fill this page later
+
+
+::
+
+    optionvars = {
+        "rez_docbot": {
+            "credentials": {
+                "access_token": "asdfasfsdf",
+            },
+        }
+    }
+
+
+- rez_docbot.credentials notes
+    - credentials
+        - can be user + password pair
+        - can be access token
+        - ! both options can be raw OR use a file on-disk
+        - URI base?
+        - needs a type specifier (e.g. GitHub) and a matching adapter
+            - fail if no matching adapter
+        - required True / False
+            - So it doesn't have to publish to that location, if not found
+            - log with a warning though, either way
+        - repository_template
+            - allow users to use Python {}s to change anything in the URL
+            - Needs to support documentation (multiple per repo) somehow
+    - fallback_repository_template
+        - allow users to use Python {}s to change anything in the URL
+        - Needs to support documentation (multiple per repo) somehow
+    - publish_scheme
+        - default: "{package.version.major}.{package.version.minor}"
+        - Other configurations can be used to bump documentation
+        - needs a force mechanism
+        - If backpatching, don't mess with latest
+        - latest_name
+            - default: "latest"
+            - If unset, don't set a latest
+    - adapters
+        - GitHub
+            - Needs some kind of templater which includes .nojekyll and stuff
+    - master page?
+        - Maybe useful?
+    - Somehow this has to hook back into the package.py's `help`_ attribute.
+        - It needs to be able to point to the repository end-point.
+            - And that end-point needs to match the "publish_scheme"
+        - The URL where users interface with the documentation is not necesarily
+          the same that they publish to (GitHub pages for example is different)
+            - https://github.com/ColinKennedy/colinkennedy.github.io is where I push
+            - https://colinkennedy.github.io where the documentation would
+              actually live. And the objects.inv is located in either place.
+              But users would want `help`_ to go where the end-facing docs live
+                - To futher emphasize this point, if there's a split
+                  documentation setup with GitHub and readthedocs.io, then
+                  those would be located in completely different websites
