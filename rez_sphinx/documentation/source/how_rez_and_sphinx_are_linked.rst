@@ -36,18 +36,21 @@ existing values, which is why ``locals()`` is passed to ``api.bootstrap(locals()
 
 TODO : Why does the bullet point list below look weird in .html?
 
-* extends `extensions`_ with things :ref:`rez_sphinx` needs.
-* sets `intersphinx_mapping`_, a variable for `sphinx.ext.intersphinx`_.
-    * This extension is what allows your documentation to communicate with **other**
-      Rez package's documentation.
-* sets these vanilla `Sphinx`_ variables based on what's in your `package.py`_:
-    * `author`_
-    * `copyright`_
-    * `master_doc`_
-    * `project_copyright`_
-    * `project`_
-    * `release`_
-    * `version`_
+- extends `extensions`_ with things :ref:`rez_sphinx` needs.
+- sets `intersphinx_mapping`_, a variable for `sphinx.ext.intersphinx`_.
+
+    - This extension is what allows your documentation to communicate with
+      **other** Rez package's documentation.
+
+- sets these vanilla `Sphinx`_ variables based on what's in your `package.py`_:
+
+    - `author`_
+    - `copyright`_
+    - `master_doc`_
+    - `project_copyright`_
+    - `project`_
+    - `release`_
+    - `version`_
 
 While this is fairly aggressive, please note that:
 
