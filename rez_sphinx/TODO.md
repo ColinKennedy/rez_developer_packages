@@ -1,4 +1,5 @@
-- Do all documentation TODO notes
+- Add a basic publish implementation, with docbot
+ - Add a Rez plugin for post release publishing
 - Add unittest for when docbot is not loaded
 - Every command that accepts a directory should have a test for if it isn't found. Probably.
 - Make sure commands run without subcommands or --help give the right output.
@@ -17,6 +18,7 @@
 - Add unittests for the plugin / preprocess hooks
  - If it needs to be dependency-less, make a unittest that enforces this
 
+- Make sure the preprocess function works as a general, standalone thing
 
 ## Document current work
 

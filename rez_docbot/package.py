@@ -54,3 +54,9 @@ tests = {
         "requires": ["python-3"],
     },
 }
+
+
+def commands():
+    import os
+
+    env.PYTHONPATH.append(os.path.join(root, "python"))

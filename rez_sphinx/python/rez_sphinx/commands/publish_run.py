@@ -1,5 +1,6 @@
 import logging
 import os
+import shlex
 
 import six
 from rez import package_test
@@ -12,6 +13,7 @@ except ImportError:
 
 from ..core import exception
 from ..preferences import preference
+from .builder import runner
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -33,7 +35,13 @@ def _get_documentation_destination(name, package):
     """
 
     def _parse_destination(text):
-        raise ValueError(text)
+        # TODO : Deal with this recursive import, later
+        from .. import cli
+
+        command = shlex.split(text)[1:]
+        namespace = cli.parse_arguments(command)
+
+        return namespace.directory
 
     test = package.tests[name]
 
@@ -164,5 +172,25 @@ def build_documentation(directory):
     return output
 
 
-def publish(root):
-    raise ValueError(root)
+def publish(directory):
+    # Note: This inner import is because it's not a guarantee that users have
+    # rez_docbot loaded as a plugin. They need to include:
+    #
+    # ".rez_sphinx.feature.docbot_plugin-1"
+    #
+    # in their resolves for this import to work.
+    #
+    from rez_docbot import api
+
+    package = finder.get_nearest_rez_package(directory)
+    configuration = api.get_configuration(package)
+
+    source_directory = runner.get_documentation_source_directory(directory)
+    build_directory = runner.get_documentation_build(source_directory)
+
+    repository = api.get_repository(configuration)
+
+    if not repository:
+        repository = api.create_repository(configuration)
+
+    repository.publish(build_directory)
