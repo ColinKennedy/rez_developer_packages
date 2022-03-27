@@ -34,8 +34,6 @@ existing values, which is why ``locals()`` is passed to ``api.bootstrap(locals()
 
 :func:`.bootstrap.bootstrap` doesn't change every variable. By default it...:
 
-TODO : Why does the bullet point list below look weird in .html?
-
 - extends `extensions`_ with things :ref:`rez_sphinx` needs.
 - sets `intersphinx_mapping`_, a variable for `sphinx.ext.intersphinx`_.
 

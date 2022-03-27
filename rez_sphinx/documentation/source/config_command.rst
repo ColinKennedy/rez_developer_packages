@@ -77,7 +77,23 @@ for debugging a specific package.
 rez_sphinx config show --list-all
 *********************************
 
-TODO
+This command shows every setting which :ref:`rez_sphinx` supports. "." note
+nested dictionaries. For example, ``auto_help.filter_by`` would be written in a
+configuration as:
+
+.. code-block:: python
+
+    optionvars = {
+        "rez_sphinx": {
+            "auto_help": {
+                "filter_by": "prefer_generated",
+            },
+        },
+    }
+
+Each printed preference path from this command has an effect on
+:ref:`rez_sphinx`. See :doc:`configuring_rez_sphinx` to learn about those
+preference path options.
 
 
 .. _rez_sphinx config show build_documentation_key:

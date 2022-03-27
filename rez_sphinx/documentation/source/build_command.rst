@@ -4,7 +4,12 @@
 rez_sphinx build
 ################
 
-TODO description here
+This parent command includes building documentation but also things like
+inspecting the built documentation and any other possible future commands.
+
+Another related command, :ref:`rez_sphinx view sphinx-config`, is very useful
+for debugging builds.
+
 
 .. _rez_sphinx build run:
 
@@ -26,22 +31,12 @@ default location) or ``{root}/build/documentation`` if you passed you passed
 ``rez_sphinx init --quickstart-arguments="--no-sep"``.
 
 
-.. _rez_sphinx build view-conf:
-
-rez_sphinx build view-conf
-**************************
-
-TODO write how to run this here and what the output is
-
-
 .. _rez_sphinx apidoc templates:
 
 A note about Python 2 / 3
 *************************
 
 The default toctree generated for the API documentation is super ugly.
-
-TODO Add these images
 
 .. image:: images/python_2_api_toctree.png
 

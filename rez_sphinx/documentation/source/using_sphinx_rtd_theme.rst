@@ -11,13 +11,9 @@ sourced a `sphinx theme`_ called `sphinx-rtd-theme`_.
 
 Here's what the default sphinx theme, `alabaster`_ looks like:
 
-TODO, add image
-
 .. image:: images/alabaster_example_page.png
 
 And here's the same page, using `sphinx-rtd-theme`_.
-
-TODO add
 
 .. image:: images/sphinx_rtd_theme_example_page.png
 
