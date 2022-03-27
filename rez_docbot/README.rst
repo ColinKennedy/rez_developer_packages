@@ -1,5 +1,25 @@
 TODO Fill this page later
 
+TODO - reorganize the existing Python modules, once made, to be easier to understand
+
+TODO :
+
+- unittests
+  - invalid schema gives a good result return result
+     - bad authentication should say what the problem(s) were for each of them
+     - bad general settings should say why
+  - general
+    - publish to the root of a repository
+      - Or to an inner folder (make the folder if it doesn't exist)
+    - make sure latest gets updated if needed. Or not, if back-patching
+  - github
+    - username / password
+      - raw
+      - by-file
+    - access token
+      - raw
+      - by-file
+    - two-factor authentication
 
 ::
 
@@ -21,29 +41,26 @@ Possible GitHub APIs
 
 - rez_docbot.credentials notes
     - credentials
-        - can be user + password pair
-        - can be access token
+        -- can be user + password pair - need to add this into the adapter
+        -- can be access token - need to add this into the adapter
         - ! both options can be raw OR use a file on-disk
-        - URI base?
-        - needs a type specifier (e.g. GitHub) and a matching adapter
-            - fail if no matching adapter
-        - required True / False
-            - So it doesn't have to publish to that location, if not found
+        -- URI base?
+        -- needs a type specifier (e.g. GitHub) and a matching adapter
+            -- fail if no matching adapter
+        -- required True / False
+            -- So it doesn't have to publish to that location, if not found
             - log with a warning though, either way
-        - repository_template
-            - allow users to use Python {}s to change anything in the URL
-            - Needs to support documentation (multiple per repo) somehow
-    - fallback_repository_template
-        - allow users to use Python {}s to change anything in the URL
-        - Needs to support documentation (multiple per repo) somehow
+        -- repository_template
+            -- allow users to use Python {}s to change anything in the URL
+            -- Needs to support documentation (multiple per repo) somehow
     - publish_scheme
-        - default: "{package.version.major}.{package.version.minor}"
-        - Other configurations can be used to bump documentation
+        -- default: "{package.version.major}.{package.version.minor}"
+        -- Other configurations can be used to bump documentation
         - needs a force mechanism
         - If backpatching, don't mess with latest
-        - latest_name
-            - default: "latest"
-            - If unset, don't set a latest
+        -- latest_name
+            -- default: "latest"
+            -- If unset, don't set a latest
     - adapters
         - GitHub
             - Needs some kind of templater which includes .nojekyll and stuff
