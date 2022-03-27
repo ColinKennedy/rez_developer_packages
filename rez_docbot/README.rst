@@ -11,6 +11,13 @@ TODO Fill this page later
         }
     }
 
+Possible GitHub APIs
+- https://pygithub.readthedocs.io/en/latest/examples.html
+- https://github3py.readthedocs.io/en/master/examples/github.html
+   - https://github3py.readthedocs.io/en/master/narrative/getting-started.html#using-the-library
+- https://gist.github.com/avullo/b8153522f015a8b908072833b95c3408
+- https://www.thepythoncode.com/article/using-github-api-in-python
+
 
 - rez_docbot.credentials notes
     - credentials
@@ -54,3 +61,7 @@ TODO Fill this page later
                 - To futher emphasize this point, if there's a split
                   documentation setup with GitHub and readthedocs.io, then
                   those would be located in completely different websites
+    - Extra considerations
+        - 2 factor authentication? https://github3py.readthedocs.io/en/master/narrative/getting-started.html#using-the-library
+    - Each adapter should have a place where they can define custom, extra data
+        - e.g. an adapter may actually log into a specific user

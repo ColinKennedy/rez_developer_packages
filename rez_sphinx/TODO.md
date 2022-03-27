@@ -20,6 +20,9 @@
 
 - Make sure the preprocess function works as a general, standalone thing
 
+- Need to ensure docbot's logger is set properly when used as a bolt-in for rez_sphinx
+
+
 ## Document current work
 
 - Do all TODO notes within the documentation/source folder
