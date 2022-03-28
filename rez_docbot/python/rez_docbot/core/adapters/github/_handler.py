@@ -35,6 +35,6 @@ class GitHub(object):
 
     def get_repository(self, details, destination, auto_create=True):
         remote = self._get_repository(details, auto_create=auto_create)
-        clone = base.Repo.clone_from(remote.clone_url, destination)
+        clone = base.Repo.clone_from(details.clone_url, destination)
 
         return _repository.Repository(clone, remote)

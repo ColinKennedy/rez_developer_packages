@@ -43,7 +43,10 @@ class Repository(_Base):
 
     def checkout(self, branch):
         # TODO : Double-check this. It may not work
-        self._clone.git.checkout(branch)
+        if branch in self._clone.branches:
+            self._clone.git.checkout(branch)
+        else:
+            self._clone.git.checkout(b=branch)
 
     def commit(self, message):
         self._clone.index.commit(message)
@@ -58,4 +61,5 @@ class Repository(_Base):
             self._clone.remote(),
         )
 
-        self._clone.remote().push()
+        branch = self._clone.active_branch.name
+        self._clone.remote().push(branch)

@@ -47,7 +47,7 @@ _SCHEMA = schema.Schema(_PUBLISHER)
 _LOGGER = logging.getLogger(__name__)
 # Reference: https://stackoverflow.com/a/40972959/3626104
 _CURLIES = re.compile(r"\{(.*?)\}")
-_RepositoryDetails = collections.namedtuple("_RepositoryDetails", "group, repository")
+_RepositoryDetails = collections.namedtuple("_RepositoryDetails", "group, repository, clone_url")
 
 
 class Publisher(object):
@@ -180,7 +180,7 @@ class Publisher(object):
         group = self._get_resolved_group()
         repository = self._get_resolved_repository()
 
-        return _RepositoryDetails(group, repository)
+        return _RepositoryDetails(group, repository, self._get_resolved_repository_uri())
 
     def _get_resolved_group(self):
         return self._data[_REPOSITORY_URI][schema_type.GROUP].format(package=self._get_package())
