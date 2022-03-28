@@ -21,7 +21,7 @@ Assuming you use `Sphinx`_ or a similar "wrapper" tool, ask yourself these quest
 
 If you answered all of those questions in a positive way, then you're already
 set up for success. But if any of those points fall short and you'd like a
-tool handle those things for you, :ref:`rez_sphinx` is for you.
+tool handle those things for you, :doc:`getting_started` is for you.
 
 As you probably have guessed from the questions, `Sphinx`_ is great at building
 individual tool documentation. But all of the logistical concerns, like how do
@@ -31,6 +31,6 @@ those links "rotting" in the future or getting accidentally overwritten -
 `Sphinx`_ just can't handle any of those logistical concerns. Luckily though,
 `Rez`_ is actually very well suited for the task.
 
-Bridging `Rez`_ and `Sphinx`_ to get the best of both is why :ref:`rez_sphinx` exists.
+:ref:`rez_sphinx` is the bridge between `Rez`_ and `Sphinx`_.
 
 Interested? Check out :doc:`getting_started` next.
