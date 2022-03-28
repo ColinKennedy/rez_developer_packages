@@ -16,7 +16,7 @@ class Publish(unittest.TestCase):
     @unittest.skipIf(
         not website.is_internet_on(), "External Internet is not accessible."
     )
-    def test_authentication(self):
+    def test_authentication(self):  # pylint: disable=no-self-use
         """Make sure :class:`rez_docbot.core.publisher_.Publisher` authenticates."""
         # TODO : Make a burner account so we can use it in this test
         with _get_quick_publisher(
@@ -32,7 +32,7 @@ class Publish(unittest.TestCase):
         ) as publisher:
             publisher.authenticate()
 
-    def test_initialization(self):
+    def test_initialization(self):  # pylint: disable=no-self-use
         """Make sure :class:`rez_docbot.core.publisher_.Publisher` instantiates."""
         with _get_quick_publisher(
             {

@@ -6,6 +6,7 @@ import re
 import shutil
 
 import schema
+from rez.vendor.version import version as version_
 
 from . import adapter_registry, schema_type
 
@@ -75,6 +76,29 @@ class Publisher(object):
         validated = _SCHEMA.validate(data)
 
         return cls(validated)
+
+    def _get_latest_version_folder(self, versioned):
+        """Find the latest versioned folder within ``versioned``, if any.
+
+        If ``versioned`` was just recently created, it won't have any existing
+        version folders.
+
+        Args:
+            versioned (str):
+                The absolute directory where all versioned documentation lives.
+
+        Returns:
+            rez.vendor.version.version.Version or NoneType:
+                The found, latest version folder, if any.
+
+        """
+        searcher = self._get_publish_pattern_searcher()
+        versions = [version_.Version(name) for name in os.listdir(versioned) if searcher(name)]
+
+        if not versions:
+            return None
+
+        return max(versions)
 
     def _get_publish_pattern_searcher(self):
         """Get a callable function used to "find" versioned publish directories.
@@ -184,7 +208,7 @@ class Publisher(object):
         """
         latest_previous_publish = self._get_latest_version_folder(versioned)
 
-        if latest_previous_publish < self._package.version:
+        if latest_previous_publish or (latest_previous_publish <= self._package.version):
             _copy_into(documentation, latest)
 
             return True
@@ -213,9 +237,10 @@ class Publisher(object):
 
         """
         searcher = self._get_publish_pattern_searcher()
+        package_version = searcher(str(package.version)).groups()
 
         for name in os.listdir(versioned):
-            if searcher(name):
+            if searcher(name).groups() == package_version:
                 _LOGGER.info('Existing version folder, "%s" was found.')
 
                 return False

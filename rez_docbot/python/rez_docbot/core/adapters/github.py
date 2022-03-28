@@ -21,7 +21,8 @@ _USER_PASSWORD_PAIR = {
 }
 _USER_PASSWORD_PAIR.update(_COMMON_TOKEN)
 _ACCESS_TOKEN = {
-    "access_token": schema_type.NON_EMPTY_STR,  # TODO : Probably don't allow spaces here
+    # TODO : Probably don't allow spaces in access_token
+    "access_token": schema_type.NON_EMPTY_STR,
 }
 _ACCESS_TOKEN.update(_COMMON_TOKEN)
 
