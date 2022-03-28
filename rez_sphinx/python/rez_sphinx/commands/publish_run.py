@@ -13,9 +13,11 @@ except ImportError:
 
 from ..core import exception
 from ..preferences import preference
-from .builder import runner
+from .builder import runner as runner_
+
 
 _LOGGER = logging.getLogger(__name__)
+_SUCCESS_EXIT_CODE = 0
 
 
 def _get_documentation_destination(name, package):
@@ -30,7 +32,7 @@ def _get_documentation_destination(name, package):
             The package which defines `name`_ and was ran from.
 
     Returns:
-        str: The found documentation directory.
+        str: The found documentation build directory.
 
     """
 
@@ -41,7 +43,10 @@ def _get_documentation_destination(name, package):
         command = shlex.split(text)[1:]
         namespace = cli.parse_arguments(command)
 
-        return namespace.directory
+        documentation_source = runner_.get_documentation_source(namespace.directory)
+        documentation_build = runner_.get_documentation_build(documentation_source)
+
+        return documentation_build
 
     test = package.tests[name]
 
@@ -160,7 +165,9 @@ def build_documentation(directory):
         return "{package.name}=={package.version}".format(package=package)
 
     package = finder.get_nearest_rez_package(directory)
-    runner = package_test.PackageTestRunner(package_request=_to_exact_request(package))
+    runner = package_test.PackageTestRunner(
+        package_request=_to_exact_request(package),
+    )
     tests = _validated_test_keys(runner)
 
     _LOGGER.info('Found "%s" documentation tests.', tests)
@@ -171,7 +178,13 @@ def build_documentation(directory):
     for name in tests:
         _LOGGER.info('Now building documentation with "%s".', name)
 
-        runner.run_test(name)
+        result = runner.run_test(name)
+
+        if result != _SUCCESS_EXIT_CODE:
+            invalids.add(name)
+
+            continue
+
         destination = (
             _get_documentation_destination(name, package) or _get_fallback_destination()
         )
@@ -181,10 +194,15 @@ def build_documentation(directory):
 
         output.append(destination)
 
-    if invalids:
+    if len(invalids) > 1:
         raise exception.NoDocumentationFound(
             "No documentation could be found after "
-            '"{invalids}" commands were ran.'.format(invalids=", ".sorted(invalids))
+            '"{invalids}" commands were ran.'.format(invalids=", ".join(sorted(invalids)))
+        )
+    elif invalids:
+        raise exception.NoDocumentationFound(
+            "No documentation could be found after "
+            '"{invalids}" command was ran.'.format(invalids=next(iter(invalids)))
         )
 
     return output

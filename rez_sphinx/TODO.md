@@ -7,6 +7,9 @@
   AttributeError
 - Should make some tests for invalid quickstart / build / API arguments
 
+- rez_sphinx build run needs to clear the build folder prior to each run
+	- Otherwise there's a chance it may contain files from older builds
+
 - Add pylint configuration to match with black (line length 88)
 - Do all general TODO notes
 - Do all NotImplementedError, where applicable
@@ -25,6 +28,7 @@
 - lol :ref:`rez_sphinx` is auto-tagging to "User Documentation". It makes
   reading documentation pretty difficult. Change :ref:`rez_sphinx` as needed to
   literally read as "rez_sphinx", instead
+
 
 ## Document current work
 

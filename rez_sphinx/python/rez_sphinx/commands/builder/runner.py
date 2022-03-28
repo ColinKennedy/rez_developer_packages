@@ -107,7 +107,7 @@ def get_documentation_build(source):
     )
 
 
-def get_documentation_source_directory(directory):
+def get_documentation_source(directory):
     package = finder.get_nearest_rez_package(directory)
 
     if not package:
@@ -156,7 +156,7 @@ def build(
             If `sphinx-build`_ failed midway before it could be completed.
 
     """
-    source_directory = get_documentation_source_directory(directory)
+    source_directory = get_documentation_source(directory)
 
     if preference.check_default_files():
         _validate_non_default_files(source_directory)

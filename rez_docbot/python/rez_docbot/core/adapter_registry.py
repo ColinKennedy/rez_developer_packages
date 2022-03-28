@@ -3,7 +3,9 @@
 import copy
 import logging
 
-from .adapters import github
+from six.moves import collections_abc
+
+from .adapters.github import github
 
 _LOGGER = logging.getLogger(__name__)
 _OPTIONS = {"github": github.validate}  # Consider adding more types in the future
@@ -45,7 +47,7 @@ def _validate(item):
     try:
         type_name = item["type"]
     except (TypeError, KeyError, IndexError):
-        _LOGGER.exception('Item "%s" could not query the required type.')
+        _LOGGER.exception('Item "%s" could not query the required type.', item)
 
         raise
 
@@ -75,9 +77,7 @@ def validate(authentication_methods):
         # TODO : Add unittest for this case
         raise ValueError("You must provide at least one authentication method.")
 
-    try:
-        iter(authentication_methods)
-    except TypeError:
+    if isinstance(authentication_methods, collections_abc.Mapping):
         # If they provide only one authenticator, use that
         # TODO : Add unittest for this case
         return [_validate(authentication_methods)]

@@ -8,6 +8,7 @@ import six
 from six.moves import urllib_parse
 
 _URL_SUBDIRECTORY = re.compile(r"^[\w/]+$")
+_REGEX_TYPE = type(_URL_SUBDIRECTORY)
 
 # TODO : Make sure I don't need functions for these later. If not, simplify them
 DEFAULT_AUTHENTICATION = "raw"
@@ -69,7 +70,7 @@ def _validate_regex(item):
         _sre.SRE_Pattern: The original ``item``.
 
     """
-    if isinstance(item, _sre.SRE_Pattern):
+    if isinstance(item, _REGEX_TYPE):
         return item
 
     raise ValueError(

@@ -32,6 +32,9 @@ TODO :
 
 - Go through the configuration. Make sure I'm not being too permissive about the text users may write
 
+- Add a "create repository" callback
+
+
 ::
 
     optionvars = {
@@ -48,7 +51,6 @@ Possible GitHub APIs
    - https://github3py.readthedocs.io/en/master/narrative/getting-started.html#using-the-library
 - https://gist.github.com/avullo/b8153522f015a8b908072833b95c3408
 - https://www.thepythoncode.com/article/using-github-api-in-python
-
 
 - rez_docbot.credentials notes
     - credentials

@@ -1,11 +1,16 @@
 """The main class which handles creating and publishing to git repositories."""
 
+import atexit
+import collections
+import functools
 import logging
 import os
 import re
 import shutil
+import tempfile
 
 import schema
+from six.moves import urllib_parse
 from rez.vendor.version import version as version_
 
 from . import adapter_registry, schema_type
@@ -39,6 +44,7 @@ _SCHEMA = schema.Schema(_PUBLISHER)
 _LOGGER = logging.getLogger(__name__)
 # Reference: https://stackoverflow.com/a/40972959/3626104
 _CURLIES = re.compile(r"\{(.*?)\}")
+_RepositoryDetails = collections.namedtuple("_RepositoryDetails", "group, repository")
 
 
 class Publisher(object):
@@ -48,19 +54,21 @@ class Publisher(object):
 
     """
 
-    def __init__(self, data):
-        """Store the information related to publishing.
-
-        The ``data`` is assumed to be already validated. See
-        :meth:`Publisher.validate`.
-
-        Args:
-            data (dict[str, object]): Each git / remote data to save.
-
-        """
+    def __init__(self, data, package=None, handler=None):
+        # """Store the information related to publishing.
+        #
+        # The ``data`` is assumed to be already validated. See
+        # :meth:`Publisher.validate`.
+        #
+        # Args:
+        #     data (dict[str, object]): Each git / remote data to save.
+        #
+        # """
         super(Publisher, self).__init__()
 
         self._data = data
+        self._package = package
+        self._handler = handler
 
     @classmethod
     def validate(cls, data):
@@ -102,6 +110,12 @@ class Publisher(object):
 
         return max(versions)
 
+    def _get_package(self):
+        if self._package:
+            return self._package
+
+        raise RuntimeError('This instance "{self}" has no package. Cannot continue.'.format(self=self))
+
     def _get_publish_pattern_searcher(self):
         """Get a callable function used to "find" versioned publish directories.
 
@@ -117,11 +131,25 @@ class Publisher(object):
 
         return re.compile(escaped.replace(temporary_token, r"[\d\w]+")).match
 
+    def _get_repository_details(self):
+        # Example: url = "https://www.github.com/ColinKennedy/foo"
+        # group = "ColinKennedy"
+        # repository = "foo"
+        #
+        url = self._get_resolved_repository_uri()
+        parsed = urllib_parse.urlparse(url)
+        parts = parsed.path.split("/")
+
+        group = parts[1]
+        repository = parts[2]
+
+        return _RepositoryDetails(group, repository)
+
     def _get_resolved_repository_uri(self):
         """str: Get the URL / URI / etc to a remote git repository."""
         base = self._data[_REPOSITORY_URI]
 
-        return base.format(package=self._package)
+        return base.format(package=self._get_package())
 
     def _clone_documentation_root(self, repository):
         """Clone the documentation repository and get the path to the documentation.
@@ -137,13 +165,14 @@ class Publisher(object):
             str: The created folder where all documentation for the package must go.
 
         """
-        destination_root = _clone_repository(repository)
+        destination_root = _make_temporary_directory()
+        destination_root = repository.clone_to(_make_temporary_directory)
         inner_path = self._data[_INNER_PATH]
 
         if not inner_path:
             return destination_root
 
-        inner_path = inner_path.format(package=self._package)
+        inner_path = inner_path.format(package=self._get_package())
         directory = os.path.join(destination_root, inner_path)
 
         if not os.path.isdir(directory):
@@ -184,11 +213,11 @@ class Publisher(object):
         version_copied = self._copy_into_versioned_if_needed(documentation, versioned)
 
         if not version_copied:
+            # There's no case in which the :ref:`latest folder` would be
+            # updated that didn't also require a :ref:`version folder` update.
+            #
             return False
 
-        # There's no case in which the :ref:`latest folder` would be
-        # updated that didn't also require a :ref:`version folder` update.
-        #
         latest_copied = self._copy_into_latest_if_needed(
             documentation, latest, versioned
         )
@@ -214,7 +243,7 @@ class Publisher(object):
         latest_previous_publish = self._get_latest_version_folder(versioned)
 
         if latest_previous_publish or (
-            latest_previous_publish <= self._package.version
+            latest_previous_publish <= self._get_package().version
         ):
             _copy_into(documentation, latest)
 
@@ -223,7 +252,7 @@ class Publisher(object):
         _LOGGER.info(
             'Package "%s" is not the latest version. '
             'There is a more up-to-date version, "%s".',
-            self._package,
+            self._get_package(),
             latest_previous_publish,
         )
         _LOGGER.info('Overwriting latest "%s" will be skipped.', latest)
@@ -244,7 +273,7 @@ class Publisher(object):
 
         """
         searcher = self._get_publish_pattern_searcher()
-        package_version = searcher(str(package.version)).groups()
+        package_version = searcher(str(self._get_package().version)).groups()
 
         for name in os.listdir(versioned):
             if searcher(name).groups() == package_version:
@@ -263,7 +292,6 @@ class Publisher(object):
             RuntimeError: If none of the provided authentication methods succeeded.
 
         """
-        raise NotImplementedError("Need to write this")
         invalids = set()
 
         uri = self._get_resolved_repository_uri()
@@ -271,10 +299,16 @@ class Publisher(object):
         for method in self._data[_AUTHENICATION]:
             handler = method.authenticate(uri)
 
+            if handler:
+                self._handler = handler
+
+                return
+
             if not handler:
                 invalids.add(method)
 
         if not self._data[_REQUIRED]:
+            # TODO : Add some functionality here
             raise NotImplementedError("Need to write this")
 
         if not invalids:
@@ -286,6 +320,9 @@ class Publisher(object):
             )
         )
 
+    def set_package(self, package):
+        self._package = package
+
     def quick_publish(self, documentation):
         """Clone, copy, and push ``documentation`` as required.
 
@@ -294,7 +331,8 @@ class Publisher(object):
                 The absolute directory to built documentation on-disk.
 
         """
-        repository = _get_repository(auto_create=True)
+        details = self._get_repository_details()
+        repository = self._handler.get_repository(details, auto_create=True)
         root = self._clone_documentation_root(repository)
 
         was_copied = self._copy_documentation_if_needed(documentation, root)
@@ -309,7 +347,13 @@ class Publisher(object):
 
     def __repr__(self):
         """str: The string representation of this instance."""
-        return "{self.__class__.__name__}({self._data!r})".format(self=self)
+        return (
+            "{self.__class__.__name__}"
+            "({self._data!r}, "
+            "package={self._package!r}, "
+            "handler={self._handler!r}"
+            ")".format(self=self)
+        )
 
 
 def _copy_into(source, destination):
@@ -341,5 +385,13 @@ def _create_subdirectory(root, tail):
 
     if not os.path.isdir(directory):
         os.makedirs(directory)
+
+    return directory
+
+
+def _make_temporary_directory():
+    directory = tempfile.mkdtemp(suffix="_rez_docbot_make_temporary_directory")
+
+    atexit.register(functools.partial(shutil.rmtree, directory))
 
     return directory

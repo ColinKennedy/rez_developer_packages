@@ -65,7 +65,8 @@ tests = {
     "build_documentation": {
         "command": "rez_sphinx build run",
         "requires": [
-            "python-3+",  # Get the latest Sphinx / python combination
+            # TODO : Add python-3 back in, later
+            # "python-3+",  # Get the latest Sphinx / python combination
             "sphinx_rtd_theme-1+<2",
         ],
     },
