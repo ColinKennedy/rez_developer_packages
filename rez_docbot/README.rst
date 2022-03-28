@@ -1,3 +1,6 @@
+- Make sure everything is documented (not just that pydocstyle is happy)
+
+
 TODO Fill this page later
 
 TODO - reorganize the existing Python modules, once made, to be easier to understand
@@ -34,6 +37,7 @@ TODO :
 
 - Add a "create repository" callback
 
+- Need a unittest when the authenticated user doesn't have permissions to push / create repository etc as another user (ColinKennedy repo mismatch)
 
 ::
 

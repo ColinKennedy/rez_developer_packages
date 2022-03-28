@@ -10,7 +10,8 @@ authors = ["ColinKennedy"]
 private_build_requires = ["rez_build_helper-1+<2"]
 
 requires = [
-    "github3.py-2+<3",
+    "GitPython-3.1+<4",  # For cloning and pushing
+    "github3.py-2+<3",  # For querying GitHub3 - TODO Make this dynamic
     "python-2+<4",
     "rez_python_compatibility-2.7+<3",
     "schema-0.7+<1",

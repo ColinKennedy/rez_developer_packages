@@ -3,6 +3,7 @@
 import atexit
 import collections
 import functools
+import itertools
 import logging
 import os
 import re
@@ -16,6 +17,7 @@ from rez.vendor.version import version as version_
 from . import adapter_registry, schema_type
 
 _AUTHENICATION = "authentication"
+_BRANCH = "branch"
 _INNER_PATH = "inner_path"
 _LATEST_FOLDER = "latest_folder"
 _PUBLISH_PATTERN = "publish_pattern"
@@ -27,8 +29,9 @@ _PUBLISHER = {
     _AUTHENICATION: schema.Use(adapter_registry.validate),
     _REPOSITORY_URI: schema.Or(
         schema_type.URL,
-        # schema_type.SSH,  # TODO : Add SSH support later
+        schema_type.SSH,  # TODO : Add SSH support later
     ),
+    schema.Optional(_BRANCH): schema_type.NON_EMPTY_STR,
     schema.Optional(_INNER_PATH): schema_type.URL_SUBDIRECTORY,
     schema.Optional(_LATEST_FOLDER, default="latest"): schema_type.NON_EMPTY_STR,
     schema.Optional(
@@ -85,6 +88,37 @@ class Publisher(object):
 
         return cls(validated)
 
+    def _follow_cloned_repository(self, repository):
+        """Clone the documentation repository and get the path to the documentation.
+
+        The documentation may be located that the root of the clone repository
+        or a folder within it. If it's an inner folder, create the folder +
+        return it.
+
+        Args:
+            repository TODO write this
+
+        Returns:
+            str: The created folder where all documentation for the package must go.
+
+        """
+        root = repository.get_root()
+        inner_path = self._data.get(_INNER_PATH, "")
+
+        if not inner_path:
+            return root
+
+        inner_path = inner_path.format(package=self._get_package())
+        directory = os.path.join(root, inner_path)
+
+        if not os.path.isdir(directory):
+            os.makedirs(directory)
+
+        return directory
+
+    def _get_branch_name(self):
+        return self._data.get(_BRANCH, "")
+
     def _get_latest_version_folder(self, versioned):
         """Find the latest versioned folder within ``versioned``, if any.
 
@@ -100,10 +134,15 @@ class Publisher(object):
                 The found, latest version folder, if any.
 
         """
-        searcher = self._get_publish_pattern_searcher()
-        versions = [
-            version_.Version(name) for name in os.listdir(versioned) if searcher(name)
-        ]
+        searchers = self._get_publish_pattern_searchers()
+        versions = []
+
+        for name in os.listdir(versioned):
+            for searcher in searchers:
+                if searcher(name):
+                    versions.append(version_.Version(name))
+
+                    break
 
         if not versions:
             return None
@@ -116,69 +155,46 @@ class Publisher(object):
 
         raise RuntimeError('This instance "{self}" has no package. Cannot continue.'.format(self=self))
 
-    def _get_publish_pattern_searcher(self):
+    def _get_publish_pattern_searchers(self):
         """Get a callable function used to "find" versioned publish directories.
 
         Returns:
-            callable[str] -> object: The found function.
+            list[callable[str] -> object]: The found function.
 
         """
-        # TODO : Allow _PUBLISH_PATTERN as regex, here
-        pattern = self._data[_PUBLISH_PATTERN]
-        temporary_token = "ctavasd"  # Some random string to replace later
-        temporary_pattern = _CURLIES.sub(temporary_token, pattern)
-        escaped = re.escape(temporary_pattern)
+        output = []
 
-        return re.compile(escaped.replace(temporary_token, r"[\d\w]+")).match
+        temporary_token = "ctavasd"  # Some random string to replace later
+
+        # TODO : Allow _PUBLISH_PATTERN as regex, here
+
+        for pattern in self._data[_PUBLISH_PATTERN]:
+            temporary_pattern = _CURLIES.sub(temporary_token, pattern)
+            escaped = re.escape(temporary_pattern)
+
+            output.append(re.compile(escaped.replace(temporary_token, r"[\d\w]+")).match)
+
+        return output
 
     def _get_repository_details(self):
-        # Example: url = "https://www.github.com/ColinKennedy/foo"
-        # group = "ColinKennedy"
-        # repository = "foo"
-        #
-        url = self._get_resolved_repository_uri()
-        parsed = urllib_parse.urlparse(url)
-        parts = parsed.path.split("/")
-
-        group = parts[1]
-        repository = parts[2]
+        group = self._get_resolved_group()
+        repository = self._get_resolved_repository()
 
         return _RepositoryDetails(group, repository)
 
+    def _get_resolved_group(self):
+        return self._data[_REPOSITORY_URI][schema_type.GROUP].format(package=self._get_package())
+
     def _get_resolved_repository_uri(self):
         """str: Get the URL / URI / etc to a remote git repository."""
-        base = self._data[_REPOSITORY_URI]
+        base = self._data[_REPOSITORY_URI][schema_type.ORIGINAL_TEXT]
 
         return base.format(package=self._get_package())
 
-    def _clone_documentation_root(self, repository):
-        """Clone the documentation repository and get the path to the documentation.
+    def _get_resolved_repository(self):
+        base = self._data[_REPOSITORY_URI].get(schema_type.REPOSITORY, "")
 
-        The documentation may be located that the root of the clone repository
-        or a folder within it. If it's an inner folder, create the folder +
-        return it.
-
-        Args:
-            repository TODO write this
-
-        Returns:
-            str: The created folder where all documentation for the package must go.
-
-        """
-        destination_root = _make_temporary_directory()
-        destination_root = repository.clone_to(_make_temporary_directory)
-        inner_path = self._data[_INNER_PATH]
-
-        if not inner_path:
-            return destination_root
-
-        inner_path = inner_path.format(package=self._get_package())
-        directory = os.path.join(destination_root, inner_path)
-
-        if not os.path.isdir(directory):
-            os.makedirs(directory)
-
-        return directory
+        return base.format(package=self._get_package())
 
     def _copy_documentation_if_needed(self, documentation, root):
         """Possibly copy the contents of ``documentation`` into ``root``.
@@ -272,14 +288,18 @@ class Publisher(object):
             bool: If ``documentation`` was copied into the :ref:`version folder`.
 
         """
-        searcher = self._get_publish_pattern_searcher()
-        package_version = searcher(str(self._get_package().version)).groups()
+        searchers = self._get_publish_pattern_searchers()
+        names = os.listdir(versioned)
+        raw_package_version = str(self._get_package().version)
 
-        for name in os.listdir(versioned):
-            if searcher(name).groups() == package_version:
-                _LOGGER.info('Existing version folder, "%s" was found.')
+        for searcher, name in itertools.product(searchers, names):
+            package_version = searcher(raw_package_version).groups()
 
-                return False
+            for name in names:
+                if searcher(name).groups() == package_version:
+                    _LOGGER.info('Existing version folder, "%s" was found.')
+
+                    return False
 
         _copy_into(documentation, versioned)
 
@@ -332,8 +352,14 @@ class Publisher(object):
 
         """
         details = self._get_repository_details()
-        repository = self._handler.get_repository(details, auto_create=True)
-        root = self._clone_documentation_root(repository)
+        destination_root = _make_temporary_directory()
+        repository = self._handler.get_repository(details, destination_root, auto_create=True)
+        root = self._follow_cloned_repository(repository)
+
+        branch = self._get_branch_name()
+
+        if branch:
+            repository.checkout(branch)
 
         was_copied = self._copy_documentation_if_needed(documentation, root)
 
@@ -342,8 +368,9 @@ class Publisher(object):
 
             return
 
-        _add_all_and_commit(repository)
-        _push(repository)
+        repository.add_all()
+        repository.commit("Updated documentation")
+        repository.push()
 
     def __repr__(self):
         """str: The string representation of this instance."""

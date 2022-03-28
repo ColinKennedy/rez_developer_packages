@@ -2,11 +2,11 @@
 
 import re
 
-import _sre
 import schema
 import six
 from six.moves import urllib_parse
 
+_SSH_EXPRESSION = re.compile(r"^git\@[\w_\.]+:(?P<group>.+)(?:/(?P<repository>.+))")
 _URL_SUBDIRECTORY = re.compile(r"^[\w/]+$")
 _REGEX_TYPE = type(_URL_SUBDIRECTORY)
 
@@ -14,6 +14,12 @@ _REGEX_TYPE = type(_URL_SUBDIRECTORY)
 DEFAULT_AUTHENTICATION = "raw"
 RAW = "raw"
 FROM_FILE = "from_file"
+
+ORIGINAL_TEXT = "original"
+
+_URL_SUBDIRECTORY_SEPARATOR = ""
+GROUP = "group"
+REPOSITORY = "repository"
 
 
 def _validate_callable(item):
@@ -78,6 +84,34 @@ def _validate_regex(item):
     )
 
 
+def _validate_ssh(item):
+    """Check if ``item`` is a SSH-style git URL.
+
+    Args:
+        item (str): A website or similar URI. Like "git@github.com/foo/bar".
+
+    Raises:
+        ValueError: If ``item`` isn't a URL / URI.
+
+    Returns:
+        dict[str, str]: The original, unaltered ``item``, and its captured text.
+
+    """
+    match = _SSH_EXPRESSION.match(item)
+
+    if match:
+        output = match.groupdict()
+        output[ORIGINAL_TEXT] = item
+
+        return output
+
+    raise ValueError(
+        'Item "{item}" is invalid. It must match "{_SSH_EXPRESSION.pattern}".'.format(
+            item=item, _SSH_EXPRESSION=_SSH_EXPRESSION
+        )
+    )
+
+
 def _validate_url(item):
     """Check if ``item`` is a URL / URI.
 
@@ -88,13 +122,15 @@ def _validate_url(item):
         ValueError: If ``item`` isn't a URL / URI.
 
     Returns:
-        str: The original, unaltered ``item``.
+        dict[str, str]: The original, unaltered ``item``, and its captured text.
 
     """
     result = urllib_parse.urlparse(item)
 
     if all((result.scheme, result.netloc)):
-        return item
+        parts = result.path.split(_URL_SUBDIRECTORY_SEPARATOR)
+
+        return {GROUP: parts[1], ORIGINAL_TEXT: item, REPOSITORY: parts[2]}
 
     raise ValueError('Item "{item}" is not a valid URL.'.format(item=item))
 
@@ -136,4 +172,4 @@ CALLABLE = schema.Use(_validate_callable)
 
 URL = schema.Use(_validate_url)
 URL_SUBDIRECTORY = schema.Use(_validate_url_subdirectory)
-# SSH = schema.Use(_validate_ssh)  TODO Add this later
+SSH = schema.Use(_validate_ssh)
