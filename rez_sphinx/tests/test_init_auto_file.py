@@ -94,8 +94,8 @@ class General(unittest.TestCase):
                    :maxdepth: 2
                    :caption: Contents:
 
-                   developer_documentation
                    user_documentation
+                   developer_documentation
 
 
                 Indices and tables

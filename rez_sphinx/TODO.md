@@ -22,6 +22,9 @@
 
 - Need to ensure docbot's logger is set properly when used as a bolt-in for rez_sphinx
 
+- lol :ref:`rez_sphinx` is auto-tagging to "User Documentation". It makes
+  reading documentation pretty difficult. Change :ref:`rez_sphinx` as needed to
+  literally read as "rez_sphinx", instead
 
 ## Document current work
 

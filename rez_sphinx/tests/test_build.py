@@ -634,8 +634,8 @@ class Runner(unittest.TestCase):
                    :maxdepth: 2
                    :caption: Contents:
 
-                   developer_documentation
                    user_documentation
+                   developer_documentation
                    API Documentation <api/modules>"""
             ),
             master_toctrees[0],

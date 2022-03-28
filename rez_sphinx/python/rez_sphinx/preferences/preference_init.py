@@ -194,15 +194,15 @@ DEFAULT_ENTRIES = (
     Entry.validate_data(
         {
             "base_text": _BASE_TEXT,
-            "path": "developer_documentation",
-            "title": "Developer Documentation",
+            "path": "user_documentation",
+            "title": "User Documentation",
         }
     ),
     Entry.validate_data(
         {
             "base_text": _BASE_TEXT,
-            "path": "user_documentation",
-            "title": "User Documentation",
+            "path": "developer_documentation",
+            "title": "Developer Documentation",
         }
     ),
 )
