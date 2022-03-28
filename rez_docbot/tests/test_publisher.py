@@ -45,7 +45,7 @@ class Publish(unittest.TestCase):
                 "repository_uri": "https://www.some_fake.website",
             }
         ) as publisher:
-            raise ValueError(publisher)
+            pass
 
 
 @contextlib.contextmanager
