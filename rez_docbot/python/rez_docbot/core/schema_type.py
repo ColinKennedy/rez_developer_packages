@@ -1,3 +1,5 @@
+"""A collection of functions to make writing schemas in this package easier."""
+
 import _sre
 import re
 
@@ -15,6 +17,18 @@ FROM_FILE = "from_file"
 
 
 def _validate_callable(item):
+    """Check if ``item`` is a callable object (like a function or class).
+
+    Args:
+        item (callable): Something to check.
+
+    Raises:
+        ValueError: If ``item`` isn't callable.
+
+    Returns:
+        callable: The original ``item``.
+
+    """
     if callable(item):
         return item
 
@@ -22,6 +36,18 @@ def _validate_callable(item):
 
 
 def _validate_non_empty_str(item):
+    """Ensure ``item`` is a string with at least some text.
+
+    Args:
+        item (str): An object to check.
+
+    Raises:
+        ValueError: If ``item`` isn't a string or it is an empty string.
+
+    Returns:
+        str: The original ``item``.
+
+    """
     if not isinstance(item, six.string_types):
         raise ValueError('Item "{item!r}" is not a string.'.format(item=item))
 
@@ -32,6 +58,18 @@ def _validate_non_empty_str(item):
 
 
 def _validate_regex(item):
+    """Check if ``item`` is a regular expression.
+
+    Args:
+        item (_sre.SRE_Pattern): The object to check.
+
+    Raises:
+        ValueError: If ``item`` isn't a regular expression.
+
+    Returns:
+        _sre.SRE_Pattern: The original ``item``.
+
+    """
     if isinstance(item, _sre.SRE_Pattern):
         return item
 
@@ -39,6 +77,18 @@ def _validate_regex(item):
 
 
 def _validate_url(item):
+    """Check if ``item`` is a URL / URI.
+
+    Args:
+        item (str): A website or similar URI. Like "http://www.foo.bar".
+
+    Raises:
+        ValueError: If ``item`` isn't a URL / URI.
+
+    Returns:
+        str: The original, unaltered ``item``.
+
+    """
     result = urllib_parse.urlparse(item)
 
     if all((result.scheme, result.netloc)):
@@ -48,6 +98,21 @@ def _validate_url(item):
 
 
 def _validate_url_subdirectory(item):
+    """Check if ``item`` describes a URL sub-directory.
+
+    e.g. The "inner/folder" part of "www.foo.bar/inner/folder"
+
+    Important:
+        This is a **URL** subdirectory, not a on-disk sub-directory. Window
+        backlashes are not allowed.
+
+    Args:
+        item (str): An inner folder to check.
+
+    Raises:
+        ValueError: If ``item`` isn't a sub-directory.
+
+    """
     if _URL_SUBDIRECTORY.match(item):
         return item
 

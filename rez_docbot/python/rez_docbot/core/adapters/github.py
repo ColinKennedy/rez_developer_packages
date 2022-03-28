@@ -1,3 +1,5 @@
+"""The module responsible for connecting to `GitHub`_."""
+
 import schema
 
 from .. import schema_type
@@ -26,4 +28,14 @@ _AUTHENTICATION_SCHEMA = schema.Schema(schema.Or(_USER_PASSWORD_PAIR, _ACCESS_TO
 
 
 def validate(data):
+    """Check if ``data`` describes `GitHub` authentication details.
+
+    Args:
+        data (dict[str, object]):
+            A user / password pair, access token, or some other authentication method.
+
+    Returns:
+        TODO : Update this later.
+
+    """
     return _AUTHENTICATION_SCHEMA.validate(data)

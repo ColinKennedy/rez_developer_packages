@@ -21,6 +21,17 @@ TODO :
       - by-file
     - two-factor authentication
 
+- Make sure there's a mechanism to force publish (versioned / latest)
+- Allow multiple publish patterns
+- Allow publish patterns which use regex
+  - Add a "semver" regex pattern people can use
+
+- Check that I have references for all :ref: tags.
+  - Also check the `foo`_ stuff
+  `GitHub`_
+
+- Go through the configuration. Make sure I'm not being too permissive about the text users may write
+
 ::
 
     optionvars = {

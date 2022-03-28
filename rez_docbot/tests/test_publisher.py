@@ -1,3 +1,5 @@
+"""General publishing-related unittests and integration tests for :ref:`rez_docbot`."""
+
 import contextlib
 import unittest
 
@@ -8,8 +10,11 @@ from .common import run_test
 
 
 class Publish(unittest.TestCase):
+    """Make sure :class:`rez_docbot.core.publisher_.Publisher` works."""
+
     @unittest.skipIf(not website.is_internet_on(), "External Internet is not accessible.")
     def test_authentication(self):
+        """Make sure :class:`rez_docbot.core.publisher_.Publisher` authenticates."""
         # TODO : Make a burner account so we can use it in this test
         with _get_quick_publisher(
             {
@@ -25,6 +30,7 @@ class Publish(unittest.TestCase):
             publisher.authenticate()
 
     def test_initialization(self):
+        """Make sure :class:`rez_docbot.core.publisher_.Publisher` instantiates."""
         with _get_quick_publisher(
             {
                 "authentication": [
@@ -41,6 +47,18 @@ class Publish(unittest.TestCase):
 
 @contextlib.contextmanager
 def _get_quick_publisher(configuration):
+    """Make a quick Publisher, based on ``configuration``.
+
+    This function assumes that ``configuration`` only defines a single Publisher.
+
+    Args:
+        configuration (dict[str, object]):
+            The :ref:`rez_docbot` preferences to use in order to create the Publisher.
+
+    Yields:
+        :class:`rez_docbot.core.publisher_.Publisher`: The generated instance.
+
+    """
     with run_test.keep_config() as config:
         config.optionvars["rez_docbot"] = {"publishers": [configuration]}
 
