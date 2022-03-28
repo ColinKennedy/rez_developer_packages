@@ -157,9 +157,12 @@ class Publisher(object):
         Whether the ``documentation`` is copied or not is dependent on these factors:
 
         - Is the user back-patching? If yes ...
+
             - make a :ref:`version folder` if one doesn't already exist
             - the :ref:`latest folder` is left un-touched
+
         - Does a :ref:`version folder` already exist for the package?
+
             - If yes, skip updating both :ref:`version folder` and :ref:`latest folder`
 
         So as you can see, there's no guarantee the files will be copied.
