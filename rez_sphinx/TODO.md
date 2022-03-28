@@ -1,3 +1,7 @@
+- rez_sphinx build run needs to clear the build folder prior to each run
+ - Otherwise there's a chance it may contain files from older builds
+ - Also, remove the .gitignore file. It's pointless and gets in the way of publishing
+
 - Add a basic publish implementation, with docbot
  - Add a Rez plugin for post release publishing
 - Add unittest for when docbot is not loaded
@@ -6,9 +10,6 @@
   They shouldn't just AttributeError. e.g. `rez_sphinx view` raises
   AttributeError
 - Should make some tests for invalid quickstart / build / API arguments
-
-- rez_sphinx build run needs to clear the build folder prior to each run
-	- Otherwise there's a chance it may contain files from older builds
 
 - Add pylint configuration to match with black (line length 88)
 - Do all general TODO notes
