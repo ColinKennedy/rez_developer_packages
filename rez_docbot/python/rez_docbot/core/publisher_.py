@@ -93,7 +93,9 @@ class Publisher(object):
 
         """
         searcher = self._get_publish_pattern_searcher()
-        versions = [version_.Version(name) for name in os.listdir(versioned) if searcher(name)]
+        versions = [
+            version_.Version(name) for name in os.listdir(versioned) if searcher(name)
+        ]
 
         if not versions:
             return None
@@ -208,7 +210,9 @@ class Publisher(object):
         """
         latest_previous_publish = self._get_latest_version_folder(versioned)
 
-        if latest_previous_publish or (latest_previous_publish <= self._package.version):
+        if latest_previous_publish or (
+            latest_previous_publish <= self._package.version
+        ):
             _copy_into(documentation, latest)
 
             return True

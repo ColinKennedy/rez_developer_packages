@@ -47,7 +47,7 @@ tests = {
     },
     # TODO : Add configuration files for these changes. And isort and pydocstyle
     "pylint": {
-        "command": "pylint --disable=use-dict-literal,use-list-literal,bad-continuation,consider-using-f-string,super-with-arguments,useless-object-inheritance python/rez_docbot tests",
+        "command": "pylint --disable=use-dict-literal,use-list-literal,bad-continuation,consider-using-f-string,super-with-arguments,useless-object-inheritance,raise-missing-from python/rez_docbot tests",
         "requires": ["pylint-2.12+<3"],
     },
     "unittest_python_2": {
