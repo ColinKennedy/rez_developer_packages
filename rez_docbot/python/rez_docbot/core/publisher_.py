@@ -183,15 +183,15 @@ class Publisher(object):
 
         version_copied = self._copy_into_versioned_if_needed(documentation, versioned)
 
-        latest_copied = False
+        if not version_copied:
+            return False
 
-        if version_copied:
-            # There's no case in which the :ref:`latest folder` would be
-            # updated that didn't also require a :ref:`version folder` update.
-            #
-            latest_copied = self._copy_into_latest_if_needed(
-                documentation, latest, versioned
-            )
+        # There's no case in which the :ref:`latest folder` would be
+        # updated that didn't also require a :ref:`version folder` update.
+        #
+        latest_copied = self._copy_into_latest_if_needed(
+            documentation, latest, versioned
+        )
 
         return version_copied or latest_copied
 
