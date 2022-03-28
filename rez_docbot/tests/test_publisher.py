@@ -3,8 +3,9 @@
 import contextlib
 import unittest
 
-from rez_docbot.core import preference
 from python_compatibility import website
+
+from rez_docbot.core import preference
 
 from .common import run_test
 
@@ -12,7 +13,9 @@ from .common import run_test
 class Publish(unittest.TestCase):
     """Make sure :class:`rez_docbot.core.publisher_.Publisher` works."""
 
-    @unittest.skipIf(not website.is_internet_on(), "External Internet is not accessible.")
+    @unittest.skipIf(
+        not website.is_internet_on(), "External Internet is not accessible."
+    )
     def test_authentication(self):
         """Make sure :class:`rez_docbot.core.publisher_.Publisher` authenticates."""
         # TODO : Make a burner account so we can use it in this test

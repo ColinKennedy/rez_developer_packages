@@ -25,9 +25,13 @@ _PUBLISHER = {
     ),
     schema.Optional(_INNER_PATH): schema_type.URL_SUBDIRECTORY,
     schema.Optional(_LATEST_FOLDER, default="latest"): schema_type.NON_EMPTY_STR,
-    schema.Optional(_PUBLISH_PATTERN, default=[schema_type.DEFAULT_PUBLISH_PATTERN]): schema_type.PUBLISH_PATTERNS,
+    schema.Optional(
+        _PUBLISH_PATTERN, default=[schema_type.DEFAULT_PUBLISH_PATTERN]
+    ): schema_type.PUBLISH_PATTERNS,
     schema.Optional(_REQUIRED, default=True): bool,
-    schema.Optional(_VERSION_FOLDER, default="v"): str,  # TODO : Empty version_folder == no version folder
+    schema.Optional(
+        _VERSION_FOLDER, default="v"
+    ): str,  # TODO : Empty version_folder == no version folder
 }
 _SCHEMA = schema.Schema(_PUBLISHER)
 
@@ -156,7 +160,9 @@ class Publisher(object):
             # There's no case in which the :ref:`latest folder` would be
             # updated that didn't also require a :ref:`version folder` update.
             #
-            latest_copied = self._copy_into_latest_if_needed(documentation, latest, versioned)
+            latest_copied = self._copy_into_latest_if_needed(
+                documentation, latest, versioned
+            )
 
         return version_copied or latest_copied
 
@@ -225,7 +231,7 @@ class Publisher(object):
             RuntimeError: If none of the provided authentication methods succeeded.
 
         """
-        raise NotImplementedError('Need to write this')
+        raise NotImplementedError("Need to write this")
         invalids = set()
 
         uri = self._get_resolved_repository_uri()
@@ -237,12 +243,16 @@ class Publisher(object):
                 invalids.add(method)
 
         if not self._data[_REQUIRED]:
-            raise NotImplementedError('Need to write this')
+            raise NotImplementedError("Need to write this")
 
         if not invalids:
-            raise RuntimeError('No authentication method was run.')
+            raise RuntimeError("No authentication method was run.")
 
-        raise RuntimeError('These authentication methods "{invalids}" failed.'.format(invalids=invalids))
+        raise RuntimeError(
+            'These authentication methods "{invalids}" failed.'.format(
+                invalids=invalids
+            )
+        )
 
     def quick_publish(self, documentation):
         """Clone, copy, and push ``documentation`` as required.

@@ -5,7 +5,6 @@ import logging
 
 from .adapters import github
 
-
 _LOGGER = logging.getLogger(__name__)
 _OPTIONS = {"github": github.validate}  # Consider adding more types in the future
 
@@ -74,7 +73,7 @@ def validate(authentication_methods):
     """
     if not authentication_methods:
         # TODO : Add unittest for this case
-        raise ValueError('You must provide at least one authentication method.')
+        raise ValueError("You must provide at least one authentication method.")
 
     try:
         iter(authentication_methods)

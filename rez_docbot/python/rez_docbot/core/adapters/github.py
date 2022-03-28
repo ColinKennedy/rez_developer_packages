@@ -4,9 +4,10 @@ import schema
 
 from .. import schema_type
 
-
 _COMMON_TOKEN = {
-    schema.Optional("authentication_type", default=schema_type.DEFAULT_AUTHENTICATION): schema.Or(
+    schema.Optional(
+        "authentication_type", default=schema_type.DEFAULT_AUTHENTICATION
+    ): schema.Or(
         schema_type.RAW,
         schema_type.FROM_FILE,
     ),
