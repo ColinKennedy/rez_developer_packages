@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 
 import schema
 
@@ -28,6 +29,8 @@ _PUBLISHER = {
 _SCHEMA = schema.Schema(_PUBLISHER)
 
 _LOGGER = logging.getLogger(__name__)
+# Reference: https://stackoverflow.com/a/40972959/3626104
+_CURLIES = re.compile(r"\{(.*?)\}")
 
 
 class Publisher(object):
@@ -44,8 +47,11 @@ class Publisher(object):
 
     def _get_publish_pattern_searcher(self):
         pattern = self._data[_PUBLISH_PATTERN]
+        temporary_token = "ctavasd"  # Some random string to replace later
+        temporary_pattern = _CURLIES.sub(temporary_token, pattern)
+        escaped = re.escape(temporary_pattern)
 
-        raise ValueError(pattern)
+        return re.compile(escaped.replace(temporary_token, r"[\d\w]+")).match
 
     def _get_resolved_repository_uri(self):
         base = self._data[_REPOSITORY_URI]
@@ -88,6 +94,7 @@ class Publisher(object):
         for name in os.listdir(versioned):
             if searcher(name):
                 _LOGGER.info('Existing version folder, "%s" was found.')
+
                 return
 
         _copy_into(documentation, versioned)

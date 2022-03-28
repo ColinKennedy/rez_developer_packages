@@ -29,6 +29,7 @@ Beginner Topics
 .. toctree::
    :maxdepth: 1
 
+   why_use_rez_sphinx
    getting_started
 
 

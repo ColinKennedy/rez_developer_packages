@@ -113,6 +113,7 @@ rst_epilog = textwrap.dedent(
     .. _intersphinx: https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html
     .. _intersphinx_mapping: https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html
     .. _late(): https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#late-binding-functions
+    .. _link rot: https://en.wikipedia.org/wiki/Link_rot
     .. _master_doc: https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-master_doc
     .. _modules.rst: https://stackoverflow.com/questions/62822605/sphinx-modules-rst-warning-document-isnt-included-in-any-toctree
     .. _objects.inv: https://sphobjinv.readthedocs.io/en/latest/syntax.html
