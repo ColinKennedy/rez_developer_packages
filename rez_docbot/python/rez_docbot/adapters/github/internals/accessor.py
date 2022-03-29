@@ -1,13 +1,14 @@
-import abc
+"""The module responsible for authenticating to a remote `GitHub`_ server."""
+
 import re
 
 import github3
 import schema
-import six
 from six.moves import urllib_parse
 
-from ... import schema_type
-from . import _handler
+from ....bases import base
+from ....core import schema_type
+from . import handler
 
 
 _PASSWORD = "password"
@@ -46,21 +47,22 @@ _ACCESS_TOKEN_SCHEMA = schema.Schema(_ACCESS_TOKEN)
 _USER_PASSWORD_PAIR_SCHEMA = schema.Schema(_USER_PASSWORD_PAIR)
 
 
-@six.add_metaclass(abc.ABCMeta)
-class _Authenticator(object):
-    def __init__(self, data):
-        super(_Authenticator, self).__init__()
+class AccessToken(base.Authenticator):
+    """Allow the user to authenticate with a username + `access token`_."""
 
-        self._data = data
-
-    @abc.abstractmethod
-    def authenticate(self, uri):
-        raise NotImplementedError("Implement this method in a subclass.")
-
-
-class AccessToken(_Authenticator):
     def authenticate(self, url):
-        # TODO : Need an adapter class for this return type. It cannot be used as-is
+        """Get a valid handle to the remote ``url``.
+
+        Args:
+            url (str):
+                An addressable website. e.g. ``"https://www.github.com/Foo/bar"``
+                or ``"git@github.com:Foo/bar"``
+
+        Returns:
+            Handler: The authenticated instance.
+
+        """
+        # TODO : Allow the user to read the access token from a file on-disk
         if _is_public_github(url):
             raw_handler = github3.login(
                 username=self._data[_USER],
@@ -73,16 +75,38 @@ class AccessToken(_Authenticator):
                 url=url,
             )
 
-        return _handler.GitHub(raw_handler)
+        return handler.GitHub(raw_handler)
 
     @classmethod
     def validate(cls, data):
+        """Convert ``data`` to something this class can use.
+
+        Args:
+            data (dict[str, object]): The username / password details to store.
+
+        Returns:
+            AccessToken: The created instance.
+
+        """
         return cls(_ACCESS_TOKEN_SCHEMA.validate(data))
 
 
-class UserPassword(_Authenticator):
+class UserPassword(base.Authenticator):
+    """Allow the user to authenticate with a raw username + password."""
+
     def authenticate(self, url):
-        # TODO : Need an adapter class for this return type. It cannot be used as-is
+        """Get a valid handle to the remote ``url``.
+
+        Args:
+            url (str):
+                An addressable website. e.g. ``"https://www.github.com/Foo/bar"``
+                or ``"git@github.com:Foo/bar"``
+
+        Returns:
+            Handler: The authenticated instance.
+
+        """
+        # TODO : Allow the user to read the password from a file on-disk
         if _is_public_github(url):
             raw_handler = github3.login(
                 username=self._data[_USER],
@@ -95,14 +119,36 @@ class UserPassword(_Authenticator):
                 url=url,
             )
 
-        return _handler.GitHub(raw_handler)
+        return handler.GitHub(raw_handler)
 
     @classmethod
     def validate(cls, data):
+        """Convert ``data`` to something this class can use.
+
+        Args:
+            data (dict[str, object]): The username / password details to store.
+
+        Returns:
+            UserPassword: The created instance.
+
+        """
         return cls(_USER_PASSWORD_PAIR_SCHEMA.validate(data))
 
 
 def _is_public_github(url):
+    """Check if ``url`` points to public `GitHub`_.
+
+    Args:
+        url (str):
+            An addressable website. e.g. ``"https://www.github.com/Foo/bar"``
+            or ``"git@github.com:Foo/bar"``
+
+    Returns:
+        bool:
+            If ``url`` is an `GitHub enterprise`_ website, return False. If
+            not, return True.
+
+    """
     if url.startswith("git@github.com:"):
         # ``url`` is defined via SSH
         return True

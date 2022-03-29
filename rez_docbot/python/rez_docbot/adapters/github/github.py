@@ -2,13 +2,13 @@
 
 import schema
 
-from . import _accessor
+from .internals import accessor
 
 
 _AUTHENTICATION_SCHEMA = schema.Schema(
     schema.Or(
-        schema.Use(_accessor.UserPassword.validate),
-        schema.Use(_accessor.AccessToken.validate),
+        schema.Use(accessor.UserPassword.validate),
+        schema.Use(accessor.AccessToken.validate),
     )
 )
 
@@ -21,7 +21,7 @@ def validate(data):
             A user / password pair, access token, or some other authentication method.
 
     Returns:
-        TODO : Update this later.
+        Authenticator: The class meant to connect to the remote, based on ``data``.
 
     """
     return _AUTHENTICATION_SCHEMA.validate(data)

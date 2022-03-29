@@ -1,4 +1,5 @@
 - Make sure everything is documented (not just that pydocstyle is happy)
+- Move / rename modules around to be more logical
 - Make all CI tools happy
 - Make sure nested repositories still publish correctly (when inner_path is defined, basically)
 
@@ -37,6 +38,12 @@ TODO :
   `GitHub`_
   `Sphinx`_
   `git`_
+  `CRUD`_
+  `GitHub enterprise`_
+  `access token`_
+
+  `GitHub organization`_, or
+  :ref:`publish_pattern`."""
 
 - Go through the configuration. Make sure I'm not being too permissive about the text users may write
 

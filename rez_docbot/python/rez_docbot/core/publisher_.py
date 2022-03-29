@@ -1,7 +1,6 @@
 """The main class which handles creating and publishing to git repositories."""
 
 import atexit
-import collections
 import functools
 import itertools
 import logging
@@ -11,10 +10,9 @@ import shutil
 import tempfile
 
 import schema
-from six.moves import urllib_parse
 from rez.vendor.version import version as version_
-
-from . import adapter_registry, schema_type
+from ..adapters import adapter_registry
+from . import common, schema_type
 
 _AUTHENICATION = "authentication"
 _BRANCH = "branch"
@@ -47,7 +45,6 @@ _SCHEMA = schema.Schema(_PUBLISHER)
 _LOGGER = logging.getLogger(__name__)
 # Reference: https://stackoverflow.com/a/40972959/3626104
 _CURLIES = re.compile(r"\{(.*?)\}")
-_RepositoryDetails = collections.namedtuple("_RepositoryDetails", "group, repository, clone_url")
 
 
 class Publisher(object):
@@ -58,15 +55,17 @@ class Publisher(object):
     """
 
     def __init__(self, data, package=None, handler=None):
-        # """Store the information related to publishing.
-        #
-        # The ``data`` is assumed to be already validated. See
-        # :meth:`Publisher.validate`.
-        #
-        # Args:
-        #     data (dict[str, object]): Each git / remote data to save.
-        #
-        # """
+        """Store the information related to publishing.
+
+        The ``data`` is assumed to be already validated. See
+        :meth:`Publisher.validate`.
+
+        Args:
+            data (dict[str, object]): Each git / remote data to save.
+            package (rez.packages.Package): The object to publish.
+            handler
+
+        """
         super(Publisher, self).__init__()
 
         self._data = data
@@ -117,6 +116,7 @@ class Publisher(object):
         return directory
 
     def _get_branch_name(self):
+        """str: Get the defined branch name, if any."""
         return self._data.get(_BRANCH, "")
 
     def _get_latest_version_folder(self, versioned):
@@ -150,6 +150,17 @@ class Publisher(object):
         return max(versions)
 
     def _get_package(self):
+        """Get the current Rez package or fail trying.
+
+        This method is called from other methods which require a Rez package to exist.
+
+        Raises:
+            RuntimeError: If this instance doesn't have a Rez package.
+
+        Returns:
+            rez.packages.Package: The tracked package.
+
+        """
         if self._package:
             return self._package
 
@@ -177,15 +188,30 @@ class Publisher(object):
         return output
 
     def _get_repository_details(self):
+        """RepositoryDetails: Get all repository data (URL, group name, etc)."""
         group = self._get_resolved_group()
         repository = self._get_resolved_repository()
 
-        return _RepositoryDetails(group, repository, self._get_resolved_repository_uri())
+        return common.RepositoryDetails(group, repository, self._get_resolved_repository_uri())
 
     def _get_resolved_group(self):
-        return self._data[_REPOSITORY_URI][schema_type.GROUP].format(package=self._get_package())
+        """Get the group needed for this package.
+
+        Often times, the group name is some fixed `GitHub organization`_, or
+        user name. However there's a chance it could contain parts of the Rez
+        package. Just in case, we format it, prior to returning.
+
+        Returns:
+            str: The generated git "group" name.
+
+        """
+        base = self._data[_REPOSITORY_URI][schema_type.GROUP]
+
+        return base.format(package=self._get_package())
 
     def _get_resolved_publish_pattern(self):
+        """str: Get the recommended version folder name, using :ref:`publish_pattern`."""
+        # TODO : Explain in documentation that the first publish pattern is always used
         pattern = self._data[_PUBLISH_PATTERN][0]
 
         return pattern.format(package=self._get_package())
@@ -197,6 +223,15 @@ class Publisher(object):
         return base.format(package=self._get_package())
 
     def _get_resolved_repository(self):
+        """Get the URL pointing to the documentation repository.
+
+        If the URL contains {}s, like ``{package.name}``, expand them using the
+        currently-tracked Package.
+
+        Returns:
+            str: The final, resolved URL.
+
+        """
         base = self._data[_REPOSITORY_URI].get(schema_type.REPOSITORY, "")
 
         return base.format(package=self._get_package())
@@ -371,6 +406,12 @@ class Publisher(object):
         )
 
     def set_package(self, package):
+        """Set this instance to point to publish documentation for ``package``.
+
+        Args:
+            package (rez.packages.Package): The Rez object to track.
+
+        """
         self._package = package
 
     def quick_publish(self, documentation):
@@ -460,6 +501,7 @@ def _create_subdirectory(root, tail):
 
 
 def _make_temporary_directory():
+    """str: Make a directory on-disk to delete later."""
     directory = tempfile.mkdtemp(suffix="_rez_docbot_make_temporary_directory")
 
     atexit.register(functools.partial(shutil.rmtree, directory))

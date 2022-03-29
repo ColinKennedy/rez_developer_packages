@@ -5,7 +5,7 @@ import logging
 
 from six.moves import collections_abc
 
-from .adapters.github import github
+from .github import github
 
 _LOGGER = logging.getLogger(__name__)
 _OPTIONS = {"github": github.validate}  # Consider adding more types in the future
