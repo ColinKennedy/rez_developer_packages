@@ -125,7 +125,7 @@ def make_dependent_packages():
 
 
 def make_simple_developer_package(package_text="", file_text="", help_=None):
-    """A simple Rez source package.
+    """Create a simple Rez source package.
 
     Args:
         package_text (str, optional):

@@ -98,6 +98,7 @@ intersphinx_mapping.update(
 rst_epilog = textwrap.dedent(
     """\
     .. _Configuring Rez: https://github.com/nerdvegas/rez/wiki/Configuring-Rez#overview
+    .. _GitHub: https://github.com
     .. _Rez: https://github.com/nerdvegas/rez/wiki
     .. _Sphinx conf.py: https://www.sphinx-doc.org/en/master/usage/configuration.html
     .. _Sphinx: https://www.sphinx-doc.org/en/master

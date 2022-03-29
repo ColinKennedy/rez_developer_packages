@@ -6,6 +6,12 @@
   AttributeError
 - Should make some tests for invalid quickstart / build / API arguments
 
+
+- lol :ref:`rez_sphinx` is auto-tagging to "User Documentation". It makes
+  reading documentation pretty difficult. Change :ref:`rez_sphinx` as needed to
+  literally read as "rez_sphinx", instead
+  - Also fix rez_docbot. It's weird that I have to keep renaming it
+
 - Add pylint configuration to match with black (line length 88)
 - Do all general TODO notes
 - Do all NotImplementedError, where applicable
@@ -20,10 +26,6 @@
 - Make sure the preprocess function works as a general, standalone thing
 
 - Need to ensure docbot's logger is set properly when used as a bolt-in for rez_sphinx
-
-- lol :ref:`rez_sphinx` is auto-tagging to "User Documentation". It makes
-  reading documentation pretty difficult. Change :ref:`rez_sphinx` as needed to
-  literally read as "rez_sphinx", instead
 
 
 ## Document current work

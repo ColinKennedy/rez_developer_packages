@@ -1,3 +1,5 @@
+"""The module which handles the :ref:`rez_sphinx publish run` command."""
+
 import logging
 import os
 import shlex
@@ -54,12 +56,6 @@ def _get_documentation_destination(name, package):
 
     # TODO : Consider replacing with a global variable?
     return _parse_destination(test["command"])
-
-
-@lru_cache()
-def _get_fallback_destination():
-    # TODO : Add docstring here once it's implemented
-    raise NotImplementedError("Need to write this")
 
 
 def _validated_test_keys(runner):
@@ -119,6 +115,20 @@ def is_publishing_enabled():
 
 
 def get_all_publishers(package):
+    """Find every registered publisher for ``package``.
+
+    Every found publisher will be auto-connected to the remote git repository
+    that they're associated with (e.g. `GitHub`_).
+
+    Args:
+        package (rez.packages.Package):
+            A package which may contain extra configuration overrides.
+            Any override not found will be retrieved globally.
+
+    Returns:
+        list[Publisher]: Every registered publish method.
+
+    """
     # Note: This inner import is because it's not a guarantee that users have
     # rez_docbot loaded as a plugin. They need to include:
     #
@@ -184,9 +194,7 @@ def build_documentation(directory):
 
             continue
 
-        destination = (
-            _get_documentation_destination(name, package) or _get_fallback_destination()
-        )
+        destination = _get_documentation_destination(name, package)
 
         if not destination:
             invalids.add(name)

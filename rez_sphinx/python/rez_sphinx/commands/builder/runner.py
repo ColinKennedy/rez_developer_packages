@@ -31,32 +31,6 @@ def _clear_directory(directory):
             os.remove(full)
 
 
-def _get_documentation_source(root):
-    """Find the directory which contains `Sphinx conf.py`_ or fail trying.
-
-    Args:
-        root (str):
-            A directory on-disk to search within for the `Sphinx conf.py`_.
-
-    Raises:
-        NoDocumentationFound:
-            If ``root`` needs to initialize some documentation.
-
-    Returns:
-        str: The parent directory of `Sphinx conf.py`_.
-
-    """
-    try:
-        configuration = sphinx_helper.find_configuration_path(root)
-    except RuntimeError:
-        raise exception.NoDocumentationFound(
-            'Directory "{root}" has no documentation. '
-            "Run `rez_sphinx init` to fix this."
-        )
-
-    return os.path.dirname(configuration)
-
-
 def _get_name(path):
     """str: Get the parent directory name of ``name``."""
     return os.path.basename(os.path.dirname(path))
@@ -135,6 +109,20 @@ def get_documentation_build(source):
 
 
 def get_documentation_source(directory):
+    """Find the directory which contains `Sphinx conf.py`_ or fail trying.
+
+    Args:
+        root (str):
+            A directory on-disk to search within for the `Sphinx conf.py`_.
+
+    Raises:
+        NoDocumentationFound:
+            If ``root`` needs to initialize some documentation.
+
+    Returns:
+        str: The parent directory of `Sphinx conf.py`_.
+
+    """
     package = finder.get_nearest_rez_package(directory)
 
     if not package:
