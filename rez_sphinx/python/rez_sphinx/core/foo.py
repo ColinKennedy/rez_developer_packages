@@ -92,56 +92,6 @@ def _get_nearest_rez_package(path):
     return None
 
 
-def _get_resolved_help(context, command):
-    parent_environment = dict()
-
-    if "REZ_CONFIG_FILE" in os.environ:
-        parent_environment["REZ_CONFIG_FILE"] = os.environ["REZ_CONFIG_FILE"]
-
-    process = context.execute_command(
-        command,
-        stdout=subprocess.PIPE,
-        universal_newlines=True,
-        parent_environ=parent_environment,
-    )
-    stdout, _ = process.communicate()
-    # TODO : double-check the output of this. It looks messed up
-    _LOGGER.debug('Got raw `help` attribute, "%s".', stdout)
-
-    # TODO : Sanitize `stdout` here
-    return json.loads(stdout)
-
-
-def _get_sphinx_context():
-    package = _get_configured_rez_sphinx()
-
-    if not package:
-        # TODO : Consider replacing the log calls in this function with print,
-        # since `foo` is called without logger handlers?
-        #
-        _LOGGER.warning(
-            'Skipping preprocessor because rez_sphinx wasn\'t set up properly. '
-            'Please set "package_definition_build_python_paths" and try again.'
-        )
-
-        return None
-
-    # TODO : Check if I can convert that package to a request using an API method
-    request = [
-        ".rez_sphinx.feature.docbot_plugin==1",
-        "{package.name}=={package.version}".format(package=package),
-    ]
-
-    context = resolved_context.ResolvedContext(request)
-
-    if context.success:
-        return context
-
-    _LOGGER.error('Request "%s" failed to resolve. Cannot continue', request)
-
-    return None
-
-
 def _serialize_help(data):
     help_ = data.get("help") or []
     help_ = expand_help(help_)
@@ -169,9 +119,30 @@ def expand_help(help_):
 
 
 def thing(this, data):
-    context = _get_sphinx_context()
+    package = _get_configured_rez_sphinx()
 
-    if not context:
+    if not package:
+        # TODO : Consider replacing the log calls in this function with print,
+        # since `foo` is called without logger handlers?
+        #
+        _LOGGER.warning(
+            'Skipping preprocessor because rez_sphinx wasn\'t set up properly. '
+            'Please set "package_definition_build_python_paths" and try again.'
+        )
+
+        return
+
+    # TODO : Check if I can convert that package to a request using an API method
+    request = [
+        ".rez_sphinx.feature.docbot_plugin==1",
+        "rez_sphinx==1.0.0",  # TODO : Replace with query, later
+        "{package.name}=={package.version}".format(package=package),
+    ]
+    context = resolved_context.ResolvedContext(request)
+
+    if not context.success:
+        _LOGGER.error('Request "%s" failed to resolve. Cannot continue', request)
+
         return
 
     help_ = _serialize_help(data)
@@ -183,4 +154,16 @@ def thing(this, data):
     )
     _LOGGER.info('Executing command "%s" in the rez_sphinx environment.', command)
 
-    data[REZ_HELP_KEY] = _get_resolved_help(context, command)
+    process = context.execute_command(
+        command,
+        stdout=subprocess.PIPE,
+        universal_newlines=True,
+    )
+    stdout, _ = process.communicate()
+    # TODO : double-check the output of this. It looks messed up
+    _LOGGER.debug('Got raw `help` attribute, "%s".', stdout)
+
+    # TODO : Sanitize `stdout` here
+    new_help = json.loads(stdout)
+
+    data[REZ_HELP_KEY] = new_help
