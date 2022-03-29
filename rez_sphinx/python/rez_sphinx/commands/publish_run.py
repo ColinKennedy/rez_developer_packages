@@ -15,7 +15,6 @@ from ..core import exception
 from ..preferences import preference
 from .builder import runner as runner_
 
-
 _LOGGER = logging.getLogger(__name__)
 _SUCCESS_EXIT_CODE = 0
 
@@ -197,7 +196,9 @@ def build_documentation(directory):
     if len(invalids) > 1:
         raise exception.NoDocumentationFound(
             "No documentation could be found after "
-            '"{invalids}" commands were ran.'.format(invalids=", ".join(sorted(invalids)))
+            '"{invalids}" commands were ran.'.format(
+                invalids=", ".join(sorted(invalids))
+            )
         )
     elif invalids:
         raise exception.NoDocumentationFound(

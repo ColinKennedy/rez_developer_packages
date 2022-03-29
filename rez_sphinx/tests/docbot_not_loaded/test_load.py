@@ -2,8 +2,9 @@
 
 import unittest
 
-from rez_utilities import creator, finder
 from python_compatibility import wrapping
+from rez_utilities import creator, finder
+
 from rez_sphinx.core import exception
 
 from ..common import package_wrap, run_test
@@ -23,5 +24,7 @@ class Loader(unittest.TestCase):
         with run_test.simulate_resolve([installed_package]):
             run_test.test(["init", source_directory])
 
-            with wrapping.silence_printing(), run_test.allow_defaults(), self.assertRaises(exception.MissingPlugIn):
+            with wrapping.silence_printing(), run_test.allow_defaults(), self.assertRaises(
+                exception.MissingPlugIn
+            ):
                 run_test.test(["publish", "run", source_directory])

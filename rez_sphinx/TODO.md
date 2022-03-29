@@ -1,3 +1,4 @@
+- Make CI happy again and rez_sphinx build run errors should be removed
 - Add a Rez plugin for post release publishing
 - Every command that accepts a directory should have a test for if it isn't found. Probably.
 - Make sure commands run without subcommands or --help give the right output.
