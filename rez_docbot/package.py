@@ -32,7 +32,7 @@ tests = {
     },
     "build_documentation": {
         "command": "rez_sphinx build run",
-        "requires": ["rez_sphinx-1.0+<2"],
+        "requires": ["rez_sphinx-1.0+<2", "sphinx_rtd_theme-1+<2"],
     },
     "isort": {
         "command": "isort python tests",
