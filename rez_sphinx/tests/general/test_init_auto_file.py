@@ -12,7 +12,7 @@ from six.moves import mock
 
 from rez_sphinx.core import exception
 
-from .common import doc_test, package_wrap, run_test
+from ..common import doc_test, package_wrap, run_test
 
 
 class General(unittest.TestCase):

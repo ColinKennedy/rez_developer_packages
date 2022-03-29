@@ -9,7 +9,7 @@ from rez_utilities import finder
 
 from rez_sphinx.core import configuration, exception
 
-from .common import package_wrap, run_test
+from ..common import package_wrap, run_test
 
 
 class Init(unittest.TestCase):

@@ -86,7 +86,7 @@ def get_installed_root(name):
 
     """
     # TODO : Replace this with a Rez API call
-    variable = "REZ_{name}_ROOT".format(name=name.upper())
+    variable = "REZ_{name}_ROOT".format(name=name.upper().replace(".", "_"))
 
     try:
         return os.environ[variable]

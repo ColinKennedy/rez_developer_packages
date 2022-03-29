@@ -13,7 +13,7 @@ from rez_utilities import creator, finder
 from rez_sphinx.core import exception, generic, hook
 from rez_sphinx.preferences import preference_help
 
-from .common import package_wrap, run_test
+from ..common import package_wrap, run_test
 
 
 class _Base(unittest.TestCase):

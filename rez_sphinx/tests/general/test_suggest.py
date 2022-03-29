@@ -12,7 +12,7 @@ from rez_utilities import finder
 from rez_sphinx.commands.suggest import suggestion_mode
 from rez_sphinx.core import exception
 
-from .common import run_test
+from ..common import run_test
 
 _CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 _PACKAGE_ROOT = os.path.dirname(_CURRENT_DIRECTORY)

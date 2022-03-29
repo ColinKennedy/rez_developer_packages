@@ -57,6 +57,11 @@ def _get_documentation_source(root):
     return os.path.dirname(configuration)
 
 
+def _get_name(path):
+    """str: Get the parent directory name of ``name``."""
+    return os.path.basename(os.path.dirname(path))
+
+
 def _validate_non_default_files(directory):
     """Check if ``directory`` has non-default documentation.
 
@@ -110,7 +115,10 @@ def get_documentation_build(source):
     """
     separate_build_folder = os.path.join(os.path.dirname(source), "build")
 
-    if os.path.isdir(separate_build_folder):
+    if (
+        os.path.isdir(separate_build_folder)
+        and _get_name(separate_build_folder) == preference.get_documentation_root_name()
+    ):
         # Most :ref:`rez_sphinx` configurations will use this path
         return separate_build_folder  # {rez_root}/documentation/build
 

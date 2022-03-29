@@ -31,6 +31,12 @@ class PackageConflict(Base):
     exit_code = GENERIC_EXIT_CODE + 40
 
 
+class MissingPlugIn(Base):
+    """If a plug-in (like :ref:`rez_docbot <rez_docbot>`) could not be loaded."""
+
+    exit_code = GENERIC_EXIT_CODE + 45
+
+
 class NoDocumentationFound(Base):
     """If source documentation is required for something, but is missing."""
 

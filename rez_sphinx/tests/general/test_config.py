@@ -15,7 +15,7 @@ from six.moves import mock
 from rez_sphinx.core import exception
 from rez_sphinx.preferences import preference, preference_help
 
-from .common import run_test
+from ..common import run_test
 
 
 class Check(unittest.TestCase):

@@ -20,7 +20,7 @@ from rez_utilities import creator, finder
 
 from rez_sphinx.core import bootstrap, exception, generic, sphinx_helper
 
-from .common import doc_test, package_wrap, pypi_check, run_test
+from ..common import doc_test, package_wrap, pypi_check, run_test
 
 _CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 _PACKAGE_ROOT = os.path.dirname(_CURRENT_DIRECTORY)

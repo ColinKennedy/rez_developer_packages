@@ -8,7 +8,7 @@ from rez_utilities import finder
 
 from rez_sphinx.core import exception
 
-from .common import run_test
+from ..common import run_test
 
 _CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 

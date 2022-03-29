@@ -65,6 +65,8 @@ tests = {
     "build_documentation": {
         "command": "rez_sphinx build run",
         "requires": [
+            # Add rez_docbot interlinks
+            ".rez_sphinx.feature.docbot_plugin==1",
             # TODO : Add python-3 back in, later
             # "python-3+",  # Get the latest Sphinx / python combination
             "sphinx_rtd_theme-1+<2",
@@ -93,15 +95,16 @@ tests = {
         "command": "pylint --disable=use-dict-literal,use-list-literal,bad-continuation,consider-using-f-string,super-with-arguments,useless-object-inheritance,raise-missing-from,fixme python/rez_sphinx tests",
         "requires": ["pylint-2.12+<3"],
     },
+    "unittest_docbot_loaded": "python -m unittest  --start-directory tests.docbot_not_loaded",
     "unittest_python_2": {
-        "command": "python -m unittest discover",
+        "command": "python -m unittest discover --start-directory tests.general",
         "requires": [
             "python-2",
             "sphinx_rtd_theme-1+<2",
         ],
     },
     "unittest_python_3": {
-        "command": "python -m unittest discover",
+        "command": "python -m unittest discover --start-directory tests.general",
         "requires": [
             "python-3",
             "sphinx_rtd_theme-1+<2",

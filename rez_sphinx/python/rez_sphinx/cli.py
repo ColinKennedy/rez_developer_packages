@@ -178,6 +178,11 @@ def _list_default(namespace):
     The default will show everything. ``--sparse`` will only print the simplest
     arguments.
 
+    Args:
+        namespace (argparse.Namespace):
+            The parsed user content. It contains all of the necessary
+            attributes to query preference settings.
+
     """
     if namespace.sparse:
         data = preference.serialize_default_sparse_settings()
@@ -194,6 +199,11 @@ def _list_overrides(namespace):
     The default will show everything, the default settings along with their
     overrides. ``--sparse`` will only print the overrides and nothing else.
 
+    Args:
+        namespace (argparse.Namespace):
+            The parsed user content. It contains all of the necessary
+            attributes to query preference settings.
+
     """
     if not namespace.sparse:
         data = preference.get_base_settings()
@@ -205,9 +215,23 @@ def _list_overrides(namespace):
 
 
 def _publish_run(namespace):
+    """Build and publish documentation in ``namespace``.
+
+    Args:
+        namespace (argparse.Namespace):
+            The parsed user content. It contains all of the necessary
+            attributes to build + query documentation to publish.
+
+    Raises:
+        MissingPlugIn:
+            If :ref:`rez_docbot <rez_docbot>` isn't loaded. See
+            :ref:`loading_rez_docbot` for details.
+
+    """
     if not publish_run.is_publishing_enabled():
-        raise exception.UserInputError(
-            "Must must include .rez_sphinx.feature.docbot_plugin==1 in your resolve to use this command."
+        raise exception.MissingPlugIn(
+            "Must must include .rez_sphinx.feature.docbot_plugin==1 "
+            "in your resolve to use this command."
         )
 
     package = finder.get_nearest_rez_package(namespace.directory)
@@ -219,7 +243,6 @@ def _publish_run(namespace):
         for publisher in publishers:
             _LOGGER.debug('Publishing with publisher "%s".', publisher)
             publisher.quick_publish(documentation)
-
 
 
 def _set_up_build(sub_parsers):
