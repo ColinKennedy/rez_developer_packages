@@ -1,6 +1,7 @@
 """Connect `Sphinx`_ to :ref:`rez_sphinx`."""
 
 import io
+import itertools
 import logging
 import os
 import textwrap
@@ -50,7 +51,10 @@ def _get_intersphinx_candidates(package):
     output = set()
 
     # TODO : Add a configuration option here. Default to only consider "requires"
-    for request in package_query.get_dependencies(package):
+    for request in itertools.chain(
+        package_query.get_dependencies(package),
+        _get_tests_requires(package),
+    ):
         if request.ephemeral:
             _LOGGER.debug('Skipped loading "%s" ephemeral request.', request)
 
@@ -74,8 +78,6 @@ def _get_intersphinx_candidates(package):
             continue
 
         output.add(request.name)
-
-    output.update(_get_tests_requires(package))
 
     return output
 
@@ -254,7 +256,7 @@ def _get_tests_requires(package):
             documentation for.
 
     Returns:
-        set[str]:
+        set[rez.utils.formatting.PackageRequest]:
             All requests which the user needs in order to build their
             documentation.
 
@@ -289,7 +291,7 @@ def _get_tests_requires(package):
         #
         return set()
 
-    return {request.name for request in test.get("requires") or []}
+    return {request for request in test.get("requires") or []}
 
 
 def _get_major_minor_version(version):
