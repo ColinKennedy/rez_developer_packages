@@ -1,8 +1,11 @@
 - Add a pre-install plugin which adds the destination URL as needed
-  - This needs work even if the documentation repository hasn't already been created
+  - This needs to work even if the documentation repository hasn't already been created
   - Or maybe it's fine to create the repository right then and there? Not sure
 - Add a Rez plugin for post release publishing
 
+- make sure all get_nearest_rez_package calls check for None!
+ - rez_sphinx
+ - rez_docbot
 
 - Every command that accepts a directory should have a test for if it isn't found. Probably.
 - Make sure commands run without subcommands or --help give the right output.

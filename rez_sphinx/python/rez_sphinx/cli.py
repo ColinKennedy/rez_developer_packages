@@ -3,6 +3,7 @@
 from __future__ import print_function
 
 import argparse
+import json
 import logging
 import operator
 import os
@@ -18,7 +19,7 @@ from .commands import build_orderer, initer, publish_run
 from .commands.builder import inspector
 from .commands.builder import runner as build_run
 from .commands.suggest import build_display, search_mode, suggestion_mode
-from .core import api_builder, exception, path_control, print_format
+from .core import api_builder, environment, exception, hook, path_control, print_format
 from .preferences import preference
 
 _LOGGER = logging.getLogger(__name__)
@@ -228,7 +229,7 @@ def _publish_run(namespace):
             :ref:`loading_rez_docbot` for details.
 
     """
-    if not publish_run.is_publishing_enabled():
+    if not environment.is_publishing_enabled():
         raise exception.MissingPlugIn(
             "Must must include .rez_sphinx.feature.docbot_plugin==1 "
             "in your resolve to use this command."
@@ -243,6 +244,16 @@ def _publish_run(namespace):
         for publisher in publishers:
             _LOGGER.debug('Publishing with publisher "%s".', publisher)
             publisher.quick_publish(documentation)
+
+
+def _preprocess_help(namespace):
+    # TODO : Docstring
+    # TODO : Make this parsing much cleaner
+    raw_help = " ".join(namespace.initial_help)
+    help_ = json.loads(raw_help)
+    full_help = hook.preprocess_help(namespace.package_source_root, help_)
+
+    print(json.dumps(full_help))
 
 
 def _set_up_build(sub_parsers):
@@ -400,6 +411,7 @@ def _set_up_init(sub_parsers):
 
 
 def _set_up_publish(sub_parsers):
+    # TODO : Docstring here
     publish = sub_parsers.add_parser(
         "publish", description="Check the order which packages should run."
     )
@@ -421,56 +433,76 @@ def _set_up_suggest(sub_parsers):
             appended onto.
 
     """
+
+    def _set_up_build_order(inner_parsers):
+        build_order = inner_parsers.add_parser("build-order")
+        build_order.add_argument(
+            "directories",
+            default=config_.packages_path,  # pylint: disable=no-member
+            help="The folders to search within for **source** Rez packages.",
+            nargs="+",
+        )
+        build_order.add_argument(
+            "--allow-cyclic",
+            action="store_true",
+            default=False,
+            help="If packages recursively depend on each other, "
+            "fail early unless this flag is added.",
+        )
+        build_order.add_argument(
+            "--display-as",
+            choices=build_display.CHOICES,
+            default=build_display.DEFAULT,
+            help="Choose the printed output. "
+            '"names" resembles ``rez-depends``. '
+            '"directories" points to the path on-disk to the Rez package.',
+        )
+        build_order.add_argument(
+            "--include-existing",
+            action="store_true",
+            default=False,
+            help="Packages which have documentation will be included in the results.",
+        )
+        build_order.add_argument(
+            "--search-mode",
+            choices=sorted(search_mode.CHOICES.keys()),
+            default=search_mode.DEFAULT,
+            help="Define how to search for the source Rez packages. "
+            '"source" searches the first folder down. '
+            '"installed" searches the every 2 folders down. '
+            '"recursive" searches everywhere for valid Rez packages.',
+        )
+        build_order.add_argument(
+            "--suggestion-mode",
+            choices=sorted(suggestion_mode.CHOICES.keys()),
+            default=suggestion_mode.DEFAULT,
+            help="Determines the way package dependency tracking runs. "
+            'e.g. "config" searches package ``requires``. '
+            '"guess" is hacky but may cover more cases.',
+        )
+        build_order.set_defaults(execute=_build_order)
+
+    def _set_up_preprocess_help(inner_parers):
+        # TODO : Make this parser better and more explicit
+        preprocess_help = inner_parsers.add_parser("preprocess-help")
+        preprocess_help.add_argument(
+            "package_source_root",
+            help="The directory where the source package.py lives.",
+        )
+        preprocess_help.add_argument(
+            "initial_help",
+            nargs=argparse.REMAINDER,
+            help="The package.py `help` attribute to extend with extra data.",
+        )
+        preprocess_help.set_defaults(execute=_preprocess_help)
+
     suggest = sub_parsers.add_parser(
         "suggest", description="Check the order which packages should run."
     )
     inner_parsers = suggest.add_subparsers()
-    build_order = inner_parsers.add_parser("build-order")
-    build_order.add_argument(
-        "directories",
-        default=config_.packages_path,  # pylint: disable=no-member
-        help="The folders to search within for **source** Rez packages.",
-        nargs="+",
-    )
-    build_order.add_argument(
-        "--allow-cyclic",
-        action="store_true",
-        default=False,
-        help="If packages recursively depend on each other, "
-        "fail early unless this flag is added.",
-    )
-    build_order.add_argument(
-        "--display-as",
-        choices=build_display.CHOICES,
-        default=build_display.DEFAULT,
-        help="Choose the printed output. "
-        '"names" resembles ``rez-depends``. '
-        '"directories" points to the path on-disk to the Rez package.',
-    )
-    build_order.add_argument(
-        "--include-existing",
-        action="store_true",
-        default=False,
-        help="Packages which have documentation will be included in the results.",
-    )
-    build_order.add_argument(
-        "--search-mode",
-        choices=sorted(search_mode.CHOICES.keys()),
-        default=search_mode.DEFAULT,
-        help="Define how to search for the source Rez packages. "
-        '"source" searches the first folder down. '
-        '"installed" searches the every 2 folders down. '
-        '"recursive" searches everywhere for valid Rez packages.',
-    )
-    build_order.add_argument(
-        "--suggestion-mode",
-        choices=sorted(suggestion_mode.CHOICES.keys()),
-        default=suggestion_mode.DEFAULT,
-        help="Determines the way package dependency tracking runs. "
-        'e.g. "config" searches package ``requires``. '
-        '"guess" is hacky but may cover more cases.',
-    )
-    build_order.set_defaults(execute=_build_order)
+
+    _set_up_build_order(inner_parsers)
+    _set_up_preprocess_help(inner_parsers)
 
 
 def _set_up_view(sub_parsers):

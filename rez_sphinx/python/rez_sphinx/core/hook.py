@@ -4,57 +4,10 @@ import functools
 import io
 import os
 
-import six
+from rez_utilities import finder
 
 from ..preferences import preference, preference_init
-from . import configuration, constant, sphinx_helper
-
-_DEFAULT_LABEL = "Home Page"
-_REZ_HELP_KEY = "help"
-_SEEN = set()
-
-
-def _already_processed(path):
-    """Check if ``path`` has already been preprocessed before.
-
-    This function exists to prevent a cyclic loop which may be a bug. See
-    reference for details.
-
-    Reference:
-        https://github.com/nerdvegas/rez/issues/1239#issuecomment-1061390415
-
-    Args:
-        path (str): The directory to a path on-disk pointing to a Rez package.
-
-    Returns:
-        bool: If ``path`` was already processed, return True.
-
-    """
-    if path in _SEEN:
-        return True
-
-    _SEEN.add(path)
-
-    return False
-
-
-def _expand_help(help_):
-    """Convert ``help_`` into a list of lists.
-
-    Args:
-        help_ (list[str] or str or NoneType): The found Rez package help, if any.
-
-    Returns:
-        list[list[str, str]]: Each found label + documentation entry, if any.
-
-    """
-    if not help_:
-        return []
-
-    if not isinstance(help_, six.string_types):
-        return help_
-
-    return [[_DEFAULT_LABEL, help_]]
+from . import configuration, constant, environment, foo, sphinx_helper
 
 
 def _find_help_labels(root):
@@ -161,27 +114,35 @@ def _sort(sort_method, original_help, full_help):
     return sorted(full_help, key=sorter)
 
 
-def package_preprocess_function(this, data):  # pylint: disable=unused-argument
-    """Replace the `package help`_ in ``data`` with auto-found Sphinx documentation.
+def _resolve_format_text(help_, package):
+    from rez_docbot import api
 
-    If no :ref:`rez_sphinx tags <rez_sphinx tag>` are found, this function will
-    exit early and do nothing.
+    output = []
 
-    Args:
-        this (rez.packages.Package):
-            The installed (built) Rez package. This package is mostly read-only.
-        data (dict[str, object]):
-            The contents of ``this``. Changing this instance will have an
-            effect on the Rez package which is written to-disk.
+    url = api.get_first_versioned_view_url(package)
 
-    """
-    package_source_root = os.getcwd()
+    for key, value in help_:
+        resolved = value.format(root=url)
+        output.append([key, resolved])
 
-    if _already_processed(package_source_root):
-        return
+    return output
 
-    help_ = _expand_help(data.get(_REZ_HELP_KEY))
 
+def preprocess_help(package_source_root, help_):  # pylint: disable=unused-argument
+    # """Replace the `package help`_ in ``data`` with auto-found Sphinx documentation.
+    #
+    # If no :ref:`rez_sphinx tags <rez_sphinx tag>` are found, this function will
+    # exit early and do nothing.
+    #
+    # Args:
+    #     this (rez.packages.Package):
+    #         The installed (built) Rez package. This package is mostly read-only.
+    #     data (dict[str, object]):
+    #         The contents of ``this``. Changing this instance will have an
+    #         effect on the Rez package which is written to-disk.
+    #
+    # """
+    help_ = foo.expand_help(help_)
     source_path = sphinx_helper.find_configuration_path(package_source_root)
 
     if not source_path:
@@ -209,4 +170,8 @@ def package_preprocess_function(this, data):  # pylint: disable=unused-argument
             sort_method, filtered_original, filtered_original + filtered_labels
         )
 
-    data[_REZ_HELP_KEY] = full_help
+    if environment.is_publishing_enabled():
+        package = finder.get_nearest_rez_package(package_source_root)
+        full_help = _resolve_format_text(full_help, package)
+
+    return full_help

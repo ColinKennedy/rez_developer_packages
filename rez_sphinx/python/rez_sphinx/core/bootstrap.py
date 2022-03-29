@@ -33,6 +33,7 @@ _REZ_SPHINX_BOOTSTRAP_LINES = textwrap.dedent(
     """
 )
 _INTERSPHINX_MAPPING_KEY = "intersphinx_mapping"
+_REZ_REQUIRES_KEY = "requires"
 
 
 def _get_intersphinx_candidates(package):
@@ -48,36 +49,54 @@ def _get_intersphinx_candidates(package):
             order to build their documentation.
 
     """
-    output = set()
 
-    # TODO : Add a configuration option here. Default to only consider "requires"
-    for request in itertools.chain(
-        package_query.get_dependencies(package),
-        _get_tests_requires(package),
-    ):
-        if request.ephemeral:
-            _LOGGER.debug('Skipped loading "%s" ephemeral request.', request)
+    def _filter_generic_requests(requests):
+        output = set()
 
-            continue
+        for request in requests:
+            if request.ephemeral:
+                _LOGGER.debug('Skipped loading "%s" ephemeral request.', request)
 
-        if request.weak and not _in_resolve(request.name):
-            _LOGGER.debug('Skipped loading "%s" weak request.', request)
+                continue
 
-            continue
+            if request.weak and not _in_resolve(request.name):
+                _LOGGER.debug('Skipped loading "%s" weak request.', request)
 
-        if not request.weak and request.conflict:
-            _LOGGER.debug('Skipped loading "%s" excluded request.', request)
+                continue
 
-            continue
+            if not request.weak and request.conflict:
+                _LOGGER.debug('Skipped loading "%s" excluded request.', request)
 
-        if request.name in output:
-            # If the user defines a package requirement in more than one
-            # place, that's okay because a Rez resolve will only get one
-            # single Package version. Just skip the duplicate requirement.
-            #
-            continue
+                continue
 
-        output.add(request.name)
+            if request.name in output:
+                # If the user defines a package requirement in more than one
+                # place, that's okay because a Rez resolve will only get one
+                # single Package version. Just skip the duplicate requirement.
+                #
+                continue
+
+            output.add(request.name)
+
+        return output
+
+    output = _filter_generic_requests(package_query.get_dependencies(package))
+
+    test_name = _get_test_environment()
+
+    if test_name:
+        # If a test exists, we expect these to be in the resolve
+        test_requires = _get_tests_requires_by_name(package, test_name)
+    else:
+        # If a test doesn't exist, we have to guess
+        test_requires = {
+            request
+            for request in _get_tests_requires(package)
+            if _in_resolve(request.name)
+        }
+
+    test_requires = _filter_generic_requests(test_requires)
+    output.update(test_requires)
 
     return output
 
@@ -247,6 +266,12 @@ def _get_package_objects_inv(package):
     return ""
 
 
+def _get_test_environment():
+    # TODO : Make this real
+    # Reference: https://github.com/nerdvegas/rez/issues/1261
+    return os.getenv("REZ_CURRENT_TEST_NAME", "")
+
+
 def _get_tests_requires(package):
     """Find every requested requirement of ``package``.
 
@@ -291,7 +316,31 @@ def _get_tests_requires(package):
         #
         return set()
 
-    return {request for request in test.get("requires") or []}
+    return {request for request in test.get(_REZ_REQUIRES_KEY) or []}
+
+
+def _get_tests_requires_by_name(package, test_name):
+    if not package.tests:
+        # TODO : finish later
+        raise RuntimeError('We expected package to have')
+
+    try:
+        test = package.tests[test_name]
+    except KeyError:
+        # TODO : finish
+        raise RuntimeError('We expected package to have')
+
+    if isinstance(test, six.string_types):
+        return set()
+
+    try:
+        return set(test[_REZ_REQUIRES_KEY])
+    except TypeError:
+        # This happens if ``test`` is like ``tests = {"foo": "bar"}``,
+        # where no ``"requires"`` key is provided. Just ignore it, if that
+        # is the case.
+        #
+        return set()
 
 
 def _get_major_minor_version(version):

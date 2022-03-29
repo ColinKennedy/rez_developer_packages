@@ -22,6 +22,7 @@ _PUBLISH_PATTERN = "publish_pattern"
 _REPOSITORY_URI = "repository_uri"
 _REQUIRED = "required"
 _VERSION_FOLDER = "version_folder"
+_VIEW_URL = "view_url"
 
 _PUBLISHER = {
     _AUTHENICATION: schema.Use(adapter_registry.validate),
@@ -29,6 +30,7 @@ _PUBLISHER = {
         schema_type.URL,
         schema_type.SSH,  # TODO : Add SSH support later
     ),
+    _VIEW_URL: schema_type.NON_EMPTY_STR,  # TODO : Replace with URL parser
     schema.Optional(_BRANCH): schema_type.NON_EMPTY_STR,
     schema.Optional(_INNER_PATH): schema_type.URL_SUBDIRECTORY,
     schema.Optional(_LATEST_FOLDER, default="latest"): schema_type.NON_EMPTY_STR,
@@ -268,16 +270,24 @@ class Publisher(object):
 
         """
         latest = _create_subdirectory(root, self._data[_LATEST_FOLDER])
-        versioned = _create_subdirectory(root, self._data[_VERSION_FOLDER])
 
-        version_copied = self._copy_into_versioned_if_needed(documentation, versioned)
+        version_copied = False
+        versions_allowed = self.allow_versioned_publishes()
+        versioned = ""
 
-        if not version_copied:
+        if versions_allowed:
+            versioned = _create_subdirectory(root, self._data[_VERSION_FOLDER])
+            version_copied = self._copy_into_versioned_if_needed(documentation, versioned)
+
+        if versions_allowed and not version_copied:
             # There's no case in which the :ref:`latest folder` would be
             # updated that didn't also require a :ref:`version folder` update.
             #
             return False
 
+        # TODO : You need to deal with when ``versioned_allowed`` is False.
+        # Because ``version`` is empty in that case
+        #
         latest_copied = self._copy_into_latest_if_needed(
             documentation, latest, versioned
         )
@@ -371,6 +381,12 @@ class Publisher(object):
 
         return True
 
+    def allow_versioned_publishes(self):
+        return bool(self._data[_VERSION_FOLDER])
+
+    def is_required(self):
+        return self._data[_REQUIRED]
+
     def authenticate(self):
         """Connect this instance to the remote repository.
 
@@ -393,7 +409,7 @@ class Publisher(object):
             if not handler:
                 invalids.add(method)
 
-        if not self._data[_REQUIRED]:
+        if not self.is_required():
             # TODO : Add some functionality here
             raise NotImplementedError("Need to write this")
 
@@ -456,6 +472,9 @@ class Publisher(object):
             package.name,
             package.version,
         )
+
+    def get_view_url(self):
+        return self._data[_VIEW_URL]
 
     def __repr__(self):
         """str: The string representation of this instance."""

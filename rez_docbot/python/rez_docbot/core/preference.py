@@ -27,7 +27,6 @@ def get_base_settings(package=None):
 
     """
     # TODO : Need to add package override settings somewhere in here
-
     rez_user_options = config.optionvars  # pylint: disable=no-member
 
     data = rez_user_options.get(_MASTER_KEY) or dict()
@@ -58,3 +57,46 @@ def get_all_publishers(package):
 
     """
     return get_base_settings(package=package)[_PUBLISHERS]
+
+
+def get_first_versioned_view_url(package, allow_optionals=False):
+    publishers = get_all_publishers(package)
+
+    if not publishers:
+        raise RuntimeError(
+            'Global configuration + package "{package}" have no publishers.'.format(
+                package=package
+            )
+        )
+
+    optionals = []
+    unversioned = []
+
+    for publisher in publishers:
+        if not publisher.is_required():
+            optionals.append(publisher)
+
+            if not allow_optionals:
+                continue
+
+        if not publisher.allow_versioned_publishes():
+            continue
+
+        return publisher.get_view_url()
+
+    if unversioned:
+        raise RuntimeError(
+            'No required publisher "{unversioned}" supports versioning.'.format(
+                unversioned=unversioned
+            )
+        )
+
+    if optionals:
+        raise RuntimeError(
+            'No required publishers were found. Optional publishers '
+            '"{optionals}" were ignored.'.format(
+                optionals=optionals
+            )
+        )
+
+    raise RuntimeError('Unknown error. Cannot continue.')
