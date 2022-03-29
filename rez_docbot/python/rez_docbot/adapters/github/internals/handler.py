@@ -2,10 +2,12 @@
 
 import io
 import os
+
 import github3
 from git.repo import base
 
-from ....bases import base as base_, repository as repository_
+from ....bases import base as base_
+from ....bases import repository as repository_
 from ....core import exception
 
 
@@ -68,7 +70,7 @@ class GitHub(base_.Handler):
 
             raise exception.NoRemoteFound(
                 'Group / Repository "{group} / {repository}" does not exist. '
-                'Re-run with auto_create=True to fix this.'.format(
+                "Re-run with auto_create=True to fix this.".format(
                     group=group,
                     repository=repository,
                 )

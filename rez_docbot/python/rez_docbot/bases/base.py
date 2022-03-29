@@ -80,4 +80,4 @@ class Handler(object):
             BaseRepository: The retrieved or created `GitHub`_ repository.
 
         """
-        raise NotImplementedError('You must define this in a subclass.')
+        raise NotImplementedError("You must define this in a subclass.")

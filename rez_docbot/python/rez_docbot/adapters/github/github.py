@@ -4,7 +4,6 @@ import schema
 
 from .internals import accessor
 
-
 _AUTHENTICATION_SCHEMA = schema.Schema(
     schema.Or(
         schema.Use(accessor.UserPassword.validate),

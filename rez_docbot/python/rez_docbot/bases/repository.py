@@ -5,7 +5,6 @@ import logging
 
 import six
 
-
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -16,7 +15,7 @@ class BaseRepository(object):
     @abc.abstractmethod
     def add_all(self):
         """Stage every file for committing."""
-        raise NotImplementedError('Implement in subclasses.')
+        raise NotImplementedError("Implement in subclasses.")
 
     @abc.abstractmethod
     def checkout(self, branch):
@@ -38,7 +37,7 @@ class BaseRepository(object):
             message (str): The description of the commits changes.
 
         """
-        raise NotImplementedError('Implement in subclasses.')
+        raise NotImplementedError("Implement in subclasses.")
 
     @abc.abstractmethod
     def get_root(self):
@@ -48,7 +47,7 @@ class BaseRepository(object):
     @abc.abstractmethod
     def push(self):
         """Push all commits in the current branch to the remote."""
-        raise NotImplementedError('Implement in subclasses.')
+        raise NotImplementedError("Implement in subclasses.")
 
 
 class Repository(BaseRepository):

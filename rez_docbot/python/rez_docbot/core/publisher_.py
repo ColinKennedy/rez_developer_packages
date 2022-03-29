@@ -11,6 +11,7 @@ import tempfile
 
 import schema
 from rez.vendor.version import version as version_
+
 from ..adapters import adapter_registry
 from . import common, schema_type
 
@@ -164,7 +165,9 @@ class Publisher(object):
         if self._package:
             return self._package
 
-        raise RuntimeError('This instance "{self}" has no package. Cannot continue.'.format(self=self))
+        raise RuntimeError(
+            'This instance "{self}" has no package. Cannot continue.'.format(self=self)
+        )
 
     def _get_publish_pattern_searchers(self):
         """Get a callable function used to "find" versioned publish directories.
@@ -192,7 +195,9 @@ class Publisher(object):
         group = self._get_resolved_group()
         repository = self._get_resolved_repository()
 
-        return common.RepositoryDetails(group, repository, self._get_resolved_repository_uri())
+        return common.RepositoryDetails(
+            group, repository, self._get_resolved_repository_uri()
+        )
 
     def _get_resolved_group(self):
         """Get the group needed for this package.
@@ -424,7 +429,9 @@ class Publisher(object):
         """
         details = self._get_repository_details()
         destination_root = _make_temporary_directory()
-        repository = self._handler.get_repository(details, destination_root, auto_create=True)
+        repository = self._handler.get_repository(
+            details, destination_root, auto_create=True
+        )
         root = self._follow_cloned_repository(repository)
 
         branch = self._get_branch_name()
