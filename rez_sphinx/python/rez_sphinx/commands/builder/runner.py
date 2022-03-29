@@ -2,6 +2,7 @@
 
 import io
 import os
+import shutil
 import traceback
 
 from rez.config import config
@@ -10,6 +11,24 @@ from sphinx.cmd import build as sphinx_build
 
 from ...core import api_builder, doc_finder, exception, sphinx_helper
 from ...preferences import preference
+
+
+def _clear_directory(directory):
+    """Delete all contents in ``directory`` without removing ``directory``, itself.
+
+    Args:
+        directory (str): An absolute or relative path to a folder on-disk.
+
+    """
+    for name in os.lisdir(directory):
+        full = os.path.join(directory, name)
+
+        if os.path.isdir(full):
+            shutil.rmtree(full)
+        elif os.path.islink(full):
+            os.unlink(full)
+        elif os.path.isfile(full):
+            os.remove(full)
 
 
 def _get_documentation_source(root):
@@ -168,6 +187,9 @@ def build(
     # folder
     #
     build_directory = get_documentation_build(source_directory)
+
+    if os.path.isdir(build_directory):
+        _clear_directory(build_directory)
 
     parts = [
         "-b",

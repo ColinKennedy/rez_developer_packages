@@ -5,11 +5,11 @@ import os
 import github3
 from git.repo import base
 
-from ....bases import repository as repository_
+from ....bases import base as base_, repository as repository_
 from ....core import exception
 
 
-class GitHub(base.Handler):
+class GitHub(base_.Handler):
     """An adapter class for instantiating `GitHub`_ Python classes."""
 
     def __init__(self, handler):
