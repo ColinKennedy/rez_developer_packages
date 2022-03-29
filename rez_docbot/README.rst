@@ -1,7 +1,7 @@
 - Make sure everything is documented (not just that pydocstyle is happy)
-- Move / rename modules around to be more logical
 - Make all CI tools happy
 - Make sure nested repositories still publish correctly (when inner_path is defined, basically)
+- Need to ensure a lacking configuration is reported to the user (explain what is missing)
 
 
 TODO Fill this page later

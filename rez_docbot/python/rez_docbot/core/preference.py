@@ -15,11 +15,12 @@ _MASTER_SCHEMA = schema.Schema(
 
 
 def get_base_settings(package=None):
-    """The parsed classes for publishing documentation.
+    """Get the parsed classes for publishing documentation.
 
     Args:
         package (rez.packages.Package, optional):
             A package which may contain extra configuration overrides.
+            Any override not found will be retrieved globally.
 
     Returns:
         dict[str, object]: The parsed user configuration settings.
@@ -40,4 +41,20 @@ def get_base_settings(package=None):
 
 
 def get_all_publishers(package):
+    """Get every publish method registered globally and under ``package``.
+
+    Important:
+        The returned :class:`.Publisher` classes are not authenticated by
+        default.  You need to call :meth:`.Publisher.authenticate` to connect
+        them to a remote repository database (like `GitHub`_).
+
+    Args:
+        package (rez.packages.Package, optional):
+            A package which may contain extra configuration overrides.
+            Any override not found will be retrieved globally.
+
+    Returns:
+        list[Publisher]: Every registered publish method.
+
+    """
     return get_base_settings(package=package)[_PUBLISHERS]

@@ -1,3 +1,5 @@
+"""All class interfaces needed by subclasses to work with :mod:`.publisher_`."""
+
 import abc
 
 import six

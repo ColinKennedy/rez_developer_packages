@@ -1,3 +1,5 @@
+"""The main class responsible for interacting with a cloned git repository."""
+
 import abc
 import logging
 
@@ -7,7 +9,6 @@ import six
 _LOGGER = logging.getLogger(__name__)
 
 
-# TODO : Move this base, later
 @six.add_metaclass(abc.ABCMeta)
 class BaseRepository(object):
     """The main class responsible for interacting with a cloned git repository."""

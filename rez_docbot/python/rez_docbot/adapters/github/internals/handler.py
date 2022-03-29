@@ -51,7 +51,7 @@ class GitHub(base_.Handler):
                 is True, make it and return the newly created repository.
 
         Raises:
-            NoRepositoryFound: If ``auto_create`` is False and no repository exists.
+            NoRemoteFound: If ``auto_create`` is False and no repository exists.
 
         Returns:
             github3.github.repos.repo.Repository: The found / created repository.
@@ -66,7 +66,7 @@ class GitHub(base_.Handler):
             if auto_create:
                 return self._create_repository(repository)
 
-            raise exception.NoRepositoryFound(
+            raise exception.NoRemoteFound(
                 'Group / Repository "{group} / {repository}" does not exist. '
                 'Re-run with auto_create=True to fix this.'.format(
                     group=group,
