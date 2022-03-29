@@ -1,5 +1,12 @@
-- Make sure everything is documented (not just that pydocstyle is happy)
-- Make all CI tools happy
+- Allow publish patterns which use regex
+  - Add a "semver" regex pattern people can use
+- Go through the configuration. Make sure I'm not being too permissive about the text users may write
+- Add a "create repository" callback. So users can insert their own requirements
+- Need a unittest when the authenticated user doesn't have permissions to push / create repository etc as another user (ColinKennedy repo mismatch)
+
+
+- Make sure there's a mechanism to force publish (versioned / latest)
+
 - Make sure nested repositories still publish correctly (when inner_path is defined, basically)
 - Need to ensure a lacking configuration is reported to the user (explain what is missing)
 
@@ -27,11 +34,6 @@ TODO :
       - by-file
     - two-factor authentication
 
-- Make sure there's a mechanism to force publish (versioned / latest)
-- Allow multiple publish patterns
-- Allow publish patterns which use regex
-  - Add a "semver" regex pattern people can use
-
 - Check that I have references for all :ref: tags.
   - Also check the `foo`_ stuff
   `.nojekyll`_
@@ -44,12 +46,6 @@ TODO :
 
   `GitHub organization`_, or
   :ref:`publish_pattern`."""
-
-- Go through the configuration. Make sure I'm not being too permissive about the text users may write
-
-- Add a "create repository" callback
-
-- Need a unittest when the authenticated user doesn't have permissions to push / create repository etc as another user (ColinKennedy repo mismatch)
 
 ::
 
@@ -86,13 +82,13 @@ Possible GitHub APIs
         -- default: "{package.version.major}.{package.version.minor}"
         -- Other configurations can be used to bump documentation
         - needs a force mechanism
-        - If backpatching, don't mess with latest
+        -- If backpatching, don't mess with latest
         -- latest_name
             -- default: "latest"
             -- If unset, don't set a latest
-    - adapters
-        - GitHub
-            - Needs some kind of templater which includes .nojekyll and stuff
+    -- adapters
+        -- GitHub
+            -- Needs some kind of templater which includes .nojekyll and stuff
     - master page?
         - Maybe useful?
     - Somehow this has to hook back into the package.py's `help`_ attribute.

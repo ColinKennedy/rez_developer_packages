@@ -30,6 +30,10 @@ tests = {
         "command": "black --diff --check python tests",
         "requires": ["black-22+<23"],
     },
+    "build_documentation": {
+        "command": "rez_sphinx build run",
+        "requires": ["rez_sphinx-1.0+<2"],
+    },
     "isort": {
         "command": "isort python tests",
         "requires": ["isort-5.9+<6"],
