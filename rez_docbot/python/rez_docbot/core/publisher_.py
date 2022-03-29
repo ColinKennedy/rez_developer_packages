@@ -39,7 +39,7 @@ _PUBLISHER = {
     ): schema_type.PUBLISH_PATTERNS,
     schema.Optional(_REQUIRED, default=True): bool,
     schema.Optional(
-        _VERSION_FOLDER, default="v"
+        _VERSION_FOLDER, default="versions"
     ): str,  # TODO : Empty version_folder == no version folder
 }
 _SCHEMA = schema.Schema(_PUBLISHER)
@@ -139,7 +139,7 @@ class Publisher(object):
 
         for name in os.listdir(versioned):
             for searcher in searchers:
-                if searcher(name):
+                if searcher.match(name):
                     versions.append(version_.Version(name))
 
                     break
@@ -172,7 +172,7 @@ class Publisher(object):
             temporary_pattern = _CURLIES.sub(temporary_token, pattern)
             escaped = re.escape(temporary_pattern)
 
-            output.append(re.compile(escaped.replace(temporary_token, r"[\d\w]+")).match)
+            output.append(re.compile(escaped.replace(temporary_token, r"[\d\w]+")))
 
         return output
 
@@ -184,6 +184,11 @@ class Publisher(object):
 
     def _get_resolved_group(self):
         return self._data[_REPOSITORY_URI][schema_type.GROUP].format(package=self._get_package())
+
+    def _get_resolved_publish_pattern(self):
+        pattern = self._data[_PUBLISH_PATTERN][0]
+
+        return pattern.format(package=self._get_package())
 
     def _get_resolved_repository_uri(self):
         """str: Get the URL / URI / etc to a remote git repository."""
@@ -293,15 +298,40 @@ class Publisher(object):
         raw_package_version = str(self._get_package().version)
 
         for searcher, name in itertools.product(searchers, names):
-            package_version = searcher(raw_package_version).groups()
+            package_match = searcher.match(raw_package_version)
+
+            if not package_match:
+                raise ValueError(raw_package_version)
+
+                _LOGGER.warning(
+                    'Searcher "%s" could not match package "%s" version.',
+                    searcher.pattern,
+                    raw_package_version,
+                )
+
+                continue
+
+            package_version = package_match.groups()
 
             for name in names:
-                if searcher(name).groups() == package_version:
+                version_folder_match = searcher.match(name)
+
+                if not version_folder_match:
+                    _LOGGER.info(
+                        'Folder "%s" did not match "%s" pattern.',
+                        name,
+                        searcher.pattern,
+                    )
+
+                    continue
+
+                if version_folder_match.groups() == package_version:
                     _LOGGER.info('Existing version folder, "%s" was found.')
 
                     return False
 
-        _copy_into(documentation, versioned)
+        full_versioned = os.path.join(versioned, self._get_resolved_publish_pattern())
+        _copy_into(documentation, full_versioned)
 
         return True
 
@@ -369,8 +399,16 @@ class Publisher(object):
             return
 
         repository.add_all()
+        # TODO : Add a check here to ensure changes are staged. And if no changes were found, exception early so users don't end up with empty documentation
         repository.commit("Updated documentation")
         repository.push()
+
+        package = self._get_package()
+        _LOGGER.info(
+            'Package "%s / %s" documentation was published.',
+            package.name,
+            package.version,
+        )
 
     def __repr__(self):
         """str: The string representation of this instance."""
@@ -393,6 +431,11 @@ def _copy_into(source, destination):
     """
     if os.path.isdir(destination):
         shutil.rmtree(destination)
+
+    root = os.path.dirname(destination)
+
+    if not os.path.isdir(root):
+        os.makedirs(root)
 
     shutil.copytree(source, destination)
 

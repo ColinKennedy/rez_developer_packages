@@ -1,4 +1,3 @@
-- The version folder needs to include publish_pattern as a subdirectory
 - Make sure everything is documented (not just that pydocstyle is happy)
 - Make all CI tools happy
 - Make sure nested repositories still publish correctly (when inner_path is defined, basically)
@@ -34,7 +33,10 @@ TODO :
 
 - Check that I have references for all :ref: tags.
   - Also check the `foo`_ stuff
+  `.nojekyll`_
   `GitHub`_
+  `Sphinx`_
+  `git`_
 
 - Go through the configuration. Make sure I'm not being too permissive about the text users may write
 

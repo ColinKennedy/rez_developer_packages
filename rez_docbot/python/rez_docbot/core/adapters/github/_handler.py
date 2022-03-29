@@ -1,3 +1,6 @@
+import io
+import os
+
 import github3
 from git.repo import base
 
@@ -37,4 +40,31 @@ class GitHub(object):
         remote = self._get_repository(details, auto_create=auto_create)
         clone = base.Repo.clone_from(details.clone_url, destination)
 
+        _add_nojekyll_file(destination)
+
         return _repository.Repository(clone, remote)
+
+
+def _add_nojekyll_file(directory):
+    """Add a .nojekyll file to ``directory`` to make documentation easier.
+
+    In `Sphinx`_, for example, there's several "_private" folders which
+    `GitHub`_ would ignore by default. That's a problem, because those folders
+    contain .css files and other resources.
+
+    Adding `.nojekyll`_ ensures those files are read properly.
+
+    Reference:
+        https://github.blog/2009-12-29-bypassing-jekyll-on-github-pages
+
+    Args:
+        directory (str): The absolute path to a `git`_ repository.
+
+    """
+    nojekyll = os.path.join(directory, ".nojekyll")
+
+    if os.path.isfile(nojekyll):
+        return
+
+    with io.open(nojekyll, "a", encoding="utf-8"):
+        pass
