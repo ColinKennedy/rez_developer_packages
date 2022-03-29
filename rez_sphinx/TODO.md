@@ -1,5 +1,9 @@
-- Make CI happy again and rez_sphinx build run errors should be removed
+- Add a pre-install plugin which adds the destination URL as needed
+  - This needs work even if the documentation repository hasn't already been created
+  - Or maybe it's fine to create the repository right then and there? Not sure
 - Add a Rez plugin for post release publishing
+
+
 - Every command that accepts a directory should have a test for if it isn't found. Probably.
 - Make sure commands run without subcommands or --help give the right output.
   They shouldn't just AttributeError. e.g. `rez_sphinx view` raises
