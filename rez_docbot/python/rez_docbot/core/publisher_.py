@@ -473,8 +473,16 @@ class Publisher(object):
             package.version,
         )
 
-    def get_view_url(self):
-        return self._data[_VIEW_URL]
+    def get_resolved_view_url(self):
+        base_url = self._data[_VIEW_URL].format(package=self._get_package())
+        version_folder_name = self._data[_VERSION_FOLDER]
+        version_folder_number = self._get_resolved_publish_pattern()
+
+        return "{base_url}/{version_folder_name}/{version_folder_number}".format(
+            base_url=base_url,
+            version_folder_name=version_folder_name,
+            version_folder_number=version_folder_number,
+        )
 
     def __repr__(self):
         """str: The string representation of this instance."""

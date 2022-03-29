@@ -31,6 +31,9 @@ def get_base_settings(package=None):
 
     data = rez_user_options.get(_MASTER_KEY) or dict()
 
+    if not data:
+        return dict()
+
     output = _MASTER_SCHEMA.validate(data)
 
     for publisher in output[_PUBLISHERS]:
@@ -56,7 +59,12 @@ def get_all_publishers(package):
         list[Publisher]: Every registered publish method.
 
     """
-    return get_base_settings(package=package)[_PUBLISHERS]
+    data = get_base_settings(package=package)
+
+    if not data:
+        return []
+
+    return data[_PUBLISHERS]
 
 
 def get_first_versioned_view_url(package, allow_optionals=False):
@@ -82,7 +90,7 @@ def get_first_versioned_view_url(package, allow_optionals=False):
         if not publisher.allow_versioned_publishes():
             continue
 
-        return publisher.get_view_url()
+        return publisher.get_resolved_view_url()
 
     if unversioned:
         raise RuntimeError(

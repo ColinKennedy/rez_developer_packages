@@ -93,10 +93,20 @@ def _get_nearest_rez_package(path):
 
 
 def _get_resolved_help(context, command):
+    # TODO : Do I need this parent environment? Maybe not?
     parent_environment = dict()
 
-    # if "REZ_CONFIG_FILE" in os.environ:
-    #     parent_environment["REZ_CONFIG_FILE"] = os.environ["REZ_CONFIG_FILE"]
+    if "REZ_CONFIG_FILE" in os.environ:
+        parent_environment["REZ_CONFIG_FILE"] = os.environ["REZ_CONFIG_FILE"]
+
+    # Note: This prevents any cyclic loops which may occur because
+    # :ref:`rez_sphinx` calls :func:`rez.developer_package.DeveloperPackage` as
+    # part of its work and that function recursively called
+    # preprocess_function.
+    #
+    # TODO Add issue number to refer to this
+    #
+    parent_environment["REZ_PACKAGE_PREPROCESS_FUNCTION"] = ""
 
     process = context.execute_command(
         command,
