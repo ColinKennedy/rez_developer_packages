@@ -1,6 +1,7 @@
 - The version folder needs to include publish_pattern as a subdirectory
 - Make sure everything is documented (not just that pydocstyle is happy)
 - Make all CI tools happy
+- Make sure nested repositories still publish correctly (when inner_path is defined, basically)
 
 
 TODO Fill this page later
