@@ -1,14 +1,22 @@
+.. _rez_docbot:
+
 User Documentation
 ==================
 
 ..
     rez_sphinx_help:User Documentation
 
-This auto-generated file is meant to be written by the developer. Please
-provide anything that could be useful to the reader such as:
+``rez_docbot`` is a simple documentation publisher. It takes generated
+documentation, usually .html files or a directory, and pushes them to a remote
+destination like `GitHub`_.
 
-- General Overview
-- A description of who the intended reader is (developers, artists, etc)
-- Tutorials
-- "Cookbook" style tutorials
-- Table Of Contents (toctree) to other Sphinx pages
+Beyond that, this tool doesn't do all that much. It comes with lots of
+:doc:`configuration options <configuring_rez_docbot>`, but most users
+will never need to touch them.
+
+``rez_docbot`` also exists as a plug-in for :ref:`rez_sphinx`. Effectively, it
+gives :ref:`rez_sphinx` publishing capabilities which it normally would not be
+able to do.
+
+To learn how to administer ``rez_docbot`` to a pipeline, see
+:doc:`developer_documentation`.

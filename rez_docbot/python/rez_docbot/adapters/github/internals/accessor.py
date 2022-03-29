@@ -10,6 +10,7 @@ from ....bases import base
 from ....core import schema_type
 from . import handler
 
+
 _PASSWORD = "password"
 _TOKEN = "token"
 _USER = "user"

@@ -10,5 +10,5 @@ Attributes:
 import collections
 
 RepositoryDetails = collections.namedtuple(
-    "_RepositoryDetails", "group, repository, clone_url"
+    "RepositoryDetails", "group, repository, clone_url"
 )
