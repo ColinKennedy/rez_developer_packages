@@ -221,6 +221,7 @@ def _publish_run(namespace):
             publisher.quick_publish(documentation)
 
 
+
 def _set_up_build(sub_parsers):
     """Add :ref:`rez_sphinx build run` CLI parameters.
 

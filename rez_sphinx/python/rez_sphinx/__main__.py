@@ -33,6 +33,7 @@ def main(text):
             ``["init", "--directory", "/path/to/rez/package"]``.
 
     """
+    # TODO : Handle docbot exceptions here
     try:
         cli.main(text)
     except exception.SphinxExecutionError as error:

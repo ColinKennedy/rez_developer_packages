@@ -20,7 +20,7 @@ def _clear_directory(directory):
         directory (str): An absolute or relative path to a folder on-disk.
 
     """
-    for name in os.lisdir(directory):
+    for name in os.listdir(directory):
         full = os.path.join(directory, name)
 
         if os.path.isdir(full):
