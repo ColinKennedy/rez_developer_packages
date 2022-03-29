@@ -15,8 +15,8 @@ class Publish(unittest.TestCase):
 
     @unittest.skipIf(
         not website.is_internet_on(), "External Internet is not accessible."
-    )
-    def test_authentication(self):  # pylint: disable=no-self-use
+    )  # pylint: disable=no-self-use
+    def test_authentication(self):
         """Make sure :class:`rez_docbot.core.publisher_.Publisher` authenticates."""
         # TODO : Make a burner account so we can use it in this test
         with _get_quick_publisher(
@@ -44,7 +44,7 @@ class Publish(unittest.TestCase):
                 ],
                 "repository_uri": "https://www.some_fake.website",
             }
-        ) as publisher:
+        ):
             pass
 
 

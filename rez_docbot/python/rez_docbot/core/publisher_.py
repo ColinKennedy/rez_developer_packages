@@ -2,7 +2,6 @@
 
 import atexit
 import functools
-import itertools
 import logging
 import os
 import re
@@ -215,7 +214,7 @@ class Publisher(object):
         return base.format(package=self._get_package())
 
     def _get_resolved_publish_pattern(self):
-        """str: Get the recommended version folder name, using :ref:`publish_pattern`."""
+        """str: Get the version folder name, using :ref:`publish_pattern`."""
         # TODO : Explain in documentation that the first publish pattern is always used
         pattern = self._data[_PUBLISH_PATTERN][0]
 
@@ -333,16 +332,13 @@ class Publisher(object):
             bool: If ``documentation`` was copied into the :ref:`version folder`.
 
         """
-        searchers = self._get_publish_pattern_searchers()
         names = os.listdir(versioned)
         raw_package_version = str(self._get_package().version)
 
-        for searcher, name in itertools.product(searchers, names):
+        for searcher in self._get_publish_pattern_searchers():
             package_match = searcher.match(raw_package_version)
 
             if not package_match:
-                raise ValueError(raw_package_version)
-
                 _LOGGER.warning(
                     'Searcher "%s" could not match package "%s" version.',
                     searcher.pattern,
@@ -447,7 +443,10 @@ class Publisher(object):
             return
 
         repository.add_all()
-        # TODO : Add a check here to ensure changes are staged. And if no changes were found, exception early so users don't end up with empty documentation
+        # TODO : Add a check here to ensure changes are staged. And if no
+        # changes were found, exception early so users don't end up with empty
+        # documentation
+        #
         repository.commit("Updated documentation")
         repository.push()
 
