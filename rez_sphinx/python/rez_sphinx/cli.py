@@ -19,8 +19,9 @@ from .commands import build_orderer, initer, publish_run
 from .commands.builder import inspector
 from .commands.builder import runner as build_run
 from .commands.suggest import build_display, search_mode, suggestion_mode
-from .core import api_builder, environment, exception, hook, path_control, print_format
+from .core import api_builder, environment, exception, path_control, print_format
 from .preferences import preference
+from .preprocess import hook
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -413,7 +414,8 @@ def _set_up_init(sub_parsers):
 def _set_up_publish(sub_parsers):
     # TODO : Docstring here
     publish = sub_parsers.add_parser(
-        "publish", description="Check the order which packages should run."
+        "publish", description="Build & Send your documentation to the network. "
+        "Requires rez-docbot to function."
     )
     inner_parsers = publish.add_subparsers()
     publish_runner = inner_parsers.add_parser(
@@ -514,25 +516,38 @@ def _set_up_view(sub_parsers):
             appended onto.
 
     """
+
+    def _set_up_view_conf(inner_parsers):
+        view_conf = inner_parsers.add_parser(
+            "sphinx-conf",
+            help="Show your documentation's Sphinx conf.py settings. Useful for debugging!",
+        )
+
+        view_conf.add_argument(
+            "fields",
+            nargs="*",
+            help="A space-separated list of fields to print. "
+            "If not provided, everything is shown.",
+        )
+
+        _add_directory_argument(view_conf)
+
+        view_conf.set_defaults(execute=_view_conf)
+
+    def _set_up_view_publish_url(inner_parsers):
+        view_publish_url = inner_parsers.add_parser(
+            "publish-url", help="Show where this documentation will be published to."
+        )
+
+        _add_directory_argument(view_publish_url)
+        view_publish_url.set_defaults(execute=_view_publish_url)
+
     view = sub_parsers.add_parser(
         "view", description="Check the order which packages should run."
     )
     inner_parsers = view.add_subparsers()
-    view_conf = inner_parsers.add_parser(
-        "sphinx-conf",
-        help="Show your documentation's Sphinx conf.py settings. Useful for debugging!",
-    )
 
-    view_conf.add_argument(
-        "fields",
-        nargs="*",
-        help="A space-separated list of fields to print. "
-        "If not provided, everything is shown.",
-    )
-
-    _add_directory_argument(view_conf)
-
-    view_conf.set_defaults(execute=_view_conf)
+    _set_up_view_conf(inner_parsers)
 
 
 def _show(namespace):
@@ -658,6 +673,19 @@ def _view_conf(namespace):
     inspector.print_fields_from_directory(
         namespace.directory, fields=set(namespace.fields)
     )
+
+
+def _view_publish_url(namespace):
+    """Print the URL where documentation for the package in ``namespace`` publishes to.
+
+    Args:
+        namespace (argparse.Namespace):
+            The parsed user content. It contains all of the necessary
+            attributes to find a Rez package to query.
+
+    """
+    # TODO : Add this + add unittests
+    raise NotImplementedError(namespace)
 
 
 def main(text):

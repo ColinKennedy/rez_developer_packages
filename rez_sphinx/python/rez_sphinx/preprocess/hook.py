@@ -6,8 +6,9 @@ import os
 
 from rez_utilities import finder
 
+from . import preprocess_entry_point
+from ..core import configuration, constant, environment, sphinx_helper
 from ..preferences import preference, preference_init
-from . import configuration, constant, environment, foo, sphinx_helper
 
 
 def _find_help_labels(root):
@@ -142,7 +143,7 @@ def preprocess_help(package_source_root, help_):  # pylint: disable=unused-argum
     #         effect on the Rez package which is written to-disk.
     #
     # """
-    help_ = foo.expand_help(help_)
+    help_ = preprocess_entry_point.expand_help(help_)
     source_path = sphinx_helper.find_configuration_path(package_source_root)
 
     if not source_path:

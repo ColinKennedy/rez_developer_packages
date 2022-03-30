@@ -178,7 +178,7 @@ def expand_help(help_):
     return [[_DEFAULT_LABEL, help_]]
 
 
-def thing(this, data):
+def run(this, data):
     context = _get_sphinx_context()
 
     if not context:

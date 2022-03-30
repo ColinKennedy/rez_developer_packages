@@ -1,3 +1,13 @@
+- Add check so API documentation isn't added again if the user renames it
+- If you just use ``rez_sphinx_help`` and omit the optional label after ":", the
+top-level header of that file is used as a label, instead.
+ - Make sure this works
+ - If there's no valid header found, use the current file name, instead
+- go through foo
+ - Make sure missing / unavailable data doesn't needlessly run the thing
+ - do the same for hook.py
+ - Move the files around to be more clean
+
 - Add a pre-install plugin which adds the destination URL as needed
   - This needs to work even if the documentation repository hasn't already been created
   - Or maybe it's fine to create the repository right then and there? Not sure
