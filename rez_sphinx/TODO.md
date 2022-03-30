@@ -8,6 +8,8 @@ top-level header of that file is used as a label, instead.
  - do the same for hook.py
  - Move the files around to be more clean
 
+- Check out why the "Skipping preprocessor because" message happens so much during rez_sphinx publish run
+
 - Add a pre-install plugin which adds the destination URL as needed
   - This needs to work even if the documentation repository hasn't already been created
   - Or maybe it's fine to create the repository right then and there? Not sure

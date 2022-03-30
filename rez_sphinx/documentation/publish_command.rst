@@ -20,9 +20,8 @@ There's a couple interesting things to note about this command:
 
 .. _rez_sphinx publish run:
 
-######################
 rez_sphinx publish run
-######################
+**********************
 
 This builds and publishes your current package's documentation. The default
 behavior of :ref:`rez_docbot` is to only build documentation for each major /

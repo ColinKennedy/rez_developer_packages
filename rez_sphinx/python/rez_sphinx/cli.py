@@ -239,7 +239,9 @@ def _publish_run(namespace):
     package = finder.get_nearest_rez_package(namespace.directory)
     publishers = publish_run.get_all_publishers(package)
 
-    for documentation in publish_run.build_documentation(namespace.directory):
+    built_documentation = publish_run.build_documentation(namespace.directory)
+
+    for documentation in built_documentation:
         _LOGGER.info('Publishing "%s" documentation.', documentation)
 
         for publisher in publishers:
