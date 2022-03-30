@@ -33,6 +33,8 @@ Beginner Topics
    getting_started
 
 
+.. _rez_sphinx commands:
+
 All Commands
 ************
 
@@ -62,7 +64,7 @@ customization or are administering :ref:`rez_sphinx` at a company / studio.
 
    using_sphinx_rtd_theme
    adding_extra_interlinking
-   publishing_your_documentation
    configuring_rez_sphinx
    auto_append_help_tags
+   rez_sphinx_as_a_release_hook
    linking_rez_sphinx_with_other_documentation_tools

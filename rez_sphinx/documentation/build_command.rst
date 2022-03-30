@@ -46,5 +46,4 @@ Starting from Sphinx 2.2+, which requires Python 3, the same toctree looks like 
 
 So in short, if you want a pretty toctree, run :ref:`rez_sphinx` in Python 3.
 If you prefer the default tree, this behavior can be disabled using
-
 :ref:`rez_sphinx.sphinx-apidoc.allow_apidoc_templates`.

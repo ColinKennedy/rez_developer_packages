@@ -27,7 +27,6 @@ the jist.
 Checking Your Interlinks
 ************************
 
-
 Run :ref:`rez_sphinx view sphinx-conf intersphinx_mapping`. It'll tell you
 exactly what :ref:`rez_sphinx build run` sees, just before your documentation
 gets built.
