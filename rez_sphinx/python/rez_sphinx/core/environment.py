@@ -1,3 +1,5 @@
+"""Miscellaneous functions for querying the user's environment."""
+
 import os
 
 

@@ -1,4 +1,9 @@
-# TODO : Rename this module later
+"""The module needed to add :ref:`rez_sphinx` as a preprocess function.
+
+See Also:
+    ref:`adding_rez_sphinx_as_a_preprocess`
+
+"""
 
 import logging
 import json
@@ -12,6 +17,7 @@ from rez.vendor.schema import schema
 
 
 REZ_HELP_KEY = "help"
+_REZ_SPHINX_PACKAGE_FAMILY_NAME = "rez_sphinx"
 
 _SEEN = set()
 _DEFAULT_LABEL = "Home Page"
@@ -43,16 +49,37 @@ def _already_processed(path):
 
 
 def _get_configured_rez_sphinx():
+    """Find the Rez package pointing to our installation of :ref:`rez_sphinx`.
+
+    Since part of :ref:`adding_rez_sphinx_as_a_preprocess` tells the user to
+    add to `package_definition_build_python_paths`_, we **assume** that this is
+    defined somewhere.
+
+    Returns:
+        :class:`rez.developer_package.DeveloperPackage` or NoneType: The found package.
+
+    """
     for path in config.package_definition_build_python_paths:
         package = _get_nearest_rez_package(path)
 
-        if package:
+        if package and package.name == _REZ_SPHINX_PACKAGE_FAMILY_NAME:
             return package
 
     return None
 
 
 def _get_nearest_rez_package(path):
+    """Assuming that `directory` is on or inside a Rez package, find the nearest Rez package.
+
+    Args:
+        directory (str):
+            The absolute path to a folder on disk. This folder should be
+            a sub-folder inside of a Rez package to the root of the Rez package.
+
+    Returns:
+        :class:`rez.developer_package.DeveloperPackage` or NoneType: The found package.
+
+    """
     directory = path
 
     if not os.path.isdir(directory):
@@ -93,6 +120,18 @@ def _get_nearest_rez_package(path):
 
 
 def _get_resolved_help(context, command):
+    """Find and auto-generated a `help`_ attribute for our Rez package.
+
+    Args:
+        context (rez.resolved_context.ResolvedContext):
+            The context which contains :ref:`rez_sphinx` and :ref:`rez_docbot`.
+            (We need :ref:`rez_sphinx` at minimum. But :ref:`rez_docbot` is
+            needed for getting network publishing information).
+
+    Returns:
+        list[list[str, str]]: The found `help`_ values, if any.
+
+    """
     # TODO : Do I need this parent environment? Maybe not?
     parent_environment = dict()
 
@@ -115,7 +154,7 @@ def _get_resolved_help(context, command):
         parent_environ=parent_environment,
     )
     stdout, _ = process.communicate()
-    # TODO : double-check the output of this. It looks messed up
+
     _LOGGER.debug('Got raw `help` attribute, "%s".', stdout)
 
     # TODO : Sanitize `stdout` here
@@ -123,6 +162,14 @@ def _get_resolved_help(context, command):
 
 
 def _get_sphinx_context():
+    """Get a Rez context for ``rez_sphinx``, if possible.
+
+    Returns:
+        rez.packages.Package or NoneType:
+            If the context cannot be found, cannot be solved, or as some other
+            kind of issue, this function returns nothing.
+
+    """
     package = _get_configured_rez_sphinx()
 
     if not package:
@@ -137,6 +184,10 @@ def _get_sphinx_context():
         return None
 
     # TODO : Check if I can convert that package to a request using an API method
+    # TODO : Also I think we need to detect if docbot is needed and only
+    # include it if needed (e.g. have some mechanism so users can build
+    # locally, if the explicitly want that)
+    #
     request = [
         ".rez_sphinx.feature.docbot_plugin==1",
         "{package.name}=={package.version}".format(package=package),
@@ -153,6 +204,15 @@ def _get_sphinx_context():
 
 
 def _serialize_help(data):
+    """Convert ``data`` to something JSON-friendly.
+
+    Args:
+        data (dict[str, list]): The raw Rez package attributes, as a dict.
+
+    Returns:
+        str: The JSON text.
+
+    """
     help_ = data.get("help") or []
     help_ = expand_help(help_)
 
@@ -179,6 +239,19 @@ def expand_help(help_):
 
 
 def run(this, data):
+    """Replace the `package help`_ in ``data`` with auto-found Sphinx documentation.
+
+    If no :ref:`rez_sphinx tags <rez_sphinx tag>` are found, this function will
+    exit early and do nothing.
+
+    Args:
+        this (rez.packages.Package):
+            The installed (built) Rez package. This package is mostly read-only.
+        data (dict[str, object]):
+            The contents of ``this``. Changing this instance will have an
+            effect on the Rez package which is written to-disk.
+
+    """
     context = _get_sphinx_context()
 
     if not context:

@@ -19,7 +19,7 @@ def is_iterable(value):
     return True
 
 
-def decode(text):
+def decode(text):  # noqa: D403
     """str or unicode: Convert ``text``, if necessary."""
     try:
         return text.decode("utf-8")

@@ -8,6 +8,8 @@ top-level header of that file is used as a label, instead.
  - do the same for hook.py
  - Move the files around to be more clean
 
+- Replace NoneType with None. lol.
+
 - Check out why the "Skipping preprocessor because" message happens so much during rez_sphinx publish run
 
 - Add a pre-install plugin which adds the destination URL as needed

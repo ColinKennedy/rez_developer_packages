@@ -3,12 +3,39 @@
 import functools
 import io
 import os
+import re
 
 from rez_utilities import finder
 
 from . import preprocess_entry_point
 from ..core import configuration, constant, environment, sphinx_helper
 from ..preferences import preference, preference_init
+
+
+_ROOT_FORMAT = "{root}"
+_HAS_CURLIES = re.compile("{[^{}]*}")
+
+
+def _has_unresolved_help(help_):
+    """Check if ``help_`` has some {} string that needs expanding.
+
+    Note:
+        I feel like I've solved this problem before in a much more effective
+        way, using :class:`string.Formatter`. Can't remember it though, oh
+        well.
+
+    Args:
+        help_ (list[list[str, str]]): The help text to consider.
+
+    Returns:
+        bool: If there's at least one {} to expand, return True.
+
+    """
+    for _, destination in help_:
+        if _HAS_CURLIES.search(destination):
+            return True
+
+    return False
 
 
 def _find_help_labels(root):
@@ -116,6 +143,19 @@ def _sort(sort_method, original_help, full_help):
 
 
 def _resolve_format_text(help_, package):
+    """Convert all ``{root}`` format strings in ``help_`` to a publish location.
+
+    Args:
+        help_ (list[list[str, str]]):
+            The documentation which may contain format strings like
+            ``[["Home Page", "{root}/path.html"]]``.
+        package (rez.packages.Package):
+            The object to query from, for configuration settings.
+
+    Returns:
+        list[list[str, str]]: The original list, but with all format strings resolved.
+
+    """
     from rez_docbot import api
 
     output = []
@@ -123,31 +163,42 @@ def _resolve_format_text(help_, package):
     url = api.get_first_versioned_view_url(package)
 
     for key, value in help_:
-        resolved = value.format(root=url)
+        resolved = value.format(
+            root=url,  # This we expect to probably exist.
+            package=package,  # This is added, just in case.
+        )
         output.append([key, resolved])
 
     return output
 
 
 def preprocess_help(package_source_root, help_):  # pylint: disable=unused-argument
-    # """Replace the `package help`_ in ``data`` with auto-found Sphinx documentation.
-    #
-    # If no :ref:`rez_sphinx tags <rez_sphinx tag>` are found, this function will
-    # exit early and do nothing.
-    #
-    # Args:
-    #     this (rez.packages.Package):
-    #         The installed (built) Rez package. This package is mostly read-only.
-    #     data (dict[str, object]):
-    #         The contents of ``this``. Changing this instance will have an
-    #         effect on the Rez package which is written to-disk.
-    #
-    # """
+    """Get auto-generated `help` attributes for a Rez source package.
+
+    If the source Rez package at ``package_source_root`` has no `Sphinx
+    conf.py`_, this function returns nothing.
+
+    Args:
+        package_source_root (str):
+            An absolute path to a directory on disk where some source Rez package lives.
+        help_ (list[str] or str or NoneType):
+            The found Rez package help, if any.
+
+    Returns:
+        list[list[str, str]]: The original ``help_`` plus any auto-generated help entries.
+
+    """
     help_ = preprocess_entry_point.expand_help(help_)
-    source_path = sphinx_helper.find_configuration_path(package_source_root)
+
+    try:
+        source_path = sphinx_helper.find_configuration_path(package_source_root)
+    except RuntimeError:
+        _LOGGER.debug('Package at "%s" has no documentation.', package_source_root)
+
+        return []
 
     if not source_path:
-        return
+        return []
 
     source_root = os.path.dirname(source_path)
     new_labels = _find_help_labels(source_root)
@@ -171,7 +222,7 @@ def preprocess_help(package_source_root, help_):  # pylint: disable=unused-argum
             sort_method, filtered_original, filtered_original + filtered_labels
         )
 
-    if environment.is_publishing_enabled():
+    if _has_unresolved_help(full_help) and environment.is_publishing_enabled():
         package = finder.get_nearest_rez_package(package_source_root)
         full_help = _resolve_format_text(full_help, package)
 

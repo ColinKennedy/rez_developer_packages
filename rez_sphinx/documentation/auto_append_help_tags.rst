@@ -13,6 +13,8 @@ but it's easy and only needs to be done once.
 Configuring auto-help linking
 *****************************
 
+.. _adding_rez_sphinx_as_a_preprocess:
+
 Adding rez_sphinx as a preprocess
 =================================
 
