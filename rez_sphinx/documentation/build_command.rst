@@ -20,10 +20,14 @@ This command takes documentation built using :ref:`rez_sphinx init` and
 generates .html. The basic steps go as follows
 
 - Check that all :ref:`default file entries` have hand-written documentation
+
     - This check is disabled via :ref:`rez_sphinx.init_options.check_default_files`.
+
 - As long as ``--no-apidoc`` isn't specified and API generation is allowed
+
     - Auto-create .rst files using ``sphinx-apidoc``.
     - Add the root `modules.rst`_ to the master `index.rst`_ file.
+
 - Run ``sphinx-build``
 
 The documentation is either available in ``{root}/documentation/build`` (the

@@ -14,8 +14,9 @@ Before the documentation is built:
 - Grab all Rez package dependencies, (`requires`_, `variants`_, `tests`_ etc)
 - For each item in the list, check if there's a defined ``REZ_{NAME}_ROOT``
   environment variable defined.
-  - If it is, check if the `package.py`_ at that directory has defined documentation.
-  - If so, add it to `intersphinx_mapping`_ so `sphinx.ext.intersphinx`_ sees it.
+
+    - If it is, check if the `package.py`_ at that directory has defined documentation.
+    - If so, add it to `intersphinx_mapping`_ so `sphinx.ext.intersphinx`_ sees it.
 
 From there, `sphinx-build`_ runs like it normally does. There's a bunch of
 extra checks, like skipping ephemerals, conflicting packages, etc. But that's

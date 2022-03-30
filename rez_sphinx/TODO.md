@@ -8,6 +8,10 @@
   - Also fix rez_docbot. It's weird that I have to keep renaming it
 - Add check so API documentation isn't added again if the user renames it
 - Do a pass through existing TODO notes in rez_sphinx
+- Version publishing
+  - Add option to allow overwriting a version folder if the user is publishing
+	a patch to the same major.minor version. And allow toggle to forbid it.
+	- Maybe make this the default?
 
 - If you just use ``rez_sphinx_help`` and omit the optional label after ":", the
 top-level header of that file is used as a label, instead.
