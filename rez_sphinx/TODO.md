@@ -1,14 +1,18 @@
+- Replace NoneType with None
+- make sure all get_nearest_rez_package calls check for None!
+ - rez_sphinx
+ - rez_docbot
+- :ref:`rez_sphinx` is auto-tagging to "User Documentation". It makes
+  reading documentation pretty difficult. Change :ref:`rez_sphinx` as needed to
+  literally read as "rez_sphinx", instead
+  - Also fix rez_docbot. It's weird that I have to keep renaming it
 - Add check so API documentation isn't added again if the user renames it
+- Do a pass through existing TODO notes in rez_sphinx
+
 - If you just use ``rez_sphinx_help`` and omit the optional label after ":", the
 top-level header of that file is used as a label, instead.
  - Make sure this works
  - If there's no valid header found, use the current file name, instead
-- go through foo
- - Make sure missing / unavailable data doesn't needlessly run the thing
- - do the same for hook.py
- - Move the files around to be more clean
-
-- Replace NoneType with None. lol.
 
 - Check out why the "Skipping preprocessor because" message happens so much during rez_sphinx publish run
 
@@ -17,21 +21,11 @@ top-level header of that file is used as a label, instead.
   - Or maybe it's fine to create the repository right then and there? Not sure
 - Add a Rez plugin for post release publishing
 
-- make sure all get_nearest_rez_package calls check for None!
- - rez_sphinx
- - rez_docbot
-
 - Every command that accepts a directory should have a test for if it isn't found. Probably.
 - Make sure commands run without subcommands or --help give the right output.
   They shouldn't just AttributeError. e.g. `rez_sphinx view` raises
   AttributeError
 - Should make some tests for invalid quickstart / build / API arguments
-
-
-- lol :ref:`rez_sphinx` is auto-tagging to "User Documentation". It makes
-  reading documentation pretty difficult. Change :ref:`rez_sphinx` as needed to
-  literally read as "rez_sphinx", instead
-  - Also fix rez_docbot. It's weird that I have to keep renaming it
 
 - Add pylint configuration to match with black (line length 88)
 - Do all general TODO notes
@@ -77,7 +71,7 @@ top-level header of that file is used as a label, instead.
 - apidoc stuff
  - make sure the tree looks nice
   - names should be sparse
-  - no duplicates (lol)
+  - no duplicates
   - API documentation modules
    - Make sure the functions are just the short names. No long names
 
