@@ -306,7 +306,7 @@ def _set_up_build(sub_parsers):
         _add_remainder_argument(build_runner)
 
     build = sub_parsers.add_parser(
-        "build", description="Compile Sphinx documentation from a Rez package."
+        "build", help="Compile Sphinx documentation from a Rez package."
     )
     commands = build.add_subparsers()
     _add_build_run_parser(commands)
@@ -335,7 +335,7 @@ def _set_up_config(sub_parsers):
         """Define the parser for :ref:`rez_sphinx config list-defaults`."""
         list_default = inner_parser.add_parser(
             "list-defaults",
-            description="Show the rez_sphinx's default settings.",
+            help="Show the rez_sphinx's default settings.",
         )
         _add_format_argument(list_default)
         list_default.add_argument(
@@ -349,7 +349,7 @@ def _set_up_config(sub_parsers):
         """Define the parser for :ref:`rez_sphinx config list-overrides`."""
         list_overrides = inner_parser.add_parser(
             "list-overrides",
-            description="Show non-default rez_sphinx's settings.",
+            help="Show non-default rez_sphinx's settings.",
         )
         _add_format_argument(list_overrides)
         list_overrides.add_argument(
@@ -367,14 +367,14 @@ def _set_up_config(sub_parsers):
     inner_parser = config.add_subparsers()
 
     check = inner_parser.add_parser(
-        "check", description="Report if the current rez_sphinx user settings are valid."
+        "check", help="Report if the current user's settings are valid."
     )
     _add_directory_argument(check)
     check.set_defaults(execute=_check)
 
     show = inner_parser.add_parser(
         "show",
-        description="Print the value of any configuration attribute.",
+        help="Print the value of any configuration attribute.",
     )
     show.add_argument(
         "names",
@@ -404,7 +404,7 @@ def _set_up_init(sub_parsers):
 
     """
     init = sub_parsers.add_parser(
-        "init", description="Set up a Sphinx project in a Rez package."
+        "init", help="Set up a Sphinx project in a Rez package."
     )
     init.add_argument(
         "--quickstart-arguments",
@@ -427,8 +427,8 @@ def _set_up_publish(sub_parsers):
 
     """
     publish = sub_parsers.add_parser(
-        "publish", description="Build & Send your documentation to the network. "
-        "Requires rez-docbot to function."
+        "publish", help="Build & Send your documentation to the network. "
+        "Requires rez_docbot to function."
     )
     inner_parsers = publish.add_subparsers()
     publish_runner = inner_parsers.add_parser(
@@ -511,7 +511,7 @@ def _set_up_suggest(sub_parsers):
         preprocess_help.set_defaults(execute=_preprocess_help)
 
     suggest = sub_parsers.add_parser(
-        "suggest", description="Check the order which packages should run."
+        "suggest", help="Check the order which packages should run."
     )
     inner_parsers = suggest.add_subparsers()
 
@@ -555,7 +555,7 @@ def _set_up_view(sub_parsers):
         view_publish_url.set_defaults(execute=_view_publish_url)
 
     view = sub_parsers.add_parser(
-        "view", description="Check the order which packages should run."
+        "view", help="Check the order which packages should run."
     )
     inner_parsers = view.add_subparsers()
 
@@ -574,9 +574,6 @@ def _show(namespace):
             attributes to run :ref:`rez_sphinx config show`.
 
     """
-    # TODO : This function needs to take into account the user's directory and
-    # query stuff from the user's package.py
-    #
     if namespace.list_all:
         print("All available paths:")
 
@@ -774,7 +771,10 @@ def parse_arguments(text):
         "In included, info messages are added. Repeat for more verbosity.",
     )
 
-    sub_parsers = parser.add_subparsers(dest="commands")
+    sub_parsers = parser.add_subparsers(
+        dest="command",
+        description="All available rez_sphinx commands. Provide a name here.",
+    )
     sub_parsers.required = True
 
     _set_up_build(sub_parsers)

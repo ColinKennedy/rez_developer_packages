@@ -580,7 +580,13 @@ def get_preference_paths():
                 if isinstance(inner_key, schema.Optional):
                     inner_key = schema_optional.get_raw_key(inner_key)
 
-                outputs.add("{key}.{inner_key}".format(key=key, inner_key=inner_key))
+                outputs.add(
+                    "{key}{_PREFERENCE_DICT_SEPARATOR}{inner_key}".format(
+                        key=key,
+                        _PREFERENCE_DICT_SEPARATOR=_PREFERENCE_DICT_SEPARATOR,
+                        inner_key=inner_key,
+                    )
+                )
 
         return outputs, exceptional_cases
 
