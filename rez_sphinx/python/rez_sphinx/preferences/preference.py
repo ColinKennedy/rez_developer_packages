@@ -138,6 +138,8 @@ _MASTER_SCHEMA = schema.Schema(
     }
 )
 
+_PREFERENCE_DICT_SEPARATOR = "."
+
 
 def get_package_link_map():
     """dict[str, str]: Each Rez package family name + its root documentation, if any."""
@@ -357,8 +359,11 @@ def get_api_options(options=tuple()):
 
 # TODO : Is caching really necessary? Maybe remove it from these functions
 @lru_cache()
-def get_base_settings():
+def get_base_settings(package=None):
     """dict[str, object]: Get all :ref:`rez_sphinx` specific default settings."""
+    # TODO : Incorporate ``package`` with unittests
+    # Once this is done, make sure to update all get_base_settings to include package contents
+
     rez_user_options = config.optionvars  # pylint: disable=no-member
 
     data = rez_user_options.get(_MASTER_KEY) or dict()
@@ -476,7 +481,7 @@ def get_master_document_name():
     return settings[_MASTER_DOC]
 
 
-def get_preference_from_path(path):
+def get_preference_from_path(path, package=None):
     """Find the dict value located at ``path``.
 
     See Also:
@@ -486,6 +491,8 @@ def get_preference_from_path(path):
         path (str):
             Some dot-separated dict key to query. e.g.
             ``"init_options.check_default_files"``
+        package (rez.packages.Package, optional):
+            If provided, the settings from this package are checked.
 
     Raises:
         ConfigurationError: If ``path`` isn't a valid setting.
@@ -494,19 +501,21 @@ def get_preference_from_path(path):
         object: Whatever value ``path`` points to. It could be anything.
 
     """
-    # TODO : Make sure to incorporate the PWD package, as well
-    rez_sphinx_settings = get_base_settings()
+    rez_sphinx_settings = get_base_settings(package=package)
 
     if not path:
         return rez_sphinx_settings
 
-    parts = path.split(".")
+    parts = path.split(_PREFERENCE_DICT_SEPARATOR)
     current = rez_sphinx_settings
     full = ""
 
     for item in parts:
         if full:
-            full += ".{item}".format(item=item)
+            full += "{_PREFERENCE_DICT_SEPARATOR}{item}".format(
+                _PREFERENCE_DICT_SEPARATOR=_PREFERENCE_DICT_SEPARATOR,
+                item=item,
+            )
         else:
             full = item
 
@@ -558,7 +567,11 @@ def get_preference_paths():
             inner_context = key
 
             if context:
-                inner_context = "{context}.{key}".format(context=context, key=key)
+                inner_context = "{context}{_PREFERENCE_DICT_SEPARATOR}{key}".format(
+                    context=context,
+                    _PREFERENCE_DICT_SEPARATOR=_PREFERENCE_DICT_SEPARATOR,
+                    key=key,
+                )
 
             inner_output, extra_cases = _get_mapping(value, inner_context)
             exceptional_cases.update(extra_cases)

@@ -591,8 +591,16 @@ def _show(namespace):
         # If no name is specified, show everything
         names = sorted(preference.get_preference_paths())
 
+    package = finder.get_nearest_rez_package(namespace.directory)
+
+    if not package:
+        _LOGGER.warning(
+            'Directory "%s" has no Rez package. Checking global preferences only.',
+            namespace.directory,
+        )
+
     if len(names) == 1:
-        print(preference.get_preference_from_path(names[0]))
+        print(preference.get_preference_from_path(names[0], package=package))
 
         return
 
@@ -604,7 +612,7 @@ def _show(namespace):
             values.append(
                 (
                     name,
-                    pprint.pformat(preference.get_preference_from_path(name), indent=4),
+                    pprint.pformat(preference.get_preference_from_path(name, package=package), indent=4),
                 )
             )
         except exception.ConfigurationError:
