@@ -8,7 +8,7 @@ from rez_sphinx.core import generic
 
 def add_to_default_text(directory):
     """Quickly add some non-default text to the default files within ``directory``."""
-    source = os.path.join(directory, "documentation", "source")
+    source = os.path.join(directory, "documentation")
 
     for path in (
         os.path.join(source, "developer_documentation.rst"),

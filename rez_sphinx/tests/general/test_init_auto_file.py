@@ -25,21 +25,21 @@ class General(unittest.TestCase):
         run_test.test(["init", directory])
 
         developer = os.path.join(
-            directory, "documentation", "source", "developer_documentation.rst"
+            directory, "documentation", "developer_documentation.rst"
         )
 
         with io.open(developer, "r", encoding="utf-8") as handler:
             developer_text = handler.read()
 
         user = os.path.join(
-            directory, "documentation", "source", "user_documentation.rst"
+            directory, "documentation", "user_documentation.rst"
         )
 
         with io.open(user, "r", encoding="utf-8") as handler:
             user_text = handler.read()
 
         master_text = _get_base_master_index_text(
-            os.path.join(directory, "documentation", "source", "index.rst")
+            os.path.join(directory, "documentation", "index.rst")
         )
 
         self.assertEqual(
@@ -120,18 +120,18 @@ class General(unittest.TestCase):
         with _override_default_files([{"base_text": expected_body, "path": name}]):
             run_test.test(["init", directory])
 
-        path = os.path.join(directory, "documentation", "source", name + ".rst")
+        path = os.path.join(directory, "documentation", name + ".rst")
 
         with io.open(path, "r", encoding="utf-8") as handler:
             custom_file_data = handler.read().splitlines()
 
-        master_index = os.path.join(directory, "documentation", "source", "index.rst")
+        master_index = os.path.join(directory, "documentation", "index.rst")
 
         with io.open(master_index, "r", encoding="utf-8") as handler:
             master_data = handler.read()
 
         master_data = _get_base_master_index_text(
-            os.path.join(directory, "documentation", "source", "index.rst")
+            os.path.join(directory, "documentation", "index.rst")
         )
 
         header = custom_file_data[0]
@@ -218,10 +218,10 @@ class General(unittest.TestCase):
 
         for path in [
             os.path.join(
-                directory, "documentation", "source", "developer_documentation.rst"
+                directory, "documentation", "developer_documentation.rst"
             ),
             os.path.join(
-                directory, "documentation", "source", "user_documentation.rst"
+                directory, "documentation", "user_documentation.rst"
             ),
         ]:
             self.assertFalse(

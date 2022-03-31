@@ -22,7 +22,7 @@ from rez_sphinx.core import bootstrap, exception, generic, sphinx_helper
 
 from ..common import doc_test, package_wrap, pypi_check, run_test
 
-_CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
+_CURRENT_DIRECTORY = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 _PACKAGE_ROOT = os.path.dirname(_CURRENT_DIRECTORY)
 _PYPI_RTD = "sphinx-rtd-theme==1.0.0"
 
@@ -49,7 +49,7 @@ class ApiDocOptions(unittest.TestCase):
                     )
                 )
 
-        source = os.path.join(source_directory, "documentation", "source")
+        source = os.path.join(source_directory, "documentation")
 
         self.assertEqual(
             {
@@ -78,7 +78,7 @@ class ApiDocOptions(unittest.TestCase):
                     ["build", "run", source_directory, "--", "--suffix", ".txt"]
                 )
 
-        source = os.path.join(source_directory, "documentation", "source")
+        source = os.path.join(source_directory, "documentation")
 
         self.assertEqual(
             {
@@ -357,7 +357,7 @@ class Invalid(unittest.TestCase):
         ) as handler:
             handler.write(generic.decode(template))
 
-        documentation_root = os.path.join(directory, "documentation", "source")
+        documentation_root = os.path.join(directory, "documentation")
         os.makedirs(documentation_root)
 
         with io.open(
@@ -481,7 +481,7 @@ class Miscellaneous(unittest.TestCase):
             self.assertEqual(0, build.returncode)
 
         with io.open(
-            os.path.join(source_directory, "documentation", "build", "index.html"),
+            os.path.join(source_directory, "build", "documentation", "index.html"),
             "r",
             encoding="utf-8",
         ) as handler:
@@ -521,7 +521,7 @@ class Miscellaneous(unittest.TestCase):
                     )
                 )
 
-        source = os.path.join(source_directory, "documentation", "source")
+        source = os.path.join(source_directory, "documentation")
 
         self.assertEqual(
             {
@@ -552,7 +552,7 @@ class Options(unittest.TestCase):
             with wrapping.silence_printing():
                 run_test.test(["build", "run", source_directory, "--no-apidoc"])
 
-        source = os.path.join(source_directory, "documentation", "source")
+        source = os.path.join(source_directory, "documentation")
         api_directory = os.path.join(source, "api")
 
         self.assertFalse(os.path.isdir(api_directory))
@@ -628,7 +628,7 @@ class Options(unittest.TestCase):
                 with wrapping.silence_printing():
                     run_test.test(["build", "run", source_directory])
 
-        source = os.path.join(source_directory, "documentation", "source")
+        source = os.path.join(source_directory, "documentation")
         api_directory = os.path.join(source, "api")
 
         self.assertFalse(os.path.isdir(api_directory))
@@ -651,7 +651,7 @@ class Runner(unittest.TestCase):
             with wrapping.silence_printing(), run_test.allow_defaults():
                 run_test.test(["build", "run", source_directory])
 
-        source = os.path.join(source_directory, "documentation", "source")
+        source = os.path.join(source_directory, "documentation")
         api_directory = os.path.join(source, "api")
         source_master = os.path.join(source, "index.rst")
 
@@ -661,7 +661,7 @@ class Runner(unittest.TestCase):
         master_toctrees = [
             "\n".join(tree) for _, _, tree in sphinx_helper.get_toctrees(data)
         ]
-        build = os.path.join(source_directory, "documentation", "build")
+        build = os.path.join(source_directory, "build", "documentation")
 
         self.assertEqual(
             {

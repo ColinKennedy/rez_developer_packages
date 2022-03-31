@@ -21,7 +21,7 @@ class Init(unittest.TestCase):
         directory = finder.get_package_root(package)
         run_test.test(["init", directory])
 
-        path = os.path.join(directory, "documentation", "source", "conf.py")
+        path = os.path.join(directory, "documentation", "conf.py")
         self.assertTrue(os.path.isfile(path))
 
     def test_hello_world_other_folder(self):
@@ -34,7 +34,7 @@ class Init(unittest.TestCase):
 
             run_test.test(["init", directory])
 
-        path = os.path.join(directory, "documentation", "source", "conf.py")
+        path = os.path.join(directory, "documentation", "conf.py")
         self.assertTrue(os.path.isfile(path))
 
 
@@ -53,7 +53,7 @@ class QuickStartOptions(unittest.TestCase):
         )
 
         sphinx = configuration.ConfPy.from_path(
-            os.path.join(directory, "documentation", "source", "conf.py")
+            os.path.join(directory, "documentation", "conf.py")
         )
 
         self.assertIn("sphinx.ext.coverage", sphinx.get_extensions())
@@ -66,7 +66,7 @@ class QuickStartOptions(unittest.TestCase):
         run_test.test("init {directory} -- --ext-coverage".format(directory=directory))
 
         sphinx = configuration.ConfPy.from_path(
-            os.path.join(directory, "documentation", "source", "conf.py")
+            os.path.join(directory, "documentation", "conf.py")
         )
 
         self.assertIn("sphinx.ext.coverage", sphinx.get_extensions())

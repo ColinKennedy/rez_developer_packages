@@ -10,8 +10,9 @@ from python_compatibility import wrapping
 from rez import developer_package
 from rez_utilities import creator, finder
 
-from rez_sphinx.core import exception, generic, hook
+from rez_sphinx.core import exception, generic
 from rez_sphinx.preferences import preference_help
+from rez_sphinx.preprocess import hook
 
 from ..common import package_wrap, run_test
 
