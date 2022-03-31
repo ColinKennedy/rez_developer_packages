@@ -124,9 +124,6 @@ def init(package, quick_start_options=tuple()):
             `sphinx-quickstart`_ values.
 
     """
-    # TODO : Need to add API documentation support here.
-    # Or get it from rez-config settings
-    #
     initial_files = preference.get_initial_files_from_configuration()
 
     options = preference.get_quick_start_options(
@@ -134,13 +131,13 @@ def init(package, quick_start_options=tuple()):
     )
 
     root = finder.get_package_root(package)
+    folder_name = preference.get_documentation_root_name()
 
     if preference.SPHINX_SEPARATE_SOURCE_AND_BUILD in options:
         # TODO : Don't hard-code here
-        documentation_source_root = os.path.join(root, "documentation", "source")
+        documentation_source_root = os.path.join(root, folder_name, "source")
     else:
-        # TODO : Don't hard-code here
-        documentation_source_root = os.path.join(root, "documentation")
+        documentation_source_root = os.path.join(root, folder_name)
 
     with wrapping.silence_printing():
         if preference.SPHINX_SEPARATE_SOURCE_AND_BUILD in options:
@@ -151,7 +148,6 @@ def init(package, quick_start_options=tuple()):
         configuration_path = _run_sphinx_quickstart(quickstart_root, options=options)
 
     if preference.SPHINX_SEPARATE_SOURCE_AND_BUILD in options:
-        # TODO : Check if "source" can be some variable instead of hard-coded
         _add_initial_files(documentation_source_root, initial_files)
         _add_build_directory(os.path.dirname(documentation_source_root))
     else:

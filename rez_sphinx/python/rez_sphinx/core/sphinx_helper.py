@@ -327,7 +327,6 @@ def htmlize_ref(path, text):
         str: The converted HTML link. e.g. "page.html#some-thing".
 
     """
-    # TODO : Make this function cleaner, later. Preferably call whatever Sphinx calls
     htmlized = text.replace(" ", "-").lower()
 
     return "{path}#{htmlized}".format(path=path, htmlized=htmlized)

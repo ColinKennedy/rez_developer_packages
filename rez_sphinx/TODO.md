@@ -1,3 +1,5 @@
+- Make the build_documentation fully optional
+
 - Is it possible to use a pre-release hook in order to edit the help attribute, instead of preprocess?
  - Because if so that'd be way faster to handle
 

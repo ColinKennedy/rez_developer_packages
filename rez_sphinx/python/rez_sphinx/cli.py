@@ -411,7 +411,6 @@ def _set_up_config(sub_parsers):
         "config",
         help="All commands related to rez_sphinx configuration settings.",
     )
-    # TODO : Figure out how to make sure a subparser is chosen
     inner_parser = config.add_subparsers(dest="command")
     inner_parser.required = True
 
@@ -836,8 +835,6 @@ def parse_arguments(text):
     _set_up_suggest(sub_parsers)
     _set_up_view(sub_parsers)
 
-    # TODO : Fix the error where providing no subparser command
-    # DOES NOT show the help message
     return parser.parse_args(text)
 
 
@@ -854,7 +851,6 @@ def run(namespace, modify=True):
             take ``namespace`` directly as-is.
 
     """
-    # TODO : This is weird. Remove it
     if modify and hasattr(namespace, "directory"):
         namespace.directory = path_control.expand_path(namespace.directory)
 

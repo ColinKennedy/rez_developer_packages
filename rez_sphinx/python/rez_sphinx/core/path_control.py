@@ -85,7 +85,9 @@ def get_installed_root(name):
         str: Some directory on-disk.
 
     """
-    # TODO : Replace this with a Rez API call
+    # TODO : Add issue to make this function a proper REZ API method
+    # Reference: ``pkg.name.upper().replace('.', '_')``
+    #
     variable = "REZ_{name}_ROOT".format(name=name.upper().replace(".", "_"))
 
     try:
