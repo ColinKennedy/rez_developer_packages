@@ -3,6 +3,8 @@
 import io
 import os
 
+from rez_sphinx.core import generic
+
 
 def add_to_default_text(directory):
     """Quickly add some non-default text to the default files within ``directory``."""
@@ -13,4 +15,4 @@ def add_to_default_text(directory):
         os.path.join(source, "user_documentation.rst"),
     ):
         with io.open(path, "a", encoding="utf-8") as handler:
-            handler.write(u"Extra text here")
+            handler.write(generic.decode("Extra text here"))

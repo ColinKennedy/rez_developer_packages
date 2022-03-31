@@ -1,7 +1,6 @@
 """Connect `Sphinx`_ to :ref:`rez_sphinx`."""
 
 import io
-import itertools
 import logging
 import os
 import textwrap
@@ -12,7 +11,7 @@ import six
 from rez_utilities import finder
 
 from ..preferences import preference
-from . import exception, package_query, path_control
+from . import exception, generic, package_query, path_control
 
 _LOGGER = logging.getLogger(__name__)
 _REZ_SPHINX_BOOTSTRAP_LINES = textwrap.dedent(
@@ -446,7 +445,7 @@ def append_bootstrap_lines(path):
 
     """
     with io.open(path, "a", encoding="utf-8") as handler:
-        handler.write(u"\n\n" + _REZ_SPHINX_BOOTSTRAP_LINES)
+        handler.write(generic.decode("\n\n" + _REZ_SPHINX_BOOTSTRAP_LINES))
 
 
 def bootstrap(data, package=None, skip=frozenset()):

@@ -5,6 +5,8 @@ import os
 import shutil
 import textwrap
 
+from . import generic
+
 
 def add_gitignore(directory):
     """Add a .gitignore into ``directory`` which ignores all folder contents.
@@ -20,12 +22,14 @@ def add_gitignore(directory):
         os.path.join(directory, ".gitignore"), "w", encoding="utf-8"
     ) as handler:
         handler.write(
-            textwrap.dedent(
-                u"""\
-                *
-                **/
-                !.gitignore
-                """
+            generic.decode(
+                textwrap.dedent(
+                    """\
+                    *
+                    **/
+                    !.gitignore
+                    """
+                )
             )
         )
 

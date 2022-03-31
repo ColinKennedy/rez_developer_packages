@@ -323,7 +323,7 @@ class Invalid(unittest.TestCase):
         directory = package_wrap.make_directory("_test_no_source")
 
         template = textwrap.dedent(
-            u"""\
+            """\
             name = "foo"
 
             version = "1.0.0"
@@ -333,7 +333,7 @@ class Invalid(unittest.TestCase):
         with io.open(
             os.path.join(directory, "package.py"), "w", encoding="utf-8"
         ) as handler:
-            handler.write(template)
+            handler.write(generic.decode(template))
 
         with self.assertRaises(
             exception.NoDocumentationFound
@@ -345,7 +345,7 @@ class Invalid(unittest.TestCase):
         directory = package_wrap.make_directory("_test_auto_api_no_python_files")
 
         template = textwrap.dedent(
-            u"""\
+            """\
             name = "foo"
 
             version = "1.0.0"
@@ -355,7 +355,7 @@ class Invalid(unittest.TestCase):
         with io.open(
             os.path.join(directory, "package.py"), "w", encoding="utf-8"
         ) as handler:
-            handler.write(template)
+            handler.write(generic.decode(template))
 
         documentation_root = os.path.join(directory, "documentation", "source")
         os.makedirs(documentation_root)
@@ -369,12 +369,14 @@ class Invalid(unittest.TestCase):
             os.path.join(documentation_root, "index.rst"), "w", encoding="utf-8"
         ) as handler:
             handler.write(
-                textwrap.dedent(
-                    u"""\
-                    .. toctree::
-                       :maxdepth: 2
-                       :caption: Contents:
-                    """
+                generic.decode(
+                    textwrap.dedent(
+                        """\
+                        .. toctree::
+                           :maxdepth: 2
+                           :caption: Contents:
+                        """
+                    )
                 )
             )
 

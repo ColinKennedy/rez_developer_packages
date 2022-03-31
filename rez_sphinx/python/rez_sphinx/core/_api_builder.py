@@ -12,7 +12,7 @@ from rez_utilities import finder
 from sphinx.ext import apidoc
 
 from ..preferences import preference
-from . import configuration, exception, path_control, sphinx_helper
+from . import configuration, exception, generic, path_control, sphinx_helper
 
 _LOGGER = logging.getLogger(__name__)
 _CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
@@ -33,10 +33,12 @@ def _add_disclaimer_readme(directory):
     """
     with io.open(os.path.join(directory, "README"), "w", encoding="utf-8") as handler:
         handler.write(
-            textwrap.dedent(
-                u"""\
-                This directory and its contents are auto-generated and ignored by git.
-                Do not place any files here that you wish to keep!"""
+            generic.decode(
+                textwrap.dedent(
+                    u"""\
+                    This directory and its contents are auto-generated and ignored by git.
+                    Do not place any files here that you wish to keep!"""
+                )
             )
         )
 

@@ -182,36 +182,38 @@ def make_simple_developer_package(package_text="", file_text="", help_=None):
         os.path.join(directory, "rezbuild.py"), "w", encoding="utf-8"
     ) as handler:
         handler.write(
-            textwrap.dedent(
-                u"""\
-                #!/usr/bin/env python
-                # -*- coding: utf-8 -*-
+            generic.decode(
+                textwrap.dedent(
+                    """\
+                    #!/usr/bin/env python
+                    # -*- coding: utf-8 -*-
 
-                import os
-                import shutil
-
-
-                def build(source, destination, items):
-                    shutil.rmtree(destination)
-                    os.makedirs(destination)
-
-                    for item in items:
-                        source_path = os.path.join(source, item)
-                        destination_path = os.path.join(destination, item)
-
-                        if os.path.isdir(source_path):
-                            shutil.copytree(source_path, destination_path)
-                        elif os.path.isfile(source_path):
-                            shutil.copy2(source_path, destination_path)
+                    import os
+                    import shutil
 
 
-                if __name__ == "__main__":
-                    build(
-                        os.environ["REZ_BUILD_SOURCE_PATH"],
-                        os.environ["REZ_BUILD_INSTALL_PATH"],
-                        {"python"},
-                    )
-                """
+                    def build(source, destination, items):
+                        shutil.rmtree(destination)
+                        os.makedirs(destination)
+
+                        for item in items:
+                            source_path = os.path.join(source, item)
+                            destination_path = os.path.join(destination, item)
+
+                            if os.path.isdir(source_path):
+                                shutil.copytree(source_path, destination_path)
+                            elif os.path.isfile(source_path):
+                                shutil.copy2(source_path, destination_path)
+
+
+                    if __name__ == "__main__":
+                        build(
+                            os.environ["REZ_BUILD_SOURCE_PATH"],
+                            os.environ["REZ_BUILD_INSTALL_PATH"],
+                            {"python"},
+                        )
+                    """
+                )
             )
         )
 
