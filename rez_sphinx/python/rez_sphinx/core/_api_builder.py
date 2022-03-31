@@ -18,6 +18,8 @@ _LOGGER = logging.getLogger(__name__)
 _CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 _PACKAGE_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(_CURRENT_DIRECTORY)))
 _TEMPLATES_DIRECTORY = os.path.join(_PACKAGE_ROOT, "templates")
+_TEMPLATE_DIR_LONG_FLAG = "--templatedir"
+_TEMPLATE_DIR_SHORT_FLAG = "-t"
 
 
 def _add_disclaimer_readme(directory):
@@ -97,8 +99,8 @@ def _generate_api_files(directory, destination, options=tuple()):
         )
 
     allow_default_templates = (
-        "-t" not in options
-        and "--templatedir" not in options
+        _TEMPLATE_DIR_SHORT_FLAG not in options
+        and _TEMPLATE_DIR_LONG_FLAG not in options
         and preference.allow_apidoc_templates()
     )
 
@@ -112,15 +114,13 @@ def _generate_api_files(directory, destination, options=tuple()):
     for python_source_root in sources:
         command = [python_source_root, "--output-dir", destination]
 
-        # TODO : Move this elsewhere, more central
         if allow_default_templates and sphinx_helper.supports_apidoc_templates():
-            command.extend(["--templatedir", _TEMPLATES_DIRECTORY])
+            command.extend([_TEMPLATE_DIR_LONG_FLAG, _TEMPLATES_DIRECTORY])
 
         command.extend(options)
         _LOGGER.debug('Generating API documentation using "%s" command.', command)
 
         try:
-            # TODO : Double check that this doesn't use $PWD at all
             apidoc.main(command)
         except SystemExit:
             _LOGGER.warning(

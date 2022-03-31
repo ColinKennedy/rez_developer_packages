@@ -26,9 +26,6 @@ from .preprocess import hook
 _LOGGER = logging.getLogger(__name__)
 
 
-# TODO : Make sure everything here has documentation
-
-
 def _add_directory_argument(parser):
     """Make ``parser`` include a positional argument pointing to a file path on-disk.
 
@@ -250,8 +247,15 @@ def _publish_run(namespace):
 
 
 def _preprocess_help(namespace):
-    # TODO : Docstring
-    # TODO : Make this parsing much cleaner
+    """Recommend (Print) A `help`_ attribute for ``namespace``.
+
+    Args:
+        namespace (argparse.Namespace):
+            The parsed user content. It contains the path to a source Rez
+            package and and its initial `help`_ atttribute. That will be used
+            to find the remaining `help`_ contents, if any.
+
+    """
     raw_help = " ".join(namespace.initial_help)
     help_ = json.loads(raw_help)
     full_help = hook.preprocess_help(namespace.package_source_root, help_)
@@ -414,7 +418,14 @@ def _set_up_init(sub_parsers):
 
 
 def _set_up_publish(sub_parsers):
-    # TODO : Docstring here
+    """Add :ref:`rez_sphinx publish` CLI parameters.
+
+    Args:
+        sub_parsers (argparse._SubParsersAction):
+            A collection of parsers which the :ref:`rez_sphinx publish` will be
+            appended onto.
+
+    """
     publish = sub_parsers.add_parser(
         "publish", description="Build & Send your documentation to the network. "
         "Requires rez-docbot to function."
@@ -487,7 +498,6 @@ def _set_up_suggest(sub_parsers):
         build_order.set_defaults(execute=_build_order)
 
     def _set_up_preprocess_help(inner_parers):
-        # TODO : Make this parser better and more explicit
         preprocess_help = inner_parsers.add_parser("preprocess-help")
         preprocess_help.add_argument(
             "package_source_root",

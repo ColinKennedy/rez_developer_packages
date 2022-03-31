@@ -79,7 +79,6 @@ def _bump_minor_version(package):
 
     """
     if not package.version:
-        # TODO : Add a test case for this
         _LOGGER.warning(
             'Package "%s" version will not be bumped because it has no version.',
             package,
@@ -118,8 +117,5 @@ def initialize_rez_package(package):
     """
     _bump_minor_version(package)
     _add_rez_tests(package)
-
-    # TODO : Hopefully we won't actually need to do this
-    # _add_help_attribute(package)
 
     return _re_acquire_package(package)

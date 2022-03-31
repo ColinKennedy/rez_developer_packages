@@ -12,6 +12,17 @@ from .core import exception
 _SUCCESS_EXIT_CODE = 0
 
 
+def _is_docbot_exception(error):
+    """bool: Check if ``error`` comes from :ref:`rez_docbot`."""
+    try:
+        from rez_docbot import api
+    except ImportError:
+        # It's disabled. Just ignore it.
+        return False
+
+    return isinstance(error, api.CoreException)
+
+
 def _setup_logger():
     """Add stdout logging while the CLI is running."""
     logger = logging.getLogger("rez_sphinx")
@@ -33,7 +44,6 @@ def main(text):
             ``["init", "--directory", "/path/to/rez/package"]``.
 
     """
-    # TODO : Handle docbot exceptions here
     try:
         cli.main(text)
     except exception.SphinxExecutionError as error:
@@ -65,7 +75,14 @@ def main(text):
         )
 
         sys.exit(error.exit_code)
-    except Exception:  # pylint: disable=broad-except
+    except Exception as error:  # pylint: disable=broad-except
+        if _is_docbot_exception(error):
+            print("docbot: {error}".format(error=error), file=sys.stderr)
+
+            sys.exit(exception.GENERIC_EXIT_CODE)
+
+            return
+
         text = "".join(traceback.format_exc())
         print("An unexpected error occurred. Please read the error below for details.")
         print(text, file=sys.stderr)
