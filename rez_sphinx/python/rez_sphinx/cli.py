@@ -560,6 +560,7 @@ def _set_up_view(sub_parsers):
     inner_parsers = view.add_subparsers()
 
     _set_up_view_conf(inner_parsers)
+    _set_up_view_publish_url(inner_parsers)
 
 
 def _show(namespace):
@@ -696,8 +697,24 @@ def _view_publish_url(namespace):
             attributes to find a Rez package to query.
 
     """
-    # TODO : Add this + add unittests
-    raise NotImplementedError(namespace)
+    if not environment.is_publishing_enabled():
+        raise exception.MissingPlugIn(
+            "Must must include .rez_sphinx.feature.docbot_plugin==1 "
+            "in your resolve to use this command."
+        )
+
+    directory = os.path.normpath(namespace.directory)
+    _LOGGER.debug('Found "%s" directory.', directory)
+
+    # TODO : Consider blocking preprocess commands, since it makes stuff slower
+    package = finder.get_nearest_rez_package(directory)
+
+    if not package:
+        raise exception.NoPackageFound(
+            'Directory "{directory}" is not in a Rez package.'.format(directory=directory)
+        )
+
+    print(environment.get_publish_url(package))
 
 
 def main(text):

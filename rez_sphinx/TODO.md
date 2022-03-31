@@ -1,3 +1,6 @@
+- Is it possible to use a pre-release hook in order to edit the help attribute, instead of preprocess?
+ - Because if so that'd be way faster to handle
+
 - Replace NoneType with None
 - make sure all get_nearest_rez_package calls check for None!
  - rez_sphinx
@@ -12,6 +15,8 @@
   - Add option to allow overwriting a version folder if the user is publishing
 	a patch to the same major.minor version. And allow toggle to forbid it.
 	- Maybe make this the default?
+
+- Consider preventing preprocess from running when calling DeveloperPackage.from_path / get_nearest_rez_package
 
 - If you just use ``rez_sphinx_help`` and omit the optional label after ":", the
 top-level header of that file is used as a label, instead.

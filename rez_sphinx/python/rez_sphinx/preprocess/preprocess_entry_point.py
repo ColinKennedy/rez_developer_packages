@@ -170,6 +170,7 @@ def _get_sphinx_context():
             kind of issue, this function returns nothing.
 
     """
+    # TODO : Prevent this from being called recursively, if possible
     package = _get_configured_rez_sphinx()
 
     if not package:

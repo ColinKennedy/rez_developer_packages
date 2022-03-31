@@ -156,11 +156,9 @@ def _resolve_format_text(help_, package):
         list[list[str, str]]: The original list, but with all format strings resolved.
 
     """
-    from rez_docbot import api
-
     output = []
 
-    url = api.get_first_versioned_view_url(package)
+    url = environment.get_publish_url(package)
 
     for key, value in help_:
         resolved = value.format(
