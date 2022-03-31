@@ -9,6 +9,7 @@ import operator
 import os
 import pprint
 import shlex
+import sys
 
 from python_compatibility import iterbot
 from rez.cli import _complete_util
@@ -24,6 +25,43 @@ from .preferences import preference
 from .preprocess import hook
 
 _LOGGER = logging.getLogger(__name__)
+
+
+class _HelpPrinter(argparse.ArgumentParser):
+    """Show the full help if the user forgets a positional argument.
+
+    Without this class, ``rez_sphinx view`` prints:
+
+    ::
+        usage: __main__.py view [-h] {sphinx-conf,publish-url} ...
+        __main__.py view: error: the following arguments are required: command
+
+    With this class, ``rez_sphinx view`` prints:
+
+    ::
+
+        __main__.py view: error: the following arguments are required: command
+        usage: __main__.py view [-h] {sphinx-conf,publish-url} ...
+
+        positional arguments:
+          {sphinx-conf,publish-url}
+            sphinx-conf         Show your documentation's Sphinx conf.py settings.
+                                Useful for debugging!
+            publish-url         Show where this documentation will be published to.
+
+        optional arguments:
+          -h, --help            show this help message and exit
+
+    I'd expect that to be the default behavior, but it isn't.
+
+    """
+
+    def error(self, message):
+        """Print ``message`` as an error."""
+        try:
+            super(_HelpPrinter, self).error(message)
+        finally:
+            self.print_help()
 
 
 def _add_directory_argument(parser):
@@ -137,7 +175,16 @@ def _check(namespace):
     directory = os.path.normpath(namespace.directory)
     _LOGGER.debug('Found "%s" directory.', directory)
 
-    preference.validate_base_settings()
+    try:
+        preference.validate_base_settings()
+    except exception.ConfigurationError:
+        print(
+            "Checker `rez_sphinx config check` failed. "
+            "See below for details or run the command to repeat this message.",
+            file=sys.stderr,
+        )
+
+        raise
 
     print("All rez_sphinx settings are valid!")
 
@@ -273,8 +320,8 @@ def _set_up_build(sub_parsers):
 
     """
 
-    def _add_build_run_parser(commands):
-        build_runner = commands.add_parser(
+    def _add_build_run_parser(command):
+        build_runner = command.add_parser(
             "run",
             help="Generates documentation from your .rst files.",
         )
@@ -308,8 +355,9 @@ def _set_up_build(sub_parsers):
     build = sub_parsers.add_parser(
         "build", help="Compile Sphinx documentation from a Rez package."
     )
-    commands = build.add_subparsers()
-    _add_build_run_parser(commands)
+    command = build.add_subparsers(dest="command")
+    command.required = True
+    _add_build_run_parser(command)
 
 
 def _set_up_config(sub_parsers):
@@ -364,7 +412,8 @@ def _set_up_config(sub_parsers):
         help="All commands related to rez_sphinx configuration settings.",
     )
     # TODO : Figure out how to make sure a subparser is chosen
-    inner_parser = config.add_subparsers()
+    inner_parser = config.add_subparsers(dest="command")
+    inner_parser.required = True
 
     check = inner_parser.add_parser(
         "check", help="Report if the current user's settings are valid."
@@ -430,7 +479,8 @@ def _set_up_publish(sub_parsers):
         "publish", help="Build & Send your documentation to the network. "
         "Requires rez_docbot to function."
     )
-    inner_parsers = publish.add_subparsers()
+    inner_parsers = publish.add_subparsers(dest="command")
+    inner_parsers.required = True
     publish_runner = inner_parsers.add_parser(
         "run",
         help="Builds + publishs your documentation.",
@@ -513,7 +563,8 @@ def _set_up_suggest(sub_parsers):
     suggest = sub_parsers.add_parser(
         "suggest", help="Check the order which packages should run."
     )
-    inner_parsers = suggest.add_subparsers()
+    inner_parsers = suggest.add_subparsers(dest="command")
+    inner_parsers.required = True
 
     _set_up_build_order(inner_parsers)
     _set_up_preprocess_help(inner_parsers)
@@ -557,7 +608,8 @@ def _set_up_view(sub_parsers):
     view = sub_parsers.add_parser(
         "view", help="Check the order which packages should run."
     )
-    inner_parsers = view.add_subparsers()
+    inner_parsers = view.add_subparsers(dest="command")
+    inner_parsers.required = True
 
     _set_up_view_conf(inner_parsers)
     _set_up_view_publish_url(inner_parsers)
@@ -759,7 +811,7 @@ def parse_arguments(text):
         argparse.Namespace: The parsed user content.
 
     """
-    parser = argparse.ArgumentParser(
+    parser = _HelpPrinter(
         description="Auto-generate Sphinx documentation for Rez packages.",
     )
 

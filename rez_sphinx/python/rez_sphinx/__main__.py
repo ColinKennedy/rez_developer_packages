@@ -56,16 +56,6 @@ def main(text):
         print(str(error))
 
         sys.exit(error.exit_code)
-    except exception.ConfigurationError as error:
-        print(
-            "Checker `rez_sphinx config check` failed. "
-            "See below for details or run the command to repeat this message.",
-            file=sys.stderr,
-        )
-
-        print(traceback.extract_tb(error), file=sys.stderr)
-
-        sys.exit(error.exit_code)
     except exception.Base as error:
         print(
             "{type_}: {message}".format(
