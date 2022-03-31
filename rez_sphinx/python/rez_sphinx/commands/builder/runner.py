@@ -1,6 +1,7 @@
 """The module which handles the :ref:`rez_sphinx build run` command."""
 
 import io
+import logging
 import os
 import shutil
 import traceback
@@ -11,6 +12,9 @@ from sphinx.cmd import build as sphinx_build
 
 from ...core import api_builder, doc_finder, exception, sphinx_helper
 from ...preferences import preference
+
+
+_LOGGER = logging.getLogger(__name__)
 
 
 def _clear_directory(directory):
@@ -53,6 +57,11 @@ def _validate_non_default_files(directory):
     invalids = set()
 
     for entry in preference.get_init_default_entries():
+        if not entry.check_pre_build():
+            _LOGGER.debug('Skipping "%s" because it is ignored during build.', entry)
+
+            continue
+
         full = os.path.join(directory, entry.get_relative_path())
 
         if not os.path.isfile(full):

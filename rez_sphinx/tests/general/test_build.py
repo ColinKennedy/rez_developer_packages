@@ -563,6 +563,8 @@ class Options(unittest.TestCase):
 
         installed_package = creator.build(source_package, install_path, quiet=True)
 
+        user_path = os.path.join(source_directory, "documentation", "user_documentation.rst")
+
         with run_test.simulate_resolve([installed_package]), run_test.keep_config() as config:
             config.optionvars["rez_sphinx"] = dict()
             config.optionvars["rez_sphinx"]["init_options"] = dict()
@@ -582,6 +584,15 @@ class Options(unittest.TestCase):
             ]
 
             run_test.test(["init", source_directory])
+
+            with self.assertRaises(exception.NoDocumentationWritten):
+                run_test.test(["build", "run", source_directory])
+
+            # Only change the user_documentation.rst. The
+            # developer_documentation.rst will stay as its default value.
+            #
+            with io.open(user_path, "a", encoding="utf-8") as handler:
+                handler.write("Extra text")
 
             with wrapping.silence_printing():
                 run_test.test(["build", "run", source_directory])

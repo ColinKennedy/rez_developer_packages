@@ -36,6 +36,7 @@ _BASE_TEXT = textwrap.dedent(
     - Table Of Contents (toctree) to other Sphinx pages
     """
 )
+_CHECK_PRE_BUILD = "check_pre_build"
 _DEFAULT_TEXT_TEMPLATE = textwrap.dedent(
     """\
     {title}
@@ -138,8 +139,10 @@ class Entry(object):
             bool: If True, run the check prior to Sphinx builds. If False, don't.
 
         """
-        # TODO : Add a unittest for this functionality
-        return self._data.get("check_pre_build") or True
+        if _CHECK_PRE_BUILD not in self._data:
+            return True
+
+        return self._data[_CHECK_PRE_BUILD]
 
     def get_default_text(self):
         """str: The generated Sphinx documentation text body."""
@@ -206,7 +209,7 @@ _FILE_ENTRY = schema.Schema(
         "base_text": schema_helper.NON_NULL_STR,
         "path": schema_helper.NON_NULL_STR,
         schema.Optional("add_tag", default=True): bool,
-        schema.Optional("check_pre_build", default=True): bool,
+        schema.Optional(_CHECK_PRE_BUILD, default=True): bool,
         schema.Optional("relative_path"): schema_helper.NON_NULL_STR,
         schema.Optional("title"): schema_helper.NON_NULL_STR,
     }
