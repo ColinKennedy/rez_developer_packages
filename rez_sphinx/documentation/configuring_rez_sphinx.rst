@@ -377,6 +377,59 @@ If you like the files but don't want the validation check, see
 :ref:`rez_sphinx.init_options.check_default_files`.
 
 
+Default Entry Options
+=====================
+
+Each entry in :ref:`rez_sphinx.init_options.default_files` has a set of options
+you can tweak. Not every option will be explained here. For full
+documentation, check out :class:`.Entry`. However we'll explain any options
+here which are particularly important.
+
+
+.. _check_pre_build:
+
+check_pre_build
+---------------
+
+default: True
+
+When you set :ref:`rez_sphinx.init_options.check_default_files` to False, you
+tell :ref:`rez_sphinx build run` to not check any file for documentation and
+build the documentation. What if you want to have one file be checked but not
+another?  That's what :ref:`check_pre_build` is for.
+
+.. code-block:: python
+
+    optionvars = {
+        "rez_sphinx": {
+            "init_options": {
+                "default_files": [
+                    {
+                        "base_text": "Some default text",
+                        "check_pre_build": False,
+                        "path": "inner_folder/developer_documentation",
+                        "title": "Developer Documentation",
+                    },
+                    {
+                        "base_text": "Another default file",
+                        "check_pre_build": True,
+                        "path": "user_documentation",
+                        "title": "User Documentation",
+                    },
+                ],
+            }
+        }
+    }
+
+With the configuration above,
+``{rez_package_root}/documentation/user_documentation.rst`` is required to have
+documentation. However
+``{rez_package_root}/documentation/developer_documentation.rst`` will not be
+checked.
+
+Again, for more explanation on your options, check out :class:`.Entry`.
+
+
 .. _rez_sphinx.intersphinx_settings.package_link_map:
 
 intersphinx_settings.package_link_map

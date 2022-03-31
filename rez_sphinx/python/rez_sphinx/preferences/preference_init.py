@@ -51,7 +51,29 @@ _IS_COMMENT = re.compile(r"^\.\.\s*")
 
 
 class Entry(object):
-    """A description for Sphinx files to generate during :ref:`rez_sphinx init`."""
+    """A description for Sphinx files to generate during :ref:`rez_sphinx init`.
+
+    The easiest way to make an instance of this class is to call
+    :meth:`Entry.validate_data`.  Provide the dict with these values:
+
+    Attributes:
+        "base_text" (str): "The documentation text body\nto write to this file."
+        "path" (str): "inner/folder/some_file_name_without_an_extension"
+        "add_tag" (bool, optional): If True, a :ref:`rez_sphinx tag` is added.
+        "check_pre_build" (bool, optional): If True, ensure "path" has edits, pre-build.
+        "title" (str, optional): "Custom title name if you want"
+
+    .. code-block:: python
+
+        Entry.validate_data(
+            {
+                "base_text": "Some default text to put into the file.",
+                "path": "developer_documentation",
+                "title": "Developer Documentation",
+            }
+        )
+
+    """
 
     def __init__(self, data):
         """Store ``data`` for reference, later.

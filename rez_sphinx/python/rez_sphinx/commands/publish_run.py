@@ -8,17 +8,13 @@ import six
 from rez import package_test
 from rez_utilities import finder
 
-try:
-    from functools import lru_cache  # Python 3.2+
-except ImportError:
-    from backports.functools_lru_cache import lru_cache
-
 from ..core import exception
 from ..preferences import preference
 from .builder import runner as runner_
 
 _LOGGER = logging.getLogger(__name__)
 _SUCCESS_EXIT_CODE = 0
+_REZ_TEST_COMMAND_KEY = "command"
 
 
 def _get_documentation_destination(name, package):
@@ -54,8 +50,7 @@ def _get_documentation_destination(name, package):
     if isinstance(test, six.string_types):
         return _parse_destination(test)
 
-    # TODO : Consider replacing with a global variable?
-    return _parse_destination(test["command"])
+    return _parse_destination(test[_REZ_TEST_COMMAND_KEY])
 
 
 def _validated_test_keys(runner):
@@ -160,7 +155,6 @@ def build_documentation(directory):
     """
 
     def _to_exact_request(package):
-        # TODO : Check if Rez has a function for this
         if not package.version:
             return package.name
 

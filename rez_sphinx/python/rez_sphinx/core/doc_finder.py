@@ -4,6 +4,8 @@ import os
 
 from rez_utilities import finder
 
+from ..preferences import preference
+
 
 def get_source_from_directory(directory):
     """Find the top-level documentation source root, from ``directory``.
@@ -18,10 +20,9 @@ def get_source_from_directory(directory):
         str: The found documentation source root.
 
     """
-    # TODO : Don't hard-code "documentation" here
-    documentation_name = "documentation"
+    documentation_name = preference.get_documentation_root_name()
 
-    # TODO : Don't hard-code sorce
+    # TODO : Don't hard-code source
     possible_directory = os.path.join(directory, documentation_name, "source")
 
     if os.path.isdir(possible_directory):

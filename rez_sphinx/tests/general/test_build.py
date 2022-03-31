@@ -555,6 +555,37 @@ class Options(unittest.TestCase):
 
         self.assertFalse(os.path.isdir(api_directory))
 
+    def test_dont_check_default_file(self):
+        """Check one file but not another, using :ref:`check_pre_build`."""
+        source_package = package_wrap.make_simple_developer_package()
+        source_directory = finder.get_package_root(source_package)
+        install_path = package_wrap.make_directory("_test_api_pass_config")
+
+        installed_package = creator.build(source_package, install_path, quiet=True)
+
+        with run_test.simulate_resolve([installed_package]), run_test.keep_config() as config:
+            config.optionvars["rez_sphinx"] = dict()
+            config.optionvars["rez_sphinx"]["init_options"] = dict()
+            config.optionvars["rez_sphinx"]["init_options"]["default_files"] = [
+                {
+                    "base_text": "Some default text",
+                    "check_pre_build": False,
+                    "path": "inner_folder/developer_documentation",
+                    "title": "Developer Documentation",
+                },
+                {
+                    "base_text": "Another default file",
+                    "check_pre_build": True,
+                    "path": "user_documentation",
+                    "title": "User Documentation",
+                },
+            ]
+
+            run_test.test(["init", source_directory])
+
+            with wrapping.silence_printing():
+                run_test.test(["build", "run", source_directory])
+
     def test_api_pass_config(self):
         """Don't auto-build API documentation because the config said not to."""
         source_package = package_wrap.make_simple_developer_package()
