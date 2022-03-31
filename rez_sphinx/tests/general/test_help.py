@@ -12,7 +12,7 @@ from rez_utilities import creator, finder
 
 from rez_sphinx.core import exception, generic
 from rez_sphinx.preferences import preference_help
-from rez_sphinx.preprocess import hook
+from rez_sphinx.preprocess import hook, preprocess_entry_point
 
 from ..common import package_wrap, run_test
 
@@ -312,13 +312,13 @@ class HelpScenarios(unittest.TestCase):
         run_test.test(["init", directory])
 
         # 2b. Remove the files for the sake of this unittest
-        documentation_root = os.path.join(directory, "documentation", "source")
+        documentation_root = os.path.join(directory, "documentation")
 
         os.remove(os.path.join(documentation_root, "developer_documentation.rst"))
         os.remove(os.path.join(documentation_root, "user_documentation.rst"))
 
         # 3. Add a rez_sphinx over a Sphinx ref role.
-        _add_example_ref_role(os.path.join(directory, "documentation", "source"))
+        _add_example_ref_role(os.path.join(directory, "documentation"))
 
         install_path = package_wrap.make_directory("_test_ref_role")
 
@@ -376,7 +376,7 @@ class HelpScenarios(unittest.TestCase):
 
         # 3. Add a rez_sphinx over a Sphinx ref role.
         _add_example_ref_role(
-            os.path.join(directory, "documentation", "source"),
+            os.path.join(directory, "documentation"),
             textwrap.dedent(
                 """\
                 ==========
@@ -438,7 +438,7 @@ class HelpScenarios(unittest.TestCase):
         run_test.test(["init", directory])
 
         # 3. Add a rez_sphinx over a Sphinx ref role.
-        _add_example_ref_role(os.path.join(directory, "documentation", "source"))
+        _add_example_ref_role(os.path.join(directory, "documentation"))
 
         install_path = package_wrap.make_directory("_test_ref_role")
 
@@ -529,6 +529,6 @@ def _override_preprocess(package):
         root = finder.get_package_root(package)
         os.chdir(root)
 
-        config.package_preprocess_function = hook.package_preprocess_function
+        config.package_preprocess_function = preprocess_entry_point.run
 
         yield
