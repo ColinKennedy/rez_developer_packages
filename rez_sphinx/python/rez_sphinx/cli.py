@@ -475,8 +475,9 @@ def _set_up_publish(sub_parsers):
 
     """
     publish = sub_parsers.add_parser(
-        "publish", help="Build & Send your documentation to the network. "
-        "Requires rez_docbot to function."
+        "publish",
+        help="Build & Send your documentation to the network. "
+        "Requires rez_docbot to function.",
     )
     inner_parsers = publish.add_subparsers(dest="command")
     inner_parsers.required = True
@@ -660,7 +661,10 @@ def _show(namespace):
             values.append(
                 (
                     name,
-                    pprint.pformat(preference.get_preference_from_path(name, package=package), indent=4),
+                    pprint.pformat(
+                        preference.get_preference_from_path(name, package=package),
+                        indent=4,
+                    ),
                 )
             )
         except exception.ConfigurationError:
@@ -767,7 +771,9 @@ def _view_publish_url(namespace):
 
     if not package:
         raise exception.NoPackageFound(
-            'Directory "{directory}" is not in a Rez package.'.format(directory=directory)
+            'Directory "{directory}" is not in a Rez package.'.format(
+                directory=directory
+            )
         )
 
     print(environment.get_publish_url(package))

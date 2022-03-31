@@ -150,10 +150,6 @@ class Entry(object):
         title = self._get_title()
 
         if self._is_tag_enabled():
-            # TODO : Maybe it'd be cool to add a directive to Sphinx called
-            # "rez_sphinx_help" and then somehow query those smartly. Or just do a
-            # raw text parse. Either way is probably fine.
-            #
             # Reference: https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html  pylint: disable=line-too-long
             #
             output = _TAG_TEMPLATE.format(title=title) + "\n\n" + output

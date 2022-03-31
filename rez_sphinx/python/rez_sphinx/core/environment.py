@@ -34,7 +34,7 @@ def get_publish_url(package):
     except RuntimeError:
         raise exception.ConfigurationError(
             'Package "{package}" has no configured publish URL. '
-            'Please add it to your rezconfig and try again.'.format(
+            "Please add it to your rezconfig and try again.".format(
                 package=package,
             ),
         )

@@ -322,13 +322,13 @@ def _get_tests_requires(package):
 def _get_tests_requires_by_name(package, test_name):
     if not package.tests:
         # TODO : finish later
-        raise RuntimeError('We expected package to have')
+        raise RuntimeError("We expected package to have")
 
     try:
         test = package.tests[test_name]
     except KeyError:
         # TODO : finish
-        raise RuntimeError('We expected package to have')
+        raise RuntimeError("We expected package to have")
 
     if isinstance(test, six.string_types):
         return set()

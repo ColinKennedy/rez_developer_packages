@@ -178,7 +178,7 @@ def _get_sphinx_context():
         # since `foo` is called without logger handlers?
         #
         _LOGGER.warning(
-            'Skipping preprocessor because rez_sphinx wasn\'t set up properly. '
+            "Skipping preprocessor because rez_sphinx wasn't set up properly. "
             'Please set "package_definition_build_python_paths" and try again.'
         )
 
@@ -261,9 +261,11 @@ def run(this, data):
     help_ = _serialize_help(data)
     package_source_root = os.getcwd()  # Note: This is **assumed** to be correct
 
-    command = "rez_sphinx suggest preprocess-help '{package_source_root}' '{help_}'".format(
-        package_source_root=package_source_root,
-        help_=help_,
+    command = (
+        "rez_sphinx suggest preprocess-help '{package_source_root}' '{help_}'".format(
+            package_source_root=package_source_root,
+            help_=help_,
+        )
     )
     _LOGGER.info('Executing command "%s" in the rez_sphinx environment.', command)
 

@@ -563,9 +563,13 @@ class Options(unittest.TestCase):
 
         installed_package = creator.build(source_package, install_path, quiet=True)
 
-        user_path = os.path.join(source_directory, "documentation", "user_documentation.rst")
+        user_path = os.path.join(
+            source_directory, "documentation", "user_documentation.rst"
+        )
 
-        with run_test.simulate_resolve([installed_package]), run_test.keep_config() as config:
+        with run_test.simulate_resolve(
+            [installed_package]
+        ), run_test.keep_config() as config:
             config.optionvars["rez_sphinx"] = dict()
             config.optionvars["rez_sphinx"]["init_options"] = dict()
             config.optionvars["rez_sphinx"]["init_options"]["default_files"] = [
