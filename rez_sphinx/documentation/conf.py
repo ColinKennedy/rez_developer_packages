@@ -158,4 +158,5 @@ rst_epilog = textwrap.dedent(
 
 
 # TODO : Add this
+    # plugin_path
     # .. package_definition_build_python_paths

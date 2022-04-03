@@ -43,14 +43,13 @@ def _get_configured_rez_sphinx():
     """Find the Rez package pointing to our installation of :ref:`rez_sphinx`.
 
     Since part of :ref:`adding_rez_sphinx_as_a_preprocess` tells the user to
-    add to `package_definition_build_python_paths`_, we **assume** that this is
-    defined somewhere.
+    add to `plugin_path`_, we **assume** that this is defined somewhere.
 
     Returns:
         :class:`rez.developer_package.DeveloperPackage` or NoneType: The found package.
 
     """
-    for path in config.package_definition_build_python_paths:
+    for path in config.plugin_path or []:
         package = _get_nearest_rez_package(path)
 
         if package and package.name == _REZ_SPHINX_PACKAGE_FAMILY_NAME:
@@ -119,10 +118,16 @@ def _get_resolved_help(context, command):
         list[list[str, str]]: The found `help`_ values, if any.
 
     """
+    parent_environment = dict()
+
+    if "REZ_CONFIG_FILE" in os.environ:
+        parent_environment["REZ_CONFIG_FILE"] = os.environ["REZ_CONFIG_FILE"]
+
     process = context.execute_command(
         command,
         stdout=subprocess.PIPE,
         universal_newlines=True,
+        parent_environ=parent_environment,
     )
     stdout, _ = process.communicate()
 
@@ -150,7 +155,7 @@ def _get_sphinx_context():
         #
         _LOGGER.warning(
             "Skipping preprocessor because rez_sphinx wasn't set up properly. "
-            'Please set "package_definition_build_python_paths" and try again.'
+            'Please set "plugin_path" and try again.'
         )
 
         return None

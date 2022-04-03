@@ -161,6 +161,7 @@ def build_documentation(directory):
         return "{package.name}=={package.version}".format(package=package)
 
     package = finder.get_nearest_rez_package(directory)
+    # TODO : This code assumes build_documentation exists. It may not. Make it optional!
     runner = package_test.PackageTestRunner(
         package_request=_to_exact_request(package),
     )
