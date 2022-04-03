@@ -17,8 +17,9 @@ try:
 except ImportError:
     from backports.functools_lru_cache import lru_cache
 
-from ..core import exception, generic, schema_helper, schema_optional
 from . import preference_configuration, preference_help, preference_init
+from ..core import exception, generic, schema_helper, schema_optional
+from ..preprocess import preprocess_entry_point
 
 _DOCUMENTATION_DEFAULT = "documentation"
 
@@ -779,3 +780,36 @@ def validate_base_settings():
                 error=error,
             )
         )
+
+
+def validate_help_settings(package=None):
+    def _validate_preprocess(package):
+        print(sorted(item for item in dir(preprocess_entry_point) if "" in item.lower()))
+        raise ValueError(preprocess_entry_point.run.__name__)
+
+        if config.package_preprocess_function != preprocess_entry_point.run.__name__:
+            return None
+
+        if not package:
+            return None
+
+        if package.package_preprocess_mode == "override":
+            return exception.BadPackage(
+                'Package "{package.name} / {package.version}" overwrites the global '
+                'preproces function.'.format(package=package)
+            )
+
+        return None
+
+    def _validate_release_hook(package):
+        raise ValueError()
+
+    preprocess_issue = _validate_preprocess(package)
+    hook_issue = _validate_release_hook(package)
+
+    output = []
+
+    if preprocess_issue:
+        output.append(preprocess_issue)
+
+    return output

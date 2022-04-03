@@ -36,9 +36,11 @@ def get_publish_url(package):
         return api.get_first_versioned_view_url(package)
     except RuntimeError:
         raise exception.PluginConfigurationError(
-            'rez_docbot is loaded but no configured publish URL neither globally '
-            'nor from "{package.name} / {package.version}". '
-            "Please add it to your rezconfig and try again.".format(
+            'rez_docbot is loaded but no configured publish URL was found '
+            'globally nor from "{package.name} / {package.version}". '
+            "Please add it to your rezconfig via "
+            ":ref:`rez_docbot.publishers.*.view_url` "
+            "and try again.".format(
                 package=package,
             ),
         )

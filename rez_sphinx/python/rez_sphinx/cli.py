@@ -175,16 +175,7 @@ def _check(namespace):
     directory = os.path.normpath(namespace.directory)
     _LOGGER.debug('Found "%s" directory.', directory)
 
-    try:
-        preference.validate_base_settings()
-    except exception.ConfigurationError:
-        print(
-            "Checker `rez_sphinx config check` failed. "
-            "See below for details or run the command to repeat this message.",
-            file=sys.stderr,
-        )
-
-        raise
+    _validate_base_settings()
 
     print("All rez_sphinx settings are valid!")
 
@@ -745,6 +736,20 @@ def _split_init_arguments(namespace):
     namespace.quick_start_arguments.extend(namespace.remainder)
 
 
+def _validate_base_settings():
+    """Check if the user's settings won't cause :ref:`rez_sphinx` to break."""
+    try:
+        preference.validate_base_settings()
+    except exception.ConfigurationError:
+        print(
+            "Checker `rez_sphinx config check` failed. "
+            "See below for details or run the command to repeat this message.",
+            file=sys.stderr,
+        )
+
+        raise
+
+
 def _view_conf(namespace):
     """Print every `Sphinx`_ attribute in ``namespace``.
 
@@ -769,6 +774,7 @@ def _view_package_help(namespace):
 
     Raises:
         NoPackageFound: If no package was found in ``namespace``.
+        ConfigurationError: If any preprocessor / release hook issue was found.
 
     """
     directory = os.path.normpath(namespace.directory)
@@ -784,6 +790,12 @@ def _view_package_help(namespace):
         )
 
     root = finder.get_package_root(package)
+
+    _validate_base_settings()
+    issues = preference.validate_help_settings()
+
+    if issues:
+        raise exception.ConfigurationError('Found exceptions: "{issues}".'.format(issues=issues))
 
     pprint.pprint(hook.preprocess_help(root, package.help), indent=4)
 

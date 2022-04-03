@@ -1,5 +1,6 @@
 """Ensure :ref:`rez_sphinx view sphinx-conf` works."""
 
+import ast
 import os
 import unittest
 
@@ -7,10 +8,56 @@ from python_compatibility import wrapping
 from rez_utilities import finder
 
 from rez_sphinx.core import exception
+from six.moves import mock
 
 from ..common import run_test
 
 _CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
+
+
+class PackageHelp(unittest.TestCase):
+    """Ensure :ref:`rez_sphinx view package-help` works."""
+
+    def test_both_preprocess_and_release_hook(self):
+        """Warn if the user has pre-process and the release hook enabled."""
+        raise ValueError()
+
+    def test_no_preprocess_or_release_hook(self):
+        """Warn if there's no configured preprocess or release hook found."""
+        with mock.patch("rez_sphinx.core.environment.is_publishing_enabled") as is_publishing_enabled, run_test.keep_config() as config:
+            is_publishing_enabled.return_value = False
+            config.optionvars = {"rez_docbot": {}, "rez_sphinx": {}}
+
+            run_test.test("view package-help")
+
+    def test_normal(self):
+        """Show the resolved `help`_ attribute."""
+        run_test.test("view package-help")
+
+    def test_rez_docbot_no_publish_url(self):
+        """Fail if the user has docbot loaded but an invalid configuration."""
+        with mock.patch("rez_sphinx.core.environment.is_publishing_enabled") as is_publishing_enabled, self.assertRaises(exception.PluginConfigurationError):
+            is_publishing_enabled.return_value = True
+            run_test.test("view package-help")
+
+    def test_rez_docbot_normal(self):
+        """Find and expand a viewing URL, using the :ref:`rez_docbot` plug-in."""
+        raise ValueError()
+        with mock.patch("rez_sphinx.core.environment.is_publishing_enabled") as is_publishing_enabled, self.assertRaises(exception.PluginConfigurationError):
+            is_publishing_enabled.return_value = True
+            run_test.test("view package-help")
+
+    def test_overwritten_preprocess(self):
+        """Warn if the Rez source package overwrote the global preprocess."""
+        raise ValueError()
+
+    def test_unloadable_preprocess(self):
+        """Warn if the user defines preprocess but it cannot be imported."""
+        raise ValueError()
+
+    def test_unloadable_release_hook(self):
+        """Warn if the user has a release hook but Rez cannot load it."""
+        raise ValueError()
 
 
 class PublishUrl(unittest.TestCase):
