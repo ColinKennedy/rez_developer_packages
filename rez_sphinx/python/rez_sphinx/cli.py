@@ -800,7 +800,7 @@ def _view_package_help(namespace):
             'No preprocess or release hook found. Results may not be fully resolved.'
         )
 
-    issues = preference.validate_help_settings()
+    issues = preference.validate_help_settings(package=package)
 
     if issues:
         raise exception.ConfigurationError('Found exceptions: "{issues}".'.format(issues=issues))

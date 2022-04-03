@@ -805,13 +805,20 @@ def validate_help_settings(package=None):
         if not package:
             return None
 
-        if package.package_preprocess_mode == "override":
-            return exception.BadPackage(
-                'Package "{package.name} / {package.version}" overwrites the global '
-                'preproces function.'.format(package=package)
-            )
+        if config.package_preprocess_mode != "override":
+            # All package modes other than "override" account for the global
+            # preprocess function.
+            #
+            return None
 
-        return None
+        if not hasattr(package, "preprocess"):
+            # The package didn't define a preprocess function. Ignore it.
+            return None
+
+        return exception.BadPackage(
+            'Package "{package.name} / {package.version}" overwrites the global '
+            'preproces function.'.format(package=package)
+        )
 
     def _validate_release_hook(package):
         class_ = plugin_managers.plugin_manager.get_plugin_class("release_hook", _PUBLISH_HOOK_CLASS_NAME)

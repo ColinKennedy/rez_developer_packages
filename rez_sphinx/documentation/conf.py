@@ -160,4 +160,5 @@ rst_epilog = textwrap.dedent(
 # TODO : Add this
     # plugin_path
     # ":ref:`rez_docbot.publishers.*.view_url` "
+    # `package_preprocess_mode`_
     # .. package_definition_build_python_paths

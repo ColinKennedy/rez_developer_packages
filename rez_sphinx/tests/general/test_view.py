@@ -21,12 +21,20 @@ class PackageHelp(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls._source_root = os.path.join(
+        cls._package_with_no_preprocess = os.path.join(
             _PACKAGE_ROOT,
             "_test_data",
             "package_help_data",
             "source_packages",
             "package_to_test",
+        )
+
+        cls._package_with_preprocess = os.path.join(
+            _PACKAGE_ROOT,
+            "_test_data",
+            "package_help_data",
+            "source_packages",
+            "preprocess_package",
         )
 
     def test_both_preprocess_and_release_hook(self):
@@ -64,7 +72,7 @@ class PackageHelp(unittest.TestCase):
         ) as is_publishing_enabled, wrapping.keep_cwd(), self.assertRaises(
             exception.PluginConfigurationError
         ):
-            os.chdir(self._source_root)
+            os.chdir(self._package_with_no_preprocess)
             is_publishing_enabled.return_value = True
 
             run_test.test("view package-help")
@@ -83,7 +91,7 @@ class PackageHelp(unittest.TestCase):
         with mock.patch(
             "rez_sphinx.core.environment.is_publishing_enabled"
         ) as is_publishing_enabled, run_test.keep_config() as config, wrapping.keep_cwd():
-            os.chdir(self._source_root)
+            os.chdir(self._package_with_no_preprocess)
 
             config.plugin_path = [required_folder]
             config.release_hooks = ["publish_documentation"]
@@ -131,7 +139,146 @@ class PackageHelp(unittest.TestCase):
 
     def test_overwritten_preprocess(self):
         """Warn if the Rez source package overwrote the global preprocess."""
-        raise ValueError()
+        required_folder = os.path.join(
+            os.environ["REZ_REZ_SPHINX_ROOT"],
+            "python",
+            "rez_sphinx",
+            "preprocess",
+        )
+
+        if not os.path.exists(required_folder):
+            raise EnvironmentError(
+                'Directory "{required_folder}" does not exist.'.format(
+                    required_folder=required_folder
+                )
+            )
+
+        with mock.patch(
+            "rez_sphinx.core.environment.is_publishing_enabled"
+        ) as is_publishing_enabled, run_test.keep_config() as config, wrapping.keep_cwd():
+            os.chdir(self._package_with_preprocess)
+
+            config.package_definition_build_python_paths = [required_folder]
+            config.package_preprocess_mode = "override"
+            config.package_preprocess_function = "preprocess_entry_point.run"
+            config.optionvars = {
+                "rez_docbot": {
+                    "publishers": [
+                        {
+                            "authentication": {
+                                "user": "foo",
+                                "token": "bar",
+                                "type": "github",
+                            },
+                            "repository_uri": "git@something.com:Blah/Thing",
+                            "view_url": "https://ColinKennedy.github.io/{package.name}",
+                        },
+                    ],
+                },
+            }
+            is_publishing_enabled.return_value = True
+
+            with self.assertRaises(exception.ConfigurationError):
+                run_test.test("view package-help")
+
+    def test_overwritten_preprocess_not_001(self):
+        """Don't warn because the Rez source package does not overwrite anything.
+
+        It doesn't override because `package_preprocess_mode`_ is not set to
+        ``"override"``.
+
+        """
+        required_folder = os.path.join(
+            os.environ["REZ_REZ_SPHINX_ROOT"],
+            "python",
+            "rez_sphinx",
+            "preprocess",
+        )
+
+        if not os.path.exists(required_folder):
+            raise EnvironmentError(
+                'Directory "{required_folder}" does not exist.'.format(
+                    required_folder=required_folder
+                )
+            )
+
+        with mock.patch(
+            "rez_sphinx.core.environment.is_publishing_enabled"
+        ) as is_publishing_enabled, run_test.keep_config() as config, wrapping.keep_cwd():
+            os.chdir(self._package_with_preprocess)
+
+            config.package_definition_build_python_paths = [required_folder]
+            config.package_preprocess_mode = "before"
+            config.package_preprocess_function = "preprocess_entry_point.run"
+            config.optionvars = {
+                "rez_docbot": {
+                    "publishers": [
+                        {
+                            "authentication": {
+                                "user": "foo",
+                                "token": "bar",
+                                "type": "github",
+                            },
+                            "repository_uri": "git@something.com:Blah/Thing",
+                            "view_url": "https://ColinKennedy.github.io/{package.name}",
+                        },
+                    ],
+                },
+            }
+            is_publishing_enabled.return_value = True
+
+            with wrapping.capture_pipes() as (_, _):
+                run_test.test("view package-help")
+
+    def test_overwritten_preprocess_not_002(self):
+        """Don't warn because the Rez source package does not overwrite anything.
+
+        It doesn't override because `package_preprocess_mode`_ is set
+        ``"override"`` but the package doesn't define a `preprocess`_ function.
+
+        """
+
+        required_folder = os.path.join(
+            os.environ["REZ_REZ_SPHINX_ROOT"],
+            "python",
+            "rez_sphinx",
+            "preprocess",
+        )
+
+        if not os.path.exists(required_folder):
+            raise EnvironmentError(
+                'Directory "{required_folder}" does not exist.'.format(
+                    required_folder=required_folder
+                )
+            )
+
+        with mock.patch(
+            "rez_sphinx.core.environment.is_publishing_enabled"
+        ) as is_publishing_enabled, run_test.keep_config() as config, wrapping.keep_cwd():
+            os.chdir(self._package_with_no_preprocess)
+
+            config.package_definition_build_python_paths = [required_folder]
+            config.package_preprocess_mode = "override"
+            config.package_preprocess_function = "preprocess_entry_point.run"
+            config.optionvars = {
+                "rez_docbot": {
+                    "publishers": [
+                        {
+                            "authentication": {
+                                "user": "foo",
+                                "token": "bar",
+                                "type": "github",
+                            },
+                            "repository_uri": "git@something.com:Blah/Thing",
+                            "view_url": "https://ColinKennedy.github.io/{package.name}",
+                        },
+                    ],
+                },
+            }
+            is_publishing_enabled.return_value = True
+
+            with wrapping.capture_pipes() as (_, _):
+                run_test.test("view package-help")
 
     def test_unloadable_preprocess(self):
         """Warn if the user defines preprocess but it cannot be imported."""

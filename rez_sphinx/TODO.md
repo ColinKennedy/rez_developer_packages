@@ -17,6 +17,9 @@
 	a patch to the same major.minor version. And allow toggle to forbid it.
 	- Maybe make this the default?
 
+
+- Consider adding code to temporarily prevent preprocess functions from being called
+
 - Consider preventing preprocess from running when calling DeveloperPackage.from_path / get_nearest_rez_package
 
 - If you just use ``rez_sphinx_help`` and omit the optional label after ":", the
