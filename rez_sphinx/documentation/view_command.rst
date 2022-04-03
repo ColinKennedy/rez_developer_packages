@@ -10,6 +10,26 @@ which only reports configuration / fallback values, the commands in
 any of the :ref:`rez_sphinx commands` are running.
 
 
+.. _rez_sphinx view package-help:
+
+rez_sphinx view package-help
+****************************
+
+When you enable :doc:`auto_append_help_tags`, :ref:`rez_sphinx` starts to
+influence your Rez package's `help`_ attribute on-build / on-release.
+
+The ``rez_sphinx view package-help`` command lets you see what modifications
+:ref:`rez_sphinx` would make to the `help`_ without having to explicitly build
+/ release.
+
+
+.. note::
+
+    you want to customize the output paths / order / etc of `help`_, there's a
+    number of options such as :ref:`rez_sphinx.auto_help.filter_by` and
+    :ref:`rez_sphinx.auto_help.sort_order`.
+
+
 .. _rez_sphinx view publish-url:
 
 rez_sphinx view publish-url

@@ -7,7 +7,7 @@ rez_sphinx build
 This parent command includes building documentation but also things like
 inspecting the built documentation and any other possible future commands.
 
-Another related command, :ref:`rez_sphinx view sphinx-config`, is very useful
+Another related command, :ref:`rez_sphinx view sphinx-conf`, is very useful
 for debugging builds.
 
 

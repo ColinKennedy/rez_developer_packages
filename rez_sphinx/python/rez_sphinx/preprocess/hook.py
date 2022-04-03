@@ -1,5 +1,6 @@
 """Automatically add :ref:`rez_sphinx tags <rez_sphinx tag>` to built packages."""
 
+import logging
 import functools
 import io
 import os
@@ -12,8 +13,9 @@ from ..core import configuration, constant, environment, sphinx_helper
 from ..preferences import preference, preference_init
 
 
-_ROOT_FORMAT = "{root}"
 _HAS_CURLIES = re.compile("{[^{}]*}")
+_LOGGER = logging.getLogger(__name__)
+_ROOT_FORMAT = "{root}"
 
 
 def _has_unresolved_help(help_):

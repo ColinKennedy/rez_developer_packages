@@ -597,6 +597,16 @@ def _set_up_view(sub_parsers):
 
         view_conf.set_defaults(execute=_view_conf)
 
+    def _set_up_view_package_help(inner_parsers):
+        view_package_help = inner_parsers.add_parser(
+            "package-help",
+            help="Display the `help` attribute of the package, on-build / on-release. "
+            "Useful for debugging.",
+        )
+
+        _add_directory_argument(view_package_help)
+        view_package_help.set_defaults(execute=_view_package_help)
+
     def _set_up_view_publish_url(inner_parsers):
         view_publish_url = inner_parsers.add_parser(
             "publish-url", help="Show where this documentation will be published to."
@@ -612,6 +622,7 @@ def _set_up_view(sub_parsers):
     inner_parsers.required = True
 
     _set_up_view_conf(inner_parsers)
+    _set_up_view_package_help(inner_parsers)
     _set_up_view_publish_url(inner_parsers)
 
 
@@ -746,6 +757,35 @@ def _view_conf(namespace):
     inspector.print_fields_from_directory(
         namespace.directory, fields=set(namespace.fields)
     )
+
+
+def _view_package_help(namespace):
+    """Print the resolved `help`_ of the package in ``namespace``.
+
+    Args:
+        namespace (argparse.Namespace):
+            The parsed user content. It contains a directory of some Rez source
+            package to query from.
+
+    Raises:
+        NoPackageFound: If no package was found in ``namespace``.
+
+    """
+    directory = os.path.normpath(namespace.directory)
+    _LOGGER.debug('Found "%s" directory.', directory)
+
+    package = finder.get_nearest_rez_package(directory)
+
+    if not package:
+        raise exception.NoPackageFound(
+            'Directory "{directory}" is not in a Rez package.'.format(
+                directory=directory
+            )
+        )
+
+    root = finder.get_package_root(package)
+
+    pprint.pprint(hook.preprocess_help(root, package.help), indent=4)
 
 
 def _view_publish_url(namespace):

@@ -23,6 +23,9 @@ def get_publish_url(package):
         package (rez.package.Package):
             The source or installed Rez package to query from.
 
+    Raises:
+        PluginConfigurationError: If an expected plug-in URL could not be queried.
+
     Returns:
         str: The found destination.
 
@@ -32,8 +35,9 @@ def get_publish_url(package):
     try:
         return api.get_first_versioned_view_url(package)
     except RuntimeError:
-        raise exception.ConfigurationError(
-            'Package "{package}" has no configured publish URL. '
+        raise exception.PluginConfigurationError(
+            'rez_docbot is loaded but no configured publish URL neither globally '
+            'nor from "{package.name} / {package.version}". '
             "Please add it to your rezconfig and try again.".format(
                 package=package,
             ),

@@ -4,14 +4,87 @@
 Auto-Append Help Tags
 #####################
 
+TODO : Re-structure this based on the release hook. Compare / Contrast both methods
 
 :ref:`rez_sphinx` is capable of auto-connecting dependency packages together.
-However, this functionality isn't enable by default. It has to be configured
+However, this functionality isn't enabled by default. It has to be configured
 but it's easy and only needs to be done once.
+
+There's 2 methods of doing this, each have their own pros / cons
+
+- :ref:`adding_rez_sphinx_as_a_release_hook`
+- :ref:`adding_rez_sphinx_as_a_preprocess`
+
+Between the two, :ref:`adding_rez_sphinx_as_a_release_hook` is the preferred
+way of working because it handles not just auto-appending but also automatic
+documentation publishing.
+
+To summarize the two differences:
+
+:ref:`adding_rez_sphinx_as_a_release_hook`
+
+Pros:
+
+- Executes quickly
+- Is stackable with other release hooks
+
+Cons:
+
+- Doesn't run during `rez-build`_.
+    - This can be mitigated with the :ref:`rez_sphinx view package-help` command.
+
+
+:ref:`adding_rez_sphinx_as_a_preprocess`
+
+Pros:
+
+- Runs during `rez-build`_
+
+Cons:
+
+- Runs during other Rez commands, even `rez-test`_ and others
+- Tends to slow down Rez overall and can be quite spammy
+- `package_preprocess_function`_ isn't stackable. So if you already use that in
+  your pipeline, this option would overwrite your existing function.
+
+In short, if you value "correctness" and are fine with waiting a bit longer,
+:ref:`adding_rez_sphinx_as_a_preprocess` is best. However if you only really
+care about `help`_ being correct on-release and want Rez to be as fast as
+possible, :ref:`adding_rez_sphinx_as_a_release_hook` is for you.
 
 
 Configuring auto-help linking
 *****************************
+
+.. _adding_rez_sphinx_as_a_release_hook:
+
+Adding rez_sphinx as a release hook
+===================================
+
+TODO : Write this later
+
+Once you've built :ref:`rez_sphinx`, you'll want to add the following to your
+`rezconfig.py`_.
+
+.. code-block:: python
+
+    plugin_path = [
+        "/path/to/your/installed/rez_sphinx/1.0.0/python-3/python",
+    ]
+    release_hooks = ["publish_documentation"]
+
+Whenever you `rez-release`_ a Rez package, if it has :ref:`rez_sphinx`
+documentation, the `help`_ attribute will get auto-appended to, based on what
+:ref:`rez_sphinx` can find.
+
+.. note::
+
+    The :ref:`rez_sphinx view package-help` command lets you see help
+    :ref:`rez_sphinx` will modify your package's `help`_ attribute, prior to
+    releasing.  If you want to customize the output paths / order / etc,
+    there's a number of options such as :ref:`rez_sphinx.auto_help.filter_by`
+    and :ref:`rez_sphinx.auto_help.sort_order`.
+
 
 .. _adding_rez_sphinx_as_a_preprocess:
 
@@ -105,7 +178,7 @@ you've got two options:
 
 .. _automated_auto_help_appending:
 
-Let :ref:`rez_sphinx` write to ``help`` for your
+Let :ref:`rez_sphinx` write to ``help``, for you
 ================================================
 
 Simply add this snippet into any of your .rst files:

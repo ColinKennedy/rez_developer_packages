@@ -31,6 +31,12 @@ class PackageConflict(Base):
     exit_code = GENERIC_EXIT_CODE + 40
 
 
+class PluginConfigurationError(ConfigurationError):
+    """If :ref:`rezdocbot` is enabled but the user is missing configuration data."""
+
+    exit_code = GENERIC_EXIT_CODE + 42
+
+
 class MissingPlugIn(Base):
     """If a plug-in (like :ref:`rez_docbot <rez_docbot>`) could not be loaded."""
 

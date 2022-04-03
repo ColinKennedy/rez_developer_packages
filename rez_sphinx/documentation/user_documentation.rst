@@ -9,6 +9,26 @@ TODO : Visit this tutorial once rez_docbot exists. And possibly update it with
 remote information.
 
 
+.. _rez_sphinx:
+
+rez_sphinx
+**********
+
+:ref:`rez_sphinx` is the bridge between `Rez`_ and `Sphinx`_. It takes all of
+the `Sphinx`_'s great documentation-generation features and tightly integrates
+it with `Rez`'s excellent environment management system. As a result, you get
+documentation which is auto-configurable, auto-builds, and auto-links across
+projects.
+
+These documentation pages are resist `link rot`_, ensuring the pages you spent
+time writing are built to last.
+
+Check out the :ref:`beginner topics` below and, after that, consider reading
+through :ref:`rez_sphinx commands`.
+
+
+.. _beginner topics:
+
 Beginner Topics
 ***************
 
