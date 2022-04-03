@@ -11,6 +11,7 @@ import schema
 import six
 from rez.config import config
 from six.moves import collections_abc
+from rez import plugin_managers
 
 try:
     from functools import lru_cache  # Python 3.2+
@@ -19,7 +20,6 @@ except ImportError:
 
 from . import preference_configuration, preference_help, preference_init
 from ..core import exception, generic, schema_helper, schema_optional
-from ..preprocess import preprocess_entry_point
 
 _DOCUMENTATION_DEFAULT = "documentation"
 
@@ -140,6 +140,22 @@ _MASTER_SCHEMA = schema.Schema(
 )
 
 _PREFERENCE_DICT_SEPARATOR = "."
+
+_PUBLISH_HOOK_CLASS_NAME = "publish_documentation"
+_HOOK_DEBUG_KEY = "hook"
+_PREPROCESS_DEBUG_KEY = "preprocess"
+
+
+def get_auto_help_methods():
+    output = []
+
+    if config.package_preprocess_function == "preprocess_entry_point.run":
+        output.append(_PREPROCESS_DEBUG_KEY)
+
+    if _PUBLISH_HOOK_CLASS_NAME in config.release_hooks:
+        output.append(_HOOK_DEBUG_KEY)
+
+    return output
 
 
 def get_package_link_map():
@@ -783,13 +799,9 @@ def validate_base_settings():
 
 
 def validate_help_settings(package=None):
+    # TODO : Finish
+
     def _validate_preprocess(package):
-        print(sorted(item for item in dir(preprocess_entry_point) if "" in item.lower()))
-        raise ValueError(preprocess_entry_point.run.__name__)
-
-        if config.package_preprocess_function != preprocess_entry_point.run.__name__:
-            return None
-
         if not package:
             return None
 
@@ -802,14 +814,23 @@ def validate_help_settings(package=None):
         return None
 
     def _validate_release_hook(package):
-        raise ValueError()
+        class_ = plugin_managers.plugin_manager.get_plugin_class("release_hook", _PUBLISH_HOOK_CLASS_NAME)
 
-    preprocess_issue = _validate_preprocess(package)
-    hook_issue = _validate_release_hook(package)
+        if not class_:
+            return exception.ConfigurationError('Release hook "{_PUBLISH_HOOK_CLASS_NAME}" could not be loaded by Rez.'.format(_PUBLISH_HOOK_CLASS_NAME=_PUBLISH_HOOK_CLASS_NAME))
 
-    output = []
+        return None
 
-    if preprocess_issue:
-        output.append(preprocess_issue)
+    found_methods = get_auto_help_methods()
 
-    return output
+    preprocess_issue = None
+
+    if _PREPROCESS_DEBUG_KEY in found_methods:
+        preprocess_issue = _validate_preprocess(package)
+
+    hook_issue = None
+
+    if _HOOK_DEBUG_KEY in found_methods:
+        hook_issue = _validate_release_hook(package)
+
+    return list(filter(None, (preprocess_issue, hook_issue)))

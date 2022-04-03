@@ -195,10 +195,10 @@ def preprocess_help(package_source_root, help_):  # pylint: disable=unused-argum
     except RuntimeError:
         _LOGGER.debug('Package at "%s" has no documentation.', package_source_root)
 
-        return []
+        return help_
 
     if not source_path:
-        return []
+        return help_
 
     source_root = os.path.dirname(source_path)
     new_labels = _find_help_labels(source_root)

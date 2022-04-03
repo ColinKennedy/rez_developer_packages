@@ -792,6 +792,14 @@ def _view_package_help(namespace):
     root = finder.get_package_root(package)
 
     _validate_base_settings()
+
+    found_methods = preference.get_auto_help_methods()
+
+    if not found_methods:
+        _LOGGER.warning(
+            'No preprocess or release hook found. Results may not be fully resolved.'
+        )
+
     issues = preference.validate_help_settings()
 
     if issues:

@@ -31,8 +31,10 @@ class PublishDocumentation(release_hook.ReleaseHook):
         # f_locals is the local namespace seen by the frame
         caller_instance = caller_frame.f_locals['self']
 
-        replace_help(caller_instance.package)
-        raise ValueError(caller_instance.package.help)
+        directory = os.path.dirname(caller_instance.package.filepath)
+
+        if _has_rez_sphinx_documentation(directory):
+            replace_help(caller_instance.package)
 
     def post_release(self, user, install_path, variants, **kwargs):
         # TODO : Make this real
@@ -229,6 +231,10 @@ def replace_help(package):
 
     package.resource._data["help"] = _get_resolved_help(context, command)
     del package.resource.__dict__["help"]
+
+
+def _has_rez_sphinx_documentation(directory):
+    raise NotImplementedError('Need to write this')
 
 
 def register_plugin():

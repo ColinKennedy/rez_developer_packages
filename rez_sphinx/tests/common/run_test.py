@@ -33,17 +33,22 @@ def keep_config():
         module: The Rez temporary config object to modify.
 
     """
+    # TODO : Figure out a more reliable way to clear the cached config, if any
     # Remove any caching so it can be evaluated again
     preference.get_base_settings.cache_clear()
 
     optionvars = copy.deepcopy(config_.optionvars)
     package_preprocess_function = config_.package_preprocess_function
+    plugin_path = copy.deepcopy(config_.plugin_path)
+    release_hooks = copy.deepcopy(config_.release_hooks)
 
     try:
         yield config_
     finally:
         config_.optionvars = optionvars
         config_.package_preprocess_function = package_preprocess_function
+        config_.plugin_path = plugin_path
+        config_.release_hooks = release_hooks
 
 
 @contextlib.contextmanager
