@@ -52,7 +52,7 @@ _IS_COMMENT = re.compile(r"^\.\.\s*")
 
 
 class Entry(object):
-    """A description for Sphinx files to generate during :ref:`rez_sphinx init`.
+    r"""A description for Sphinx files to generate during :ref:`rez_sphinx init`.
 
     The easiest way to make an instance of this class is to call
     :meth:`Entry.validate_data`.  Provide the dict with these values:

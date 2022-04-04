@@ -1,3 +1,9 @@
+"""The main module for defining pre-release and post-release behavior.
+
+See :class:`PublishDocumentation` for details.
+
+"""
+
 import inspect
 import json
 import logging
@@ -16,8 +22,16 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class PublishDocumentation(release_hook.ReleaseHook):
+    """The class which runs pre-release / post-release methods.
+
+    - On pre-release: Add help keys (See :doc:`auto_append_help_tags`).
+    - On post-release: Publish the documentation to remote (See :doc:`publish_command`).
+
+    """
+
     @classmethod
     def name(cls):
+        """str: The name to refer to this plug-in class."""
         return "publish_documentation"
 
     def pre_release(self, user, install_path, variants=None, **kwargs):
@@ -237,4 +251,5 @@ def _has_rez_sphinx_documentation(directory):
 
 
 def register_plugin():
+    """PublishDocumentation: Add this plug-in to Rez."""
     return PublishDocumentation

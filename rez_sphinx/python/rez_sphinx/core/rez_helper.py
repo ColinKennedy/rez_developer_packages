@@ -1,4 +1,4 @@
-# TODO : Consider moving these functions to rez_utilities
+"""Any miscellaneous function for making Rez's API easier to use."""
 
 import itertools
 
@@ -6,6 +6,7 @@ from rez.config import config
 from rez import serialise
 
 
+# TODO : Consider moving these functions to rez_utilities
 def get_valid_package_names():
     """set[str]: Find every Rez package name. e.g. ``{"package.py", "package.yaml"}``."""
     # TODO : Consider modifying finder.get_nearest_rez_package with this

@@ -359,6 +359,7 @@ def get_api_options(options=tuple()):
 
 
 def get_auto_help_methods():
+    """list[str]: Find all defined `help`_ methods. See :doc:`auto_append_help_tags`."""
     output = []
 
     if config.package_preprocess_function == _get_preprocess_import_path():
