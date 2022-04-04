@@ -9,8 +9,7 @@
 .. toctree::
    :maxdepth: {{ maxdepth }}
 {% for docname in docnames | sort %}
-   {% set parts = docname.split('.') %}
-   {{ parts[-1] }} <{{ docname }}>
+   {{ docname.split('.')[-1] }} <{{ docname }}>
 {%- endfor %}
 {%- endmacro %}
 
@@ -31,5 +30,6 @@
 {% endif %}
 
 {%- if not modulefirst and not is_namespace %}
+
 {{ automodule(pkgname, automodule_options) }}
 {% endif %}
