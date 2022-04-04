@@ -22,7 +22,7 @@ import textwrap
 
 import schema
 
-from ..core import generic, schema_helper
+from ..core import constant, generic, schema_helper
 
 _BASE_TEXT = textwrap.dedent(
     """\
@@ -170,8 +170,7 @@ class Entry(object):
 
     def get_relative_path(self):
         """str: Get the path to this file, relative to the documentation source root."""
-        # TODO : Get this .rst from the user's configuration settings. Don't do this
-        return self._data.get("path") + ".rst"
+        return self._data.get("path") + constant.SOURCE_DOCUMENTATION_EXTENSION
 
     def write(self, root):
         """Write this instance to disk, starting at ``root``.

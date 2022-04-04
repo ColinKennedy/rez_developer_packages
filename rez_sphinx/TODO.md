@@ -1,8 +1,10 @@
+- Do a pass through existing TODO notes in rez_sphinx
+- Should make some tests for invalid quickstart / build / API arguments
+
 - Make the build_documentation fully optional
 - Possibly move rezplugins to its own folder, outside of the Python folder
 
 - Add check so API documentation isn't added again if the user renames it
-- Do a pass through existing TODO notes in rez_sphinx
 - Version publishing
   - Add option to allow overwriting a version folder if the user is publishing
 	a patch to the same major.minor version. And allow toggle to forbid it.
@@ -20,16 +22,7 @@ top-level header of that file is used as a label, instead.
 
 - Check out why the "Skipping preprocessor because" message happens so much during rez_sphinx publish run
 
-- Add a pre-install plugin which adds the destination URL as needed
-  - This needs to work even if the documentation repository hasn't already been created
-  - Or maybe it's fine to create the repository right then and there? Not sure
-- Add a Rez plugin for post release publishing
-
 - Every command that accepts a directory should have a test for if it isn't found. Probably.
-- Make sure commands run without subcommands or --help give the right output.
-  They shouldn't just AttributeError. e.g. `rez_sphinx view` raises
-  AttributeError
-- Should make some tests for invalid quickstart / build / API arguments
 
 - Add pylint configuration to match with black (line length 88)
 - Do all general TODO notes

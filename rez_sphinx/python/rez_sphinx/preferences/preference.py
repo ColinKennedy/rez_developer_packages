@@ -20,7 +20,7 @@ except ImportError:
     from backports.functools_lru_cache import lru_cache
 
 from . import preference_configuration, preference_help, preference_init
-from ..core import exception, generic, schema_helper, schema_optional
+from ..core import constant, exception, generic, schema_helper, schema_optional
 
 _DOCUMENTATION_DEFAULT = "documentation"
 
@@ -695,7 +695,7 @@ def get_quick_start_options(package, options=tuple()):
         "-v",
         "",
         "--suffix",
-        ".rst",  # Sphinx 1.8 needs this (for Python 2)
+        constant.SOURCE_DOCUMENTATION_EXTENSION,  # Sphinx 1.8 needs this (for Python 2)
         "--master",
         "index",  # Sphinx 1.8 needs this (for Python 2)
         "--dot=_",  # Sphinx 1.8 needs this (for Python 2)

@@ -62,12 +62,9 @@ def _find_help_labels(root):
     """
     tags = []
 
-    # TODO : Consider making this a non-hard-coded value
-    extension = ".html"
-
     for path in _iter_sphinx_source_files(root):
         fallback_name = os.path.splitext(os.path.relpath(path, root))[0]
-        fallback_destination = fallback_name + extension
+        fallback_destination = fallback_name + constant.DOCUMENTATION_EXTENSION
 
         for label, destination in _get_rez_sphinx_tags(path):
             if not destination:

@@ -13,3 +13,7 @@ Attributes:
 
 REZ_SPHINX_OBJECTS_INV = "rez_sphinx objects.inv"
 ROOT_REPLACEMENT = "{root}"
+
+DOCUMENTATION_EXTENSION = ".html"
+SOURCE_DOCUMENTATION_EXTENSION = ".rst"
+SPHINX_CONF_NAME = "conf.py"

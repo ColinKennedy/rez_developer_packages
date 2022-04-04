@@ -121,7 +121,6 @@ def _get_nearest_rez_package(path):
 
     while directory and previous != directory:
         if _already_processed(directory):
-            # TODO : Add reference to that cyclic loop issue from before
             return None
 
         previous = directory
@@ -159,7 +158,6 @@ def _get_resolved_help(context, command):
         list[list[str, str]]: The found `help`_ values, if any.
 
     """
-    # TODO : Do I need this parent environment? Maybe not?
     parent_environment = dict()
 
     if "REZ_CONFIG_FILE" in os.environ:
@@ -170,7 +168,7 @@ def _get_resolved_help(context, command):
     # part of its work and that function recursively called
     # preprocess_function.
     #
-    # TODO Add issue number to refer to this
+    # Reference: https://github.com/nerdvegas/rez/issues/1239#issuecomment-1061390415
     #
     parent_environment["REZ_PACKAGE_PREPROCESS_FUNCTION"] = ""
 
@@ -206,7 +204,7 @@ def _get_sphinx_context():
 
     if not package:
         # TODO : Consider replacing the log calls in this function with print,
-        # since `foo` is called without logger handlers?
+        # since this module is called without logger handlers?
         #
         _LOGGER.warning(
             "Skipping preprocessor because rez_sphinx wasn't set up properly. "
@@ -215,7 +213,6 @@ def _get_sphinx_context():
 
         return None
 
-    # TODO : Check if I can convert that package to a request using an API method
     # TODO : Also I think we need to detect if docbot is needed and only
     # include it if needed (e.g. have some mechanism so users can build
     # locally, if the explicitly want that)

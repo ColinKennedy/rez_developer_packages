@@ -116,7 +116,6 @@ def _in_resolve(name):
         return False
 
 
-# TODO : Cache this result
 def _get_copyright(package):
     """Get a Sphinx-friendly copyright statement for some Rez ``package``.
 

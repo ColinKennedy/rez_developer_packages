@@ -6,10 +6,9 @@ import os
 
 from rez.vendor.version import version as version_
 
-from . import doc_finder, exception
+from . import constant, doc_finder, exception
 
 _LOGGER = logging.getLogger(__name__)
-_SPHINX_NAME = "conf.py"
 _MISSING_TOCTREE_TEMPLATE = (".. toctree::", "   :max-depth: 1")
 
 
@@ -132,7 +131,7 @@ def _scan_for_configuration_path(directory):
     """
     for root, _, files in os.walk(directory):
         for name in files:
-            if name == _SPHINX_NAME:
+            if name == constant.SPHINX_CONF_NAME:
                 return os.path.join(root, name)
 
     raise RuntimeError(
@@ -190,7 +189,7 @@ def find_configuration_path(root):
 
         return _scan_for_configuration_path(root)
 
-    path = os.path.join(source, _SPHINX_NAME)
+    path = os.path.join(source, constant.SPHINX_CONF_NAME)
 
     if os.path.isfile(path):
         return path

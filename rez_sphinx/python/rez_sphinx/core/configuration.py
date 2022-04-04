@@ -9,7 +9,9 @@ from python_compatibility import imports
 from six.moves import mock
 from sphinx import config
 
-_CONFIGURATION_FILE_NAME = "conf.py"
+from . import constant
+
+
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -42,7 +44,7 @@ class ConfPy(object):
             ConfPy: The created instance.
 
         """
-        return cls.from_path(os.path.join(directory, _CONFIGURATION_FILE_NAME))
+        return cls.from_path(os.path.join(directory, constant.SPHINX_CONF_NAME))
 
     @classmethod
     def from_path(cls, path):
@@ -78,7 +80,7 @@ class ConfPy(object):
             bool: If the configuration can be read, return True.
 
         """
-        return os.path.isfile(os.path.join(directory, _CONFIGURATION_FILE_NAME))
+        return os.path.isfile(os.path.join(directory, constant.SPHINX_CONF_NAME))
 
     def _get_extensions(self):
         """list[str]: Get each Python importable module that `Sphinx`_ will load."""
@@ -156,7 +158,7 @@ class ConfPy(object):
         try:
             return self._module.source_suffix
         except AttributeError:
-            return ".rst"  # A reasonable default
+            return constant.SOURCE_DOCUMENTATION_EXTENSION  # A reasonable default
 
     def get_module_path(self):
         """str: Get the full path to this `Sphinx conf.py`_ file, on-disk."""
