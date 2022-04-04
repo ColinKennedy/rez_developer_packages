@@ -162,4 +162,5 @@ rst_epilog = textwrap.dedent(
 
 
 # TODO : Add this
+    # :ref:`rez_sphinx release hook`."""
     # ":ref:`rez_docbot.publishers.*.view_url` "

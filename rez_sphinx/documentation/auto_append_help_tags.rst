@@ -69,7 +69,7 @@ Once you've built :ref:`rez_sphinx`, you'll want to add the following to your
 .. code-block:: python
 
     plugin_path = [
-        "/path/to/your/installed/rez_sphinx/1.0.0/python-3/python",
+        "/path/to/your/installed/rez_sphinx/1.0.0/python-3/python/rez_sphinx_plugins",
     ]
     release_hooks = ["publish_documentation"]
 

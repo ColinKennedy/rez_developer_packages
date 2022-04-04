@@ -74,7 +74,11 @@ class PackageHelp(unittest.TestCase):
 
     def test_rez_docbot_release_hook_normal(self):
         """Find and expand a viewing URL, using the :ref:`rez_docbot` plug-in."""
-        required_folder = os.path.join(os.environ["REZ_REZ_SPHINX_ROOT"], "python")
+        required_folder = os.path.join(
+            os.environ["REZ_REZ_SPHINX_ROOT"],
+            "python",
+            "rez_sphinx_plugins",
+        )
 
         if not os.path.exists(required_folder):
             raise EnvironmentError(
