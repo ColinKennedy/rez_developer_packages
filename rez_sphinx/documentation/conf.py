@@ -122,8 +122,11 @@ rst_epilog = textwrap.dedent(
     .. _optionvars: https://github.com/nerdvegas/rez/wiki/Configuring-Rez#optionvars
     .. _package help: https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#help
     .. _package.py: https://github.com/nerdvegas/rez/wiki/Package-Commands
+    .. _package_definition_build_python_paths: https://github.com/nerdvegas/rez/wiki/Configuring-Rez#package_definition_build_python_paths
     .. _package_preprocess_function: https://github.com/nerdvegas/rez/wiki/Configuring-Rez#package_preprocess_function
     .. _package_preprocess_function: https://github.com/nerdvegas/rez/wiki/Configuring-Rez#package_preprocess_function
+    .. _package_preprocess_mode: https://github.com/nerdvegas/rez/wiki/Configuring-Rez#package_preprocess_mode
+    .. _plugin_path: https://github.com/nerdvegas/rez/wiki/Configuring-Rez#plugin_path
     .. _private_build_requires: https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#private_build_requires
     .. _project: https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-project
     .. _project_copyright: https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-project_copyright
@@ -136,6 +139,7 @@ rst_epilog = textwrap.dedent(
     .. _rez-depends: https://github.com/nerdvegas/rez/wiki/Command-Line-Tools#rez-depends
     .. _rez-help: https://github.com/nerdvegas/rez/wiki/Command-Line-Tools#rez-help
     .. _rez-pip: https://github.com/nerdvegas/rez/wiki/Command-Line-Tools#rez-pip
+    .. _rez-release: https://github.com/nerdvegas/rez/wiki/Command-Line-Tools#rez-release
     .. _rez-test: https://github.com/nerdvegas/rez/wiki/Command-Line-Tools#rez-test
     .. _rezconfig.py: https://github.com/nerdvegas/rez/blob/fa3fff6f0b7b4b53bbb9baa4357ab42117d06356/src/rez/rezconfig.py
     .. _sphinx theme: https://sphinx-themes.org/
@@ -158,7 +162,4 @@ rst_epilog = textwrap.dedent(
 
 
 # TODO : Add this
-    # plugin_path
     # ":ref:`rez_docbot.publishers.*.view_url` "
-    # `package_preprocess_mode`_
-    # .. package_definition_build_python_paths
