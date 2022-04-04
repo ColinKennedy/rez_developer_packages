@@ -1,13 +1,6 @@
 - Make the build_documentation fully optional
+- Possibly move rezplugins to its own folder, outside of the Python folder
 
-- Replace None with None
-- make sure all get_nearest_rez_package calls check for None!
- - rez_sphinx
- - rez_docbot
-- :ref:`rez_sphinx` is auto-tagging to "User Documentation". It makes
-  reading documentation pretty difficult. Change :ref:`rez_sphinx` as needed to
-  literally read as "rez_sphinx", instead
-  - Also fix rez_docbot. It's weird that I have to keep renaming it
 - Add check so API documentation isn't added again if the user renames it
 - Do a pass through existing TODO notes in rez_sphinx
 - Version publishing

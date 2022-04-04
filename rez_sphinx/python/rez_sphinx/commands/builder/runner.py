@@ -90,6 +90,9 @@ def get_documentation_build(source):
     Args:
         source (str): The parent directory of `Sphinx conf.py`_.
 
+    Raises:
+        RuntimeError: If ``source`` was queried but it isn't in a Rez package.
+
     Returns:
         str:
             The found path on-disk where documentation must be
@@ -106,6 +109,15 @@ def get_documentation_build(source):
         return separate_build_folder  # {rez_root}/documentation/build
 
     package = finder.get_nearest_rez_package(source)
+
+    if not package:
+        raise RuntimeError(
+            'Directory "{source}" isn\'t in a Rez package. '
+            'This is likely a rez_sphinx bug.'.format(
+                source=source,
+            )
+        )
+
     root = finder.get_package_root(package)
     build_directory = os.path.join(  # Usually {rez_root}/build
         root,

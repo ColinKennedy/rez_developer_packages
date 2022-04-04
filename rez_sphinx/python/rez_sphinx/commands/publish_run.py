@@ -134,13 +134,12 @@ def get_all_publishers(package):
     return publishers
 
 
-def build_documentation(directory):
+def build_documentation(package):
     """Build all :ref:`rez_sphinx` registered documentation at ``directory``.
 
     Args:
-        directory (str):
-            The absolute path to a folder on disk. This folder should be
-            a sub-folder inside of a Rez package to the root of the Rez package.
+        package (rez.packages.Package):
+            The source Rez package to build documentation for.
 
     Raises:
         NoDocumentationFound:
@@ -160,7 +159,6 @@ def build_documentation(directory):
 
         return "{package.name}=={package.version}".format(package=package)
 
-    package = finder.get_nearest_rez_package(directory)
     # TODO : This code assumes build_documentation exists. It may not. Make it optional!
     runner = package_test.PackageTestRunner(
         package_request=_to_exact_request(package),

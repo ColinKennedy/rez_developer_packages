@@ -263,6 +263,8 @@ def _publish_run(namespace):
         MissingPlugIn:
             If :ref:`rez_docbot <rez_docbot>` isn't loaded. See
             :ref:`loading_rez_docbot` for details.
+        UserInputError:
+            If the given / found directory isn't in a Rez package.
 
     """
     if not environment.is_publishing_enabled():
@@ -271,10 +273,17 @@ def _publish_run(namespace):
             "in your resolve to use this command."
         )
 
-    package = finder.get_nearest_rez_package(namespace.directory)
+    directory = os.path.normpath(namespace.directory)
+    _LOGGER.debug('Found "%s" directory.', directory)
+
+    package = finder.get_nearest_rez_package(directory)
+
+    if not package:
+        raise exception.UserInputError('Directory "{namespace.directory}" has no Rez package.'.format(namespace=namespace))
+
     publishers = publish_run.get_all_publishers(package)
 
-    built_documentation = publish_run.build_documentation(namespace.directory)
+    built_documentation = publish_run.build_documentation(package)
 
     for documentation in built_documentation:
         _LOGGER.info('Publishing "%s" documentation.', documentation)

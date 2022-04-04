@@ -1,7 +1,12 @@
-.. _rez_docbot:
-
 User Documentation
 ==================
+
+TODO : Add here
+
+.. _rez_docbot:
+
+rez_docbot
+**********
 
 ..
     rez_sphinx_help:User Documentation

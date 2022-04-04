@@ -9,6 +9,7 @@ from rez_bump import rez_bump_api
 from rez_industry import api
 from rez_utilities import finder
 
+from ..core import exception
 from ..preferences import preference
 
 _CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
@@ -19,8 +20,10 @@ def _add_rez_tests(package):
     """Add `rez tests attribute`_ values to make :ref:`rez_sphinx` auto-run.
 
     Args:
-        package (rez.packages.Package):
-            The package to directly modify.
+        package (rez.packages.Package): The package to directly modify.
+
+    Raises:
+        RezSphinxException: If no :ref:`rez_sphinx` package is found.
 
     """
 
@@ -40,6 +43,14 @@ def _add_rez_tests(package):
     build_key = preference.get_build_documentation_key()
 
     rez_sphinx_package = finder.get_nearest_rez_package(_CURRENT_DIRECTORY)
+
+    if not rez_sphinx_package:
+        raise exception.RezSphinxException(
+            'Directory "{_CURRENT_DIRECTORY}" is not in a rez_sphinx package!'.format(
+                _CURRENT_DIRECTORY=_CURRENT_DIRECTORY,
+            )
+        )
+
     major = int(str(rez_sphinx_package.version.major))
     minor = int(str(rez_sphinx_package.version.minor))
     next_ = major + 1
@@ -99,13 +110,21 @@ def _re_acquire_package(package):
         package (rez.packages.Package):
             The out-of-date package which needs to be "refreshed".
 
+    Raises:
+        RuntimeError: If no package could be re-acquired.
+
     Returns:
         rez.packages.Package: The refreshed package.
 
     """
     directory = finder.get_package_root(package)
 
-    return finder.get_nearest_rez_package(directory)
+    package = finder.get_nearest_rez_package(directory)
+
+    if package:
+        return package
+
+    raise RuntimeError('Directory "{directory}" has no package.'.format(directory=directory))
 
 
 def initialize_rez_package(package):

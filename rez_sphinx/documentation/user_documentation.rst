@@ -9,11 +9,6 @@ TODO : Visit this tutorial once rez_docbot exists. And possibly update it with
 remote information.
 
 
-.. _rez_sphinx:
-
-rez_sphinx
-**********
-
 :ref:`rez_sphinx` is the bridge between `Rez`_ and `Sphinx`_. It takes all of
 the `Sphinx`_'s great documentation-generation features and tightly integrates
 it with `Rez`'s excellent environment management system. As a result, you get

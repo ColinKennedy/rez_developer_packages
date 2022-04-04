@@ -184,6 +184,9 @@ def preprocess_help(package_source_root, help_):  # pylint: disable=unused-argum
         help_ (list[str] or str or None):
             The found Rez package help, if any.
 
+    Raises:
+        ValueError: If ``package_source_root`` isn't in a Rez package.
+
     Returns:
         list[list[str, str]]: The original ``help_`` plus any auto-generated help entries.
 
@@ -224,6 +227,14 @@ def preprocess_help(package_source_root, help_):  # pylint: disable=unused-argum
 
     if _has_unresolved_help(full_help) and environment.is_publishing_enabled():
         package = finder.get_nearest_rez_package(package_source_root)
+
+        if not package:
+            raise ValueError(
+                'Directory "{package_source_root}" is not in a Rez package.'.format(
+                    package_source_root=package_source_root
+                )
+            )
+
         full_help = _resolve_format_text(full_help, package)
 
     return full_help
