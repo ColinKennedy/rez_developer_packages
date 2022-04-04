@@ -4,10 +4,9 @@ import glob
 import logging
 import os
 
-from rez import developer_package
-from rez import exceptions as rez_exceptions
+from rez import developer_package, exceptions as rez_exceptions
 
-from ...core import exception
+from ...core import exception, rez_helper
 
 _COMMON_REZ_EXCEPTIONS = (
     rez_exceptions.PackageMetadataError,  # When package.py lacks data
@@ -15,11 +14,12 @@ _COMMON_REZ_EXCEPTIONS = (
 )
 _LOGGER = logging.getLogger(__name__)
 
+PACKAGE_NAMES = rez_helper.get_valid_package_names()
+
 
 def _is_valid_rez_package(text):
     """bool: Check if ``text`` is a valid Rez package name."""
-    # TODO : Replace with something more dynamic, here
-    return text in {"package.py", "package.yaml", "package.yml", "package.txt"}
+    return text in PACKAGE_NAMES
 
 
 def _get_packages(directories):
@@ -121,7 +121,6 @@ def _recursive(top):
             if not _is_valid_rez_package(name):
                 continue
 
-            # TODO : Add invalid checking here
             try:
                 output.append(developer_package.DeveloperPackage.from_path(root))
             except _COMMON_REZ_EXCEPTIONS:

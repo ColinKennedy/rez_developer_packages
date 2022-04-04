@@ -11,6 +11,7 @@ from sphinx.cmd import quickstart
 from ..core import (
     bootstrap,
     configuration,
+    constant,
     doc_finder,
     exception,
     package_change,
@@ -20,6 +21,7 @@ from ..core import (
 from ..preferences import preference
 
 _LOGGER = logging.getLogger(__name__)
+_SOURCE_FOLDER_NAME = "source"
 
 
 def _add_build_directory(directory):
@@ -97,8 +99,7 @@ def _run_sphinx_quickstart(directory, options=tuple()):
         raise exception.SphinxExecutionError(text)
 
     source = doc_finder.get_source_from_directory(os.path.dirname(directory))
-    # TODO : Don't hard-code
-    path = os.path.join(source, "conf.py")
+    path = os.path.join(source, constant.SPHINX_CONF_NAME)
 
     if not os.path.isfile(path):
         raise RuntimeError(
@@ -134,8 +135,7 @@ def init(package, quick_start_options=tuple()):
     folder_name = preference.get_documentation_root_name()
 
     if preference.SPHINX_SEPARATE_SOURCE_AND_BUILD in options:
-        # TODO : Don't hard-code here
-        documentation_source_root = os.path.join(root, folder_name, "source")
+        documentation_source_root = os.path.join(root, folder_name, _SOURCE_FOLDER_NAME)
     else:
         documentation_source_root = os.path.join(root, folder_name)
 

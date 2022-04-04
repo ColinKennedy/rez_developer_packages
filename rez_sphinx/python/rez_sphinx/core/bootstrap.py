@@ -318,15 +318,34 @@ def _get_tests_requires(package):
 
 
 def _get_tests_requires_by_name(package, test_name):
+    """Find all `requires`_ from a given Rez test.
+
+    Args:
+        package (rez.packages.Package): The Rez package to query from.
+        test_name (str): The `tests`_ key to get requires from.
+
+    Raises:
+        RuntimeError: If ``package`` has no defined `tests`_.
+
+    Returns:
+        set[rez.utils.formatting.PackageRequest]:
+            All found `requires`_ for ``test_name``, if any.
+
+    """
     if not package.tests:
-        # TODO : finish later
-        raise RuntimeError("We expected package to have")
+        raise RuntimeError(
+            'Package "{package}" has no defined tests.'.format(package=package)
+        )
 
     try:
         test = package.tests[test_name]
     except KeyError:
-        # TODO : finish
-        raise RuntimeError("We expected package to have")
+        raise RuntimeError(
+            'Package "{package}" has no defined "{test_name}" test.'.format(
+                package=package,
+                test_name=test_name,
+            )
+        )
 
     if isinstance(test, six.string_types):
         return set()

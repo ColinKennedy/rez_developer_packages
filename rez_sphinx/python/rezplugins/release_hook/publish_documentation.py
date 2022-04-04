@@ -162,7 +162,6 @@ def _get_sphinx_context():
 
         return None
 
-    # TODO : Check if I can convert that package to a request using an API method
     # TODO : Also I think we need to detect if docbot is needed and only
     # include it if needed (e.g. have some mechanism so users can build
     # locally, if the explicitly want that)

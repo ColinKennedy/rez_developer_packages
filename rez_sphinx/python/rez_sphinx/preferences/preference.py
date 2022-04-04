@@ -37,7 +37,7 @@ _CHECK_DEFAULT_FILES = "check_default_files"
 _DEFAULT_FILES = "default_files"
 _DOCUMENTATION_ROOT_KEY = "documentation_root"
 _EXTENSIONS_KEY = "sphinx_extensions"
-_INIT_KEY = "init_options"  # TODO : Consider renaming to "init_command"
+_INIT_KEY = "init_options"
 
 _ENABLE_APIDOC = "enable_apidoc"
 _ALLOW_APIDOC_TEMPLATES = "allow_apidoc_templates"
@@ -56,9 +56,6 @@ _EXTRA_REQUIRES = "extra_requires"
 _INTERSPHINX_SETTINGS = "intersphinx_settings"
 _PACKAGE_LINK_MAP = "package_link_map"
 
-
-# TODO : Move _SPHINX_MODULE_KEY to a better place
-_SPHINX_MODULE_KEY = "add_module_names"
 
 _DEFAULT_ENTRIES = list(preference_init.DEFAULT_ENTRIES)
 
@@ -107,14 +104,14 @@ _MASTER_SCHEMA = schema.Schema(
         schema.Optional(
             _CONFIG_OVERRIDES,
             default={
-                _SPHINX_MODULE_KEY: False,
+                constant.SPHINX_MODULE_VARIABLE: False,
                 _MASTER_DOC: _MASTER_DOC_DEFAULT,
             },
         ): {
             schema.Optional(
                 _MASTER_DOC, default=_MASTER_DOC_DEFAULT
             ): schema_helper.NON_NULL_STR,
-            schema.Optional(_SPHINX_MODULE_KEY, default=False): bool,
+            schema.Optional(constant.SPHINX_MODULE_VARIABLE, default=False): bool,
             schema_helper.NON_NULL_STR: object,
         },
         schema.Optional(
@@ -433,7 +430,6 @@ def get_filter_method():
 
     caller = parent[_HELP_FILTER]
 
-    # TODO : Consider simplifying this section
     if caller != preference_help.DEFAULT_FILTER:
         return caller
 
@@ -642,7 +638,6 @@ def get_sort_method():
 
     caller = parent[_HELP_SORT_ORDER]
 
-    # TODO : Consider simplifying this section
     if caller != preference_help.DEFAULT_SORT:
         return caller
 
@@ -810,8 +805,20 @@ def validate_base_settings():
 
 
 def validate_help_settings(package=None):
-    # TODO : Finish
+    """Ensure ``package`` is compatible with existing global `help`_ settings.
 
+    Args:
+        package (rez.packages.Package, optional):
+            The Rez object to check for. This usually is a source Rez package
+            but it doesn't have to be.
+
+    Returns:
+        exception.Base or None:
+            If there is some kind of problem, return an exception which the
+            caller can choose to raise. If there's nothin wrong, return
+            nothing.
+
+    """
     def _validate_preprocess(package):
         if not package:
             return None
