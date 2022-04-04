@@ -185,7 +185,8 @@ def preprocess_help(package_source_root, help_):  # pylint: disable=unused-argum
         ValueError: If ``package_source_root`` isn't in a Rez package.
 
     Returns:
-        list[list[str, str]]: The original ``help_`` plus any auto-generated help entries.
+        list[list[str, str]]:
+            The original ``help_`` plus any auto-generated help entries.
 
     """
     help_ = preprocess_entry_point.expand_help(help_)

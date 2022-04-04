@@ -5,7 +5,8 @@ See Also:
 
 """
 
-# TODO : If I end up going with a release plugin, see if I can reuse the code from over there here (or vice versa)
+# TODO : If I end up going with a release plugin, see if I can reuse the code
+# from over there here (or vice versa)
 
 import logging
 import json
@@ -61,7 +62,7 @@ def _get_configured_rez_sphinx():
         :class:`rez.developer_package.DeveloperPackage` or None: The found package.
 
     """
-    for path in config.package_definition_build_python_paths:
+    for path in config.package_definition_build_python_paths:  # pylint: disable=no-member
         package = _get_nearest_rez_package(path)
 
         if package and package.name == _REZ_SPHINX_PACKAGE_FAMILY_NAME:
@@ -74,7 +75,8 @@ def _get_help_line(text):
     """Find the line within ``text`` that has the JSON content to decode.
 
     Important:
-        This function assumes that the JSON dict in ``text`` does not span multiple lines!
+        This function assumes that the JSON dict in ``text`` does not span
+        multiple lines!
 
     Args:
         text (str): Raw command output to parse.
@@ -96,10 +98,10 @@ def _get_help_line(text):
 
 
 def _get_nearest_rez_package(path):
-    """Assuming that `directory` is on or inside a Rez package, find the nearest Rez package.
+    """Find the nearest Rez package starting at ``path``.
 
     Args:
-        directory (str):
+        path (str):
             The absolute path to a folder on disk. This folder should be
             a sub-folder inside of a Rez package to the root of the Rez package.
 
@@ -267,14 +269,14 @@ def expand_help(help_):
     return [[_DEFAULT_LABEL, help_]]
 
 
-def run(this, data):
+def run(_, data):
     """Replace the `package help`_ in ``data`` with auto-found Sphinx documentation.
 
     If no :ref:`rez_sphinx tags <rez_sphinx tag>` are found, this function will
     exit early and do nothing.
 
     Args:
-        this (rez.packages.Package):
+        _ (rez.packages.Package):
             The installed (built) Rez package. This package is mostly read-only.
         data (dict[str, object]):
             The contents of ``this``. Changing this instance will have an

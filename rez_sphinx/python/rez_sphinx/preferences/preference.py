@@ -860,11 +860,16 @@ def validate_help_settings(package=None):
             'preproces function.'.format(package=package)
         )
 
-    def _validate_release_hook(package):
+    def _validate_release_hook():
         try:
-            class_ = plugin_managers.plugin_manager.get_plugin_class("release_hook", _PUBLISH_HOOK_CLASS_NAME)
+            plugin_managers.plugin_manager.get_plugin_class(
+                "release_hook",
+                _PUBLISH_HOOK_CLASS_NAME,
+            )
         except rez_exceptions.RezPluginError:
-            return exception.ConfigurationError('Release hook "{_PUBLISH_HOOK_CLASS_NAME}" could not be loaded by Rez.'.format(_PUBLISH_HOOK_CLASS_NAME=_PUBLISH_HOOK_CLASS_NAME))
+            return exception.ConfigurationError(
+                'Release hook "{_PUBLISH_HOOK_CLASS_NAME}" could not be loaded by Rez.'
+                ''.format(_PUBLISH_HOOK_CLASS_NAME=_PUBLISH_HOOK_CLASS_NAME))
 
         return None
 
@@ -878,6 +883,6 @@ def validate_help_settings(package=None):
     hook_issue = None
 
     if _HOOK_DEBUG_KEY in found_methods:
-        hook_issue = _validate_release_hook(package)
+        hook_issue = _validate_release_hook()
 
     return list(filter(None, (preprocess_issue, hook_issue)))
