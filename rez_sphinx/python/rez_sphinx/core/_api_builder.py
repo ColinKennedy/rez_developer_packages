@@ -35,9 +35,9 @@ def _add_disclaimer_readme(directory):
         handler.write(
             generic.decode(
                 textwrap.dedent(
-                    u"""\
-                    This directory and its contents are auto-generated and ignored by git.
-                    Do not place any files here that you wish to keep!"""
+                    """\
+                    This directory and its contents are auto-generated and ignored
+                    by git. Do not place any files here that you wish to keep!"""
                 )
             )
         )
