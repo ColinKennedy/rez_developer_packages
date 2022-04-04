@@ -48,7 +48,7 @@ def _get_configured_rez_sphinx():
     add to `plugin_path`_, we **assume** that this is defined somewhere.
 
     Returns:
-        :class:`rez.developer_package.DeveloperPackage` or NoneType: The found package.
+        :class:`rez.developer_package.DeveloperPackage` or None: The found package.
 
     """
     for path in config.plugin_path or []:
@@ -69,7 +69,7 @@ def _get_nearest_rez_package(path):
             a sub-folder inside of a Rez package to the root of the Rez package.
 
     Returns:
-        :class:`rez.developer_package.DeveloperPackage` or NoneType: The found package.
+        :class:`rez.developer_package.DeveloperPackage` or None: The found package.
 
     """
     directory = path
@@ -143,7 +143,7 @@ def _get_sphinx_context():
     """Get a Rez context for ``rez_sphinx``, if possible.
 
     Returns:
-        rez.packages.Package or NoneType:
+        rez.packages.Package or None:
             If the context cannot be found, cannot be solved, or as some other
             kind of issue, this function returns nothing.
 
@@ -186,7 +186,7 @@ def expand_help(help_):
     """Convert ``help_`` into a list of lists.
 
     Args:
-        help_ (list[str] or str or NoneType): The found Rez package help, if any.
+        help_ (list[str] or str or None): The found Rez package help, if any.
 
     Returns:
         list[list[str, str]]: Each found label + documentation entry, if any.

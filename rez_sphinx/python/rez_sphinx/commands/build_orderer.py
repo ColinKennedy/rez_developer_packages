@@ -19,7 +19,7 @@ def _in_help(label, help_):
     Args:
         label (str):
             A phrase to search with ``help_`` for. e.g. ``"Foo"``.
-        help_ (list[list[str, str]] or str or NoneType):
+        help_ (list[list[str, str]] or str or None):
             The defined `help`_, if any. e.g. ``[["Foo", "README.md"]]``
 
     Returns:

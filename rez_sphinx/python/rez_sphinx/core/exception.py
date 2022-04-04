@@ -32,7 +32,7 @@ class PackageConflict(Base):
 
 
 class PluginConfigurationError(ConfigurationError):
-    """If :ref:`rezdocbot` is enabled but the user is missing configuration data."""
+    """If :ref:`rez_docbot` is enabled but the user is missing configuration data."""
 
     exit_code = GENERIC_EXIT_CODE + 42
 

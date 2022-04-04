@@ -77,7 +77,7 @@ def _get_real_key(key, schema):
             A description of the required and optional data.
 
     Returns:
-        :class:`schema.Optional` or NoneType: The found key or nothing.
+        :class:`schema.Optional` or None: The found key or nothing.
 
     """
     for real_key in schema._schema.keys():  # pylint: disable=protected-access

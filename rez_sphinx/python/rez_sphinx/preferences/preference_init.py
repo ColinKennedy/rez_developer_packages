@@ -59,10 +59,10 @@ class Entry(object):
 
     Attributes:
         "base_text" (str): "The documentation text body\nto write to this file."
-        "path" (str): "inner/folder/some_file_name_without_an_extension"
+        "path" (str): "inner/folder/some_file_name_without_an_extension".
         "add_tag" (bool, optional): If True, a :ref:`rez_sphinx tag` is added.
         "check_pre_build" (bool, optional): If True, ensure "path" has edits, pre-build.
-        "title" (str, optional): "Custom title name if you want"
+        "title" (str, optional): "Custom title name if you want".
 
     .. code-block:: python
 

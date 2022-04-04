@@ -1,8 +1,6 @@
 - Make the build_documentation fully optional
-- Is it possible to use a pre-release hook in order to edit the help attribute, instead of preprocess?
-   - Because if so that'd be a good addition
 
-- Replace NoneType with None
+- Replace None with None
 - make sure all get_nearest_rez_package calls check for None!
  - rez_sphinx
  - rez_docbot

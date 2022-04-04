@@ -181,7 +181,7 @@ def preprocess_help(package_source_root, help_):  # pylint: disable=unused-argum
     Args:
         package_source_root (str):
             An absolute path to a directory on disk where some source Rez package lives.
-        help_ (list[str] or str or NoneType):
+        help_ (list[str] or str or None):
             The found Rez package help, if any.
 
     Returns:

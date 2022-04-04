@@ -27,7 +27,7 @@ class _Base(unittest.TestCase):
             expected (list[list[str, str]]):
                 The help entries which should be in the installed package by
                 the end of this method.
-            help_ (list[list[str, str]] or str or NoneType, optional):
+            help_ (list[list[str, str]] or str or None, optional):
                 The initial Rez package `package help`_. If ``None``,
                 no ``help`` will be defined. All other input is used as-is.
 
