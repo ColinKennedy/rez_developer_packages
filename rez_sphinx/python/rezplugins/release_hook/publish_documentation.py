@@ -35,6 +35,22 @@ class PublishDocumentation(release_hook.ReleaseHook):
         return "publish_documentation"
 
     def pre_release(self, user, install_path, variants=None, **kwargs):
+        """Modify the `help`_ attribute, if needed.
+
+        Args:
+            user (str):
+                The current user name. e.g. ``$USER``.
+            install_str (str):
+                The directory on-disk where the package and its variants will
+                be released to.
+            variants (list[rez.packages.Variant], optional):
+                The specific variant(s) to release. If no variant was
+                specified, this parameter is passed ``None``, implying that all
+                variants will be released.
+            **kwargs (dict[str, object], optional):
+                Extra options to include in the release, if any.
+
+        """
         # TODO : This code is cursed. Find a better way to do this. Seriously.
         # Easily the worst code I've ever written.
         #
@@ -51,6 +67,22 @@ class PublishDocumentation(release_hook.ReleaseHook):
             replace_help(caller_instance.package)
 
     def post_release(self, user, install_path, variants, **kwargs):
+        """Send the built documentation to remote server(s), if needed.
+
+        Args:
+            user (str):
+                The current user name. e.g. ``$USER``.
+            install_str (str):
+                The directory on-disk where the installed (released) Rez
+                package and its variants were built to.
+            variants (list[rez.packages.Variant], optional):
+                The specific variant(s) which were released. If no variant was
+                specified, this parameter is passed ``None``, implying that all
+                variants were released.
+            **kwargs (dict[str, object], optional):
+                Extra options to include in the release, if any.
+
+        """
         # TODO : Make this real
         print('POST RELEASE')
 
