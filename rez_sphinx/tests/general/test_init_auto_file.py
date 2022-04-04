@@ -31,9 +31,7 @@ class General(unittest.TestCase):
         with io.open(developer, "r", encoding="utf-8") as handler:
             developer_text = handler.read()
 
-        user = os.path.join(
-            directory, "documentation", "user_documentation.rst"
-        )
+        user = os.path.join(directory, "documentation", "user_documentation.rst")
 
         with io.open(user, "r", encoding="utf-8") as handler:
             user_text = handler.read()
@@ -217,12 +215,8 @@ class General(unittest.TestCase):
             run_test.test(["init", directory])
 
         for path in [
-            os.path.join(
-                directory, "documentation", "developer_documentation.rst"
-            ),
-            os.path.join(
-                directory, "documentation", "user_documentation.rst"
-            ),
+            os.path.join(directory, "documentation", "developer_documentation.rst"),
+            os.path.join(directory, "documentation", "user_documentation.rst"),
         ]:
             self.assertFalse(
                 os.path.isfile(path),

@@ -279,7 +279,11 @@ def _publish_run(namespace):
     package = finder.get_nearest_rez_package(directory)
 
     if not package:
-        raise exception.UserInputError('Directory "{namespace.directory}" has no Rez package.'.format(namespace=namespace))
+        raise exception.UserInputError(
+            'Directory "{namespace.directory}" has no Rez package.'.format(
+                namespace=namespace
+            )
+        )
 
     publishers = publish_run.get_all_publishers(package)
 
@@ -806,13 +810,15 @@ def _view_package_help(namespace):
 
     if not found_methods:
         _LOGGER.warning(
-            'No preprocess or release hook found. Results may not be fully resolved.'
+            "No preprocess or release hook found. Results may not be fully resolved."
         )
 
     issues = preference.validate_help_settings(package=package)
 
     if issues:
-        raise exception.ConfigurationError('Found exceptions: "{issues}".'.format(issues=issues))
+        raise exception.ConfigurationError(
+            'Found exceptions: "{issues}".'.format(issues=issues)
+        )
 
     pprint.pprint(hook.preprocess_help(root, package.help), indent=4)
 

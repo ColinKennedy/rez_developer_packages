@@ -13,7 +13,8 @@ def get_valid_package_names():
     package_file_names = config.plugins.package_repository.filesystem.package_filenames
     extensions = {
         extension
-        for extensions_ in serialise.FileFormat.__members__.values() for extension in extensions_.value
+        for extensions_ in serialise.FileFormat.__members__.values()
+        for extension in extensions_.value
     }
 
     output = set()

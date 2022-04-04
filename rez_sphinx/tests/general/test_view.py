@@ -85,8 +85,7 @@ class PackageHelp(unittest.TestCase):
 
         with mock.patch(
             "rez_sphinx.core.environment.is_publishing_enabled"
-        ) as is_publishing_enabled, run_test.keep_config(
-        ) as config, wrapping.keep_cwd():
+        ) as is_publishing_enabled, run_test.keep_config() as config, wrapping.keep_cwd():
             os.chdir(self._package_with_no_preprocess)
 
             config.plugin_path = [required_folder]
@@ -151,8 +150,7 @@ class PackageHelp(unittest.TestCase):
 
         with mock.patch(
             "rez_sphinx.core.environment.is_publishing_enabled"
-        ) as is_publishing_enabled, run_test.keep_config(
-        ) as config, wrapping.keep_cwd():
+        ) as is_publishing_enabled, run_test.keep_config() as config, wrapping.keep_cwd():
             os.chdir(self._package_with_preprocess)
 
             config.package_definition_build_python_paths = [required_folder]
@@ -201,8 +199,7 @@ class PackageHelp(unittest.TestCase):
 
         with mock.patch(
             "rez_sphinx.core.environment.is_publishing_enabled"
-        ) as is_publishing_enabled, run_test.keep_config(
-        ) as config, wrapping.keep_cwd():
+        ) as is_publishing_enabled, run_test.keep_config() as config, wrapping.keep_cwd():
             os.chdir(self._package_with_preprocess)
 
             config.package_definition_build_python_paths = [required_folder]
@@ -251,8 +248,7 @@ class PackageHelp(unittest.TestCase):
 
         with mock.patch(
             "rez_sphinx.core.environment.is_publishing_enabled"
-        ) as is_publishing_enabled, run_test.keep_config(
-        ) as config, wrapping.keep_cwd():
+        ) as is_publishing_enabled, run_test.keep_config() as config, wrapping.keep_cwd():
             os.chdir(self._package_with_no_preprocess)
 
             config.package_definition_build_python_paths = [required_folder]
@@ -296,8 +292,7 @@ class PackageHelp(unittest.TestCase):
 
         with mock.patch(
             "rez_sphinx.core.environment.is_publishing_enabled"
-        ) as is_publishing_enabled, run_test.keep_config(
-        ) as config, wrapping.keep_cwd():
+        ) as is_publishing_enabled, run_test.keep_config() as config, wrapping.keep_cwd():
             os.chdir(self._package_with_preprocess)
 
             config.package_preprocess_mode = "override"
@@ -335,8 +330,7 @@ class PackageHelp(unittest.TestCase):
 
         with mock.patch(
             "rez_sphinx.core.environment.is_publishing_enabled"
-        ) as is_publishing_enabled, run_test.keep_config(
-        ) as config, wrapping.keep_cwd():
+        ) as is_publishing_enabled, run_test.keep_config() as config, wrapping.keep_cwd():
             os.chdir(self._package_with_no_preprocess)
 
             config.release_hooks = ["publish_documentation"]

@@ -49,7 +49,9 @@ def keep_config():
         yield config_
     finally:
         config_.optionvars = optionvars
-        config_.package_definition_build_python_paths = package_definition_build_python_paths
+        config_.package_definition_build_python_paths = (
+            package_definition_build_python_paths
+        )
         config_.package_preprocess_function = package_preprocess_function
         config_.plugin_path = plugin_path
         config_.release_hooks = release_hooks

@@ -820,6 +820,7 @@ def validate_help_settings(package=None):
             nothing.
 
     """
+
     def _validate_preprocess(package):
         if not package:
             return None
@@ -832,15 +833,15 @@ def validate_help_settings(package=None):
 
                 raise exception.ConfigurationError(
                     'Preprocess caller "{caller}" is defined but '
-                    'package_definition_build_python_paths cannot import it. '
+                    "package_definition_build_python_paths cannot import it. "
                     'Got "{config.package_definition_build_python_paths}". '
-                    'Please fix.'.format(caller=caller, config=config),
+                    "Please fix.".format(caller=caller, config=config),
                 )
 
             if not hasattr(module, _PREPROCESS_FUNCTION):
                 raise exception.RezSphinxException(
                     'Expected function "{_PREPROCESS_FUNCTION}" in module. '
-                    'Send a ticket to rez_sphinx maintainers to fix.'.format(
+                    "Send a ticket to rez_sphinx maintainers to fix.".format(
                         _PREPROCESS_FUNCTION=_PREPROCESS_FUNCTION,
                     )
                 )
@@ -857,7 +858,7 @@ def validate_help_settings(package=None):
 
         return exception.BadPackage(
             'Package "{package.name} / {package.version}" overwrites the global '
-            'preproces function.'.format(package=package)
+            "preproces function.".format(package=package)
         )
 
     def _validate_release_hook():
@@ -869,7 +870,8 @@ def validate_help_settings(package=None):
         except rez_exceptions.RezPluginError:
             return exception.ConfigurationError(
                 'Release hook "{_PUBLISH_HOOK_CLASS_NAME}" could not be loaded by Rez.'
-                ''.format(_PUBLISH_HOOK_CLASS_NAME=_PUBLISH_HOOK_CLASS_NAME))
+                "".format(_PUBLISH_HOOK_CLASS_NAME=_PUBLISH_HOOK_CLASS_NAME)
+            )
 
         return None
 

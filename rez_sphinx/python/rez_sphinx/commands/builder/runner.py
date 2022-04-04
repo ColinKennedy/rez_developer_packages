@@ -113,7 +113,7 @@ def get_documentation_build(source):
     if not package:
         raise RuntimeError(
             'Directory "{source}" isn\'t in a Rez package. '
-            'This is likely a rez_sphinx bug.'.format(
+            "This is likely a rez_sphinx bug.".format(
                 source=source,
             )
         )

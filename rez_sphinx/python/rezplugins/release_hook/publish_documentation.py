@@ -56,10 +56,12 @@ class PublishDocumentation(release_hook.ReleaseHook):
         #
         current_frame = inspect.currentframe()
         caller_frame = current_frame.f_back
-        filename, lineno, function, code_context, index = inspect.getframeinfo(caller_frame)
+        filename, lineno, function, code_context, index = inspect.getframeinfo(
+            caller_frame
+        )
 
         # f_locals is the local namespace seen by the frame
-        caller_instance = caller_frame.f_locals['self']
+        caller_instance = caller_frame.f_locals["self"]
 
         directory = os.path.dirname(caller_instance.package.filepath)
 
@@ -84,7 +86,7 @@ class PublishDocumentation(release_hook.ReleaseHook):
 
         """
         # TODO : Make this real
-        print('POST RELEASE')
+        print("POST RELEASE")
 
 
 def _get_configured_rez_sphinx():
@@ -279,7 +281,7 @@ def replace_help(package):
 
 
 def _has_rez_sphinx_documentation(directory):
-    raise NotImplementedError('Need to write this')
+    raise NotImplementedError("Need to write this")
 
 
 def register_plugin():

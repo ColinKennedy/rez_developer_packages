@@ -62,7 +62,9 @@ def _get_configured_rez_sphinx():
         :class:`rez.developer_package.DeveloperPackage` or None: The found package.
 
     """
-    for path in config.package_definition_build_python_paths:  # pylint: disable=no-member
+    for (
+        path
+    ) in config.package_definition_build_python_paths:  # pylint: disable=no-member
         package = _get_nearest_rez_package(path)
 
         if package and package.name == _REZ_SPHINX_PACKAGE_FAMILY_NAME:

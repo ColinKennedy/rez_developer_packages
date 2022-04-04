@@ -124,7 +124,9 @@ def _re_acquire_package(package):
     if package:
         return package
 
-    raise RuntimeError('Directory "{directory}" has no package.'.format(directory=directory))
+    raise RuntimeError(
+        'Directory "{directory}" has no package.'.format(directory=directory)
+    )
 
 
 def initialize_rez_package(package):

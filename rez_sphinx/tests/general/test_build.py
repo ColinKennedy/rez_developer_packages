@@ -216,8 +216,7 @@ class BootstrapIntersphinx(unittest.TestCase):
         }
 
         with wrapping.silence_printing(), run_test.simulate_resolve(installed_packages):
-            with _watch_intersphinx_mapping() as container, run_test.allow_defaults(
-            ), run_test.keep_config() as config:
+            with _watch_intersphinx_mapping() as container, run_test.allow_defaults(), run_test.keep_config() as config:
                 config.optionvars.setdefault("rez_sphinx", dict())
                 config.optionvars["rez_sphinx"]["intersphinx_settings"] = dict()
                 config.optionvars["rez_sphinx"]["intersphinx_settings"][
