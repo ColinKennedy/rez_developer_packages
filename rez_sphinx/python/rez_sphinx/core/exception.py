@@ -67,6 +67,22 @@ class NoPythonFiles(Base):
     exit_code = GENERIC_EXIT_CODE + 80
 
 
+class RezSphinxException(Base):
+    """If somehow :ref:`rez_sphinx`'s code diverges in an unexpected way.
+
+    Example:
+        The :func:`.preprocess_entry_point.run` function is renamed but
+        :func:`.preference.validate_help_settings` isn't updated to
+        reflect that change.
+
+    If this exception occurs, it's always a maintainer error that must be fixed
+    on :ref:`rez_sphinx`'s code.
+
+    """
+
+    exit_code = GENERIC_EXIT_CODE + 90
+
+
 class SphinxConfError(Base):
     """When the user's `Sphinx conf.py`_ is unreadable or has empty content."""
 

@@ -10,8 +10,9 @@ import platform
 import schema
 import six
 from rez.config import config
+from rez.utils import execution
 from six.moves import collections_abc
-from rez import plugin_managers
+from rez import exceptions as rez_exceptions, plugin_managers
 
 try:
     from functools import lru_cache  # Python 3.2+
@@ -141,33 +142,19 @@ _MASTER_SCHEMA = schema.Schema(
 
 _PREFERENCE_DICT_SEPARATOR = "."
 
-_PUBLISH_HOOK_CLASS_NAME = "publish_documentation"
 _HOOK_DEBUG_KEY = "hook"
 _PREPROCESS_DEBUG_KEY = "preprocess"
+_PREPROCESS_FUNCTION = "run"
+_PREPROCESS_MODULE = "preprocess_entry_point"
+_PUBLISH_HOOK_CLASS_NAME = "publish_documentation"
 
 
-def get_auto_help_methods():
-    output = []
-
-    if config.package_preprocess_function == "preprocess_entry_point.run":
-        output.append(_PREPROCESS_DEBUG_KEY)
-
-    if _PUBLISH_HOOK_CLASS_NAME in config.release_hooks:
-        output.append(_HOOK_DEBUG_KEY)
-
-    return output
-
-
-def get_package_link_map():
-    """dict[str, str]: Each Rez package family name + its root documentation, if any."""
-    rez_sphinx_settings = get_base_settings()
-
-    if _INTERSPHINX_SETTINGS not in rez_sphinx_settings:
-        return dict()
-
-    settings = rez_sphinx_settings[_INTERSPHINX_SETTINGS]
-
-    return settings.get(_PACKAGE_LINK_MAP, dict())
+def _get_preprocess_import_path():
+    """str: Get the module + function needed to call the preprocess hook."""
+    return "{_PREPROCESS_MODULE}.{_PREPROCESS_FUNCTION}".format(
+        _PREPROCESS_MODULE=_PREPROCESS_MODULE,
+        _PREPROCESS_FUNCTION=_PREPROCESS_FUNCTION,
+    )
 
 
 def _get_special_preference_paths(text):
@@ -374,6 +361,18 @@ def get_api_options(options=tuple()):
     return list(itertools.chain(options, settings))
 
 
+def get_auto_help_methods():
+    output = []
+
+    if config.package_preprocess_function == _get_preprocess_import_path():
+        output.append(_PREPROCESS_DEBUG_KEY)
+
+    if _PUBLISH_HOOK_CLASS_NAME in config.release_hooks:
+        output.append(_HOOK_DEBUG_KEY)
+
+    return output
+
+
 # TODO : Is caching really necessary? Maybe remove it from these functions
 @lru_cache()
 def get_base_settings(package=None):
@@ -496,6 +495,18 @@ def get_master_document_name():
     settings = get_sphinx_configuration_overrides()
 
     return settings[_MASTER_DOC]
+
+
+def get_package_link_map():
+    """dict[str, str]: Each Rez package family name + its root documentation, if any."""
+    rez_sphinx_settings = get_base_settings()
+
+    if _INTERSPHINX_SETTINGS not in rez_sphinx_settings:
+        return dict()
+
+    settings = rez_sphinx_settings[_INTERSPHINX_SETTINGS]
+
+    return settings.get(_PACKAGE_LINK_MAP, dict())
 
 
 def get_preference_from_path(path, package=None):
@@ -805,6 +816,27 @@ def validate_help_settings(package=None):
         if not package:
             return None
 
+        with execution.add_sys_paths(config.package_definition_build_python_paths):
+            try:
+                module = __import__(_PREPROCESS_MODULE)
+            except ImportError:
+                caller = _get_preprocess_import_path()
+
+                raise exception.ConfigurationError(
+                    'Preprocess caller "{caller}" is defined but '
+                    'package_definition_build_python_paths cannot import it. '
+                    'Got "{config.package_definition_build_python_paths}". '
+                    'Please fix.'.format(caller=caller, config=config),
+                )
+
+            if not hasattr(module, _PREPROCESS_FUNCTION):
+                raise exception.RezSphinxException(
+                    'Expected function "{_PREPROCESS_FUNCTION}" in module. '
+                    'Send a ticket to rez_sphinx maintainers to fix.'.format(
+                        _PREPROCESS_FUNCTION=_PREPROCESS_FUNCTION,
+                    )
+                )
+
         if config.package_preprocess_mode != "override":
             # All package modes other than "override" account for the global
             # preprocess function.
@@ -821,9 +853,9 @@ def validate_help_settings(package=None):
         )
 
     def _validate_release_hook(package):
-        class_ = plugin_managers.plugin_manager.get_plugin_class("release_hook", _PUBLISH_HOOK_CLASS_NAME)
-
-        if not class_:
+        try:
+            class_ = plugin_managers.plugin_manager.get_plugin_class("release_hook", _PUBLISH_HOOK_CLASS_NAME)
+        except rez_exceptions.RezPluginError:
             return exception.ConfigurationError('Release hook "{_PUBLISH_HOOK_CLASS_NAME}" could not be loaded by Rez.'.format(_PUBLISH_HOOK_CLASS_NAME=_PUBLISH_HOOK_CLASS_NAME))
 
         return None

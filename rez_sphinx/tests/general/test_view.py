@@ -60,11 +60,6 @@ class PackageHelp(unittest.TestCase):
             value,
         )
 
-    def test_normal(self):
-        """Show the resolved `help`_ attribute."""
-        raise ValueError()
-        run_test.test("view package-help")
-
     def test_rez_docbot_no_publish_url(self):
         """Fail if the user has docbot loaded but an invalid configuration."""
         with mock.patch(
@@ -77,7 +72,7 @@ class PackageHelp(unittest.TestCase):
 
             run_test.test("view package-help")
 
-    def test_rez_docbot_normal(self):
+    def test_rez_docbot_release_hook_normal(self):
         """Find and expand a viewing URL, using the :ref:`rez_docbot` plug-in."""
         required_folder = os.path.join(os.environ["REZ_REZ_SPHINX_ROOT"], "python")
 
@@ -237,7 +232,6 @@ class PackageHelp(unittest.TestCase):
         ``"override"`` but the package doesn't define a `preprocess`_ function.
 
         """
-
         required_folder = os.path.join(
             os.environ["REZ_REZ_SPHINX_ROOT"],
             "python",
@@ -282,11 +276,83 @@ class PackageHelp(unittest.TestCase):
 
     def test_unloadable_preprocess(self):
         """Warn if the user defines preprocess but it cannot be imported."""
-        raise ValueError()
+        required_folder = os.path.join(
+            os.environ["REZ_REZ_SPHINX_ROOT"],
+            "python",
+            "rez_sphinx",
+            "preprocess",
+        )
+
+        if not os.path.exists(required_folder):
+            raise EnvironmentError(
+                'Directory "{required_folder}" does not exist.'.format(
+                    required_folder=required_folder
+                )
+            )
+
+        with mock.patch(
+            "rez_sphinx.core.environment.is_publishing_enabled"
+        ) as is_publishing_enabled, run_test.keep_config() as config, wrapping.keep_cwd():
+            os.chdir(self._package_with_preprocess)
+
+            config.package_preprocess_mode = "override"
+            config.package_preprocess_function = "preprocess_entry_point.run"
+            config.optionvars = {
+                "rez_docbot": {
+                    "publishers": [
+                        {
+                            "authentication": {
+                                "user": "foo",
+                                "token": "bar",
+                                "type": "github",
+                            },
+                            "repository_uri": "git@something.com:Blah/Thing",
+                            "view_url": "https://ColinKennedy.github.io/{package.name}",
+                        },
+                    ],
+                },
+            }
+            is_publishing_enabled.return_value = True
+
+            with self.assertRaises(exception.ConfigurationError):
+                run_test.test("view package-help")
 
     def test_unloadable_release_hook(self):
         """Warn if the user has a release hook but Rez cannot load it."""
-        raise ValueError()
+        required_folder = os.path.join(os.environ["REZ_REZ_SPHINX_ROOT"], "python")
+
+        if not os.path.exists(required_folder):
+            raise EnvironmentError(
+                'Directory "{required_folder}" does not exist.'.format(
+                    required_folder=required_folder
+                )
+            )
+
+        with mock.patch(
+            "rez_sphinx.core.environment.is_publishing_enabled"
+        ) as is_publishing_enabled, run_test.keep_config() as config, wrapping.keep_cwd():
+            os.chdir(self._package_with_no_preprocess)
+
+            config.release_hooks = ["publish_documentation"]
+            config.optionvars = {
+                "rez_docbot": {
+                    "publishers": [
+                        {
+                            "authentication": {
+                                "user": "foo",
+                                "token": "bar",
+                                "type": "github",
+                            },
+                            "repository_uri": "git@something.com:Blah/Thing",
+                            "view_url": "https://ColinKennedy.github.io/{package.name}",
+                        },
+                    ],
+                },
+            }
+            is_publishing_enabled.return_value = True
+
+            with self.assertRaises(exception.ConfigurationError):
+                run_test.test("view package-help")
 
 
 class PublishUrl(unittest.TestCase):
