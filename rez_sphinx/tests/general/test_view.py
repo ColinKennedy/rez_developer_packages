@@ -45,8 +45,8 @@ class PackageHelp(unittest.TestCase):
         """Warn if there's no configured preprocess or release hook found."""
         with mock.patch(
             "rez_sphinx.core.environment.is_publishing_enabled"
-        ) as is_publishing_enabled, run_test.keep_config() as config:
-            is_publishing_enabled.return_value = False
+        ) as patch, run_test.keep_config() as config:
+            patch.return_value = False
             config.optionvars = {"rez_docbot": {}, "rez_sphinx": {}}
 
             with wrapping.capture_pipes() as (_, stderr):
@@ -64,11 +64,11 @@ class PackageHelp(unittest.TestCase):
         """Fail if the user has docbot loaded but an invalid configuration."""
         with mock.patch(
             "rez_sphinx.core.environment.is_publishing_enabled"
-        ) as is_publishing_enabled, wrapping.keep_cwd(), self.assertRaises(
+        ) as patch, wrapping.keep_cwd(), self.assertRaises(
             exception.PluginConfigurationError
         ):
             os.chdir(self._package_with_no_preprocess)
-            is_publishing_enabled.return_value = True
+            patch.return_value = True
 
             run_test.test("view package-help")
 
@@ -85,7 +85,7 @@ class PackageHelp(unittest.TestCase):
 
         with mock.patch(
             "rez_sphinx.core.environment.is_publishing_enabled"
-        ) as is_publishing_enabled, run_test.keep_config() as config, wrapping.keep_cwd():
+        ) as patch, run_test.keep_config() as config, wrapping.keep_cwd():
             os.chdir(self._package_with_no_preprocess)
 
             config.plugin_path = [required_folder]
@@ -105,7 +105,7 @@ class PackageHelp(unittest.TestCase):
                     ],
                 },
             }
-            is_publishing_enabled.return_value = True
+            patch.return_value = True
 
             with wrapping.capture_pipes() as (stdout, _):
                 run_test.test("view package-help")
@@ -150,7 +150,7 @@ class PackageHelp(unittest.TestCase):
 
         with mock.patch(
             "rez_sphinx.core.environment.is_publishing_enabled"
-        ) as is_publishing_enabled, run_test.keep_config() as config, wrapping.keep_cwd():
+        ) as patch, run_test.keep_config() as config, wrapping.keep_cwd():
             os.chdir(self._package_with_preprocess)
 
             config.package_definition_build_python_paths = [required_folder]
@@ -171,7 +171,7 @@ class PackageHelp(unittest.TestCase):
                     ],
                 },
             }
-            is_publishing_enabled.return_value = True
+            patch.return_value = True
 
             with self.assertRaises(exception.ConfigurationError):
                 run_test.test("view package-help")
@@ -199,7 +199,7 @@ class PackageHelp(unittest.TestCase):
 
         with mock.patch(
             "rez_sphinx.core.environment.is_publishing_enabled"
-        ) as is_publishing_enabled, run_test.keep_config() as config, wrapping.keep_cwd():
+        ) as patch, run_test.keep_config() as config, wrapping.keep_cwd():
             os.chdir(self._package_with_preprocess)
 
             config.package_definition_build_python_paths = [required_folder]
@@ -220,7 +220,7 @@ class PackageHelp(unittest.TestCase):
                     ],
                 },
             }
-            is_publishing_enabled.return_value = True
+            patch.return_value = True
 
             with wrapping.capture_pipes() as (_, _):
                 run_test.test("view package-help")
@@ -248,7 +248,7 @@ class PackageHelp(unittest.TestCase):
 
         with mock.patch(
             "rez_sphinx.core.environment.is_publishing_enabled"
-        ) as is_publishing_enabled, run_test.keep_config() as config, wrapping.keep_cwd():
+        ) as patch, run_test.keep_config() as config, wrapping.keep_cwd():
             os.chdir(self._package_with_no_preprocess)
 
             config.package_definition_build_python_paths = [required_folder]
@@ -269,7 +269,7 @@ class PackageHelp(unittest.TestCase):
                     ],
                 },
             }
-            is_publishing_enabled.return_value = True
+            patch.return_value = True
 
             with wrapping.capture_pipes() as (_, _):
                 run_test.test("view package-help")
@@ -292,7 +292,7 @@ class PackageHelp(unittest.TestCase):
 
         with mock.patch(
             "rez_sphinx.core.environment.is_publishing_enabled"
-        ) as is_publishing_enabled, run_test.keep_config() as config, wrapping.keep_cwd():
+        ) as patch, run_test.keep_config() as config, wrapping.keep_cwd():
             os.chdir(self._package_with_preprocess)
 
             config.package_preprocess_mode = "override"
@@ -312,7 +312,7 @@ class PackageHelp(unittest.TestCase):
                     ],
                 },
             }
-            is_publishing_enabled.return_value = True
+            patch.return_value = True
 
             with self.assertRaises(exception.ConfigurationError):
                 run_test.test("view package-help")
@@ -330,7 +330,7 @@ class PackageHelp(unittest.TestCase):
 
         with mock.patch(
             "rez_sphinx.core.environment.is_publishing_enabled"
-        ) as is_publishing_enabled, run_test.keep_config() as config, wrapping.keep_cwd():
+        ) as patch, run_test.keep_config() as config, wrapping.keep_cwd():
             os.chdir(self._package_with_no_preprocess)
 
             config.release_hooks = ["publish_documentation"]
@@ -349,7 +349,7 @@ class PackageHelp(unittest.TestCase):
                     ],
                 },
             }
-            is_publishing_enabled.return_value = True
+            patch.return_value = True
 
             with self.assertRaises(exception.ConfigurationError):
                 run_test.test("view package-help")

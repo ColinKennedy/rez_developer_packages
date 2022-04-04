@@ -216,14 +216,15 @@ class BootstrapIntersphinx(unittest.TestCase):
         }
 
         with wrapping.silence_printing(), run_test.simulate_resolve(installed_packages):
-            with _watch_intersphinx_mapping() as container, run_test.allow_defaults(), run_test.keep_config() as config:
+            with run_test.allow_defaults(), run_test.keep_config() as config:
                 config.optionvars.setdefault("rez_sphinx", dict())
                 config.optionvars["rez_sphinx"]["intersphinx_settings"] = dict()
                 config.optionvars["rez_sphinx"]["intersphinx_settings"][
                     "package_link_map"
                 ] = fallback_map
 
-                run_test.test(["build", "run", source_directory])
+                with _watch_intersphinx_mapping() as container:
+                    run_test.test(["build", "run", source_directory])
 
         watcher = container[0]
         _, _, results = watcher

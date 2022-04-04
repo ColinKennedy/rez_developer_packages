@@ -24,10 +24,9 @@ class Loader(unittest.TestCase):
         with run_test.simulate_resolve([installed_package]):
             run_test.test(["init", source_directory])
 
-            with wrapping.silence_printing(), run_test.allow_defaults(), self.assertRaises(
-                exception.MissingPlugIn
-            ):
-                run_test.test(["publish", "run", source_directory])
+            with run_test.allow_defaults(), self.assertRaises(exception.MissingPlugIn):
+                with wrapping.silence_printing():
+                    run_test.test(["publish", "run", source_directory])
 
     def test_view_publish_url(self):
         """Fail :ref:`rez_sphinx view publish-url` if ``rez_docbot`` is not loaded."""
