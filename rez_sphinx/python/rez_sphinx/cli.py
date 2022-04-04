@@ -551,7 +551,7 @@ def _set_up_suggest(sub_parsers):
         )
         build_order.set_defaults(execute=_build_order)
 
-    def _set_up_preprocess_help(inner_parers):
+    def _set_up_preprocess_help(inner_parsers):
         preprocess_help = inner_parsers.add_parser("preprocess-help")
         preprocess_help.add_argument(
             "package_source_root",

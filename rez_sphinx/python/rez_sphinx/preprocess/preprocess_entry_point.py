@@ -221,9 +221,9 @@ def _get_sphinx_context():
     #
     request = [
         ".rez_sphinx.feature.docbot_plugin==1",
-        "{package.name}=={package.version}".format(
+        "{package.name}=={package.version}".format(  # pylint: disable=missing-format-attribute,line-too-long
             package=package
-        ),  # pylint: disable=missing-format-attribute
+        ),
     ]
 
     context = resolved_context.ResolvedContext(request)

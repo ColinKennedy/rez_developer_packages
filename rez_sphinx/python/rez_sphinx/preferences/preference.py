@@ -365,10 +365,10 @@ def get_auto_help_methods():
     """list[str]: Find all defined `help`_ methods. See :doc:`auto_append_help_tags`."""
     output = []
 
-    if config.package_preprocess_function == _get_preprocess_import_path():
+    if config.package_preprocess_function == _get_preprocess_import_path():  # pylint: disable=no-member
         output.append(_PREPROCESS_DEBUG_KEY)
 
-    if _PUBLISH_HOOK_CLASS_NAME in config.release_hooks:
+    if _PUBLISH_HOOK_CLASS_NAME in config.release_hooks:  # pylint: disable=no-member
         output.append(_HOOK_DEBUG_KEY)
 
     return output
@@ -379,7 +379,8 @@ def get_auto_help_methods():
 def get_base_settings(package=None):
     """dict[str, object]: Get all :ref:`rez_sphinx` specific default settings."""
     # TODO : Incorporate ``package`` with unittests
-    # Once this is done, make sure to update all get_base_settings to include package contents
+    # Once this is done, make sure to update all get_base_settings to include
+    # package contents
 
     rez_user_options = config.optionvars  # pylint: disable=no-member
 
@@ -828,17 +829,22 @@ def validate_help_settings(package=None):
         if not package:
             return None
 
-        with execution.add_sys_paths(config.package_definition_build_python_paths):
+        with execution.add_sys_paths(
+            config.package_definition_build_python_paths  # pylint: disable=no-member
+        ):
             try:
                 module = __import__(_PREPROCESS_MODULE)
             except ImportError:
                 caller = _get_preprocess_import_path()
 
                 raise exception.ConfigurationError(
-                    'Preprocess caller "{caller}" is defined but '
+                    'Preprocess caller "{caller}" is defined but '  # pylint: disable=missing-format-attribute,line-too-long
                     "package_definition_build_python_paths cannot import it. "
                     'Got "{config.package_definition_build_python_paths}". '
-                    "Please fix.".format(caller=caller, config=config),
+                    "Please fix.".format(
+                        caller=caller,
+                        config=config,
+                    ),
                 )
 
             if not hasattr(module, _PREPROCESS_FUNCTION):
@@ -849,7 +855,7 @@ def validate_help_settings(package=None):
                     )
                 )
 
-        if config.package_preprocess_mode != "override":
+        if config.package_preprocess_mode != "override":  # pylint: disable=no-member
             # All package modes other than "override" account for the global
             # preprocess function.
             #

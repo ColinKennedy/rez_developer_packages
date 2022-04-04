@@ -33,7 +33,7 @@ def _get_documentation_destination(name, package):
 
     def _parse_destination(text):
         # TODO : Deal with this recursive import, later
-        from .. import cli
+        from .. import cli  # pylint: disable=import-outside-toplevel
 
         command = shlex.split(text)[1:]
         namespace = cli.parse_arguments(command)

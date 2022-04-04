@@ -8,7 +8,7 @@ from . import exception
 def is_docbot_exception(error):
     """bool: Check if ``error`` comes from :ref:`rez_docbot`."""
     try:
-        from rez_docbot import api
+        from rez_docbot import api  # pylint: disable=import-outside-toplevel
     except ImportError:
         # It's disabled. Just ignore it.
         return False
@@ -41,7 +41,7 @@ def get_publish_url(package):
         str: The found destination.
 
     """
-    from rez_docbot import api
+    from rez_docbot import api  # pylint: disable=import-outside-toplevel
 
     try:
         return api.get_first_versioned_view_url(package)
