@@ -587,7 +587,8 @@ def _set_up_view(sub_parsers):
     def _set_up_view_conf(inner_parsers):
         view_conf = inner_parsers.add_parser(
             "sphinx-conf",
-            help="Show your documentation's Sphinx conf.py settings. Useful for debugging!",
+            help="Show your documentation's Sphinx conf.py settings. "
+            "Useful for debugging!",
         )
 
         view_conf.add_argument(

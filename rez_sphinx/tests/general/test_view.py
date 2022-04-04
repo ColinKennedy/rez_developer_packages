@@ -6,9 +6,9 @@ import unittest
 
 from python_compatibility import wrapping
 from rez_utilities import finder
+from six.moves import mock
 
 from rez_sphinx.core import exception
-from six.moves import mock
 
 from ..common import run_test
 
@@ -117,11 +117,11 @@ class PackageHelp(unittest.TestCase):
         expected = [
             [
                 "Developer Documentation",
-                "https://ColinKennedy.github.io/package_to_test/versions/2.1/developer_documentation.html",  # pylint: disable=line-tool-long
+                "https://ColinKennedy.github.io/package_to_test/versions/2.1/developer_documentation.html",  # pylint: disable=line-too-long
             ],
             [
                 "User Documentation",
-                "https://ColinKennedy.github.io/package_to_test/versions/2.1/user_documentation.html",  # pylint: disable=line-tool-long
+                "https://ColinKennedy.github.io/package_to_test/versions/2.1/user_documentation.html",  # pylint: disable=line-too-long
             ],
             ["foo", "bar"],
             [

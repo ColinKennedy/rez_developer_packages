@@ -1,12 +1,10 @@
 """The module which handles the :ref:`rez_sphinx publish run` command."""
 
 import logging
-import os
 import shlex
 
 import six
 from rez import package_test
-from rez_utilities import finder
 
 from ..core import exception
 from ..preferences import preference
@@ -124,7 +122,7 @@ def get_all_publishers(package):
     #
     # in their resolves for this import to work.
     #
-    from rez_docbot import api
+    from rez_docbot import api  # pylint: disable=import-outside-toplevel
 
     publishers = api.get_all_publishers(package)
 
@@ -194,7 +192,8 @@ def build_documentation(package):
                 invalids=", ".join(sorted(invalids))
             )
         )
-    elif invalids:
+
+    if invalids:
         raise exception.NoDocumentationFound(
             "No documentation could be found after "
             '"{invalids}" command was ran.'.format(invalids=next(iter(invalids)))

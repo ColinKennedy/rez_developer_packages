@@ -7,20 +7,9 @@ import sys
 import traceback
 
 from . import cli
-from .core import exception
+from .core import environment, exception
 
 _SUCCESS_EXIT_CODE = 0
-
-
-def _is_docbot_exception(error):
-    """bool: Check if ``error`` comes from :ref:`rez_docbot`."""
-    try:
-        from rez_docbot import api
-    except ImportError:
-        # It's disabled. Just ignore it.
-        return False
-
-    return isinstance(error, api.CoreException)
 
 
 def _setup_logger():
@@ -66,7 +55,7 @@ def main(text):
 
         sys.exit(error.exit_code)
     except Exception as error:  # pylint: disable=broad-except
-        if _is_docbot_exception(error):
+        if environment.is_docbot_exception(error):
             print("docbot: {error}".format(error=error), file=sys.stderr)
 
             sys.exit(exception.GENERIC_EXIT_CODE)

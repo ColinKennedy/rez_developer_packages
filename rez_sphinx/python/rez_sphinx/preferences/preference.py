@@ -9,18 +9,19 @@ import platform
 
 import schema
 import six
+from rez import exceptions as rez_exceptions
+from rez import plugin_managers
 from rez.config import config
 from rez.utils import execution
 from six.moves import collections_abc
-from rez import exceptions as rez_exceptions, plugin_managers
 
 try:
     from functools import lru_cache  # Python 3.2+
 except ImportError:
     from backports.functools_lru_cache import lru_cache
 
-from . import preference_configuration, preference_help, preference_init
 from ..core import constant, exception, generic, schema_helper, schema_optional
+from . import preference_configuration, preference_help, preference_init
 
 _DOCUMENTATION_DEFAULT = "documentation"
 
@@ -59,7 +60,9 @@ _PACKAGE_LINK_MAP = "package_link_map"
 
 _DEFAULT_ENTRIES = list(preference_init.DEFAULT_ENTRIES)
 
-# Reference: https://github.com/readthedocs/readthedocs.org/issues/2569#issuecomment-485117471
+# Reference:
+# https://github.com/readthedocs/readthedocs.org/issues/2569#issuecomment-485117471
+#
 _MASTER_DOC_DEFAULT = "index"
 _MASTER_DOC = "master_doc"
 

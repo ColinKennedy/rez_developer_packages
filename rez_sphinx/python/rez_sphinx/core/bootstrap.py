@@ -314,7 +314,7 @@ def _get_tests_requires(package):
         #
         return set()
 
-    return {request for request in test.get(_REZ_REQUIRES_KEY) or []}
+    return set(test.get(_REZ_REQUIRES_KEY) or [])
 
 
 def _get_tests_requires_by_name(package, test_name):
@@ -509,7 +509,9 @@ def bootstrap(data, package=None, skip=frozenset()):
         data[_INTERSPHINX_MAPPING_KEY] = _merge_intersphinx_maps(data, package)
 
     if "master_doc" not in skip:
-        # Reference: https://github.com/readthedocs/readthedocs.org/issues/2569#issuecomment-485117471
+        # Reference:
+        # https://github.com/readthedocs/readthedocs.org/issues/2569#issuecomment-485117471
+        #
         data["master_doc"] = preference.get_master_document_name() or "index"
 
     if "project" not in skip:
@@ -519,7 +521,8 @@ def bootstrap(data, package=None, skip=frozenset()):
         # An alias for "copyright". It's only Sphinx 3.5+ but it's harmless in
         # older Sphinx versions so we leave it in, regardless.
         #
-        # Reference: https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-project_copyright
+        # Reference:
+        # https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-project_copyright
         #
         data["project_copyright"] = _get_copyright(package)
 

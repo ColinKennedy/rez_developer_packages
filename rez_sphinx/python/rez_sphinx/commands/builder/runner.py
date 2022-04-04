@@ -10,9 +10,8 @@ from rez.config import config
 from rez_utilities import finder
 from sphinx.cmd import build as sphinx_build
 
-from ...core import api_builder, doc_finder, exception, sphinx_helper
+from ...core import api_builder, doc_finder, exception
 from ...preferences import preference
-
 
 _LOGGER = logging.getLogger(__name__)
 

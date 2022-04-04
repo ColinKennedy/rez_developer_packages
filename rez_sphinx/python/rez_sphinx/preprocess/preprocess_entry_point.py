@@ -8,16 +8,14 @@ See Also:
 # TODO : If I end up going with a release plugin, see if I can reuse the code
 # from over there here (or vice versa)
 
-import logging
 import json
+import logging
 import os
 import subprocess
 
-from rez import exceptions, packages
-from rez import resolved_context
+from rez import exceptions, packages, resolved_context
 from rez.config import config
 from rez.vendor.schema import schema
-
 
 REZ_HELP_KEY = "help"
 _REZ_SPHINX_PACKAGE_FAMILY_NAME = "rez_sphinx"
@@ -223,7 +221,9 @@ def _get_sphinx_context():
     #
     request = [
         ".rez_sphinx.feature.docbot_plugin==1",
-        "{package.name}=={package.version}".format(package=package),
+        "{package.name}=={package.version}".format(
+            package=package
+        ),  # pylint: disable=missing-format-attribute
     ]
 
     context = resolved_context.ResolvedContext(request)

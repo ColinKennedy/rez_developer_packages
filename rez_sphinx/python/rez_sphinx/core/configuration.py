@@ -11,7 +11,6 @@ from sphinx import config
 
 from . import constant
 
-
 _LOGGER = logging.getLogger(__name__)
 
 

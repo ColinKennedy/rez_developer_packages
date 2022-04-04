@@ -14,7 +14,6 @@ from rez import exceptions, packages, release_hook, resolved_context
 from rez.config import config
 from rez.vendor.schema import schema
 
-
 _REZ_SPHINX_PACKAGE_FAMILY_NAME = "rez_sphinx"
 
 _DEFAULT_LABEL = "Home Page"

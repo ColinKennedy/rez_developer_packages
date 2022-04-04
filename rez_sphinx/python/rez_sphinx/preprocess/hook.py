@@ -1,17 +1,16 @@
 """Automatically add :ref:`rez_sphinx tags <rez_sphinx tag>` to built packages."""
 
-import logging
 import functools
 import io
+import logging
 import os
 import re
 
 from rez_utilities import finder
 
-from . import preprocess_entry_point
 from ..core import configuration, constant, environment, sphinx_helper
 from ..preferences import preference, preference_init
-
+from . import preprocess_entry_point
 
 _HAS_CURLIES = re.compile("{[^{}]*}")
 _LOGGER = logging.getLogger(__name__)

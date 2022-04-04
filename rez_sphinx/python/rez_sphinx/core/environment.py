@@ -5,6 +5,17 @@ import os
 from . import exception
 
 
+def is_docbot_exception(error):
+    """bool: Check if ``error`` comes from :ref:`rez_docbot`."""
+    try:
+        from rez_docbot import api
+    except ImportError:
+        # It's disabled. Just ignore it.
+        return False
+
+    return isinstance(error, api.CoreException)
+
+
 def is_publishing_enabled():
     """bool: Check if the user's current environment is capable of publishing."""
     return os.getenv("REZ_EPH_REZ_SPHINX_FEATURE_DOCBOT_PLUGIN_REQUEST", "0").endswith(

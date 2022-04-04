@@ -4,7 +4,8 @@ import glob
 import logging
 import os
 
-from rez import developer_package, exceptions as rez_exceptions
+from rez import developer_package
+from rez import exceptions as rez_exceptions
 
 from ...core import exception, rez_helper
 

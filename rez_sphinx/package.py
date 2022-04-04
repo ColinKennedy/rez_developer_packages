@@ -93,7 +93,10 @@ tests = {
     # TODO : Remove "fixme", later
     "pylint": {
         "command": "pylint --disable=use-dict-literal,use-list-literal,bad-continuation,consider-using-f-string,super-with-arguments,useless-object-inheritance,raise-missing-from,fixme python/rez_sphinx tests",
-        "requires": ["pylint-2.12+<3"],
+        "requires": [
+            ".rez_sphinx.feature.docbot_plugin==1",  # Add so rez_docbot imports work
+            "pylint-2.12+<3",
+        ],
     },
     "unittest_docbot_loaded": "python -m unittest  --start-directory tests.docbot_not_loaded",
     "unittest_python_2": {
