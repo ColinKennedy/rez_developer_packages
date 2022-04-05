@@ -64,7 +64,7 @@ class CasePositioning(unittest.TestCase):
         with _patch_run(_is_failure_condition):
             result = _run_test(["run", "", request_1, request_2, request_3, "--packages-path", directory])
 
-        self.assertEqual(1, result.first_bad)
+        self.assertEqual(2, result.first_bad)
 
     def test_permutations(self):
         """Including a Rez package family creates some kind of issue."""
@@ -82,16 +82,12 @@ class CasePositioning(unittest.TestCase):
                     'result.'.format(count=count, expected=expected, result=result),
                 )
 
-        # _quick_test(1)
-        # result = _build_bad_index_case(4, 6)
-        # raise ValueError(result)
-        result = _build_bad_index_case(4, 8)
-        raise ValueError(result)
-        # _quick_test(4)
-        # _quick_test(10)
-        # _quick_test(14)
-        # _quick_test(17)
-        # _quick_test(19)
+        _quick_test(1)
+        _quick_test(4)
+        _quick_test(10)
+        _quick_test(14)
+        _quick_test(17)
+        _quick_test(19)
 
 
 @contextlib.contextmanager

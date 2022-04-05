@@ -2,6 +2,9 @@ from __future__ import division
 
 import collections
 
+from . import bisecter
+
+
 _BisectSummary = collections.namedtuple("_BisectSummary", "last_good, first_bad, diff")
 
 
@@ -20,31 +23,9 @@ def _get_right_side_bounds(lower_bound, upper_bound):
 
 
 def _reduce_to_two_contexts(has_issue, contexts):
-    current = contexts
-    upper_bound = len(contexts) // 2
-    lower_bound = 0
+    upper_bound = bisecter.bisect_right(has_issue, contexts)
 
-    while True:
-        print('lower / upper', lower_bound, upper_bound)
-
-        if upper_bound == lower_bound + 1:
-            # We've reached the end game. One of these 2 contexts has to be the
-            # problem. Now we just need to find out which.
-            #
-            if has_issue(current[lower_bound]):
-                return lower_bound - 1, lower_bound
-
-            return lower_bound, upper_bound
-
-        left = current[lower_bound:upper_bound]
-        latest_left = left[-1]
-
-        if not has_issue(latest_left):
-            # Select the right side
-            lower_bound, upper_bound = _get_right_side_bounds(lower_bound, upper_bound)
-        else:
-            # Further reduce to the left side
-            upper_bound = upper_bound - ((upper_bound - lower_bound) // 2)
+    return upper_bound - 1, upper_bound
 
 
 def bisect(has_issue, contexts):
