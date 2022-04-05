@@ -3,6 +3,11 @@ Features
 - bisect run to work
 - Standard git bisect interactivity
 
+- The report should say
+ - The first index that has the problem (+ include the request that failed)
+ - Diff that index with the previous one, show its result
+ - If --partial is included, **guess** what the issue could be, based on the diff
+
 - Allow the user to pass a .rxt file, for a raw set of package requests
  - If given something that looks like a .rxt file (but isn't), fail with a good message
 
