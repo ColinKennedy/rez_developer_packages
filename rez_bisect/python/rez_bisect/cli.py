@@ -80,6 +80,15 @@ def _validate_contexts(contexts):
 
 
 def _validate_script(path):
+    """Ensure ``path`` exists on-disk.
+
+    Args:
+        path (str): An executable file to run, such as a .sh or .bat file.
+
+    Raises:
+        FileNotFound: If ``path`` doesn't exist on-disk.
+
+    """
     if os.path.isfile(path):
         return
 
