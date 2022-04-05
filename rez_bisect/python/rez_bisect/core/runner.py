@@ -33,7 +33,17 @@ def _reduce_to_two_contexts(has_issue, contexts):
 
 
 def bisect(has_issue, contexts):
-    last_good, first_bad = _reduce_to_two_contexts(has_issue, contexts)
+    count = len(contexts)
+    if count > 2:
+        last_good, first_bad = _reduce_to_two_contexts(has_issue, contexts)
+    elif count == 2:
+        last_good = 0
+        first_bad = 1
+    elif count == 1:
+        raise NotImplementedError()  # TODO : Write here
+    elif not count:
+        raise NotImplementedError()  # TODO : Write here
+
     diff = contexts[last_good].get_resolve_diff(contexts[first_bad])
 
     return _BisectSummary(last_good=last_good, first_bad=first_bad, diff=diff)

@@ -58,7 +58,7 @@ class CasePositioning(unittest.TestCase):
 
         requests = [
             "foo==1.{index}.0 bar==1.0.0".format(index=index)
-            if index == bad_index
+            if index >= bad_index
             else "foo==1.{index}.0".format(index=index)
             for index in range(count)
         ]
