@@ -15,5 +15,9 @@ class FileNotFound(Base):
     pass
 
 
+class PermissionsError(Base):
+    pass
+
+
 class UserInputError(Base):
     pass

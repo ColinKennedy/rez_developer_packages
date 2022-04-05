@@ -87,12 +87,14 @@ def _validate_script(path):
 
     Raises:
         FileNotFound: If ``path`` doesn't exist on-disk.
+        PermissionsError: If ``path`` exists but cannot be executed.
 
     """
-    if os.path.isfile(path):
-        return
+    if not os.path.isfile(path):
+        raise exception.FileNotFound('Script "{path}" does not exist on-disk.'.format(path=path))
 
-    raise exception.FileNotFound('Script "{path}" does not exist on-disk.'.format(path=path))
+    if not os.access(path, os.X_OK):
+        raise exception.PermissionsError('Script "{path}" is not executable.'.format(path=path))
 
 
 def parse_arguments(text):
@@ -105,6 +107,15 @@ def parse_arguments(text):
 
 
 def run(namespace):
+    """Execute the default function associated with the sub-parser in ``namespace``.
+
+    Args:
+        namespace (argparse.Namespace): The parsed user text input.
+
+    Returns:
+        object: Whatever the return value of the sub-parser is, if anything.
+
+    """
     return namespace.execute(namespace)
 
 

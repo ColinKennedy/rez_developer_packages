@@ -89,6 +89,7 @@ class ContextInputs(unittest.TestCase):
 
 
 class CasePositioning(unittest.TestCase):
+    """Make sure, no matter how many :ref:`contexts` are given, the results are okay."""
 
     def test_three(self):
         """Including a Rez package family creates some kind of issue."""
@@ -163,6 +164,14 @@ class Invalids(unittest.TestCase):
             with self.assertRaises(exception.DuplicateContexts):
                 _run_test(["run", "/does/not/exist.sh", "foo==1.0.0", "foo==1.0.0", "--packages-path", directory])
 
+    def test_script_not_executable(self):
+        """Fail if the script cannot be executed."""
+        # By default, created Python files aren't executable
+        path = _make_temporary_file("_not_executable.sh")
+
+        with self.assertRaises(exception.PermissionsError):
+            _run_test(["run", path, "foo==1.0.0", "foo==1.1.0", "foo==1.2.0"])
+
     def test_script_not_found(self):
         """Fail early if the script file doesn't exist."""
         with self.assertRaises(exception.FileNotFound):
@@ -181,7 +190,8 @@ class Invalids(unittest.TestCase):
                 _run_test(["run", "/does/not/exist.sh", "foo==1.0.0", "--packages-path", directory])
 
     def test_two_contexts_but_no_partial_flag_enabled(self):
-        # - Offer for users to re-run with --partial once the case has been narrowed down
+        """Don't allow two contexts to be compared unless :ref:`--partial` is added."""
+        # TODO : - Offer for users to re-run with --partial once the case has been narrowed down
         raise ValueError()
 
 
@@ -214,6 +224,13 @@ def _build_bad_index_case(bad_index, count):
     return result.first_bad
 
 
+def _make_temporary_file(suffix):
+    _, path = tempfile.mkstemp(suffix=suffix)
+    atexit.register(functools.partial(os.remove, path))
+
+    return path
+
+
 @contextlib.contextmanager
 def _patch_run(checker):
     with mock.patch(
@@ -241,9 +258,7 @@ def _to_context(request, packages_path=tuple()):
         package_paths=packages_path,
     )
 
-    _, path = tempfile.mkstemp(suffix="_to_context.rxt")
-    atexit.register(functools.partial(os.remove, path))
-
+    path = _make_temporary_file("_to_context.rxt")
     context.save(path)
 
     return path
