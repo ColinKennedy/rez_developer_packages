@@ -23,9 +23,19 @@ def _run(namespace):
     )
     _validate_contexts(contexts)
 
-    script_runner = rez_helper.to_script_runner(script)
+    has_issue = rez_helper.to_script_runner(script)
 
-    return runner.bisect(script_runner, contexts)
+    if not namespace.skip_start_check and has_issue(contexts[0]):
+        raise exception.BadRequest('Start context "{contexts[0]}" fails check, "{script}".'.format(
+            contexts=contexts, script=script,
+        ))
+
+    if not namespace.skip_end_check and has_issue(contexts[-1]):
+        raise exception.BadRequest('End context "{context}" fails check, "{script}".'.format(
+            context=contexts[-1], script=script,
+        ))
+
+    return runner.bisect(has_issue, contexts)
 
 
 def _set_up_runner(sub_parsers):
@@ -41,6 +51,18 @@ def _set_up_runner(sub_parsers):
         "requests",
         nargs="+",
         help="Rez requests / resolves to check within for issues.",
+    )
+
+    run.add_argument(
+        "--skip-end-check",
+        action="store_true",
+        help="If included, don't check the last context using ``script``.",
+    )
+
+    run.add_argument(
+        "--skip-start-check",
+        action="store_true",
+        help="If included, don't check the first context using ``script``.",
     )
 
     run.add_argument(

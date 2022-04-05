@@ -20,26 +20,6 @@ _CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 _TESTS = os.path.join(os.path.dirname(_CURRENT_DIRECTORY), "_test_data")
 
 
-class BadRequestCheck(unittest.TestCase):
-    """Ensure start / end contexts and others work as expected."""
-
-    def test_end_001(self):
-        """Fail if the end request fails to resolve."""
-        raise ValueError()
-
-    def test_end_002(self):
-        """Fail if the end request does not have the script issue."""
-        raise ValueError()
-
-    def test_start_001(self):
-        """Fail if the start request fails to resolve."""
-        raise ValueError()
-
-    def test_start_002(self):
-        """Fail if the start request has the script issue."""
-        raise ValueError()
-
-
 class Cases(unittest.TestCase):
     """Ensure bisecting detects expected issues."""
 
@@ -132,6 +112,42 @@ class CasePositioning(unittest.TestCase):
         _quick_test(19)
 
 
+class InvalidRequests(unittest.TestCase):
+    """Ensure start / end contexts and others work as expected."""
+
+    def test_end_001(self):
+        """Fail if the end request fails to resolve."""
+        raise ValueError()
+
+    def test_end_002(self):
+        """Fail if the end request does not have the script issue."""
+
+        def _is_failure_condition(context):
+            return str(context.get_resolved_package("foo").version) == "1.1.0"
+
+        directory = os.path.join(_TESTS, "simple_packages")
+
+        with _patch_run(_is_failure_condition):
+            with self.assertRaises(exception.BadRequest):
+                _run_test(["run", "", "/does/not/exist.rxt", "foo==1.0.0", "foo==1.1.0", "--packages-path", directory])
+
+    def test_start_001(self):
+        """Fail if the start request fails to resolve."""
+        raise ValueError()
+
+    def test_start_002(self):
+        """Fail if the start request has the script issue."""
+
+        def _is_failure_condition(context):
+            return str(context.get_resolved_package("foo").version) == "1.0.0"
+
+        directory = os.path.join(_TESTS, "simple_packages")
+
+        with _patch_run(_is_failure_condition):
+            with self.assertRaises(exception.BadRequest):
+                _run_test(["run", "", "/does/not/exist.rxt", "foo==1.0.0", "foo==1.1.0", "--packages-path", directory])
+
+
 class Invalids(unittest.TestCase):
     """Check for user input or general issue cases.
 
@@ -193,6 +209,50 @@ class Invalids(unittest.TestCase):
         """Don't allow two contexts to be compared unless :ref:`--partial` is added."""
         # TODO : - Offer for users to re-run with --partial once the case has been narrowed down
         raise ValueError()
+
+
+class Options(unittest.TestCase):
+    """Make sure :ref:`rez_bisect run` CLI flags work as expected."""
+
+    def test_skip_end_check(self):
+        """Let the user not check the end context and just end bisecting."""
+
+        def _is_failure_condition(context):
+            return str(context.get_resolved_package("foo").version) == "1.1.0"
+
+        directory = os.path.join(_TESTS, "simple_packages")
+
+        with _patch_run(_is_failure_condition):
+            with mock.patch("rez_bisect.core.runner.bisect"):
+                _run_test([
+                    "run",
+                    "",
+                    "foo==1.0.0",
+                    "foo==1.1.0",
+                    "--packages-path",
+                    directory,
+                    "--skip-end-check",
+                ])
+
+    def test_skip_start_check(self):
+        """Let the user not check the start context and just start bisecting."""
+
+        def _is_failure_condition(context):
+            return str(context.get_resolved_package("foo").version) == "1.0.0"
+
+        directory = os.path.join(_TESTS, "simple_packages")
+
+        with _patch_run(_is_failure_condition):
+            with mock.patch("rez_bisect.core.runner.bisect"):
+                _run_test([
+                    "run",
+                    "",
+                    "foo==1.0.0",
+                    "foo==1.1.0",
+                    "--packages-path",
+                    directory,
+                    "--skip-start-check",
+                ])
 
 
 class Reporting(unittest.TestCase):
