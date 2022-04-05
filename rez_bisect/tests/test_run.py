@@ -49,29 +49,6 @@ class Cases(unittest.TestCase):
 
 class CasePositioning(unittest.TestCase):
 
-    @staticmethod
-    def _quick_test(bad_index, count):
-        def _is_failure_condition(context):
-            return context.get_resolved_package("bar") is not None
-
-        directory = os.path.join(_TESTS, "simple_packages")
-
-        requests = [
-            "foo==1.{index}.0 bar==1.0.0".format(index=index)
-            if index >= bad_index
-            else "foo==1.{index}.0".format(index=index)
-            for index in range(count)
-        ]
-
-        command = ["run", ""]
-        command.extend(requests)
-        command.extend(["--packages-path", directory])
-
-        with _patch_run(_is_failure_condition):
-            result = _run_test(command)
-
-        return result.first_bad
-
     def test_three(self):
         """Including a Rez package family creates some kind of issue."""
 
@@ -89,18 +66,28 @@ class CasePositioning(unittest.TestCase):
 
         self.assertEqual(1, result.first_bad)
 
-    def test_multi_0th(self):
+    def test_permutations(self):
         """Including a Rez package family creates some kind of issue."""
-        expected = 1
 
-        for count in range(2, 20):
-            result = self._quick_test(expected, count)
-            self.assertEqual(
-                expected,
-                result,
-                msg='Count "{count}" expected "{expected}" but got "{result}" '
-                'result.'.format(count=count, expected=expected, result=result),
-            )
+        def _quick_test(expected, maximum=20):
+            for count in range(2, maximum):
+                if count < expected:
+                    continue
+
+                result = _build_bad_index_case(expected, count)
+                self.assertEqual(
+                    expected,
+                    result,
+                    msg='Count "{count}" expected "{expected}" but got "{result}" '
+                    'result.'.format(count=count, expected=expected, result=result),
+                )
+
+        _quick_test(1)
+        _quick_test(4)
+        _quick_test(10)
+        _quick_test(14)
+        _quick_test(17)
+        _quick_test(19)
 
 
 @contextlib.contextmanager
@@ -113,6 +100,30 @@ def _patch_run(checker):
         patch.return_value = checker
 
         yield
+
+
+def _build_bad_index_case(bad_index, count):
+
+    def _is_failure_condition(context):
+        return context.get_resolved_package("bar") is not None
+
+    directory = os.path.join(_TESTS, "simple_packages")
+
+    requests = [
+        "foo==1.{index}.0 bar==1.0.0".format(index=index)
+        if index >= bad_index
+        else "foo==1.{index}.0".format(index=index)
+        for index in range(count)
+    ]
+
+    command = ["run", ""]
+    command.extend(requests)
+    command.extend(["--packages-path", directory])
+
+    with _patch_run(_is_failure_condition):
+        result = _run_test(command)
+
+    return result.first_bad
 
 
 def _run_test(command):
