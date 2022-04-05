@@ -48,9 +48,9 @@ def _run(namespace):
             )
         )
 
-    if not namespace.skip_end_check and has_issue(contexts[-1]):
+    if not namespace.skip_end_check and not has_issue(contexts[-1]):
         raise exception.BadRequest(
-            'End context "{context}" fails check, "{script}".'.format(
+            'End context "{context}" does not fail check, "{script}".'.format(
                 context=contexts[-1],
                 script=script,
             )
