@@ -29,6 +29,7 @@ def _reduce_to_two_contexts(has_issue, contexts):
 
 
 def bisect(has_issue, contexts):
+    # _BisectSummary: The bisect summary, serialized into text.
     count = len(contexts)
     if count > 2:
         last_good, first_bad = _reduce_to_two_contexts(has_issue, contexts)

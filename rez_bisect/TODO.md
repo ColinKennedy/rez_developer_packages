@@ -22,6 +22,8 @@ Documentation
 :ref:`.rxt`
 :ref:`request`."""
 :ref:`--partial`
+:ref:`automated Rez bisect`
+:ref:`rez_bisect cli`."""
 - :ref:`rez_bisect run`
 
 - Add tags to docstrings as needed (add them where they don't exist)

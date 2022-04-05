@@ -1,3 +1,5 @@
+"""The main work module for the :ref:`rez_bisect cli`."""
+
 import argparse
 import logging
 import os
@@ -10,6 +12,19 @@ _LOGGER = logging.getLogger(__name__)
 
 
 def _run(namespace):
+    """Run an :ref:`automated Rez bisect`, in Rez.
+
+    Raises:
+        BadRequest:
+            If ``namespace`` defines a start and end Rez :ref:`context` which
+            is broken, the ensuing bisect will surely fail. Instead, we raise
+            this exception beforehand, to let the user they need to change
+            something.
+
+    Returns:
+        _BisectSummary: The bisect summary, serialized into text.
+
+    """
     current_directory = os.getcwd()
 
     script = path_helper.normalize(namespace.script, current_directory)
@@ -45,6 +60,13 @@ def _run(namespace):
 
 
 def _set_up_runner(sub_parsers):
+    """Add the :ref:`rez_bisect run` sub-parser to ``sub_parsers``.
+
+    Args:
+        sub_parsers (argparse._SubParsersAction):
+            The nested parser group to add a new command into.
+
+    """
     run = sub_parsers.add_parser("run", help="Checks for an issue, using a script.")
     run.set_defaults(execute=_run)
 
@@ -130,6 +152,15 @@ def _validate_script(path):
 
 
 def parse_arguments(text):
+    """Convert the user's CLI input to something :ref:`rez_bisect` can understand.
+
+    Args:
+        text (list[str]): The raw CLI input, separated by spaces. e.g. ``sys.argv[1:]``.
+
+    Returns:
+        argparse.Namespace: The parsed user text input.
+
+    """
     parser = argparse.ArgumentParser(
         description="Check Rez resolves for a specific issue."
     )

@@ -1,3 +1,5 @@
+"""The entry point for the :ref:`rez_bisect cli`."""
+
 from __future__ import print_function
 
 import logging
@@ -20,5 +22,5 @@ if __name__ == "__main__":
         cli.main(sys.argv[1:])
     except exception.Base as error:
         print(
-            "{error.__class__.__name__}: {error}".format(erorr=error), file=sys.stderr
+            "{error.__class__.__name__}: {error}".format(error=error), file=sys.stderr
         )

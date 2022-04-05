@@ -156,8 +156,7 @@ class InvalidRequests(unittest.TestCase):
                         "/does/not/exist.rxt",
                         "foo==1.0.0",
                         "foo==1.1.0",
-                        "--packages-path",
-                        directory,
+                        "--packages-path", directory,
                     ]
                 )
 
