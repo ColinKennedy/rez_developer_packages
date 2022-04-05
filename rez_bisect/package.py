@@ -32,10 +32,14 @@ tests = {
         "requires": ["isort-5.10+<6"],
     },
     "pydocstyle": {
+        # Need to disable D417 for now, until a new pydocstyle version is released
+        #
+        # Reference: https://github.com/PyCQA/pydocstyle/blob/master/docs/release_notes.rst
+        #
         # Need to disable D202 for now, until a new pydocstyle version is released
         # Reference: https://github.com/psf/black/issues/1159
         #
-        "command": "pydocstyle --ignore=D213,D202,D203,D406,D407 python tests/*",
+        "command": "pydocstyle --ignore=D213,D202,D203,D406,D407,D417 python tests/*",
         "requires": ["pydocstyle-6.1+<7"],
     },
     "pylint": {
