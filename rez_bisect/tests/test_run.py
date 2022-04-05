@@ -44,7 +44,37 @@ class Cases(unittest.TestCase):
     """Ensure bisecting detects expected issues."""
 
     def test_included_family_bad(self):
+        raise ValueError()
+
+
+class CasePositioning(unittest.TestCase):
+
+    @staticmethod
+    def _quick_test(bad_index, count):
+        def _is_failure_condition(context):
+            return context.get_resolved_package("bar") is not None
+
+        directory = os.path.join(_TESTS, "simple_packages")
+
+        requests = [
+            "foo==1.{index}.0 bar==1.0.0".format(index=index)
+            if index == bad_index
+            else "foo==1.{index}.0".format(index=index)
+            for index in range(count)
+        ]
+
+        command = ["run", ""]
+        command.extend(requests)
+        command.extend(["--packages-path", directory])
+
+        with _patch_run(_is_failure_condition):
+            result = _run_test(command)
+
+        return result.first_bad
+
+    def test_three(self):
         """Including a Rez package family creates some kind of issue."""
+
         def _is_failure_condition(context):
             return context.get_resolved_package("bar") is not None
 
@@ -55,7 +85,22 @@ class Cases(unittest.TestCase):
         request_3 = "foo==1.2.0 bar==1.0.0"
 
         with _patch_run(_is_failure_condition):
-            _run_test(["run", "", request_1, request_2, request_3, "--packages-path", directory])
+            result = _run_test(["run", "", request_1, request_2, request_3, "--packages-path", directory])
+
+        self.assertEqual(1, result.first_bad)
+
+    def test_multi_0th(self):
+        """Including a Rez package family creates some kind of issue."""
+        expected = 1
+
+        for count in range(2, 20):
+            result = self._quick_test(expected, count)
+            self.assertEqual(
+                expected,
+                result,
+                msg='Count "{count}" expected "{expected}" but got "{result}" '
+                'result.'.format(count=count, expected=expected, result=result),
+            )
 
 
 @contextlib.contextmanager
@@ -75,4 +120,5 @@ def _run_test(command):
         command = shlex.split(command)
 
     namespace = cli.parse_arguments(command)
-    cli.run(namespace)
+
+    return cli.run(namespace)

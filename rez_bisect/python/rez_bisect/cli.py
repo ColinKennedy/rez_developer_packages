@@ -19,9 +19,8 @@ def _run(namespace):
     requests = rez_helper.normalize_requests(namespace.requests, current_directory)
     contexts = rez_helper.to_contexts(requests, packages_path=namespace.packages_path)
     script_runner = rez_helper.to_script_runner(script)
-    runner.bisect(script_runner, contexts)
 
-    raise ValueError()
+    return runner.bisect(script_runner, contexts)
 
 
 def _set_up_runner(sub_parsers):
@@ -67,7 +66,7 @@ def parse_arguments(text):
 
 
 def run(namespace):
-    namespace.execute(namespace)
+    return namespace.execute(namespace)
 
 
 def main(text):
