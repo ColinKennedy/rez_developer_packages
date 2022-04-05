@@ -15,9 +15,13 @@ def _is_relative_context(text):
     return text.endswith(".rxt")
 
 
-def normalize_requests(requests, root):
+def to_contexts(requests, root, packages_path=None):
+    if not packages_path:
+        packages_path = config.packages_path
+
+    failed = set()
     missing = set()
-    output = []
+    contexts = []
 
     for request in requests:
         if os.path.isabs(request) and not os.path.isfile(request):
@@ -28,29 +32,12 @@ def normalize_requests(requests, root):
 
         if _is_relative_context(request):
             request = path_helper.normalize(request, root)
-            raise NotImplementedError('Need to handle .rxt files here. Maybe.')
+            context = resolved_context.ResolvedContext.load(request)
         else:
-            output.append(request.split(_REQUEST_SEPARATOR))
-
-    if not missing:
-        return output
-
-    raise exception.BadRequest('Requests "{missing}" could not be found.'.format(missing=missing))
-
-
-def to_contexts(requests, packages_path=None):
-    if not packages_path:
-        packages_path = config.packages_path
-
-    failed = set()
-    contexts = []
-
-    for request in requests:
-        # TODO : Add context load support, here
-        context = resolved_context.ResolvedContext(
-            package_requests=request,
-            package_paths=packages_path,
-        )
+            context = resolved_context.ResolvedContext(
+                package_requests=to_request_list(request),
+                package_paths=packages_path,
+            )
 
         if not context.success:
             failed.add(request)
@@ -59,10 +46,17 @@ def to_contexts(requests, packages_path=None):
 
         contexts.append(context)
 
+    if missing:
+        raise exception.BadRequest('Context files "{missing}" do not exist on-disk.'.format(missing=missing))
+
     if failed:
         raise exception.BadRequest('Requests "{failed}" were not resolvable.'.format(failed=failed))
 
     return contexts
+
+
+def to_request_list(request):
+    return request.split(_REQUEST_SEPARATOR)
 
 
 def to_script_runner(path):

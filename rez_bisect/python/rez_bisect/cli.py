@@ -16,8 +16,13 @@ def _run(namespace):
     _LOGGER.debug('Found script "%s".', script)
     _validate_script(script)
 
-    requests = rez_helper.normalize_requests(namespace.requests, current_directory)
-    contexts = rez_helper.to_contexts(requests, packages_path=namespace.packages_path)
+    contexts = rez_helper.to_contexts(
+        namespace.requests,
+        current_directory,
+        packages_path=namespace.packages_path,
+    )
+    _validate_contexts(contexts)
+
     script_runner = rez_helper.to_script_runner(script)
 
     return runner.bisect(script_runner, contexts)
@@ -49,11 +54,36 @@ def _set_up_runner(sub_parsers):
     # parser.add_argument("--partial", help="Guess the issue found between 2 resolves.")
 
 
+def _validate_contexts(contexts):
+    """Ensure ``contexts`` are valid for running in the CLI.
+
+    Args:
+        contexts (list[rez.resolved_context.ResolvedContext]):
+            The Rez requests, resolved as packages, to check.
+
+    Raises:
+        UserInputError: If not enough :ref:`contexts` were given.
+        DuplicateContexts: If the start / end :ref:`contexts` are identical.
+
+    """
+    start = contexts[0]
+    end = contexts[-1]
+
+    if len(contexts) == 1:
+        raise exception.UserInputError(
+            'You must provide at least 2 Rez requests / contexts. '
+            'We only got "{contexts}".'.format(contexts=contexts)
+        )
+
+    if start == end:
+        raise exception.DuplicateContexts('Start and end context are the same.')
+
+
 def _validate_script(path):
     if os.path.isfile(path):
         return
 
-    raise exception.FileNotFound('Script "{script}" does not exist on-disk.'.format(script=script))
+    raise exception.FileNotFound('Script "{path}" does not exist on-disk.'.format(path=path))
 
 
 def parse_arguments(text):
