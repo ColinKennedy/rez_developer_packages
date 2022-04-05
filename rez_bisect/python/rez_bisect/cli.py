@@ -26,14 +26,20 @@ def _run(namespace):
     has_issue = rez_helper.to_script_runner(script)
 
     if not namespace.skip_start_check and has_issue(contexts[0]):
-        raise exception.BadRequest('Start context "{contexts[0]}" fails check, "{script}".'.format(
-            contexts=contexts, script=script,
-        ))
+        raise exception.BadRequest(
+            'Start context "{contexts[0]}" fails check, "{script}".'.format(
+                contexts=contexts,
+                script=script,
+            )
+        )
 
     if not namespace.skip_end_check and has_issue(contexts[-1]):
-        raise exception.BadRequest('End context "{context}" fails check, "{script}".'.format(
-            context=contexts[-1], script=script,
-        ))
+        raise exception.BadRequest(
+            'End context "{context}" fails check, "{script}".'.format(
+                context=contexts[-1],
+                script=script,
+            )
+        )
 
     return runner.bisect(has_issue, contexts)
 
@@ -93,12 +99,12 @@ def _validate_contexts(contexts):
 
     if len(contexts) == 1:
         raise exception.UserInputError(
-            'You must provide at least 2 Rez requests / contexts. '
+            "You must provide at least 2 Rez requests / contexts. "
             'We only got "{contexts}".'.format(contexts=contexts)
         )
 
     if start == end:
-        raise exception.DuplicateContexts('Start and end context are the same.')
+        raise exception.DuplicateContexts("Start and end context are the same.")
 
 
 def _validate_script(path):
@@ -113,14 +119,20 @@ def _validate_script(path):
 
     """
     if not os.path.isfile(path):
-        raise exception.FileNotFound('Script "{path}" does not exist on-disk.'.format(path=path))
+        raise exception.FileNotFound(
+            'Script "{path}" does not exist on-disk.'.format(path=path)
+        )
 
     if not os.access(path, os.X_OK):
-        raise exception.PermissionsError('Script "{path}" is not executable.'.format(path=path))
+        raise exception.PermissionsError(
+            'Script "{path}" is not executable.'.format(path=path)
+        )
 
 
 def parse_arguments(text):
-    parser = argparse.ArgumentParser(description="Check Rez resolves for a specific issue.")
+    parser = argparse.ArgumentParser(
+        description="Check Rez resolves for a specific issue."
+    )
     sub_parsers = parser.add_subparsers(help="All available commands.")
 
     _set_up_runner(sub_parsers)

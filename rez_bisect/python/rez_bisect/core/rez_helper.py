@@ -47,10 +47,14 @@ def to_contexts(requests, root, packages_path=None):
         contexts.append(context)
 
     if missing:
-        raise exception.BadRequest('Context files "{missing}" do not exist on-disk.'.format(missing=missing))
+        raise exception.BadRequest(
+            'Context files "{missing}" do not exist on-disk.'.format(missing=missing)
+        )
 
     if failed:
-        raise exception.BadRequest('Requests "{failed}" were not resolvable.'.format(failed=failed))
+        raise exception.BadRequest(
+            'Requests "{failed}" were not resolvable.'.format(failed=failed)
+        )
 
     return contexts
 

@@ -8,6 +8,7 @@ class BadRequest(Base):
 
 class DuplicateContexts(Base):
     """When 2 unique Rez :ref:`contexts` are expected but only one is found."""
+
     pass
 
 

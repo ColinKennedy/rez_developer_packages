@@ -19,4 +19,6 @@ if __name__ == "__main__":
     try:
         cli.main(sys.argv[1:])
     except exception.Base as error:
-        print('{error.__class__.__name__}: {error}'.format(erorr=error), file=sys.stderr)
+        print(
+            "{error.__class__.__name__}: {error}".format(erorr=error), file=sys.stderr
+        )

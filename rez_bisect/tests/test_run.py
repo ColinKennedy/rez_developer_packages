@@ -63,7 +63,17 @@ class ContextInputs(unittest.TestCase):
         request_3 = _to_context("foo==1.2.0 bar==1.0.0", packages_path=[directory])
 
         with _patch_run(_is_failure_condition):
-            result = _run_test(["run", "", request_1, request_2, request_3, "--packages-path", directory])
+            result = _run_test(
+                [
+                    "run",
+                    "",
+                    request_1,
+                    request_2,
+                    request_3,
+                    "--packages-path",
+                    directory,
+                ]
+            )
 
         self.assertEqual(2, result.first_bad)
 
@@ -84,7 +94,17 @@ class CasePositioning(unittest.TestCase):
         request_3 = "foo==1.2.0 bar==1.0.0"
 
         with _patch_run(_is_failure_condition):
-            result = _run_test(["run", "", request_1, request_2, request_3, "--packages-path", directory])
+            result = _run_test(
+                [
+                    "run",
+                    "",
+                    request_1,
+                    request_2,
+                    request_3,
+                    "--packages-path",
+                    directory,
+                ]
+            )
 
         self.assertEqual(2, result.first_bad)
 
@@ -101,7 +121,7 @@ class CasePositioning(unittest.TestCase):
                     expected,
                     result,
                     msg='Count "{count}" expected "{expected}" but got "{result}" '
-                    'result.'.format(count=count, expected=expected, result=result),
+                    "result.".format(count=count, expected=expected, result=result),
                 )
 
         _quick_test(1)
@@ -129,7 +149,17 @@ class InvalidRequests(unittest.TestCase):
 
         with _patch_run(_is_failure_condition):
             with self.assertRaises(exception.BadRequest):
-                _run_test(["run", "", "/does/not/exist.rxt", "foo==1.0.0", "foo==1.1.0", "--packages-path", directory])
+                _run_test(
+                    [
+                        "run",
+                        "",
+                        "/does/not/exist.rxt",
+                        "foo==1.0.0",
+                        "foo==1.1.0",
+                        "--packages-path",
+                        directory,
+                    ]
+                )
 
     def test_start_001(self):
         """Fail if the start request fails to resolve."""
@@ -145,7 +175,17 @@ class InvalidRequests(unittest.TestCase):
 
         with _patch_run(_is_failure_condition):
             with self.assertRaises(exception.BadRequest):
-                _run_test(["run", "", "/does/not/exist.rxt", "foo==1.0.0", "foo==1.1.0", "--packages-path", directory])
+                _run_test(
+                    [
+                        "run",
+                        "",
+                        "/does/not/exist.rxt",
+                        "foo==1.0.0",
+                        "foo==1.1.0",
+                        "--packages-path",
+                        directory,
+                    ]
+                )
 
 
 class Invalids(unittest.TestCase):
@@ -166,7 +206,16 @@ class Invalids(unittest.TestCase):
 
         with _patch_run(_is_failure_condition):
             with self.assertRaises(exception.BadRequest):
-                _run_test(["run", "", "/does/not/exist.rxt", "foo==1.1.0", "--packages-path", directory])
+                _run_test(
+                    [
+                        "run",
+                        "",
+                        "/does/not/exist.rxt",
+                        "foo==1.1.0",
+                        "--packages-path",
+                        directory,
+                    ]
+                )
 
     def test_same_contexts(self):
         """Fail early if the start and end are the same Rez :ref:`request`."""
@@ -178,7 +227,16 @@ class Invalids(unittest.TestCase):
 
         with _patch_run(_is_failure_condition):
             with self.assertRaises(exception.DuplicateContexts):
-                _run_test(["run", "/does/not/exist.sh", "foo==1.0.0", "foo==1.0.0", "--packages-path", directory])
+                _run_test(
+                    [
+                        "run",
+                        "/does/not/exist.sh",
+                        "foo==1.0.0",
+                        "foo==1.0.0",
+                        "--packages-path",
+                        directory,
+                    ]
+                )
 
     def test_script_not_executable(self):
         """Fail if the script cannot be executed."""
@@ -191,7 +249,9 @@ class Invalids(unittest.TestCase):
     def test_script_not_found(self):
         """Fail early if the script file doesn't exist."""
         with self.assertRaises(exception.FileNotFound):
-            _run_test(["run", "/does/not/exist.sh", "foo==1.0.0", "foo==1.1.0", "foo==1.2.0"])
+            _run_test(
+                ["run", "/does/not/exist.sh", "foo==1.0.0", "foo==1.1.0", "foo==1.2.0"]
+            )
 
     def test_only_one_context_given(self):
         """Fail if only one Rez :ref:`context` is given."""
@@ -203,7 +263,15 @@ class Invalids(unittest.TestCase):
 
         with _patch_run(_is_failure_condition):
             with self.assertRaises(exception.UserInputError):
-                _run_test(["run", "/does/not/exist.sh", "foo==1.0.0", "--packages-path", directory])
+                _run_test(
+                    [
+                        "run",
+                        "/does/not/exist.sh",
+                        "foo==1.0.0",
+                        "--packages-path",
+                        directory,
+                    ]
+                )
 
     def test_two_contexts_but_no_partial_flag_enabled(self):
         """Don't allow two contexts to be compared unless :ref:`--partial` is added."""
@@ -224,15 +292,17 @@ class Options(unittest.TestCase):
 
         with _patch_run(_is_failure_condition):
             with mock.patch("rez_bisect.core.runner.bisect"):
-                _run_test([
-                    "run",
-                    "",
-                    "foo==1.0.0",
-                    "foo==1.1.0",
-                    "--packages-path",
-                    directory,
-                    "--skip-end-check",
-                ])
+                _run_test(
+                    [
+                        "run",
+                        "",
+                        "foo==1.0.0",
+                        "foo==1.1.0",
+                        "--packages-path",
+                        directory,
+                        "--skip-end-check",
+                    ]
+                )
 
     def test_skip_start_check(self):
         """Let the user not check the start context and just start bisecting."""
@@ -244,15 +314,17 @@ class Options(unittest.TestCase):
 
         with _patch_run(_is_failure_condition):
             with mock.patch("rez_bisect.core.runner.bisect"):
-                _run_test([
-                    "run",
-                    "",
-                    "foo==1.0.0",
-                    "foo==1.1.0",
-                    "--packages-path",
-                    directory,
-                    "--skip-start-check",
-                ])
+                _run_test(
+                    [
+                        "run",
+                        "",
+                        "foo==1.0.0",
+                        "foo==1.1.0",
+                        "--packages-path",
+                        directory,
+                        "--skip-start-check",
+                    ]
+                )
 
 
 class Reporting(unittest.TestCase):
@@ -261,7 +333,6 @@ class Reporting(unittest.TestCase):
 
 
 def _build_bad_index_case(bad_index, count):
-
     def _is_failure_condition(context):
         return context.get_resolved_package("bar") is not None
 
@@ -293,10 +364,9 @@ def _make_temporary_file(suffix):
 
 @contextlib.contextmanager
 def _patch_run(checker):
-    with mock.patch(
-        "rez_bisect.cli._validate_script"
-    ), mock.patch(
-        "rez_bisect.core.rez_helper.to_script_runner", wraps=checker,
+    with mock.patch("rez_bisect.cli._validate_script"), mock.patch(
+        "rez_bisect.core.rez_helper.to_script_runner",
+        wraps=checker,
     ) as patch:
         patch.return_value = checker
 
