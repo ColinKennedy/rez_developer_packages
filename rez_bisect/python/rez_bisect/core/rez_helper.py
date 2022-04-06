@@ -1,13 +1,12 @@
 """Extra functions so the CLI works with Rez as expected."""
 
-import subprocess
 import os
+import subprocess
 
-from rez.config import config
 from rez import resolved_context
+from rez.config import config
 
 from . import exception, path_helper
-
 
 _REQUEST_SEPARATOR = " "
 

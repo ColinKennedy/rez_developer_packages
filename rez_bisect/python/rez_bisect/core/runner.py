@@ -14,7 +14,6 @@ import collections
 
 from . import bisecter
 
-
 _BisectSummary = collections.namedtuple("_BisectSummary", "last_good, first_bad, diff")
 
 

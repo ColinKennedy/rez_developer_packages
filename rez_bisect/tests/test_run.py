@@ -9,12 +9,11 @@ import tempfile
 import unittest
 
 import six
+from rez import resolved_context
 from six.moves import mock
 
-from rez import resolved_context
-from rez_bisect.core import exception, rez_helper
 from rez_bisect import cli
-
+from rez_bisect.core import exception, rez_helper
 
 _CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 _TESTS = os.path.join(os.path.dirname(_CURRENT_DIRECTORY), "_test_data")

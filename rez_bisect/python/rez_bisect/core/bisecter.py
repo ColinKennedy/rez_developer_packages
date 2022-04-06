@@ -6,7 +6,6 @@ There's a couple tweaks to make it more useful. But otherwise, it's the same cod
 
 from __future__ import division
 
-
 # TODO : Double-check if we actually need bisect_left, not bisect_right
 # TODO : Update this docstring to be more generic
 

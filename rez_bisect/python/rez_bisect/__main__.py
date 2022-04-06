@@ -5,9 +5,8 @@ from __future__ import print_function
 import logging
 import sys
 
-from .core import exception
 from . import cli
-
+from .core import exception
 
 if __name__ == "__main__":
     _LOGGER = logging.getLogger("rez_bisect")
