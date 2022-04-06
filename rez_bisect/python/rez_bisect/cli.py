@@ -130,7 +130,7 @@ def _validate_contexts(contexts):
             'We only got "{contexts}".'.format(contexts=contexts)
         )
 
-    if start != end:
+    if start == end:
         raise exception.DuplicateContexts("Start and end context are the same.")
 
 

@@ -221,6 +221,7 @@ class Invalids(unittest.TestCase):
                         "foo==1.1.0",
                         "--packages-path",
                         directory,
+                        "--partial",
                     ]
                 )
 
@@ -242,6 +243,7 @@ class Invalids(unittest.TestCase):
                         "foo==1.0.0",
                         "--packages-path",
                         directory,
+                        "--partial",
                     ]
                 )
 
@@ -293,17 +295,16 @@ class Invalids(unittest.TestCase):
             "/does/not/exist.sh",
             "foo==1.0.0",
             "foo==1.1.0",
+            "--skip-end-check",
             "--packages-path",
             directory,
         ]
 
-        with _patch_run(_is_failure_condition):
-            with self.assertRaises(exception.UserInputError):
-                _run_test(command)
+        with _patch_run(_is_failure_condition), self.assertRaises(exception.UserInputError):
+            _run_test(command)
 
-        with _patch_run(_is_failure_condition):
-            with mock.patch("rez_bisect.core.runner.bisect"):
-                _run_test(command + ["--partial"])
+        with _patch_run(_is_failure_condition), mock.patch("rez_bisect.core.runner.bisect"):
+            _run_test(command + ["--partial"])
 
 
 class Options(unittest.TestCase):
@@ -328,6 +329,7 @@ class Options(unittest.TestCase):
                         "--packages-path",
                         directory,
                         "--skip-end-check",
+                        "--partial",
                     ]
                 )
 
@@ -347,6 +349,7 @@ class Options(unittest.TestCase):
                         "",
                         "foo==1.0.0",
                         "foo==1.1.0",
+                        "--partial",
                         "--packages-path",
                         directory,
                         "--skip-start-check",
@@ -408,7 +411,7 @@ def _build_bad_index_case(bad_index, count):
 
     command = ["run", ""]
     command.extend(requests)
-    command.extend(["--packages-path", directory])
+    command.extend(["--packages-path", directory, "--partial"])
 
     with _patch_run(_is_failure_condition):
         result = _run_test(command)
