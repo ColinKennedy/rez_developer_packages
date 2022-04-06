@@ -3,6 +3,8 @@ Test Cases
  - 2 or more packages at once have some incompatible issue
 - Handle errors due to added or removed **ephemerals**
 
+- When a generic report is generated, Offer for users to re-run with --partial
+  to get more refined results
 
 - The report should say
  - The first index that has the problem (+ include the request that failed)

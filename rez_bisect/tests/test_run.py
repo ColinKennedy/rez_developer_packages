@@ -282,8 +282,28 @@ class Invalids(unittest.TestCase):
 
     def test_two_contexts_but_no_partial_flag_enabled(self):
         """Don't allow two contexts to be compared unless :ref:`--partial` is added."""
-        # TODO : - Offer for users to re-run with --partial once the case has been narrowed down
-        raise ValueError()
+
+        def _is_failure_condition(_):
+            return False
+
+        directory = os.path.join(_TESTS, "simple_packages")
+
+        command = [
+            "run",
+            "/does/not/exist.sh",
+            "foo==1.0.0",
+            "foo==1.1.0",
+            "--packages-path",
+            directory,
+        ]
+
+        with _patch_run(_is_failure_condition):
+            with self.assertRaises(exception.UserInputError):
+                _run_test(command)
+
+        with _patch_run(_is_failure_condition):
+            with mock.patch("rez_bisect.core.runner.bisect"):
+                _run_test(command + ["--partial"])
 
 
 class Options(unittest.TestCase):
