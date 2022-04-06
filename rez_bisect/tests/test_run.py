@@ -575,7 +575,39 @@ class Reporting(unittest.TestCase):
 
     def test_partial(self):
         """Make sure the report is adapted if :ref:`--partial` is included."""
-        raise ValueError()
+
+        def _is_failure_condition(context):
+            return context.get_resolved_package("bar") is not None
+
+        directory = os.path.join(_TESTS, "simple_packages")
+
+        request_1 = "foo==1.0.0"
+        request_2 = "foo==1.1.0"
+        request_3 = "foo==1.2.0 bar==1.0.0 dependency-1"
+        request_4 = "foo==1.3.0 bar==1.0.0 dependency-1"
+        request_5 = "foo==1.4.0 bar==1.0.0 dependency-1"
+        request_6 = "foo==1.5.0 bar==1.0.0 dependency-1"
+
+        with _patch_run(_is_failure_condition):
+            result = _run_test(
+                [
+                    "run",
+                    "",
+                    request_1,
+                    request_2,
+                    request_3,
+                    request_4,
+                    request_5,
+                    request_6,
+                    "--packages-path",
+                    directory,
+                    "--partial",
+                ]
+            )
+
+        self.assertEqual(2, result.first_bad)
+        raise ValueError(result)
+        # TODO : Check that the diff is perfect
 
 
 def _build_bad_index_case(bad_index, count):

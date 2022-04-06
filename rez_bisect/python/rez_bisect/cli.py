@@ -11,7 +11,63 @@ from .core import cli_helper, exception, path_helper, rez_helper, runner
 _LOGGER = logging.getLogger(__name__)
 
 
+def _get_absolute_script(path, root):
+    """Resolve ``path`` into an absolute, executable script path.
+
+    Args:
+        path (str):
+            An absolute or relative path to make absolute.
+        root (str):
+            An absolute path which prepends to ``path``, if ``path`` is relative.
+
+    Returns:
+        str: The absolute path to a file or folder on-disk for ``path``.
+
+    """
+    script = path_helper.normalize(path, root)
+    _LOGGER.debug('Found script "%s".', script)
+    _validate_script(script)
+
+    return script
+
+
+def _get_contexts(namespace, root):
+    """Convert all user Rez :ref:`requests` into Rez :ref:`contexts`.
+
+    Args:
+        namespace (argparse.Namespace):
+            The raw Rez package :ref:`requests` to query and convert.
+        root (str):
+            An absolute path which prepends any relative file paths, if they exist.
+
+    Returns:
+        list[rez.resolved_context.ResolvedContext]:
+            The Rez requests, resolved as packages.
+
+    """
+    _validate_requests(namespace.requests, namespace.partial)
+    contexts = rez_helper.to_contexts(
+        namespace.requests,
+        root,
+        packages_path=namespace.packages_path,
+        allow_unresolved=namespace.skip_failed_contexts,
+    )
+    _validate_contexts(contexts)
+
+    if len(contexts) != len(namespace.requests):
+        _report_context_indices(contexts)
+
+    return contexts
+
+
 def _report_context_indices(contexts):
+    """Print the given ``contexts``.
+
+    Args:
+        list[rez.resolved_context.ResolvedContext]:
+            The Rez requests, resolved as packages.
+
+    """
     print('Using "{count}" contexts.'.format(count=len(contexts)))
 
     for index, context in enumerate(contexts):
@@ -22,54 +78,12 @@ def _report_context_indices(contexts):
 
 
 def _run(namespace):
-    """Run an :ref:`automated Rez bisect`, in Rez.
-
-    Raises:
-        BadRequest:
-            If ``namespace`` defines a start and end Rez :ref:`context` which
-            is broken, the ensuing bisect will surely fail. Instead, we raise
-            this exception beforehand, to let the user they need to change
-            something.
-
-    Returns:
-        _BisectSummary: The bisect summary, serialized into text.
-
-    """
+    """_BisectSummary: Run an :ref:`automated Rez bisect`, in Rez."""
     current_directory = os.getcwd()
 
-    script = path_helper.normalize(namespace.script, current_directory)
-    _LOGGER.debug('Found script "%s".', script)
-    _validate_script(script)
-
-    _validate_requests(namespace.requests, namespace.partial)
-    contexts = rez_helper.to_contexts(
-        namespace.requests,
-        current_directory,
-        packages_path=namespace.packages_path,
-        allow_unresolved=namespace.skip_failed_contexts,
-    )
-    _validate_contexts(contexts)
-
-    if len(contexts) != len(namespace.requests):
-        _report_context_indices(contexts)
-
-    has_issue = rez_helper.to_script_runner(script)
-
-    if not namespace.skip_start_check and has_issue(contexts[0]):
-        raise exception.BadRequest(
-            'Start context "{contexts[0]}" fails check, "{script}".'.format(
-                contexts=contexts,
-                script=script,
-            )
-        )
-
-    if not namespace.skip_end_check and not has_issue(contexts[-1]):
-        raise exception.BadRequest(
-            'End context "{context}" does not fail check, "{script}".'.format(
-                context=contexts[-1],
-                script=script,
-            )
-        )
+    script = _get_absolute_script(namespace.script, current_directory)
+    contexts = _get_contexts(namespace, current_directory)
+    has_issue = _validate_context_bounds(namespace, script, contexts)
 
     return runner.bisect(has_issue, contexts, partial=namespace.partial)
 
@@ -152,6 +166,46 @@ def _validate_contexts(contexts):
 
     if start == end:
         raise exception.DuplicateContexts("Start and end context are the same.")
+
+
+def _validate_context_bounds(namespace, script, contexts):
+    """Check that ``contexts`` is valid, using ``script``.
+
+    Args:
+        namespace (argparse.Namespace):
+            User-provided configuration values. Depending on the given
+            ``namespace``, this function may not check anything or be super strict.
+        script (str):
+            The absolute path to an executable file on-disk to check against
+            ``contexts``.
+        contexts (list[rez.resolved_context.ResolvedContext]):
+            The Rez requests, resolved as packages, to check.
+
+    Raises:
+        BadRequest:
+            If ``namespace`` defines a start and end Rez :ref:`context` which
+            is broken, the ensuing bisect will surely fail. Instead, we raise
+            this exception beforehand, to let the user they need to change
+            something.
+
+    """
+    has_issue = rez_helper.to_script_runner(script)
+
+    if not namespace.skip_start_check and has_issue(contexts[0]):
+        raise exception.BadRequest(
+            'Start context "{contexts[0]}" fails check, "{script}".'.format(
+                contexts=contexts,
+                script=script,
+            )
+        )
+
+    if not namespace.skip_end_check and not has_issue(contexts[-1]):
+        raise exception.BadRequest(
+            'End context "{context}" does not fail check, "{script}".'.format(
+                context=contexts[-1],
+                script=script,
+            )
+        )
 
 
 def _validate_requests(requests, partial=False):
