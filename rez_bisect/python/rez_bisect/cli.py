@@ -11,6 +11,16 @@ from .core import cli_helper, exception, path_helper, rez_helper, runner
 _LOGGER = logging.getLogger(__name__)
 
 
+def _report_context_indices(contexts):
+    print('Using "{count}" contexts.'.format(count=len(contexts)))
+
+    for index, context in enumerate(contexts):
+        print('#{index}: {request}'.format(
+            index=index,
+            request=" ".join(str(request_) for request_ in context.requested_packages()),
+        ))
+
+
 def _run(namespace):
     """Run an :ref:`automated Rez bisect`, in Rez.
 
@@ -36,8 +46,12 @@ def _run(namespace):
         namespace.requests,
         current_directory,
         packages_path=namespace.packages_path,
+        allow_unresolved=namespace.skip_failed_contexts,
     )
     _validate_contexts(contexts)
+
+    if len(contexts) != len(namespace.requests):
+        _report_context_indices(contexts)
 
     has_issue = rez_helper.to_script_runner(script)
 
@@ -57,7 +71,7 @@ def _run(namespace):
             )
         )
 
-    return runner.bisect(has_issue, contexts)
+    return runner.bisect(has_issue, contexts, partial=namespace.partial)
 
 
 def _set_up_runner(sub_parsers):
@@ -86,6 +100,12 @@ def _set_up_runner(sub_parsers):
         "--skip-end-check",
         action="store_true",
         help="If included, don't check the last context using ``script``.",
+    )
+
+    run.add_argument(
+        "--skip-failed-contexts",
+        action="store_true",
+        help='If you are comparing 3+ contexts, skip "middle" contexts even if they don\'t resolve.',
     )
 
     run.add_argument(

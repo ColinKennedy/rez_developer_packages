@@ -19,7 +19,8 @@ from rez_bisect.core import exception, rez_helper
 _CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 _TESTS = os.path.join(os.path.dirname(_CURRENT_DIRECTORY), "_test_data")
 
-_VERSION = version.Version("1.2")
+_VERSION_1_1 = version.Version("1.1")
+_VERSION_1_2 = version.Version("1.2")
 
 
 class Cases(unittest.TestCase):
@@ -40,7 +41,7 @@ class Cases(unittest.TestCase):
         """Fail once a certain version range occurs."""
 
         def _is_failure_condition(context):
-            return context.get_resolved_package("foo").version > _VERSION
+            return context.get_resolved_package("foo").version > _VERSION_1_2
 
         directory = os.path.join(_TESTS, "simple_packages")
 
@@ -123,7 +124,24 @@ class ContextInputs(unittest.TestCase):
 
     def test_failed_intermediary_context(self):
         """Make sure failed contexts are not allowed to continue."""
-        raise ValueError()
+
+        def _is_failure_condition(context):
+            return str(context.get_resolved_package("foo").version) == "1.0.0"
+
+        directory = os.path.join(_TESTS, "simple_packages")
+
+        with _patch_run(_is_failure_condition), self.assertRaises(exception.BadRequest):
+            _run_test(
+                [
+                    "run",
+                    "",
+                    "foo==1.0.0",
+                    "foo==1.1.0 !foo-1",
+                    "foo==1.2.0",
+                    "--packages-path",
+                    directory,
+                ]
+            )
 
     def test_filter_duplicates(self):
         """Filter out duplicate requests, if the user provides any."""
@@ -470,7 +488,27 @@ class Options(unittest.TestCase):
 
         """
         #  - If one of the resolve request steps has a conflict, skip it and go compare against the next one
-        raise ValueError()
+
+        def _is_failure_condition(context):
+            return str(context.get_resolved_package("foo").version) > _VERSION_1_1
+
+        directory = os.path.join(_TESTS, "simple_packages")
+
+        with _patch_run(_is_failure_condition), mock.patch("rez_bisect.cli._report_context_indices"):
+            _run_test(
+                [
+                    "run",
+                    "",
+                    "foo==1.0.0",
+                    "foo==1.1.0 !foo-1",
+                    "foo==1.1.1 !foo-1",
+                    "foo==1.1.0",
+                    "foo==1.2.0",
+                    "--packages-path",
+                    directory,
+                    "--skip-failed-contexts",
+                ]
+            )
 
 
 class Reporting(unittest.TestCase):

@@ -39,7 +39,7 @@ def _reduce_to_two_contexts(has_issue, contexts):
     return upper_bound - 1, upper_bound
 
 
-def bisect(has_issue, contexts):
+def bisect(has_issue, contexts, partial=False):
     """Find the indices where ``has_issue`` returns True / False.
 
     Args:
@@ -49,6 +49,12 @@ def bisect(has_issue, contexts):
             :ref:`context` as input.
         contexts (list[rez.resolved_context.Context]):
             The :ref:`contexts` which could be 2-or-more to reduce down to into just 2.
+        partial (bool, optional):
+            If False, find the first Rez :ref:`context` in the sequence of
+            ``contexts`` that has some kind of issue and report it. If True,
+            try to inspect the differences between that bad :ref:`context` and
+            the "good" :ref:`context` that came before it. And find what,
+            specifically, was the problem.
 
     Returns:
         _BisectSummary:
@@ -68,5 +74,8 @@ def bisect(has_issue, contexts):
         raise NotImplementedError()  # TODO : Write here
 
     diff = contexts[last_good].get_resolve_diff(contexts[first_bad])
+
+    # if partial:
+    #     raise ValueError()
 
     return _BisectSummary(last_good=last_good, first_bad=first_bad, diff=diff)

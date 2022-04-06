@@ -16,7 +16,7 @@ def _is_relative_context(text):
     return text.endswith(".rxt")
 
 
-def to_contexts(requests, root, packages_path=None):
+def to_contexts(requests, root, packages_path=None, allow_unresolved=False):
     """Convert ``requests`` into Rez :ref:`contexts`.
 
     Important:
@@ -33,6 +33,10 @@ def to_contexts(requests, root, packages_path=None):
         packages_path (list[str], optional):
             The paths used to search for Rez packages while resolving.
             If no paths are given, the default paths are used instead.
+        allow_unresolved (bool, optional):
+            If False, every :ref:`request` in ``requests`` must resolve into a
+            valid context. If True, contexts which don't resolve are just
+            ignored and filtered from the output.
 
     Raises:
         BadRequest:
@@ -79,14 +83,17 @@ def to_contexts(requests, root, packages_path=None):
             'Context files "{missing}" do not exist on-disk.'.format(missing=missing)
         )
 
-    if len(failed) == 1:
-        raise exception.BadRequest(
-            'Request "{failed}" was not resolvable.'.format(failed=next(iter(failed)))
-        )
-    elif failed:
-        raise exception.BadRequest(
-            'Requests "{failed}" were not resolvable.'.format(failed=failed)
-        )
+    if not allow_unresolved:
+        if len(failed) == 1:
+            raise exception.BadRequest(
+                'Request "{failed}" was not resolvable.'.format(
+                    failed=next(iter(failed))
+                )
+            )
+        elif failed:
+            raise exception.BadRequest(
+                'Requests "{failed}" were not resolvable.'.format(failed=failed)
+            )
 
     return contexts
 
