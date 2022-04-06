@@ -31,6 +31,7 @@ def _run(namespace):
     _LOGGER.debug('Found script "%s".', script)
     _validate_script(script)
 
+    _validate_requests(namespace.requests, namespace.partial)
     contexts = rez_helper.to_contexts(
         namespace.requests,
         current_directory,
@@ -100,8 +101,12 @@ def _set_up_runner(sub_parsers):
         help="The paths to check within for Rez packages.",
     )
 
-    # # TODO : Add support for this argument
-    # parser.add_argument("--partial", help="Guess the issue found between 2 resolves.")
+    # TODO : Add support for this argument
+    run.add_argument(
+        "--partial",
+        action="store_true",
+        help="Guess the issue found between 2 resolves.",
+    )
 
 
 def _validate_contexts(contexts):
@@ -125,8 +130,36 @@ def _validate_contexts(contexts):
             'We only got "{contexts}".'.format(contexts=contexts)
         )
 
-    if start == end:
+    if start != end:
         raise exception.DuplicateContexts("Start and end context are the same.")
+
+
+def _validate_requests(requests, partial=False):
+    """Ensure ``requests`` are valid before converting them to :ref:`contexts`.
+
+    Args:
+        requests (iter[str]):
+            Each :ref:`.rxt` resolve file or a raw request ``"foo-1+<2 bar==3.0.0"``
+            to check.
+        partial (bool, optional):
+            If the user wants to bisect not just ``requests`` but the diff
+            between the requests. When ``partial`` is True, this function will
+            never raise an exception.
+
+    Raises:
+        UserInputError: If 2 contexts are given but ``partial`` is False.
+
+    """
+    if len(requests) != 2:
+        return
+
+    if partial:
+        return
+
+    raise exception.UserInputError(
+        "You cannot compare only two contexts with adding --partial. "
+        "Please either add more contexts or include the --partial flag."
+    )
 
 
 def _validate_script(path):

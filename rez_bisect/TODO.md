@@ -1,21 +1,15 @@
-- Do CI changes so far
+Test Cases
+- Multi package issues
+ - 2 or more packages at once have some incompatible issue
+- Handle errors due to added or removed **ephemerals**
 
-
-Features
-- bisect run to work
-- Standard git bisect interactivity
 
 - The report should say
  - The first index that has the problem (+ include the request that failed)
  - Diff that index with the previous one, show its result
  - If --partial is included, **guess** what the issue could be, based on the diff
 
-
-Test Cases
-- Multi package issues
- - 2 or more packages at once have some incompatible issue
-
-- Handle errors due to added or removed **ephemerals**
+- Standard git bisect interactivity
 
 Documentation
 :ref:`--packages-path`
