@@ -35,7 +35,33 @@ class Cases(unittest.TestCase):
 
     def test_bad_variant(self):
         """Fail once a specific variant is selected in a resolve."""
-        raise ValueError()
+
+        def _is_failure_condition(context):
+            return context.get_resolved_package("dependency") is not None
+
+        directory = os.path.join(_TESTS, "simple_packages")
+
+        request_1 = "package_with_variant==1.0.0"
+        request_2 = "package_with_variant==1.1.0"
+        # Including `bar` triggers the other variant
+        request_3 = "package_with_variant==1.1.0 bar-1"
+        request_4 = "package_with_variant==1.2.0 bar-1"
+
+        with _patch_run(_is_failure_condition):
+            result = _run_test(
+                [
+                    "run",
+                    "",
+                    request_1,
+                    request_2,
+                    request_3,
+                    request_4,
+                    "--packages-path",
+                    directory,
+                ]
+            )
+
+        self.assertEqual(2, result.first_bad)
 
     def test_bad_versions(self):
         """Fail once a certain version range occurs."""
@@ -145,7 +171,31 @@ class ContextInputs(unittest.TestCase):
 
     def test_filter_duplicates(self):
         """Filter out duplicate requests, if the user provides any."""
-        raise ValueError()
+
+        def _is_failure_condition(context):
+            return context.get_resolved_package("bar") is not None
+
+        directory = os.path.join(_TESTS, "simple_packages")
+
+        request_1 = "foo==1.0.0"
+        request_2 = "foo==1.1.0"
+        request_3 = "foo==1.2.0 bar==1.0.0"
+
+        with _patch_run(_is_failure_condition), mock.patch("rez_bisect.cli._report_context_indices") as patch:
+            _run_test(
+                [
+                    "run",
+                    "",
+                    request_1,
+                    request_2,
+                    request_2,
+                    request_3,
+                    "--packages-path",
+                    directory,
+                ]
+            )
+
+        self.assertEqual(1, patch.call_count)
 
     def test_rxt(self):
         """Allow the user to pass a .rxt file, for a raw set of package requests."""
@@ -364,6 +414,7 @@ class Invalids(unittest.TestCase):
                         "run",
                         "/does/not/exist.sh",
                         "foo==1.0.0",
+                        "bar-1",
                         "foo==1.0.0",
                         "--packages-path",
                         directory,
@@ -487,14 +538,16 @@ class Options(unittest.TestCase):
             :meth:`ContextInputs.test_failed_intermediary_context`
 
         """
-        #  - If one of the resolve request steps has a conflict, skip it and go compare against the next one
+        # TODO : Make sure this logic works
+        #      - If one of the resolve request steps has a conflict, skip it
+        #      and go compare against the next one
 
         def _is_failure_condition(context):
-            return str(context.get_resolved_package("foo").version) > _VERSION_1_1
+            return context.get_resolved_package("foo").version > _VERSION_1_1
 
         directory = os.path.join(_TESTS, "simple_packages")
 
-        with _patch_run(_is_failure_condition), mock.patch("rez_bisect.cli._report_context_indices"):
+        with _patch_run(_is_failure_condition), mock.patch("rez_bisect.cli._report_context_indices") as patch:
             _run_test(
                 [
                     "run",
@@ -509,6 +562,8 @@ class Options(unittest.TestCase):
                     "--skip-failed-contexts",
                 ]
             )
+
+        self.assertEqual(1, patch.call_count)
 
 
 class Reporting(unittest.TestCase):

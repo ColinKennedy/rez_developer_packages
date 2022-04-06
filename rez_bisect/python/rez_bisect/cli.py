@@ -146,8 +146,8 @@ def _validate_contexts(contexts):
 
     if len(contexts) == 1:
         raise exception.UserInputError(
-            "You must provide at least 2 Rez requests / contexts. "
-            'We only got "{contexts}".'.format(contexts=contexts)
+            "You must provide at least 2 unique Rez requests / contexts. "
+            'We only got "{contexts}".'.format(contexts=[str(context) for context in contexts])
         )
 
     if start == end:

@@ -1,5 +1,6 @@
 """Extra functions so the CLI works with Rez as expected."""
 
+import logging
 import os
 import subprocess
 
@@ -8,6 +9,7 @@ from rez import resolved_context
 from . import exception, path_helper
 
 _REQUEST_SEPARATOR = " "
+_LOGGER = logging.getLogger(__name__)
 
 
 def _is_relative_context(text):
@@ -72,7 +74,13 @@ def to_contexts(requests, root, packages_path=None, allow_unresolved=False):
 
             continue
 
-        contexts.append(context)
+        if contexts and context == contexts[-1]:
+            _LOGGER.info('Duplicate context "%s" found and skipped.', context)
+        else:
+            # Prevent duplicate, consecutive contexts from being added. It's a
+            # total waste to compute them as separate items.
+            #
+            contexts.append(context)
 
     if len(missing) == 1:
         raise exception.BadRequest(
