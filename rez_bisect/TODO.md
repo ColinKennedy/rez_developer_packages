@@ -25,6 +25,8 @@ Documentation
 :ref:`contexts`
 :ref:`contexts`
 :ref:`request`
+:ref:`package family`
+:ref:`--partial`
 :ref:`installed`
 
 - :ref:`requests`

@@ -21,7 +21,14 @@ _TESTS = os.path.join(os.path.dirname(_CURRENT_DIRECTORY), "_test_data")
 
 
 class Cases(unittest.TestCase):
-    """Ensure bisecting detects expected issues."""
+    """Ensure bisecting detects expected issues.
+
+    Most of the unittests listed here are actually redundant and already
+    covered elsewhere. That said, we cannot allow these cases to ever
+    accidentally not work so these tests are here to "be explicit" about what
+    should always work.
+
+    """
 
     def test_bad_variant(self):
         """Fail once a specific variant is selected in a resolve."""
@@ -32,22 +39,23 @@ class Cases(unittest.TestCase):
         raise ValueError()
 
     def test_included_family(self):
+        """Fail when a bad Rez :ref:`package family` is added."""
         raise ValueError()
 
     def test_removed_family(self):
+        """Fail when a needed Rez :ref:`package family` is removed."""
         raise ValueError()
 
 
 class ContextInputs(unittest.TestCase):
+    """Make sure bisect :ref:`request` and :ref:`.rxt` files behave as expected."""
+
     def test_failed_intermediary_context(self):
-        # - Make sure failed contexts are not allowed to continue
-        # - Add an option, when dealing with multiple requests, to remove failed
-        #   contexts (but warn the user)
-        #  - If one of the resolve request steps has a conflict, skip it and go compare against the next one
+        """Make sure failed contexts are not allowed to continue."""
         raise ValueError()
 
     def test_filter_duplicates(self):
-        # - TODO : Filter out duplicate requests, if the user provides any
+        """Filter out duplicate requests, if the user provides any."""
         raise ValueError()
 
     def test_rxt(self):
@@ -58,9 +66,9 @@ class ContextInputs(unittest.TestCase):
 
         directory = os.path.join(_TESTS, "simple_packages")
 
-        request_1 = _to_context("foo==1.0.0", packages_path=[directory])
-        request_2 = _to_context("foo==1.1.0", packages_path=[directory])
-        request_3 = _to_context("foo==1.2.0 bar==1.0.0", packages_path=[directory])
+        request_1 = _to_context_file("foo==1.0.0", packages_path=[directory])
+        request_2 = _to_context_file("foo==1.1.0", packages_path=[directory])
+        request_3 = _to_context_file("foo==1.2.0 bar==1.0.0", packages_path=[directory])
 
         with _patch_run(_is_failure_condition):
             result = _run_test(
@@ -326,13 +334,47 @@ class Options(unittest.TestCase):
                     ]
                 )
 
+    def test_warn_intermediary_check(self):
+        """Warn if one of the middle :ref:`contexts` cannot be resolved.
+
+        See Also:
+            :meth:`ContextInputs.test_failed_intermediary_context`
+
+        """
+        #  - If one of the resolve request steps has a conflict, skip it and go compare against the next one
+        raise ValueError()
+
 
 class Reporting(unittest.TestCase):
+    """Make sure the CLI prints the text that we expect."""
+
     def test_normal(self):
+        """Make sure the base report looks as expected."""
+        raise ValueError()
+
+    def test_partial(self):
+        """Make sure the report is adapted if :ref:`--partial` is included."""
         raise ValueError()
 
 
 def _build_bad_index_case(bad_index, count):
+    """Create a series of requests that are "good" until ``bad_index``.
+
+    Args:
+        bad_index (int):
+            A 0-or-more number indicating the first index which has some kind
+            of problem.
+        count (int):
+            A 1-or-more number indicating the number of total number of
+            requests to include for the test.
+
+    Returns:
+        int:
+            The first index where some issue was found. It should be the same
+            as ``bad_index``.
+
+    """
+
     def _is_failure_condition(context):
         return context.get_resolved_package("bar") is not None
 
@@ -356,6 +398,17 @@ def _build_bad_index_case(bad_index, count):
 
 
 def _make_temporary_file(suffix):
+    """Make a temporary file and schedule it to be deleted later.
+
+    Args:
+        suffix (str):
+            A unique name + file extension to use for the temporary file. e.g.
+            ``"_some_label.rxt"``.
+
+    Returns:
+        str: The absolute path to the created file.
+
+    """
     _, path = tempfile.mkstemp(suffix=suffix)
     atexit.register(functools.partial(os.remove, path))
 
@@ -364,6 +417,18 @@ def _make_temporary_file(suffix):
 
 @contextlib.contextmanager
 def _patch_run(checker):
+    """Force :ref:`rez_bisect run` to use a custom ``checker`` function.
+
+    Args:
+        checker (callable[rez.resolved_context.Context] -> bool):
+            A function that returns True if some kind of issue is found or
+            False, if the context is "valid".
+
+    Yields:
+        A temporary context where ``checker`` is enforced during bisecting.
+
+    """
+
     with mock.patch("rez_bisect.cli._validate_script"), mock.patch(
         "rez_bisect.core.rez_helper.to_script_runner",
         wraps=checker,
@@ -374,6 +439,17 @@ def _patch_run(checker):
 
 
 def _run_test(command):
+    """Convert and run ``command`` as if it were written into the CLI.
+
+    Args:
+        command (list[str] or str):
+            A raw :ref:`rez_bisect run` command,
+            e.g. ``"run /some/executable.sh /a/context.rxt /another/context.rxt"``.
+
+    Returns:
+        object: Whatever the return value of the sub-parser is, if anything.
+
+    """
     if isinstance(command, six.string_types):
         command = shlex.split(command)
 
@@ -382,13 +458,26 @@ def _run_test(command):
     return cli.run(namespace)
 
 
-def _to_context(request, packages_path=tuple()):
+def _to_context_file(request, packages_path=tuple()):
+    """Make a raw Rez :ref:`request` into a :ref:`.rxt` file.
+
+    Args:
+        request (str):
+            A raw Rez request, e.g. ``"foo-1+<2"``.
+        packages_path (list[str], optional):
+            The paths used to search for Rez packages while resolving.
+            If no paths are given, the default paths are used instead.
+
+    Returns:
+        str: An absolute path to a generated :ref:`.rxt` file.
+
+    """
     context = resolved_context.ResolvedContext(
         package_requests=rez_helper.to_request_list(request),
         package_paths=packages_path,
     )
 
-    path = _make_temporary_file("_to_context.rxt")
+    path = _make_temporary_file("_to_context_file.rxt")
     context.save(path)
 
     return path
