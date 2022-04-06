@@ -315,7 +315,7 @@ class Options(unittest.TestCase):
         """Let the user not check the start context and just start bisecting."""
 
         def _is_failure_condition(context):
-            return str(context.get_resolved_package("foo").version) == "1.0.0"
+            return str(context.get_resolved_package("foo").version).startswith("1")
 
         directory = os.path.join(_TESTS, "simple_packages")
 
