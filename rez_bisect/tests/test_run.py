@@ -9,6 +9,7 @@ import tempfile
 import unittest
 
 import six
+from rez.vendor.version import version
 from rez import resolved_context
 from six.moves import mock
 
@@ -17,6 +18,8 @@ from rez_bisect.core import exception, rez_helper
 
 _CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 _TESTS = os.path.join(os.path.dirname(_CURRENT_DIRECTORY), "_test_data")
+
+_VERSION = version.Version("1.2")
 
 
 class Cases(unittest.TestCase):
@@ -35,15 +38,84 @@ class Cases(unittest.TestCase):
 
     def test_bad_versions(self):
         """Fail once a certain version range occurs."""
-        raise ValueError()
+
+        def _is_failure_condition(context):
+            return context.get_resolved_package("foo").version > _VERSION
+
+        directory = os.path.join(_TESTS, "simple_packages")
+
+        request_1 = "foo==1.0.0"
+        request_2 = "foo==1.1.0 bar-1"
+        request_3 = "foo==1.2.0 bar-1"
+
+        with _patch_run(_is_failure_condition):
+            result = _run_test(
+                [
+                    "run",
+                    "",
+                    request_1,
+                    request_2,
+                    request_3,
+                    "--packages-path",
+                    directory,
+                ]
+            )
+
+        self.assertEqual(2, result.first_bad)
 
     def test_included_family(self):
         """Fail when a bad Rez :ref:`package family` is added."""
-        raise ValueError()
+
+        def _is_failure_condition(context):
+            return context.get_resolved_package("bar") is not None
+
+        directory = os.path.join(_TESTS, "simple_packages")
+
+        request_1 = "foo==1.0.0"
+        request_2 = "foo==1.1.0 bar-1"
+        request_3 = "foo==1.2.0 bar-1"
+
+        with _patch_run(_is_failure_condition):
+            result = _run_test(
+                [
+                    "run",
+                    "",
+                    request_1,
+                    request_2,
+                    request_3,
+                    "--packages-path",
+                    directory,
+                ]
+            )
+
+        self.assertEqual(1, result.first_bad)
 
     def test_removed_family(self):
         """Fail when a needed Rez :ref:`package family` is removed."""
-        raise ValueError()
+
+        def _is_failure_condition(context):
+            return context.get_resolved_package("bar") is None
+
+        directory = os.path.join(_TESTS, "simple_packages")
+
+        request_1 = "foo==1.0.0 bar-1"
+        request_2 = "foo==1.1.0"
+        request_3 = "foo==1.2.0"
+
+        with _patch_run(_is_failure_condition):
+            result = _run_test(
+                [
+                    "run",
+                    "",
+                    request_1,
+                    request_2,
+                    request_3,
+                    "--packages-path",
+                    directory,
+                ]
+            )
+
+        self.assertEqual(1, result.first_bad)
 
 
 class ContextInputs(unittest.TestCase):
