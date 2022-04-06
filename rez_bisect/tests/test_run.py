@@ -573,8 +573,41 @@ class Reporting(unittest.TestCase):
         """Make sure the base report looks as expected."""
         raise ValueError()
 
-    def test_partial(self):
+    def test_partial_001(self):
         """Make sure the report is adapted if :ref:`--partial` is included."""
+
+        def _is_failure_condition(context):
+            return context.get_resolved_package("dependency") is not None
+
+        directory = os.path.join(_TESTS, "simple_packages")
+
+        request_1 = "changing_dependencies==1.0.0"
+        request_2 = "changing_dependencies==1.1.0"
+        request_3 = "changing_dependencies==1.2.0"
+        request_4 = "changing_dependencies==1.3.0"
+
+        with _patch_run(_is_failure_condition):
+            result = _run_test(
+                [
+                    "run",
+                    "",
+                    request_1,
+                    request_2,
+                    request_3,
+                    request_4,
+                    "--packages-path",
+                    directory,
+                    "--partial",
+                ]
+            )
+
+        self.assertEqual(2, result.first_bad)
+        raise ValueError(result)
+        # TODO : Check that the diff is perfect
+
+    def test_partial_002(self):
+        """Make sure the report is adapted if :ref:`--partial` is included."""
+        raise ValueError('DO THIS ONE')
 
         def _is_failure_condition(context):
             return context.get_resolved_package("bar") is not None
@@ -583,10 +616,10 @@ class Reporting(unittest.TestCase):
 
         request_1 = "foo==1.0.0"
         request_2 = "foo==1.1.0"
-        request_3 = "foo==1.2.0 bar==1.0.0 dependency-1"
-        request_4 = "foo==1.3.0 bar==1.0.0 dependency-1"
-        request_5 = "foo==1.4.0 bar==1.0.0 dependency-1"
-        request_6 = "foo==1.5.0 bar==1.0.0 dependency-1"
+        request_3 = "foo==1.2.0 changing_dependencies==1.0.0"
+        request_4 = "foo==1.3.0 changing_dependencies-1+<2"
+        request_5 = "foo==1.4.0 changing_dependencies-1+<2"
+        request_6 = "foo==1.5.0 changing_dependencies-1+<2"
 
         with _patch_run(_is_failure_condition):
             result = _run_test(

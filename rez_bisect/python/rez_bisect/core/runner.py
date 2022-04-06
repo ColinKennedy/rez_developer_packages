@@ -12,7 +12,7 @@ from __future__ import division
 
 import collections
 
-from . import bisecter
+from . import bisecter, partial_bisecter
 
 _BisectSummary = collections.namedtuple("_BisectSummary", "last_good, first_bad, diff")
 
@@ -73,9 +73,24 @@ def bisect(has_issue, contexts, partial=False):
     elif not count:
         raise NotImplementedError()  # TODO : Write here
 
-    diff = contexts[last_good].get_resolve_diff(contexts[first_bad])
+    last_good_context = contexts[last_good]
+    first_bad_context = contexts[first_bad]
 
-    # if partial:
-    #     raise ValueError()
+    diff = last_good_context.get_resolve_diff(first_bad_context)
+
+    if partial:
+        # raise ValueError(str(last_good_context), str(first_bad_context), diff)
+        raise ValueError(diff)
+        partial_bisecter.bisect_2d(has_issue, last_good_context, diff)
+        raise ValueError(["{package.name}-{package.version}".format(package=package) for package in diff["added_packages"]])
+        raise ValueError(diff["newer_packages"])
+        raise ValueError(
+            {
+                key: ["{package.name}-{package.version}".format(package=package) for package in value]
+                for key, value in diff.items()
+            }
+        )
+        raise ValueError(diff)
+        raise ValueError()
 
     return _BisectSummary(last_good=last_good, first_bad=first_bad, diff=diff)
