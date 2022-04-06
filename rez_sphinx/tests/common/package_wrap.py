@@ -24,14 +24,6 @@ def _delete_later(directory):
     atexit.register(functools.partial(shutil.rmtree, directory))
 
 
-def make_directory(name):
-    """Make a directory with ``name`` and delete it later."""
-    directory = tempfile.mkdtemp(suffix=name)
-    # _delete_later(directory)
-
-    return directory
-
-
 def make_dependent_packages():
     """Create a Rez package with a dependent package - both have documentation."""
     install_path = make_directory("_make_dependent_a_package_install_root")
@@ -122,6 +114,14 @@ def make_dependent_packages():
         (source_directory_1, installed_package_1),
         (source_directory_2, installed_package_2),
     ]
+
+
+def make_directory(name):
+    """Make a directory with ``name`` and delete it later."""
+    directory = tempfile.mkdtemp(suffix=name)
+    _delete_later(directory)
+
+    return directory
 
 
 def make_simple_developer_package(package_text="", file_text="", help_=None):
