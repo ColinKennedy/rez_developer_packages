@@ -1,3 +1,5 @@
+"""Extra functions so the CLI works with Rez as expected."""
+
 import subprocess
 import os
 
@@ -11,14 +13,38 @@ _REQUEST_SEPARATOR = " "
 
 
 def _is_relative_context(text):
+    """Check if ``text`` is meant to point to a Rez :ref:`context` file."""
     # TODO : Find a more reliable way to do this
     return text.endswith(".rxt")
 
 
 def to_contexts(requests, root, packages_path=None):
-    if not packages_path:
-        packages_path = config.packages_path
+    """Convert ``requests`` into Rez :ref:`contexts`.
 
+    Important:
+        It's assumed that the packages in ``requests`` represent
+        :ref:`installed` Rez packages.
+
+    Args:
+        requests (iter[str]):
+            Each :ref:`.rxt` resolve file or a raw request ``"foo-1+<2 bar==3.0.0"``
+            to convert into Rez contexts.
+        root (str):
+            An absolute path used whenever a request in ``requests`` points to
+            a relative file / folder.
+        packages_path (list[str], optional):
+            The paths used to search for Rez packages while resolving.
+            If no paths are given, the default paths are used instead.
+
+    Raises:
+        BadRequest:
+            If a request in ``requests`` point to a :ref:`.rxt` file which
+            doesn't exist on-disk or any request that failed to resolve.
+
+    Returns:
+        list[rez.resolved_context.ResolvedContext]: The found resolves.
+
+    """
     failed = set()
     missing = set()
     contexts = []
@@ -60,10 +86,32 @@ def to_contexts(requests, root, packages_path=None):
 
 
 def to_request_list(request):
+    """Convert a raw ``request`` to a list of package requests.
+
+    Args:
+        request (str): A raw request. e.g. ``"foo-1+<2 bar==3.0.0"``
+
+    Returns:
+        list[str]: The split request, e.g. ``["foo-1+<2", "bar==3.0.0"]``.
+
+    """
     return request.split(_REQUEST_SEPARATOR)
 
 
 def to_script_runner(path):
+    """Convert an executable into a callable Python function.
+
+    Args:
+        path (str): The absolute path to an executable file on-disk to run, later.
+
+    Returns:
+        callable[rez.resolved_context.Context] -> bool:
+            A function that returns True if the executable ``path`` fails.
+            Otherwise, it returns False, indicating success. It takes a Rez
+            :ref:`context` as input.
+
+    """
+
     def _run_in_context(context):
         process = context.execute_command(
             path,

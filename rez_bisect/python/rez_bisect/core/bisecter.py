@@ -8,6 +8,8 @@ from __future__ import division
 
 
 # TODO : Double-check if we actually need bisect_left, not bisect_right
+# TODO : Update this docstring to be more generic
+
 
 def bisect_right(caller, sequence, low=0, high=None):
     """Return the index where `caller`` first occurs in ``sequence``.
@@ -25,7 +27,7 @@ def bisect_right(caller, sequence, low=0, high=None):
             A function that, if returns False, bisects to the right.  If it
             returns False, we bisect to the left. The returned index is the
             first location in ``sequence`` where ``caller`` returns True.
-        sequence (container[rez.resolved_context.Context]):
+        sequence (list[rez.resolved_context.Context]):
             Each Rez :ref:`context` to query.
         low (int, optional):
             A 0-based start value to search within. If not provided, the 0th

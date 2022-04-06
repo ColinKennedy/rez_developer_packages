@@ -18,13 +18,19 @@ Test Cases
 - Handle errors due to added or removed **ephemerals**
 
 Documentation
-:ref:`rez_bisect`
-:ref:`.rxt`
-:ref:`request`."""
+:ref:`--packages-path`
 :ref:`--partial`
+:ref:`.rxt`
 :ref:`automated Rez bisect`
+:ref:`contexts`
+:ref:`contexts`
+:ref:`request`
+:ref:`installed`
+
+- :ref:`requests`
+:ref:`request`."""
 :ref:`rez_bisect cli`."""
-- :ref:`rez_bisect run`
+:ref:`rez_bisect run`
+:ref:`rez_bisect`
 
 - Add tags to docstrings as needed (add them where they don't exist)
-- :ref:`contexts`
