@@ -4,7 +4,6 @@ import os
 import subprocess
 
 from rez import resolved_context
-from rez.config import config
 
 from . import exception, path_helper
 
@@ -71,12 +70,20 @@ def to_contexts(requests, root, packages_path=None):
 
         contexts.append(context)
 
-    if missing:
+    if len(missing) == 1:
+        raise exception.BadRequest(
+            'Context file "{missing}" does not exist on-disk.'.format(missing=next(iter(missing)))
+        )
+    elif missing:
         raise exception.BadRequest(
             'Context files "{missing}" do not exist on-disk.'.format(missing=missing)
         )
 
-    if failed:
+    if len(failed) == 1:
+        raise exception.BadRequest(
+            'Request "{failed}" was not resolvable.'.format(failed=next(iter(failed)))
+        )
+    elif failed:
         raise exception.BadRequest(
             'Requests "{failed}" were not resolvable.'.format(failed=failed)
         )

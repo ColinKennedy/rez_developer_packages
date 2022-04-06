@@ -144,7 +144,24 @@ class InvalidRequests(unittest.TestCase):
 
     def test_end_001(self):
         """Fail if the end request fails to resolve."""
-        raise ValueError()
+
+        def _is_failure_condition(context):
+            return str(context.get_resolved_package("foo").version) == "1.0.0"
+
+        directory = os.path.join(_TESTS, "simple_packages")
+
+        with _patch_run(_is_failure_condition), self.assertRaises(exception.BadRequest):
+            _run_test(
+                [
+                    "run",
+                    "",
+                    "foo==1.0.0",
+                    "foo==1.1.0 !foo-1",
+                    "--packages-path",
+                    directory,
+                    "--partial",
+                ]
+            )
 
     def test_end_002(self):
         """Fail if the end request does not have the script issue."""
@@ -170,7 +187,24 @@ class InvalidRequests(unittest.TestCase):
 
     def test_start_001(self):
         """Fail if the start request fails to resolve."""
-        raise ValueError()
+
+        def _is_failure_condition(context):
+            return str(context.get_resolved_package("foo").version) == "1.0.0"
+
+        directory = os.path.join(_TESTS, "simple_packages")
+
+        with _patch_run(_is_failure_condition), self.assertRaises(exception.BadRequest):
+            _run_test(
+                [
+                    "run",
+                    "",
+                    "foo==1.0.0 !foo==1.0.0",
+                    "foo==1.1.0",
+                    "--packages-path",
+                    directory,
+                    "--partial",
+                ]
+            )
 
     def test_start_002(self):
         """Fail if the start request has the script issue."""
