@@ -188,6 +188,12 @@ def _validate_context_bounds(namespace, script, contexts):
             this exception beforehand, to let the user they need to change
             something.
 
+    Returns:
+        callable[rez.resolved_context.Context] -> bool:
+            A function that returns True if the executable ``path`` fails.
+            Otherwise, it returns False, indicating success. It takes a Rez
+            :ref:`context` as input.
+
     """
     has_issue = rez_helper.to_script_runner(script)
 
@@ -206,6 +212,8 @@ def _validate_context_bounds(namespace, script, contexts):
                 script=script,
             )
         )
+
+    return has_issue
 
 
 def _validate_requests(requests, partial=False):
