@@ -98,10 +98,11 @@ tests = {
             "pylint-2.12+<3",
         ],
     },
-    "unittest_docbot_loaded": "python -m unittest  --start-directory tests.docbot_not_loaded",
+    "unittest_docbot_not_loaded": "python -m unittest  --start-directory tests.docbot_not_loaded",
     "unittest_python_2": {
         "command": "python -m unittest discover --start-directory tests.general",
         "requires": [
+            ".rez_sphinx.feature.docbot_plugin==1",
             "python-2",
             "sphinx_rtd_theme-1+<2",
         ],
@@ -109,6 +110,7 @@ tests = {
     "unittest_python_3": {
         "command": "python -m unittest discover --start-directory tests.general",
         "requires": [
+            ".rez_sphinx.feature.docbot_plugin==1",
             "python-3",
             "sphinx_rtd_theme-1+<2",
         ],

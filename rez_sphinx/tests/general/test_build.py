@@ -452,7 +452,7 @@ class Miscellaneous(unittest.TestCase):
             )
 
             # Now simulate rez_sphinx init + build
-            quick_configuration = _make_rez_configuration(
+            quick_configuration = package_wrap.make_rez_configuration(
                 "optionvars = {optionvars!r}".format(optionvars=optionvars)
             )
             parent_environment = {"REZ_CONFIG_FILE": quick_configuration}
@@ -764,17 +764,6 @@ def _make_read_only(path):
     mode = os.stat(path).st_mode
     read_only_mask = 0o777 ^ (stat.S_IWRITE | stat.S_IWGRP | stat.S_IWOTH)
     os.chmod(path, mode & read_only_mask)
-
-
-def _make_rez_configuration(text):
-    """str: Create a rezconfig.py, using ``text``."""
-    directory = package_wrap.make_directory("_make_rez_configuration")
-    configuration = os.path.join(directory, "rezconfig.py")
-
-    with io.open(configuration, "w", encoding="utf-8") as handler:
-        handler.write(generic.decode(text))
-
-    return configuration
 
 
 # TODO : Find a better way of doing this

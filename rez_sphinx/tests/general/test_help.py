@@ -17,6 +17,10 @@ from rez_sphinx.preprocess import hook, preprocess_entry_point
 from ..common import package_wrap, run_test
 
 
+_CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
+_PACKAGE_ROOT = os.path.dirname(os.path.dirname(_CURRENT_DIRECTORY))
+
+
 class _Base(unittest.TestCase):
     """A quick test class for common methods."""
 
@@ -442,11 +446,40 @@ class HelpScenarios(unittest.TestCase):
 
         install_path = package_wrap.make_directory("_test_ref_role")
 
+        template = textwrap.dedent(
+            """\
+            package_definition_build_python_paths = [%r]
+            package_preprocess_function = "preprocess_entry_point.run"
+            optionvars = {
+                "rez_docbot": {
+                    "publishers": [
+                        {
+                            "authentication": {
+                                "user": "FooBar",
+                                "token": "fizzbuzz",
+                                "type": "github",
+                            },
+                            "branch": "gh-pages",
+                            "repository_uri": "git@github.com:FooBar/{package.name}",
+                            "view_url": "https://foo.github.io/{package.name}",
+                        },
+                    ],
+                }
+            }
+            """
+        )
+        configuration = package_wrap.make_rez_configuration(
+            template % os.path.join(_PACKAGE_ROOT, "python", "rez_sphinx", "preprocess")
+        )
+
         # 4a. Simulate adding the pre-build hook to the user's Rez configuration.
         # 4b. Re-build the Rez package and auto-append entries to the `help`_.
         #
-        with _override_preprocess(package):
-            creator.build(package, install_path, quiet=True)
+        with _override_preprocess(package), wrapping.keep_os_environment():
+            os.environ["REZ_CONFIG_FILE"] = configuration
+
+            fresh_package = developer_package.DeveloperPackage.from_path(finder.get_package_root(package))
+            creator.build(fresh_package, install_path, quiet=True)
 
         install_package = developer_package.DeveloperPackage.from_path(
             # `package` is 1.0.0 but we incremented the minor version during

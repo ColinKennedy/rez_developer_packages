@@ -124,7 +124,6 @@ rst_epilog = textwrap.dedent(
     .. _package.py: https://github.com/nerdvegas/rez/wiki/Package-Commands
     .. _package_definition_build_python_paths: https://github.com/nerdvegas/rez/wiki/Configuring-Rez#package_definition_build_python_paths
     .. _package_preprocess_function: https://github.com/nerdvegas/rez/wiki/Configuring-Rez#package_preprocess_function
-    .. _package_preprocess_function: https://github.com/nerdvegas/rez/wiki/Configuring-Rez#package_preprocess_function
     .. _package_preprocess_mode: https://github.com/nerdvegas/rez/wiki/Configuring-Rez#package_preprocess_mode
     .. _plugin_path: https://github.com/nerdvegas/rez/wiki/Configuring-Rez#plugin_path
     .. _private_build_requires: https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#private_build_requires

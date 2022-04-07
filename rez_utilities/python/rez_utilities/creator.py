@@ -143,7 +143,8 @@ def build(package, install_path, packages_path=None, quiet=False):
         else:
             package = copy.deepcopy(package)
 
-    if isinstance(package, packages_.Package):
+    if type(package) == packages_.Package:
+        # TODO : Check if this is actually still needed
         package = finder.get_nearest_rez_package(finder.get_package_root(package))
 
     directory = os.path.dirname(package.filepath)

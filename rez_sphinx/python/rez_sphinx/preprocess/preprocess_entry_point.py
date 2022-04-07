@@ -91,7 +91,7 @@ def _get_help_line(text):
     for line in reversed(text.split("\n")):
         line = line.strip()
 
-        if line.startswith("{") and line.endswith("}"):
+        if line.startswith("[") and line.endswith("]"):
             return line
 
     raise RuntimeError('Text "{text}" has no expected dict.'.format(text=text))
@@ -162,6 +162,10 @@ def _get_resolved_help(context, command):
     """
     parent_environment = dict()
 
+    # TODO : This feels very fragile. Double check to ensure this works with
+    # central deployments. If not, I'll need to figure out another way to query
+    # this.
+    #
     if "REZ_CONFIG_FILE" in os.environ:
         parent_environment["REZ_CONFIG_FILE"] = os.environ["REZ_CONFIG_FILE"]
 
@@ -177,17 +181,24 @@ def _get_resolved_help(context, command):
     process = context.execute_command(
         command,
         stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
         universal_newlines=True,
         parent_environ=parent_environment,
     )
-    stdout, _ = process.communicate()
+    stdout, stderr = process.communicate()
+
+    if process.returncode != 0:
+        _LOGGER.error('Process errored.')
+        _LOGGER.error(stderr)
+
+        return []
 
     _LOGGER.debug('Got raw `help` attribute, "%s".', stdout)
 
     try:
         stdout = _get_help_line(stdout)
     except RuntimeError:
-        return dict()
+        return []
 
     return json.loads(stdout)
 
