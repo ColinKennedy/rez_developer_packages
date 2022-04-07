@@ -124,6 +124,17 @@ def make_directory(name):
     return directory
 
 
+def make_rez_configuration(text):
+    """str: Create a rezconfig.py, using ``text``."""
+    directory = make_directory("make_rez_configuration")
+    configuration = os.path.join(directory, "rezconfig.py")
+
+    with io.open(configuration, "w", encoding="utf-8") as handler:
+        handler.write(generic.decode(text))
+
+    return configuration
+
+
 def make_simple_developer_package(package_text="", file_text="", help_=None):
     """Create a simple Rez source package.
 
