@@ -100,13 +100,13 @@ def _generate_api_files(directory, destination, options=tuple()):
             )
         )
 
-    allow_default_templates = (
+    allow_custom_templates = (
         _TEMPLATE_DIR_SHORT_FLAG not in options
         and _TEMPLATE_DIR_LONG_FLAG not in options
         and preference.allow_apidoc_templates()
     )
 
-    if allow_default_templates and not os.path.isdir(_TEMPLATES_DIRECTORY):
+    if allow_custom_templates and not os.path.isdir(_TEMPLATES_DIRECTORY):
         raise EnvironmentError(
             'Directory "{_TEMPLATES_DIRECTORY}" does not exist.'.format(
                 _TEMPLATES_DIRECTORY=_TEMPLATES_DIRECTORY
@@ -116,7 +116,7 @@ def _generate_api_files(directory, destination, options=tuple()):
     for python_source_root in sources:
         command = [python_source_root, "--output-dir", destination]
 
-        if allow_default_templates and sphinx_helper.supports_apidoc_templates():
+        if allow_custom_templates and sphinx_helper.supports_apidoc_templates():
             command.extend([_TEMPLATE_DIR_LONG_FLAG, _TEMPLATES_DIRECTORY])
 
         command.extend(options)

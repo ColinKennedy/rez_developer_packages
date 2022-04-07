@@ -511,7 +511,7 @@ def get_package_link_map():
 
 
 def get_preference_from_path(path, package=None):
-    """Find the dict value located at ``path``.
+    """Find the preference value located at ``path``.
 
     See Also:
         :func:`get_preference_paths` and :ref:`rez_sphinx config show --list-all`.
