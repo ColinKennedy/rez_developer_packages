@@ -346,13 +346,8 @@ class SphinxApidocEnableApidoc(unittest.TestCase):
 
     def test_package(self):
         """Set :ref:`rez_sphinx.sphinx-apidoc.enable_apidoc` in a Rez source package."""
-        package = _make_package_config(
-            {
-                "sphinx-apidoc": {
-                    "enable_apidoc": False
-                },
-            }
-        )
+        expected = False
+        package = _make_package_config({"sphinx-apidoc": {"enable_apidoc": expected}})
 
         _clear_caches()
         self.assertFalse(preference.is_api_enabled(package=package))
@@ -373,6 +368,11 @@ class SphinxQuickStart(unittest.TestCase):
     def test_package(self):
         """Set :ref:`rez_sphinx.sphinx-quickstart` in a Rez source package."""
         raise ValueError()
+        expected = ["a", "-b", "--thing"]
+        package = _make_package_config({"sphinx-quickstart": expected})
+
+        _clear_caches()
+        self.assertEqual(expected, preference.get_quick_start_options(package=package))
 
 
 class SphinxConfigOverridesAddModuleNames(unittest.TestCase):
@@ -380,37 +380,34 @@ class SphinxConfigOverridesAddModuleNames(unittest.TestCase):
 
     def test_global(self):
         """Set :ref:`rez_sphinx.sphinx_conf_overrides.add_module_names` in a global `rezconfig`_."""
-        optionvars = {
-            "rez_sphinx": {
-                "sphinx_conf_overrides": {
-                    "add_module_names": False,  # Set this to True to get old behavior back
+        expected = True
+        variable = "add_module_names"
+
+        with run_test.keep_config() as config:
+            config.optionvars = {
+                "rez_sphinx": {
+                    "sphinx_conf_overrides": {
+                        variable: expected,
+                    }
                 }
             }
-        }
-        raise ValueError()
+
+            _clear_caches()
+            enabled = preference.get_sphinx_configuration_overrides()[variable]
+
+        self.assertTrue(enabled)
+        _clear_caches()
+        # False is the default value for ``get_sphinx_configuration_overrides``
+        self.assertFalse(preference.get_sphinx_configuration_overrides()[variable])
 
     def test_package(self):
         """Set :ref:`rez_sphinx.sphinx_conf_overrides.add_module_names` in a Rez source package."""
-        raise ValueError()
+        expected = True
+        variable = "add_module_names"
+        package = _make_package_config({"sphinx_conf_overrides": {variable: expected}})
 
-
-class SphinxConfigOverridesMasterDoc(unittest.TestCase):
-    """Set :ref:`rez_sphinx.sphinx_conf_overrides.master_doc` in a Rez source package."""
-
-    def test_global(self):
-        """Set :ref:`rez_sphinx.sphinx_conf_overrides.master_doc` in a global `rezconfig`_."""
-        optionvars = {
-            "rez_sphinx": {
-                "sphinx_conf_overrides": {
-                    "master_doc": "index",
-                }
-            }
-        }
-        raise ValueError()
-
-    def test_package(self):
-        """Set :ref:`rez_sphinx.sphinx_conf_overrides.master_doc` in a Rez source package."""
-        raise ValueError()
+        _clear_caches()
+        self.assertEqual(expected, preference.get_sphinx_configuration_overrides(package=package)[variable])
 
 
 def _get_preference_from_path(path, package=None):

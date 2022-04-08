@@ -95,7 +95,7 @@ _MASTER_SCHEMA = schema.Schema(
         schema.Optional(
             _API_TOCTREE_LINE, default="API Documentation <api/modules>"
         ): schema_helper.TOCTREE_LINE,
-        schema.Optional(_QUICKSTART, default=[]): [],
+        schema.Optional(_QUICKSTART, default=[]): [str],
         schema.Optional(
             _HELP_PARENT_KEY,
             default={
@@ -121,7 +121,7 @@ _MASTER_SCHEMA = schema.Schema(
                 _MASTER_DOC, default=_MASTER_DOC_DEFAULT
             ): schema_helper.NON_NULL_STR,
             schema.Optional(constant.SPHINX_MODULE_VARIABLE, default=False): bool,
-            schema_helper.NON_NULL_STR: object,
+            schema.Optional(schema_helper.NON_NULL_STR): object,
         },
         schema.Optional(
             _APIDOC,
@@ -609,7 +609,8 @@ def get_master_api_documentation_line(package=None):
         'The "{_API_TOCTREE_LINE}" setting cannot be empty.'.format(_API_TOCTREE_LINE=_API_TOCTREE_LINE))
 
 
-def get_master_document_name():
+# TODO : Add unittes for this, maybe?
+def get_master_document_name(package=None):
     """Find the first .rst file `Sphinx`_ should point to.
 
     Ideally this shouldn't be necessary but it looks like, while building
@@ -621,11 +622,17 @@ def get_master_document_name():
     References:
         https://github.com/readthedocs/readthedocs.org/issues/2569#issuecomment-270577290
 
+    Args:
+        package (rez.packages.Package, optional):
+            A Rez package which may override the global setting.  If the
+            package doesn't define an opinion, the global setting / default
+            value is used instead.
+
     Returns:
         str: The base name, without file extension, of the "entry point" for `Sphinx`_.
 
     """
-    settings = get_sphinx_configuration_overrides()
+    settings = get_sphinx_configuration_overrides(package=package)
 
     return settings[_MASTER_DOC]
 
@@ -795,9 +802,20 @@ def get_sort_method():
     return caller._callable  # Another schema member pylint: disable=protected-access
 
 
-def get_sphinx_configuration_overrides():
-    """dict[str, object]: Get all values to directly set within `Sphinx conf.py`_."""
-    rez_sphinx_settings = get_base_settings()
+def get_sphinx_configuration_overrides(package=None):
+    """Get all values to directly set within `Sphinx conf.py`_.
+
+    Args:
+        package (rez.packages.Package, optional):
+            A Rez package which may override the global setting.  If the
+            package doesn't define an opinion, the global setting / default
+            value is used instead.
+
+    Returns:
+        dict[str, object]: Each `Sphinx conf.py`_ variable name and its value.
+
+    """
+    rez_sphinx_settings = get_base_settings(package=package)
 
     return rez_sphinx_settings[_CONFIG_OVERRIDES]
 
@@ -847,7 +865,7 @@ def get_quick_start_options(package, options=tuple()):
         "--dot=_",  # Sphinx 1.8 needs this (for Python 2)
     ]
 
-    rez_sphinx_settings = get_base_settings()
+    rez_sphinx_settings = get_base_settings(package=package)
     settings = rez_sphinx_settings.get(_QUICKSTART) or []
 
     try:
