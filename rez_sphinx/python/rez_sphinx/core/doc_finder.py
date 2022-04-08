@@ -4,6 +4,7 @@ import os
 
 from rez_utilities import finder
 
+from ..core import exception
 from ..preferences import preference
 
 

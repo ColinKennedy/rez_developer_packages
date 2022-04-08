@@ -282,7 +282,7 @@ def expand_help(help_):
     return [[_DEFAULT_LABEL, help_]]
 
 
-def run(this, data):
+def run(this, data):  # pylint: disable=unused-argument
     """Replace the `package help`_ in ``data`` with auto-found Sphinx documentation.
 
     If no :ref:`rez_sphinx tags <rez_sphinx tag>` are found, this function will

@@ -2,6 +2,7 @@
 
 import atexit
 import functools
+import io
 import os
 import shutil
 import tempfile
@@ -10,6 +11,7 @@ import unittest
 
 from rez import developer_package
 
+from rez_sphinx.core import generic
 from rez_sphinx.preferences import preference, preference_help_
 
 from ..common import run_test
@@ -19,7 +21,7 @@ class SphinxApiDocAllowApidocTemplates(unittest.TestCase):
     """Make sure :ref:`rez_sphinx.sphinx-apidoc.allow_apidoc_templates` is queried as expected."""
 
     def test_global(self):
-        """Set :ref:`rez_sphinx.sphinx-apidoc.allow_apidoc_templates` in a global `rezconfig`_."""
+        """Set the value, globally."""
         with run_test.keep_config() as config:
             config.optionvars = {
                 "rez_sphinx": {
@@ -37,7 +39,7 @@ class SphinxApiDocAllowApidocTemplates(unittest.TestCase):
         self.assertTrue(preference.allow_apidoc_templates())
 
     def test_package(self):
-        """Set :ref:`rez_sphinx.sphinx-apidoc.allow_apidoc_templates` in a Rez source package."""
+        """Set for a Rez source package."""
         package = _make_package_config(
             {
                 "sphinx-apidoc": {
@@ -282,7 +284,7 @@ class IntersphinxSettingsPackageLinkMap(unittest.TestCase):
     """Set :ref:`rez_sphinx.intersphinx_settings.package_link_map` in a Rez source package."""
 
     def test_global(self):
-        """Set :ref:`rez_sphinx.intersphinx_settings.package_link_map` in a global `rezconfig`_."""
+        """Set the value, globally."""
         expected = {"foo": "https://bar.com/en/latest"}
 
         with run_test.keep_config() as config:
@@ -299,7 +301,7 @@ class IntersphinxSettingsPackageLinkMap(unittest.TestCase):
         self.assertEqual(dict(), preference.get_package_link_map())  # The default value
 
     def test_package(self):
-        """Set :ref:`rez_sphinx.intersphinx_settings.package_link_map` in a Rez source package."""
+        """Set for a Rez source package."""
         expected = {"foo": "https://bar.com/en/latest"}
         package = _make_package_config(
             {
@@ -356,7 +358,7 @@ class SphinxApidocEnableApidoc(unittest.TestCase):
     """Set :ref:`rez_sphinx.sphinx-apidoc.enable_apidoc` in a Rez source package."""
 
     def test_global(self):
-        """Set :ref:`rez_sphinx.sphinx-apidoc.enable_apidoc` in a global `rezconfig`_."""
+        """Set the value, globally."""
         with run_test.keep_config() as config:
             config.optionvars = {
                 "rez_sphinx": {
@@ -431,7 +433,7 @@ class SphinxConfigOverridesAddModuleNames(unittest.TestCase):
     """Set :ref:`rez_sphinx.sphinx_conf_overrides.add_module_names` in a Rez source package."""
 
     def test_global(self):
-        """Set :ref:`rez_sphinx.sphinx_conf_overrides.add_module_names` in a global `rezconfig`_."""
+        """Set the value, globally."""
         expected = True
         variable = "add_module_names"
 
@@ -453,7 +455,7 @@ class SphinxConfigOverridesAddModuleNames(unittest.TestCase):
         self.assertFalse(preference.get_sphinx_configuration_overrides()[variable])
 
     def test_package(self):
-        """Set :ref:`rez_sphinx.sphinx_conf_overrides.add_module_names` in a Rez source package."""
+        """Set for a Rez source package."""
         expected = True
         variable = "add_module_names"
         package = _make_package_config({"sphinx_conf_overrides": {variable: expected}})
@@ -510,7 +512,7 @@ def _make_package_config(configuration):
         """
     )
 
-    with open(os.path.join(directory, "package.py"), "w") as handler:
-        handler.write(template.format(configuration=configuration))
+    with io.open(os.path.join(directory, "package.py"), "w", encoding="utf-8") as handler:
+        handler.write(generic.decode(template.format(configuration=configuration)))
 
     return developer_package.DeveloperPackage.from_path(directory)

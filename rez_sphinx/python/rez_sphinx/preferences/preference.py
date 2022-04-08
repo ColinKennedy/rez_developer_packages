@@ -313,6 +313,7 @@ def _validate_quick_start_options(settings):
 
 
 def _validate_all(data):
+    # TODO : Add doc
     return _MASTER_SCHEMA.validate(data)
 
 
@@ -416,8 +417,9 @@ def get_auto_help_methods():
     output = []
 
     if (
-        config_.package_preprocess_function == _get_preprocess_import_path()
-    ):  # pylint: disable=no-member
+        config_.package_preprocess_function  # pylint: disable=no-member
+        == _get_preprocess_import_path()
+    ):
         output.append(_PREPROCESS_DEBUG_KEY)
 
     if _PUBLISH_HOOK_CLASS_NAME in config_.release_hooks:  # pylint: disable=no-member
@@ -805,7 +807,7 @@ def get_preference_paths():
 
 
 def get_sort_method(package=None):
-    """The sort function for `package help`_.
+    """Get the function which sorts entries in Rez `package help`_.
 
     Args:
         package (rez.packages.Package, optional):
