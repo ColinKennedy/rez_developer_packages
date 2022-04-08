@@ -4,6 +4,11 @@ Most of these functions are just thin wraps around `rez-config`_ calls.
 
 """
 
+# TODO : Go through every function in this module and add package specific
+# passing to each of them Then go through all modules elsewhere and, everywhere
+# the functions are called, incorporate the source Rez package so that they
+# pass values as expected.
+
 import itertools
 import platform
 
@@ -11,7 +16,7 @@ import schema
 import six
 from rez import exceptions as rez_exceptions
 from rez import plugin_managers
-from rez.config import config
+from rez.config import config as config_
 from rez.utils import execution
 from six.moves import collections_abc
 
@@ -147,6 +152,9 @@ _PREPROCESS_DEBUG_KEY = "preprocess"
 _PREPROCESS_FUNCTION = "run"
 _PREPROCESS_MODULE = "preprocess_entry_point"
 _PUBLISH_HOOK_CLASS_NAME = "publish_documentation"
+
+_PACKAGE_CONFIGURATION_ATTRIBUTE = "rez_sphinx_configuration"
+_REZ_OPTIONVARS = "optionvars"
 
 
 def _get_preprocess_import_path():
@@ -307,9 +315,22 @@ def _validate_all(data):
     return _MASTER_SCHEMA.validate(data)
 
 
-def allow_apidoc_templates():
-    """bool: Enable / Disable :ref:`rez_sphinx apidoc templates`."""
-    rez_sphinx_settings = get_base_settings()
+def allow_apidoc_templates(package=None):
+    """Enable / Disable :ref:`rez_sphinx apidoc templates`.
+
+    Args:
+        package (rez.packages.Package, optional):
+            A Rez package which may override the global setting.  If the
+            package doesn't define an opinion, the global setting / default
+            value is used instead.
+
+    Returns:
+        bool:
+            If True, `sphinx-apidoc`_ runs just before :ref:`rez_sphinx build
+            run` is calls `sphinx-build`.
+
+    """
+    rez_sphinx_settings = get_base_settings(package=package)
     apidoc = rez_sphinx_settings[_APIDOC]
 
     return apidoc[_ALLOW_APIDOC_TEMPLATES]
@@ -323,9 +344,22 @@ def check_default_files():
     return options[_CHECK_DEFAULT_FILES]
 
 
-def is_api_enabled():
-    """bool: Check if the user will generate `sphinx-apidoc`_ ReST files."""
-    rez_sphinx_settings = get_base_settings()
+def is_api_enabled(package=None):
+    """Check if the user will generate `sphinx-apidoc`_ ReST files.
+
+    Args:
+        package (rez.packages.Package, optional):
+            A Rez package which may override the global setting.  If the
+            package doesn't define an opinion, the global setting / default
+            value is used instead.
+
+    Returns:
+        bool:
+            If :ref:`rez_sphinx build run` is meant to auto-generate API
+            documentation prior to running, return True.
+
+    """
+    rez_sphinx_settings = get_base_settings(package=package)
     apidoc = rez_sphinx_settings[_APIDOC]
 
     return apidoc[_ENABLE_APIDOC]
@@ -365,10 +399,10 @@ def get_auto_help_methods():
     """list[str]: Find all defined `help`_ methods. See :doc:`auto_append_help_tags`."""
     output = []
 
-    if config.package_preprocess_function == _get_preprocess_import_path():  # pylint: disable=no-member
+    if config_.package_preprocess_function == _get_preprocess_import_path():  # pylint: disable=no-member
         output.append(_PREPROCESS_DEBUG_KEY)
 
-    if _PUBLISH_HOOK_CLASS_NAME in config.release_hooks:  # pylint: disable=no-member
+    if _PUBLISH_HOOK_CLASS_NAME in config_.release_hooks:  # pylint: disable=no-member
         output.append(_HOOK_DEBUG_KEY)
 
     return output
@@ -381,6 +415,18 @@ def get_base_settings(package=None):
     # TODO : Incorporate ``package`` with unittests
     # Once this is done, make sure to update all get_base_settings to include
     # package contents
+    if hasattr(package, _PACKAGE_CONFIGURATION_ATTRIBUTE):
+        overrides = {_REZ_OPTIONVARS: {_MASTER_KEY: getattr(package, _PACKAGE_CONFIGURATION_ATTRIBUTE)}}
+        config = config_.copy(overrides=overrides)
+
+        # TODO : Not sure why I need to this for optionvars to "take" properly.
+        # Possibly it's a config bug? The `_uncache` method, I expected,
+        # should've handled this case
+        #
+        if _REZ_OPTIONVARS in config.__dict__:
+            del config.__dict__[_REZ_OPTIONVARS]
+    else:
+        config = config_
 
     rez_user_options = config.optionvars  # pylint: disable=no-member
 
@@ -510,6 +556,7 @@ def get_package_link_map():
     return settings.get(_PACKAGE_LINK_MAP, dict())
 
 
+# TODO : Add unittest for with and without ``package`` defined
 def get_preference_from_path(path, package=None):
     """Find the preference value located at ``path``.
 
@@ -830,7 +877,7 @@ def validate_help_settings(package=None):
             return None
 
         with execution.add_sys_paths(
-            config.package_definition_build_python_paths  # pylint: disable=no-member
+            config_.package_definition_build_python_paths  # pylint: disable=no-member
         ):
             try:
                 module = __import__(_PREPROCESS_MODULE)
@@ -840,10 +887,10 @@ def validate_help_settings(package=None):
                 raise exception.ConfigurationError(
                     'Preprocess caller "{caller}" is defined but '  # pylint: disable=missing-format-attribute,line-too-long
                     "package_definition_build_python_paths cannot import it. "
-                    'Got "{config.package_definition_build_python_paths}". '
+                    'Got "{config_.package_definition_build_python_paths}". '
                     "Please fix.".format(
                         caller=caller,
-                        config=config,
+                        config_=config_,
                     ),
                 )
 
@@ -855,7 +902,7 @@ def validate_help_settings(package=None):
                     )
                 )
 
-        if config.package_preprocess_mode != "override":  # pylint: disable=no-member
+        if config_.package_preprocess_mode != "override":  # pylint: disable=no-member
             # All package modes other than "override" account for the global
             # preprocess function.
             #

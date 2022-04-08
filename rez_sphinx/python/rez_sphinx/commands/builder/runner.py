@@ -218,8 +218,9 @@ def build(
         os.makedirs(build_directory)
 
     api_mode = api_builder.get_from_label(api_mode)
+    package = finder.get_nearest_rez_package(directory)
 
-    if not no_api_doc and preference.is_api_enabled() and api_mode.execute:
+    if not no_api_doc and preference.is_api_enabled(package=package) and api_mode.execute:
         api_mode.execute(source_directory, options=api_options)
 
     try:

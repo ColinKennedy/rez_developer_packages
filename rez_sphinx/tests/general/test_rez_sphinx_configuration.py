@@ -14,23 +14,40 @@ from rez_sphinx.preferences import preference
 from ..common import run_test
 
 
-class SphinxApiDoc(unittest.TestCase):
-    """Make sure :ref:`rez_sphinx.sphinx-apidoc` is queried as expected."""
+class SphinxApiDocAllowApidocTemplates(unittest.TestCase):
+    """Make sure :ref:`rez_sphinx.sphinx-apidoc.allow_apidoc_templates` is queried as expected."""
 
-    def test_allow_apidoc_templates_false(self):
-        """Query the set value of :ref:`rez_sphinx.sphinx-apidoc.allow_apidoc_templates`."""
-        optionvars = {
-            "rez_sphinx": {
+    def test_global(self):
+        """Set :ref:`rez_sphinx.sphinx-apidoc.allow_apidoc_templates` in a global `rezconfig`_."""
+
+        with run_test.keep_config() as config:
+            config.optionvars = {
+                "rez_sphinx": {
+                    "sphinx-apidoc": {
+                        "allow_apidoc_templates": False,
+                    },
+                },
+            }
+
+            _clear_caches()
+            disabled = preference.allow_apidoc_templates()
+
+        self.assertFalse(disabled)
+        _clear_caches()
+        self.assertTrue(preference.allow_apidoc_templates())
+
+    def test_package(self):
+        """Set :ref:`rez_sphinx.sphinx-apidoc.allow_apidoc_templates` in a Rez source package."""
+        package = _make_package_config(
+            {
                 "sphinx-apidoc": {
                     "allow_apidoc_templates": False,
                 },
-            },
-        }
-        raise ValueError()
+            }
+        )
 
-    def test_allow_apidoc_templates_per_package(self):
-        """Query the set package value of :ref:`rez_sphinx.sphinx-apidoc.allow_apidoc_templates`."""
-        raise ValueError()
+        _clear_caches()
+        self.assertFalse(preference.allow_apidoc_templates(package=package))
 
 
 class ApiTocTreeLine(unittest.TestCase):
@@ -231,9 +248,6 @@ class SphinxApidocEnableApidoc(unittest.TestCase):
 
     def test_global(self):
         """Set :ref:`rez_sphinx.sphinx-apidoc.enable_apidoc` in a global `rezconfig`_."""
-        path = "sphinx-apidoc.enable_apidoc"
-        default = _get_preference_from_path(path)
-
         with run_test.keep_config() as config:
             config.optionvars = {
                 "rez_sphinx": {
@@ -242,26 +256,25 @@ class SphinxApidocEnableApidoc(unittest.TestCase):
                     },
                 },
             }
-            disabled = _get_preference_from_path(path)
+            _clear_caches()
+            disabled = preference.is_api_enabled()
 
-        self.assertTrue(default)
         self.assertFalse(disabled)
+        _clear_caches()
+        self.assertTrue(preference.is_api_enabled())
 
     def test_package(self):
         """Set :ref:`rez_sphinx.sphinx-apidoc.enable_apidoc` in a Rez source package."""
-        path = "sphinx-apidoc.enable_apidoc"
-
         package = _make_package_config(
             {
-                "rez_sphinx": {
-                    "sphinx-apidoc": {
-                        "enable_apidoc": False
-                    },
+                "sphinx-apidoc": {
+                    "enable_apidoc": False
                 },
             }
         )
 
-        self.assertFalse(_get_preference_from_path(path, package=package))
+        _clear_caches()
+        self.assertFalse(preference.is_api_enabled(package=package))
 
 
 class SphinxQuickStart(unittest.TestCase):
@@ -336,9 +349,13 @@ def _get_preference_from_path(path, package=None):
         object: Whatever value ``path`` points to. It could be anything.
 
     """
-    preference.get_base_settings.cache_clear()
+    _clear_caches()
 
     return preference.get_preference_from_path(path, package=package)
+
+
+def _clear_caches():
+    preference.get_base_settings.cache_clear()
 
 
 def _make_package_config(configuration):

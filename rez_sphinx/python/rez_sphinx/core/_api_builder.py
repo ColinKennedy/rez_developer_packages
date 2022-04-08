@@ -103,7 +103,7 @@ def _generate_api_files(directory, destination, options=tuple()):
     allow_custom_templates = (
         _TEMPLATE_DIR_SHORT_FLAG not in options
         and _TEMPLATE_DIR_LONG_FLAG not in options
-        and preference.allow_apidoc_templates()
+        and preference.allow_apidoc_templates(package=install_package)
     )
 
     if allow_custom_templates and not os.path.isdir(_TEMPLATES_DIRECTORY):
