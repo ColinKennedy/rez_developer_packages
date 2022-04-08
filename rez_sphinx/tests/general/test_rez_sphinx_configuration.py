@@ -364,21 +364,47 @@ class SphinxQuickStart(unittest.TestCase):
 
     def test_global(self):
         """Set :ref:`rez_sphinx.sphinx-quickstart` in a global `rezconfig`_."""
-        optionvars = {
-            "rez_sphinx": {
-                "sphinx-quickstart": ["--ext-coverage"],
-            },
-        }
-        raise ValueError()
+        _clear_caches()
+
+        package = _make_package_config({"sphinx-quickstart": []})
+        default = [
+            '--author',
+            '',
+            '--ext-intersphinx',
+            '--project',
+            'foo',
+            '--release',
+            '',
+            '-v',
+            '',
+            '--suffix',
+            '.rst',
+            '--master',
+            'index',
+            '--dot=_',
+            '--no-sep',
+            '--language',
+            'en',
+            '--no-makefile',
+            '--no-batchfile',
+            '--quiet',
+        ]
+        # ``get_quick_start_options`` requires a Rez package so, to simulate
+        # getting "global" settings, we define a package but give it an empty
+        # configuration.
+        #
+        self.assertEqual(default, preference.get_quick_start_options(package))
 
     def test_package(self):
         """Set :ref:`rez_sphinx.sphinx-quickstart` in a Rez source package."""
-        raise ValueError()
         expected = ["a", "-b", "--thing"]
         package = _make_package_config({"sphinx-quickstart": expected})
 
         _clear_caches()
-        self.assertEqual(expected, preference.get_quick_start_options(package=package))
+        results = preference.get_quick_start_options(package)
+
+        for item in expected:
+            self.assertIn(item, results)
 
 
 class SphinxConfigOverridesAddModuleNames(unittest.TestCase):

@@ -221,7 +221,7 @@ def preprocess_help(package_source_root, help_):  # pylint: disable=unused-argum
     sort_method = preference.get_sort_method(package=package)
 
     try:
-        filter_method = preference.get_filter_method()
+        filter_method = preference.get_filter_method(package=package)
     except EnvironmentError:
         full_help = help_ + new_labels
         full_help = _sort(sort_method, original_help, full_help)

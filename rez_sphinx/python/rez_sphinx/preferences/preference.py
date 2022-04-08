@@ -870,7 +870,7 @@ def get_quick_start_options(package, options=tuple()):
         "",
         "--ext-intersphinx",
         "--project",
-        package,
+        package.name,
         "--release",
         "",
         "-v",
