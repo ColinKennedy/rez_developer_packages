@@ -446,7 +446,7 @@ def _merge_intersphinx_maps(data, package):
     # - If the package is in the current resolve
     # - There is no existing value
     #
-    for fallback_key, fallback_link in preference.get_package_link_map().items():
+    for fallback_key, fallback_link in preference.get_package_link_map(package=package).items():
         if _in_resolve(fallback_key) and fallback_key not in output:
             output[fallback_key] = fallback_link
 

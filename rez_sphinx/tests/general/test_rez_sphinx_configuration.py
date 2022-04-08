@@ -257,19 +257,34 @@ class IntersphinxSettingsPackageLinkMap(unittest.TestCase):
 
     def test_global(self):
         """Set :ref:`rez_sphinx.intersphinx_settings.package_link_map` in a global `rezconfig`_."""
-        optionvars = {
-            "rez_sphinx": {
-                "intersphinx_settings": {
-                    "package_link_map": {
-                        "schema": "https://schema.readthedocs.io/en/latest",
-                    }
+        expected = {"foo": "https://bar.com/en/latest"}
+
+        with run_test.keep_config() as config:
+            config.optionvars = {
+                "rez_sphinx": {
+                    "intersphinx_settings": {"package_link_map": expected},
                 }
             }
-        }
+
+            _clear_caches()
+            self.assertEqual(expected, preference.get_package_link_map())
+
+        _clear_caches()
+        self.assertEqual(dict(), preference.get_package_link_map())  # The default value
 
     def test_package(self):
         """Set :ref:`rez_sphinx.intersphinx_settings.package_link_map` in a Rez source package."""
-        raise ValueError()
+        expected = {"foo": "https://bar.com/en/latest"}
+        package = _make_package_config(
+            {
+                "intersphinx_settings": {
+                    "package_link_map": expected,
+                },
+            }
+        )
+
+        _clear_caches()
+        self.assertFalse(preference.get_package_link_map(package=package))
 
 
 class SphinxApidocAllowApidocTemplates(unittest.TestCase):

@@ -427,8 +427,9 @@ def get_base_settings(package=None):
 
     Args:
         package (rez.packages.Package, optional):
-            The Rez object to check for. This usually is a source Rez package
-            but it doesn't have to be.
+            A Rez package which may override the global setting.  If the
+            package doesn't define an opinion, the global setting / default
+            value is used instead.
 
     Returns:
         dict[str, object]: The found :ref:`rez_sphinx` configuration settings.
@@ -462,8 +463,9 @@ def get_build_documentation_keys(package=None):
 
     Args:
         package (rez.packages.Package, optional):
-            The Rez object to check for. This usually is a source Rez package
-            but it doesn't have to be.
+            A Rez package which may override the global setting.  If the
+            package doesn't define an opinion, the global setting / default
+            value is used instead.
 
     Returns:
         list[str]:
@@ -488,8 +490,9 @@ def get_build_documentation_key(package=None):
 
     Args:
         package (rez.packages.Package, optional):
-            The Rez object to check for. This usually is a source Rez package
-            but it doesn't have to be.
+            A Rez package which may override the global setting.  If the
+            package doesn't define an opinion, the global setting / default
+            value is used instead.
 
     Returns:
         str:
@@ -505,8 +508,9 @@ def get_documentation_root_name(package=None):
 
     Args:
         package (rez.packages.Package, optional):
-            The Rez object to check for. This usually is a source Rez package
-            but it doesn't have to be.
+            A Rez package which may override the global setting.  If the
+            package doesn't define an opinion, the global setting / default
+            value is used instead.
 
     Returns:
         str: The folder name where documentation will live, e.g. ``"documentation"``.
@@ -577,8 +581,9 @@ def get_master_api_documentation_line(package=None):
 
     Args:
         package (rez.packages.Package, optional):
-            The Rez object to check for. This usually is a source Rez package
-            but it doesn't have to be.
+            A Rez package which may override the global setting.  If the
+            package doesn't define an opinion, the global setting / default
+            value is used instead.
 
     Raises:
         ConfigurationError: If the found configuration value is empty.
@@ -621,8 +626,21 @@ def get_master_document_name():
     return settings[_MASTER_DOC]
 
 
-def get_package_link_map():
-    """dict[str, str]: Each Rez package family name + its root documentation, if any."""
+def get_package_link_map(package=None):
+    """Each Rez package family name + its root documentation, if any.
+
+    Args:
+        package (rez.packages.Package, optional):
+            A Rez package which may override the global setting.  If the
+            package doesn't define an opinion, the global setting / default
+            value is used instead.
+
+    Returns:
+        dict[str, str]:
+            The Rez package family name and the URL to its viewable Sphinx
+            documentation.
+
+    """
     rez_sphinx_settings = get_base_settings()
 
     if _INTERSPHINX_SETTINGS not in rez_sphinx_settings:
@@ -914,6 +932,9 @@ def serialize_override_settings():
     return schema_optional.serialize_sparsely(settings, _MASTER_SCHEMA)
 
 
+# TODO : Consider how we can validate the settings on a Rez package! Right
+# now, we don't validate a package's overrides at all
+#
 def validate_base_settings():
     """Check if the user's settings won't cause :ref:`rez_sphinx` to break.
 
@@ -938,8 +959,9 @@ def validate_help_settings(package=None):
 
     Args:
         package (rez.packages.Package, optional):
-            The Rez object to check for. This usually is a source Rez package
-            but it doesn't have to be.
+            A Rez package which may override the global setting.  If the
+            package doesn't define an opinion, the global setting / default
+            value is used instead.
 
     Returns:
         exception.Base or None:
