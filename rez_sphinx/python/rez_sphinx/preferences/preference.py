@@ -525,8 +525,14 @@ def get_documentation_root_name(package=None):
     return settings.get(_DOCUMENTATION_ROOT_KEY) or _DOCUMENTATION_DEFAULT
 
 
-def get_filter_method():
+def get_filter_method(package=None):
     """Get a function to process original / auto-generated `package help`_ values.
+
+    Args:
+        package (rez.packages.Package, optional):
+            A Rez package which may override the global setting.  If the
+            package doesn't define an opinion, the global setting / default
+            value is used instead.
 
     Returns:
         callable[
@@ -540,7 +546,7 @@ def get_filter_method():
             unique results from either of them.
 
     """
-    rez_sphinx_settings = get_base_settings()
+    rez_sphinx_settings = get_base_settings(package=package)
     parent = rez_sphinx_settings[_HELP_PARENT_KEY]
 
     caller = parent[_HELP_FILTER]
@@ -789,9 +795,20 @@ def get_preference_paths():
     return output
 
 
-def get_sort_method():
-    """callable[list[str], str] -> object: The sort function for `package help`_."""
-    rez_sphinx_settings = get_base_settings()
+def get_sort_method(package=None):
+    """The sort function for `package help`_.
+
+    Args:
+        package (rez.packages.Package, optional):
+            A Rez package which may override the global setting.  If the
+            package doesn't define an opinion, the global setting / default
+            value is used instead.
+
+    Returns:
+        callable[list[str], str] -> object: The found, callable function.
+
+    """
+    rez_sphinx_settings = get_base_settings(package=package)
     parent = rez_sphinx_settings[_HELP_PARENT_KEY]
 
     caller = parent[_HELP_SORT_ORDER]

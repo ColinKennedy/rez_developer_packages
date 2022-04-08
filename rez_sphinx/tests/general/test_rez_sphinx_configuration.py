@@ -9,7 +9,7 @@ import textwrap
 import unittest
 
 from rez import developer_package
-from rez_sphinx.preferences import preference
+from rez_sphinx.preferences import preference, preference_help_
 
 from ..common import run_test
 
@@ -83,56 +83,62 @@ class ApiTocTreeLine(unittest.TestCase):
         self.assertEqual(expected, preference.get_master_api_documentation_line(package=package))
 
 
-class AutoHelp(unittest.TestCase):
-    """Make sure :ref:`rez_sphinx.auto_help` is queried as expected."""
+class AutoHelpFilterBy(unittest.TestCase):
+    """Make sure :ref:`rez_sphinx.auto_help.filter_by` is queried as expected."""
 
-    def test_filter_by_global(self):
+    def test_global(self):
         """Set :ref:`rez_sphinx.auto_help.filter_by` in a global `rezconfig`_."""
-        expected = "prefer_generated"
-        optionvars = {
-            "rez_sphinx": {
-                "auto_help": {
-                    "filter_by": expected,
+        with run_test.keep_config() as config:
+            config.optionvars = {
+                "rez_sphinx": {
+                    "auto_help": {
+                        "filter_by": "prefer_generated",
+                    },
                 },
-            },
-        }
-        raise ValueError()
+            }
 
-    def test_filter_by_package(self):
+            _clear_caches()
+            self.assertEqual(preference_help_.filter_original, preference.get_filter_method())
+
+        default = preference_help_.filter_generated
+        _clear_caches()
+        self.assertEqual(default, preference.get_filter_method())
+
+    def test_package(self):
         """Set :ref:`rez_sphinx.auto_help.filter_by` in a Rez source package."""
-        expected = "prefer_generated"
-        optionvars = {
-            "rez_sphinx": {
-                "auto_help": {
-                    "filter_by": expected,
-                },
-            },
-        }
-        raise ValueError()
+        package = _make_package_config({"auto_help": {"filter_by": "prefer_generated"}})
 
-    def test_sort_order_global(self):
+        _clear_caches()
+        self.assertEqual(preference_help_.filter_original, preference.get_filter_method(package=package))
+
+
+class AutoHelpSortOrder(unittest.TestCase):
+    """Make sure :ref:`rez_sphinx.auto_help.sort_order` is queried as expected."""
+
+    def test_global(self):
         """Set :ref:`rez_sphinx.auto_help.sort_order` in a global `rezconfig`_."""
-        expected = "prefer_generated"
-        optionvars = {
-            "rez_sphinx": {
-                "auto_help": {
-                    "sort_order": expected,
+        with run_test.keep_config() as config:
+            config.optionvars = {
+                "rez_sphinx": {
+                    "auto_help": {
+                        "sort_order": "prefer_generated",
+                    },
                 },
-            },
-        }
-        raise ValueError()
+            }
 
-    def test_sort_order_package(self):
+            _clear_caches()
+            self.assertEqual(preference_help_.sort_generated, preference.get_sort_method())
+
+        default = preference_help_.alphabetical
+        _clear_caches()
+        self.assertEqual(default, preference.get_sort_method())
+
+    def test_package(self):
         """Set :ref:`rez_sphinx.auto_help.sort_order` in a Rez source package."""
-        expected = "prefer_generated"
-        optionvars = {
-            "rez_sphinx": {
-                "auto_help": {
-                    "sort_order": "prefer_generated",
-                },
-            },
-        }
-        raise ValueError()
+        package = _make_package_config({"auto_help": {"sort_order": "prefer_generated"}})
+
+        _clear_caches()
+        self.assertEqual(preference_help_.sort_generated, preference.get_sort_method(package=package))
 
 
 class BuildDocumentation(unittest.TestCase):
