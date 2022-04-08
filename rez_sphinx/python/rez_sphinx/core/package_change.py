@@ -40,7 +40,7 @@ def _add_rez_tests(package):
             handler.write(text)
 
     tests = package.tests or dict()
-    build_key = preference.get_build_documentation_key()
+    build_key = preference.get_build_documentation_key(package=package)
 
     rez_sphinx_package = finder.get_nearest_rez_package(_CURRENT_DIRECTORY)
 

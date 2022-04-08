@@ -19,7 +19,6 @@ class SphinxApiDocAllowApidocTemplates(unittest.TestCase):
 
     def test_global(self):
         """Set :ref:`rez_sphinx.sphinx-apidoc.allow_apidoc_templates` in a global `rezconfig`_."""
-
         with run_test.keep_config() as config:
             config.optionvars = {
                 "rez_sphinx": {
@@ -55,16 +54,33 @@ class ApiTocTreeLine(unittest.TestCase):
 
     def test_global(self):
         """Set :ref:`rez_sphinx.api_toctree_line` in a global `rezconfig`_."""
-        raise ValueError()
+        expected = "foo <api/modules>"
+
+        with run_test.keep_config() as config:
+            config.optionvars = {
+                "rez_sphinx": {
+                    "api_toctree_line": expected,
+                },
+            }
+
+            _clear_caches()
+            self.assertEqual(expected, preference.get_master_api_documentation_line())
+
+        default = "API Documentation <api/modules>"
+        _clear_caches()
+        self.assertEqual(default, preference.get_master_api_documentation_line())
 
     def test_per_package(self):
         """Set :ref:`rez_sphinx.api_toctree_line` on a Rez source package."""
-        optionvars = {
-            "rez_sphinx": {
-                "api_toctree_line": "API Documentation <api/modules>",
-            },
-        }
-        raise ValueError()
+        expected = "foo <api/modules>"
+        package = _make_package_config(
+            {
+                "api_toctree_line": expected,
+            }
+        )
+
+        _clear_caches()
+        self.assertEqual(expected, preference.get_master_api_documentation_line(package=package))
 
 
 class AutoHelp(unittest.TestCase):
@@ -120,23 +136,55 @@ class BuildDocumentation(unittest.TestCase):
 
     def test_global(self):
         """Set :ref:`rez_sphinx.build_documentation_key` in a global `rezconfig`_."""
-        optionvars = {
-            "rez_sphinx": {
-                "build_documentation": "build_documentation",
-            },
-        }
+        expected_string = "foo"
+        expected_list = ["fizz", "buzz"]
 
-        optionvars = {
-            "rez_sphinx": {
-                "build_documentation": ["build_documentation", "fallback_test_name"],
-            },
-        }
+        with run_test.keep_config() as config:
+            config.optionvars = {
+                "rez_sphinx": {
+                    "build_documentation_key": expected_string,
+                },
+            }
 
-        raise ValueError()
+            _clear_caches()
+            result_from_string = preference.get_build_documentation_keys()
+
+        with run_test.keep_config() as config:
+            config.optionvars = {
+                "rez_sphinx": {
+                    "build_documentation_key": expected_list,
+                },
+            }
+
+            _clear_caches()
+            result_from_list = preference.get_build_documentation_keys()
+
+        self.assertEqual([expected_string], result_from_string)
+        self.assertEqual(expected_list, result_from_list)
 
     def test_package(self):
         """Set :ref:`rez_sphinx.build_documentation_key` in a Rez source package."""
-        raise ValueError()
+        expected_string = "foo"
+        expected_list = ["fizz", "buzz"]
+
+        package_with_string = _make_package_config(
+            {
+                "build_documentation_key": expected_string,
+            }
+        )
+        package_with_list = _make_package_config(
+            {
+                "build_documentation_key": expected_list,
+            }
+        )
+
+        _clear_caches()
+        result_from_string = preference.get_build_documentation_keys(package=package_with_string)
+        _clear_caches()
+        result_from_list = preference.get_build_documentation_keys(package=package_with_list)
+
+        self.assertEqual([expected_string], result_from_string)
+        self.assertEqual(expected_list, result_from_list)
 
 
 class DocumentationRoot(unittest.TestCase):
@@ -144,15 +192,29 @@ class DocumentationRoot(unittest.TestCase):
 
     def test_global(self):
         """Set :ref:`rez_sphinx.documentation_root` in a global `rezconfig`_."""
-        optionvars = {
-            "rez_sphinx": {
-                "documentation_root": "documentation",
-            },
-        }
+        expected = "foo"
+
+        with run_test.keep_config() as config:
+            config.optionvars = {
+                "rez_sphinx": {
+                    "documentation_root": expected,
+                },
+            }
+
+            _clear_caches()
+            self.assertEqual(expected, preference.get_documentation_root_name())
+
+        default = "documentation"
+        _clear_caches()
+        self.assertEqual(default, preference.get_documentation_root_name())
 
     def test_package(self):
         """Set :ref:`rez_sphinx.documentation_root` in a Rez source package."""
-        raise ValueError()
+        expected = "foo"
+        package = _make_package_config({"documentation_root": expected})
+
+        _clear_caches()
+        self.assertEqual(expected, preference.get_documentation_root_name(package=package))
 
 
 class ExtraRequires(unittest.TestCase):

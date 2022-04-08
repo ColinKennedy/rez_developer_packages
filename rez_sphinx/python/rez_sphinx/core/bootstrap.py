@@ -300,7 +300,7 @@ def _get_tests_requires(package):
     #
     # Worse case scenario, fallback to using REZ_USED_REQUEST, instead.
     #
-    for key in preference.get_build_documentation_keys():
+    for key in preference.get_build_documentation_keys(package=package):
         test = tests.get(key)
 
         if test:

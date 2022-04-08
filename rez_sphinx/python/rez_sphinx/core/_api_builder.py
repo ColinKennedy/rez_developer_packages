@@ -78,6 +78,8 @@ def _generate_api_files(directory, destination, options=tuple()):
             User-provided arguments to add into the `sphinx-apidoc`_ command.
 
     Raises:
+        NoPackageFound:
+            If ``directory`` isn't in a Rez package.
         EnvironmentError:
             If the user needs the default "templates" directory but it is missing.
         NoPythonFiles:
@@ -88,6 +90,10 @@ def _generate_api_files(directory, destination, options=tuple()):
 
     """
     install_package = finder.get_nearest_rez_package(directory)
+
+    if not install_package:
+        raise exception.NoPackageFound('Directory "{directory}" is not inside an installed Rez package.'.format(directory=directory))
+
     install_directory = path_control.get_installed_root(install_package.name)
 
     sources = _get_python_source_roots(install_directory)
@@ -180,10 +186,20 @@ def _update_master_file(directory):
             The absolute path to the documentation source directory,
             within some source Rez package.
 
+    Raises:
+        NoPackageFound:
+            If ``directory`` isn't inside of a source Rez package with
+            documentation.
+
     """
     sphinx = configuration.ConfPy.from_directory(directory)
     path = sphinx.get_master_document_path()
-    toctree_line = preference.get_master_api_documentation_line()
+    package = finder.get_nearest_rez_package(directory)
+
+    if not package:
+        raise exception.NoPackageFound('Directory "{directory}" is not inside of a source Rez package.'.format(directory=directory))
+
+    toctree_line = preference.get_master_api_documentation_line(package=package)
     sphinx_helper.add_links_to_a_tree([toctree_line], path)
 
 

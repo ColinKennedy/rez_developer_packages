@@ -78,6 +78,8 @@ def _run_sphinx_quickstart(directory, options=tuple()):
             The arguments which are passed directly to `sphinx-quickstart`_.
 
     Raises:
+        NoPackageFound:
+            If ``directory`` isn't in a Rez package.
         SphinxExecutionError:
             If `sphinx-quickstart`_ failed midway during execution.
         RuntimeError:
@@ -132,7 +134,7 @@ def init(package, quick_start_options=tuple()):
     )
 
     root = finder.get_package_root(package)
-    folder_name = preference.get_documentation_root_name()
+    folder_name = preference.get_documentation_root_name(package=package)
 
     if preference.SPHINX_SEPARATE_SOURCE_AND_BUILD in options:
         documentation_source_root = os.path.join(root, folder_name, _SOURCE_FOLDER_NAME)

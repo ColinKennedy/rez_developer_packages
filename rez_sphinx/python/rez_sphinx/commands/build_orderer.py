@@ -131,7 +131,7 @@ def filter_existing_documentation(packages):
         # Check if ``package`` is a source package
         documentation_top = os.path.join(
             package_root,
-            preference.get_documentation_root_name(),
+            preference.get_documentation_root_name(package=package),
         )
 
         if os.path.isdir(documentation_top):

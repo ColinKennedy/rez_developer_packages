@@ -99,15 +99,14 @@ def get_documentation_build(source):
 
     """
     separate_build_folder = os.path.join(os.path.dirname(source), "build")
+    package = finder.get_nearest_rez_package(source)
 
     if (
         os.path.isdir(separate_build_folder)
-        and _get_name(separate_build_folder) == preference.get_documentation_root_name()
+        and _get_name(separate_build_folder) == preference.get_documentation_root_name(package=package)
     ):
         # Most :ref:`rez_sphinx` configurations will use this path
         return separate_build_folder  # {rez_root}/documentation/build
-
-    package = finder.get_nearest_rez_package(source)
 
     if not package:
         raise RuntimeError(
@@ -124,7 +123,7 @@ def get_documentation_build(source):
     )
 
     return os.path.join(  # {rez_root}/build/documentation
-        build_directory, preference.get_documentation_root_name()
+        build_directory, preference.get_documentation_root_name(package=package)
     )
 
 
@@ -140,7 +139,8 @@ def get_documentation_source(directory):
             If ``root`` needs to initialize some documentation.
 
     Returns:
-        str: The parent directory of `Sphinx conf.py`_.
+        tuple[rez.packages.Package, str]:
+            Rez package + The parent directory of `Sphinx conf.py`_.
 
     """
     package = finder.get_nearest_rez_package(directory)
@@ -153,7 +153,7 @@ def get_documentation_source(directory):
         )
 
     try:
-        return doc_finder.get_source_from_package(package)
+        return package, doc_finder.get_source_from_package(package)
     except RuntimeError:
         raise exception.NoDocumentationFound(
             'Directory "{root}" has no documentation. '
@@ -185,13 +185,11 @@ def build(
             files will be auto-generated just before `sphinx-build`_ is ran.
 
     Raises:
-        NoPackageFound:
-            If ``directory`` is invalid.
         SphinxExecutionError:
             If `sphinx-build`_ failed midway before it could be completed.
 
     """
-    source_directory = get_documentation_source(directory)
+    package, source_directory = get_documentation_source(directory)
 
     if preference.check_default_files():
         _validate_non_default_files(source_directory)

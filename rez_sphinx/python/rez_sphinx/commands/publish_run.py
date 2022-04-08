@@ -38,7 +38,7 @@ def _get_documentation_destination(name, package):
         command = shlex.split(text)[1:]
         namespace = cli.parse_arguments(command)
 
-        documentation_source = runner_.get_documentation_source(namespace.directory)
+        _, documentation_source = runner_.get_documentation_source(namespace.directory)
         documentation_build = runner_.get_documentation_build(documentation_source)
 
         return documentation_build
@@ -81,18 +81,20 @@ def _validated_test_keys(runner):
             )
         )
 
+    package = runner.get_package()
+
     # TODO : It may make more sense to add a
     # `preference.get_publish_documentation_keys` and have that list default to
     # `preference.get_build_documentation_keys` if it is not defined. That way
     # users can specify publish keys differently than build ones.
     #
-    build_tests = preference.get_build_documentation_keys()
+    build_tests = preference.get_build_documentation_keys(package=package)
     names = [name for name in build_tests if name in tests]
 
     if names:
         return names
 
-    name = runner.get_package().name
+    name = package.name
 
     raise exception.BadPackage(
         'Package "{name}" has no rez_sphinx key for building documentation. '

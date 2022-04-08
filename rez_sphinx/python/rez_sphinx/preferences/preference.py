@@ -39,6 +39,7 @@ SPHINX_SEPARATE_SOURCE_AND_BUILD = "--sep"
 
 _API_TOCTREE_LINE = "api_toctree_line"
 _BUILD_KEY = "build_documentation_key"
+_BUILD_KEY_DEFAULT = "build_documentation"
 _CHECK_DEFAULT_FILES = "check_default_files"
 _DEFAULT_FILES = "default_files"
 _DOCUMENTATION_ROOT_KEY = "documentation_root"
@@ -73,7 +74,7 @@ _MASTER_DOC = "master_doc"
 
 _MASTER_SCHEMA = schema.Schema(
     {
-        schema.Optional(_BUILD_KEY, default="build_documentation"): schema.Or(
+        schema.Optional(_BUILD_KEY, default=_BUILD_KEY_DEFAULT): schema.Or(
             schema_helper.NON_NULL_STR, [schema_helper.NON_NULL_STR]
         ),
         schema.Optional(_EXTENSIONS_KEY, default=list(_BASIC_EXTENSIONS)): [
@@ -411,7 +412,17 @@ def get_auto_help_methods():
 # TODO : Is caching really necessary? Maybe remove it from these functions
 @lru_cache()
 def get_base_settings(package=None):
-    """dict[str, object]: Get all :ref:`rez_sphinx` specific default settings."""
+    """Get all :ref:`rez_sphinx` specific default settings.
+
+    Args:
+        package (rez.packages.Package, optional):
+            The Rez object to check for. This usually is a source Rez package
+            but it doesn't have to be.
+
+    Returns:
+        dict[str, object]: The found :ref:`rez_sphinx` configuration settings.
+
+    """
     # TODO : Incorporate ``package`` with unittests
     # Once this is done, make sure to update all get_base_settings to include
     # package contents
@@ -435,13 +446,25 @@ def get_base_settings(package=None):
     return _validate_all(data)
 
 
-def get_build_documentation_keys():
-    """list[str]: Get the `rez tests attribute`_ key for :ref:`rez_sphinx`."""
-    rez_sphinx_settings = get_base_settings()
+def get_build_documentation_keys(package=None):
+    """Get the `rez tests attribute`_ key for :ref:`rez_sphinx`.
+
+    Args:
+        package (rez.packages.Package, optional):
+            The Rez object to check for. This usually is a source Rez package
+            but it doesn't have to be.
+
+    Returns:
+        list[str]:
+            The found, allowed Rez `tests`_ keys. By default, this is
+            ``["build_documentation"]``.
+
+    """
+    rez_sphinx_settings = get_base_settings(package=package)
     keys = rez_sphinx_settings.get(_BUILD_KEY)
 
     if not keys:
-        return ["build_documentation"]
+        return [_BUILD_KEY_DEFAULT]
 
     if isinstance(keys, six.string_types):
         return [keys]
@@ -449,14 +472,36 @@ def get_build_documentation_keys():
     return keys
 
 
-def get_build_documentation_key():
-    """str: Get the `rez tests attribute`_ key for :ref:`rez_sphinx`."""
-    return get_build_documentation_keys()[0]
+def get_build_documentation_key(package=None):
+    """Get the `rez tests attribute`_ key for :ref:`rez_sphinx`.
+
+    Args:
+        package (rez.packages.Package, optional):
+            The Rez object to check for. This usually is a source Rez package
+            but it doesn't have to be.
+
+    Returns:
+        str:
+            The found, preferred `tests`_ keys. By default, this is
+            ``"build_documentation"``.
+
+    """
+    return get_build_documentation_keys(package=package)[0]
 
 
-def get_documentation_root_name():
-    """str: The name of the folder where all documentation-related files will go."""
-    settings = get_base_settings()
+def get_documentation_root_name(package=None):
+    """Get the name of the folder where all documentation-related files will go.
+
+    Args:
+        package (rez.packages.Package, optional):
+            The Rez object to check for. This usually is a source Rez package
+            but it doesn't have to be.
+
+    Returns:
+        str: The folder name where documentation will live, e.g. ``"documentation"``.
+
+    """
+    settings = get_base_settings(package=package)
 
     return settings.get(_DOCUMENTATION_ROOT_KEY) or _DOCUMENTATION_DEFAULT
 
@@ -516,11 +561,32 @@ def get_init_default_entries():
     return settings[_INIT_KEY][_DEFAULT_FILES]
 
 
-def get_master_api_documentation_line():
-    """str: Get the line that typically is added to the main `index.rst`_."""
-    rez_sphinx_settings = get_base_settings()
+def get_master_api_documentation_line(package=None):
+    """str: Get the line that typically is added to the main `index.rst`_.
 
-    return rez_sphinx_settings[_API_TOCTREE_LINE]
+    Args:
+        package (rez.packages.Package, optional):
+            The Rez object to check for. This usually is a source Rez package
+            but it doesn't have to be.
+
+    Raises:
+        ConfigurationError: If the found configuration value is empty.
+
+    Returns:
+        str:
+            The found text needed to add the auto-generated API into the master
+            Sphinx toctree.
+
+    """
+    rez_sphinx_settings = get_base_settings(package=package)
+
+    line = rez_sphinx_settings[_API_TOCTREE_LINE]
+
+    if line:
+        return line
+
+    raise exception.ConfigurationError(
+        'The "{_API_TOCTREE_LINE}" setting cannot be empty.'.format(_API_TOCTREE_LINE=_API_TOCTREE_LINE))
 
 
 def get_master_document_name():

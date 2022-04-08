@@ -20,7 +20,7 @@ def get_source_from_directory(directory):
         str: The found documentation source root.
 
     """
-    documentation_name = preference.get_documentation_root_name()
+    documentation_name = preference.get_documentation_root_name(package=package)
 
     # TODO : Don't hard-code source
     possible_directory = os.path.join(directory, documentation_name, "source")
