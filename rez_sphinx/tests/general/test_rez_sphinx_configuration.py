@@ -88,10 +88,11 @@ class AutoHelp(unittest.TestCase):
 
     def test_filter_by_global(self):
         """Set :ref:`rez_sphinx.auto_help.filter_by` in a global `rezconfig`_."""
+        expected = "prefer_generated"
         optionvars = {
             "rez_sphinx": {
                 "auto_help": {
-                    "filter_by": "prefer_generated",
+                    "filter_by": expected,
                 },
             },
         }
@@ -99,10 +100,11 @@ class AutoHelp(unittest.TestCase):
 
     def test_filter_by_package(self):
         """Set :ref:`rez_sphinx.auto_help.filter_by` in a Rez source package."""
+        expected = "prefer_generated"
         optionvars = {
             "rez_sphinx": {
                 "auto_help": {
-                    "filter_by": "prefer_generated",
+                    "filter_by": expected,
                 },
             },
         }
@@ -110,10 +112,11 @@ class AutoHelp(unittest.TestCase):
 
     def test_sort_order_global(self):
         """Set :ref:`rez_sphinx.auto_help.sort_order` in a global `rezconfig`_."""
+        expected = "prefer_generated"
         optionvars = {
             "rez_sphinx": {
                 "auto_help": {
-                    "sort_order": "alphabetical",
+                    "sort_order": expected,
                 },
             },
         }
@@ -121,10 +124,11 @@ class AutoHelp(unittest.TestCase):
 
     def test_sort_order_package(self):
         """Set :ref:`rez_sphinx.auto_help.sort_order` in a Rez source package."""
+        expected = "prefer_generated"
         optionvars = {
             "rez_sphinx": {
                 "auto_help": {
-                    "sort_order": "alphabetical",
+                    "sort_order": "prefer_generated",
                 },
             },
         }
@@ -217,36 +221,35 @@ class DocumentationRoot(unittest.TestCase):
         self.assertEqual(expected, preference.get_documentation_root_name(package=package))
 
 
-class ExtraRequires(unittest.TestCase):
-    """Set :ref:`rez_sphinx.extra_requires` in a Rez source package."""
-
-    def test_global(self):
-        """Set :ref:`rez_sphinx.extra_requires` in a global `rezconfig`_."""
-        optionvars = {
-            "rez_sphinx": {
-                "extra_requires": [],  # <-- Your extra packages here
-            },
-        }
-
-    def test_package(self):
-        """Set :ref:`rez_sphinx.extra_requires` in a Rez source package."""
-        raise ValueError()
-
-
 class InitOptionsCheckDefaultFiles(unittest.TestCase):
     """Set :ref:`rez_sphinx.init_options.default_files` in a Rez source package."""
 
     def test_global(self):
         """Set :ref:`rez_sphinx.init_options.default_files` in a global `rezconfig`_."""
-        optionvars = {
-            "rez_sphinx": {
-                "init_options.check_default_files": True,
-            },
-        }
+        expected = False
+
+        with run_test.keep_config() as config:
+            config.optionvars = {
+                "rez_sphinx": {
+                    "init_options": {"check_default_files": expected},
+                },
+            }
+
+            _clear_caches()
+            self.assertEqual(expected, preference.check_default_files())
+
+        _clear_caches()
+        self.assertTrue(preference.check_default_files())  # The default is True
 
     def test_package(self):
         """Set :ref:`rez_sphinx.init_options.default_files` in a Rez source package."""
-        raise ValueError()
+        expected = False
+        package = _make_package_config(
+            {"init_options": {"check_default_files": expected}},
+        )
+
+        _clear_caches()
+        self.assertFalse(preference.check_default_files(package=package))
 
 
 class IntersphinxSettingsPackageLinkMap(unittest.TestCase):

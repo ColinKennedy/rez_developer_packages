@@ -191,7 +191,7 @@ def build(
     """
     package, source_directory = get_documentation_source(directory)
 
-    if preference.check_default_files():
+    if preference.check_default_files(package=package):
         _validate_non_default_files(source_directory)
 
     api_options = preference.get_api_options(options=api_options)

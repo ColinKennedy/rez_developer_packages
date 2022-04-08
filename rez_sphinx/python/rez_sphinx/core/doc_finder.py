@@ -14,6 +14,28 @@ def get_source_from_directory(directory):
         directory (str): The root of a Rez package.
 
     Raises:
+        NoPackageFound: If ``directory`` isn't in a Rez source package.
+
+    Returns:
+        str: The found documentation source root.
+
+    """
+    package = finder.get_nearest_rez_package(directory)
+
+    if not package:
+        raise exception.NoPackageFound('Directory "{directory}" is not in a Rez source package.'.format(directory=directory))
+
+    return get_source_from_package(package)
+
+
+def get_source_from_package(package):
+    """Find the top-level documentation source root, from ``package``.
+
+    Args:
+        package (rez.packages.Package):
+            The Rez source package to search within for source documentation.
+
+    Raises:
         RuntimeError: If no root could be found.
 
     Returns:
@@ -21,6 +43,7 @@ def get_source_from_directory(directory):
 
     """
     documentation_name = preference.get_documentation_root_name(package=package)
+    directory = finder.get_package_root(package)
 
     # TODO : Don't hard-code source
     possible_directory = os.path.join(directory, documentation_name, "source")
@@ -36,18 +59,3 @@ def get_source_from_directory(directory):
     raise RuntimeError(
         'Directory "{directory}" has no documentation.'.format(directory=directory)
     )
-
-
-def get_source_from_package(package):
-    """Find the top-level documentation source root, from ``package``.
-
-    Args:
-        package (rez.packages.Package): The root of a Rez package.
-
-    Returns:
-        str: The found documentation source root.
-
-    """
-    root = finder.get_package_root(package)
-
-    return get_source_from_directory(root)

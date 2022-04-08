@@ -337,9 +337,20 @@ def allow_apidoc_templates(package=None):
     return apidoc[_ALLOW_APIDOC_TEMPLATES]
 
 
-def check_default_files():
-    """bool: If True, :ref:`rez_sphinx build run` checks files for user edits."""
-    settings = get_base_settings()
+def check_default_files(package=None):
+    """If True, :ref:`rez_sphinx build run` checks files for user edits.
+
+    Args:
+        package (rez.packages.Package, optional):
+            A Rez package which may override the global setting.  If the
+            package doesn't define an opinion, the global setting / default
+            value is used instead.
+
+    Returns:
+        bool: Whether or not checking default files is enabled.
+
+    """
+    settings = get_base_settings(package=package)
     options = settings.get(_INIT_KEY) or dict()
 
     return options[_CHECK_DEFAULT_FILES]
