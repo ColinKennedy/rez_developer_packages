@@ -23,7 +23,11 @@ def get_source_from_directory(directory):
     package = finder.get_nearest_rez_package(directory)
 
     if not package:
-        raise exception.NoPackageFound('Directory "{directory}" is not in a Rez source package.'.format(directory=directory))
+        raise exception.NoPackageFound(
+            'Directory "{directory}" is not in a Rez source package.'.format(
+                directory=directory
+            )
+        )
 
     return get_source_from_package(package)
 

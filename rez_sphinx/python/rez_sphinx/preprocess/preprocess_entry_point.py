@@ -188,7 +188,7 @@ def _get_resolved_help(context, command):
     stdout, stderr = process.communicate()
 
     if process.returncode != 0:
-        _LOGGER.error('Process errored.')
+        _LOGGER.error("Process errored.")
         _LOGGER.error(stderr)
 
         return []

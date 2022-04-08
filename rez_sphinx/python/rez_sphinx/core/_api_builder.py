@@ -92,7 +92,11 @@ def _generate_api_files(directory, destination, options=tuple()):
     install_package = finder.get_nearest_rez_package(directory)
 
     if not install_package:
-        raise exception.NoPackageFound('Directory "{directory}" is not inside an installed Rez package.'.format(directory=directory))
+        raise exception.NoPackageFound(
+            'Directory "{directory}" is not inside an installed Rez package.'.format(
+                directory=directory
+            )
+        )
 
     install_directory = path_control.get_installed_root(install_package.name)
 
@@ -197,7 +201,11 @@ def _update_master_file(directory):
     package = finder.get_nearest_rez_package(directory)
 
     if not package:
-        raise exception.NoPackageFound('Directory "{directory}" is not inside of a source Rez package.'.format(directory=directory))
+        raise exception.NoPackageFound(
+            'Directory "{directory}" is not inside of a source Rez package.'.format(
+                directory=directory
+            )
+        )
 
     toctree_line = preference.get_master_api_documentation_line(package=package)
     sphinx_helper.add_links_to_a_tree([toctree_line], path)

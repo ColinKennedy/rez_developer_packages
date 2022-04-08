@@ -16,7 +16,6 @@ from rez_sphinx.preprocess import hook, preprocess_entry_point
 
 from ..common import package_wrap, run_test
 
-
 _CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 _PACKAGE_ROOT = os.path.dirname(os.path.dirname(_CURRENT_DIRECTORY))
 
@@ -478,7 +477,9 @@ class HelpScenarios(unittest.TestCase):
         with _override_preprocess(package), wrapping.keep_os_environment():
             os.environ["REZ_CONFIG_FILE"] = configuration
 
-            fresh_package = developer_package.DeveloperPackage.from_path(finder.get_package_root(package))
+            fresh_package = developer_package.DeveloperPackage.from_path(
+                finder.get_package_root(package)
+            )
             creator.build(fresh_package, install_path, quiet=True)
 
         install_package = developer_package.DeveloperPackage.from_path(
@@ -488,13 +489,26 @@ class HelpScenarios(unittest.TestCase):
             os.path.join(install_path, package.name, "1.1.0")
         )
 
-        join = os.path.join
-
+        # TODO : Adjust unittests to also work as local, relative path(s)
+        # It shouldn't only be "rez_docbot or nothing"
+        #
         expected = [
-            ["Developer Documentation", join("{root}", "developer_documentation.html")],
-            ["Some Tag", join("{root}", "some_page.html#an-inner-header")],
-            ["User Documentation", join("{root}", "user_documentation.html")],
-            ["rez_sphinx objects.inv", "{root}"],
+            [
+                "Developer Documentation",
+                "https://foo.github.io/some_package/versions/1.1/developer_documentation.html",
+            ],
+            [
+                "Some Tag",
+                "https://foo.github.io/some_package/versions/1.1/some_page.html#an-inner-header",
+            ],
+            [
+                "User Documentation",
+                "https://foo.github.io/some_package/versions/1.1/user_documentation.html",
+            ],
+            [
+                "rez_sphinx objects.inv",
+                "https://foo.github.io/some_package/versions/1.1",
+            ],
         ]
 
         self.assertEqual(
@@ -562,6 +576,11 @@ def _override_preprocess(package):
         root = finder.get_package_root(package)
         os.chdir(root)
 
+        config.package_definition_build_python_paths = [
+            os.path.join(_PACKAGE_ROOT, "python", "rez_sphinx", "preprocess")
+        ]
         config.package_preprocess_function = preprocess_entry_point.run
+        # Note: You could also do this:
+        # config.package_preprocess_function = "preprocess_entry_point.run"
 
         yield

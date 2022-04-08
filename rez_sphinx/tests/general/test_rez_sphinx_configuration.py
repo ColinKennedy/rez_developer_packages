@@ -9,6 +9,7 @@ import textwrap
 import unittest
 
 from rez import developer_package
+
 from rez_sphinx.preferences import preference, preference_help_
 
 from ..common import run_test
@@ -80,7 +81,9 @@ class ApiTocTreeLine(unittest.TestCase):
         )
 
         _clear_caches()
-        self.assertEqual(expected, preference.get_master_api_documentation_line(package=package))
+        self.assertEqual(
+            expected, preference.get_master_api_documentation_line(package=package)
+        )
 
 
 class AutoHelpFilterBy(unittest.TestCase):
@@ -98,7 +101,9 @@ class AutoHelpFilterBy(unittest.TestCase):
             }
 
             _clear_caches()
-            self.assertEqual(preference_help_.filter_original, preference.get_filter_method())
+            self.assertEqual(
+                preference_help_.filter_original, preference.get_filter_method()
+            )
 
         default = preference_help_.filter_generated
         _clear_caches()
@@ -109,7 +114,10 @@ class AutoHelpFilterBy(unittest.TestCase):
         package = _make_package_config({"auto_help": {"filter_by": "prefer_generated"}})
 
         _clear_caches()
-        self.assertEqual(preference_help_.filter_original, preference.get_filter_method(package=package))
+        self.assertEqual(
+            preference_help_.filter_original,
+            preference.get_filter_method(package=package),
+        )
 
 
 class AutoHelpSortOrder(unittest.TestCase):
@@ -127,7 +135,9 @@ class AutoHelpSortOrder(unittest.TestCase):
             }
 
             _clear_caches()
-            self.assertEqual(preference_help_.sort_generated, preference.get_sort_method())
+            self.assertEqual(
+                preference_help_.sort_generated, preference.get_sort_method()
+            )
 
         default = preference_help_.alphabetical
         _clear_caches()
@@ -135,10 +145,14 @@ class AutoHelpSortOrder(unittest.TestCase):
 
     def test_package(self):
         """Set :ref:`rez_sphinx.auto_help.sort_order` in a Rez source package."""
-        package = _make_package_config({"auto_help": {"sort_order": "prefer_generated"}})
+        package = _make_package_config(
+            {"auto_help": {"sort_order": "prefer_generated"}}
+        )
 
         _clear_caches()
-        self.assertEqual(preference_help_.sort_generated, preference.get_sort_method(package=package))
+        self.assertEqual(
+            preference_help_.sort_generated, preference.get_sort_method(package=package)
+        )
 
 
 class BuildDocumentation(unittest.TestCase):
@@ -189,9 +203,13 @@ class BuildDocumentation(unittest.TestCase):
         )
 
         _clear_caches()
-        result_from_string = preference.get_build_documentation_keys(package=package_with_string)
+        result_from_string = preference.get_build_documentation_keys(
+            package=package_with_string
+        )
         _clear_caches()
-        result_from_list = preference.get_build_documentation_keys(package=package_with_list)
+        result_from_list = preference.get_build_documentation_keys(
+            package=package_with_list
+        )
 
         self.assertEqual([expected_string], result_from_string)
         self.assertEqual(expected_list, result_from_list)
@@ -224,7 +242,9 @@ class DocumentationRoot(unittest.TestCase):
         package = _make_package_config({"documentation_root": expected})
 
         _clear_caches()
-        self.assertEqual(expected, preference.get_documentation_root_name(package=package))
+        self.assertEqual(
+            expected, preference.get_documentation_root_name(package=package)
+        )
 
 
 class InitOptionsCheckDefaultFiles(unittest.TestCase):
@@ -313,7 +333,9 @@ class SphinxApidocArguments(unittest.TestCase):
             self.assertEqual(expected, preference.get_api_options())
 
         _clear_caches()
-        self.assertEqual(["--separate"], preference.get_api_options())  # The default value
+        self.assertEqual(
+            ["--separate"], preference.get_api_options()
+        )  # The default value
 
     def test_package(self):
         """Set :ref:`rez_sphinx.sphinx-apidoc.arguments` in a Rez source package."""
@@ -338,9 +360,7 @@ class SphinxApidocEnableApidoc(unittest.TestCase):
         with run_test.keep_config() as config:
             config.optionvars = {
                 "rez_sphinx": {
-                    "sphinx-apidoc": {
-                        "enable_apidoc": False
-                    },
+                    "sphinx-apidoc": {"enable_apidoc": False},
                 },
             }
             _clear_caches()
@@ -368,26 +388,26 @@ class SphinxQuickStart(unittest.TestCase):
 
         package = _make_package_config({"sphinx-quickstart": []})
         default = [
-            '--author',
-            '',
-            '--ext-intersphinx',
-            '--project',
-            'foo',
-            '--release',
-            '',
-            '-v',
-            '',
-            '--suffix',
-            '.rst',
-            '--master',
-            'index',
-            '--dot=_',
-            '--no-sep',
-            '--language',
-            'en',
-            '--no-makefile',
-            '--no-batchfile',
-            '--quiet',
+            "--author",
+            "",
+            "--ext-intersphinx",
+            "--project",
+            "foo",
+            "--release",
+            "",
+            "-v",
+            "",
+            "--suffix",
+            ".rst",
+            "--master",
+            "index",
+            "--dot=_",
+            "--no-sep",
+            "--language",
+            "en",
+            "--no-makefile",
+            "--no-batchfile",
+            "--quiet",
         ]
         # ``get_quick_start_options`` requires a Rez package so, to simulate
         # getting "global" settings, we define a package but give it an empty
@@ -439,7 +459,10 @@ class SphinxConfigOverridesAddModuleNames(unittest.TestCase):
         package = _make_package_config({"sphinx_conf_overrides": {variable: expected}})
 
         _clear_caches()
-        self.assertEqual(expected, preference.get_sphinx_configuration_overrides(package=package)[variable])
+        self.assertEqual(
+            expected,
+            preference.get_sphinx_configuration_overrides(package=package)[variable],
+        )
 
 
 def _get_preference_from_path(path, package=None):

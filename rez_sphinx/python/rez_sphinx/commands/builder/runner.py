@@ -101,10 +101,9 @@ def get_documentation_build(source):
     separate_build_folder = os.path.join(os.path.dirname(source), "build")
     package = finder.get_nearest_rez_package(source)
 
-    if (
-        os.path.isdir(separate_build_folder)
-        and _get_name(separate_build_folder) == preference.get_documentation_root_name(package=package)
-    ):
+    if os.path.isdir(separate_build_folder) and _get_name(
+        separate_build_folder
+    ) == preference.get_documentation_root_name(package=package):
         # Most :ref:`rez_sphinx` configurations will use this path
         return separate_build_folder  # {rez_root}/documentation/build
 
@@ -218,7 +217,11 @@ def build(
     api_mode = api_builder.get_from_label(api_mode)
     package = finder.get_nearest_rez_package(directory)
 
-    if not no_api_doc and preference.is_api_enabled(package=package) and api_mode.execute:
+    if (
+        not no_api_doc
+        and preference.is_api_enabled(package=package)
+        and api_mode.execute
+    ):
         api_mode.execute(source_directory, options=api_options)
 
     try:

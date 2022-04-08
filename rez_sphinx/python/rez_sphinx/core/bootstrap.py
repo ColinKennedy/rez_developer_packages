@@ -446,7 +446,9 @@ def _merge_intersphinx_maps(data, package):
     # - If the package is in the current resolve
     # - There is no existing value
     #
-    for fallback_key, fallback_link in preference.get_package_link_map(package=package).items():
+    for fallback_key, fallback_link in preference.get_package_link_map(
+        package=package
+    ).items():
         if _in_resolve(fallback_key) and fallback_key not in output:
             output[fallback_key] = fallback_link
 
@@ -512,7 +514,9 @@ def bootstrap(data, package=None, skip=frozenset()):
         # Reference:
         # https://github.com/readthedocs/readthedocs.org/issues/2569#issuecomment-485117471
         #
-        data["master_doc"] = preference.get_master_document_name(package=package) or "index"
+        data["master_doc"] = (
+            preference.get_master_document_name(package=package) or "index"
+        )
 
     if "project" not in skip:
         data["project"] = package.name
@@ -546,7 +550,9 @@ def bootstrap(data, package=None, skip=frozenset()):
 
     overrides = {
         key: value
-        for key, value in preference.get_sphinx_configuration_overrides(package=package).items()
+        for key, value in preference.get_sphinx_configuration_overrides(
+            package=package
+        ).items()
         if key not in skip
     }
     _LOGGER.info('Got extra conf.py overrides "%s".', overrides)

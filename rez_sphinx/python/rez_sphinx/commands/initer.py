@@ -129,9 +129,7 @@ def init(package, quick_start_options=tuple()):
     """
     initial_files = preference.get_initial_files_from_configuration()
 
-    options = preference.get_quick_start_options(
-        package, options=quick_start_options
-    )
+    options = preference.get_quick_start_options(package, options=quick_start_options)
 
     root = finder.get_package_root(package)
     folder_name = preference.get_documentation_root_name(package=package)

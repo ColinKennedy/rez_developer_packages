@@ -415,7 +415,9 @@ def get_auto_help_methods():
     """list[str]: Find all defined `help`_ methods. See :doc:`auto_append_help_tags`."""
     output = []
 
-    if config_.package_preprocess_function == _get_preprocess_import_path():  # pylint: disable=no-member
+    if (
+        config_.package_preprocess_function == _get_preprocess_import_path()
+    ):  # pylint: disable=no-member
         output.append(_PREPROCESS_DEBUG_KEY)
 
     if _PUBLISH_HOOK_CLASS_NAME in config_.release_hooks:  # pylint: disable=no-member
@@ -443,7 +445,11 @@ def get_base_settings(package=None):
     # Once this is done, make sure to update all get_base_settings to include
     # package contents
     if hasattr(package, _PACKAGE_CONFIGURATION_ATTRIBUTE):
-        overrides = {_REZ_OPTIONVARS: {_MASTER_KEY: getattr(package, _PACKAGE_CONFIGURATION_ATTRIBUTE)}}
+        overrides = {
+            _REZ_OPTIONVARS: {
+                _MASTER_KEY: getattr(package, _PACKAGE_CONFIGURATION_ATTRIBUTE)
+            }
+        }
         config = config_.copy(overrides=overrides)
 
         # TODO : Not sure why I need to this for optionvars to "take" properly.
@@ -612,7 +618,10 @@ def get_master_api_documentation_line(package=None):
         return line
 
     raise exception.ConfigurationError(
-        'The "{_API_TOCTREE_LINE}" setting cannot be empty.'.format(_API_TOCTREE_LINE=_API_TOCTREE_LINE))
+        'The "{_API_TOCTREE_LINE}" setting cannot be empty.'.format(
+            _API_TOCTREE_LINE=_API_TOCTREE_LINE
+        )
+    )
 
 
 # TODO : Add unittes for this, maybe?
