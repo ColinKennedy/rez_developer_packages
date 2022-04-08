@@ -848,8 +848,8 @@ def get_quick_start_options(package, options=tuple()):
     """Get the arguments `sphinx-quickstart`_.
 
     Args:
-        package (str):
-            The name of the Rez package family. e.g. "python", "Sphinx", etc.
+        package (rez.packages.Package):
+            The Rez package to query from. e.g. "python", "Sphinx", etc.
         options (list[str], optional):
             User-provided arguments to consider while resolving
             `sphinx-quickstart`_ values.
