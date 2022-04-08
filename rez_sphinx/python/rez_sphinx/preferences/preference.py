@@ -131,7 +131,7 @@ _MASTER_SCHEMA = schema.Schema(
             },
         ): {
             schema.Optional(_ALLOW_APIDOC_TEMPLATES, default=True): bool,
-            schema.Optional(_APIDOC_OPTIONS): [],
+            schema.Optional(_APIDOC_OPTIONS): [str],
             schema.Optional(_ENABLE_APIDOC, default=True): bool,
         },
         schema.Optional(
@@ -377,16 +377,20 @@ def is_api_enabled(package=None):
     return apidoc[_ENABLE_APIDOC]
 
 
-def get_api_options(options=tuple()):
+def get_api_options(options=tuple(), package=None):
     """Find all arguments to pass to `sphinx-apidoc`_.
 
     Args:
         options (container[str]):
             User arguments to pass to `sphinx-apidoc`_. These options come from
             :ref:`rez_sphinx build run` CLI and may be valid or invalid.
+        package (rez.packages.Package, optional):
+            A Rez package which may override the global setting.  If the
+            package doesn't define an opinion, the global setting / default
+            value is used instead.
 
     """
-    rez_sphinx_settings = get_base_settings()
+    rez_sphinx_settings = get_base_settings(package=package)
     apidoc = rez_sphinx_settings[_APIDOC]
     settings = apidoc.get(_APIDOC_OPTIONS) or ["--separate"]
 

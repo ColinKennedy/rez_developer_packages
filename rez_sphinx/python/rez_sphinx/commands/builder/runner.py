@@ -194,7 +194,7 @@ def build(
     if preference.check_default_files(package=package):
         _validate_non_default_files(source_directory)
 
-    api_options = preference.get_api_options(options=api_options)
+    api_options = preference.get_api_options(options=api_options, package=package)
 
     # TODO : This doesn't take into account split builds (it needs to fall back
     # to the Rez build folder if the user doesn't have a documentation/source

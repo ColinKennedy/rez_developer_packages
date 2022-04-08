@@ -287,40 +287,41 @@ class IntersphinxSettingsPackageLinkMap(unittest.TestCase):
         self.assertFalse(preference.get_package_link_map(package=package))
 
 
-class SphinxApidocAllowApidocTemplates(unittest.TestCase):
-    """Set :ref:`rez_sphinx.sphinx-apidoc.allow_apidoc_templates` in a Rez source package."""
-
-    def test_global(self):
-        """Set :ref:`rez_sphinx.sphinx-apidoc.allow_apidoc_templates` in a global `rezconfig`_."""
-        optionvars = {
-            "rez_sphinx": {
-                "sphinx-apidoc": {
-                    "allow_apidoc_templates": False,
-                },
-            }
-        }
-
-    def test_package(self):
-        """Set :ref:`rez_sphinx.sphinx-apidoc.allow_apidoc_templates` in a Rez source package."""
-        raise ValueError()
-
-
 class SphinxApidocArguments(unittest.TestCase):
     """Set :ref:`rez_sphinx.sphinx-apidoc.arguments` in a Rez source package."""
 
     def test_global(self):
         """Set :ref:`rez_sphinx.sphinx-apidoc.arguments` in a global `rezconfig`_."""
-        optionvars = {
-            "rez_sphinx": {
-                "sphinx-apidoc": {
-                    "arguments": [],
+        expected = ["a", "-b", "--foo", "thing"]
+
+        with run_test.keep_config() as config:
+            config.optionvars = {
+                "rez_sphinx": {
+                    "sphinx-apidoc": {
+                        "arguments": expected,
+                    },
                 },
-            },
-        }
+            }
+
+            _clear_caches()
+            self.assertEqual(expected, preference.get_api_options())
+
+        _clear_caches()
+        self.assertEqual(["--separate"], preference.get_api_options())  # The default value
 
     def test_package(self):
         """Set :ref:`rez_sphinx.sphinx-apidoc.arguments` in a Rez source package."""
-        raise ValueError()
+        expected = ["a", "-b", "--foo", "thing"]
+        package = _make_package_config(
+            {
+                "sphinx-apidoc": {
+                    "arguments": expected,
+                },
+            }
+        )
+
+        _clear_caches()
+        self.assertEqual(expected, preference.get_api_options(package=package))
 
 
 class SphinxApidocEnableApidoc(unittest.TestCase):
@@ -367,6 +368,7 @@ class SphinxQuickStart(unittest.TestCase):
                 "sphinx-quickstart": ["--ext-coverage"],
             },
         }
+        raise ValueError()
 
     def test_package(self):
         """Set :ref:`rez_sphinx.sphinx-quickstart` in a Rez source package."""
@@ -385,6 +387,7 @@ class SphinxConfigOverridesAddModuleNames(unittest.TestCase):
                 }
             }
         }
+        raise ValueError()
 
     def test_package(self):
         """Set :ref:`rez_sphinx.sphinx_conf_overrides.add_module_names` in a Rez source package."""
@@ -403,6 +406,7 @@ class SphinxConfigOverridesMasterDoc(unittest.TestCase):
                 }
             }
         }
+        raise ValueError()
 
     def test_package(self):
         """Set :ref:`rez_sphinx.sphinx_conf_overrides.master_doc` in a Rez source package."""
@@ -435,10 +439,12 @@ def _get_preference_from_path(path, package=None):
 
 
 def _clear_caches():
+    # TODO : Add doc
     preference.get_base_settings.cache_clear()
 
 
 def _make_package_config(configuration):
+    # TODO : Add doc
     directory = tempfile.mkdtemp(suffix="_make_package_config")
     atexit.register(functools.partial(shutil.rmtree, directory))
 
