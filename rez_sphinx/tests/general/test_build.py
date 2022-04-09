@@ -19,6 +19,7 @@ from rez.utils import pip
 from rez_utilities import creator, finder
 
 from rez_sphinx.core import bootstrap, exception, generic, sphinx_helper
+from rez_sphinx.preferences import preference
 
 from ..common import doc_test, package_wrap, pypi_check, run_test
 
@@ -177,15 +178,11 @@ class BootstrapIntersphinx(unittest.TestCase):
 
         with run_test.simulate_resolve(
             installed_packages
-        ), run_test.allow_defaults(), run_test.keep_config() as config:
-            config.optionvars = {
-                "rez_sphinx": {
-                    "build_documentation_key": [
-                        "build_documentation",
-                        "build_non_standard_documentation",
-                    ],
-                },
-            }
+        ), run_test.keep_config() as config, run_test.allow_defaults():
+            config.optionvars["rez_sphinx"]["build_documentation_key"] = [
+                "build_documentation",
+                "build_non_standard_documentation",
+            ]
 
             with _watch_candidates() as container, wrapping.silence_printing():
                 run_test.test(["build", "run", source_directory])
@@ -643,6 +640,9 @@ class Runner(unittest.TestCase):
         install_path = package_wrap.make_directory("_Build_hello_world_test")
 
         installed_package = creator.build(source_package, install_path, quiet=True)
+
+        # Run ``cache_clear()`` so other tests can't mess with this test
+        preference.get_base_settings.cache_clear()
 
         with run_test.simulate_resolve([installed_package]):
             run_test.test(["init", source_directory])
