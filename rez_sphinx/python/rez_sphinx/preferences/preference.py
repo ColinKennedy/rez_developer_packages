@@ -4,11 +4,6 @@ Most of these functions are just thin wraps around `rez-config`_ calls.
 
 """
 
-# TODO : Go through every function in this module and add package specific
-# passing to each of them Then go through all modules elsewhere and, everywhere
-# the functions are called, incorporate the source Rez package so that they
-# pass values as expected.
-
 import itertools
 import platform
 
@@ -626,7 +621,6 @@ def get_master_api_documentation_line(package=None):
     )
 
 
-# TODO : Add unittes for this, maybe?
 def get_master_document_name(package=None):
     """Find the first .rst file `Sphinx`_ should point to.
 
@@ -679,7 +673,6 @@ def get_package_link_map(package=None):
     return settings.get(_PACKAGE_LINK_MAP, {})
 
 
-# TODO : Add unittest for with and without ``package`` defined
 def get_preference_from_path(path, package=None):
     """Find the preference value located at ``path``.
 

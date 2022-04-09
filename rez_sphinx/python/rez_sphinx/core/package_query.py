@@ -16,15 +16,19 @@ def get_dependencies(package):
             during documentation-building.
 
     """
+    base = (package.requires or [])
     variants = package.variants or []
 
-    # TODO : Find the right variant to select, based on test requires
+    if not variants:
+        return base
+
     if len(variants) != 1:
         # Ignore all variants if there's multiple. Let the
-        # :ref:`build_documentation` rez-test handle which variant is selected.
+        # :ref:`_rez_sphinx.build_documentation_key` rez-test handle which
+        # variant is selected.
         #
         variants = []
     else:
         variants = variants[0]
 
-    return (package.requires or []) + variants
+    return base + variants

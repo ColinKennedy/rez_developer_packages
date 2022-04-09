@@ -1,4 +1,8 @@
-"""A variety of tests to ensure all settings in :doc:`configuring_rez_sphinx` work."""
+"""A variety of tests to ensure all settings in :doc:`configuring_rez_sphinx` work.
+
+This module is essentially a more thorough extension of :doc:`test_preference`.
+
+"""
 
 import atexit
 import functools
@@ -465,31 +469,6 @@ class SphinxConfigOverridesAddModuleNames(unittest.TestCase):
             expected,
             preference.get_sphinx_configuration_overrides(package=package)[variable],
         )
-
-
-def _get_preference_from_path(path, package=None):
-    """Find the preference value located at ``path``.
-
-    See Also:
-        :func:`.get_preference_paths` and :ref:`rez_sphinx config show --list-all`.
-
-    Args:
-        path (str):
-            Some dot-separated dict key to query. e.g.
-            ``"init_options.check_default_files"``
-        package (rez.packages.Package, optional):
-            If provided, the settings from this package are checked.
-
-    Raises:
-        ConfigurationError: If ``path`` isn't a valid setting.
-
-    Returns:
-        object: Whatever value ``path`` points to. It could be anything.
-
-    """
-    _clear_caches()
-
-    return preference.get_preference_from_path(path, package=package)
 
 
 def _clear_caches():
