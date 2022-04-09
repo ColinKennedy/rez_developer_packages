@@ -129,6 +129,8 @@ class GetPreferencePaths(unittest.TestCase):
             "extra_requires",
             "init_options.check_default_files",
             "init_options.default_files",
+            "intersphinx_settings",
+            "intersphinx_settings.package_link_map",
             "sphinx-apidoc.allow_apidoc_templates",
             "sphinx-apidoc.arguments",
             "sphinx-apidoc.enable_apidoc",

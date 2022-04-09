@@ -322,7 +322,12 @@ class PackageHelp(unittest.TestCase):
                 run_test.test("view package-help")
 
     def test_unloadable_release_hook(self):
-        """Warn if the user has a release hook but Rez cannot load it."""
+        """Warn if the user defines a release hook but Rez cannot load it.
+
+        This test is more of a Rez implementation detail. But we should at
+        least try to give the user a nice error message.
+
+        """
         required_folder = os.path.join(os.environ["REZ_REZ_SPHINX_ROOT"], "python")
 
         if not os.path.exists(required_folder):
