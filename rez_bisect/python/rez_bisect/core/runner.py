@@ -80,8 +80,7 @@ def bisect(has_issue, contexts, partial=False):
 
     if partial:
         # raise ValueError(str(last_good_context), str(first_bad_context), diff)
-        raise ValueError(diff)
-        partial_bisecter.bisect_2d(has_issue, last_good_context, diff)
+        raise ValueError(partial_bisecter.bisect_2d(has_issue, last_good_context, first_bad_context))
         raise ValueError(["{package.name}-{package.version}".format(package=package) for package in diff["added_packages"]])
         raise ValueError(diff["newer_packages"])
         raise ValueError(

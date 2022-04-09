@@ -1,20 +1,17 @@
 import math
+import random
 
 from rez import resolved_context
 
+from . import diff_mate
 
 _NEWER = "newer_packages"
 _REMOVED = "removed_packages"
 _SUPPORTED_KEYS = frozenset((_NEWER, _REMOVED))
 
 
-def _get_required_bad_packages():
-    # TODO : Make this real or delete it + all references to it
-    raise ValueError()
-
-
 # TODO : Simplify these parameters, if possible
-def _get_narrowed_bisect(has_issue, good, diff):
+def _get_approximate_bisect(has_issue, good, diff):
     """Check all Rez packages at once to find a close-ish match, based on ``diff``.
 
     The objective of this function is do give an approximate bisect.  The
@@ -22,6 +19,10 @@ def _get_narrowed_bisect(has_issue, good, diff):
     and find a more accurate bisect result.
 
     For a more exact bisect, see :func:`_get_required_bad_packages`.
+
+    Note:
+        This function is more efficient if you use a diff of Rez package
+        requests, not a diff of the resolved Rez packages.
 
     Args:
         good (rez.resolved_context.ResolvedContext):
@@ -99,6 +100,11 @@ def _get_narrowed_bisect(has_issue, good, diff):
     return _newer_indices_to_context(newer_indices)
 
 
+def _get_required_bad_packages():
+    # TODO : Make this real or delete it + all references to it
+    raise ValueError()
+
+
 def _to_raw_request(request):
     """Convert Rez packages / variants into something Rez contexts can use.
 
@@ -144,6 +150,62 @@ def _validate_keys(diff):
         )
 
 
-def bisect_2d(has_issue, good, diff):
-    raise ValueError(diff)
-    raise ValueError(_get_narrowed_bisect(has_issue, good, diff))
+def _get_filtered_request_diff(good, bad):
+    contexts = [good, bad]
+    requests = {package.name for context in contexts for package in context.requested_packages()}
+    resolve_diff = good.get_resolve_diff(bad)
+    request_diff = diff_mate.get_request_diff(requests, resolve_diff)
+
+    return {key: value for key, value in request_diff.items() if value}
+
+
+def _get_exact_bisect(has_issue, good, bad):
+    # """Find the Rez package(s)/version(s) that cause ``good`` to become bad.
+    #
+    # The general workflow steps are:
+    #
+    # - Choose a package
+    #     - Do a bisect with just this package
+    #     - save the result
+    # - Repeat with all packages
+    #
+    # """
+
+    def _choose_one(packages):
+        return random.sample(packages, 1)[0]
+
+    diff = _get_filtered_request_diff(good, bad)
+
+    checked = set()
+    bads = set()
+    bad_packages = set()
+    newer = diff.get(_NEWER)
+
+    while True:
+        candidates = set(newer.keys()) - checked - bads
+
+        if not candidates:
+            break
+
+        chosen = _choose_one(candidates)
+        chosen_diff = diff_mate.get_request_diff([chosen], diff)
+        context = _get_approximate_bisect(has_issue, good, chosen_diff)
+
+        if not has_issue(context):
+            checked.add(chosen)
+
+            continue
+
+        bads.add(chosen)
+        bad_packages.add(context.get_resolved_package(chosen))
+
+    bad_package_map = {package.name: package for package in bad_packages}
+
+    return diff_mate.filter_by_packages(bad_package_map, diff)
+
+
+def bisect_2d(has_issue, good, bad):
+    request_diff = _get_filtered_request_diff(good, bad)
+    unfinished_context = _get_approximate_bisect(has_issue, good, request_diff)
+
+    return _get_exact_bisect(has_issue, good, unfinished_context)

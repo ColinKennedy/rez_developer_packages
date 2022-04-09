@@ -1,3 +1,5 @@
+- Make sure custom --packages-path is supported, all the way down even during diffing
+
 Test Cases
 - Multi package issues
  - 2 or more packages at once have some incompatible issue
