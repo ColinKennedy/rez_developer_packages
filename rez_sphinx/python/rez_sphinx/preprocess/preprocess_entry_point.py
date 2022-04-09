@@ -300,6 +300,10 @@ def run(this, data):  # pylint: disable=unused-argument
 
     if not context:
         return
+    elif not context.success:
+        _LOGGER.info("rez_sphinx installed package is invalid!")
+
+        return
 
     help_ = _serialize_help(data)
     package_source_root = os.getcwd()  # Note: This is **assumed** to be correct
