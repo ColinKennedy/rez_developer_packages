@@ -42,7 +42,7 @@ def get_base_settings(package=None):
     return output
 
 
-def get_all_publishers(package):
+def get_all_publishers(package=None):
     """Get every publish method registered globally and under ``package``.
 
     Important:
