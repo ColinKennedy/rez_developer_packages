@@ -782,6 +782,15 @@ def get_preference_paths(package=None):
                 )
 
             inner_output, extra_cases = _get_mapping(value, inner_context)
+
+            if not inner_output:
+                # When this happens, it's because a nested object is empty by
+                # default. We still want the context key, in this case.
+                #
+                # e.g. "intersphinx_settings.package_link_map"
+                #
+                outputs.add(key)
+
             exceptional_cases.update(extra_cases)
 
             for inner_key in inner_output:

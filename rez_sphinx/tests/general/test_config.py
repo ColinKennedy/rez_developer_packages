@@ -223,7 +223,7 @@ class Show(unittest.TestCase):
 
         self.assertEqual('Name "does_not_exist" does not exist.', value.rstrip())
 
-    def test_list_all(self):
+    def test_show_all(self):
         """Make sure :ref:`rez_sphinx config show-all` works."""
         with wrapping.capture_pipes() as (stdout, _):
             run_test.test("config show-all")
@@ -243,6 +243,8 @@ class Show(unittest.TestCase):
                 extra_requires
                 init_options.check_default_files
                 init_options.default_files
+                intersphinx_settings
+                intersphinx_settings.package_link_map
                 sphinx-apidoc.allow_apidoc_templates
                 sphinx-apidoc.arguments
                 sphinx-apidoc.enable_apidoc
