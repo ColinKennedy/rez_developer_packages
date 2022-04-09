@@ -69,10 +69,10 @@ sees when it's building your packages's documentation and should be preferred
 for debugging a specific package.
 
 
-.. _rez_sphinx config show --list-all:
+.. _rez_sphinx config show-all:
 
-rez_sphinx config show --list-all
-*********************************
+rez_sphinx config show-all
+**************************
 
 This command shows every setting which :ref:`rez_sphinx` supports. "." note
 nested dictionaries. For example, ``auto_help.filter_by`` would be written in a

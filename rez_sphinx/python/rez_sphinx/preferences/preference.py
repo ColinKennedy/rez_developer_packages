@@ -442,9 +442,6 @@ def get_base_settings(package=None):
         dict[str, object]: The found :ref:`rez_sphinx` configuration settings.
 
     """
-    # TODO : Incorporate ``package`` with unittests
-    # Once this is done, make sure to update all get_base_settings to include
-    # package contents
     if hasattr(package, _PACKAGE_CONFIGURATION_ATTRIBUTE):
         overrides = {
             _REZ_OPTIONVARS: {
@@ -681,7 +678,7 @@ def get_preference_from_path(path, package=None):
     """Find the preference value located at ``path``.
 
     See Also:
-        :func:`get_preference_paths` and :ref:`rez_sphinx config show --list-all`.
+        :func:`get_preference_paths` and :ref:`rez_sphinx config show-all`.
 
     Args:
         path (str):
@@ -724,7 +721,7 @@ def get_preference_from_path(path, package=None):
                 text = item
 
             raise exception.ConfigurationError(
-                'Path "{text}" was not found. See --list-all for options.'.format(
+                'Path "{text}" was not found. See run `rez_sphinx config show-all` for options.'.format(
                     text=text
                 )
             )
@@ -994,11 +991,14 @@ def serialize_override_settings():
     return schema_optional.serialize_sparsely(settings, _MASTER_SCHEMA)
 
 
-# TODO : Consider how we can validate the settings on a Rez package! Right
-# now, we don't validate a package's overrides at all
-#
-def validate_base_settings():
+def validate_base_settings(package=None):
     """Check if the user's settings won't cause :ref:`rez_sphinx` to break.
+
+    Args:
+        package (rez.packages.Package, optional):
+            A Rez package which may override the global setting.  If the
+            package doesn't define an opinion, the global setting / default
+            value is used instead.
 
     Raises:
         ConfigurationError: Raised if a configuration-related issue is found.

@@ -224,9 +224,9 @@ class Show(unittest.TestCase):
         self.assertEqual('Name "does_not_exist" does not exist.', value.rstrip())
 
     def test_list_all(self):
-        """Make sure :ref:`rez_sphinx config show --list-all` works."""
+        """Make sure :ref:`rez_sphinx config show-all` works."""
         with wrapping.capture_pipes() as (stdout, _):
-            run_test.test("config show --list-all")
+            run_test.test("config show-all")
 
         value = stdout.getvalue()
         stdout.close()

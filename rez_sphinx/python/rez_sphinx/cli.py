@@ -175,7 +175,8 @@ def _check(namespace):
     directory = os.path.normpath(namespace.directory)
     _LOGGER.debug('Found "%s" directory.', directory)
 
-    _validate_base_settings()
+    package = finder.get_nearest_rez_package(directory)
+    _validate_base_settings(package=package)
 
     print("All rez_sphinx settings are valid!")
 
@@ -189,14 +190,14 @@ def _init(namespace):
             attributes to generate Sphinx documentation.
 
     """
-    preference.validate_base_settings()
-
     _split_init_arguments(namespace)
 
     directory = os.path.normpath(namespace.directory)
     _validate_readable(directory)
     _LOGGER.debug('Found "%s" directory.', directory)
     package = finder.get_nearest_rez_package(directory)
+
+    preference.validate_base_settings(package=package)
 
     if not package:
         raise exception.NoPackageFound(
@@ -435,13 +436,15 @@ def _set_up_config(sub_parsers):
         help="Configuration attributes to check for. Specify inner dicts using "
         '"foo.bar" syntax. Use --list to show all possible values.',
     )
-    show.add_argument(
-        "--list-all",
-        action="store_true",
-        help="If included, print available names. Don't actually query anything.",
-    )
     _add_directory_argument(show)
     show.set_defaults(execute=_show)
+
+    show_all = inner_parser.add_parser(
+        "show-all",
+        help="Print every possible configuration attribute.",
+    )
+    _add_directory_argument(show_all)
+    show_all.set_defaults(execute=_show_all)
 
     _set_up_list_default(inner_parser)
     _set_up_list_overrides(inner_parser)
@@ -632,10 +635,18 @@ def _set_up_view(sub_parsers):
     _set_up_view_publish_url(inner_parsers)
 
 
+def _show_all(namespace):
+    """Print every configuration value path."""
+    package = finder.get_nearest_rez_package(namespace.directory)
+
+    print("All available paths:")
+
+    for path in sorted(preference.get_preference_paths(package=package)):
+        print(path)
+
+
 def _show(namespace):
     """Print the configuration value(s) the user asked for.
-
-    If --list-all is provided, all potential configuration values are printed instead.
 
     Args:
         namespace (argparse.Namespace):
@@ -643,21 +654,12 @@ def _show(namespace):
             attributes to run :ref:`rez_sphinx config show`.
 
     """
-    if namespace.list_all:
-        print("All available paths:")
-
-        for path in sorted(preference.get_preference_paths()):
-            print(path)
-
-        return
-
     names = namespace.names
+    package = finder.get_nearest_rez_package(namespace.directory)
 
     if not names:
         # If no name is specified, show everything
-        names = sorted(preference.get_preference_paths())
-
-    package = finder.get_nearest_rez_package(namespace.directory)
+        names = sorted(preference.get_preference_paths(package=package))
 
     if not package:
         _LOGGER.warning(
@@ -751,10 +753,18 @@ def _split_init_arguments(namespace):
     namespace.quick_start_arguments.extend(namespace.remainder)
 
 
-def _validate_base_settings():
-    """Check if the user's settings won't cause :ref:`rez_sphinx` to break."""
+def _validate_base_settings(package=None):
+    """Check if the user's settings won't cause :ref:`rez_sphinx` to break.
+
+    Args:
+        package (rez.packages.Package, optional):
+            A Rez package which may override the global setting.  If the
+            package doesn't define an opinion, the global setting / default
+            value is used instead.
+
+    """
     try:
-        preference.validate_base_settings()
+        preference.validate_base_settings(package=package)
     except exception.ConfigurationError:
         print(
             "Checker `rez_sphinx config check` failed. "
@@ -823,7 +833,7 @@ def _view_package_help(namespace):
 
     root = finder.get_package_root(package)
 
-    _validate_base_settings()
+    _validate_base_settings(package=package)
 
     found_methods = preference.get_auto_help_methods()
 

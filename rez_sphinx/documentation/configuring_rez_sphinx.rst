@@ -8,7 +8,7 @@ needs.
 .. important::
 
    Every setting here can be queried at any time using the :ref:`rez_sphinx
-   config show --list-all` command.
+   config show-all` command.
 
 There's two main ways to configure documentation:
 
