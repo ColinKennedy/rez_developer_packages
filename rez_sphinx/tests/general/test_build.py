@@ -299,45 +299,24 @@ class Invalid(unittest.TestCase):
                 ["build", "run", directory, "--no-apidoc", "--apidoc-arguments", "blah"]
             )
 
-    def test_bad_permissions(self):
-        """Fail building if the user lacks permissions to write to-disk."""
-        directory = package_wrap.make_directory(
-            "_test_build_Invalid_test_bad_permissions"
-        )
+    def test_apidoc_execution_error(self):
+        """Stop early if `sphinx-apidoc`_ fails to parse and run."""
+        source_package = package_wrap.make_simple_developer_package()
+        source_directory = finder.get_package_root(source_package)
+        install_path = package_wrap.make_directory("_test_apidoc_execution_error")
 
-        _make_read_only(directory)
+        installed_package = creator.build(source_package, install_path, quiet=True)
 
-        with self.assertRaises(exception.NoPackageFound), wrapping.silence_printing():
-            run_test.test(["build", "run", directory])
+        with run_test.simulate_resolve([installed_package]):
+            run_test.test(["init", source_directory])
 
-    def test_no_package(self):
-        """Fail early if no Rez package was found."""
-        directory = package_wrap.make_directory("_test_build_Invalid_test_no_package")
-
-        with self.assertRaises(exception.NoPackageFound), wrapping.silence_printing():
-            run_test.test(["build", "run", directory])
-
-    def test_no_source(self):
-        """Fail early if documentation source does not exist."""
-        directory = package_wrap.make_directory("_test_no_source")
-
-        template = textwrap.dedent(
-            """\
-            name = "foo"
-
-            version = "1.0.0"
-            """
-        )
-
-        with io.open(
-            os.path.join(directory, "package.py"), "w", encoding="utf-8"
-        ) as handler:
-            handler.write(generic.decode(template))
-
-        with self.assertRaises(
-            exception.NoDocumentationFound
-        ), wrapping.silence_printing():
-            run_test.test(["build", "run", directory])
+            with self.assertRaises(exception.SphinxExecutionError), wrapping.silence_printing(), run_test.allow_defaults():
+                run_test.test(
+                    'build run "{source_directory}" '
+                    '--apidoc-arguments "blah --does-not=work"'.format(
+                        source_directory=source_directory
+                    )
+                )
 
     def test_auto_api_no_python_files(self):
         """Fail to auto-build API .rst files if there's no Python files."""
@@ -400,6 +379,46 @@ class Invalid(unittest.TestCase):
 
             with wrapping.silence_printing():
                 run_test.test(["build", "run", directory])
+
+    def test_bad_permissions(self):
+        """Fail building if the user lacks permissions to write to-disk."""
+        directory = package_wrap.make_directory(
+            "_test_build_Invalid_test_bad_permissions"
+        )
+
+        _make_read_only(directory)
+
+        with self.assertRaises(exception.NoPackageFound), wrapping.silence_printing():
+            run_test.test(["build", "run", directory])
+
+    def test_no_package(self):
+        """Fail early if no Rez package was found."""
+        directory = package_wrap.make_directory("_test_build_Invalid_test_no_package")
+
+        with self.assertRaises(exception.NoPackageFound), wrapping.silence_printing():
+            run_test.test(["build", "run", directory])
+
+    def test_no_source(self):
+        """Fail early if documentation source does not exist."""
+        directory = package_wrap.make_directory("_test_no_source")
+
+        template = textwrap.dedent(
+            """\
+            name = "foo"
+
+            version = "1.0.0"
+            """
+        )
+
+        with io.open(
+            os.path.join(directory, "package.py"), "w", encoding="utf-8"
+        ) as handler:
+            handler.write(generic.decode(template))
+
+        with self.assertRaises(
+            exception.NoDocumentationFound
+        ), wrapping.silence_printing():
+            run_test.test(["build", "run", directory])
 
 
 class Miscellaneous(unittest.TestCase):

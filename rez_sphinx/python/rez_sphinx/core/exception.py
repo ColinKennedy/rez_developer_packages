@@ -25,6 +25,12 @@ class ConfigurationError(Base):
     exit_code = GENERIC_EXIT_CODE + 30
 
 
+class DoesNotExist(Base):
+    """If something required is missing (This exception is intentionally vague)."""
+
+    exit_code = GENERIC_EXIT_CODE + 35
+
+
 class PackageConflict(Base):
     """When only 1 unique Rez package family name is expected but multiple are found."""
 
@@ -35,6 +41,12 @@ class PluginConfigurationError(ConfigurationError):
     """If :ref:`rez_docbot` is enabled but the user is missing configuration data."""
 
     exit_code = GENERIC_EXIT_CODE + 42
+
+
+class PermissionError(ConfigurationError):
+    """When an expected file / folder needs to be readable, but is not."""
+
+    exit_code = GENERIC_EXIT_CODE + 43
 
 
 class MissingPlugIn(Base):

@@ -67,6 +67,31 @@ def _add_initial_files(root, entries):
     sphinx_helper.add_links_to_a_tree(lines, master_index)
 
 
+def _run_raw_sphinx_quickstart(arguments):
+    """Call `sphinx-quickstart`_ as if it were from the terminal, using ``arguments``.
+
+    Args:
+        arguments (list[str]):
+            The exact arguments to pass to `sphinx-quickstart`_, e.g. ``sys.argv[1:]``.
+
+    Raises:
+        SphinxExecutionError: If the commands fails, for any reason.
+
+    """
+    quickstart_error = quickstart.main(arguments)
+
+    if not quickstart_error:
+        return
+
+    raise exception.SphinxExecutionError(
+        'sphinx-quickstart failed to run. Got error code "{quickstart_error}". '
+        'See help below for details\n\n{help_}'.format(
+            quickstart_error=quickstart_error,
+            help_=quickstart.get_parser().format_help(),
+        )
+    )
+
+
 def _run_sphinx_quickstart(directory, options=tuple()):
     """Run `sphinx-quickstart`_.
 
@@ -93,22 +118,17 @@ def _run_sphinx_quickstart(directory, options=tuple()):
     _LOGGER.debug('Got sphinx-quickstart arguments "%s".', arguments)
     _LOGGER.info('Now running sphinx-quickstart in "%s" folder.', directory)
 
-    try:
-        quickstart.main(arguments)
-    except SystemExit:
-        text = "".join(traceback.format_exc())
-
-        raise exception.SphinxExecutionError(text)
+    _run_raw_sphinx_quickstart(arguments)
 
     source = doc_finder.get_source_from_directory(os.path.dirname(directory))
     path = os.path.join(source, constant.SPHINX_CONF_NAME)
 
-    if not os.path.isfile(path):
-        raise RuntimeError(
-            'Something went wrong, "{path}" was not defined.'.format(path=path)
-        )
+    if os.path.isfile(path):
+        return path
 
-    return path
+    raise RuntimeError(
+        'Something went wrong, "{path}" was not defined.'.format(path=path)
+    )
 
 
 def init(package, quick_start_options=tuple()):

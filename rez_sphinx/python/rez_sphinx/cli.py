@@ -194,6 +194,7 @@ def _init(namespace):
     _split_init_arguments(namespace)
 
     directory = os.path.normpath(namespace.directory)
+    _validate_readable(directory)
     _LOGGER.debug('Found "%s" directory.', directory)
     package = finder.get_nearest_rez_package(directory)
 
@@ -764,6 +765,23 @@ def _validate_base_settings():
         raise
 
 
+def _validate_readable(path):
+    """Ensure ``path`` is readable.
+
+    Args:
+        path (str): The file or directory on-disk.
+
+    Raises:
+        PermissionError: If ``path`` isn't readable.
+
+    """
+    if not os.path.exists(path):
+        raise exception.DoesNotExist('Path "{path}" does not exist.'.format(path=path))
+
+    if not os.access(path, os.R_OK):
+        raise exception.PermissionError('Path "{path}" is not readable.'.format(path=path))
+
+
 def _view_conf(namespace):
     """Print every `Sphinx`_ attribute in ``namespace``.
 
@@ -842,7 +860,6 @@ def _view_publish_url(namespace):
     directory = os.path.normpath(namespace.directory)
     _LOGGER.debug('Found "%s" directory.', directory)
 
-    # TODO : Consider blocking preprocess commands, since it makes stuff slower
     package = finder.get_nearest_rez_package(directory)
 
     if not package:

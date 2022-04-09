@@ -194,11 +194,6 @@ def build(
         _validate_non_default_files(source_directory)
 
     api_options = preference.get_api_options(options=api_options, package=package)
-
-    # TODO : This doesn't take into account split builds (it needs to fall back
-    # to the Rez build folder if the user doesn't have a documentation/source
-    # folder
-    #
     build_directory = get_documentation_build(source_directory)
 
     if os.path.isdir(build_directory):
@@ -227,6 +222,8 @@ def build(
     try:
         sphinx_build.main(parts)
     except SystemExit:
-        text = "".join(traceback.format_exc())
-
-        raise exception.SphinxExecutionError(text)
+        raise exception.SphinxExecutionError(
+            'sphinx-build failed. See the help, below:\n\n{help_}'.format(
+                help_=sphinx_build.get_parser().format_help(),
+            )
+        )

@@ -3,7 +3,6 @@
  - Allow manual paths to be replaced but only if they define a {root}
 
 - Do a pass through existing TODO notes in rez_sphinx
-- Should make some tests for invalid quickstart / build / API arguments
 
 - Make the build_documentation fully optional
 - Possibly move rezplugins to its own folder, outside of the Python folder

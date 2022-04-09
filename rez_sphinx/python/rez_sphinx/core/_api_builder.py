@@ -142,9 +142,11 @@ def _generate_api_files(directory, destination, options=tuple()):
 
             path_control.clear_directory(destination)
 
-            text = "".join(traceback.format_exc())
-
-            raise exception.SphinxExecutionError(text)
+            raise exception.SphinxExecutionError(
+                'sphinx-apidoc failed to run. See the help, below:\n\n{help_}'.format(
+                    help_=apidoc.get_parser().format_help()
+                )
+            )
 
 
 def _get_python_source_roots(directory):
