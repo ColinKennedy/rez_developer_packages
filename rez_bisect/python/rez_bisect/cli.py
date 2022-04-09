@@ -2,6 +2,7 @@
 
 import argparse
 import logging
+import operator
 import os
 
 from rez.config import config
@@ -85,7 +86,26 @@ def _run(namespace):
     contexts = _get_contexts(namespace, current_directory)
     has_issue = _validate_context_bounds(namespace, script, contexts)
 
-    return runner.bisect(has_issue, contexts, partial=namespace.partial)
+    results = runner.bisect(has_issue, contexts, partial=namespace.partial)
+
+    print('The last "good" index is "{results.last_good}".'.format(results=results))
+    print('The first "bad" index is "{results.first_bad}".'.format(results=results))
+
+    if not results.breakdown:
+        # TODO : Add support for this
+        print("Is you'd like a more accurate bisect, run `rez_bisect re-run --partial` or `rez_bisect run --partial`.")
+
+        return
+
+    print('Diff Breakdown:')
+
+    for key, packages in results.breakdown.items():
+        print("    {key}:".format(key=key))
+
+        for package in sorted(packages, key=operator.attrgetter("name")):
+            print("        {package.name}-{package.version}".format(package=package))
+
+    return results
 
 
 def _set_up_runner(sub_parsers):

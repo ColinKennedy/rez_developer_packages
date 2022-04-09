@@ -15,6 +15,8 @@ requires = [
 
 build_command = "python -m rez_build_helper --items bin python"
 
+_test_requires = ["rez_python_compatibility-2.8+<3", "six-1.16+<2"]
+
 tests = {
     "black_diff": {
         "command": "black --diff --check package.py python tests",
@@ -51,11 +53,11 @@ tests = {
     },
     "unittest_python_2": {
         "command": "python -m unittest discover",
-        "requires": ["mock-3+<4", "python-2", "six-1.16+<2"],
+        "requires": _test_requires + ["mock-3+<4", "python-2"],
     },
     "unittest_python_3": {
         "command": "python -m unittest discover",
-        "requires": ["python-3", "six-1.16+<2"],
+        "requires": _test_requires + ["python-3"],
     },
 }
 

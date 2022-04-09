@@ -1,20 +1,19 @@
 """Make sure the :ref:`rez_bisect run` works as expected."""
 
 import atexit
-import contextlib
 import functools
 import os
-import shlex
 import tempfile
 import unittest
 
-import six
 from rez.vendor.version import version
 from rez import resolved_context
 from six.moves import mock
 
-from rez_bisect import cli
 from rez_bisect.core import exception, rez_helper
+
+from .common import utility
+
 
 _CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 _TESTS = os.path.join(os.path.dirname(_CURRENT_DIRECTORY), "_test_data")
@@ -47,8 +46,8 @@ class Cases(unittest.TestCase):
         request_3 = "package_with_variant==1.1.0 bar-1"
         request_4 = "package_with_variant==1.2.0 bar-1"
 
-        with _patch_run(_is_failure_condition):
-            result = _run_test(
+        with utility.patch_run(_is_failure_condition):
+            result = utility.run_test(
                 [
                     "run",
                     "",
@@ -75,8 +74,8 @@ class Cases(unittest.TestCase):
         request_2 = "foo==1.1.0 bar-1"
         request_3 = "foo==1.2.0 bar-1"
 
-        with _patch_run(_is_failure_condition):
-            result = _run_test(
+        with utility.patch_run(_is_failure_condition):
+            result = utility.run_test(
                 [
                     "run",
                     "",
@@ -102,8 +101,8 @@ class Cases(unittest.TestCase):
         request_2 = "foo==1.1.0 bar-1"
         request_3 = "foo==1.2.0 bar-1"
 
-        with _patch_run(_is_failure_condition):
-            result = _run_test(
+        with utility.patch_run(_is_failure_condition):
+            result = utility.run_test(
                 [
                     "run",
                     "",
@@ -129,8 +128,8 @@ class Cases(unittest.TestCase):
         request_2 = "foo==1.1.0"
         request_3 = "foo==1.2.0"
 
-        with _patch_run(_is_failure_condition):
-            result = _run_test(
+        with utility.patch_run(_is_failure_condition):
+            result = utility.run_test(
                 [
                     "run",
                     "",
@@ -156,8 +155,8 @@ class ContextInputs(unittest.TestCase):
 
         directory = os.path.join(_TESTS, "simple_packages")
 
-        with _patch_run(_is_failure_condition), self.assertRaises(exception.BadRequest):
-            _run_test(
+        with utility.patch_run(_is_failure_condition), self.assertRaises(exception.BadRequest):
+            utility.run_test(
                 [
                     "run",
                     "",
@@ -181,8 +180,8 @@ class ContextInputs(unittest.TestCase):
         request_2 = "foo==1.1.0"
         request_3 = "foo==1.2.0 bar==1.0.0"
 
-        with _patch_run(_is_failure_condition), mock.patch("rez_bisect.cli._report_context_indices") as patch:
-            _run_test(
+        with utility.patch_run(_is_failure_condition), mock.patch("rez_bisect.cli._report_context_indices") as patch:
+            utility.run_test(
                 [
                     "run",
                     "",
@@ -209,8 +208,8 @@ class ContextInputs(unittest.TestCase):
         request_2 = _to_context_file("foo==1.1.0", packages_path=[directory])
         request_3 = _to_context_file("foo==1.2.0 bar==1.0.0", packages_path=[directory])
 
-        with _patch_run(_is_failure_condition):
-            result = _run_test(
+        with utility.patch_run(_is_failure_condition):
+            result = utility.run_test(
                 [
                     "run",
                     "",
@@ -240,8 +239,8 @@ class CasePositioning(unittest.TestCase):
         request_2 = "foo==1.1.0"
         request_3 = "foo==1.2.0 bar==1.0.0"
 
-        with _patch_run(_is_failure_condition):
-            result = _run_test(
+        with utility.patch_run(_is_failure_condition):
+            result = utility.run_test(
                 [
                     "run",
                     "",
@@ -290,8 +289,8 @@ class InvalidRequests(unittest.TestCase):
 
         directory = os.path.join(_TESTS, "simple_packages")
 
-        with _patch_run(_is_failure_condition), self.assertRaises(exception.BadRequest):
-            _run_test(
+        with utility.patch_run(_is_failure_condition), self.assertRaises(exception.BadRequest):
+            utility.run_test(
                 [
                     "run",
                     "",
@@ -311,9 +310,9 @@ class InvalidRequests(unittest.TestCase):
 
         directory = os.path.join(_TESTS, "simple_packages")
 
-        with _patch_run(_is_failure_condition):
+        with utility.patch_run(_is_failure_condition):
             with self.assertRaises(exception.BadRequest):
-                _run_test(
+                utility.run_test(
                     [
                         "run",
                         "",
@@ -333,8 +332,8 @@ class InvalidRequests(unittest.TestCase):
 
         directory = os.path.join(_TESTS, "simple_packages")
 
-        with _patch_run(_is_failure_condition), self.assertRaises(exception.BadRequest):
-            _run_test(
+        with utility.patch_run(_is_failure_condition), self.assertRaises(exception.BadRequest):
+            utility.run_test(
                 [
                     "run",
                     "",
@@ -354,9 +353,9 @@ class InvalidRequests(unittest.TestCase):
 
         directory = os.path.join(_TESTS, "simple_packages")
 
-        with _patch_run(_is_failure_condition):
+        with utility.patch_run(_is_failure_condition):
             with self.assertRaises(exception.BadRequest):
-                _run_test(
+                utility.run_test(
                     [
                         "run",
                         "",
@@ -385,9 +384,9 @@ class Invalids(unittest.TestCase):
 
         directory = os.path.join(_TESTS, "simple_packages")
 
-        with _patch_run(_is_failure_condition):
+        with utility.patch_run(_is_failure_condition):
             with self.assertRaises(exception.BadRequest):
-                _run_test(
+                utility.run_test(
                     [
                         "run",
                         "",
@@ -407,9 +406,9 @@ class Invalids(unittest.TestCase):
 
         directory = os.path.join(_TESTS, "simple_packages")
 
-        with _patch_run(_is_failure_condition):
+        with utility.patch_run(_is_failure_condition):
             with self.assertRaises(exception.DuplicateContexts):
-                _run_test(
+                utility.run_test(
                     [
                         "run",
                         "/does/not/exist.sh",
@@ -428,12 +427,12 @@ class Invalids(unittest.TestCase):
         path = _make_temporary_file("_not_executable.sh")
 
         with self.assertRaises(exception.PermissionsError):
-            _run_test(["run", path, "foo==1.0.0", "foo==1.1.0", "foo==1.2.0"])
+            utility.run_test(["run", path, "foo==1.0.0", "foo==1.1.0", "foo==1.2.0"])
 
     def test_script_not_found(self):
         """Fail early if the script file doesn't exist."""
         with self.assertRaises(exception.FileNotFound):
-            _run_test(
+            utility.run_test(
                 ["run", "/does/not/exist.sh", "foo==1.0.0", "foo==1.1.0", "foo==1.2.0"]
             )
 
@@ -445,9 +444,9 @@ class Invalids(unittest.TestCase):
 
         directory = os.path.join(_TESTS, "simple_packages")
 
-        with _patch_run(_is_failure_condition):
+        with utility.patch_run(_is_failure_condition):
             with self.assertRaises(exception.UserInputError):
-                _run_test(
+                utility.run_test(
                     [
                         "run",
                         "/does/not/exist.sh",
@@ -475,11 +474,11 @@ class Invalids(unittest.TestCase):
             directory,
         ]
 
-        with _patch_run(_is_failure_condition), self.assertRaises(exception.UserInputError):
-            _run_test(command)
+        with utility.patch_run(_is_failure_condition), self.assertRaises(exception.UserInputError):
+            utility.run_test(command)
 
-        with _patch_run(_is_failure_condition), mock.patch("rez_bisect.core.runner.bisect"):
-            _run_test(command + ["--partial"])
+        with utility.patch_run(_is_failure_condition), mock.patch("rez_bisect.core.runner.bisect"):
+            utility.run_test(command + ["--partial"])
 
 
 class Options(unittest.TestCase):
@@ -493,9 +492,9 @@ class Options(unittest.TestCase):
 
         directory = os.path.join(_TESTS, "simple_packages")
 
-        with _patch_run(_is_failure_condition):
+        with utility.patch_run(_is_failure_condition):
             with mock.patch("rez_bisect.core.runner.bisect"):
-                _run_test(
+                utility.run_test(
                     [
                         "run",
                         "",
@@ -516,9 +515,9 @@ class Options(unittest.TestCase):
 
         directory = os.path.join(_TESTS, "simple_packages")
 
-        with _patch_run(_is_failure_condition):
+        with utility.patch_run(_is_failure_condition):
             with mock.patch("rez_bisect.core.runner.bisect"):
-                _run_test(
+                utility.run_test(
                     [
                         "run",
                         "",
@@ -547,8 +546,8 @@ class Options(unittest.TestCase):
 
         directory = os.path.join(_TESTS, "simple_packages")
 
-        with _patch_run(_is_failure_condition), mock.patch("rez_bisect.cli._report_context_indices") as patch:
-            _run_test(
+        with utility.patch_run(_is_failure_condition), mock.patch("rez_bisect.cli._report_context_indices") as patch:
+            utility.run_test(
                 [
                     "run",
                     "",
@@ -573,38 +572,6 @@ class Reporting(unittest.TestCase):
         """Make sure the base report looks as expected."""
         raise ValueError()
 
-    def test_partial_001(self):
-        """Make sure the report is adapted if :ref:`--partial` is included."""
-
-        def _is_failure_condition(context):
-            return context.get_resolved_package("dependency") is not None
-
-        directory = os.path.join(_TESTS, "simple_packages")
-
-        request_1 = "changing_dependencies==1.0.0"
-        request_2 = "changing_dependencies==1.1.0"
-        request_3 = "changing_dependencies==1.2.0"
-        request_4 = "changing_dependencies==1.3.0"
-
-        with _patch_run(_is_failure_condition):
-            result = _run_test(
-                [
-                    "run",
-                    "",
-                    request_1,
-                    request_2,
-                    request_3,
-                    request_4,
-                    "--packages-path",
-                    directory,
-                    "--partial",
-                ]
-            )
-
-        self.assertEqual(2, result.first_bad)
-        raise ValueError(result)
-        # TODO : Check that the diff is perfect
-
     def test_partial_002(self):
         """Make sure the report is adapted if :ref:`--partial` is included."""
         raise ValueError('DO THIS ONE')
@@ -621,8 +588,8 @@ class Reporting(unittest.TestCase):
         request_5 = "foo==1.4.0 changing_dependencies-1+<2"
         request_6 = "foo==1.5.0 changing_dependencies-1+<2"
 
-        with _patch_run(_is_failure_condition):
-            result = _run_test(
+        with utility.patch_run(_is_failure_condition):
+            result = utility.run_test(
                 [
                     "run",
                     "",
@@ -677,8 +644,8 @@ def _build_bad_index_case(bad_index, count):
     command.extend(requests)
     command.extend(["--packages-path", directory, "--partial"])
 
-    with _patch_run(_is_failure_condition):
-        result = _run_test(command)
+    with utility.patch_run(_is_failure_condition):
+        result = utility.run_test(command)
 
     return result.first_bad
 
@@ -699,49 +666,6 @@ def _make_temporary_file(suffix):
     atexit.register(functools.partial(os.remove, path))
 
     return path
-
-
-@contextlib.contextmanager
-def _patch_run(checker):
-    """Force :ref:`rez_bisect run` to use a custom ``checker`` function.
-
-    Args:
-        checker (callable[rez.resolved_context.Context] -> bool):
-            A function that returns True if some kind of issue is found or
-            False, if the context is "valid".
-
-    Yields:
-        A temporary context where ``checker`` is enforced during bisecting.
-
-    """
-
-    with mock.patch("rez_bisect.cli._validate_script"), mock.patch(
-        "rez_bisect.core.rez_helper.to_script_runner",
-        wraps=checker,
-    ) as patch:
-        patch.return_value = checker
-
-        yield
-
-
-def _run_test(command):
-    """Convert and run ``command`` as if it were written into the CLI.
-
-    Args:
-        command (list[str] or str):
-            A raw :ref:`rez_bisect run` command,
-            e.g. ``"run /some/executable.sh /a/context.rxt /another/context.rxt"``.
-
-    Returns:
-        object: Whatever the return value of the sub-parser is, if anything.
-
-    """
-    if isinstance(command, six.string_types):
-        command = shlex.split(command)
-
-    namespace = cli.parse_arguments(command)
-
-    return cli.run(namespace)
 
 
 def _to_context_file(request, packages_path=tuple()):

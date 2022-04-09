@@ -6,23 +6,18 @@ def filter_by_packages(packages, diff):
 
     for key, data in diff.items():
         if isinstance(data, collections.MutableMapping):
-            new_data = {}
-
-            for name in data.keys():
-                if name in packages:
-                    new_data[name] = packages[name]
-
-            if new_data:
-                output[key] = new_data
+            sequence = data.keys()
         else:
-            new_data = []
+            sequence = data
 
-            for name in data:
-                if name in packages:
-                    new_data.append(packages[name])
+        new_data = []
 
-            if new_data:
-                output[key] = new_data
+        for name in sequence:
+            if name in packages:
+                new_data.append(packages[name])
+
+        if new_data:
+            output[key] = new_data
 
     return output
 
