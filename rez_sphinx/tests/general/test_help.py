@@ -41,20 +41,20 @@ class _Base(unittest.TestCase):
 
         # 2. Initialize the documentation
         run_test.test(["init", directory])
-
         install_path = package_wrap.make_directory("_AppendHelp_test")
 
         # 3a. Simulate adding the pre-build hook to the user's Rez configuration.
         # 4b. Re-build the Rez package and auto-append entries to the `help`_.
         #
         with _override_preprocess(package):
-            creator.build(package, install_path, quiet=True)
+            package = developer_package.DeveloperPackage.from_path(directory)
+            install_package = creator.build(package, install_path, quiet=True)
 
+        # Note: Get the package, outside of the preprocess, so that we know for
+        # sure the values are written to disk.
+        #
         install_package = developer_package.DeveloperPackage.from_path(
-            # `package` is 1.0.0 but we incremented the minor version during
-            # :ref:`rez_sphinx init`. So it's 1.1.0 now.
-            #
-            os.path.join(install_path, package.name, "1.1.0")
+            finder.get_package_root(install_package),
         )
 
         self.assertEqual(
@@ -201,13 +201,16 @@ class AppendHelp(_Base):
             [
                 [
                     "Developer Documentation",
-                    os.path.join("{root}", "developer_documentation.html"),
+                    "some.website/versions/1.1/developer_documentation.html",
                 ],
                 [
                     "User Documentation",
-                    os.path.join("{root}", "user_documentation.html"),
+                    "some.website/versions/1.1/user_documentation.html",
                 ],
-                ["rez_sphinx objects.inv", "{root}"],
+                [
+                    "rez_sphinx objects.inv",
+                    "some.website/versions/1.1",
+                ],
             ],
             help_=None,
         )
@@ -561,18 +564,41 @@ def _override_preprocess(package):
         context: A "proper" environment for :ref:`rez_sphinx`.
 
     """
-    with wrapping.keep_cwd(), run_test.keep_config() as config:
+    template = textwrap.dedent(
+        """
+        optionvars = {
+            "rez_docbot": {
+                "publishers": [
+                    {
+                        "authentication": [
+                            {"user": "foo", "token": "bar", "type": "github"},
+                        ],
+                        "repository_uri": "git@blah:FooBar/thing",
+                        "view_url": "some.website",
+                    },
+                ],
+            }
+        }
+        package_definition_build_python_paths = %s
+        package_preprocess_function = "preprocess_entry_point.run"
+        """
+    )
+
+    build_paths = [
+        os.path.join(_PACKAGE_ROOT, "python", "rez_sphinx", "preprocess")
+    ]
+    path = package_wrap.make_rez_configuration(template % build_paths)
+
+    with wrapping.keep_cwd(), wrapping.keep_os_environment(), run_test.keep_config() as config:
+        os.environ["REZ_CONFIG_FILE"] = path
+
         # Simulate the user CDing into a developer Rez package, just before
         # build / release / test.
         #
         root = finder.get_package_root(package)
         os.chdir(root)
 
-        config.package_definition_build_python_paths = [
-            os.path.join(_PACKAGE_ROOT, "python", "rez_sphinx", "preprocess")
-        ]
-        config.package_preprocess_function = preprocess_entry_point.run
-        # Note: You could also do this:
-        # config.package_preprocess_function = "preprocess_entry_point.run"
+        config.package_definition_build_python_paths = build_paths
+        config.package_preprocess_function = "preprocess_entry_point.run"
 
         yield
