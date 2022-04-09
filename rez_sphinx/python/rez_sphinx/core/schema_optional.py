@@ -122,7 +122,7 @@ def get_raw_key(key):
         # parameter, schema won't set the key attribute properly. Very annoying
         # but at least the work around it's hard.
         #
-        return str(key._schema)  # pylint: disable=protected-access
+        return key._schema  # pylint: disable=protected-access
 
     return key
 

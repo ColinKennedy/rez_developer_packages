@@ -431,7 +431,7 @@ def _set_up_config(sub_parsers):
     )
     show.add_argument(
         "names",
-        nargs="*",
+        nargs="+",
         help="Configuration attributes to check for. Specify inner dicts using "
         '"foo.bar" syntax. Use --list to show all possible values.',
     )

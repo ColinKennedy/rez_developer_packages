@@ -132,9 +132,9 @@ class GetPreferencePaths(unittest.TestCase):
             "sphinx-apidoc.arguments",
             "sphinx-apidoc.enable_apidoc",
             "sphinx-quickstart",
+            "sphinx_conf_overrides",
             "sphinx_conf_overrides.add_module_names",
             "sphinx_conf_overrides.master_doc",
-            "sphinx_conf_overrides.thing",
             "sphinx_extensions",
         }
         self.assertEqual(default, preference.get_preference_paths())
