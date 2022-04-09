@@ -25,6 +25,11 @@ def allow_defaults():
         yield
 
 
+def clear_caches():
+    # TODO : Add doc
+    preference.get_base_settings.cache_clear()
+
+
 @contextlib.contextmanager
 def keep_config():
     """Temporarily allow edits to `rez-config`_ for the scope of this function.

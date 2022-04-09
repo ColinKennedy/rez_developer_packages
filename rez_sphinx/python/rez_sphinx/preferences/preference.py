@@ -161,7 +161,7 @@ def _get_preprocess_import_path():
     )
 
 
-def _get_special_preference_paths(text):
+def _get_special_preference_paths(text, package=None):
     """Query the currently-set preference values located at ``text``.
 
     Args:
@@ -170,6 +170,10 @@ def _get_special_preference_paths(text):
             setting.  This text usually has dynamic content and is thus
             "special". e.g. ``"intersphinx_settings.package_link_map"``.  See
             also: :func:`get_preference_from_path`
+        package (rez.packages.Package, optional):
+            A Rez package which may override the global setting.  If the
+            package doesn't define an opinion, the global setting / default
+            value is used instead.
 
     Raises:
         NotImplementedError:
@@ -180,11 +184,11 @@ def _get_special_preference_paths(text):
 
     """
 
-    def _get_dynamic_dict_keys(path):
+    def _get_dynamic_dict_keys(path, package=None):
         output = set()
 
         try:
-            keys = get_preference_from_path(text).keys()
+            keys = get_preference_from_path(text, package=package).keys()
         except exception.ConfigurationError:
             # The user hasn't defined it. Just ignore it.
             return set()
@@ -199,12 +203,12 @@ def _get_special_preference_paths(text):
     output = set()
 
     if text == "sphinx_conf_overrides":
-        output.update(_get_dynamic_dict_keys("sphinx_conf_overrides"))
+        output.update(_get_dynamic_dict_keys("sphinx_conf_overrides", package=package))
 
         return output
 
     if text == "intersphinx_settings.package_link_map":
-        output.update(_get_dynamic_dict_keys("intersphinx_settings.package_link_map"))
+        output.update(_get_dynamic_dict_keys("intersphinx_settings.package_link_map", package=package))
 
         return output
 
@@ -728,8 +732,23 @@ def get_preference_from_path(path, package=None):
     return current
 
 
-def get_preference_paths():
-    """set[str]: All valid paths for :ref:`rez_sphinx config show`."""
+def get_preference_paths(package=None):
+    """Find all valid paths for :ref:`rez_sphinx config show`.
+
+    Most of these returned paths are "default" and will always be present.
+    But depending the currently-set global / package configuration, dynamic
+    keys may also be present in the output.
+
+    Args:
+        package (rez.packages.Package, optional):
+            A Rez package which may override the global setting.  If the
+            package doesn't define an opinion, the global setting / default
+            value is used instead.
+
+    Returns:
+        set[str]: The "default" + "dynamic" keys.
+
+    """
 
     def _get_mapping(mapping, context):
         outputs = set()
@@ -793,7 +812,7 @@ def get_preference_paths():
     output.update(
         path
         for case in exceptional_cases
-        for path in _get_special_preference_paths(case)
+        for path in _get_special_preference_paths(case, package=package)
     )
 
     return output
