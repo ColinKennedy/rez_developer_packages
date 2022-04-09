@@ -1,6 +1,3 @@
-- Check why rez_sphinx config show sphinx-apidoc.arguments fails
-
-- silence build commands
 - Make sure help doesn't replace any relative paths which actually exist in the package
  - Nor absolute paths
  - Allow manual paths to be replaced but only if they define a {root}
@@ -17,9 +14,7 @@
 	- Allow patches to override the major.minor folder, by default
 
 
-- Consider adding code to temporarily prevent preprocess functions from being called
-
-- Consider preventing preprocess from running when calling DeveloperPackage.from_path / get_nearest_rez_package
+- silence build commands
 
 - If you just use ``rez_sphinx_help`` and omit the optional label after ":", the
 top-level header of that file is used as a label, instead.

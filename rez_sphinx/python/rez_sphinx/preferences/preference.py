@@ -132,11 +132,12 @@ _MASTER_SCHEMA = schema.Schema(
             _APIDOC,
             default={
                 _ALLOW_APIDOC_TEMPLATES: True,
+                _APIDOC_OPTIONS: [],
                 _ENABLE_APIDOC: True,
             },
         ): {
             schema.Optional(_ALLOW_APIDOC_TEMPLATES, default=True): bool,
-            schema.Optional(_APIDOC_OPTIONS): [str],
+            schema.Optional(_APIDOC_OPTIONS, default=[]): [str],
             schema.Optional(_ENABLE_APIDOC, default=True): bool,
         },
         schema.Optional(
