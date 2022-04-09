@@ -144,7 +144,17 @@ def capture_pipes():
 
 
 @contextlib.contextmanager
-def keep_cwd(directory):
+def silence_printing():
+    """Prevent stdout / stderr from printing to the terminal."""
+    with capture_pipes() as (stdout, stderr):
+        yield
+
+    stdout.close()
+    stderr.close()
+
+
+@contextlib.contextmanager
+def keep_cwd(directory=""):
     """After the current Python context exits, cd into the given directory.
 
     This is useful for when you need to temporarily change the user's directory
@@ -158,11 +168,19 @@ def keep_cwd(directory):
 
         >>> print(some_folder == os.getcwd())  # This will return True
 
+    Args:
+        directory (str, optional):
+            The directory to revert to, on exit. If not path is given,
+            the user's $PWD is used instead.
+
     Yields:
         The current context. Once this is yielded, the user's working directory
         is set back to `directory`.
 
     """
+    if not directory:
+        directory = os.getcwd()
+
     try:
         yield
     finally:
