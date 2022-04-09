@@ -9,6 +9,7 @@ out :doc:`test_preference_configuration`.
 import unittest
 
 from rez_sphinx.preferences import preference
+import schema
 
 from ..common import package_wrap, run_test
 
@@ -161,9 +162,34 @@ class PreferenceValidation(unittest.TestCase):
     """Ensure invalid settings are caught properly."""
 
     def test_global(self):
-        """Set for a "global" configuration setting."""
-        raise ValueError()
+        """Check the "global" configuration setting."""
+        with run_test.keep_config() as config:
+            config.optionvars = {
+                "rez_sphinx": {
+                    "does_not_exist": {
+                        "bad_stuff_here": 10,
+                    },
+                },
+            }
+
+            run_test.clear_caches()
+
+            with self.assertRaises(schema.SchemaWrongKeyError):
+                preference.get_base_settings()
+
+            run_test.clear_caches()
+
+            with run_test.keep_config() as config:
+                config.optionvars = {}
+                preference.get_base_settings()  # The default should always validate
 
     def test_package(self):
         """Set for a Rez source package."""
-        raise ValueError()
+        package = package_wrap.make_package_config(
+            {"does_not_exist": {"bad_stuff_here": 10}}
+        )
+
+        run_test.clear_caches()
+
+        with self.assertRaises(schema.SchemaWrongKeyError):
+            preference.get_base_settings(package=package)
