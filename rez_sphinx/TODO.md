@@ -1,3 +1,6 @@
+- Check why rez_sphinx config show sphinx-apidoc.arguments fails
+
+- silence build commands
 - Make sure help doesn't replace any relative paths which actually exist in the package
  - Nor absolute paths
  - Allow manual paths to be replaced but only if they define a {root}
@@ -30,10 +33,6 @@ top-level header of that file is used as a label, instead.
 - Add pylint configuration to match with black (line length 88)
 - Do all general TODO notes
 - Do all NotImplementedError, where applicable
-
-- Check why rez_sphinx config show sphinx-apidoc.arguments fails
-- Check why rez_sphinx config show-all does not show "intersphinx_settings" or its children
-- silence build commands
 
 - Add unittests for the plugin / preprocess hooks
  - If it needs to be dependency-less, make a unittest that enforces this

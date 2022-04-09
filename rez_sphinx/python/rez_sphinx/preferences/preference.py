@@ -58,6 +58,16 @@ _EXTRA_REQUIRES = "extra_requires"
 _INTERSPHINX_SETTINGS = "intersphinx_settings"
 _PACKAGE_LINK_MAP = "package_link_map"
 
+_KNOWN_DYNAMIC_PREFERENCE_KEYS = frozenset(
+    (
+        _CONFIG_OVERRIDES,
+        _INTERSPHINX_SETTINGS,
+        "{_INTERSPHINX_SETTINGS}.{_PACKAGE_LINK_MAP}".format(
+            _INTERSPHINX_SETTINGS=_INTERSPHINX_SETTINGS,
+            _PACKAGE_LINK_MAP=_PACKAGE_LINK_MAP,
+        )
+    )
+)
 
 _DEFAULT_ENTRIES = list(preference_init.DEFAULT_ENTRIES)
 
@@ -200,17 +210,8 @@ def _get_special_preference_paths(text, package=None):
 
         return output
 
-    output = set()
-
-    if text == "sphinx_conf_overrides":
-        output.update(_get_dynamic_dict_keys("sphinx_conf_overrides", package=package))
-
-        return output
-
-    if text == "intersphinx_settings.package_link_map":
-        output.update(_get_dynamic_dict_keys("intersphinx_settings.package_link_map", package=package))
-
-        return output
+    if text in _KNOWN_DYNAMIC_PREFERENCE_KEYS:
+        return _get_dynamic_dict_keys(text, package=package)
 
     raise NotImplementedError(
         'Case "{text}" is unknown. Need to write code for this.'.format(text=text)
@@ -807,6 +808,18 @@ def get_preference_paths(package=None):
 
         return outputs, exceptional_cases
 
+    def _expand_cases(cases):
+        """Convert ``["foo.bar.thing"]`` into ``["foo", "foo.bar", "foo.bar.thing"]."""
+        output = []
+
+        for case in cases:
+            parts = case.split(_PREFERENCE_DICT_SEPARATOR)
+
+            for index in range(1, len(parts) + 1):
+                output.append(_PREFERENCE_DICT_SEPARATOR.join(parts[:index]))
+
+        return output
+
     output, exceptional_cases = _get_mapping(
         _MASTER_SCHEMA._schema,  # pylint: disable=protected-access
         context="",
@@ -815,9 +828,11 @@ def get_preference_paths(package=None):
     if not exceptional_cases:
         return output
 
+    expanded_exceptional_cases = _expand_cases(exceptional_cases)
+
     output.update(
         path
-        for case in exceptional_cases
+        for case in expanded_exceptional_cases
         for path in _get_special_preference_paths(case, package=package)
     )
 
