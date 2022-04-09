@@ -140,7 +140,7 @@ _MASTER_SCHEMA = schema.Schema(
         schema.Optional(_EXTRA_REQUIRES, default=[]): [
             preference_configuration.REQUEST_STR
         ],
-        schema.Optional(_INTERSPHINX_SETTINGS, default=dict()): {
+        schema.Optional(_INTERSPHINX_SETTINGS, default={}): {
             _PACKAGE_LINK_MAP: {str: schema_helper.NON_NULL_STR}
         },
     }
@@ -352,7 +352,7 @@ def check_default_files(package=None):
 
     """
     settings = get_base_settings(package=package)
-    options = settings.get(_INIT_KEY) or dict()
+    options = settings.get(_INIT_KEY) or {}
 
     return options[_CHECK_DEFAULT_FILES]
 
@@ -465,7 +465,7 @@ def get_base_settings(package=None):
 
     rez_user_options = config.optionvars  # pylint: disable=no-member
 
-    data = rez_user_options.get(_MASTER_KEY) or dict()
+    data = rez_user_options.get(_MASTER_KEY) or {}
 
     return _validate_all(data)
 
@@ -575,7 +575,7 @@ def get_help_label():
 def get_initial_files_from_configuration():
     """list[Entry]: File data to write during :ref:`rez_sphinx init`."""
     settings = get_base_settings()
-    options = settings.get(_INIT_KEY) or dict()
+    options = settings.get(_INIT_KEY) or {}
 
     return options[_DEFAULT_FILES]
 
@@ -669,14 +669,14 @@ def get_package_link_map(package=None):
             documentation.
 
     """
-    rez_sphinx_settings = get_base_settings()
+    rez_sphinx_settings = get_base_settings(package=package)
 
     if _INTERSPHINX_SETTINGS not in rez_sphinx_settings:
-        return dict()
+        return {}
 
     settings = rez_sphinx_settings[_INTERSPHINX_SETTINGS]
 
-    return settings.get(_PACKAGE_LINK_MAP, dict())
+    return settings.get(_PACKAGE_LINK_MAP, {})
 
 
 # TODO : Add unittest for with and without ``package`` defined
@@ -926,7 +926,7 @@ def serialize_default_settings():
         dict[str, object]: A simple key / value pair dict.
 
     """
-    output = dict()
+    output = {}
 
     for key in _MASTER_SCHEMA.schema.keys():
         if schema_optional.has_default(key):
@@ -957,7 +957,7 @@ def serialize_default_sparse_settings():
         if not isinstance(key, schema.Optional)
     }
 
-    output = dict()
+    output = {}
 
     for key, value in serialize_default_settings().items():
         if not generic.is_iterable(value):

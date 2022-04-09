@@ -7,8 +7,8 @@
 - Add check so API documentation isn't added again if the user renames it
 - Version publishing
   - Add option to allow overwriting a version folder if the user is publishing
-	a patch to the same major.minor version. And allow toggle to forbid it.
-	- Maybe make this the default?
+	a patch to the same major.minor version. And add toggle to forbid it.
+	- Allow patches to override the major.minor folder, by default
 
 
 - Consider adding code to temporarily prevent preprocess functions from being called

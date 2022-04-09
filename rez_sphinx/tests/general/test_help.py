@@ -72,9 +72,7 @@ class AppendHelp(_Base):
     def test_allow_duplicates(self):
         """Include the user's help labels, if they clash with auto-generated ones."""
         with run_test.keep_config() as config:
-            config.optionvars["rez_sphinx"] = dict()
-            config.optionvars["rez_sphinx"].setdefault("auto_help", dict())
-            config.optionvars["rez_sphinx"]["auto_help"]["filter_by"] = "none"
+            config.optionvars["rez_sphinx"] = {"auto_help": {"filter_by": "none"}}
 
             self._test(
                 [
@@ -95,11 +93,9 @@ class AppendHelp(_Base):
         join = os.path.join
 
         with run_test.keep_config() as config:
-            config.optionvars["rez_sphinx"] = dict()
-            config.optionvars["rez_sphinx"].setdefault("auto_help", dict())
-            config.optionvars["rez_sphinx"]["auto_help"][
-                "filter_by"
-            ] = "prefer_original"
+            config.optionvars["rez_sphinx"] = {
+                "auto_help": {"filter_by": "prefer_original"},
+            }
 
             self._test(
                 [
@@ -115,11 +111,11 @@ class AppendHelp(_Base):
     def test_forbid_duplicates_002(self):
         """Remove duplicate original keys, prefer auto-generated keys."""
         with run_test.keep_config() as config:
-            config.optionvars["rez_sphinx"] = dict()
-            config.optionvars["rez_sphinx"].setdefault("auto_help", dict())
-            config.optionvars["rez_sphinx"]["auto_help"][
-                "filter_by"
-            ] = "prefer_generated"
+            config.optionvars["rez_sphinx"] = {
+                "auto_help": {
+                    "filter_by": "prefer_generated",
+                },
+            }
 
             self._test(
                 [
@@ -159,11 +155,9 @@ class AppendHelp(_Base):
     def test_list_ordered(self):
         """Add `package help`_ to a Rez package that has a list of entries."""
         with run_test.keep_config() as config:
-            config.optionvars["rez_sphinx"] = dict()
-            config.optionvars["rez_sphinx"].setdefault("auto_help", dict())
-            config.optionvars["rez_sphinx"]["auto_help"][
-                "sort_order"
-            ] = "prefer_original"
+            config.optionvars["rez_sphinx"] = {
+                "auto_help": {"sort_order": "prefer_original"}
+            }
 
             self._test(
                 [
@@ -254,11 +248,9 @@ class AutoHelpOrder(_Base):
     def test_invalid(self):
         """Stop early if the user's sort option is invalid."""
         with run_test.keep_config() as config:
-            config.optionvars["rez_sphinx"] = dict()
-            config.optionvars["rez_sphinx"].setdefault("auto_help", dict())
-            config.optionvars["rez_sphinx"]["auto_help"][
-                "sort_order"
-            ] = "some_invalid_text"
+            config.optionvars["rez_sphinx"] = {
+                "auto_help": {"sort_order": "some_invalid_text"},
+            }
 
             with self.assertRaises(exception.ConfigurationError):
                 self._test([])

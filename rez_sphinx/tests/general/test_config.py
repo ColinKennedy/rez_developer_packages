@@ -32,9 +32,7 @@ class Check(unittest.TestCase):
                 run_test.test("config check")
 
         with run_test.keep_config() as config:
-            config.optionvars["rez_sphinx"] = dict()
-            config.optionvars["rez_sphinx"]["sphinx-apidoc"] = dict()
-            config.optionvars["rez_sphinx"]["sphinx-apidoc"]["enable_apidoc"] = None
+            config.optionvars["rez_sphinx"] = {"sphinx-apidoc": "enable_apidoc"}
 
             with self.assertRaises(
                 exception.ConfigurationError
@@ -47,9 +45,9 @@ class Check(unittest.TestCase):
             run_test.test("config check")
 
         with run_test.keep_config() as config:  # pylint: disable=no-self-use
-            config.optionvars["rez_sphinx"] = dict()
-            config.optionvars["rez_sphinx"]["sphinx-apidoc"] = dict()
-            config.optionvars["rez_sphinx"]["sphinx-apidoc"]["enable_apidoc"] = False
+            config.optionvars["rez_sphinx"] = {
+                "sphinx-apidoc": {"enable_apidoc": False},
+            }
 
             with wrapping.silence_printing():
                 run_test.test("config check")
@@ -68,10 +66,11 @@ class ListDefault(unittest.TestCase):
     def test_normal(self):
         """Print default :ref:`rez_sphinx` settings."""
         with run_test.keep_config() as config:
-            config.optionvars["rez_sphinx"] = dict()
-            config.optionvars["rez_sphinx"]["sphinx-apidoc"] = dict()
-            # Set a non-default value
-            config.optionvars["rez_sphinx"]["sphinx-apidoc"]["enable_apidoc"] = False
+            config.optionvars["rez_sphinx"] = {
+                "sphinx-apidoc": {
+                    "enable_apidoc": False,  # Set a non-default value
+                }
+            }
 
             with mock.patch("pprint.pprint") as patch:
                 run_test.test("config list-defaults")
@@ -91,7 +90,7 @@ class ListDefault(unittest.TestCase):
                 "default_files": preference._DEFAULT_ENTRIES,  # pylint: disable=protected-access
                 "check_default_files": True,
             },
-            "intersphinx_settings": dict(),
+            "intersphinx_settings": {},
             "sphinx-apidoc": {"allow_apidoc_templates": True, "enable_apidoc": True},
             "sphinx_conf_overrides": {"add_module_names": False, "master_doc": "index"},
             "sphinx_extensions": [
@@ -109,9 +108,9 @@ class ListDefault(unittest.TestCase):
         value = False  # The default value is `True`
 
         with run_test.keep_config() as config:
-            config.optionvars["rez_sphinx"] = dict()
-            config.optionvars["rez_sphinx"]["sphinx-apidoc"] = dict()
-            config.optionvars["rez_sphinx"]["sphinx-apidoc"]["enable_apidoc"] = value
+            config.optionvars["rez_sphinx"] = {
+                "sphinx-apidoc": {"enable_apidoc": value}
+            }
 
             with mock.patch("pprint.pprint") as patch:
                 run_test.test("config list-defaults --sparse")
@@ -124,7 +123,7 @@ class ListDefault(unittest.TestCase):
             "intersphinx_settings": {},
             "sphinx_conf_overrides": {},
             "sphinx_extensions": [],
-            "sphinx-apidoc": dict(),
+            "sphinx-apidoc": {},
             "extra_requires": [],
             "sphinx-quickstart": [],
             "build_documentation_key": "",
@@ -146,9 +145,9 @@ class ListOverrides(unittest.TestCase):
     def test_complex_types(self):
         """Make sure nested objects with non-dict types override correctly."""
         with run_test.keep_config() as config:
-            config.optionvars["rez_sphinx"] = dict()
-            config.optionvars["rez_sphinx"]["init_options"] = dict()
-            config.optionvars["rez_sphinx"]["init_options"]["default_files"] = []
+            config.optionvars["rez_sphinx"] = {
+                "init_options": {"default_files": []},
+            }
 
             with wrapping.capture_pipes() as (stdout, _):
                 run_test.test("config list-overrides --sparse")
@@ -262,8 +261,8 @@ class Show(unittest.TestCase):
 def _example_override():
     """Create a Python context minimize any extra unittest-related code."""
     with run_test.keep_config() as config:
-        config.optionvars["rez_sphinx"] = dict()
-        config.optionvars["rez_sphinx"]["sphinx-apidoc"] = dict()
-        config.optionvars["rez_sphinx"]["sphinx-apidoc"]["enable_apidoc"] = False
+        config.optionvars["rez_sphinx"] = {
+            "sphinx-apidoc": {"enable_apidoc": False},
+        }
 
         yield

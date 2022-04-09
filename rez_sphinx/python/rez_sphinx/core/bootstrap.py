@@ -198,7 +198,7 @@ def _get_intersphinx_mappings(package):
         dict[str, tuple[str] or str]: A suitable `intersphinx_mapping`_ for `Sphinx`_.
 
     """
-    output = dict()
+    output = {}
 
     for request in _get_intersphinx_candidates(package):
         package = _get_environment_package(request)
@@ -284,7 +284,7 @@ def _get_tests_requires(package):
             documentation.
 
     """
-    tests = package.tests or dict()
+    tests = package.tests or {}
 
     if not tests:
         return set()
@@ -435,7 +435,7 @@ def _merge_intersphinx_maps(data, package):
         dict[str, tuple[str] or str]: A suitable `intersphinx_mapping`_ for `Sphinx`_.
 
     """
-    existing_mapping = data.get(_INTERSPHINX_MAPPING_KEY) or dict()
+    existing_mapping = data.get(_INTERSPHINX_MAPPING_KEY) or {}
     output = existing_mapping.copy()
 
     # Prefer intersphinx maps we've found using Rez packages

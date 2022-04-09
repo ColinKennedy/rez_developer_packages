@@ -128,7 +128,7 @@ class BootstrapIntersphinx(unittest.TestCase):
         with wrapping.watch_namespace(
             bootstrap._get_intersphinx_candidates  # pylint: disable=protected-access
         ) as watchers:
-            bootstrap.bootstrap(dict(), package=package)
+            bootstrap.bootstrap({}, package=package)
 
         for watcher in watchers:
             self.assertEqual(set(), watcher.get_all_results())
@@ -178,11 +178,14 @@ class BootstrapIntersphinx(unittest.TestCase):
         with run_test.simulate_resolve(
             installed_packages
         ), run_test.allow_defaults(), run_test.keep_config() as config:
-            config.optionvars.setdefault("rez_sphinx", dict())
-            config.optionvars["rez_sphinx"]["build_documentation_key"] = [
-                "build_documentation",
-                "build_non_standard_documentation",
-            ]
+            config.optionvars = {
+                "rez_sphinx": {
+                    "build_documentation_key": [
+                        "build_documentation",
+                        "build_non_standard_documentation",
+                    ],
+                },
+            }
 
             with _watch_candidates() as container, wrapping.silence_printing():
                 run_test.test(["build", "run", source_directory])
@@ -217,11 +220,11 @@ class BootstrapIntersphinx(unittest.TestCase):
 
         with wrapping.silence_printing(), run_test.simulate_resolve(installed_packages):
             with run_test.allow_defaults(), run_test.keep_config() as config:
-                config.optionvars.setdefault("rez_sphinx", dict())
-                config.optionvars["rez_sphinx"]["intersphinx_settings"] = dict()
-                config.optionvars["rez_sphinx"]["intersphinx_settings"][
-                    "package_link_map"
-                ] = fallback_map
+                config.optionvars = {
+                    "rez_sphinx": {
+                        "intersphinx_settings": {"package_link_map": fallback_map},
+                    },
+                }
 
                 with _watch_intersphinx_mapping() as container:
                     run_test.test(["build", "run", source_directory])
@@ -265,8 +268,7 @@ class ExtraRequires(unittest.TestCase):
         resolved_nothing = context.get_resolved_package("pure_dependency")
 
         with run_test.keep_config() as config:
-            config.optionvars["rez_sphinx"] = dict()
-            config.optionvars["rez_sphinx"]["extra_requires"] = expected_requires
+            config.optionvars["rez_sphinx"] = {"extra_requires": expected_requires}
 
             context = _make_current_rez_sphinx_context(
                 package_paths=config.packages_path + [extra_install_path]
@@ -282,8 +284,7 @@ class ExtraRequires(unittest.TestCase):
         conflict = ["python-1"]
 
         with run_test.keep_config() as config:
-            config.optionvars["rez_sphinx"] = dict()
-            config.optionvars["rez_sphinx"]["extra_requires"] = conflict
+            config.optionvars["rez_sphinx"] = {"extra_requires": conflict}
 
             with self.assertRaises(exceptions_.ResolveError):
                 _make_current_rez_sphinx_context(package_paths=config.packages_path)
@@ -573,22 +574,24 @@ class Options(unittest.TestCase):
         with run_test.simulate_resolve(
             [installed_package]
         ), run_test.keep_config() as config:
-            config.optionvars["rez_sphinx"] = dict()
-            config.optionvars["rez_sphinx"]["init_options"] = dict()
-            config.optionvars["rez_sphinx"]["init_options"]["default_files"] = [
-                {
-                    "base_text": "Some default text",
-                    "check_pre_build": False,
-                    "path": "inner_folder/developer_documentation",
-                    "title": "Developer Documentation",
+            config.optionvars["rez_sphinx"] = {
+                "init_options": {
+                    "default_files": [
+                        {
+                            "base_text": "Some default text",
+                            "check_pre_build": False,
+                            "path": "inner_folder/developer_documentation",
+                            "title": "Developer Documentation",
+                        },
+                        {
+                            "base_text": "Another default file",
+                            "check_pre_build": True,
+                            "path": "user_documentation",
+                            "title": "User Documentation",
+                        },
+                    ],
                 },
-                {
-                    "base_text": "Another default file",
-                    "check_pre_build": True,
-                    "path": "user_documentation",
-                    "title": "User Documentation",
-                },
-            ]
+            }
 
             run_test.test(["init", source_directory])
 
@@ -616,15 +619,10 @@ class Options(unittest.TestCase):
             run_test.test(["init", source_directory])
 
             with run_test.keep_config() as config:
-                config.optionvars["rez_sphinx"] = dict()
-                config.optionvars["rez_sphinx"]["init_options"] = dict()
-                config.optionvars["rez_sphinx"]["sphinx-apidoc"] = dict()
-                config.optionvars["rez_sphinx"]["init_options"][
-                    "check_default_files"
-                ] = False
-                config.optionvars["rez_sphinx"]["sphinx-apidoc"][
-                    "enable_apidoc"
-                ] = False
+                config.optionvars["rez_sphinx"] = {
+                    "init_options": {"check_default_files": False},
+                    "sphinx-apidoc": {"enable_apidoc": False}
+                }
 
                 with wrapping.silence_printing():
                     run_test.test(["build", "run", source_directory])

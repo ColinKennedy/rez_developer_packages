@@ -18,8 +18,8 @@ from rez_sphinx.preferences import preference
 def allow_defaults():
     """Allow users to run :ref:`rez_sphinx build run` even with default files."""
     with keep_config() as config:
-        config.optionvars.setdefault("rez_sphinx", dict())
-        config.optionvars["rez_sphinx"]["init_options"] = dict()
+        config.optionvars.setdefault("rez_sphinx", {})
+        config.optionvars["rez_sphinx"].setdefault("init_options", {})
         config.optionvars["rez_sphinx"]["init_options"]["check_default_files"] = False
 
         yield

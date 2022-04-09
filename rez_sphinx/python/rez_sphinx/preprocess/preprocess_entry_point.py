@@ -160,7 +160,7 @@ def _get_resolved_help(context, command):
         list[list[str, str]]: The found `help`_ values, if any.
 
     """
-    parent_environment = dict()
+    parent_environment = {}
 
     # TODO : This feels very fragile. Double check to ensure this works with
     # central deployments. If not, I'll need to figure out another way to query

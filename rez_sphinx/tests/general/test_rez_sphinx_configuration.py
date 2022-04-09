@@ -18,7 +18,7 @@ from ..common import run_test
 
 
 class SphinxApiDocAllowApidocTemplates(unittest.TestCase):
-    """Make sure :ref:`rez_sphinx.sphinx-apidoc.allow_apidoc_templates` is queried as expected."""
+    """Make sure :ref:`rez_sphinx.sphinx-apidoc.allow_apidoc_templates`."""
 
     def test_global(self):
         """Set the value, globally."""
@@ -281,7 +281,7 @@ class InitOptionsCheckDefaultFiles(unittest.TestCase):
 
 
 class IntersphinxSettingsPackageLinkMap(unittest.TestCase):
-    """Set :ref:`rez_sphinx.intersphinx_settings.package_link_map` in a Rez source package."""
+    """Set :ref:`rez_sphinx.intersphinx_settings.package_link_map`."""
 
     def test_global(self):
         """Set the value, globally."""
@@ -298,7 +298,7 @@ class IntersphinxSettingsPackageLinkMap(unittest.TestCase):
             self.assertEqual(expected, preference.get_package_link_map())
 
         _clear_caches()
-        self.assertEqual(dict(), preference.get_package_link_map())  # The default value
+        self.assertEqual({}, preference.get_package_link_map())  # The default value
 
     def test_package(self):
         """Set for a Rez source package."""
@@ -430,7 +430,7 @@ class SphinxQuickStart(unittest.TestCase):
 
 
 class SphinxConfigOverridesAddModuleNames(unittest.TestCase):
-    """Set :ref:`rez_sphinx.sphinx_conf_overrides.add_module_names` in a Rez source package."""
+    """Set :ref:`rez_sphinx.sphinx_conf_overrides.add_module_names`."""
 
     def test_global(self):
         """Set the value, globally."""
@@ -512,7 +512,11 @@ def _make_package_config(configuration):
         """
     )
 
-    with io.open(os.path.join(directory, "package.py"), "w", encoding="utf-8") as handler:
+    with io.open(
+        os.path.join(directory, "package.py"),
+        "w",
+        encoding="utf-8",
+    ) as handler:
         handler.write(generic.decode(template.format(configuration=configuration)))
 
     return developer_package.DeveloperPackage.from_path(directory)

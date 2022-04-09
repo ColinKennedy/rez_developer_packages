@@ -59,7 +59,7 @@ def collect_packages(directories, searcher):
     """
     packages = []
     found_names = collections.defaultdict(set)
-    found_uuids = dict()
+    found_uuids = {}
     invalids = collections.defaultdict(set)
 
     for directory in directories:

@@ -140,7 +140,7 @@ def serialize_sparsely(settings, schema):
         dict: The stripped, non-default data.
 
     """
-    output = dict()
+    output = {}
 
     for key, data in settings.items():
         real_key = _get_real_key(key, schema)

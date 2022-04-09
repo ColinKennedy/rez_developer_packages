@@ -146,7 +146,7 @@ def get_documentation_source(directory):
 
     if not package:
         raise exception.NoPackageFound(
-            'Directory "{directory}" is not in a Rez package.'.format(
+            'Directory "{directory}" is not in a Rez source package.'.format(
                 directory=directory
             )
         )

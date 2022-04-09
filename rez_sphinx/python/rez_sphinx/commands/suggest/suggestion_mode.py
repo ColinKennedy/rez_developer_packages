@@ -84,7 +84,7 @@ def _compute_package_depth(package, all_family_names, getter=_get_regular_depend
 
         return max(depths) + 1
 
-    computed_depths = dict()
+    computed_depths = {}
     seen = set()
 
     return _compute(package, seen, computed_depths)

@@ -164,11 +164,9 @@ class General(unittest.TestCase):
     def test_default_files(self):
         """Build the default documentation files."""
         with run_test.keep_config() as config:
-            config.optionvars["rez_sphinx"] = dict()
-            config.optionvars["rez_sphinx"]["init_options"] = dict()
-            config.optionvars["rez_sphinx"]["init_options"][
-                "check_default_files"
-            ] = False
+            config.optionvars["rez_sphinx"] = {
+                "init_options": {"check_default_files": False},
+            }
 
             self._test()
 
@@ -257,9 +255,9 @@ def _get_base_master_index_text(path):
 def _check_defaults(value):
     """For :ref:`rez_sphinx` to check or ignore default files, using ``value``."""
     with run_test.keep_config() as config:
-        config.optionvars["rez_sphinx"] = dict()
-        config.optionvars["rez_sphinx"]["init_options"] = dict()
-        config.optionvars["rez_sphinx"]["init_options"]["check_default_files"] = value
+        config.optionvars["rez_sphinx"] = {
+            "init_options": {"check_default_files": value}
+        }
 
         yield
 
@@ -278,8 +276,6 @@ def _override_default_files(files):
 
     """
     with run_test.keep_config() as config:
-        config.optionvars["rez_sphinx"] = dict()
-        config.optionvars["rez_sphinx"]["init_options"] = dict()
-        config.optionvars["rez_sphinx"]["init_options"]["default_files"] = files
+        config.optionvars["rez_sphinx"] = {"init_options": {"default_files": files}}
 
         yield

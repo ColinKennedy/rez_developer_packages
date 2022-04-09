@@ -412,9 +412,10 @@ class SphinxConf(unittest.TestCase):
         with wrapping.keep_cwd(), run_test.keep_config() as config:
             os.chdir(finder.get_package_root(package))
 
-            config.optionvars["rez_sphinx"] = dict()
-            config.optionvars["rez_sphinx"]["sphinx_conf_overrides"] = {
-                "rst_prolog": "thing"
+            config.optionvars["rez_sphinx"] = {
+                "sphinx_conf_overrides": {
+                    "rst_prolog": "thing",
+                },
             }
 
             with wrapping.capture_pipes() as (stdout, _):
