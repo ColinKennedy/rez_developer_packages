@@ -71,7 +71,7 @@ def _get_approximate_bisect(has_issue, good, diff):
             request.append(package)
             newer_indices[package.name] = index
 
-        checker_context = resolved_context.ResolvedContext(
+        context = resolved_context.ResolvedContext(
             _to_raw_request(request),
             package_paths=good.package_paths,
         )
@@ -79,9 +79,9 @@ def _get_approximate_bisect(has_issue, good, diff):
         average = (weight + previous_weight) / 2
         offset = abs(average - weight)
 
-        if has_issue(checker_context):
+        if has_issue(context):
             # We nudge ``weight`` to move away from ``diff`` and closer to
-            # ``good`` so the next iteration of ``has_issue(checker_context)``
+            # ``good`` so the next iteration of ``has_issue(context)``
             # has a greater chance of returning False.
             #
             previous_weight = weight

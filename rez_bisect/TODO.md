@@ -1,5 +1,11 @@
 - Make sure custom --packages-path is supported, all the way down even during diffing
 
+- To make bisecting faster, I should try removing package versions from the
+  diff which do not satisfy the package requests from the bad context. After
+  all, if the package version is not allowed in the bad context's request,
+  there's no possibility of them actually being in the resolve so that means
+  the excluded versions are not a factor in what made the bad context, bad!
+
 Test Cases
 - Multi package issues
  - 2 or more packages at once have some incompatible issue
