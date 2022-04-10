@@ -30,6 +30,8 @@ The ``rez_sphinx view package-help`` command lets you see what modifications
     :ref:`rez_sphinx.auto_help.sort_order`.
 
 
+TODO: Replace with "view-url", instead
+
 .. _rez_sphinx view publish-url:
 
 rez_sphinx view publish-url
@@ -57,8 +59,6 @@ For example if you have a configuration like this:
 and then you call ``rez_sphinx view publish-url``, the command will output
 
 ``https://SomeUserOrOrganization.github.io/your_package_name_here``.
-
-TODO add unittest ensuring the command works + that it gives resolved URLs back.
 
 This command is mostly just for debugging to make sure your package publishes
 to where you expect.

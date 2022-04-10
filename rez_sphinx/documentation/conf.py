@@ -86,7 +86,6 @@ import textwrap
 html_theme = "sphinx_rtd_theme"
 extensions.extend(("sphinx.ext.napoleon", "sphinx.ext.todo"))
 
-# TODO : Consider moving these to my own packages - or some kind of config
 intersphinx_mapping.update(
     {
         "https://docs.python.org/3/": None,
@@ -131,6 +130,7 @@ rst_epilog = textwrap.dedent(
     .. _project_copyright: https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-project_copyright
     .. _readthedocs.io: https://docs.readthedocs.io/en/stable/
     .. _release: https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-release
+    .. _release_hooks: https://github.com/nerdvegas/rez/wiki/Configuring-Rez#release_hooks
     .. _requires: https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#requires
     .. _rez tests attribute: https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#tests
     .. _rez-build: https://github.com/nerdvegas/rez/wiki/Getting-Started#building-your-first-package
@@ -160,6 +160,5 @@ rst_epilog = textwrap.dedent(
 )
 
 
-# TODO : Add this
-    # :ref:`rez_sphinx release hook`."""
-    # ":ref:`rez_docbot.publishers.*.view_url` "
+# TODO : add this
+# ":ref:`rez_docbot.publishers.*.view_url` "

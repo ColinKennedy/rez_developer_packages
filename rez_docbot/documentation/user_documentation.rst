@@ -1,5 +1,7 @@
-User Documentation
-==================
+.. _user_documentation:
+
+rez_docbot User Documentation
+=============================
 
 TODO : Add here
 
@@ -25,3 +27,13 @@ able to do.
 
 To learn how to administer ``rez_docbot`` to a pipeline, see
 :doc:`developer_documentation`.
+
+TODO Finish
+
+
+.. _installation:
+
+Installation
+************
+
+TODO
