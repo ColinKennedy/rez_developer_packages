@@ -26,7 +26,7 @@ def allow_defaults():
 
 
 def clear_caches():
-    # TODO : Add doc
+    """Delete all caches which might otherwise affect unittest logic."""
     preference.get_base_settings.cache_clear()
 
 

@@ -120,13 +120,22 @@ def make_dependent_packages():
 def make_directory(name):
     """Make a directory with ``name`` and delete it later."""
     directory = tempfile.mkdtemp(suffix=name)
-    # _delete_later(directory)
+    _delete_later(directory)
 
     return directory
 
 
 def make_package_configuration(configuration):
-    # TODO : Add doc
+    """Create a Rez `package.py`_ with the given ``configuration``.
+
+    Args:
+        configuration (dict[str, object]):
+            The override settings to apply to :ref:`rez_sphinx`.
+
+    Returns:
+        rez.developer_package.DeveloperPackage: The generated source Rez package.
+
+    """
     directory = tempfile.mkdtemp(suffix="_make_package_config")
     atexit.register(functools.partial(shutil.rmtree, directory))
 
