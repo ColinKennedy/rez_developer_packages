@@ -310,7 +310,9 @@ class Invalid(unittest.TestCase):
         with run_test.simulate_resolve([installed_package]):
             run_test.test(["init", source_directory])
 
-            with self.assertRaises(exception.SphinxExecutionError), wrapping.silence_printing(), run_test.allow_defaults():
+            with self.assertRaises(
+                exception.SphinxExecutionError
+            ), wrapping.silence_printing(), run_test.allow_defaults():
                 run_test.test(
                     'build run "{source_directory}" '
                     '--apidoc-arguments "blah --does-not=work"'.format(
@@ -637,7 +639,7 @@ class Options(unittest.TestCase):
             with run_test.keep_config() as config:
                 config.optionvars["rez_sphinx"] = {
                     "init_options": {"check_default_files": False},
-                    "sphinx-apidoc": {"enable_apidoc": False}
+                    "sphinx-apidoc": {"enable_apidoc": False},
                 }
 
                 with wrapping.silence_printing():

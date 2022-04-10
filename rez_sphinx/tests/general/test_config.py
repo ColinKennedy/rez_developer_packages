@@ -137,8 +137,14 @@ class ListDefault(unittest.TestCase):
 class ListOverrides(unittest.TestCase):
     """Make sure :ref:`rez_sphinx config list-overrides` works."""
 
-    def test_applied(self):  # pylint: disable=no-self-use
-        """Print all current settings."""
+    def test_applied_global(self):  # pylint: disable=no-self-use
+        """Print all current, global settings."""
+        with _example_override(), wrapping.silence_printing():
+            run_test.test("config list-overrides")
+
+    def test_applied_package(self):  # pylint: disable=no-self-use
+        """Print all current, global + Rez package settings."""
+        raise ValueError("do it")
         with _example_override(), wrapping.silence_printing():
             run_test.test("config list-overrides")
 

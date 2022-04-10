@@ -160,6 +160,17 @@ class GetPreferencePaths(unittest.TestCase):
         )
 
 
+class GetSphinxExtensions(unittest.TestCase):
+    """Ensure :func:`rez_sphinx.preferences.preference.get_sphinx_extenions` works."""
+
+    def test_global(self):
+        """Get from a global list of settings."""
+        raise ValueError()
+
+    def test_package(self):
+        raise ValueError()
+
+
 class PreferenceValidation(unittest.TestCase):
     """Ensure invalid settings are caught properly."""
 

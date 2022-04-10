@@ -16,7 +16,7 @@ def get_dependencies(package):
             during documentation-building.
 
     """
-    base = (package.requires or [])
+    base = package.requires or []
     variants = package.variants or []
 
     if not variants:

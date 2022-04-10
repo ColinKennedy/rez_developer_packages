@@ -143,7 +143,7 @@ def _generate_api_files(directory, destination, options=tuple()):
             path_control.clear_directory(destination)
 
             raise exception.SphinxExecutionError(
-                'sphinx-apidoc failed to run. See the help, below:\n\n{help_}'.format(
+                "sphinx-apidoc failed to run. See the help, below:\n\n{help_}".format(
                     help_=apidoc.get_parser().format_help()
                 )
             )

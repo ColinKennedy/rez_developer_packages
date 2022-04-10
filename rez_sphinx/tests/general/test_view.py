@@ -331,7 +331,7 @@ class PackageHelp(unittest.TestCase):
             EnvironmentError: If the folder needed for this test doesn't exist.
 
         """
-        raise ValueError('FINISH THIS')
+        raise ValueError("FINISH THIS")
 
         required_folder = os.path.join(os.environ["REZ_REZ_SPHINX_ROOT"], "python")
 

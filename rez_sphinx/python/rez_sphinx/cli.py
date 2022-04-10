@@ -245,10 +245,13 @@ def _list_overrides(namespace):
             attributes to query preference settings.
 
     """
+    _LOGGER.debug('Found "%s" directory.', namespace.directory)
+    package = finder.get_nearest_rez_package(namespace.directory)
+
     if not namespace.sparse:
-        data = preference.get_base_settings()
+        data = preference.get_base_settings(package=package)
     else:
-        data = preference.serialize_override_settings()
+        data = preference.serialize_override_settings(package=package)
 
     caller = print_format.get_format_caller(namespace.format)
     caller(data)
@@ -619,7 +622,8 @@ def _set_up_view(sub_parsers):
 
     def _set_up_view_repository_uri(inner_parsers):
         repository_uri = inner_parsers.add_parser(
-            "repository-uri", help="The location where build documentation is published to.",
+            "repository-uri",
+            help="The location where build documentation is published to.",
         )
 
         _add_directory_argument(repository_uri)
@@ -799,7 +803,9 @@ def _validate_readable(path):
         raise exception.DoesNotExist('Path "{path}" does not exist.'.format(path=path))
 
     if not os.access(path, os.R_OK):
-        raise exception.PermissionError('Path "{path}" is not readable.'.format(path=path))
+        raise exception.PermissionError(
+            'Path "{path}" is not readable.'.format(path=path)
+        )
 
 
 def _view_conf(namespace):
@@ -893,9 +899,7 @@ def _view_common(namespace):
         return package
 
     raise exception.NoPackageFound(
-        'Directory "{directory}" is not in a Rez package.'.format(
-            directory=directory
-        )
+        'Directory "{directory}" is not in a Rez package.'.format(directory=directory)
     )
 
 
@@ -916,7 +920,9 @@ def _view_repository_uri(namespace):
 
     # Order doesn't matter so we might as well sort it
     for uri, required in sorted(environment.get_all_repository_uris(package)):
-        print('URI: "{uri}" / Required: "{required}"'.format(uri=uri, required=required))
+        print(
+            'URI: "{uri}" / Required: "{required}"'.format(uri=uri, required=required)
+        )
 
 
 def _view_publish_url(namespace):

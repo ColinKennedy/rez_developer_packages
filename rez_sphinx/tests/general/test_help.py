@@ -584,9 +584,7 @@ def _override_preprocess(package):
         """
     )
 
-    build_paths = [
-        os.path.join(_PACKAGE_ROOT, "python", "rez_sphinx", "preprocess")
-    ]
+    build_paths = [os.path.join(_PACKAGE_ROOT, "python", "rez_sphinx", "preprocess")]
     path = package_wrap.make_rez_configuration(template % build_paths)
 
     with wrapping.keep_cwd(), wrapping.keep_os_environment(), run_test.keep_config() as config:

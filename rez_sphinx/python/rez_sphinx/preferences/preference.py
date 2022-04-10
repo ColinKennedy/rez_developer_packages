@@ -65,7 +65,7 @@ _KNOWN_DYNAMIC_PREFERENCE_KEYS = frozenset(
         "{_INTERSPHINX_SETTINGS}.{_PACKAGE_LINK_MAP}".format(
             _INTERSPHINX_SETTINGS=_INTERSPHINX_SETTINGS,
             _PACKAGE_LINK_MAP=_PACKAGE_LINK_MAP,
-        )
+        ),
     )
 )
 
@@ -901,11 +901,13 @@ def get_sphinx_configuration_overrides(package=None):
     return rez_sphinx_settings[_CONFIG_OVERRIDES]
 
 
-def get_sphinx_extensions():
+def get_sphinx_extensions(package=None):
     """list[str]: All `Sphinx`_ optional add-ons to include in documentation."""
-    rez_sphinx_settings = get_base_settings()
+    settings = get_sphinx_configuration_overrides(package=package)
 
-    return rez_sphinx_settings.get(_EXTENSIONS_KEY) or list(_BASIC_EXTENSIONS)
+    _SPHINX_EXTENSIONS_VARIABLE = "extensions"
+
+    return settings.get(_SPHINX_EXTENSIONS_VARIABLE) or []
 
 
 def get_quick_start_options(package, options=tuple()):
@@ -1023,14 +1025,14 @@ def serialize_default_sparse_settings():
     return output
 
 
-def serialize_override_settings():
-    """Get all user-set values, without any default schema values.
-
-    Returns:
-        dict[str, object]: The values, stripped of all default data.
-
-    """
-    settings = get_base_settings()
+def serialize_override_settings(package=None):
+    # """Get all user-set values, without any default schema values.
+    #
+    # Returns:
+    #     dict[str, object]: The values, stripped of all default data.
+    #
+    # """
+    settings = get_base_settings(package=package)
 
     return schema_optional.serialize_sparsely(settings, _MASTER_SCHEMA)
 

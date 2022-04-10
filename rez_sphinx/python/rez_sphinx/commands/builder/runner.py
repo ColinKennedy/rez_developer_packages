@@ -223,7 +223,7 @@ def build(
         sphinx_build.main(parts)
     except SystemExit:
         raise exception.SphinxExecutionError(
-            'sphinx-build failed. See the help, below:\n\n{help_}'.format(
+            "sphinx-build failed. See the help, below:\n\n{help_}".format(
                 help_=sphinx_build.get_parser().format_help(),
             )
         )

@@ -84,7 +84,7 @@ def _run_raw_sphinx_quickstart(arguments):
 
     raise exception.SphinxExecutionError(
         'sphinx-quickstart failed to run. Got error code "{quickstart_error}". '
-        'See help below for details\n\n{help_}'.format(
+        "See help below for details\n\n{help_}".format(
             quickstart_error=quickstart_error,
             help_=quickstart.get_parser().format_help(),
         )

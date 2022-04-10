@@ -107,7 +107,9 @@ class AutoHelpFilterBy(unittest.TestCase):
 
     def test_package(self):
         """Set :ref:`rez_sphinx.auto_help.filter_by` in a Rez source package."""
-        package = package_wrap.make_package_configuration({"auto_help": {"filter_by": "prefer_generated"}})
+        package = package_wrap.make_package_configuration(
+            {"auto_help": {"filter_by": "prefer_generated"}}
+        )
 
         run_test.clear_caches()
         self.assertEqual(
@@ -235,7 +237,9 @@ class DocumentationRoot(unittest.TestCase):
     def test_package(self):
         """Set :ref:`rez_sphinx.documentation_root` in a Rez source package."""
         expected = "foo"
-        package = package_wrap.make_package_configuration({"documentation_root": expected})
+        package = package_wrap.make_package_configuration(
+            {"documentation_root": expected}
+        )
 
         run_test.clear_caches()
         self.assertEqual(
@@ -369,7 +373,9 @@ class SphinxApidocEnableApidoc(unittest.TestCase):
     def test_package(self):
         """Set :ref:`rez_sphinx.sphinx-apidoc.enable_apidoc` in a Rez source package."""
         expected = False
-        package = package_wrap.make_package_configuration({"sphinx-apidoc": {"enable_apidoc": expected}})
+        package = package_wrap.make_package_configuration(
+            {"sphinx-apidoc": {"enable_apidoc": expected}}
+        )
 
         run_test.clear_caches()
         self.assertFalse(preference.is_api_enabled(package=package))
@@ -414,7 +420,9 @@ class SphinxQuickStart(unittest.TestCase):
     def test_package(self):
         """Set :ref:`rez_sphinx.sphinx-quickstart` in a Rez source package."""
         expected = ["a", "-b", "--thing"]
-        package = package_wrap.make_package_configuration({"sphinx-quickstart": expected})
+        package = package_wrap.make_package_configuration(
+            {"sphinx-quickstart": expected}
+        )
 
         run_test.clear_caches()
         results = preference.get_quick_start_options(package)
@@ -452,7 +460,9 @@ class SphinxConfigOverridesAddModuleNames(unittest.TestCase):
         """Set for a Rez source package."""
         expected = True
         variable = "add_module_names"
-        package = package_wrap.make_package_configuration({"sphinx_conf_overrides": {variable: expected}})
+        package = package_wrap.make_package_configuration(
+            {"sphinx_conf_overrides": {variable: expected}}
+        )
 
         run_test.clear_caches()
         self.assertEqual(
