@@ -64,6 +64,17 @@ Intrinsic Features
 Opt-In Features
 ***************
 
+Opt-In Themes
+=============
+
+You can set all Rez packages using :ref:`rez_sphinx` to use sphinx_rtd_theme
+(or whichever theme you prefer), using :doc:`this Sphinx theme tutorial
+<using_sphinx_rtd_theme>`.
+
+
+Opt-In Publishing
+=================
+
 :ref:`rez_sphinx` can auto-publish your documentation.
 
 It supports this using a :ref:`release_hook <rez_sphinx_as_a_release_hook>`.

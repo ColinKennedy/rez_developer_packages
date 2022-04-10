@@ -42,8 +42,8 @@ class GetAllPublishers(unittest.TestCase):
         self.assertEqual(0, len(preference.get_all_publishers()))
 
 
-class GetFistVersionedViewUrl(unittest.TestCase):
-    """Make sure :ref:`rez_docbot.publishers` works as expected."""
+class GetFirstVersionedViewUrl(unittest.TestCase):
+    """Make sure :func:`rez_docbot.api.get_firse_versioned_view_url` works."""
 
     def test_allow_optionals(self):
         raise ValueError()

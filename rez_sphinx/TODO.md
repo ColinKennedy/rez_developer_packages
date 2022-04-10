@@ -1,13 +1,23 @@
-- Do rez_docbot preferences unittests
-- Add check so API documentation isn't added again if the user renames it
-- Need to ensure docbot's logger is set properly when used as a bolt-in for rez_sphinx
+- Add check to reject non-package.py Rez files (error on package.yaml / .yml / .txt)
+- Make sure to set `latex_documents` in `conf.py`
+ - man_pages
+ - https://github.com/nerdvegas/rez/blob/master/docs/conf.py
+ - texinfo_documents
+ - https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-latex_documents
+  - make sure to set authors correctly
 
 - Consider adding refs to "documentation source root" so people know what I'm talking about
 - Consider adding refs to "documentation build root" so people know what I'm talking about
 
-- If people try to define objects.inv `help` manually and make a mistake and point directly to objects.inv instead of the folder, crop it to the real directory / URL path
-
 - Add option to prefer hand-written API documentation, if provided
+
+
+
+- Do rez_docbot preferences unittests
+- Add check so API documentation isn't added again if the user renames it
+- Need to ensure docbot's logger is set properly when used as a bolt-in for rez_sphinx
+
+- If people try to define objects.inv `help` manually and make a mistake and point directly to objects.inv instead of the folder, crop it to the real directory / URL path
 
 - Make sure help doesn't replace any relative paths which actually exist in the package
  - Nor absolute paths
@@ -38,56 +48,10 @@ top-level header of that file is used as a label, instead.
 - Add unittests for the plugin / preprocess hooks
  - If it needs to be dependency-less, make a unittest that enforces this
 
-
-
-## Make tools more robust
-- Need unittest so you cannot accidentally add the same file twice to the same toctree
- - e.g. the default files must all have unique names, or error
-- Make sure per-package config overriding is allowed
- - Make sure config settings can be overwritten at the package level, generally
- - When the user runs ``rez_sphinx config list-overrides`` in a directory
-   within a Rez package, grab the package's config overrides, too
-   - Make sure ``rez_sphinx config check`` does this too
- 
-## apidoc fixes
-- apidoc stuff
- - make sure the tree looks nice
-  - names should be sparse
-  - no duplicates
-  - API documentation modules
-   - Make sure the functions are just the short names. No long names
-
-- Bootstrap suffix
- - Allow the user to append extra lines to the bootstrapper
-- Allow arguments to the rez_sphinx build
- - from CLI
- - from config
-
-- Make sure auto-linking cannot fail if the Rez package.py has undefined / syntax error in its contents
-
-
-- And an option to specify the destination URL for docbot directly on the package.py
-- When interlinking, check for Internet
- - Add an option to not check for it
- - post release, maybe add an option to check that each path in rez-help points to something. Fail if happens
-
-- Make sure to set `latex_documents` in `conf.py`
- - man_pages
- - https://github.com/nerdvegas/rez/blob/master/docs/conf.py
- - texinfo_documents
- - https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-latex_documents
-  - make sure to set authors correctly
+- Make sure auto-linking doesn't fail midway if the Rez package.py has undefined / syntax error in its contents
 
 - Look into if GitHub actions might be a better way of getting documentation to users
  - Look at nerdvegas's code as a blueprint
-
-- Make sure custom default_files
- - Append to the toctree as expected
- - Are checked for, properly
-
-
-- Add check to reject non-package.py Rez files (error on package.yaml / .yml / .txt)
-- Make sure ``build`` fails if no ``init`` was ran.
 
 - Allow `.. rez_sphinx_help` as a valid key, instead of forcing it to be 2 lines long
 - Change html_theme to be a choice list, with fallbacks
@@ -95,42 +59,16 @@ top-level header of that file is used as a label, instead.
 
 - Add black_isort
 
-- Needs to be able to run / exit early when there's no Python files
-
-- Add option to prevent API documentation from being overwritten
-
-- Make sure all :doc: and :ref: tags are written
 
 - On-build
  - Check if any pages are still defaults. And fail early
   - Add an option to disable this feature
 
-
-- Make sure the CLI feels good
- - not specifying a command should always show the help menu
-
 - Consider removing build.rxt files from the repository before merging
-
-- Add rez-config customization
- - source directory path
- - build directory path
- - sphinx default settings
-
 
 - Check what sphinx.ext.githubpages is!!
 
-init
-build
- - build --dry-run
-add
- - set-remote
- - set-local
-clean?
-
-docbot needs a plugin for auto-setting the remote
-
 - need constants to be shared between rez_sphinx and rez_docbot
-- need Qt example of the documentation
 
 - Allow users to specify multiple potential publish keys
  - Add a configuration for a "try order". e.g. if X, use X, then try Y, etc.
@@ -147,9 +85,13 @@ readthedocs integration?
 
 - Go through BIG_IDEAS.md
 
-test_existing_documentation_folder
-test_existing_build_documentation_key
-test_ignore_negated_packages (!foo-1 should not be auto-linked by rez-Sphinx)
-test_ignore_ephemeral_packages (.foo-1 should not be auto-linked by rez-Sphinx)
 
-- Check unittest for printed errors after everything is working, everywhere
+## Clean-up Checks
+- Make sure all :doc: and :ref: tags are written
+- Check for unfinished TODO / NotImplementedHere in source code and in documentation
+
+
+## High Level TODO
+### Tutorials
+- need Qt example of the documentation - showing docs in a menu
+- Batch applying the documentation
