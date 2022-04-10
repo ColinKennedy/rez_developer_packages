@@ -23,10 +23,24 @@ There's a couple interesting things to note about this command:
 rez_sphinx publish run
 **********************
 
-This builds and publishes your current package's documentation. The default
-behavior of :ref:`rez_docbot` is to only build documentation for each major /
-minor release so just because you run this command doesn't guarantee that
-documentation will be built for it, unless you add the
-``--force-version-publish`` flag.
+This builds and publishes your current package's documentation. Most of the
+actual behavior is determined by :ref:`rez_docbot` so definitely head to that
+documentation page for specifics. But let's summarize the workflow.
 
-TODO : add ``--force-version-publish``
+.. important::
+
+   If you have the :ref:`rez_sphinx release hook
+   <rez_sphinx_as_a_release_hook>` set up, you should never need to run this
+   command.
+
+When :ref:`rez_sphinx publish run` is called...
+
+- your documentation is built from scratch
+- all configured repositories are cloned locally
+- If your documentation is the latest major / minor version, the cloned
+  repository's "latest" folder is replaced with your build documentation.
+- If you have versioned documentation enabled (which is the default), a
+  "versions/{package.version.major}.{package.version.minor}" folder is made for you.
+
+    - If the folder already exists and you're publishing a patch, the folder is
+      overwritten.

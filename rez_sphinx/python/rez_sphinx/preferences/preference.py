@@ -259,6 +259,34 @@ def _get_quick_start_overridable_options(overrides=tuple()):
     return output
 
 
+def _override_rez_configuration(package):
+    """Add the configuration using the contents of ``package``.
+
+    Args:
+        package (rez.packages.Package):
+            A source / installed Rez package to query values from.
+
+    Returns:
+        rez.config.Config: The copied, overwritten configuration.
+
+    """
+    overrides = {
+        _REZ_OPTIONVARS: {
+            _MASTER_KEY: getattr(package, _PACKAGE_CONFIGURATION_ATTRIBUTE)
+        }
+    }
+    config = config_.copy(overrides=overrides)
+
+    # TODO : Not sure why I need to this for optionvars to "take" properly.
+    # Possibly it's a config bug? The `_uncache` method, I expected,
+    # should've handled this case
+    #
+    if _REZ_OPTIONVARS in config.__dict__:
+        del config.__dict__[_REZ_OPTIONVARS]
+
+    return config
+
+
 def _validate_api_options(options):
     """Check ``options`` for issues which prevents `sphinx-apidoc`_ from running.
 
@@ -445,23 +473,14 @@ def get_base_settings(package=None):
 
     """
     if hasattr(package, _PACKAGE_CONFIGURATION_ATTRIBUTE):
-        overrides = {
-            _REZ_OPTIONVARS: {
-                _MASTER_KEY: getattr(package, _PACKAGE_CONFIGURATION_ATTRIBUTE)
-            }
-        }
-        config = config_.copy(overrides=overrides)
-
-        # TODO : Not sure why I need to this for optionvars to "take" properly.
-        # Possibly it's a config bug? The `_uncache` method, I expected,
-        # should've handled this case
-        #
-        if _REZ_OPTIONVARS in config.__dict__:
-            del config.__dict__[_REZ_OPTIONVARS]
+        config = _override_rez_configuration(package)
     else:
         config = config_
 
-    rez_user_options = config.optionvars  # pylint: disable=no-member
+    if hasattr(config, "optionvars"):
+        rez_user_options = config.optionvars  # pylint: disable=no-member
+    else:
+        rez_user_options = {}
 
     data = rez_user_options.get(_MASTER_KEY) or {}
 

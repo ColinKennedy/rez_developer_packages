@@ -3,7 +3,7 @@
 # TODO : All preferences need to be unittested. global + reading from a package
 
 import schema
-from rez.config import config
+from rez.config import config as config_
 
 from . import publisher_
 
@@ -14,6 +14,29 @@ _PUBLISHERS = "publishers"
 _MASTER_SCHEMA = schema.Schema(
     {_PUBLISHERS: [schema.Use(publisher_.Publisher.validate)]}
 )
+
+_REZ_OPTIONVARS = "optionvars"
+_PACKAGE_CONFIGURATION_ATTRIBUTE = "rez_docbot_configuration"
+
+
+def _override_rez_configuration(package):
+    """Add the configuration using the contents of ``package``.
+
+    Args:
+        package (rez.packages.Package):
+            A source / installed Rez package to query values from.
+
+    Returns:
+        rez.config.Config: The copied, overwritten configuration.
+
+    """
+    overrides = {
+        _REZ_OPTIONVARS: {
+            _MASTER_KEY: getattr(package, _PACKAGE_CONFIGURATION_ATTRIBUTE)
+        }
+    }
+
+    return config_.copy(overrides=overrides)
 
 
 def get_base_settings(package=None):
@@ -28,8 +51,16 @@ def get_base_settings(package=None):
         dict[str, object]: The parsed user configuration settings.
 
     """
-    # TODO : Need to add package override settings somewhere in here
-    rez_user_options = config.optionvars  # pylint: disable=no-member
+    if hasattr(package, _PACKAGE_CONFIGURATION_ATTRIBUTE):
+        config = _override_rez_configuration(package)
+        raise ValueError(config.optionvars)
+    else:
+        config = config_
+
+    if hasattr(config, "optionvars"):
+        rez_user_options = config.optionvars  # pylint: disable=no-member
+    else:
+        rez_user_options = {}
 
     data = rez_user_options.get(_MASTER_KEY) or dict()
 

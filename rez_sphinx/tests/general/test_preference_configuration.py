@@ -34,7 +34,7 @@ class SphinxApiDocAllowApidocTemplates(unittest.TestCase):
 
     def test_package(self):
         """Set for a Rez source package."""
-        package = package_wrap.make_package_config(
+        package = package_wrap.make_package_configuration(
             {
                 "sphinx-apidoc": {
                     "allow_apidoc_templates": False,
@@ -70,7 +70,7 @@ class ApiTocTreeLine(unittest.TestCase):
     def test_per_package(self):
         """Set :ref:`rez_sphinx.api_toctree_line` on a Rez source package."""
         expected = "foo <api/modules>"
-        package = package_wrap.make_package_config(
+        package = package_wrap.make_package_configuration(
             {
                 "api_toctree_line": expected,
             }
@@ -107,7 +107,7 @@ class AutoHelpFilterBy(unittest.TestCase):
 
     def test_package(self):
         """Set :ref:`rez_sphinx.auto_help.filter_by` in a Rez source package."""
-        package = package_wrap.make_package_config({"auto_help": {"filter_by": "prefer_generated"}})
+        package = package_wrap.make_package_configuration({"auto_help": {"filter_by": "prefer_generated"}})
 
         run_test.clear_caches()
         self.assertEqual(
@@ -141,7 +141,7 @@ class AutoHelpSortOrder(unittest.TestCase):
 
     def test_package(self):
         """Set :ref:`rez_sphinx.auto_help.sort_order` in a Rez source package."""
-        package = package_wrap.make_package_config(
+        package = package_wrap.make_package_configuration(
             {"auto_help": {"sort_order": "prefer_generated"}}
         )
 
@@ -187,12 +187,12 @@ class BuildDocumentation(unittest.TestCase):
         expected_string = "foo"
         expected_list = ["fizz", "buzz"]
 
-        package_with_string = package_wrap.make_package_config(
+        package_with_string = package_wrap.make_package_configuration(
             {
                 "build_documentation_key": expected_string,
             }
         )
-        package_with_list = package_wrap.make_package_config(
+        package_with_list = package_wrap.make_package_configuration(
             {
                 "build_documentation_key": expected_list,
             }
@@ -235,7 +235,7 @@ class DocumentationRoot(unittest.TestCase):
     def test_package(self):
         """Set :ref:`rez_sphinx.documentation_root` in a Rez source package."""
         expected = "foo"
-        package = package_wrap.make_package_config({"documentation_root": expected})
+        package = package_wrap.make_package_configuration({"documentation_root": expected})
 
         run_test.clear_caches()
         self.assertEqual(
@@ -266,7 +266,7 @@ class InitOptionsCheckDefaultFiles(unittest.TestCase):
     def test_package(self):
         """Set :ref:`rez_sphinx.init_options.default_files` in a Rez source package."""
         expected = False
-        package = package_wrap.make_package_config(
+        package = package_wrap.make_package_configuration(
             {"init_options": {"check_default_files": expected}},
         )
 
@@ -297,7 +297,7 @@ class IntersphinxSettingsPackageLinkMap(unittest.TestCase):
     def test_package(self):
         """Set for a Rez source package."""
         expected = {"foo": "https://bar.com/en/latest"}
-        package = package_wrap.make_package_config(
+        package = package_wrap.make_package_configuration(
             {
                 "intersphinx_settings": {
                     "package_link_map": expected,
@@ -336,7 +336,7 @@ class SphinxApidocArguments(unittest.TestCase):
     def test_package(self):
         """Set :ref:`rez_sphinx.sphinx-apidoc.arguments` in a Rez source package."""
         expected = ["a", "-b", "--foo", "thing"]
-        package = package_wrap.make_package_config(
+        package = package_wrap.make_package_configuration(
             {
                 "sphinx-apidoc": {
                     "arguments": expected,
@@ -369,7 +369,7 @@ class SphinxApidocEnableApidoc(unittest.TestCase):
     def test_package(self):
         """Set :ref:`rez_sphinx.sphinx-apidoc.enable_apidoc` in a Rez source package."""
         expected = False
-        package = package_wrap.make_package_config({"sphinx-apidoc": {"enable_apidoc": expected}})
+        package = package_wrap.make_package_configuration({"sphinx-apidoc": {"enable_apidoc": expected}})
 
         run_test.clear_caches()
         self.assertFalse(preference.is_api_enabled(package=package))
@@ -382,7 +382,7 @@ class SphinxQuickStart(unittest.TestCase):
         """Set :ref:`rez_sphinx.sphinx-quickstart` in a global `rezconfig`_."""
         run_test.clear_caches()
 
-        package = package_wrap.make_package_config({"sphinx-quickstart": []})
+        package = package_wrap.make_package_configuration({"sphinx-quickstart": []})
         default = [
             "--author",
             "",
@@ -414,7 +414,7 @@ class SphinxQuickStart(unittest.TestCase):
     def test_package(self):
         """Set :ref:`rez_sphinx.sphinx-quickstart` in a Rez source package."""
         expected = ["a", "-b", "--thing"]
-        package = package_wrap.make_package_config({"sphinx-quickstart": expected})
+        package = package_wrap.make_package_configuration({"sphinx-quickstart": expected})
 
         run_test.clear_caches()
         results = preference.get_quick_start_options(package)
@@ -452,7 +452,7 @@ class SphinxConfigOverridesAddModuleNames(unittest.TestCase):
         """Set for a Rez source package."""
         expected = True
         variable = "add_module_names"
-        package = package_wrap.make_package_config({"sphinx_conf_overrides": {variable: expected}})
+        package = package_wrap.make_package_configuration({"sphinx_conf_overrides": {variable: expected}})
 
         run_test.clear_caches()
         self.assertEqual(

@@ -40,7 +40,7 @@ class GetMasterDocumentName(unittest.TestCase):
     def test_package(self):
         """Set for a Rez source package."""
         expected = "foo_bar"
-        package = package_wrap.make_package_config(
+        package = package_wrap.make_package_configuration(
             {
                 "sphinx_conf_overrides": {
                     "master_doc": expected,
@@ -79,7 +79,7 @@ class GetPreferenceFromPath(unittest.TestCase):
     def test_package(self):
         """Set for a Rez source package."""
         expected = "foo_bar"
-        package = package_wrap.make_package_config(
+        package = package_wrap.make_package_configuration(
             {
                 "sphinx_conf_overrides": {
                     "master_doc": expected,
@@ -145,7 +145,7 @@ class GetPreferencePaths(unittest.TestCase):
     def test_package(self):
         """Set for a Rez source package."""
         expected = "foo_bar"
-        package = package_wrap.make_package_config(
+        package = package_wrap.make_package_configuration(
             {
                 "sphinx_conf_overrides": {
                     "thing": expected,
@@ -187,7 +187,7 @@ class PreferenceValidation(unittest.TestCase):
 
     def test_package(self):
         """Set for a Rez source package."""
-        package = package_wrap.make_package_config(
+        package = package_wrap.make_package_configuration(
             {"does_not_exist": {"bad_stuff_here": 10}}
         )
 

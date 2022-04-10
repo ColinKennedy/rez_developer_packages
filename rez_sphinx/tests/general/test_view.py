@@ -103,8 +103,8 @@ class PackageHelp(unittest.TestCase):
                                 "token": "bar",
                                 "type": "github",
                             },
-                            "repository_uri": "git@something.com:Blah/Thing",
-                            "view_url": "https://ColinKennedy.github.io/{package.name}",
+                            "repository_uri": "git@something.com:Foo/Bar",
+                            "view_url": "https://Foo.github.io/Bar/{package.name}",
                         },
                     ],
                 },
@@ -121,16 +121,16 @@ class PackageHelp(unittest.TestCase):
         expected = [
             [
                 "Developer Documentation",
-                "https://ColinKennedy.github.io/package_to_test/versions/2.1/developer_documentation.html",  # pylint: disable=line-too-long
+                "https://Foo.github.io/Bar/package_to_test/versions/2.1/developer_documentation.html",  # pylint: disable=line-too-long
             ],
             [
                 "User Documentation",
-                "https://ColinKennedy.github.io/package_to_test/versions/2.1/user_documentation.html",  # pylint: disable=line-too-long
+                "https://Foo.github.io/Bar/package_to_test/versions/2.1/user_documentation.html",  # pylint: disable=line-too-long
             ],
             ["foo", "bar"],
             [
                 "rez_sphinx objects.inv",
-                "https://ColinKennedy.github.io/package_to_test/versions/2.1",
+                "https://Foo.github.io/Bar/package_to_test/versions/2.1",
             ],
         ]
 
@@ -169,8 +169,8 @@ class PackageHelp(unittest.TestCase):
                                 "token": "bar",
                                 "type": "github",
                             },
-                            "repository_uri": "git@something.com:Blah/Thing",
-                            "view_url": "https://ColinKennedy.github.io/{package.name}",
+                            "repository_uri": "git@something.com:Foo/Bar",
+                            "view_url": "https://Foo.github.io/Bar/{package.name}",
                         },
                     ],
                 },
@@ -218,8 +218,8 @@ class PackageHelp(unittest.TestCase):
                                 "token": "bar",
                                 "type": "github",
                             },
-                            "repository_uri": "git@something.com:Blah/Thing",
-                            "view_url": "https://ColinKennedy.github.io/{package.name}",
+                            "repository_uri": "git@something.com:Foo/Bar",
+                            "view_url": "https://Foo.github.io/Bar/{package.name}",
                         },
                     ],
                 },
@@ -267,8 +267,8 @@ class PackageHelp(unittest.TestCase):
                                 "token": "bar",
                                 "type": "github",
                             },
-                            "repository_uri": "git@something.com:Blah/Thing",
-                            "view_url": "https://ColinKennedy.github.io/{package.name}",
+                            "repository_uri": "git@something.com:Foo/Bar",
+                            "view_url": "https://Foo.github.io/Bar/{package.name}",
                         },
                     ],
                 },
@@ -310,8 +310,8 @@ class PackageHelp(unittest.TestCase):
                                 "token": "bar",
                                 "type": "github",
                             },
-                            "repository_uri": "git@something.com:Blah/Thing",
-                            "view_url": "https://ColinKennedy.github.io/{package.name}",
+                            "repository_uri": "git@something.com:Foo/Bar",
+                            "view_url": "https://Foo.github.io/Bar/{package.name}",
                         },
                     ],
                 },
@@ -327,7 +327,12 @@ class PackageHelp(unittest.TestCase):
         This test is more of a Rez implementation detail. But we should at
         least try to give the user a nice error message.
 
+        Raises:
+            EnvironmentError: If the folder needed for this test doesn't exist.
+
         """
+        raise ValueError('FINISH THIS')
+
         required_folder = os.path.join(os.environ["REZ_REZ_SPHINX_ROOT"], "python")
 
         if not os.path.exists(required_folder):
@@ -352,8 +357,8 @@ class PackageHelp(unittest.TestCase):
                                 "token": "bar",
                                 "type": "github",
                             },
-                            "repository_uri": "git@something.com:Blah/Thing",
-                            "view_url": "https://ColinKennedy.github.io/{package.name}",
+                            "repository_uri": "git@something.com:Foo/Bar",
+                            "view_url": "https://Foo.github.io/Bar/{package.name}",
                         },
                     ],
                 },
@@ -367,8 +372,38 @@ class PackageHelp(unittest.TestCase):
 class PublishUrl(unittest.TestCase):
     """Ensure :ref:`rez_sphinx view view-url` works."""
 
-    def test_get_url(self):
-        """Get the URL where documentation will go to.
+    def test_repository_uri(self):
+        """Get all URLs / URIs where documentation will be pushed / published to."""
+        with run_test.keep_config() as config:
+            config.optionvars = {
+                "rez_docbot": {
+                    "publishers": [
+                        {
+                            "authentication": {
+                                "user": "foo",
+                                "token": "bar",
+                                "type": "github",
+                            },
+                            "repository_uri": "git@something.com:Foo/Bar",
+                            "view_url": "https://Foo.github.io/Bar/{package.name}",
+                        },
+                    ],
+                },
+            }
+
+            with wrapping.capture_pipes() as (stdout, _):
+                run_test.test("view repository-uri")
+
+            value = stdout.getvalue()
+            stdout.close()
+
+            self.assertEqual(
+                'URI: "git@something.com:Foo/Bar" / Required: "True"',
+                value.rstrip(),
+            )
+
+    def test_view_url(self):
+        """Get the URL where documentation will be visible from.
 
         The first required URL is returned.
 
@@ -383,8 +418,8 @@ class PublishUrl(unittest.TestCase):
                                 "token": "bar",
                                 "type": "github",
                             },
-                            "repository_uri": "git@something.com:Blah/Thing",
-                            "view_url": "https://ColinKennedy.github.io/{package.name}",
+                            "repository_uri": "git@something.com:Foo/Bar",
+                            "view_url": "https://Foo.github.io/Bar/{package.name}",
                         },
                     ],
                 },
@@ -397,11 +432,16 @@ class PublishUrl(unittest.TestCase):
             stdout.close()
 
             self.assertEqual(
-                "https://ColinKennedy.github.io/rez_sphinx/versions/1.0",
+                "https://Foo.github.io/Bar/rez_sphinx/versions/1.0",
                 value.rstrip(),
             )
 
-    def test_no_get_url(self):
+    def test_no_repository_uri(self):
+        """Try to get a publish URL but fail because none is defined."""
+        with self.assertRaises(exception.ConfigurationError):
+            run_test.test("view repository-uri")
+
+    def test_no_view_url(self):
         """Try to get a publish URL but fail because none is defined."""
         with self.assertRaises(exception.ConfigurationError):
             run_test.test("view view-url")

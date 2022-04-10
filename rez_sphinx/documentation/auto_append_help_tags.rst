@@ -31,6 +31,7 @@ Pros:
 Cons:
 
 - Doesn't run during `rez-build`_.
+
     - This can be mitigated with the :ref:`rez_sphinx view package-help` command.
 
 

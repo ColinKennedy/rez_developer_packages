@@ -30,13 +30,51 @@ The ``rez_sphinx view package-help`` command lets you see what modifications
     :ref:`rez_sphinx.auto_help.sort_order`.
 
 
+.. _rez_sphinx view repository-uri:
+
+rez_sphinx view repository-uri
+******************************
+
+This command shows every remote destination, if any, your package will push
+its documentation to whenever :ref:`rez_sphinx publish run` is called.
+
+If you have auto-publishing enabled, via :doc:`the rez_sphinx release_hook
+plugin <rez_sphinx_as_a_release_hook>`, this list also shows where documentation
+is pushed to during `rez-release`_.
+
+
+.. code-block:: python
+
+    optionvars = {
+        "rez_docbot": {
+            "publishers": [
+                {
+                    # ... more stuff here ...
+                    "repository_uri": "git@github.com:SomeUserOrOrganization/{package.name}",
+                },
+            ],
+        }
+    }
+
+and then you call ``rez_sphinx view repository-uri``, the command will output
+
+``URI: "git@github.com:SomeUserOrOrganization/your_package_name_here" / Required: "True / False"``.
+
+The default behavior of publishing is to assume any found URI is required but
+not every URI is. Beside each URI is an indicator whether publishing will fail
+or just warn if documentation fails to publish.
+
+This command is mostly just for debugging to make sure your package publishes
+to where you expect.
+
+
 .. _rez_sphinx view view-url:
 
 rez_sphinx view view-url
 ************************
 
 This command can be used to check where your Rez package's documentation will
-point to after it is built, using `rez-build`_.
+point to after it is built.
 
 For example if you have a configuration like this:
 

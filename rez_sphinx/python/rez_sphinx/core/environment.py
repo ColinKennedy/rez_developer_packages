@@ -31,7 +31,7 @@ def get_publish_url(package):
     potentially.
 
     Args:
-        package (rez.package.Package):
+        package (rez.packages.Package):
             The source or installed Rez package to query from.
 
     Raises:
@@ -65,7 +65,7 @@ def get_all_repository_uris(package):
     potentially.
 
     Args:
-        package (rez.package.Package):
+        package (rez.packages.Package):
             The source or installed Rez package to query from.
 
     Raises:

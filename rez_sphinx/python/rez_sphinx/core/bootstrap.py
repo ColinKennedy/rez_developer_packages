@@ -120,7 +120,7 @@ def _get_copyright(package):
     """Get a Sphinx-friendly copyright statement for some Rez ``package``.
 
     Args:
-        package (rez.package.Package): The source / install package to query from.
+        package (rez.packages.Package): The source / install package to query from.
 
     Returns:
         str: The found year or year + author name, if there is any author.

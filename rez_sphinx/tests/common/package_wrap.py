@@ -120,12 +120,12 @@ def make_dependent_packages():
 def make_directory(name):
     """Make a directory with ``name`` and delete it later."""
     directory = tempfile.mkdtemp(suffix=name)
-    _delete_later(directory)
+    # _delete_later(directory)
 
     return directory
 
 
-def make_package_config(configuration):
+def make_package_configuration(configuration):
     # TODO : Add doc
     directory = tempfile.mkdtemp(suffix="_make_package_config")
     atexit.register(functools.partial(shutil.rmtree, directory))
