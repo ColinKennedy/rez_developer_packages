@@ -277,7 +277,9 @@ class Publisher(object):
 
         if versions_allowed:
             versioned = _create_subdirectory(root, self._data[_VERSION_FOLDER])
-            version_copied = self._copy_into_versioned_if_needed(documentation, versioned)
+            version_copied = self._copy_into_versioned_if_needed(
+                documentation, versioned
+            )
 
         if versions_allowed and not version_copied:
             # There's no case in which the :ref:`latest folder` would be

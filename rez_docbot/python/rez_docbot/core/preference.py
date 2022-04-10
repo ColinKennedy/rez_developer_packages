@@ -122,10 +122,8 @@ def get_first_versioned_view_url(package, allow_optionals=False):
 
     if optionals:
         raise RuntimeError(
-            'No required publishers were found. Optional publishers '
-            '"{optionals}" were ignored.'.format(
-                optionals=optionals
-            )
+            "No required publishers were found. Optional publishers "
+            '"{optionals}" were ignored.'.format(optionals=optionals)
         )
 
-    raise RuntimeError('Unknown error. Cannot continue.')
+    raise RuntimeError("Unknown error. Cannot continue.")
