@@ -1,6 +1,7 @@
-- Need to add a "visit URL" option to publishers
-  - The publish location is very often not the URL users visit to view the documentation
-  - This visit URL will be used to replace their package `help` attribute
+- Needs to be able to support publishing from the current remote URL
+ - Imagine someone has a mono-Rez package, as a repository. And they want to
+   publish documentation to their gh-pages
+
 - Allow publish patterns which use regex
   - Add a "semver" regex pattern people can use
 - Go through the configuration. Make sure I'm not being too permissive about the text users may write

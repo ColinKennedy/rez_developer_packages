@@ -1,5 +1,7 @@
 """A module for describing all :ref:`rez_docbot` settings."""
 
+# TODO : All preferences need to be unittested. global + reading from a package
+
 import schema
 from rez.config import config
 

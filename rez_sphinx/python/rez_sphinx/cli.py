@@ -617,9 +617,17 @@ def _set_up_view(sub_parsers):
         _add_directory_argument(view_package_help)
         view_package_help.set_defaults(execute=_view_package_help)
 
-    def _set_up_view_publish_url(inner_parsers):
+    def _set_up_view_repository_uri(inner_parsers):
+        repository_uri = inner_parsers.add_parser(
+            "repository-uri", help="The location where build documentation is published to.",
+        )
+
+        _add_directory_argument(view_publish_url)
+        view_publish_url.set_defaults(execute=_view_publish_url)
+
+    def _set_up_view_view_url(inner_parsers):
         view_publish_url = inner_parsers.add_parser(
-            "view-url", help="Show where this documentation will be published to."
+            "view-url", help="Show where you can view this published documentation."
         )
 
         _add_directory_argument(view_publish_url)
@@ -633,7 +641,8 @@ def _set_up_view(sub_parsers):
 
     _set_up_view_conf(inner_parsers)
     _set_up_view_package_help(inner_parsers)
-    _set_up_view_publish_url(inner_parsers)
+    _set_up_view_repository_uri(inner_parsers)
+    _set_up_view_view_url(inner_parsers)
 
 
 def _show_all(namespace):

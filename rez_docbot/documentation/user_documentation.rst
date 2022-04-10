@@ -5,6 +5,11 @@ rez_docbot User Documentation
 
 TODO : Add here
 
+TODO Make sure to mention this tool is meant to use git
+ - Also how do I handle multiple handler plug-ins?
+ - e.g. just loading the requires for github publishing, vs bitbucket
+
+
 .. _rez_docbot:
 
 rez_docbot

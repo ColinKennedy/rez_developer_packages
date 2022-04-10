@@ -10,6 +10,14 @@ from rez_docbot.core import preference
 from .common import run_test
 
 
+# TODO : Need test for ...
+#
+# - skipping version generation
+# - publishing over an existing version folder
+# - overwriting latest
+# - skipping overwriting latest (because the user is back-patching)
+
+
 class Publish(unittest.TestCase):
     """Make sure :class:`rez_docbot.core.publisher_.Publisher` works."""
 

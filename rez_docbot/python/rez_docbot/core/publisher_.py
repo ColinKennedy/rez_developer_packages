@@ -23,12 +23,13 @@ _REPOSITORY_URI = "repository_uri"
 _REQUIRED = "required"
 _VERSION_FOLDER = "version_folder"
 _VIEW_URL = "view_url"
+_SKIP_EXISTING_VERSION = "skip_exsting_version"
 
 _PUBLISHER = {
     _AUTHENICATION: schema.Use(adapter_registry.validate),
     _REPOSITORY_URI: schema.Or(
         schema_type.URL,
-        schema_type.SSH,  # TODO : Add SSH support later
+        schema_type.SSH,
     ),
     _VIEW_URL: schema_type.NON_EMPTY_STR,  # TODO : Replace with URL parser
     schema.Optional(_BRANCH): schema_type.NON_EMPTY_STR,
@@ -38,6 +39,7 @@ _PUBLISHER = {
         _PUBLISH_PATTERN, default=[schema_type.DEFAULT_PUBLISH_PATTERN]
     ): schema_type.PUBLISH_PATTERNS,
     schema.Optional(_REQUIRED, default=True): bool,
+    schema.Optional(_SKIP_EXISTING_VERSION, default=False): bool,
     schema.Optional(
         _VERSION_FOLDER, default="versions"
     ): str,  # TODO : Empty version_folder == no version folder
@@ -88,6 +90,56 @@ class Publisher(object):
         validated = _SCHEMA.validate(data)
 
         return cls(validated)
+
+    def _has_existing_folder(self, version, names):
+        """Check if ``version`` exists as a folder in ``names``.
+
+        Args:
+            version (str):
+                Some Rez source package version number. e.g. ``"1.2.3"``.
+            names (list[str]):
+                The names of each existing version publish folder. e.g.
+                ``["1.0", "1.1", "1.2"]``.
+
+        Returns:
+            bool: If ``version`` already exists, return True.
+
+        """
+        if not names:
+            return False
+
+        for searcher in self._get_publish_pattern_searchers():
+            package_match = searcher.match(version)
+
+            if not package_match:
+                _LOGGER.warning(
+                    'Searcher "%s" could not match package "%s" version.',
+                    searcher.pattern,
+                    version,
+                )
+
+                continue
+
+            package_version = package_match.groups()
+
+            for name in names:
+                version_folder_match = searcher.match(name)
+
+                if not version_folder_match:
+                    _LOGGER.info(
+                        'Folder "%s" did not match "%s" pattern.',
+                        name,
+                        searcher.pattern,
+                    )
+
+                    continue
+
+                if version_folder_match.groups() == package_version:
+                    _LOGGER.info('Existing version folder, "%s" was found.')
+
+                    return True
+
+        return False
 
     def _follow_cloned_repository(self, repository):
         """Clone the documentation repository and get the path to the documentation.
@@ -345,43 +397,20 @@ class Publisher(object):
 
         """
         names = os.listdir(versioned)
-        raw_package_version = str(self._get_package().version)
+        package = self._get_package()
+        raw_package_version = str(package.version)
 
-        for searcher in self._get_publish_pattern_searchers():
-            package_match = searcher.match(raw_package_version)
-
-            if not package_match:
-                _LOGGER.warning(
-                    'Searcher "%s" could not match package "%s" version.',
-                    searcher.pattern,
-                    raw_package_version,
-                )
-
-                continue
-
-            package_version = package_match.groups()
-
-            for name in names:
-                version_folder_match = searcher.match(name)
-
-                if not version_folder_match:
-                    _LOGGER.info(
-                        'Folder "%s" did not match "%s" pattern.',
-                        name,
-                        searcher.pattern,
-                    )
-
-                    continue
-
-                if version_folder_match.groups() == package_version:
-                    _LOGGER.info('Existing version folder, "%s" was found.')
-
-                    return False
+        if self._skip_existing_version_folder() and self._has_existing_folder(raw_package_version, names):
+            return False
 
         full_versioned = os.path.join(versioned, self._get_resolved_publish_pattern())
         _copy_into(documentation, full_versioned)
 
         return True
+
+    def _skip_existing_version_folder(self):
+        """bool: If True, documentation is not updated when patching versions."""
+        return self._data[_SKIP_EXISTING_VERSION]
 
     def allow_versioned_publishes(self):
         """bool: If True, this will create unique documentation per-version."""
