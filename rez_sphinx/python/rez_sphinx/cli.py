@@ -622,8 +622,8 @@ def _set_up_view(sub_parsers):
             "repository-uri", help="The location where build documentation is published to.",
         )
 
-        _add_directory_argument(view_publish_url)
-        view_publish_url.set_defaults(execute=_view_publish_url)
+        _add_directory_argument(repository_uri)
+        repository_uri.set_defaults(execute=_view_repository_uri)
 
     def _set_up_view_view_url(inner_parsers):
         view_publish_url = inner_parsers.add_parser(
@@ -862,13 +862,20 @@ def _view_package_help(namespace):
     pprint.pprint(hook.preprocess_help(root, package.help), indent=4)
 
 
-def _view_publish_url(namespace):
-    """Print the URL where documentation for the package in ``namespace`` publishes to.
+def _view_common(namespace):
+    """Get the Rez package underneath ``namespace`` and check for validity.
 
     Args:
         namespace (argparse.Namespace):
             The parsed user content. It contains all of the necessary
             attributes to find a Rez package to query.
+
+    Raises:
+        MissingPlugIn: If publishing is disabled.
+        NoPackageFound: If no Rez package was found.
+
+    Returns:
+        rez.packages.Package: The found package.
 
     """
     if not environment.is_publishing_enabled():
@@ -882,12 +889,50 @@ def _view_publish_url(namespace):
 
     package = finder.get_nearest_rez_package(directory)
 
-    if not package:
-        raise exception.NoPackageFound(
-            'Directory "{directory}" is not in a Rez package.'.format(
-                directory=directory
-            )
+    if package:
+        return package
+
+    raise exception.NoPackageFound(
+        'Directory "{directory}" is not in a Rez package.'.format(
+            directory=directory
         )
+    )
+
+
+def _view_repository_uri(namespace):
+    """Print the URL where documentation for the package in ``namespace`` publishes to.
+
+    Args:
+        namespace (argparse.Namespace):
+            The parsed user content. It contains all of the necessary
+            attributes to find a Rez package to query.
+
+    Raises:
+        MissingPlugIn: If publishing is disabled.
+        NoPackageFound: If no Rez package was found.
+
+    """
+    package = _view_common(namespace)
+
+    # Order doesn't matter so we might as well sort it
+    for uri, required in sorted(environment.get_all_repository_uris(package)):
+        print('URI: "{uri}" / Required: "{required}"'.format(uri=uri, required=required))
+
+
+def _view_publish_url(namespace):
+    """Print the URL where documentation for this package is viewable from.
+
+    Args:
+        namespace (argparse.Namespace):
+            The parsed user content. It contains all of the necessary
+            attributes to find a Rez package to query.
+
+    Raises:
+        MissingPlugIn: If publishing is disabled.
+        NoPackageFound: If no Rez package was found.
+
+    """
+    package = _view_common(namespace)
 
     print(environment.get_publish_url(package))
 

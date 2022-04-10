@@ -2,8 +2,6 @@
  - Imagine someone has a mono-Rez package, as a repository. And they want to
    publish documentation to their gh-pages
 
-- Allow publish patterns which use regex
-  - Add a "semver" regex pattern people can use
 - Go through the configuration. Make sure I'm not being too permissive about the text users may write
 - Add a "create repository" callback. So users can insert their own requirements
 - Need a unittest when the authenticated user doesn't have permissions to push / create repository etc as another user (ColinKennedy repo mismatch)

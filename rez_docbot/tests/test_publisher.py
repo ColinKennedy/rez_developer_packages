@@ -17,6 +17,8 @@ from .common import run_test
 # - overwriting latest
 # - skipping overwriting latest (because the user is back-patching)
 
+# TODO : Add mono publishing support
+
 
 class Publish(unittest.TestCase):
     """Make sure :class:`rez_docbot.core.publisher_.Publisher` works."""

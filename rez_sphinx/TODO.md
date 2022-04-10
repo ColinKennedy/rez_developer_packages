@@ -1,6 +1,12 @@
+- Do rez_docbot preferences unittests
+
+
 - Make sure help doesn't replace any relative paths which actually exist in the package
  - Nor absolute paths
  - Allow manual paths to be replaced but only if they define a {root}
+
+- When auto-publishing, make sure to try publishing through each publisher.
+  Don't just publish the first one found
 
 - Do a pass through existing TODO notes in rez_sphinx
 

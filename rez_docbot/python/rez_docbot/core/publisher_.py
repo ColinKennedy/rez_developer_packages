@@ -249,7 +249,7 @@ class Publisher(object):
         repository = self._get_resolved_repository()
 
         return common.RepositoryDetails(
-            group, repository, self._get_resolved_repository_uri()
+            group, repository, self.get_resolved_repository_uri()
         )
 
     def _get_resolved_group(self):
@@ -273,12 +273,6 @@ class Publisher(object):
         pattern = self._data[_PUBLISH_PATTERN][0]
 
         return pattern.format(package=self._get_package())
-
-    def _get_resolved_repository_uri(self):
-        """str: Get the URL / URI / etc to a remote git repository."""
-        base = self._data[_REPOSITORY_URI][schema_type.ORIGINAL_TEXT]
-
-        return base.format(package=self._get_package())
 
     def _get_resolved_repository(self):
         """Get the URL pointing to the documentation repository.
@@ -429,7 +423,7 @@ class Publisher(object):
         """
         invalids = set()
 
-        uri = self._get_resolved_repository_uri()
+        uri = self.get_resolved_repository_uri()
 
         for method in self._data[_AUTHENICATION]:
             handler = method.authenticate(uri)
@@ -505,6 +499,12 @@ class Publisher(object):
             package.name,
             package.version,
         )
+
+    def get_resolved_repository_uri(self):
+        """str: Get the URL / URI / etc to a remote git repository."""
+        base = self._data[_REPOSITORY_URI][schema_type.ORIGINAL_TEXT]
+
+        return base.format(package=self._get_package())
 
     def get_resolved_view_url(self):
         """Create a viewable URL where documentation can be seen.
