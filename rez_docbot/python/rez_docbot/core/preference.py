@@ -36,7 +36,9 @@ def _override_rez_configuration(package):
         }
     }
 
-    return config_.copy(overrides=overrides)
+    config = config_.copy(overrides=overrides)
+
+    raise ValueError(sorted(dir(config)))
 
 
 def get_base_settings(package=None):

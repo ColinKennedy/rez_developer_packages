@@ -394,7 +394,9 @@ class Publisher(object):
         package = self._get_package()
         raw_package_version = str(package.version)
 
-        if self._skip_existing_version_folder() and self._has_existing_folder(raw_package_version, names):
+        if self._skip_existing_version_folder() and self._has_existing_folder(
+            raw_package_version, names
+        ):
             return False
 
         full_versioned = os.path.join(versioned, self._get_resolved_publish_pattern())

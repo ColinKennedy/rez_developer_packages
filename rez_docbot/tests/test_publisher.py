@@ -9,7 +9,6 @@ from rez_docbot.core import preference
 
 from .common import run_test
 
-
 # TODO : Need test for ...
 #
 # - skipping version generation

@@ -15,27 +15,28 @@ class GetAllPublishers(unittest.TestCase):
     def test_global(self):
         """Read from the global configuration."""
         with run_test.keep_config() as config:
-            config.optionvars = {
-            }
+            config.optionvars = {}
 
         raise ValueError()
 
     def test_package(self):
         """Read from a specific Rez package."""
-        package = package_wrap.make_package_configuration({
-            "publishers": [
-                {
-                    "authentication": {
-                        "user": "Foo",
-                        "token": "bar",
-                        "type": "github",
+        package = package_wrap.make_package_configuration(
+            {
+                "publishers": [
+                    {
+                        "authentication": {
+                            "user": "Foo",
+                            "token": "bar",
+                            "type": "github",
+                        },
+                        "branch": "gh-pages",
+                        "repository_uri": "git@github.com:Foo/{package.name}",
+                        "view_url": "https://Foo.github.io/{package.name}",
                     },
-                    "branch": "gh-pages",
-                    "repository_uri": "git@github.com:Foo/{package.name}",
-                    "view_url": "https://Foo.github.io/{package.name}",
-                },
-            ],
-        })
+                ],
+            }
+        )
 
         self.assertEqual(1, len(preference.get_all_publishers(package=package)))
         self.assertEqual(0, len(preference.get_all_publishers()))
