@@ -13,8 +13,6 @@
 - Make the build_documentation fully optional
 - Possibly move rezplugins to its own folder, outside of the Python folder
 
-- Add check so API documentation isn't added again if the user renames it
-
 
 - silence build commands
 
@@ -25,8 +23,6 @@ top-level header of that file is used as a label, instead.
 
 - Check out why the "Skipping preprocessor because" message happens so much during rez_sphinx publish run
 
-- Every command that accepts a directory should have a test for if it isn't found. Probably.
-
 - Add pylint configuration to match with black (line length 88)
 - Do all general TODO notes
 - Do all NotImplementedError, where applicable
@@ -34,27 +30,9 @@ top-level header of that file is used as a label, instead.
 - Add unittests for the plugin / preprocess hooks
  - If it needs to be dependency-less, make a unittest that enforces this
 
-- Make sure the preprocess function works as a general, standalone thing
-
-- Need to ensure docbot's logger is set properly when used as a bolt-in for rez_sphinx
-
-
-## Document current work
-
-- Do all TODO notes within the documentation/source folder
-- Consider adding refs to "documentation source root" so people know what I'm talking about
-- Consider adding refs to "documentation build root" so people know what I'm talking about
-- Add option to prefer hand-written API documentation, if provided
-
-- If `help`_ rez_sphinx objects.inv points to a non-URL, check if it's
-  absolute. If relative, absolute-ize it based onthe package directory and then
-  use that
-  - If they make a mistake and point directly to objects.inv, crop it to the real directory / URL path
 
 
 ## Make tools more robust
-- Make sure rez_sphinx only adds its bootstrap once
-- Follow the default header Python style (overlines) for all default pages
 - Need unittest so you cannot accidentally add the same file twice to the same toctree
  - e.g. the default files must all have unique names, or error
 - Make sure per-package config overriding is allowed
