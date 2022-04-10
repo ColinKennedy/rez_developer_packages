@@ -23,11 +23,13 @@ class Publish(unittest.TestCase):
             {
                 "authentication": [
                     {
-                        "access_token": "TODO FILL THIS OUT",
+                        "token": "fake_access_token",
                         "type": "github",
+                        "user": "fake_user",
                     },
                 ],
-                "repository_uri": "https://www.some_fake.website",
+                "repository_uri": "git@github.com:FakeUser/{package.name}",
+                "view_url": "https://www.some_fake.website",
             }
         ) as publisher:
             publisher.authenticate()
@@ -38,11 +40,13 @@ class Publish(unittest.TestCase):
             {
                 "authentication": [
                     {
-                        "access_token": "TODO FILL THIS OUT",
+                        "token": "fake_access_token",
                         "type": "github",
+                        "user": "fake_user",
                     },
                 ],
-                "repository_uri": "https://www.some_fake.website",
+                "repository_uri": "git@github.com:FakeUser/{package.name}",
+                "view_url": "https://www.some_fake.website",
             }
         ):
             pass
