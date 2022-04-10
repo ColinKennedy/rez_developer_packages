@@ -138,7 +138,6 @@ class GetPreferencePaths(unittest.TestCase):
             "sphinx_conf_overrides",
             "sphinx_conf_overrides.add_module_names",
             "sphinx_conf_overrides.master_doc",
-            "sphinx_extensions",
         }
         self.assertEqual(default, preference.get_preference_paths())
 

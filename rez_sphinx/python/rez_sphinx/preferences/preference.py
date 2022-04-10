@@ -38,7 +38,6 @@ _BUILD_KEY_DEFAULT = "build_documentation"
 _CHECK_DEFAULT_FILES = "check_default_files"
 _DEFAULT_FILES = "default_files"
 _DOCUMENTATION_ROOT_KEY = "documentation_root"
-_EXTENSIONS_KEY = "sphinx_extensions"
 _INIT_KEY = "init_options"
 
 _ENABLE_APIDOC = "enable_apidoc"
@@ -53,6 +52,7 @@ _HELP_FILTER = "filter_by"
 _HELP_SORT_ORDER = "sort_order"
 _MASTER_KEY = "rez_sphinx"
 _CONFIG_OVERRIDES = "sphinx_conf_overrides"
+_SPHINX_EXTENSIONS_VARIABLE = "extensions"
 _EXTRA_REQUIRES = "extra_requires"
 
 _INTERSPHINX_SETTINGS = "intersphinx_settings"
@@ -82,9 +82,6 @@ _MASTER_SCHEMA = schema.Schema(
         schema.Optional(_BUILD_KEY, default=_BUILD_KEY_DEFAULT): schema.Or(
             schema_helper.NON_NULL_STR, [schema_helper.NON_NULL_STR]
         ),
-        schema.Optional(_EXTENSIONS_KEY, default=list(_BASIC_EXTENSIONS)): [
-            schema_helper.PYTHON_DOT_PATH
-        ],
         schema.Optional(
             _INIT_KEY,
             default={
@@ -118,10 +115,14 @@ _MASTER_SCHEMA = schema.Schema(
         schema.Optional(
             _CONFIG_OVERRIDES,
             default={
-                constant.SPHINX_MODULE_VARIABLE: False,
+                _SPHINX_EXTENSIONS_VARIABLE: list(_BASIC_EXTENSIONS),
                 _MASTER_DOC: _MASTER_DOC_DEFAULT,
+                constant.SPHINX_MODULE_VARIABLE: False,
             },
         ): {
+            schema.Optional(
+                _SPHINX_EXTENSIONS_VARIABLE, default=list(_BASIC_EXTENSIONS)
+            ): [schema_helper.PYTHON_DOT_PATH],
             schema.Optional(
                 _MASTER_DOC, default=_MASTER_DOC_DEFAULT
             ): schema_helper.NON_NULL_STR,
@@ -905,8 +906,6 @@ def get_sphinx_extensions(package=None):
     """list[str]: All `Sphinx`_ optional add-ons to include in documentation."""
     settings = get_sphinx_configuration_overrides(package=package)
 
-    _SPHINX_EXTENSIONS_VARIABLE = "extensions"
-
     return settings.get(_SPHINX_EXTENSIONS_VARIABLE) or []
 
 
@@ -1026,12 +1025,18 @@ def serialize_default_sparse_settings():
 
 
 def serialize_override_settings(package=None):
-    # """Get all user-set values, without any default schema values.
-    #
-    # Returns:
-    #     dict[str, object]: The values, stripped of all default data.
-    #
-    # """
+    """Get all user-set values, without any default schema values.
+
+    Args:
+        package (rez.packages.Package, optional):
+            A Rez package which may override the global setting.  If the
+            package doesn't define an opinion, the global setting / default
+            value is used instead.
+
+    Returns:
+        dict[str, object]: The values, stripped of all default data.
+
+    """
     settings = get_base_settings(package=package)
 
     return schema_optional.serialize_sparsely(settings, _MASTER_SCHEMA)

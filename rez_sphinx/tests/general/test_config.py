@@ -122,7 +122,6 @@ class ListDefault(unittest.TestCase):
             "init_options": {},
             "intersphinx_settings": {},
             "sphinx_conf_overrides": {},
-            "sphinx_extensions": [],
             "sphinx-apidoc": {},
             "extra_requires": [],
             "sphinx-quickstart": [],
@@ -258,7 +257,6 @@ class Show(unittest.TestCase):
                 sphinx_conf_overrides
                 sphinx_conf_overrides.add_module_names
                 sphinx_conf_overrides.master_doc
-                sphinx_extensions
                 """
             ),
             value,

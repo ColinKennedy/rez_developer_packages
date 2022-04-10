@@ -1,5 +1,13 @@
 - Do rez_docbot preferences unittests
+- Add check so API documentation isn't added again if the user renames it
+- Need to ensure docbot's logger is set properly when used as a bolt-in for rez_sphinx
 
+- Consider adding refs to "documentation source root" so people know what I'm talking about
+- Consider adding refs to "documentation build root" so people know what I'm talking about
+
+- If people try to define objects.inv `help` manually and make a mistake and point directly to objects.inv instead of the folder, crop it to the real directory / URL path
+
+- Add option to prefer hand-written API documentation, if provided
 
 - Make sure help doesn't replace any relative paths which actually exist in the package
  - Nor absolute paths
