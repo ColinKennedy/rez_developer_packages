@@ -190,6 +190,10 @@ def _init(namespace):
             The parsed user content. It contains all of the necessary
             attributes to generate Sphinx documentation.
 
+    Raises:
+        NoPackageFound: If there's no Rez package in ``namespace.directory``.
+        BadPackage: If the found Rez package isn't a ``package.py`` file.
+
     """
     _split_init_arguments(namespace)
 
@@ -205,6 +209,12 @@ def _init(namespace):
             'Directory "{directory}" is not in a Rez package. Cannot continue.'.format(
                 directory=directory
             )
+        )
+
+    if not os.path.isfile(os.path.join(directory, "package.py")):
+        raise exception.BadPackage(
+            'Package "{package.name}" is not a package.py file. '
+            'This command requires a Rez package.py.'.format(package=package)
         )
 
     _LOGGER.debug('Found "%s" Rez package.', package.name)

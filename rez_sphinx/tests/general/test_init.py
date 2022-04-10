@@ -43,6 +43,19 @@ class Init(unittest.TestCase):
 class Invalids(unittest.TestCase):
     """Make sure :ref:`rez_sphinx init` fails when it's supposed to fail."""
 
+    def test_bad_package(self):
+        """Check if a non-``package.py`` Rez source package file was given."""
+        directory = package_wrap.make_directory("_test_bad_package")
+
+        with open(os.path.join(directory, "package.yaml"), "w") as handler:
+            handler.write("name: foo")
+
+        with wrapping.keep_cwd():
+            os.chdir(directory)
+
+            with self.assertRaises(exception.BadPackage):
+                run_test.test(["init", directory])
+
     def test_bad_permissions(self):
         """Make sure the package directory is readable."""
         package = package_wrap.make_simple_developer_package()

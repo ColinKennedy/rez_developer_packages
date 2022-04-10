@@ -1,11 +1,3 @@
-- Add check to reject non-package.py Rez files (error on package.yaml / .yml / .txt)
-- Make sure to set `latex_documents` in `conf.py`
- - man_pages
- - https://github.com/nerdvegas/rez/blob/master/docs/conf.py
- - texinfo_documents
- - https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-latex_documents
-  - make sure to set authors correctly
-
 - Consider adding refs to "documentation source root" so people know what I'm talking about
 - Consider adding refs to "documentation build root" so people know what I'm talking about
 

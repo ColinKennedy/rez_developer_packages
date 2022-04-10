@@ -31,8 +31,24 @@ _REZ_SPHINX_BOOTSTRAP_LINES = textwrap.dedent(
     # -- rez-sphinx end --
     """
 )
-_INTERSPHINX_MAPPING_KEY = "intersphinx_mapping"
+
 _REZ_REQUIRES_KEY = "requires"
+
+_AUTHOR = "author"
+_COPYRIGHT = "copyright"
+_EXTENSIONS = "extensions"
+_INTERSPHINX_MAPPING_KEY = "intersphinx_mapping"
+_LATEX_DOCUMENTS = "latex_documents"
+_MAN_PAGES = "man_pages"
+_MASTER_DOC = "master_doc"
+_PROJECT = "project"
+_PROJECT_COPYRIGHT = "project_copyright"
+_RELEASE = "release"
+_VERSION = "version"
+
+_LATEX_FILE_EXTENSION = ".tex"
+_LATEX_AUTHOR_SEPARATOR = " \\and "  # Reference: https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-latex_documents
+_LATEX_THEME = "manual"
 
 
 def _get_intersphinx_candidates(package):
@@ -486,61 +502,81 @@ def bootstrap(data, package=None, skip=frozenset()):
 
     """
     package = package or _get_nearest_caller_package()
+    authors = package.authors or []
+    master_document = preference.get_master_document_name(package=package) or "index"
+    title = "{package.name} Documentation".format(package=package)
+    description = package.description or "{package.name} Documentation".format(package=package)
 
-    if "author" not in skip:
+    if _AUTHOR not in skip:
         # Note: Not sure if ", " separation is expected. I couldn't find
         # documentation about Sphinx on what the expected format is.
         #
-        data["author"] = ", ".join(package.authors or [])
+        data[_AUTHOR] = ", ".join(authors)
 
-    if "copyright" not in skip:
-        data["copyright"] = _get_copyright(package)
+    if _COPYRIGHT not in skip:
+        data[_COPYRIGHT] = _get_copyright(package)
 
-    if "extensions" not in skip:
-        extensions = set(data.get("extensions") or set())
+    if _EXTENSIONS not in skip:
+        extensions = set(data.get(_EXTENSIONS) or set())
         extensions.update(preference.get_sphinx_extensions())
-        data["extensions"] = sorted(extensions)
+        data[_EXTENSIONS] = sorted(extensions)
 
     if _INTERSPHINX_MAPPING_KEY not in skip:
         data[_INTERSPHINX_MAPPING_KEY] = _merge_intersphinx_maps(data, package)
 
-    if "master_doc" not in skip:
+    if _LATEX_DOCUMENTS not in skip:
+        data[_LATEX_DOCUMENTS] = [
+            (
+                master_document,
+                package.name + _LATEX_FILE_EXTENSION,
+                title,
+                _LATEX_AUTHOR_SEPARATOR.join(authors),
+                _LATEX_THEME,
+                False,
+            ),
+        ]
+
+    if _MAN_PAGES not in skip:
+        section_index = 1
+        data[_MAN_PAGES] = [
+            (master_document, package.name, description, authors, section_index)
+        ]
+
+    if _MASTER_DOC not in skip:
         # Reference:
         # https://github.com/readthedocs/readthedocs.org/issues/2569#issuecomment-485117471
         #
-        data["master_doc"] = (
-            preference.get_master_document_name(package=package) or "index"
-        )
+        data[_MASTER_DOC] = master_document
 
-    if "project" not in skip:
-        data["project"] = package.name
+    if _PROJECT not in skip:
+        data[_PROJECT] = package.name
 
-    if "project_copyright" not in skip:
+    if _PROJECT_COPYRIGHT not in skip:
         # An alias for "copyright". It's only Sphinx 3.5+ but it's harmless in
         # older Sphinx versions so we leave it in, regardless.
         #
         # Reference:
         # https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-project_copyright
         #
-        data["project_copyright"] = _get_copyright(package)
+        data[_PROJECT_COPYRIGHT] = _get_copyright(package)
 
-    if "release" not in skip:
+    if _RELEASE not in skip:
         # Confusingly, `Sphinx`_ treats `version`_ as a major.minor release.
         # And `release`_ is the full version name.
         #
         # So a Rez version -> Sphinx release
         # So a Sphinx version -> Nothing in Rez
         #
-        data["release"] = str(package.version)
+        data[_RELEASE] = str(package.version)
 
-    if "version" not in skip:
+    if _VERSION not in skip:
         # Confusingly, `Sphinx`_ treats `version`_ as a major.minor release.
         # And `release`_ is the full version name.
         #
         # So a Rez version -> Sphinx release
         # So a Sphinx version -> Nothing in Rez
         #
-        data["version"] = _get_major_minor_version(package.version)
+        data[_VERSION] = _get_major_minor_version(package.version)
 
     overrides = {
         key: value

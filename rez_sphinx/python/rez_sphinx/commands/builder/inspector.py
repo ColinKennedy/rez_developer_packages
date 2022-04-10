@@ -75,6 +75,10 @@ def _get_field_attributes(sphinx, fields):
         return output
 
     if count == 1:
+        # TODO : This exception is so silly `rez_sphinx view sphinx-conf
+        # man_pages`. Split it into a separate command so it doesn't spam the
+        # user's view
+        #
         raise exception.SphinxConfError(
             'This conf.py attribute, "{invalids}" could not be found. '
             'Options were, "{options}".'.format(

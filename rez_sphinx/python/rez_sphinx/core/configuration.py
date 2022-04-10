@@ -4,10 +4,11 @@ import importlib
 import inspect
 import logging
 import os
+import pkgutil
 
-from python_compatibility import imports
+from python_compatibility import imports, wrapping
 from six.moves import mock
-from sphinx import config
+from sphinx import builders, config
 
 from . import constant
 
@@ -142,7 +143,10 @@ class ConfPy(object):
 
         if allow_extensions:
             extensions = self._get_extensions()
-            output.update(_get_extension_attribute_names(extensions))
+            modules = _get_modules_from_namespace(extensions)
+            output.update(_get_extension_attribute_names(modules))
+
+        output.update(_get_known_builder_attribute_names())
 
         return output
 
@@ -164,13 +168,12 @@ class ConfPy(object):
         return self._module.__file__
 
 
-def _get_extension_attribute_names(extensions):
-    """Find every attribute for each `Sphinx`_ extension in ``extensions``.
+def _get_extension_attribute_names(modules):
+    """Find every attribute for each `Sphinx`_ extension in ``modules``.
 
     Args:
-        extensions (iter[str]):
-            An importable Python namespace to try to get attribute contents
-            from. e.g. ``["sphinx.ext.intersphinx", "sphinx.ext.viewcode"]``.
+        modules (iter[module]):
+            An importable Python namespace to try to get attribute contents from.
 
     Returns:
         set[str]: Every found attribute name across all extensions.
@@ -182,21 +185,6 @@ def _get_extension_attribute_names(extensions):
             appender(attribute_name)
 
         return _wrap
-
-    modules = []
-
-    for name in extensions:
-        _LOGGER.debug('Now importing "%s" to query its attributes.', name)
-
-        try:
-            modules.append(importlib.import_module(name))
-        except Exception as error:  # pylint: disable=broad-except
-            # We're importing arbitrary Python modules based on whatever the
-            # user has set.  So we need to catch generalized errors.
-            #
-            _LOGGER.warning('Skipped loading "%s". Error, "%s".', name, str(error))
-
-            continue
 
     # Since `Sphinx`_ requires a ``setup`` function on every extension module
     # which defines attributes, we take advantage of this convention by passing
@@ -210,6 +198,53 @@ def _get_extension_attribute_names(extensions):
 
     for module in modules:
         if hasattr(module, "setup"):
-            module.setup(mocker)
+            with wrapping.silence_printing():  # Sphinx can be rather spammy.
+                module.setup(mocker)
 
     return container
+
+
+def _get_known_builder_attribute_names():
+    """set[str]: Find all attributes which come from `Sphinx`_ builder modules."""
+    # Reference: https://stackoverflow.com/a/1707786/3626104
+    prefix = builders.__name__ + "."
+
+    modules = [
+        importlib.import_module(namespace)
+        for _, namespace, _ in pkgutil.iter_modules(
+            builders.__path__,
+            prefix,
+        )
+    ]
+
+    return _get_extension_attribute_names(modules)
+
+
+def _get_modules_from_namespace(namespaces):
+    """Convert fully-qualified Python importable namespaces into modules.
+
+    Args:
+        namespaces (iter[str]):
+            Each importable Python namespace to try to import.
+            e.g. ``["sphinx.ext.intersphinx", "sphinx.ext.viewcode"]``.
+
+    Returns:
+        list[module]: The imported modules.
+
+    """
+    modules = []
+
+    for name in namespaces:
+        _LOGGER.debug('Now importing "%s" to query its attributes.', name)
+
+        try:
+            modules.append(importlib.import_module(name))
+        except Exception as error:  # pylint: disable=broad-except
+            # We're importing arbitrary Python modules based on whatever the
+            # user has set.  So we need to catch generalized errors.
+            #
+            _LOGGER.warning('Skipped loading "%s". Error, "%s".', name, str(error))
+
+            continue
+
+    return modules
