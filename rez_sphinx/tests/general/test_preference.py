@@ -163,11 +163,42 @@ class GetSphinxExtensions(unittest.TestCase):
     """Ensure :func:`rez_sphinx.preferences.preference.get_sphinx_extenions` works."""
 
     def test_global(self):
-        """Get from a global list of settings."""
-        raise ValueError()
+        """Get all `Sphinx`_ extensions to load while building documentation."""
+        expected = ["foo.bar.thing"]
+
+        with run_test.keep_config() as config:
+            config.optionvars = {
+                "rez_sphinx": {
+                    "sphinx_conf_overrides": {
+                        "extensions": expected,
+                    },
+                },
+            }
+
+            run_test.clear_caches()
+            self.assertEqual(expected, preference.get_sphinx_extensions())
+
+        run_test.clear_caches()
+        default = ["sphinx.ext.autodoc", "sphinx.ext.intersphinx", "sphinx.ext.viewcode"]
+        self.assertEqual(default, preference.get_sphinx_extensions())
 
     def test_package(self):
-        raise ValueError()
+        """Get `Sphinx`_ extension overrides from a local Rez package."""
+        expected = ["foo.bar.thing"]
+
+        package = package_wrap.make_package_configuration(
+            {
+                "sphinx_conf_overrides": {
+                    "extensions": expected,
+                },
+            }
+        )
+
+        run_test.clear_caches()
+        self.assertEqual(
+            expected,
+            preference.get_sphinx_extensions(package=package),
+        )
 
 
 class PreferenceValidation(unittest.TestCase):
