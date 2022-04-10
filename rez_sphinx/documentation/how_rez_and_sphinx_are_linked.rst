@@ -61,6 +61,27 @@ While this is fairly aggressive, please note that:
   of the project name.
 
 
+.. _how to override rez_sphinx conf.py:
+
+How To Override rez_sphinx conf.py
+**********************************
+
+If you want to add something to your `Sphinx conf.py` and :ref:`rez_sphinx
+build run` doesn't appear to "see" the variable, make sure that you define the
+variable underneath these lines:
+
+
+.. code-block:: python
+
+    # {root}/documentation/conf.py
+
+    from rez_sphinx import api
+    locals().update(api.bootstrap(locals()))
+
+As long as you define your variables **after** those lines, :ref:`rez_sphinx
+build run` will respect it.
+
+
 Adding Extra Overrides
 **********************
 

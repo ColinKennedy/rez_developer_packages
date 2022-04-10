@@ -32,6 +32,7 @@ Beginner Topics
 
    What Is Rez Sphinx <what_is_rez_sphinx>
    why_use_rez_sphinx
+   features
    getting_started
 
 
@@ -68,5 +69,7 @@ customization or are administering :ref:`rez_sphinx` at a company / studio.
    adding_extra_interlinking
    configuring_rez_sphinx
    auto_append_help_tags
+   enabling_rez_help_integration
    rez_sphinx_as_a_release_hook
+   batch_publish_documentation
    linking_rez_sphinx_with_other_documentation_tools

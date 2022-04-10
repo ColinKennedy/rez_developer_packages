@@ -2,7 +2,6 @@
 
 import logging
 import os
-import traceback
 
 from python_compatibility import wrapping
 from rez_utilities import finder
@@ -132,12 +131,12 @@ def _run_sphinx_quickstart(directory, options=tuple()):
 
 
 def init(package, quick_start_options=tuple()):
-    """Connect the Rez package at ``directory`` to :ref:`rez_sphinx`.
+    """Connect a Rez source ``package`` to :ref:`rez_sphinx`.
 
     Warning:
         This function generates many files directly underneath
-        ``directory`` as well as changes your source Rez package.py
-        file.  Save your work first before running this function!
+        ``package`` as well as changes your source Rez package.py
+        file. Save your work first before running this function!
 
     Args:
         package (rez.packages.Package):

@@ -19,7 +19,17 @@ It's ran once (and then ideally never again).
 - Directly edits your `package.py`_ as needed
 
     - Increments a new minor version
-    - Defines "build_command" key to the `rez tests attribute`_ attribute.
+    - Defines "build_documentation" key to the `rez tests attribute`_ attribute.
+
+.. code-block::
+
+    tests = {
+        "build_documentation": {
+            "command": "rez_sphinx build run",
+            "requires": ["rez_sphinx-1"],
+        },
+    }
+
 
 And that's all :ref:`rez_sphinx` does for now. If you rebuild your Rez package,
 should be able to run ``rez-test package_name build_documentation`` to create
