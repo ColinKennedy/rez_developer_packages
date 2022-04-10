@@ -68,7 +68,28 @@ def get_all_publishers(package=None):
 
 
 def get_first_versioned_view_url(package, allow_optionals=False):
-    publishers = get_all_publishers(package)
+    """Find a URL where published documentation lives.
+
+    Args:
+        package (rez.packages.Package, optional):
+            A package which may contain extra configuration overrides.
+            Any override not found will be retrieved globally.
+        allow_optionals (bool, optional):
+            In :ref:`rez_docbot`'s configuration, users can mark documentation
+            sources as optional (or not). If it's optional, there's a chance
+            that the documentation URL points to nothing. If you would rather
+            ensure the returned URL definitely has documentation, use the
+            default option for this parameter (``False``).
+
+    Raises:
+        RuntimeError:
+            If no viewing URL could be found.
+
+    Returns:
+        str: A recommended, found URL to view the documentation from.
+
+    """
+    publishers = get_all_publishers(package=package)
 
     if not publishers:
         raise RuntimeError(

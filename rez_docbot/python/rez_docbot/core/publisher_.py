@@ -382,9 +382,11 @@ class Publisher(object):
         return True
 
     def allow_versioned_publishes(self):
+        """bool: If True, this will create unique documentation per-version."""
         return bool(self._data[_VERSION_FOLDER])
 
     def is_required(self):
+        """bool: Check if this publisher is expected to always have documentation."""
         return self._data[_REQUIRED]
 
     def authenticate(self):
@@ -474,6 +476,17 @@ class Publisher(object):
         )
 
     def get_resolved_view_url(self):
+        """Create a viewable URL where documentation can be seen.
+
+        This differs from the publish URL. For example, the publish URL for
+        GitHub is typically ``"git@github.com:UserName/{package.name}"`` but
+        the documentation is viewed in
+        ``"https://UserName.github.io/{package.name}"``.
+
+        Returns:
+            str: The found website URL.
+
+        """
         base_url = self._data[_VIEW_URL].format(package=self._get_package())
         version_folder_name = self._data[_VERSION_FOLDER]
         version_folder_number = self._get_resolved_publish_pattern()

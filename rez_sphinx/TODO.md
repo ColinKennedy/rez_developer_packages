@@ -1,6 +1,12 @@
+- CI changes for rez_docbot
+ - Check tests to pass
 - Make sure help doesn't replace any relative paths which actually exist in the package
  - Nor absolute paths
  - Allow manual paths to be replaced but only if they define a {root}
+- Version publishing
+  - Add option to allow overwriting a version folder if the user is publishing
+	a patch to the same major.minor version. And add toggle to forbid it.
+	- Allow patches to override the major.minor folder, by default
 
 - Do a pass through existing TODO notes in rez_sphinx
 
@@ -8,10 +14,6 @@
 - Possibly move rezplugins to its own folder, outside of the Python folder
 
 - Add check so API documentation isn't added again if the user renames it
-- Version publishing
-  - Add option to allow overwriting a version folder if the user is publishing
-	a patch to the same major.minor version. And add toggle to forbid it.
-	- Allow patches to override the major.minor folder, by default
 
 
 - silence build commands
