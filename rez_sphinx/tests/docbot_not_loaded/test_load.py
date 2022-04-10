@@ -31,6 +31,6 @@ class Loader(unittest.TestCase):
                     run_test.test(["publish", "run", source_directory])
 
     def test_view_publish_url(self):
-        """Fail :ref:`rez_sphinx view publish-url` if ``rez_docbot`` is not loaded."""
+        """Fail :ref:`rez_sphinx view view-url` if ``rez_docbot`` is not loaded."""
         with self.assertRaises(exception.MissingPlugIn):
-            run_test.test("view publish-url")
+            run_test.test("view view-url")

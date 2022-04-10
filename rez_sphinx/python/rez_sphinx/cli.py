@@ -33,7 +33,8 @@ class _HelpPrinter(argparse.ArgumentParser):
     Without this class, ``rez_sphinx view`` prints:
 
     ::
-        usage: __main__.py view [-h] {sphinx-conf,publish-url} ...
+
+        usage: __main__.py view [-h] {sphinx-conf,view-url} ...
         __main__.py view: error: the following arguments are required: command
 
     With this class, ``rez_sphinx view`` prints:
@@ -41,13 +42,13 @@ class _HelpPrinter(argparse.ArgumentParser):
     ::
 
         __main__.py view: error: the following arguments are required: command
-        usage: __main__.py view [-h] {sphinx-conf,publish-url} ...
+        usage: __main__.py view [-h] {sphinx-conf,view-url} ...
 
         positional arguments:
-          {sphinx-conf,publish-url}
+          {sphinx-conf,view-url}
             sphinx-conf         Show your documentation's Sphinx conf.py settings.
                                 Useful for debugging!
-            publish-url         Show where this documentation will be published to.
+            view-url         Show where this documentation will be published to.
 
         optional arguments:
           -h, --help            show this help message and exit
@@ -618,7 +619,7 @@ def _set_up_view(sub_parsers):
 
     def _set_up_view_publish_url(inner_parsers):
         view_publish_url = inner_parsers.add_parser(
-            "publish-url", help="Show where this documentation will be published to."
+            "view-url", help="Show where this documentation will be published to."
         )
 
         _add_directory_argument(view_publish_url)

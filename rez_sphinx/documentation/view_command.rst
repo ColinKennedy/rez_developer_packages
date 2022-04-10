@@ -30,12 +30,10 @@ The ``rez_sphinx view package-help`` command lets you see what modifications
     :ref:`rez_sphinx.auto_help.sort_order`.
 
 
-TODO: Replace with "view-url", instead
+.. _rez_sphinx view view-url:
 
-.. _rez_sphinx view publish-url:
-
-rez_sphinx view publish-url
-***************************
+rez_sphinx view view-url
+************************
 
 This command can be used to check where your Rez package's documentation will
 point to after it is built, using `rez-build`_.
@@ -56,7 +54,7 @@ For example if you have a configuration like this:
         }
     }
 
-and then you call ``rez_sphinx view publish-url``, the command will output
+and then you call ``rez_sphinx view view-url``, the command will output
 
 ``https://SomeUserOrOrganization.github.io/your_package_name_here``.
 

@@ -365,7 +365,7 @@ class PackageHelp(unittest.TestCase):
 
 
 class PublishUrl(unittest.TestCase):
-    """Ensure :ref:`rez_sphinx view publish-url` works."""
+    """Ensure :ref:`rez_sphinx view view-url` works."""
 
     def test_get_url(self):
         """Get the URL where documentation will go to.
@@ -391,7 +391,7 @@ class PublishUrl(unittest.TestCase):
             }
 
             with wrapping.capture_pipes() as (stdout, _):
-                run_test.test("view publish-url")
+                run_test.test("view view-url")
 
             value = stdout.getvalue()
             stdout.close()
@@ -404,7 +404,7 @@ class PublishUrl(unittest.TestCase):
     def test_no_get_url(self):
         """Try to get a publish URL but fail because none is defined."""
         with self.assertRaises(exception.ConfigurationError):
-            run_test.test("view publish-url")
+            run_test.test("view view-url")
 
 
 class SphinxConf(unittest.TestCase):

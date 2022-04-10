@@ -158,7 +158,7 @@ The important details are:
   do that.
 
 Once you've added that, your rez_docbot configuration should be reading properly.
-You can double-check that by running :ref:`rez_sphinx view publish-url`.
+You can double-check that by running :ref:`rez_sphinx view view-url`.
 
 
 Adding Documentation Automatically

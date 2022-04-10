@@ -3,7 +3,6 @@ Using sphinx-rtd-theme
 ######################
 
 TODO make sure the tutorials in this page work
-TODO make sure that scope("config") doesn't accidentally apply to downstream Rez packages
 
 `readthedocs.io`_ has been a huge boon for the Python community. Its website
 front end for hosting documentation is a fantastic resource. It also open

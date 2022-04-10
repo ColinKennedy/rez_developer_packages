@@ -42,14 +42,14 @@ For more details on other available ``rez_docbot`` configurations, check out:
 
 .. code-block:: sh
 
-    rez-sphinx view publish-url
+    rez-sphinx view view-url
 
 It should print back ``"https://YourUserName.github.io/your_package_name"``.
 Note that ``{package.name}`` would be replaced with your current Rez package name.
 
 .. seealso::
 
-    :ref:`rez_sphinx view publish-url`
+    :ref:`rez_sphinx view view-url`
 
 - Now confirm the returned output of :ref:`rez_sphinx view repository-uri`
 

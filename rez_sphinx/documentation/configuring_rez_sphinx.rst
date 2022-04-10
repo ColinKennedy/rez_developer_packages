@@ -104,8 +104,6 @@ the ``<api/modules>`` part alone.
        },
    }
 
-TODO : Make unittest for this
-
 
 .. _rez_sphinx.auto_help.filter_by:
 
@@ -203,8 +201,6 @@ You can also specify **a list of possible keys**.
 
 However if you do, you must keep in mind the following details:
 
-TODO: Revisit this. Make sure we don't get from the current user environment
-
 - The first key is always used whenever you call :ref:`rez_sphinx init` in a package.
 - During :ref:`rez_sphinx build run` when the `intersphinx_mapping`_ is generated,
   the first key in the list defined in your `package.py`_ is used to query
@@ -238,9 +234,6 @@ Default: ``"documentation"``
    Several other places in :ref:`rez_sphinx` use this folder name while
    querying things about your documentation. But in general, :ref:`rez_sphinx`
    tries to not assume what the documentation is called, when it can.
-
-
-TODO: Add unittest
 
 
 .. _rez_sphinx.extra_requires:
@@ -507,8 +500,6 @@ Default: ``[]``
         },
     }
 
-TODO Add unittest
-
 
 .. _rez_sphinx.sphinx-apidoc.enable_apidoc:
 
@@ -559,8 +550,6 @@ using ``["--ext-coverage"]``.
             "sphinx-quickstart": ["--ext-coverage"],
         },
     }
-
-TODO Add unittest
 
 
 .. _rez_sphinx.sphinx_conf_overrides:
@@ -642,11 +631,3 @@ Default: ``"index"``
             }
         }
     }
-
-
-.. _rez_sphinx.sphinx_extensions:
-
-sphinx_extensions
-*****************
-
-TODO move this to sphinx_conf_overrides and make sure there's unittests for it.

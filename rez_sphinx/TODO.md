@@ -1,5 +1,3 @@
-- CI changes for rez_docbot
- - Check tests to pass
 - Make sure help doesn't replace any relative paths which actually exist in the package
  - Nor absolute paths
  - Allow manual paths to be replaced but only if they define a {root}
