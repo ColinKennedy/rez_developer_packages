@@ -278,6 +278,17 @@ def get_paths(schema):
                 #
                 outputs.add(key)
 
+            if extra_cases:
+                # Though child extra (exceptional) cases were found, they
+                # **parent** key is not an exception case! Since ``key`` is the
+                # parent in this situation, we must add it.
+                #
+                # e.g. "intersphinx_settings.package_link_map" is an
+                # exceptional case and here, we're adding
+                # "intersphinx_settings".
+                #
+                outputs.add(key)
+
             exceptional_cases.update(extra_cases)
 
             for inner_key in inner_output:
