@@ -138,8 +138,6 @@ def _run_sphinx_quickstart(directory, options=tuple()):
     _LOGGER.debug('Got sphinx-quickstart arguments "%s".', arguments)
     _LOGGER.info('Now running sphinx-quickstart in "%s" folder.', directory)
 
-    _check_for_existing_documentation(os.path.dirname(directory))
-
     _run_raw_sphinx_quickstart(arguments)
 
     source = doc_finder.get_source_from_directory(os.path.dirname(directory))
@@ -153,7 +151,7 @@ def _run_sphinx_quickstart(directory, options=tuple()):
     )
 
 
-def init(package, quick_start_options=tuple()):
+def init(package, quick_start_options=tuple(), skip_existing=False):
     """Connect a Rez source ``package`` to :ref:`rez_sphinx`.
 
     Warning:
@@ -167,6 +165,10 @@ def init(package, quick_start_options=tuple()):
         quick_start_options (list[str], optional):
             User-provided arguments to consider while resolving
             `sphinx-quickstart`_ values.
+        skip_existing (bool, optional):
+            If False, check for documentation and error if existing
+            documentation is found. If True, instead of erroring, do nothing
+            and return early.
 
     """
     initial_files = preference.get_initial_files_from_configuration()
@@ -181,12 +183,15 @@ def init(package, quick_start_options=tuple()):
     else:
         documentation_source_root = os.path.join(root, folder_name)
 
-    with wrapping.silence_printing():
-        if preference.SPHINX_SEPARATE_SOURCE_AND_BUILD in options:
-            quickstart_root = os.path.dirname(documentation_source_root)
-        else:
-            quickstart_root = documentation_source_root
+    if preference.SPHINX_SEPARATE_SOURCE_AND_BUILD in options:
+        quickstart_root = os.path.dirname(documentation_source_root)
+    else:
+        quickstart_root = documentation_source_root
 
+    if not skip_existing:
+        _check_for_existing_documentation(os.path.dirname(quickstart_root))
+
+    with wrapping.silence_printing():
         configuration_path = _run_sphinx_quickstart(quickstart_root, options=options)
 
     if preference.SPHINX_SEPARATE_SOURCE_AND_BUILD in options:

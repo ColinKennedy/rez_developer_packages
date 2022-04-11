@@ -219,7 +219,11 @@ def _init(namespace):
 
     _LOGGER.debug('Found "%s" Rez package.', package.name)
 
-    initer.init(package, quick_start_options=namespace.quick_start_arguments)
+    initer.init(
+        package,
+        quick_start_options=namespace.quick_start_arguments,
+        skip_existing=namespace.skip_existing,
+    )
 
 
 def _list_default(namespace):
@@ -501,6 +505,11 @@ def _set_up_init(sub_parsers):
         dest="quick_start_arguments",
         help="Anything you'd like to send for sphinx-quickstart. "
         'e.g. "--ext-coverage"',
+    )
+    init.add_argument(
+        "--skip-existing",
+        action="store_true",
+        help="Do nothing (don't error) if the Rez package has documentation.",
     )
     init.set_defaults(execute=_init)
     _add_directory_argument(init)

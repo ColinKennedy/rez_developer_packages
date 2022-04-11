@@ -2,7 +2,6 @@
 	- name
 	- version
 	- push_url (if installed)
-	- rez_sphinx init needs a --skip-existing flag
 	- rez_sphinx suggest build-order needs to be able to query "has initialized but not released"
 		- add this customization as a flag, somewhere
 
