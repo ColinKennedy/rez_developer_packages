@@ -132,10 +132,13 @@ builds. To do that, prefer :ref:`global configuration` or :ref:`per-package
 configuration`.
 
 
+All Options
+***********
+
 .. _rez_sphinx.api_toctree_line:
 
 api_toctree_line
-****************
+================
 
 When API documentation is built during :ref:`rez_sphinx build run`, this
 setting controls what get's added to your documentation's `toctree`_.
@@ -157,7 +160,7 @@ the ``<api/modules>`` part alone.
 .. _rez_sphinx.auto_help.filter_by:
 
 auto_help.filter_by
-*******************
+===================
 
 Part of :ref:`rez_sphinx`'s features is that it can auto-generate your `package
 help`_ automatically. If you have an existing `help`_ attribute already
@@ -189,7 +192,7 @@ Options:
 .. _rez_sphinx.auto_help.sort_order:
 
 auto_help.sort_order
-********************
+====================
 
 This setting is similar to :ref:`rez_sphinx.auto_help.filter_by`. However
 :ref:`rez_sphinx.auto_help.filter_by` defines what :ref:`rez_sphinx` should do
@@ -218,7 +221,7 @@ Options:
 .. _rez_sphinx.build_documentation_key:
 
 build_documentation_key
-***********************
+=======================
 
 Whenever you run :ref:`rez_sphinx init`, a new key is added to `rez tests
 attribute`_, ``build_documentation``. As mentioned in many other documentation
@@ -261,7 +264,7 @@ However if you do, you must keep in mind the following details:
 .. _rez_sphinx.documentation_root:
 
 documentation_root
-******************
+==================
 
 When you run :ref:`rez_sphinx init`, we need a preferred folder name where the
 initial documentation files will be placed into. This setting controls the name
@@ -288,7 +291,7 @@ Default: ``"documentation"``
 .. _rez_sphinx.extra_requires:
 
 extra_requires
-**************
+==============
 
 If you want to use `sphinx-rtd-theme`_ to make your documentation pretty, In
 order for Rez to "see" it, you would need to add it to every Rez resolve where
@@ -329,7 +332,7 @@ example, see :doc:`using_sphinx_rtd_theme` for details.
 .. _rez_sphinx.init_options.check_default_files:
 
 init_options.check_default_files
-********************************
+================================
 
 In general, :ref:`rez_sphinx` tries to get out of the user's way and make
 documentation as fast as possible.  The one exception to that is a pre-build
@@ -366,7 +369,7 @@ files. You can do that, using :ref:`rez_sphinx.init_options.default_files`.
 .. _default file entries:
 
 init_options.default_files
-**************************
+==========================
 
 By default, `sphinx-quickstart`_ adds a `index.rst`_ when your project is first
 generated. :ref:`rez_sphinx` does a little extra and adds a
@@ -475,7 +478,7 @@ Again, for more explanation on your options, check out :class:`.Entry`.
 .. _rez_sphinx.intersphinx_settings.package_link_map:
 
 intersphinx_settings.package_link_map
-*************************************
+=====================================
 
 If you're trying to link your Rez package to another Rez package, but that
 package cannot be editted (it could be a third-party PyPI package or
@@ -504,7 +507,7 @@ doesn't define the documentation properly,
 .. _rez_sphinx.sphinx-apidoc.allow_apidoc_templates:
 
 sphinx-apidoc.allow_apidoc_templates
-************************************
+====================================
 
 This is already covered in :ref:`rez_sphinx apidoc templates` but basically, in
 Python 3+, there's an option to make the Sphinx's `toctree`_ look much cleaner.
@@ -527,7 +530,7 @@ Sphinx 2.2+. Adding this setting in Python 2 does nothing.
 .. _rez_sphinx.sphinx-apidoc.arguments:
 
 sphinx-apidoc.arguments
-***********************
+=======================
 
 Raw terminal arguments you can pass directly to `sphinx-apidoc`_. These
 arguments get referenced and called during :ref:`rez_sphinx build run`, just
@@ -553,7 +556,7 @@ Default: ``[]``
 .. _rez_sphinx.sphinx-apidoc.enable_apidoc:
 
 sphinx-apidoc.enable_apidoc
-***************************
+===========================
 
 Just before documentation is built, :ref:`rez_sphinx build run` generates API
 documentation .rst files based on the Python files for your package that it
@@ -581,7 +584,7 @@ Default: ``True``
 .. _sphinx-quickstart customization:
 
 sphinx-quickstart
-*****************
+=================
 
 TODO: Make this consistent with other options
 
@@ -604,7 +607,7 @@ using ``["--ext-coverage"]``.
 .. _rez_sphinx.sphinx_conf_overrides:
 
 sphinx_conf_overrides
-*********************
+=====================
 
 This setting allows you to change in a `Sphinx conf.py`_. See `conf.py
 customization` for a full list of the supported variables and what each of them do.
@@ -623,7 +626,7 @@ customization` for a full list of the supported variables and what each of them 
 .. _rez_sphinx.sphinx_conf_overrides.add_module_names:
 
 sphinx_conf_overrides.add_module_names
-**************************************
+======================================
 
 When you document with `Sphinx`_ it prefers to render API function names with
 the full namespace, like this:
@@ -656,7 +659,7 @@ If you don't like this decision, use this setting to revert it:
 .. _rez_sphinx.sphinx_conf_overrides.master_doc:
 
 sphinx_conf_overrides.master_doc
-********************************
+================================
 
 When you open documentation in `Sphinx`_, one .rst file must serve as the
 "starting point" that all other documentation is based on. In web terms, you
