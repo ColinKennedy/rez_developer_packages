@@ -8,8 +8,9 @@ out :doc:`test_preference_configuration`.
 
 import unittest
 
-from rez_sphinx.preferences import preference
 import schema
+
+from rez_sphinx.preferences import preference
 
 from ..common import package_wrap, run_test
 
@@ -179,7 +180,11 @@ class GetSphinxExtensions(unittest.TestCase):
             self.assertEqual(expected, preference.get_sphinx_extensions())
 
         run_test.clear_caches()
-        default = ["sphinx.ext.autodoc", "sphinx.ext.intersphinx", "sphinx.ext.viewcode"]
+        default = [
+            "sphinx.ext.autodoc",
+            "sphinx.ext.intersphinx",
+            "sphinx.ext.viewcode",
+        ]
         self.assertEqual(default, preference.get_sphinx_extensions())
 
     def test_package(self):

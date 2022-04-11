@@ -4,6 +4,7 @@ import os
 import unittest
 
 from python_compatibility import wrapping
+
 from rez_sphinx.preferences import preference, preference_help
 
 from ..common import run_test
@@ -31,14 +32,16 @@ class Environment(unittest.TestCase):
         """Set a list preference."""
         run_test.clear_caches()
         self.assertEqual(
-            ['sphinx.ext.autodoc', 'sphinx.ext.intersphinx', 'sphinx.ext.viewcode'],
+            ["sphinx.ext.autodoc", "sphinx.ext.intersphinx", "sphinx.ext.viewcode"],
             preference.get_sphinx_extensions(),
         )
 
         run_test.clear_caches()
 
         with wrapping.keep_os_environment():
-            os.environ["REZ_SPHINX_SPHINX_CONF_OVERRIDES_EXTENSIONS"] = "['foo', 'bar', 'thing']"
+            os.environ[
+                "REZ_SPHINX_SPHINX_CONF_OVERRIDES_EXTENSIONS"
+            ] = "['foo', 'bar', 'thing']"
             self.assertEqual(
                 ["foo", "bar", "thing"],
                 preference.get_sphinx_extensions(),

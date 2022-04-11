@@ -1,10 +1,10 @@
 """Make sure :ref:`rez_sphinx init` works as expected."""
 
 import os
+import shutil
+import stat
 import tempfile
 import unittest
-import stat
-import shutil
 
 from python_compatibility import wrapping
 from rez_utilities import finder

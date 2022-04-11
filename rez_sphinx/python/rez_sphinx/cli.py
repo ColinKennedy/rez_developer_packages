@@ -214,7 +214,7 @@ def _init(namespace):
     if not os.path.isfile(os.path.join(directory, "package.py")):
         raise exception.BadPackage(
             'Package "{package.name}" is not a package.py file. '
-            'This command requires a Rez package.py.'.format(package=package)
+            "This command requires a Rez package.py.".format(package=package)
         )
 
     _LOGGER.debug('Found "%s" Rez package.', package.name)
@@ -516,7 +516,9 @@ def _set_up_publish(sub_parsers):
             appended onto.
 
     """
-    description = "Build & Send your documentation to the network. Requires rez_docbot to function.",
+    description = (
+        "Build & Send your documentation to the network. Requires rez_docbot to function.",
+    )
 
     publish = sub_parsers.add_parser(
         "publish",
@@ -547,7 +549,9 @@ def _set_up_suggest(sub_parsers):
     """
 
     def _set_up_build_order(inner_parsers):
-        description = "Find and print the Rez packages that need rez_sphinx documentation."
+        description = (
+            "Find and print the Rez packages that need rez_sphinx documentation."
+        )
         build_order = inner_parsers.add_parser(
             "build-order",
             description=description,
@@ -641,7 +645,9 @@ def _set_up_view(sub_parsers):
     """
 
     def _set_up_view_conf(inner_parsers):
-        description = "Show your documentation's Sphinx conf.py settings. Useful for debugging!"
+        description = (
+            "Show your documentation's Sphinx conf.py settings. Useful for debugging!"
+        )
 
         view_conf = inner_parsers.add_parser(
             "sphinx-conf",

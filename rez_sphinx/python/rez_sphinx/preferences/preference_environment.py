@@ -10,7 +10,6 @@ from six.moves import collections_abc
 
 from ..core import schema_optional
 
-
 _ENVIRONMENT_PREFIX = "REZ_SPHINX_"
 _ENVIRONMENT_SEPARATOR = "_"
 SEPARATOR = "."
@@ -50,7 +49,9 @@ def _get_default(location, schema):
             if isinstance(key, schema.Use):
                 continue
 
-            raise NotImplementedError('Key "{key}" is currently unsupported.'.format(key=key))
+            raise NotImplementedError(
+                'Key "{key}" is currently unsupported.'.format(key=key)
+            )
 
     current = schema
 
@@ -200,7 +201,9 @@ def get_overrides(schema):
         key = parts[-1]
         type_context = _get_default(parts, schema)
 
-        if not isinstance(type_context, schema_.Use) and not inspect.isclass(type_context):
+        if not isinstance(type_context, schema_.Use) and not inspect.isclass(
+            type_context
+        ):
             type_context = type_context.__class__
 
         # Construct the parent location and read the environment variable
@@ -227,6 +230,7 @@ def get_paths(schema):
             order to fully resolve.
 
     """
+
     def _get_mapping(mapping, context):
         outputs = set()
         exceptional_cases = set()

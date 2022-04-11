@@ -505,7 +505,9 @@ def bootstrap(data, package=None, skip=frozenset()):
     authors = package.authors or []
     master_document = preference.get_master_document_name(package=package) or "index"
     title = "{package.name} Documentation".format(package=package)
-    description = package.description or "{package.name} Documentation".format(package=package)
+    description = package.description or "{package.name} Documentation".format(
+        package=package
+    )
 
     if _AUTHOR not in skip:
         # Note: Not sure if ", " separation is expected. I couldn't find

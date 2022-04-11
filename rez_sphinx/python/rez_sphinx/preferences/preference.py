@@ -20,7 +20,12 @@ except ImportError:
     from backports.functools_lru_cache import lru_cache
 
 from ..core import constant, exception, generic, schema_helper, schema_optional
-from . import preference_configuration, preference_environment, preference_help, preference_init
+from . import (
+    preference_configuration,
+    preference_environment,
+    preference_help,
+    preference_init,
+)
 
 _DOCUMENTATION_DEFAULT = "documentation"
 

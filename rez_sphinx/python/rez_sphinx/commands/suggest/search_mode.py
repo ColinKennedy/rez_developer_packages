@@ -75,7 +75,9 @@ def _installed(root):
         list[rez.packages.Package]: Every found package.
 
     """
-    paths = [path for path in glob.glob(os.path.join(root, "*", "*")) if os.path.isdir(path)]
+    paths = [
+        path for path in glob.glob(os.path.join(root, "*", "*")) if os.path.isdir(path)
+    ]
 
     return _get_packages(paths)
 
