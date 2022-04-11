@@ -26,7 +26,19 @@ class Environment(unittest.TestCase):
 
     def test_dict(self):
         """Set a dict preference."""
-        raise ValueError()
+        run_test.clear_caches()
+        self.assertEqual({}, preference.get_package_link_map())
+
+        expected = {"foo": "bar"}
+        run_test.clear_caches()
+
+        with wrapping.keep_os_environment():
+            os.environ["REZ_SPHINX_INTERSPHINX_SETTINGS"] = repr(
+                {
+                    "package_link_map": expected,
+                }
+            )
+            self.assertEqual(expected, preference.get_package_link_map())
 
     def test_list(self):
         """Set a list preference."""
@@ -56,12 +68,11 @@ class Environment(unittest.TestCase):
         )
 
         expected = "blah"
-
         run_test.clear_caches()
 
         with wrapping.keep_os_environment():
             os.environ["REZ_SPHINX_API_TOCTREE_LINE"] = expected
-            self.assertFalse(preference.allow_apidoc_templates())
+            self.assertEqual(expected, preference.get_master_api_documentation_line())
 
     def test_use(self):
         """Set a preference which has dynamic evaluation configured."""
