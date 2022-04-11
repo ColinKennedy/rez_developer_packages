@@ -159,7 +159,7 @@ def _read_variable(variable, type_context):
         parsed = ast.literal_eval('"' + os.environ[variable] + '"')
 
     if hasattr(type_context, "validate"):  # Types from :mod:`schema` use this method
-        return type_context.validate(parsed)
+        return parsed
 
     if callable(type_context):
         return type_context(parsed)
