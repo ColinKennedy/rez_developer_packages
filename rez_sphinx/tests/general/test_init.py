@@ -76,6 +76,18 @@ class Invalids(unittest.TestCase):
         with self.assertRaises(exception.DoesNotExist):
             run_test.test(["init", directory])
 
+    def test_no_package(self):
+        """Fail early if the user isn't in a Rez package."""
+        directory = package_wrap.make_directory("_test_no_package")
+
+        with self.assertRaises(exception.NoPackageFound):
+            run_test.test(["init", directory])
+
+    # TODO : Consider whether or not to keep this check
+    # def test_no_python_files(self):
+    #     """Fail early if there aren't Python files."""
+    #     raise ValueError()
+
     def test_quickstart_arguments(self):
         """Fail early if `sphinx-quickstart`_ flags are invalid."""
         package = package_wrap.make_simple_developer_package()
@@ -90,18 +102,6 @@ class Invalids(unittest.TestCase):
 
             with self.assertRaises(exception.SphinxExecutionError):
                 run_test.test(["init", directory])
-
-    def test_no_package(self):
-        """Fail early if the user isn't in a Rez package."""
-        directory = package_wrap.make_directory("_test_no_package")
-
-        with self.assertRaises(exception.NoPackageFound):
-            run_test.test(["init", directory])
-
-    # TODO : Consider whether or not to keep this check
-    # def test_no_python_files(self):
-    #     """Fail early if there aren't Python files."""
-    #     raise ValueError()
 
 
 class QuickStartOptions(unittest.TestCase):
