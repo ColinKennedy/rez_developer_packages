@@ -23,8 +23,9 @@ _LOGGER = logging.getLogger(__name__)
 class PublishDocumentation(release_hook.ReleaseHook):
     """The class which runs pre-release / post-release methods.
 
-    - On pre-release: Add help keys (See :doc:`auto_append_help_tags`).
-    - On post-release: Publish the documentation to remote (See :doc:`publish_command`).
+    - On pre-release: Add help keys (See :ref:`auto_append_help_tags`).
+    - On post-release: Publish the documentation to remote (See
+      :ref:`rez_sphinx publish run`).
 
     """
 

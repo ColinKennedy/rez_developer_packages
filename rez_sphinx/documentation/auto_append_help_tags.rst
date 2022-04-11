@@ -1,3 +1,5 @@
+.. _auto_append_help_tags:
+
 Adding Documentation Automatically
 **********************************
 

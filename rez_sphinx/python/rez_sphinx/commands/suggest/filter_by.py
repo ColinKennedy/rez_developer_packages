@@ -3,8 +3,8 @@ import logging
 import six
 from rez_utilities import finder
 
-from ..core import constant, sphinx_helper
-from ..preferences import preference
+from ...core import constant, sphinx_helper
+from ...preferences import preference
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -150,6 +150,7 @@ def get_mode_by_name(name):
 
 
 _DEFAULT_KEY = "none"
+DEFAULT = _no_filter
 OPTIONS = {
     _DEFAULT_KEY: _no_filter,
     "already_ran": _existing_documentation,
