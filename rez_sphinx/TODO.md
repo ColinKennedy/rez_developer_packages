@@ -5,7 +5,6 @@
 	- rez_sphinx init needs a --skip-existing flag
 	- rez_sphinx suggest build-order needs to be able to query "has initialized but not released"
 		- add this customization as a flag, somewhere
-	- Need to be able to edit via environment variables
 
 - Consider adding refs to "documentation source root" so people know what I'm talking about
 - Consider adding refs to "documentation build root" so people know what I'm talking about

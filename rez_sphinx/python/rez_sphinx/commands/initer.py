@@ -66,6 +66,27 @@ def _add_initial_files(root, entries):
     sphinx_helper.add_links_to_a_tree(lines, master_index)
 
 
+def _check_for_existing_documentation(directory):
+    """Fail if ``directory`` already has source documentation.
+
+    Args:
+        directory (str): The root directory of your source Rez package.
+
+    Raises:
+        RezSphinxException: If documentation already exists.
+
+    """
+    try:
+        doc_finder.get_source_from_directory(directory)
+    except RuntimeError:
+        # The package directory doesn't have documentation exists. Just ignore it.
+        return
+
+    raise exception.RezSphinxException(
+        'Directory "{directory}" already has documentation.'.format(directory=directory)
+    )
+
+
 def _run_raw_sphinx_quickstart(arguments):
     """Call `sphinx-quickstart`_ as if it were from the terminal, using ``arguments``.
 
@@ -116,6 +137,8 @@ def _run_sphinx_quickstart(directory, options=tuple()):
 
     _LOGGER.debug('Got sphinx-quickstart arguments "%s".', arguments)
     _LOGGER.info('Now running sphinx-quickstart in "%s" folder.', directory)
+
+    _check_for_existing_documentation(os.path.dirname(directory))
 
     _run_raw_sphinx_quickstart(arguments)
 

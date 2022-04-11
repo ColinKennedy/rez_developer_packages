@@ -43,6 +43,15 @@ class Init(unittest.TestCase):
 class Invalids(unittest.TestCase):
     """Make sure :ref:`rez_sphinx init` fails when it's supposed to fail."""
 
+    def test_already_ran(self):
+        """Fail early if documentation already exists."""
+        package = package_wrap.make_simple_developer_package()
+        directory = finder.get_package_root(package)
+        run_test.test(["init", directory])
+
+        with self.assertRaises(exception.RezSphinxException):
+            run_test.test(["init", directory])
+
     def test_bad_package(self):
         """Check if a non-``package.py`` Rez source package file was given."""
         directory = package_wrap.make_directory("_test_bad_package")
