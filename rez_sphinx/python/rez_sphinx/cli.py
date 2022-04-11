@@ -341,9 +341,12 @@ def _set_up_build(sub_parsers):
     """
 
     def _add_build_run_parser(command):
+        description = "Generates documentation from your .rst files."
+
         build_runner = command.add_parser(
             "run",
-            help="Generates documentation from your .rst files.",
+            description=description,
+            help=description,
         )
         _add_directory_argument(build_runner)
         choices = sorted(api_builder.MODES, key=operator.attrgetter("label"))
@@ -372,9 +375,8 @@ def _set_up_build(sub_parsers):
 
         _add_remainder_argument(build_runner)
 
-    build = sub_parsers.add_parser(
-        "build", help="Compile Sphinx documentation from a Rez package."
-    )
+    description = "Compile Sphinx documentation from a Rez package."
+    build = sub_parsers.add_parser("build", description=description, help=description)
     command = build.add_subparsers(dest="command")
     command.required = True
     _add_build_run_parser(command)
@@ -401,9 +403,11 @@ def _set_up_config(sub_parsers):
 
     def _set_up_list_default(inner_parser):
         """Define the parser for :ref:`rez_sphinx config list-defaults`."""
+        description = "Show the rez_sphinx's default settings."
         list_default = inner_parser.add_parser(
             "list-defaults",
-            help="Show the rez_sphinx's default settings.",
+            description=description,
+            help=description,
         )
         _add_format_argument(list_default)
         list_default.add_argument(
@@ -415,10 +419,14 @@ def _set_up_config(sub_parsers):
 
     def _set_up_list_overrides(inner_parser):
         """Define the parser for :ref:`rez_sphinx config list-overrides`."""
+        description = "Show non-default rez_sphinx's settings."
+
         list_overrides = inner_parser.add_parser(
             "list-overrides",
-            help="Show non-default rez_sphinx's settings.",
+            description=description,
+            help=description,
         )
+        _add_directory_argument(list_overrides)
         _add_format_argument(list_overrides)
         list_overrides.add_argument(
             "--sparse",
@@ -427,22 +435,31 @@ def _set_up_config(sub_parsers):
         )
         list_overrides.set_defaults(execute=_list_overrides)
 
+    description = "All commands related to rez_sphinx configuration settings."
     config = sub_parsers.add_parser(
         "config",
-        help="All commands related to rez_sphinx configuration settings.",
+        description=description,
+        help=description,
     )
     inner_parser = config.add_subparsers(dest="command")
     inner_parser.required = True
 
+    description = "Report if the current user's settings are valid."
+
     check = inner_parser.add_parser(
-        "check", help="Report if the current user's settings are valid."
+        "check",
+        description=description,
+        help=description,
     )
     _add_directory_argument(check)
     check.set_defaults(execute=_check)
 
+    description = "Print the value of any configuration attribute."
+
     show = inner_parser.add_parser(
         "show",
-        help="Print the value of any configuration attribute.",
+        description=description,
+        help=description,
     )
     show.add_argument(
         "names",
@@ -453,9 +470,12 @@ def _set_up_config(sub_parsers):
     _add_directory_argument(show)
     show.set_defaults(execute=_show)
 
+    description = "Print every possible configuration attribute."
+
     show_all = inner_parser.add_parser(
         "show-all",
-        help="Print every possible configuration attribute.",
+        description=description,
+        help=description,
     )
     _add_directory_argument(show_all)
     show_all.set_defaults(execute=_show_all)
@@ -473,9 +493,9 @@ def _set_up_init(sub_parsers):
             appended onto.
 
     """
-    init = sub_parsers.add_parser(
-        "init", help="Set up a Sphinx project in a Rez package."
-    )
+    description = "Set up a Sphinx project in a Rez package."
+
+    init = sub_parsers.add_parser("init", description=description, help=description)
     init.add_argument(
         "--quickstart-arguments",
         dest="quick_start_arguments",
@@ -496,16 +516,21 @@ def _set_up_publish(sub_parsers):
             appended onto.
 
     """
+    description = "Build & Send your documentation to the network. Requires rez_docbot to function.",
+
     publish = sub_parsers.add_parser(
         "publish",
-        help="Build & Send your documentation to the network. "
-        "Requires rez_docbot to function.",
+        help=description,
+        description=description,
     )
     inner_parsers = publish.add_subparsers(dest="command")
     inner_parsers.required = True
+
+    description = "Builds + publishs your documentation."
     publish_runner = inner_parsers.add_parser(
         "run",
-        help="Builds + publishs your documentation.",
+        description=description,
+        help=description,
     )
     _add_directory_argument(publish_runner)
     publish_runner.set_defaults(execute=_publish_run)
@@ -522,7 +547,12 @@ def _set_up_suggest(sub_parsers):
     """
 
     def _set_up_build_order(inner_parsers):
-        build_order = inner_parsers.add_parser("build-order")
+        description = "Find and print the Rez packages that need rez_sphinx documentation."
+        build_order = inner_parsers.add_parser(
+            "build-order",
+            description=description,
+            help=description,
+        )
         build_order.add_argument(
             "directories",
             default=config_.packages_path,  # pylint: disable=no-member
@@ -570,7 +600,12 @@ def _set_up_suggest(sub_parsers):
         build_order.set_defaults(execute=_build_order)
 
     def _set_up_preprocess_help(inner_parsers):
-        preprocess_help = inner_parsers.add_parser("preprocess-help")
+        description = "Generate an automated Rez help attribute. This command is for internal use."
+        preprocess_help = inner_parsers.add_parser(
+            "preprocess-help",
+            description=description,
+            help=description,
+        )
         preprocess_help.add_argument(
             "package_source_root",
             help="The directory where the source package.py lives.",
@@ -582,8 +617,11 @@ def _set_up_suggest(sub_parsers):
         )
         preprocess_help.set_defaults(execute=_preprocess_help)
 
+    description = "Check the order which packages should run."
     suggest = sub_parsers.add_parser(
-        "suggest", help="Check the order which packages should run."
+        "suggest",
+        description=description,
+        help=description,
     )
     inner_parsers = suggest.add_subparsers(dest="command")
     inner_parsers.required = True
@@ -603,10 +641,12 @@ def _set_up_view(sub_parsers):
     """
 
     def _set_up_view_conf(inner_parsers):
+        description = "Show your documentation's Sphinx conf.py settings. Useful for debugging!"
+
         view_conf = inner_parsers.add_parser(
             "sphinx-conf",
-            help="Show your documentation's Sphinx conf.py settings. "
-            "Useful for debugging!",
+            description=description,
+            help=description,
         )
 
         view_conf.add_argument(
@@ -621,34 +661,47 @@ def _set_up_view(sub_parsers):
         view_conf.set_defaults(execute=_view_conf)
 
     def _set_up_view_package_help(inner_parsers):
+        description = (
+            "Display the `help` attribute of the package, on-build / on-release. "
+            "Useful for debugging."
+        )
+
         view_package_help = inner_parsers.add_parser(
             "package-help",
-            help="Display the `help` attribute of the package, on-build / on-release. "
-            "Useful for debugging.",
+            description=description,
+            help=description,
         )
 
         _add_directory_argument(view_package_help)
         view_package_help.set_defaults(execute=_view_package_help)
 
     def _set_up_view_repository_uri(inner_parsers):
+        description = "The location where build documentation is published to."
         repository_uri = inner_parsers.add_parser(
             "repository-uri",
-            help="The location where build documentation is published to.",
+            description=description,
+            help=description,
         )
 
         _add_directory_argument(repository_uri)
         repository_uri.set_defaults(execute=_view_repository_uri)
 
     def _set_up_view_view_url(inner_parsers):
+        description = "Show where you can view this published documentation."
         view_publish_url = inner_parsers.add_parser(
-            "view-url", help="Show where you can view this published documentation."
+            "view-url",
+            description=description,
+            help=description,
         )
 
         _add_directory_argument(view_publish_url)
         view_publish_url.set_defaults(execute=_view_publish_url)
 
+    description = "Check the order which packages should run."
     view = sub_parsers.add_parser(
-        "view", help="Check the order which packages should run."
+        "view",
+        description=description,
+        help=description,
     )
     inner_parsers = view.add_subparsers(dest="command")
     inner_parsers.required = True

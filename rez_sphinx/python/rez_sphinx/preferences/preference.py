@@ -21,7 +21,7 @@ except ImportError:
     from backports.functools_lru_cache import lru_cache
 
 from ..core import constant, exception, generic, schema_helper, schema_optional
-from . import preference_configuration, preference_help, preference_init
+from . import preference_configuration, preference_environment, preference_help, preference_init
 
 _DOCUMENTATION_DEFAULT = "documentation"
 
@@ -170,6 +170,83 @@ def _get_preprocess_import_path():
     return "{_PREPROCESS_MODULE}.{_PREPROCESS_FUNCTION}".format(
         _PREPROCESS_MODULE=_PREPROCESS_MODULE,
         _PREPROCESS_FUNCTION=_PREPROCESS_FUNCTION,
+    )
+
+
+def _get_schema_preference_paths():
+    """Get every preference path that depends on a schema.
+
+    Returns:
+        tuple[set[str], set[str]]:
+            Every preference path, split into two sets. The first set contains
+            "normal" preference paths which have no dynamic content. The second
+            set has at least some content that must be provided by the user in
+            order to fully resolve.
+
+    """
+    def _get_mapping(mapping, context):
+        outputs = set()
+        exceptional_cases = set()
+
+        for key, value in mapping.items():
+            if isinstance(key, schema.Optional):
+                key = schema_optional.get_raw_key(key)
+
+            if isinstance(key, schema.Use):
+                # We wouldn't really know how to handle this situation. Just ignore it.
+                exceptional_cases.add(context)
+
+                continue
+
+            if not isinstance(value, collections_abc.Mapping):
+                if not isinstance(key, six.string_types):
+                    # We wouldn't really know how to handle this situation.
+                    # Just ignore it.
+                    #
+                    exceptional_cases.add(context)
+                else:
+                    outputs.add(key)
+
+                continue
+
+            inner_context = key
+
+            if context:
+                inner_context = "{context}{_PREFERENCE_DICT_SEPARATOR}{key}".format(
+                    context=context,
+                    _PREFERENCE_DICT_SEPARATOR=_PREFERENCE_DICT_SEPARATOR,
+                    key=key,
+                )
+
+            inner_output, extra_cases = _get_mapping(value, inner_context)
+
+            if not inner_output:
+                # When this happens, it's because a nested object is empty by
+                # default. We still want the context key, in this case.
+                #
+                # e.g. "intersphinx_settings.package_link_map"
+                #
+                outputs.add(key)
+
+            exceptional_cases.update(extra_cases)
+
+            for inner_key in inner_output:
+                if isinstance(inner_key, schema.Optional):
+                    inner_key = schema_optional.get_raw_key(inner_key)
+
+                outputs.add(
+                    "{key}{_PREFERENCE_DICT_SEPARATOR}{inner_key}".format(
+                        key=key,
+                        _PREFERENCE_DICT_SEPARATOR=_PREFERENCE_DICT_SEPARATOR,
+                        inner_key=inner_key,
+                    )
+                )
+
+        return outputs, exceptional_cases
+
+    return _get_mapping(
+        _MASTER_SCHEMA._schema,  # pylint: disable=protected-access
+        context="",
     )
 
 
@@ -473,6 +550,9 @@ def get_base_settings(package=None):
         dict[str, object]: The found :ref:`rez_sphinx` configuration settings.
 
     """
+    overrides = preference_environment.get_overrides(_MASTER_SCHEMA.schema)
+    raise ValueError(overrides)
+
     if hasattr(package, _PACKAGE_CONFIGURATION_ATTRIBUTE):
         config = _override_rez_configuration(package)
     else:
@@ -769,66 +849,6 @@ def get_preference_paths(package=None):
 
     """
 
-    def _get_mapping(mapping, context):
-        outputs = set()
-        exceptional_cases = set()
-
-        for key, value in mapping.items():
-            if isinstance(key, schema.Optional):
-                key = schema_optional.get_raw_key(key)
-
-            if isinstance(key, schema.Use):
-                # We wouldn't really know how to handle this situation. Just ignore it.
-                exceptional_cases.add(context)
-
-                continue
-
-            if not isinstance(value, collections_abc.Mapping):
-                if not isinstance(key, six.string_types):
-                    # We wouldn't really know how to handle this situation.
-                    # Just ignore it.
-                    #
-                    exceptional_cases.add(context)
-                else:
-                    outputs.add(key)
-
-                continue
-
-            inner_context = key
-
-            if context:
-                inner_context = "{context}{_PREFERENCE_DICT_SEPARATOR}{key}".format(
-                    context=context,
-                    _PREFERENCE_DICT_SEPARATOR=_PREFERENCE_DICT_SEPARATOR,
-                    key=key,
-                )
-
-            inner_output, extra_cases = _get_mapping(value, inner_context)
-
-            if not inner_output:
-                # When this happens, it's because a nested object is empty by
-                # default. We still want the context key, in this case.
-                #
-                # e.g. "intersphinx_settings.package_link_map"
-                #
-                outputs.add(key)
-
-            exceptional_cases.update(extra_cases)
-
-            for inner_key in inner_output:
-                if isinstance(inner_key, schema.Optional):
-                    inner_key = schema_optional.get_raw_key(inner_key)
-
-                outputs.add(
-                    "{key}{_PREFERENCE_DICT_SEPARATOR}{inner_key}".format(
-                        key=key,
-                        _PREFERENCE_DICT_SEPARATOR=_PREFERENCE_DICT_SEPARATOR,
-                        inner_key=inner_key,
-                    )
-                )
-
-        return outputs, exceptional_cases
-
     def _expand_cases(cases):
         """Convert ``["foo.bar.thing"]`` into ``["foo", "foo.bar", "foo.bar.thing"]."""
         output = []
@@ -841,10 +861,7 @@ def get_preference_paths(package=None):
 
         return output
 
-    output, exceptional_cases = _get_mapping(
-        _MASTER_SCHEMA._schema,  # pylint: disable=protected-access
-        context="",
-    )
+    output, exceptional_cases = _get_schema_preference_paths()
 
     if not exceptional_cases:
         return output
