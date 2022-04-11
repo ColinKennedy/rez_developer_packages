@@ -630,7 +630,7 @@ def _set_up_suggest(sub_parsers):
         )
         preprocess_help.set_defaults(execute=_preprocess_help)
 
-    description = "Check the order which packages should run."
+    description = "Debugging utilities for rez_sphinx."
     suggest = sub_parsers.add_parser(
         "suggest",
         description=description,
@@ -712,7 +712,11 @@ def _set_up_view(sub_parsers):
         _add_directory_argument(view_publish_url)
         view_publish_url.set_defaults(execute=_view_publish_url)
 
-    description = "Check the order which packages should run."
+    description = (
+        'Resolve and display the data rez_sphinx sees during execution. '
+        'These values are "ground truth".'
+    )
+
     view = sub_parsers.add_parser(
         "view",
         description=description,
