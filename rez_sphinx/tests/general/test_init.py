@@ -8,6 +8,7 @@ import unittest
 
 from python_compatibility import wrapping
 from rez_utilities import finder
+from six.moves import mock
 
 from rez_sphinx.core import configuration, exception
 
@@ -111,6 +112,25 @@ class Invalids(unittest.TestCase):
 
             with self.assertRaises(exception.SphinxExecutionError):
                 run_test.test(["init", directory])
+
+
+class Options(unittest.TestCase):
+    """Make sure :ref:`rez_sphinx init` flags work as expected."""
+
+    def test_skip_existing(self):
+        """Don't run anything if documention exists. But don't fail, either."""
+        package = package_wrap.make_simple_developer_package()
+        directory = finder.get_package_root(package)
+        run_test.test(["init", directory])
+
+        with mock.patch(
+            "rez_sphinx.commands.initer._check_for_existing_documentation",
+        ) as patch, mock.patch(
+            "rez_sphinx.commands.initer._run_raw_sphinx_quickstart",
+        ):
+            run_test.test(["init", directory, "--skip-existing"])
+
+        self.assertEqual(1, patch.call_count)
 
 
 class QuickStartOptions(unittest.TestCase):
