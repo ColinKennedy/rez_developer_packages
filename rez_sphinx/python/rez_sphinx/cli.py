@@ -517,7 +517,7 @@ def _set_up_publish(sub_parsers):
 
     """
     description = (
-        "Build & Send your documentation to the network. Requires rez_docbot to function.",
+        "Build & Send your documentation to the network. Requires rez_docbot to function."
     )
 
     publish = sub_parsers.add_parser(
