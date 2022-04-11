@@ -16,12 +16,20 @@ If you want to add documentation in-batch, the steps are very similar to
 - cd to the root of some git repository containing **source** Rez packages
 - Run this in the terminal:
 
+TODO : double-check that this script works
+
 .. code-block:: sh
 
+    # add_rez_sphinx.sh
     export REZ_SPHINX_INIT_OPTIONS_CHECK_DEFAULT_FILES=0
 
-    directories=`rez_sphinx suggest build-order . --search-mode source --display-as directories`
-    root=$PWD
+    message="Added rez_sphinx documentation"
+    directories=`rez_sphinx suggest build-order . --search-mode source --display-as directories --filter already_released`
+    root=`git rev-parse --show-toplevel`
+    branch=features/adding_rez_sphinx
+
+    cd $root
+    git checkout -b $branch
 
     for directory in $directories
     do
@@ -31,12 +39,75 @@ If you want to add documentation in-batch, the steps are very similar to
         package_version=`get_package_version`  # TODO : Need this
 
         rez-build --clean --install
-        rez-env $package_name==$package_version rez_sphinx -- rez_sphinx init
-        rez-release -m "Added rez_sphinx documentation"
+        rez-env '$package_name==$package_version' rez_sphinx -- rez_sphinx init --skip-existing
+        git add --all .
+        git commit -m $message
+        # Uncomment the line below if you're extra cool ;)
+        # git push -u origin $branch && rez-release -m $message
     done
 
-    cd $root
-    git add --all
-    git commit -m "Added rez_sphinx documentation everywhere"
+    git push -u origin $branch
 
-    unset REZ_SPHINX_INIT_OPTIONS_CHECK_DEFAULT_FILES
+The jist of the script is, cd to every Rez package, run ``rez_sphinx init`` and
+push the branch. Assuming you followed :doc:`rez_sphinx_as_a_release_hook`, the
+next time any of those packages are released via `rez-release`_, you'll have
+beautiful documentation waiting for you. The script assumes you want to place
+your changes under a new feature branch called ``features/adding_rez_sphinx``
+so you can make PR(s) as needed. There's the option to run this all in the
+master branch too, if you want but exercise common sense and don't do that
+without prior approval.
+
+
+When You're Ready To Release
+****************************
+
+Assuming you go through PR, everything's merged into master, and you're ready
+to release. This script will automate that.
+
+TODO : double-check that this script works
+
+.. code-block:: sh
+
+    export REZ_SPHINX_INIT_OPTIONS_CHECK_DEFAULT_FILES=0
+
+    message="Added rez_sphinx documentation"
+    directories=`rez_sphinx suggest build-order . --search-mode source --display-as directories --filter already_released`
+
+    root=`git rev-parse --show-toplevel`
+    cd $root
+
+    for directory in $directories
+    do
+        cd $directory
+        rez-release -m $message
+    done
+
+
+Why This Script Works
+*********************
+
+The long command at the start, ``rez_sphinx suggest build-order . etc etc etc``
+determines
+
+- Does the package need documentation
+- Is the Rez package already released with documentation
+
+If either condition is False, the package's path is returned.
+
+Then during the for-loop, ``rez_sphinx init --skip-existing`` stops early if it
+sees documentation (rez_sphinx documentation or not). If it doesn't have
+documentation, it's added. From there, you have the option to just push /
+release / etc.
+
+
+After releasing
+***************
+
+Remember: When you batch `rez-release`_d, you did it with ``export
+REZ_SPHINX_INIT_OPTIONS_CHECK_DEFAULT_FILES=0``. Assuming you haven't changed
+your default configuration to :ref:`always ignore default files
+<rez_sphinx.init_options.check_default_files>` (which by the way is **not**
+recommended), that means the default files are still uneditted. Make sure to
+tell maintainers to add hand-written documentation to the default files,
+"developer_documentation.rst" and "user_documentation.rst", so they future
+`rez-release`_ don't error on them!
