@@ -27,8 +27,8 @@ If you want to add documentation in-batch, the steps are very similar to
     do
         cd $directory
 
-        package_name=`get_package_name`
-        package_version=`get_package_version`
+        package_name=`get_package_name`  # TODO : Need this
+        package_version=`get_package_version`  # TODO : Need this
 
         rez-build --clean --install
         rez-env $package_name==$package_version rez_sphinx -- rez_sphinx init

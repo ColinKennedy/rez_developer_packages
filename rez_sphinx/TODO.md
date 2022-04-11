@@ -1,6 +1,16 @@
+# Batch processing TODO
+	- name
+	- version
+	- push_url (if installed)
+	- rez_sphinx init needs a --skip-existing flag
+	- rez_sphinx suggest build-order needs to be able to query "has initialized but not released"
+		- add this customization as a flag, somewhere
+	- Need to be able to edit via environment variables
+
 - Consider adding refs to "documentation source root" so people know what I'm talking about
 - Consider adding refs to "documentation build root" so people know what I'm talking about
 - Need to ensure docbot's logger is set properly when used as a bolt-in for rez_sphinx
+
 
 - If people try to define objects.inv `help` manually and make a mistake and point directly to objects.inv instead of the folder, crop it to the real directory / URL path
 
