@@ -13,7 +13,6 @@ from rez import exceptions as rez_exceptions
 from rez import plugin_managers
 from rez.config import config as config_
 from rez.utils import execution
-from six.moves import collections_abc
 
 try:
     from functools import lru_cache  # Python 3.2+
@@ -153,8 +152,6 @@ _MASTER_SCHEMA = schema.Schema(
     }
 )
 
-_PREFERENCE_DICT_SEPARATOR = "."
-
 _HOOK_DEBUG_KEY = "hook"
 _PREPROCESS_DEBUG_KEY = "preprocess"
 _PREPROCESS_FUNCTION = "run"
@@ -170,83 +167,6 @@ def _get_preprocess_import_path():
     return "{_PREPROCESS_MODULE}.{_PREPROCESS_FUNCTION}".format(
         _PREPROCESS_MODULE=_PREPROCESS_MODULE,
         _PREPROCESS_FUNCTION=_PREPROCESS_FUNCTION,
-    )
-
-
-def _get_schema_preference_paths():
-    """Get every preference path that depends on a schema.
-
-    Returns:
-        tuple[set[str], set[str]]:
-            Every preference path, split into two sets. The first set contains
-            "normal" preference paths which have no dynamic content. The second
-            set has at least some content that must be provided by the user in
-            order to fully resolve.
-
-    """
-    def _get_mapping(mapping, context):
-        outputs = set()
-        exceptional_cases = set()
-
-        for key, value in mapping.items():
-            if isinstance(key, schema.Optional):
-                key = schema_optional.get_raw_key(key)
-
-            if isinstance(key, schema.Use):
-                # We wouldn't really know how to handle this situation. Just ignore it.
-                exceptional_cases.add(context)
-
-                continue
-
-            if not isinstance(value, collections_abc.Mapping):
-                if not isinstance(key, six.string_types):
-                    # We wouldn't really know how to handle this situation.
-                    # Just ignore it.
-                    #
-                    exceptional_cases.add(context)
-                else:
-                    outputs.add(key)
-
-                continue
-
-            inner_context = key
-
-            if context:
-                inner_context = "{context}{_PREFERENCE_DICT_SEPARATOR}{key}".format(
-                    context=context,
-                    _PREFERENCE_DICT_SEPARATOR=_PREFERENCE_DICT_SEPARATOR,
-                    key=key,
-                )
-
-            inner_output, extra_cases = _get_mapping(value, inner_context)
-
-            if not inner_output:
-                # When this happens, it's because a nested object is empty by
-                # default. We still want the context key, in this case.
-                #
-                # e.g. "intersphinx_settings.package_link_map"
-                #
-                outputs.add(key)
-
-            exceptional_cases.update(extra_cases)
-
-            for inner_key in inner_output:
-                if isinstance(inner_key, schema.Optional):
-                    inner_key = schema_optional.get_raw_key(inner_key)
-
-                outputs.add(
-                    "{key}{_PREFERENCE_DICT_SEPARATOR}{inner_key}".format(
-                        key=key,
-                        _PREFERENCE_DICT_SEPARATOR=_PREFERENCE_DICT_SEPARATOR,
-                        inner_key=inner_key,
-                    )
-                )
-
-        return outputs, exceptional_cases
-
-    return _get_mapping(
-        _MASTER_SCHEMA._schema,  # pylint: disable=protected-access
-        context="",
     )
 
 
@@ -337,22 +257,7 @@ def _get_quick_start_overridable_options(overrides=tuple()):
     return output
 
 
-def _override_rez_configuration(package):
-    """Add the configuration using the contents of ``package``.
-
-    Args:
-        package (rez.packages.Package):
-            A source / installed Rez package to query values from.
-
-    Returns:
-        rez.config.Config: The copied, overwritten configuration.
-
-    """
-    overrides = {
-        _REZ_OPTIONVARS: {
-            _MASTER_KEY: getattr(package, _PACKAGE_CONFIGURATION_ATTRIBUTE)
-        }
-    }
+def _copy_with_overrides(overrides, config):
     config = config_.copy(overrides=overrides)
 
     # TODO : Not sure why I need to this for optionvars to "take" properly.
@@ -363,6 +268,22 @@ def _override_rez_configuration(package):
         del config.__dict__[_REZ_OPTIONVARS]
 
     return config
+
+
+def _override_configuration(data, package):
+    """Add the configuration using the contents of ``package``.
+
+    Args:
+        package (rez.packages.Package):
+            A source / installed Rez package to query values from.
+
+    Returns:
+        rez.config.Config: The copied, overwritten configuration.
+
+    """
+    overrides = {_REZ_OPTIONVARS: {_MASTER_KEY: data}}
+
+    return _copy_with_overrides(overrides, config_)
 
 
 def _validate_api_options(options):
@@ -550,14 +471,20 @@ def get_base_settings(package=None):
         dict[str, object]: The found :ref:`rez_sphinx` configuration settings.
 
     """
-    overrides = preference_environment.get_overrides(_MASTER_SCHEMA.schema)
-    raise ValueError(overrides)
-
+    # 1. Read package overrides, if any
     if hasattr(package, _PACKAGE_CONFIGURATION_ATTRIBUTE):
-        config = _override_rez_configuration(package)
+        overrides = getattr(package, _PACKAGE_CONFIGURATION_ATTRIBUTE)
+        config = _override_configuration(overrides, config_)
     else:
         config = config_
 
+    # 2. Prefer environment variable overrides, if any
+    overrides = preference_environment.get_overrides(_MASTER_SCHEMA.schema)
+
+    if overrides:
+        config = _override_configuration(overrides, config)
+
+    # 3. Get all combined, resolved rez_sphinx values, if any
     if hasattr(config, "optionvars"):
         rez_user_options = config.optionvars  # pylint: disable=no-member
     else:
@@ -565,6 +492,7 @@ def get_base_settings(package=None):
 
     data = rez_user_options.get(_MASTER_KEY) or {}
 
+    # 4. Check that the found data (if any), is valid. And return it
     return _validate_all(data)
 
 
@@ -801,14 +729,14 @@ def get_preference_from_path(path, package=None):
     if not path:
         return rez_sphinx_settings
 
-    parts = path.split(_PREFERENCE_DICT_SEPARATOR)
+    parts = path.split(preference_environment.SEPARATOR)
     current = rez_sphinx_settings
     full = ""
 
     for item in parts:
         if full:
-            full += "{_PREFERENCE_DICT_SEPARATOR}{item}".format(
-                _PREFERENCE_DICT_SEPARATOR=_PREFERENCE_DICT_SEPARATOR,
+            full += "{preference_environment}{item}".format(
+                preference_environment=preference_environment,
                 item=item,
             )
         else:
@@ -854,14 +782,16 @@ def get_preference_paths(package=None):
         output = []
 
         for case in cases:
-            parts = case.split(_PREFERENCE_DICT_SEPARATOR)
+            parts = case.split(preference_environment.SEPARATOR)
 
             for index in range(1, len(parts) + 1):
-                output.append(_PREFERENCE_DICT_SEPARATOR.join(parts[:index]))
+                output.append(preference_environment.SEPARATOR.join(parts[:index]))
 
         return output
 
-    output, exceptional_cases = _get_schema_preference_paths()
+    output, exceptional_cases = preference_environment.get_paths(
+        _MASTER_SCHEMA._schema,  # pylint: disable=protected-access
+    )
 
     if not exceptional_cases:
         return output

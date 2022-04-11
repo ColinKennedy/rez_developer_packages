@@ -10,10 +10,14 @@ needs.
    Every setting here can be queried at any time using the :ref:`rez_sphinx
    config show-all` command.
 
-There's two main ways to configure documentation:
+There's 3 ways to configure documentation:
+
+(This list is "weakest to strongest order". Global is weakest, environment
+variable is strongest)
 
 - Globally, using :ref:`global configuration`
 - Within an individual package, using :ref:`per-package configuration`
+- Using :ref:`environment variable configuration`
 
 Which method you choose will depend on what your intended effect is and your
 pipeline's constraints. This page serves as a guide to both explain every
@@ -51,10 +55,8 @@ As mentioned in other sections, this page assumes that you're changing :ref:`rez
 configuration settings at the "global" level, using `optionvars`_. But you can
 also apply it on an individual Rez package, like so:
 
-TODO : Make sure this tutorial works
-
-- Define a new attribute called ``rez_sphinx`` in your `package.py`_
-- Add your settings to this ``rez_sphinx`` variable like you normally would.
+- Define a new attribute called ``rez_sphinx_configuration`` in your `package.py`_
+- Add your settings to this variable like you normally would.
 
 
 So if this is the "global" approach:
@@ -74,13 +76,60 @@ This is what the equivalent would look like, in a `package.py`_.
 
 .. code-block:: python
 
-    rez_sphinx = {
+    rez_sphinx_configuration = {
         "sphinx-apidoc": {
             "allow_apidoc_templates": False,
         },
     }
 
-and that's it. All sections in this page can be converted this way.
+and that's it. All settings in this page can be defined this way.
+
+
+.. _environment variable configuration:
+
+Environment Variable Configuration
+**********************************
+
+When you want to apply a setting temporarily to all packages, the best way to
+do it is to use an environment variable. It's surprisingly useful, in fact
+:doc:`batch_publish_documentation` shows how to temporarily disable
+:ref:`rez_sphinx.init_options.check_default_files`.
+
+For any configuration path in this page below, for example,
+:ref:`rez_sphinx.sphinx-apidoc.allow_apidoc_templates`
+
+- Convert all text to CAPITAL_CASE
+- Replace any "-" and "." with "_"
+- Add ``REZ_SPHINX_`` to the beginning.
+
+**Configuration value**: ``sphinx-apidoc.allow_apidoc_templates``
+
+**Environment variable**: ``REZ_SPHINX_SPHINX_APIDOC_ALLOW_APIDOC_TEMPLATES``
+
+Then set it as you normally would:
+
+.. code-block:: sh
+
+    export REZ_SPHINX_SPHINX_APIDOC_ALLOW_APIDOC_TEMPLATES=0
+
+To confirm that it worked, use :ref:`rez_sphinx config show`.
+
+.. code-block:: sh
+
+    rez_sphinx config show sphinx_apidoc.allow_apidoc_templates
+    # False
+
+Setting complex types like list and dictionaries is also okay. Here's another
+example:
+
+.. code-block:: sh
+
+    export REZ_SPHINX_SPHINX_CONF_OVERRIDES_EXTENSIONS="['foo', 'bar', 'thing']"
+
+And that's it. As mentioned, environment variables are useful for quick edits
+and scripting but likely shouldn't be relied upon to make simple, reproducable
+builds. To do that, prefer :ref:`global configuration` or :ref:`per-package
+configuration`.
 
 
 .. _rez_sphinx.api_toctree_line:
