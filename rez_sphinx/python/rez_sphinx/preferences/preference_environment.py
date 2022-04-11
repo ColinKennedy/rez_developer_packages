@@ -210,8 +210,11 @@ def get_overrides(schema):
         parent = _create_parent_defaults(tail, schema, overrides)
         value = _read_variable(variable, type_context)
 
-        # Set ``overides`` as needed
-        parent[tail[-1]][key] = value
+        # Set ``overrides`` as needed
+        if tail:
+            parent[tail[-1]][key] = value
+        else:
+            parent[key] = value
 
     return overrides
 
