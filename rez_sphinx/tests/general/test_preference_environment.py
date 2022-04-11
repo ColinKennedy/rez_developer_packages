@@ -4,7 +4,7 @@ import os
 import unittest
 
 from python_compatibility import wrapping
-from rez_sphinx.preferences import preference
+from rez_sphinx.preferences import preference, preference_help
 
 from ..common import run_test
 
@@ -62,6 +62,18 @@ class Environment(unittest.TestCase):
 
     def test_use(self):
         """Set a preference which has dynamic evaluation configured."""
-        raise ValueError()
-        # 'auto_help': {   'filter_by': Use(<function filter_generated at 0x7f084a6a7048>),
-        #                  'sort_order': Use(<function alphabetical at 0x7f084a6a1f28>)},
+        run_test.clear_caches()
+        self.assertEqual(
+            preference_help.DEFAULT_SORT._callable,
+            preference.get_sort_method(),
+        )
+
+        expected = "prefer_original"
+        run_test.clear_caches()
+
+        with wrapping.keep_os_environment():
+            os.environ["REZ_SPHINX_AUTO_HELP_SORT_ORDER"] = expected
+            self.assertEqual(
+                preference_help.OPTIONS[expected],
+                preference.get_sort_method(),
+            )

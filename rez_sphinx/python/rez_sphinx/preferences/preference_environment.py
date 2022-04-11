@@ -149,13 +149,20 @@ def _read_variable(variable, type_context):
         object: The parsed output.
 
     """
-    parsed = ast.literal_eval(os.environ[variable])
-
-    if callable(type_context):
-        return type_context(parsed)
+    try:
+        parsed = ast.literal_eval(os.environ[variable])
+    except ValueError:
+        # This may happen if the user sets a string environment variable
+        # without wrapping it in ""s. This is pretty common so we should just
+        # escape the string for them.
+        #
+        parsed = ast.literal_eval('"' + os.environ[variable] + '"')
 
     if hasattr(type_context, "validate"):  # Types from :mod:`schema` use this method
         return type_context.validate(parsed)
+
+    if callable(type_context):
+        return type_context(parsed)
 
     raise NotImplementedError(
         'Context "{type_context}" is not written yet. Please add it!'.format(
@@ -193,7 +200,7 @@ def get_overrides(schema):
         key = parts[-1]
         type_context = _get_default(parts, schema)
 
-        if not inspect.isclass(type_context):
+        if not isinstance(type_context, schema_.Use) and not inspect.isclass(type_context):
             type_context = type_context.__class__
 
         # Construct the parent location and read the environment variable
