@@ -264,8 +264,18 @@ class Options(_Base):
 
         self.assertEqual(expected, value)
 
-    def test_include_existing(self):
-        """Show Rez packages in the output, even if they already have documentation."""
+    def test_filter_by_already_released(self):
+        """Filter out packages whose documentation are released.
+
+        Do not filter out un-released packages, even if they already have
+        documentation.
+
+        """
+        raise ValueError()
+
+    def test_filter_by_already_released(self):
+        raise ValueError()
+        raise ValueError('Do this one')
         root = os.path.join(_PACKAGE_ROOT, "_test_data", "existing_documentation")
         source_packages = os.path.join(root, "source_packages")
 
@@ -276,7 +286,46 @@ class Options(_Base):
                     "build-order",
                     source_packages,
                     "--display-as=names",
-                    "--include-existing",
+                    "--filter-by=none",
+                ]
+            )
+
+        include_existing_value = stdout.getvalue()
+        stdout.close()
+
+        with wrapping.capture_pipes() as (stdout, _):
+            run_test.test(
+                [
+                    "suggest",
+                    "build-order",
+                    source_packages,
+                    "--display-as=names",
+                ]
+            )
+
+        normal_value = stdout.getvalue()
+        stdout.close()
+
+        expected_normal = "#0: no_documentation"
+        expected_include_existing = "#0: has_documentation no_documentation"
+
+        self.assertEqual(expected_normal, normal_value.rstrip())
+        self.assertEqual(expected_include_existing, include_existing_value.rstrip())
+
+    def test_include_existing(self):
+        """Show Rez packages in the output, even if they already have documentation."""
+        raise ValueError('Do this one')
+        root = os.path.join(_PACKAGE_ROOT, "_test_data", "existing_documentation")
+        source_packages = os.path.join(root, "source_packages")
+
+        with wrapping.capture_pipes() as (stdout, _):
+            run_test.test(
+                [
+                    "suggest",
+                    "build-order",
+                    source_packages,
+                    "--display-as=names",
+                    "--filter-by=none",
                 ]
             )
 

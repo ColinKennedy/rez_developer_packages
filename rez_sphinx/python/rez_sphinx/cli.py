@@ -19,7 +19,7 @@ from rez_utilities import finder
 from .commands import build_orderer, initer, publish_run
 from .commands.builder import inspector
 from .commands.builder import runner as build_run
-from .commands.suggest import build_display, search_mode, suggestion_mode
+from .commands.suggest import build_display, filter_by, search_mode, suggestion_mode
 from .core import api_builder, environment, exception, path_control, print_format
 from .preferences import preference
 from .preprocess import hook
@@ -146,10 +146,9 @@ def _build_order(namespace):
     _LOGGER.info('Searching within "%s" for Rez packages.', normalized)
 
     searcher = search_mode.get_mode_by_name(namespace.search_mode)
+    filterer = filter_by.get_mode_by_name(namespace.filter)
     packages = build_orderer.collect_packages(normalized, searcher)
-
-    if not namespace.include_existing:
-        packages = build_orderer.filter_existing_documentation(packages)
+    packages = filterer(packages)
 
     # TODO : Add allow_cyclic support. Here or wherever makes the most sense
     suggestion_caller = suggestion_mode.get_mode_by_name(namespace.suggestion_mode)
@@ -588,12 +587,6 @@ def _set_up_suggest(sub_parsers):
             '"directories" points to the path on-disk to the Rez package.',
         )
         build_order.add_argument(
-            "--include-existing",
-            action="store_true",
-            default=False,
-            help="Packages which have documentation will be included in the results.",
-        )
-        build_order.add_argument(
             "--search-mode",
             choices=sorted(search_mode.CHOICES.keys()),
             default=search_mode.DEFAULT,
@@ -601,6 +594,12 @@ def _set_up_suggest(sub_parsers):
             '"source" searches the first folder down. '
             '"installed" searches the every 2 folders down. '
             '"recursive" searches everywhere for valid Rez packages.',
+        )
+        build_order.add_argument(
+            "--filter",
+            choices=sorted(filter_by.OPTIONS.keys()),
+            default=filter_by.DEFAULT,
+            help="All found Rez packages from --search-mode can be further reduced.",
         )
         build_order.add_argument(
             "--suggestion-mode",
