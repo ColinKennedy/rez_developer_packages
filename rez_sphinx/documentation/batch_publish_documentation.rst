@@ -103,11 +103,11 @@ release / etc.
 After releasing
 ***************
 
-Remember: When you batch `rez-release`_d, you did it with ``export
-REZ_SPHINX_INIT_OPTIONS_CHECK_DEFAULT_FILES=0``. Assuming you haven't changed
-your default configuration to :ref:`always ignore default files
-<rez_sphinx.init_options.check_default_files>` (which by the way is **not**
-recommended), that means the default files are still uneditted. Make sure to
-tell maintainers to add hand-written documentation to the default files,
-"developer_documentation.rst" and "user_documentation.rst", so they future
-`rez-release`_ don't error on them!
+**Important**: Whenever you choose to batch- `rez-release`_, remember that you
+did it with ``export REZ_SPHINX_INIT_OPTIONS_CHECK_DEFAULT_FILES=0``. Assuming
+you haven't changed your default configuration to :ref:`always ignore default
+files <rez_sphinx.init_options.check_default_files>` (which by the way is
+**not** recommended), that means the default files are still unedited. Make
+sure to tell maintainers to **add hand-written documentation** to the default
+files, "developer_documentation.rst" and "user_documentation.rst", so that
+future `rez-release`_ don't error on them!
