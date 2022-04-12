@@ -1,3 +1,6 @@
+- Tests need to pass
+
+
 # Batch processing TODO
 	- name
 	- version

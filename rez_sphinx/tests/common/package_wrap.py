@@ -17,6 +17,8 @@ from rez_sphinx.core import generic
 
 
 def _delete(path):
+    """Delete ``path``, even if it's set to read-only."""
+
     def _remove_read_only(function, path, exception):
         os.chmod(path, stat.S_IWRITE)
         function(path)

@@ -9,13 +9,14 @@ import unittest
 
 import schema
 import yaml
+from rez_utilities import finder
 from python_compatibility import wrapping
 from six.moves import mock
 
 from rez_sphinx.core import exception
 from rez_sphinx.preferences import preference, preference_help
 
-from ..common import run_test
+from ..common import package_wrap, run_test
 
 
 class Check(unittest.TestCase):
@@ -91,13 +92,20 @@ class ListDefault(unittest.TestCase):
                 "check_default_files": True,
             },
             "intersphinx_settings": {},
-            "sphinx-apidoc": {"allow_apidoc_templates": True, "enable_apidoc": True},
-            "sphinx_conf_overrides": {"add_module_names": False, "master_doc": "index"},
-            "sphinx_extensions": [
-                "sphinx.ext.autodoc",
-                "sphinx.ext.intersphinx",
-                "sphinx.ext.viewcode",
-            ],
+            "sphinx-apidoc": {
+                "allow_apidoc_templates": True,
+                "arguments": [],
+                "enable_apidoc": True,
+            },
+            "sphinx_conf_overrides": {
+                "extensions": [
+                    "sphinx.ext.autodoc",
+                    "sphinx.ext.intersphinx",
+                    "sphinx.ext.viewcode",
+                ],
+                "add_module_names": False,
+                "master_doc": "index",
+            },
             "sphinx-quickstart": [],
         }
 
@@ -143,9 +151,18 @@ class ListOverrides(unittest.TestCase):
 
     def test_applied_package(self):  # pylint: disable=no-self-use
         """Print all current, global + Rez package settings."""
-        raise ValueError("do it")
+        package = package_wrap.make_package_configuration(
+            {
+                "sphinx-apidoc": {
+                    "arguments": ["foo", "bar"],
+                },
+            }
+        )
+
+        root = finder.get_package_root(package)
+
         with _example_override(), wrapping.silence_printing():
-            run_test.test("config list-overrides")
+            run_test.test("config list-overrides '{root}'".format(root=root))
 
     def test_complex_types(self):
         """Make sure nested objects with non-dict types override correctly."""
@@ -256,6 +273,7 @@ class Show(unittest.TestCase):
                 sphinx-quickstart
                 sphinx_conf_overrides
                 sphinx_conf_overrides.add_module_names
+                sphinx_conf_overrides.extensions
                 sphinx_conf_overrides.master_doc
                 """
             ),

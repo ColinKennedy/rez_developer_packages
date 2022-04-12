@@ -149,10 +149,9 @@ def get_mode_by_name(name):
         )
 
 
-_DEFAULT_KEY = "none"
-DEFAULT = _no_filter
+DEFAULT = "none"
 OPTIONS = {
-    _DEFAULT_KEY: _no_filter,
+    DEFAULT: _no_filter,
     "already_ran": _existing_documentation,
     "already_released": _existing_release,
 }
