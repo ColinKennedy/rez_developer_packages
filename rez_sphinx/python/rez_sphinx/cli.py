@@ -524,9 +524,7 @@ def _set_up_publish(sub_parsers):
             appended onto.
 
     """
-    description = (
-        "Build & Send your documentation to the network. Requires rez_docbot to function."
-    )
+    description = "Build & Send your documentation to the network. Requires rez_docbot to function."
 
     publish = sub_parsers.add_parser(
         "publish",
@@ -712,7 +710,7 @@ def _set_up_view(sub_parsers):
         view_publish_url.set_defaults(execute=_view_publish_url)
 
     description = (
-        'Resolve and display the data rez_sphinx sees during execution. '
+        "Resolve and display the data rez_sphinx sees during execution. "
         'These values are "ground truth".'
     )
 

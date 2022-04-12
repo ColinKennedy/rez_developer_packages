@@ -1,9 +1,10 @@
 import os
 import logging
 import six
+from rez.config import config
 from rez_utilities import finder
 
-from ...core import constant, sphinx_helper
+from ...core import constant, exception, sphinx_helper
 from ...preferences import preference
 
 
@@ -87,6 +88,26 @@ def _in_help(label, help_):
     return any(entry_label == label for entry_label, _ in help_)
 
 
+def _is_installed(package, directory):
+    """Check if ``package`` is installed into ``directory``.
+
+    Args:
+        package (rez.packages.Package): A Rez package to check for.
+        directory (str): The root folder on-disk where released Rez packages live.
+
+    Returns:
+        bool: If the package is released somewhere.
+
+    """
+    version = str(package.version)
+
+    if not version:
+        # In the rare case that an installed Rez package is unversioned...
+        return os.path.isdir(os.path.join(directory, package.name))
+
+    return os.path.isdir(os.path.join(directory, package.name, version))
+
+
 def _existing_documentation(packages):
     """Remove any Rez package from ``packages`` which already has documentation.
 
@@ -111,15 +132,38 @@ def _existing_documentation(packages):
 def _existing_release(packages):
     output = []
 
+    release_path = config.release_packages_path
+
+    if not release_path:
+        raise exception.ConfigurationError("No configuration release path was defined.")
+
+    if not os.path.isdir(release_path):
+        # If the release path doesn't exist then ``packages`` cannot possibly
+        # be released to that location. Though we should warn the user, because
+        # it's likely user error if that ever happens.
+        #
+        _LOGGER.warning('release_packages_path "%s" doesn\'t exist.', release_path)
+
+        return packages
+
     for package in packages:
-        if not _has_documentation(package):
+        if not _is_installed(package, release_path):
             output.append(package)
 
     return output
 
 
-def _no_filter(package):
-    raise ValueError()
+def _no_filter(packages):
+    """Don't filter anything.
+
+    Args:
+        packages (iter[rez.packages.Packages]): The source / installed Rez packages.
+
+    Returns:
+        iter[rez.packages.Packages]: The original, unaltered Rez packages.
+
+    """
+    return packages
 
 
 def get_mode_by_name(name):
@@ -152,6 +196,6 @@ def get_mode_by_name(name):
 DEFAULT = "none"
 OPTIONS = {
     DEFAULT: _no_filter,
-    "already_ran": _existing_documentation,
+    "already_documented": _existing_documentation,
     "already_released": _existing_release,
 }

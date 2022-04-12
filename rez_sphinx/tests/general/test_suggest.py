@@ -8,6 +8,7 @@ import unittest
 
 from python_compatibility import wrapping
 from rez_utilities import finder
+from six.moves import mock
 
 from rez_sphinx.commands.suggest import suggestion_mode
 from rez_sphinx.core import exception
@@ -264,34 +265,55 @@ class Options(_Base):
 
         self.assertEqual(expected, value)
 
-    def test_filter_by_already_released(self):
-        """Filter out packages whose documentation are released.
+    def test_filter_already_documented(self):
+        """Remove Rez packages from output, if it already has documentation."""
+        root = os.path.join(_PACKAGE_ROOT, "_test_data", "existing_documentation")
+        source_packages = os.path.join(root, "source_packages")
 
-        Do not filter out un-released packages, even if they already have
-        documentation.
+        with wrapping.capture_pipes() as (stdout, _):
+            run_test.test(
+                [
+                    "suggest",
+                    "build-order",
+                    source_packages,
+                    "--display-as=names",
+                    "--filter=none",
+                ]
+            )
+
+        include_existing_value = stdout.getvalue()
+        stdout.close()
+
+        with wrapping.capture_pipes() as (stdout, _):
+            run_test.test(
+                [
+                    "suggest",
+                    "build-order",
+                    source_packages,
+                    "--display-as=names",
+                    "--filter=already_documented",
+                ]
+            )
+
+        normal_value = stdout.getvalue()
+        stdout.close()
+
+        expected_filtered = "#0: no_documentation"
+        expected_include_existing = "#0: has_documentation no_documentation"
+
+        self.assertEqual(expected_filtered, normal_value.rstrip())
+        self.assertEqual(expected_include_existing, include_existing_value.rstrip())
+
+    def test_filter_already_released(self):
+        """Hide Rez packages which were already released with documentation.
+
+        If the packages have documentation but aren't already released, those
+        packages must be printed. Therefore, ``--filter=already_released`` has
+        the same output as ``--filter=none`` if the packages are unreleased.
 
         """
-        raise ValueError()
-
-    def test_filter_by_already_released(self):
-        raise ValueError()
-        raise ValueError('Do this one')
         root = os.path.join(_PACKAGE_ROOT, "_test_data", "existing_documentation")
         source_packages = os.path.join(root, "source_packages")
-
-        with wrapping.capture_pipes() as (stdout, _):
-            run_test.test(
-                [
-                    "suggest",
-                    "build-order",
-                    source_packages,
-                    "--display-as=names",
-                    "--filter-by=none",
-                ]
-            )
-
-        include_existing_value = stdout.getvalue()
-        stdout.close()
 
         with wrapping.capture_pipes() as (stdout, _):
             run_test.test(
@@ -306,18 +328,6 @@ class Options(_Base):
         normal_value = stdout.getvalue()
         stdout.close()
 
-        expected_normal = "#0: no_documentation"
-        expected_include_existing = "#0: has_documentation no_documentation"
-
-        self.assertEqual(expected_normal, normal_value.rstrip())
-        self.assertEqual(expected_include_existing, include_existing_value.rstrip())
-
-    def test_include_existing(self):
-        """Show Rez packages in the output, even if they already have documentation."""
-        raise ValueError('Do this one')
-        root = os.path.join(_PACKAGE_ROOT, "_test_data", "existing_documentation")
-        source_packages = os.path.join(root, "source_packages")
-
         with wrapping.capture_pipes() as (stdout, _):
             run_test.test(
                 [
@@ -325,31 +335,36 @@ class Options(_Base):
                     "build-order",
                     source_packages,
                     "--display-as=names",
-                    "--filter-by=none",
+                    "--filter=already_released",
                 ]
             )
 
-        include_existing_value = stdout.getvalue()
+        released_value = stdout.getvalue()
         stdout.close()
 
-        with wrapping.capture_pipes() as (stdout, _):
+        with wrapping.capture_pipes() as (stdout, _), mock.patch(
+            "rez_sphinx.commands.suggest.filter_by._is_installed"
+        ) as _is_installed:
+            _is_installed.return_value = True
+
             run_test.test(
                 [
                     "suggest",
                     "build-order",
                     source_packages,
                     "--display-as=names",
+                    "--filter=already_released",
                 ]
             )
 
-        normal_value = stdout.getvalue()
+        mocked_released_value = stdout.getvalue()
         stdout.close()
 
-        expected_normal = "#0: no_documentation"
-        expected_include_existing = "#0: has_documentation no_documentation"
+        expected_normal = "#0: has_documentation no_documentation"
 
         self.assertEqual(expected_normal, normal_value.rstrip())
-        self.assertEqual(expected_include_existing, include_existing_value.rstrip())
+        self.assertEqual(normal_value, released_value)
+        self.assertEqual("", mocked_released_value)
 
     def test_search_recursive(self):
         """Look for Rez packages recursively, in an unknown folder structure."""
