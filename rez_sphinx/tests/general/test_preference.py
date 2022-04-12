@@ -137,6 +137,7 @@ class GetPreferencePaths(unittest.TestCase):
             "sphinx-apidoc.enable_apidoc",
             "sphinx-quickstart",
             "sphinx_conf_overrides",
+            "sphinx_conf_overrides.extensions",
             "sphinx_conf_overrides.add_module_names",
             "sphinx_conf_overrides.master_doc",
         }
