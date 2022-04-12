@@ -5,6 +5,7 @@ import functools
 import io
 import os
 import shutil
+import stat
 import tempfile
 import textwrap
 
@@ -15,6 +16,14 @@ from rez_utilities import creator, finder
 from rez_sphinx.core import generic
 
 
+def _delete(path):
+    def _remove_read_only(function, path, exception):
+        os.chmod(path, stat.S_IWRITE)
+        function(path)
+
+    shutil.rmtree(path, onerror=_remove_read_only)
+
+
 def _delete_later(directory):
     """Schedule ``directory`` for deletion.
 
@@ -22,7 +31,7 @@ def _delete_later(directory):
         directory (str): The absolute path to a folder on-disk to delete.
 
     """
-    atexit.register(functools.partial(shutil.rmtree, directory))
+    atexit.register(functools.partial(_delete, directory))
 
 
 def make_dependent_packages():
@@ -137,7 +146,7 @@ def make_package_configuration(configuration):
 
     """
     directory = tempfile.mkdtemp(suffix="_make_package_config")
-    atexit.register(functools.partial(shutil.rmtree, directory))
+    atexit.register(functools.partial(_delete, directory))
 
     template = textwrap.dedent(
         """\

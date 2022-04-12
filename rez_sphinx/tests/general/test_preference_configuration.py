@@ -300,7 +300,7 @@ class IntersphinxSettingsPackageLinkMap(unittest.TestCase):
 
     def test_package(self):
         """Set for a Rez source package."""
-        expected = {"foo": "https://bar.com/en/latest"}
+        expected = {"fizz": "https://buzz.com/en/latest"}
         package = package_wrap.make_package_configuration(
             {
                 "intersphinx_settings": {
@@ -310,7 +310,7 @@ class IntersphinxSettingsPackageLinkMap(unittest.TestCase):
         )
 
         run_test.clear_caches()
-        self.assertFalse(preference.get_package_link_map(package=package))
+        self.assertEqual(expected, preference.get_package_link_map(package=package))
 
 
 class SphinxApidocArguments(unittest.TestCase):

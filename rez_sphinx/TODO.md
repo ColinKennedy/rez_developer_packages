@@ -10,8 +10,9 @@
 - Need to ensure docbot's logger is set properly when used as a bolt-in for rez_sphinx
 
 
-- If people try to define objects.inv `help` manually and make a mistake and point directly to objects.inv instead of the folder, crop it to the real directory / URL path
-
+- If people try to define objects.inv `help` manually and make a mistake and
+  point directly to objects.inv instead of the folder, crop it to the real
+  directory / URL path
 
 
 - Do rez_docbot preferences unittests
