@@ -580,14 +580,6 @@ def bootstrap(data, package=None, skip=frozenset()):
         #
         data[_VERSION] = _get_major_minor_version(package.version)
 
-    overrides = {
-        key: value
-        for key, value in preference.get_sphinx_configuration_overrides(
-            package=package
-        ).items()
-        if key not in skip
-    }
-    _LOGGER.info('Got extra conf.py overrides "%s".', overrides)
-    data.update(overrides)
+    data = preference.merge_with_sphinx_overrides(data, package=package, skip=skip)
 
     return data

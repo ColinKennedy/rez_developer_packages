@@ -141,17 +141,27 @@ class QuickStartOptions(unittest.TestCase):
         package = package_wrap.make_simple_developer_package()
         directory = finder.get_package_root(package)
 
+        run_test.test("init {directory}".format(directory=directory))
+
+        default_sphinx = configuration.ConfPy.from_path(
+            os.path.join(directory, "documentation", "conf.py")
+        )
+
+        package = package_wrap.make_simple_developer_package()
+        directory = finder.get_package_root(package)
+
         run_test.test(
             "init {directory} --quickstart-arguments='--ext-coverage'".format(
                 directory=directory
             )
         )
 
-        sphinx = configuration.ConfPy.from_path(
+        quickstart_sphinx = configuration.ConfPy.from_path(
             os.path.join(directory, "documentation", "conf.py")
         )
 
-        self.assertIn("sphinx.ext.coverage", sphinx.get_extensions())
+        self.assertNotIn("sphinx.ext.coverage", default_sphinx.get_extensions())
+        self.assertIn("sphinx.ext.coverage", quickstart_sphinx.get_extensions())
 
     def test_cli_dash_separator(self):
         """Let the user change `sphinx-quickstart`_ options from a " -- "."""

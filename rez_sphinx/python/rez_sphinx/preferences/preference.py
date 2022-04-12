@@ -5,6 +5,7 @@ Most of these functions are just thin wraps around `rez-config`_ calls.
 """
 
 import itertools
+import logging
 import platform
 
 import schema
@@ -165,6 +166,8 @@ _PUBLISH_HOOK_CLASS_NAME = "publish_documentation"
 
 _PACKAGE_CONFIGURATION_ATTRIBUTE = "rez_sphinx_configuration"
 _REZ_OPTIONVARS = "optionvars"
+
+_LOGGER = logging.getLogger(__name__)
 
 
 def _get_preprocess_import_path():
@@ -918,6 +921,29 @@ def get_quick_start_options(package, options=tuple()):
 
     output.extend(_get_quick_start_overridable_options(settings))
     output.extend(options)
+
+    return output
+
+
+def merge_with_sphinx_overrides(data, package=None, skip=frozenset()):
+    overrides = {
+        key: value
+        for key, value in get_sphinx_configuration_overrides(
+            package=package
+        ).items()
+        if key not in skip
+    }
+
+    _LOGGER.info('Got extra conf.py overrides "%s".', overrides)
+
+    if (
+        _SPHINX_EXTENSIONS_VARIABLE in overrides
+        and set(overrides[_SPHINX_EXTENSIONS_VARIABLE]) == set(_BASIC_EXTENSIONS)
+    ):
+        del overrides[_SPHINX_EXTENSIONS_VARIABLE]
+
+    output = data.copy()
+    output.update(overrides)
 
     return output
 
