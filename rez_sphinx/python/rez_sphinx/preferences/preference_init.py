@@ -278,9 +278,6 @@ def _get_header_text_at(offset, lines):
 
     """
 
-    def _uses_one_character(text):
-        return len(set(text)) == 1
-
     def _get_underline_header_text(index, lines, line_length):
         after_index = index + 1
 
@@ -342,6 +339,31 @@ def _get_header_text_at(offset, lines):
     return ""
 
 
+def _has_help_label(text):
+    """Check if ``text`` describes a :ref:`rez_sphinx_help` line."""
+    return ":" in text
+
+
+def _uses_one_character(text):
+    """bool: Check if every character in ``text`` is the same."""
+    return len(set(text)) == 1
+
+
+def _get_help_label(text):
+    """Get the right-side of a :ref:`rez_sphinx_help`.
+
+    Args:
+        text (str): Some raw text from a Sphinx file. e.g. ``"rez_sphinx_help:Blah"``.
+
+    Returns:
+        str: The found label. e.g. ``"Blah"``
+
+    """
+    _, name = text.split(":")
+
+    return name
+
+
 def find_tags(lines):
     """Parse ``lines`` for :ref:`rez_sphinx tags <rez_sphinx tag>`.
 
@@ -358,8 +380,26 @@ def find_tags(lines):
         list[list[str, str]]: Each hard-coded label + "destination", if any.
 
     """
+
+    def _get_header(lines, count):
+        for index in range(count):
+            line = lines[index]
+            stripped = line.strip()
+
+            if not line or _IS_COMMENT.match(stripped):
+                break
+
+            if _uses_one_character(line):
+                continue
+
+            return _get_header_text_at(index, lines)
+
+        return ""
+
     output = []
     count = len(lines)
+
+    top_header = _get_header(lines, count)
 
     for index, line in enumerate(lines):
         if not _IS_COMMENT.match(line):
@@ -375,7 +415,11 @@ def find_tags(lines):
         if not next_line.startswith(_TAG_NAME):
             continue
 
-        _, name = next_line.split(":")
+        if _has_help_label(next_line):
+            name = _get_help_label(next_line)
+        else:
+            name = top_header
+
         destination = _get_header_text_at(next_index + 1, lines)
 
         output.append((name, destination))

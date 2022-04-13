@@ -1,21 +1,20 @@
-- Tests need to pass
+- If you just use ``rez_sphinx_help`` and omit the optional label after ":", the
+top-level header of that file is used as a label, instead.
+ - Make sure this works
+ - If there's no valid header found, use the current file name, instead
+- Need to ensure docbot's logger is set properly when used as a bolt-in for rez_sphinx
+- If people try to define objects.inv `help` manually and make a mistake and
+  point directly to objects.inv instead of the folder, crop it to the real
+  directory / URL path
 
 
 # Batch processing TODO
 	- name
 	- version
 	- push_url (if installed)
-	- rez_sphinx suggest build-order needs to be able to query "has initialized but not released"
-		- add this customization as a flag, somewhere
 
 - Consider adding refs to "documentation source root" so people know what I'm talking about
 - Consider adding refs to "documentation build root" so people know what I'm talking about
-- Need to ensure docbot's logger is set properly when used as a bolt-in for rez_sphinx
-
-
-- If people try to define objects.inv `help` manually and make a mistake and
-  point directly to objects.inv instead of the folder, crop it to the real
-  directory / URL path
 
 
 - Do rez_docbot preferences unittests
@@ -24,21 +23,11 @@
  - Nor absolute paths
  - Allow manual paths to be replaced but only if they define a {root}
 
-- When auto-publishing, make sure to try publishing through each publisher.
-  Don't just publish the first one found
-
-- Do a pass through existing TODO notes in rez_sphinx
-
 - Make the build_documentation fully optional
 - Possibly move rezplugins to its own folder, outside of the Python folder
 
 
 - silence build commands
-
-- If you just use ``rez_sphinx_help`` and omit the optional label after ":", the
-top-level header of that file is used as a label, instead.
- - Make sure this works
- - If there's no valid header found, use the current file name, instead
 
 - Check out why the "Skipping preprocessor because" message happens so much during rez_sphinx publish run
 

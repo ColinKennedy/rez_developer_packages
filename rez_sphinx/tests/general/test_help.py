@@ -391,6 +391,100 @@ class HelpScenarios(unittest.TestCase):
 
         self.assertEqual(expected, full_help)
 
+    def test_ref_role_use_top_header_001(self):
+        """Get the Sphinx top header and use that as a Rez `help`_ entry."""
+        # 1. Build the initial Rez package
+        package = package_wrap.make_simple_developer_package()
+        directory = finder.get_package_root(package)
+
+        # 2. Initialize the documentation
+        run_test.test(["init", directory])
+
+        # 3. Add a rez_sphinx over a Sphinx ref role.
+        _add_example_ref_role(
+            os.path.join(directory, "documentation"),
+            textwrap.dedent(
+                """\
+                ==========
+                Top Header
+                ==========
+
+                Text here
+
+                ..
+                    rez_sphinx_help
+
+                thing
+
+                Header Here
+                ===========
+                """
+            ),
+        )
+
+        # 3a. Simulate adding the pre-build hook to the user's Rez configuration.
+        # 4b. Re-build the Rez package and auto-append entries to the `help`_.
+        #
+        with _override_preprocess(package), mock.patch(
+            "rez_sphinx.core.environment.is_publishing_enabled"
+        ) as is_publishing_enabled:
+            is_publishing_enabled.return_value = False
+            full_help = hook.preprocess_help(directory, package.help)
+
+        expected = [
+            ["Developer Documentation", "{root}/developer_documentation.html"],
+            ["Top Header", "{root}/some_page.html"],
+            ["User Documentation", "{root}/user_documentation.html"],
+            ["rez_sphinx objects.inv", "{root}"],
+        ]
+
+        self.assertEqual(expected, full_help)
+
+    def test_ref_role_use_top_header_002(self):
+        """Use the Sphinx file name as a Rez `help`_ entry."""
+        # 1. Build the initial Rez package
+        package = package_wrap.make_simple_developer_package()
+        directory = finder.get_package_root(package)
+
+        # 2. Initialize the documentation
+        run_test.test(["init", directory])
+
+        # 3. Add a rez_sphinx over a Sphinx ref role.
+        _add_example_ref_role(
+            os.path.join(directory, "documentation"),
+            textwrap.dedent(
+                """\
+                Text here
+
+                ..
+                    rez_sphinx_help
+
+                thing
+
+                Header Here
+                ===========
+                """
+            ),
+        )
+
+        # 3a. Simulate adding the pre-build hook to the user's Rez configuration.
+        # 4b. Re-build the Rez package and auto-append entries to the `help`_.
+        #
+        with _override_preprocess(package), mock.patch(
+            "rez_sphinx.core.environment.is_publishing_enabled"
+        ) as is_publishing_enabled:
+            is_publishing_enabled.return_value = False
+            full_help = hook.preprocess_help(directory, package.help)
+
+        expected = [
+            ["Developer Documentation", "{root}/developer_documentation.html"],
+            ["asdfasdfasfd", "{root}/some_page.html"],
+            ["User Documentation", "{root}/user_documentation.html"],
+            ["rez_sphinx objects.inv", "{root}"],
+        ]
+
+        self.assertEqual(expected, full_help)
+
     def test_ref_role(self):
         """Use a custom Sphinx reference if the user explicitly added one."""
         # 1. Build the initial Rez package
