@@ -478,7 +478,7 @@ class HelpScenarios(unittest.TestCase):
 
         expected = [
             ["Developer Documentation", "{root}/developer_documentation.html"],
-            ["asdfasdfasfd", "{root}/some_page.html"],
+            ["Some Page", "{root}/some_page.html"],
             ["User Documentation", "{root}/user_documentation.html"],
             ["rez_sphinx objects.inv", "{root}"],
         ]

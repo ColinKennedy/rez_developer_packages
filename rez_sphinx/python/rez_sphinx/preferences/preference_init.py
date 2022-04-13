@@ -126,7 +126,7 @@ class Entry(object):
 
     def _get_title(self):
         """str: A human-friendly phrase to describe this instance, in documentation."""
-        return self._data.get("title") or _make_title(self._get_file_name())
+        return self._data.get("title") or make_title(self._get_file_name())
 
     def check_pre_build(self):
         """If True, make sure users have manually filled out the documentation.
@@ -427,7 +427,7 @@ def find_tags(lines):
     return output
 
 
-def _make_title(text):
+def make_title(text):
     """Convert some file name into a Human-friendly documentation phrase.
 
     Args:

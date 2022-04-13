@@ -66,6 +66,10 @@ def _find_help_labels(root):
         fallback_destination = fallback_name + constant.DOCUMENTATION_EXTENSION
 
         for label, destination in _get_rez_sphinx_tags(path):
+            if not label:
+                file_name = os.path.splitext(fallback_destination)[0]
+                label = preference_init.make_title(file_name)
+
             if not destination:
                 destination = fallback_destination
             else:

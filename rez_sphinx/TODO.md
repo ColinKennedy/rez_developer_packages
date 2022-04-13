@@ -1,7 +1,3 @@
-- If you just use ``rez_sphinx_help`` and omit the optional label after ":", the
-top-level header of that file is used as a label, instead.
- - Make sure this works
- - If there's no valid header found, use the current file name, instead
 - Need to ensure docbot's logger is set properly when used as a bolt-in for rez_sphinx
 - If people try to define objects.inv `help` manually and make a mistake and
   point directly to objects.inv instead of the folder, crop it to the real
