@@ -45,32 +45,17 @@ class _Base(unittest.TestCase):
 
         # 2. Initialize the documentation
         run_test.test(["init", directory])
-        install_path = package_wrap.make_directory("_AppendHelp_test")
 
         # 3a. Simulate adding the pre-build hook to the user's Rez configuration.
         # 4b. Re-build the Rez package and auto-append entries to the `help`_.
         #
         with _override_preprocess(package), mock.patch(
-            "rez_sphinx.preprocess.preprocess_entry_point._get_rez_sphinx_ephemerals"
-        ) as _get_rez_sphinx_ephemerals:
-            _get_rez_sphinx_ephemerals.return_value = set()
-            package = finder.get_nearest_rez_package(finder.get_package_root(package))
-            install_package = creator.build(package, install_path, quiet=True)
+            "rez_sphinx.core.environment.is_publishing_enabled"
+        ) as is_publishing_enabled:
+            is_publishing_enabled.return_value = False
+            full_help = hook.preprocess_help(directory, package.help)
 
-        # Note: Get the package, outside of the preprocess, so that we know for
-        # sure the values are written to disk.
-        #
-        install_package = developer_package.DeveloperPackage.from_path(
-            finder.get_package_root(install_package),
-        )
-
-        self.assertEqual(
-            expected,
-            install_package.help,
-            msg='Package "{install_path}" did not match the expected result.'.format(
-                install_path=install_path
-            ),
-        )
+        self.assertEqual(expected, full_help)
 
 
 class AppendHelp(_Base):
@@ -141,36 +126,14 @@ class AppendHelp(_Base):
                 ],
             )
 
-    def test_string(self):
-        """Add `package help`_ to a Rez package that has a single string entry."""
-        self._test(
-            [
-                [
-                    "Developer Documentation",
-                    "{root}/developer_documentation.html",
-                ],
-                ["Home Page", "A help thing"],
-                [
-                    "User Documentation",
-                    "{root}/user_documentation.html",
-                ],
-                ["rez_sphinx objects.inv", "{root}"],
-            ],
-            help_="A help thing",
-        )
-
     def test_list_ordered(self):
         """Add `package help`_ to a Rez package that has a list of entries."""
-        with wrapping.keep_os_environment():
-            os.environ["REZ_CONFIG_FILE"] = _make_configuration_file(
-                """\
-                optionvars = {
-                    "rez_sphinx": {
-                        "auto_help": {"sort_order": "prefer_original"}
-                    },
-                }
-                """
-            )
+        with run_test.keep_config() as config:
+            config.optionvars = {
+                "rez_sphinx": {
+                    "auto_help": {"sort_order": "prefer_original"}
+                },
+            }
 
             self._test(
                 [
@@ -214,18 +177,36 @@ class AppendHelp(_Base):
             [
                 [
                     "Developer Documentation",
-                    "some.website/versions/1.1/developer_documentation.html",
+                    "{root}/developer_documentation.html",
                 ],
                 [
                     "User Documentation",
-                    "some.website/versions/1.1/user_documentation.html",
+                    "{root}/user_documentation.html",
                 ],
                 [
                     "rez_sphinx objects.inv",
-                    "some.website/versions/1.1",
+                    "{root}",
                 ],
             ],
             help_=None,
+        )
+
+    def test_string(self):
+        """Add `package help`_ to a Rez package that has a single string entry."""
+        self._test(
+            [
+                [
+                    "Developer Documentation",
+                    "{root}/developer_documentation.html",
+                ],
+                ["Home Page", "A help thing"],
+                [
+                    "User Documentation",
+                    "{root}/user_documentation.html",
+                ],
+                ["rez_sphinx objects.inv", "{root}"],
+            ],
+            help_="A help thing",
         )
 
 
