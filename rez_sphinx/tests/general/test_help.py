@@ -1,8 +1,11 @@
 """Make sure the user's `package help`_ features work as expected."""
 
+import atexit
 import contextlib
+import functools
 import io
 import os
+import tempfile
 import textwrap
 import unittest
 
@@ -13,6 +16,7 @@ from rez_utilities import creator, finder
 from rez_sphinx.core import exception, generic
 from rez_sphinx.preferences import preference_help
 from rez_sphinx.preprocess import hook, preprocess_entry_point
+from six.moves import mock
 
 from ..common import package_wrap, run_test
 
@@ -46,8 +50,11 @@ class _Base(unittest.TestCase):
         # 3a. Simulate adding the pre-build hook to the user's Rez configuration.
         # 4b. Re-build the Rez package and auto-append entries to the `help`_.
         #
-        with _override_preprocess(package):
-            package = developer_package.DeveloperPackage.from_path(directory)
+        with _override_preprocess(package), mock.patch(
+            "rez_sphinx.preprocess.preprocess_entry_point._get_rez_sphinx_ephemerals"
+        ) as _get_rez_sphinx_ephemerals:
+            _get_rez_sphinx_ephemerals.return_value = set()
+            package = finder.get_nearest_rez_package(finder.get_package_root(package))
             install_package = creator.build(package, install_path, quiet=True)
 
         # Note: Get the package, outside of the preprocess, so that we know for
@@ -140,12 +147,12 @@ class AppendHelp(_Base):
             [
                 [
                     "Developer Documentation",
-                    os.path.join("{root}", "developer_documentation.html"),
+                    "{root}/developer_documentation.html",
                 ],
                 ["Home Page", "A help thing"],
                 [
                     "User Documentation",
-                    os.path.join("{root}", "user_documentation.html"),
+                    "{root}/user_documentation.html",
                 ],
                 ["rez_sphinx objects.inv", "{root}"],
             ],
@@ -154,10 +161,16 @@ class AppendHelp(_Base):
 
     def test_list_ordered(self):
         """Add `package help`_ to a Rez package that has a list of entries."""
-        with run_test.keep_config() as config:
-            config.optionvars["rez_sphinx"] = {
-                "auto_help": {"sort_order": "prefer_original"}
-            }
+        with wrapping.keep_os_environment():
+            os.environ["REZ_CONFIG_FILE"] = _make_configuration_file(
+                """\
+                optionvars = {
+                    "rez_sphinx": {
+                        "auto_help": {"sort_order": "prefer_original"}
+                    },
+                }
+                """
+            )
 
             self._test(
                 [
@@ -165,11 +178,11 @@ class AppendHelp(_Base):
                     ["A label", "thing"],
                     [
                         "Developer Documentation",
-                        os.path.join("{root}", "developer_documentation.html"),
+                        "{root}/developer_documentation.html",
                     ],
                     [
                         "User Documentation",
-                        os.path.join("{root}", "user_documentation.html"),
+                        "{root}/user_documentation.html",
                     ],
                     ["rez_sphinx objects.inv", "{root}"],
                 ],
@@ -544,6 +557,17 @@ def _add_example_ref_role(root, text=""):
 
     with io.open(os.path.join(root, "some_page.rst"), "w", encoding="utf-8") as handler:
         handler.write(generic.decode(text))
+
+
+def _make_configuration_file(text):
+    """Make a `rezconfig.py`_, using ``text``."""
+    _, path = tempfile.mkstemp(suffix="_make_configuration_file")
+    atexit.register(functools.partial(os.remove, path))
+
+    with io.open(path, "w", encoding="utf-8") as handler:
+        handler.write(textwrap.dedent(text))
+
+    return path
 
 
 @contextlib.contextmanager
