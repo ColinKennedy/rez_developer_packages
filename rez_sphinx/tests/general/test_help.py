@@ -318,6 +318,7 @@ class HelpScenarios(unittest.TestCase):
         # 4b. Re-build the Rez package and auto-append entries to the `help`_.
         #
         with _override_preprocess(package):
+            package = finder.get_nearest_rez_package(finder.get_package_root(package))
             creator.build(package, install_path, quiet=True)
 
         install_package = developer_package.DeveloperPackage.from_path(
@@ -328,8 +329,8 @@ class HelpScenarios(unittest.TestCase):
         )
 
         expected = [
-            ["Some Tag", os.path.join("{root}", "some_page.html#an-inner-header")],
-            ["rez_sphinx objects.inv", "{root}"],
+            ["Some Tag", "some.website/versions/1.1/some_page.html#an-inner-header"],
+            ["rez_sphinx objects.inv", "some.website/versions/1.1"],
         ]
 
         self.assertEqual(
