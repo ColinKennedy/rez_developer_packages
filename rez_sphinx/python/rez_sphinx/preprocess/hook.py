@@ -190,6 +190,10 @@ def preprocess_help(package_source_root, help_):  # pylint: disable=unused-argum
     """
     help_ = preprocess_entry_point.expand_help(help_)
 
+    # TODO : Double check if this function should be replaced with another one.
+    # I think the intent was "check if rez_sphinx is applied". But conf.py can
+    # come from anywhere. So it's not a great check for this.
+    #
     try:
         source_path = sphinx_helper.find_configuration_path(package_source_root)
     except RuntimeError:

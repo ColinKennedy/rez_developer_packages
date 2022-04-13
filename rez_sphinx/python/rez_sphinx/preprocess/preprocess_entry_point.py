@@ -19,6 +19,7 @@ from rez.vendor.schema import schema
 
 REZ_HELP_KEY = "help"
 _REZ_SPHINX_PACKAGE_FAMILY_NAME = "rez_sphinx"
+_REZ_SPHINX_EPHEMERALS = ".rez_sphinx."
 
 _SEEN = set()
 _DEFAULT_LABEL = "Home Page"
@@ -188,8 +189,9 @@ def _get_resolved_help(context, command):
     stdout, stderr = process.communicate()
 
     if process.returncode != 0:
-        _LOGGER.error("Process errored.")
+        _LOGGER.error("Process errored. Start")
         _LOGGER.error(stderr)
+        _LOGGER.error("Process errored. End")
 
         return []
 
@@ -201,6 +203,18 @@ def _get_resolved_help(context, command):
         return []
 
     return json.loads(stdout)
+
+
+def _get_rez_sphinx_ephemerals():
+    """set[str]: Get every ephemeral request related to :ref:`rez_sphinx`."""
+    if "REZ_USED_EPH_RESOLVE" not in os.environ:
+        return set()
+
+    return {
+        request
+        for request in os.environ["REZ_USED_EPH_RESOLVE"].split(" ")
+        if request.startswith(_REZ_SPHINX_EPHEMERALS)
+    }
 
 
 def _get_sphinx_context():
@@ -231,12 +245,12 @@ def _get_sphinx_context():
     # locally, if the explicitly want that)
     #
     request = [
-        ".rez_sphinx.feature.docbot_plugin==1",
         "{package.name}=={package.version}".format(  # pylint: disable=missing-format-attribute,line-too-long
             package=package
         ),
     ]
 
+    request.extend(_get_rez_sphinx_ephemerals())
     context = resolved_context.ResolvedContext(request)
 
     if context.success:
