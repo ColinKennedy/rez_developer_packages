@@ -12,11 +12,11 @@ import unittest
 from python_compatibility import wrapping
 from rez import developer_package
 from rez_utilities import creator, finder
+from six.moves import mock
 
 from rez_sphinx.core import exception, generic
 from rez_sphinx.preferences import preference_help
 from rez_sphinx.preprocess import hook, preprocess_entry_point
-from six.moves import mock
 
 from ..common import package_wrap, run_test
 
@@ -130,9 +130,7 @@ class AppendHelp(_Base):
         """Add `package help`_ to a Rez package that has a list of entries."""
         with run_test.keep_config() as config:
             config.optionvars = {
-                "rez_sphinx": {
-                    "auto_help": {"sort_order": "prefer_original"}
-                },
+                "rez_sphinx": {"auto_help": {"sort_order": "prefer_original"}},
             }
 
             self._test(

@@ -928,18 +928,15 @@ def get_quick_start_options(package, options=tuple()):
 def merge_with_sphinx_overrides(data, package=None, skip=frozenset()):
     overrides = {
         key: value
-        for key, value in get_sphinx_configuration_overrides(
-            package=package
-        ).items()
+        for key, value in get_sphinx_configuration_overrides(package=package).items()
         if key not in skip
     }
 
     _LOGGER.info('Got extra conf.py overrides "%s".', overrides)
 
-    if (
-        _SPHINX_EXTENSIONS_VARIABLE in overrides
-        and set(overrides[_SPHINX_EXTENSIONS_VARIABLE]) == set(_BASIC_EXTENSIONS)
-    ):
+    if _SPHINX_EXTENSIONS_VARIABLE in overrides and set(
+        overrides[_SPHINX_EXTENSIONS_VARIABLE]
+    ) == set(_BASIC_EXTENSIONS):
         del overrides[_SPHINX_EXTENSIONS_VARIABLE]
 
     output = data.copy()

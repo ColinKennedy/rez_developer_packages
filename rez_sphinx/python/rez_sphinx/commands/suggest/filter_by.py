@@ -1,12 +1,12 @@
-import os
 import logging
+import os
+
 import six
 from rez.config import config
 from rez_utilities import finder
 
 from ...core import constant, exception, sphinx_helper
 from ...preferences import preference
-
 
 _LOGGER = logging.getLogger(__name__)
 

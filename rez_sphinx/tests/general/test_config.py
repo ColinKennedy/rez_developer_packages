@@ -9,8 +9,8 @@ import unittest
 
 import schema
 import yaml
-from rez_utilities import finder
 from python_compatibility import wrapping
+from rez_utilities import finder
 from six.moves import mock
 
 from rez_sphinx.core import exception
