@@ -216,10 +216,11 @@ class BootstrapIntersphinx(unittest.TestCase):
         }
 
         with wrapping.silence_printing(), run_test.simulate_resolve(installed_packages):
-            with run_test.allow_defaults(), run_test.keep_config() as config:
+            with run_test.keep_config() as config:
                 config.optionvars = {
                     "rez_sphinx": {
                         "intersphinx_settings": {"package_link_map": fallback_map},
+                        "init_options": {"check_default_files": False},
                     },
                 }
 

@@ -312,34 +312,18 @@ class HelpScenarios(unittest.TestCase):
         # 3. Add a rez_sphinx over a Sphinx ref role.
         _add_example_ref_role(os.path.join(directory, "documentation"))
 
-        install_path = package_wrap.make_directory("_test_ref_role")
-
-        # 4a. Simulate adding the pre-build hook to the user's Rez configuration.
-        # 4b. Re-build the Rez package and auto-append entries to the `help`_.
-        #
-        with _override_preprocess(package):
-            package = finder.get_nearest_rez_package(finder.get_package_root(package))
-            creator.build(package, install_path, quiet=True)
-
-        install_package = developer_package.DeveloperPackage.from_path(
-            # `package` is 1.0.0 but we incremented the minor version during
-            # :ref:`rez_sphinx init`. So it's 1.1.0 now.
-            #
-            os.path.join(install_path, package.name, "1.1.0")
-        )
+        with _override_preprocess(package), mock.patch(
+            "rez_sphinx.core.environment.is_publishing_enabled"
+        ) as is_publishing_enabled:
+            is_publishing_enabled.return_value = False
+            full_help = hook.preprocess_help(directory, package.help)
 
         expected = [
-            ["Some Tag", "some.website/versions/1.1/some_page.html#an-inner-header"],
-            ["rez_sphinx objects.inv", "some.website/versions/1.1"],
+            ["Some Tag", "{root}/some_page.html#an-inner-header"],
+            ["rez_sphinx objects.inv", "{root}"],
         ]
 
-        self.assertEqual(
-            expected,
-            install_package.help,
-            msg='Package "{install_path}" did not match the expected result.'.format(
-                install_path=install_path
-            ),
-        )
+        self.assertEqual(expected, full_help)
 
     def test_ref_role_header_not_found(self):
         """Handle `package help`_ when a :ref:`rez_sphinx_help` tag has no destination.
@@ -389,37 +373,23 @@ class HelpScenarios(unittest.TestCase):
             ),
         )
 
-        install_path = package_wrap.make_directory("_test_ref_role_header_not_found")
-
-        # 4a. Simulate adding the pre-build hook to the user's Rez configuration.
+        # 3a. Simulate adding the pre-build hook to the user's Rez configuration.
         # 4b. Re-build the Rez package and auto-append entries to the `help`_.
         #
-        with _override_preprocess(package):
-            creator.build(package, install_path, quiet=True)
-
-        install_package = developer_package.DeveloperPackage.from_path(
-            # `package` is 1.0.0 but we incremented the minor version during
-            # :ref:`rez_sphinx init`. So it's 1.1.0 now.
-            #
-            os.path.join(install_path, package.name, "1.1.0")
-        )
-
-        join = os.path.join
+        with _override_preprocess(package), mock.patch(
+            "rez_sphinx.core.environment.is_publishing_enabled"
+        ) as is_publishing_enabled:
+            is_publishing_enabled.return_value = False
+            full_help = hook.preprocess_help(directory, package.help)
 
         expected = [
-            ["Developer Documentation", join("{root}", "developer_documentation.html")],
-            ["Some Tag", join("{root}", "some_page.html")],
-            ["User Documentation", join("{root}", "user_documentation.html")],
+            ["Developer Documentation", "{root}/developer_documentation.html"],
+            ["Some Tag", "{root}/some_page.html"],
+            ["User Documentation", "{root}/user_documentation.html"],
             ["rez_sphinx objects.inv", "{root}"],
         ]
 
-        self.assertEqual(
-            expected,
-            install_package.help,
-            msg='Package "{install_path}" did not match the expected result.'.format(
-                install_path=install_path
-            ),
-        )
+        self.assertEqual(expected, full_help)
 
     def test_ref_role(self):
         """Use a custom Sphinx reference if the user explicitly added one."""
@@ -433,51 +403,11 @@ class HelpScenarios(unittest.TestCase):
         # 3. Add a rez_sphinx over a Sphinx ref role.
         _add_example_ref_role(os.path.join(directory, "documentation"))
 
-        install_path = package_wrap.make_directory("_test_ref_role")
-
-        template = textwrap.dedent(
-            """\
-            package_definition_build_python_paths = [%r]
-            package_preprocess_function = "preprocess_entry_point.run"
-            optionvars = {
-                "rez_docbot": {
-                    "publishers": [
-                        {
-                            "authentication": {
-                                "user": "FooBar",
-                                "token": "fizzbuzz",
-                                "type": "github",
-                            },
-                            "branch": "gh-pages",
-                            "repository_uri": "git@github.com:FooBar/{package.name}",
-                            "view_url": "https://foo.github.io/{package.name}",
-                        },
-                    ],
-                }
-            }
-            """
-        )
-        configuration = package_wrap.make_rez_configuration(
-            template % os.path.join(_PACKAGE_ROOT, "python", "rez_sphinx", "preprocess")
-        )
-
-        # 4a. Simulate adding the pre-build hook to the user's Rez configuration.
-        # 4b. Re-build the Rez package and auto-append entries to the `help`_.
-        #
-        with _override_preprocess(package), wrapping.keep_os_environment():
-            os.environ["REZ_CONFIG_FILE"] = configuration
-
-            fresh_package = developer_package.DeveloperPackage.from_path(
-                finder.get_package_root(package)
-            )
-            creator.build(fresh_package, install_path, quiet=True)
-
-        install_package = developer_package.DeveloperPackage.from_path(
-            # `package` is 1.0.0 but we incremented the minor version during
-            # :ref:`rez_sphinx init`. So it's 1.1.0 now.
-            #
-            os.path.join(install_path, package.name, "1.1.0")
-        )
+        with _override_preprocess(package), mock.patch(
+            "rez_sphinx.core.environment.is_publishing_enabled"
+        ) as is_publishing_enabled:
+            is_publishing_enabled.return_value = False
+            full_help = hook.preprocess_help(directory, package.help)
 
         # TODO : Adjust unittests to also work as local, relative path(s)
         # It shouldn't only be "rez_docbot or nothing"
@@ -485,29 +415,23 @@ class HelpScenarios(unittest.TestCase):
         expected = [
             [
                 "Developer Documentation",
-                "https://foo.github.io/some_package/versions/1.1/developer_documentation.html",
+                "{root}/developer_documentation.html",
             ],
             [
                 "Some Tag",
-                "https://foo.github.io/some_package/versions/1.1/some_page.html#an-inner-header",
+                "{root}/some_page.html#an-inner-header",
             ],
             [
                 "User Documentation",
-                "https://foo.github.io/some_package/versions/1.1/user_documentation.html",
+                "{root}/user_documentation.html",
             ],
             [
                 "rez_sphinx objects.inv",
-                "https://foo.github.io/some_package/versions/1.1",
+                "{root}",
             ],
         ]
 
-        self.assertEqual(
-            expected,
-            install_package.help,
-            msg='Package "{install_path}" did not match the expected result.'.format(
-                install_path=install_path
-            ),
-        )
+        self.assertEqual(expected, full_help)
 
 
 def _add_example_ref_role(root, text=""):
