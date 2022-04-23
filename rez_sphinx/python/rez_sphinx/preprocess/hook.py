@@ -210,10 +210,6 @@ def preprocess_help(package_source_root, help_):  # pylint: disable=unused-argum
 
     source_root = os.path.dirname(source_path)
     new_labels = _find_help_labels(source_root)
-
-    # TODO : Make sure we incorporate user preference here. e.g. if no all
-    # duplicates, only add if we prefer auto-generated.
-    #
     new_labels.append([constant.REZ_SPHINX_OBJECTS_INV, constant.ROOT_REPLACEMENT])
 
     package = finder.get_nearest_rez_package(package_source_root)

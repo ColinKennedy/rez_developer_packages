@@ -501,21 +501,18 @@ class HelpScenarios(unittest.TestCase):
             is_publishing_enabled.return_value = False
             full_help = hook.preprocess_help(directory, package.help)
 
-        # TODO : Adjust unittests to also work as local, relative path(s)
-        # It shouldn't only be "rez_docbot or nothing"
-        #
         expected = [
             [
                 "Developer Documentation",
-                "{root}/developer_documentation.html",
+                os.path.join("{root}", "developer_documentation.html"),
             ],
             [
                 "Some Tag",
-                "{root}/some_page.html#an-inner-header",
+                os.path.join("{root}", "some_page.html#an-inner-header"),
             ],
             [
                 "User Documentation",
-                "{root}/user_documentation.html",
+                os.path.join("{root}", "user_documentation.html"),
             ],
             [
                 "rez_sphinx objects.inv",

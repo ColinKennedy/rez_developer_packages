@@ -786,7 +786,6 @@ def _make_read_only(path):
     os.chmod(path, mode & read_only_mask)
 
 
-# TODO : Find a better way of doing this
 def _watch(appender, function):
     """Run ``function`` and append its information to ``appender``."""
 
@@ -801,7 +800,6 @@ def _watch(appender, function):
     return wrapped
 
 
-# TODO : Find a better way of doing this
 @contextlib.contextmanager
 def _watch_intersphinx_mapping():
     """Track the args, kwargs, and return results of key :ref:`rez_sphinx` functions."""
@@ -819,7 +817,6 @@ def _watch_intersphinx_mapping():
         bootstrap._merge_intersphinx_maps = original  # pylint: disable=protected-access
 
 
-# TODO : Find a better way of doing this
 @contextlib.contextmanager
 def _watch_candidates():
     """Track the args, kwargs, and return results of key :ref:`rez_sphinx` functions."""
