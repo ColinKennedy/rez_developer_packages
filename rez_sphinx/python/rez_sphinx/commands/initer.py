@@ -20,7 +20,6 @@ from ..core import (
 from ..preferences import preference
 
 _LOGGER = logging.getLogger(__name__)
-_SOURCE_FOLDER_NAME = "source"
 
 
 def _add_build_directory(directory):
@@ -179,7 +178,11 @@ def init(package, quick_start_options=tuple(), skip_existing=False):
     folder_name = preference.get_documentation_root_name(package=package)
 
     if preference.SPHINX_SEPARATE_SOURCE_AND_BUILD in options:
-        documentation_source_root = os.path.join(root, folder_name, _SOURCE_FOLDER_NAME)
+        documentation_source_root = os.path.join(
+            root,
+            folder_name,
+            constant.SOURCE_FOLDER_NAME,
+        )
     else:
         documentation_source_root = os.path.join(root, folder_name)
 

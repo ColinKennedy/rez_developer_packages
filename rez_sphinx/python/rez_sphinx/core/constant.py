@@ -19,3 +19,5 @@ SOURCE_DOCUMENTATION_EXTENSION = ".rst"
 SPHINX_CONF_NAME = "conf.py"
 
 SPHINX_MODULE_VARIABLE = "add_module_names"
+
+SOURCE_FOLDER_NAME = "source"

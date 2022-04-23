@@ -49,7 +49,6 @@ _ENABLE_APIDOC = "enable_apidoc"
 _ALLOW_APIDOC_TEMPLATES = "allow_apidoc_templates"
 _APIDOC = "sphinx-apidoc"
 _APIDOC_OPTIONS = "arguments"
-# TODO : Change sphinx-quickstart to a dict too like sphinx-apidoc, maybe?
 _QUICKSTART = "sphinx-quickstart"
 
 _HELP_PARENT_KEY = "auto_help"
@@ -349,7 +348,17 @@ def _validate_quick_start_options(settings):
 
 
 def _validate_all(data):
-    # TODO : Add doc
+    """Ensure all user-provided ``data`` can be parsed by :ref:`rez_sphinx`.
+
+    Args:
+        data (dict[str, object]): Raw preference-related code to validate.
+
+    Returns:
+        dict[str, object]:
+            The validated content. This function transforms ``data`` and makes
+            it more "rich", to make other functions easier to call.
+
+    """
     return _MASTER_SCHEMA.validate(data)
 
 

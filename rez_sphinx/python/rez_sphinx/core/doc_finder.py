@@ -4,7 +4,7 @@ import os
 
 from rez_utilities import finder
 
-from ..core import exception
+from ..core import constant, exception
 from ..preferences import preference
 
 
@@ -50,8 +50,11 @@ def get_source_from_package(package):
     documentation_name = preference.get_documentation_root_name(package=package)
     directory = finder.get_package_root(package)
 
-    # TODO : Don't hard-code source
-    possible_directory = os.path.join(directory, documentation_name, "source")
+    possible_directory = os.path.join(
+        directory,
+        documentation_name,
+        constant.SOURCE_FOLDER_NAME,
+    )
 
     if os.path.isdir(possible_directory):
         return possible_directory
