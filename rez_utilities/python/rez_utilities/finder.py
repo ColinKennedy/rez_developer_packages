@@ -14,24 +14,6 @@ from rez.vendor.schema import schema
 _LOGGER = logging.getLogger(__name__)
 
 
-def _get_valid_package_names():
-    """set[str]: Find Rez package names. e.g. ``{"package.py", "package.yaml"}``."""
-    # TODO : Consider modifying finder.get_nearest_rez_package with this
-    package_file_names = config.plugins.package_repository.filesystem.package_filenames
-    extensions = {
-        extension
-        for extensions_ in serialise.FileFormat.__members__.values()
-        for extension in extensions_.value
-    }
-
-    output = set()
-
-    for name, extension in itertools.product(package_file_names, extensions):
-        output.add("{name}.{extension}".format(name=name, extension=extension))
-
-    return output
-
-
 def get_package_root(package):
     """Find the directory that contains the gizen Rez package.
 
@@ -86,7 +68,7 @@ def get_nearest_rez_package(directory):
     if not os.path.isdir(directory):
         directory = os.path.dirname(directory)
 
-    package_file_names = _get_valid_package_names()
+    package_file_names = get_valid_package_names()
 
     while directory and previous != directory:
         previous = directory
@@ -115,3 +97,20 @@ def get_nearest_rez_package(directory):
     )
 
     return None
+
+
+def get_valid_package_names():
+    """set[str]: Find Rez package names. e.g. ``{"package.py", "package.yaml"}``."""
+    package_file_names = config.plugins.package_repository.filesystem.package_filenames
+    extensions = {
+        extension
+        for extensions_ in serialise.FileFormat.__members__.values()
+        for extension in extensions_.value
+    }
+
+    output = set()
+
+    for name, extension in itertools.product(package_file_names, extensions):
+        output.add("{name}.{extension}".format(name=name, extension=extension))
+
+    return output

@@ -15,6 +15,9 @@ from rez_sphinx.core import exception
 from ..common import doc_test, package_wrap, run_test
 
 
+_DEFAULT_SPHINX_WELCOME_TEXT = "Welcome to "
+
+
 class General(unittest.TestCase):
     """Make sure any auto-generated documentation files are made, correctly."""
 
@@ -241,7 +244,7 @@ def _get_base_master_index_text(path):
     found = -1
 
     for index, line in enumerate(lines):
-        if line.startswith("Welcome to "):
+        if line.startswith(_DEFAULT_SPHINX_WELCOME_TEXT):
             found = index
 
             break

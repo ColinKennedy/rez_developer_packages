@@ -4,10 +4,12 @@ import glob
 import logging
 import os
 
+from rez_utilities import finder
+
 from rez import developer_package
 from rez import exceptions as rez_exceptions
 
-from ...core import exception, rez_helper
+from ...core import exception
 
 _COMMON_REZ_EXCEPTIONS = (
     rez_exceptions.PackageMetadataError,  # When package.py lacks data
@@ -15,7 +17,7 @@ _COMMON_REZ_EXCEPTIONS = (
 )
 _LOGGER = logging.getLogger(__name__)
 
-PACKAGE_NAMES = rez_helper.get_valid_package_names()
+PACKAGE_NAMES = finder.get_valid_package_names()
 
 
 def _is_valid_rez_package(text):

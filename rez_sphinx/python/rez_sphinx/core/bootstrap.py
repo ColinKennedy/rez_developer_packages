@@ -282,7 +282,7 @@ def _get_package_objects_inv(package):
 
 def _get_test_environment():
     """str: Get the current Rez test which is executing, if any."""
-    # TODO : Make sure this works
+    # This environment variable will maybe one day make it into Rez.
     #
     # Reference: https://github.com/nerdvegas/rez/issues/1261
     #
@@ -380,8 +380,16 @@ def _get_major_minor_version(version):
         str: The major + minor.
 
     """
-    # TODO : We need to handle non-semantic versions here
-    return "{version.major}.{version.minor}".format(version=version)
+    try:
+        return "{version.major}.{version.minor}".format(version=version)
+    except AttributeError:
+        # If there's no major / minor version, it means the package is not following SemVer.
+        #
+        # Reference: https://semver.org
+        #
+        # Just assume the user knows what they're doing and use the version, as-is.
+        #
+        return str(version)
 
 
 def _get_nearest_caller_package():

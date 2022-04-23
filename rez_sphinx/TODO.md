@@ -1,19 +1,36 @@
+- do TODO notes / Todo / NotImplementedError
+
+
+- post release support
+ - check if it can use relative paths without appending to the main PYTHONPATH
+  - If so, abuse that
+ - if it can't, make a context of "current package + rez_sphinx"
+  - error early if the user is missing publish details
+  - ensure ephemerals are passed in
+  - call `rez_sphinx publish run`
+   - handle output
+    - error if returncode is bad - print stderr
+    - print stdout
+
+
+- Add release hook post release support!
+ - unittest it
+
 - Need to ensure docbot's logger is set properly when used as a bolt-in for rez_sphinx
 - If people try to define objects.inv `help` manually and make a mistake and
   point directly to objects.inv instead of the folder, crop it to the real
   directory / URL path
+- Do rez_docbot preferences unittests
 
 
 # Batch processing TODO
+ - make sure the batch processing tutorial works
 	- name
 	- version
 	- push_url (if installed)
 
 - Consider adding refs to "documentation source root" so people know what I'm talking about
 - Consider adding refs to "documentation build root" so people know what I'm talking about
-
-
-- Do rez_docbot preferences unittests
 
 - Make sure help doesn't replace any relative paths which actually exist in the package
  - Nor absolute paths
@@ -24,7 +41,6 @@
 
 
 - silence build commands
-
 - Check out why the "Skipping preprocessor because" message happens so much during rez_sphinx publish run
 
 - Add pylint configuration to match with black (line length 88)

@@ -108,6 +108,32 @@ def _get_configured_rez_sphinx():
     return None
 
 
+def _get_help_line(text):
+    """Find the line within ``text`` that has the JSON content to decode.
+
+    Important:
+        This function assumes that the JSON dict in ``text`` does not span
+        multiple lines!
+
+    Args:
+        text (str): Raw command output to parse.
+
+    Raises:
+        RuntimeError: If nothing in ``text`` matches the expected dict line.
+
+    Returns:
+        str: The found line.
+
+    """
+    for line in reversed(text.split("\n")):
+        line = line.strip()
+
+        if line.startswith("[") and line.endswith("]"):
+            return line
+
+    raise RuntimeError('Text "{text}" has no expected dict.'.format(text=text))
+
+
 def _get_nearest_rez_package(path):
     """Assuming that `directory` is on or inside a Rez package, find the nearest Rez package.
 
@@ -183,8 +209,7 @@ def _get_resolved_help(context, command):
 
     _LOGGER.debug('Got raw `help` attribute, "%s".', stdout)
 
-    # TODO : Sanitize `stdout` here
-    return json.loads(stdout)
+    return json.loads(_get_help_line(stdout))
 
 
 def _get_sphinx_context():
