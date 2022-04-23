@@ -89,11 +89,8 @@ def get_installed_root(name):
         str: Some directory on-disk.
 
     """
-    # TODO : Replace with Rez solution once it's available
-    #
-    # Reference: https://github.com/nerdvegas/rez/issues/1298
-    #
-    variable = "REZ_{name}_ROOT".format(name=name.upper().replace(".", "_"))
+    upper = to_environment_name(name)
+    variable = "REZ_{upper}_ROOT".format(upper=upper)
 
     try:
         return os.environ[variable]
@@ -102,3 +99,20 @@ def get_installed_root(name):
             'Rez package "{name}" is not found. Are you sure it is in your '
             "current Rez resolve?".format(name=name)
         )
+
+
+def to_environment_name(name):
+    """Change ``name`` from a Rez package family name to is env-var equivalent.
+
+    Args:
+        name (str): A Rez package name. e.g. ``"python"``, ``"foo.bar"``, etc.
+
+    Returns:
+        str: The converted name. e.g. ``"PYTHON"``, ``"FOO_BAR"``, etc.
+
+    """
+    # TODO : Replace with Rez solution once it's available
+    #
+    # Reference: https://github.com/nerdvegas/rez/issues/1298
+    #
+    return name.upper().replace('.', '_')

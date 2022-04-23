@@ -88,11 +88,6 @@ readthedocs integration?
 - Go through BIG_IDEAS.md
 
 
-## Clean-up Checks
-- Make sure all :doc: and :ref: tags are written
-- Check for unfinished TODO / NotImplementedHere in source code and in documentation
-
-
 ## High Level TODO
 ### Tutorials
 - need Qt example of the documentation - showing docs in a menu

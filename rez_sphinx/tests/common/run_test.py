@@ -11,6 +11,7 @@ from rez.config import config as config_
 from rez_utilities import finder
 
 from rez_sphinx import cli
+from rez_sphinx.core import path_control
 from rez_sphinx.preferences import preference
 
 
@@ -77,8 +78,8 @@ def simulate_resolve(installed_packages):
                 'Directory "{directory}" does not exist.'.format(directory=directory)
             )
 
-        # TODO : Do a Rez API call here, instead
-        os.environ["REZ_{name}_ROOT".format(name=installed_package.name.upper())] = root
+        upper = path_control.to_environment_name(installed_package.name)
+        os.environ["REZ_{upper}_ROOT".format(upper=upper)] = root
         sys.path.append(directory)
 
     try:

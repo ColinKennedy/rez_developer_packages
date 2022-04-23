@@ -1,9 +1,11 @@
 """Make sure :ref:`rez_sphinx init` works as expected."""
 
+import io
 import os
 import shutil
 import stat
 import tempfile
+import textwrap
 import unittest
 
 from python_compatibility import wrapping
@@ -31,6 +33,18 @@ class Init(unittest.TestCase):
         """Initialize documentation again, but from a different PWD."""
         package = package_wrap.make_simple_developer_package()
         directory = finder.get_package_root(package)
+
+        with wrapping.keep_cwd():
+            os.chdir(tempfile.gettempdir())
+
+            run_test.test(["init", directory])
+
+        path = os.path.join(directory, "documentation", "conf.py")
+        self.assertTrue(os.path.isfile(path))
+
+    def test_no_python_files(self):
+        """Allow building documentation, even if there are no Python files."""
+        directory = _make_package_with_no_python_files()
 
         with wrapping.keep_cwd():
             os.chdir(tempfile.gettempdir())
@@ -92,11 +106,6 @@ class Invalids(unittest.TestCase):
 
         with self.assertRaises(exception.NoPackageFound):
             run_test.test(["init", directory])
-
-    # TODO : Consider whether or not to keep this check
-    # def test_no_python_files(self):
-    #     """Fail early if there aren't Python files."""
-    #     raise ValueError()
 
     def test_quickstart_arguments(self):
         """Fail early if `sphinx-quickstart`_ flags are invalid."""
@@ -188,3 +197,29 @@ class QuickStartOptions(unittest.TestCase):
 
         with self.assertRaises(exception.UserInputError):
             run_test.test("init {directory} -- --project".format(directory=directory))
+
+
+def _make_package_with_no_python_files():
+    directory = package_wrap.make_directory("_no_python_files")
+
+    package_text = textwrap.dedent(
+        """\
+        name = "some_package"
+
+        version = "1.0.0"
+
+        requires = ["python"]
+
+        build_command = "python {root}/rezbuild.py"
+
+        def commands():
+            import os
+
+            env.PYTHONPATH.append(os.path.join(root, "python"))
+        """
+    )
+
+    with io.open(os.path.join(directory, "package.py"), "w", encoding="utf-8") as handler:
+        handler.write(package_text)
+
+    return directory
