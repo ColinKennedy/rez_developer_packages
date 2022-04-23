@@ -12,7 +12,6 @@ import tempfile
 import textwrap
 
 import git
-import wurlitzer
 from python_compatibility.testing import common
 from rez import exceptions, packages_
 from rez_utilities import creator, finder
@@ -130,10 +129,9 @@ class Release(common.Common):
         release_path = tempfile.mkdtemp(suffix="_rez_package_release_path")
         self.delete_item_later(release_path)
 
-        with wurlitzer.pipes():
-            creator.release(
-                finder.get_package_root(package), options, parser, release_path
-            )
+        creator.release(
+            finder.get_package_root(package), options, parser, release_path, quiet=True,
+        )
 
         release_package = packages_.get_developer_package(
             os.path.join(release_path, "some_package", "1.0.0")

@@ -3,13 +3,33 @@
 
 """A basic module for finding top-level information about Rez packages."""
 
+import itertools
 import logging
 import os
 
-from rez import exceptions, packages_
+from rez import exceptions, packages_, serialise
+from rez.config import config
 from rez.vendor.schema import schema
 
 _LOGGER = logging.getLogger(__name__)
+
+
+def _get_valid_package_names():
+    """set[str]: Find Rez package names. e.g. ``{"package.py", "package.yaml"}``."""
+    # TODO : Consider modifying finder.get_nearest_rez_package with this
+    package_file_names = config.plugins.package_repository.filesystem.package_filenames
+    extensions = {
+        extension
+        for extensions_ in serialise.FileFormat.__members__.values()
+        for extension in extensions_.value
+    }
+
+    output = set()
+
+    for name, extension in itertools.product(package_file_names, extensions):
+        output.add("{name}.{extension}".format(name=name, extension=extension))
+
+    return output
 
 
 def get_package_root(package):
@@ -66,8 +86,16 @@ def get_nearest_rez_package(directory):
     if not os.path.isdir(directory):
         directory = os.path.dirname(directory)
 
+    package_file_names = _get_valid_package_names()
+
     while directory and previous != directory:
         previous = directory
+        items = set(os.listdir(directory))
+
+        if not any(True for name in package_file_names if name in items):
+            directory = os.path.dirname(directory)
+
+            continue
 
         try:
             return packages_.get_developer_package(directory)
