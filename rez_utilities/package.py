@@ -2,7 +2,7 @@
 
 name = "rez_utilities"
 
-version = "2.6.1"
+version = "2.7.0"
 
 description = "Helper functions / objects for working with Rez."
 
