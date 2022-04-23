@@ -4,6 +4,7 @@ import os
 import six
 from rez.config import config
 from rez_utilities import finder
+from rez_bump import api as rez_bump_api
 
 from ...core import constant, exception, sphinx_helper
 from ...preferences import preference
@@ -88,24 +89,28 @@ def _in_help(label, help_):
     return any(entry_label == label for entry_label, _ in help_)
 
 
-def _is_installed(package, directory):
+def _is_installed(package, directory, version=None):
     """Check if ``package`` is installed into ``directory``.
 
     Args:
-        package (rez.packages.Package): A Rez package to check for.
-        directory (str): The root folder on-disk where released Rez packages live.
+        package (rez.packages.Package):
+            A Rez package to check for.
+        directory (str):
+            The root folder on-disk where released Rez packages live.
+        version (rez.vendor.version.version.Version, optional):
+            If included, this version is used instead of ``package.version``.
 
     Returns:
         bool: If the package is released somewhere.
 
     """
-    version = str(package.version)
+    version = version or package.version
 
     if not version:
         # In the rare case that an installed Rez package is unversioned...
         return os.path.isdir(os.path.join(directory, package.name))
 
-    return os.path.isdir(os.path.join(directory, package.name, version))
+    return os.path.isdir(os.path.join(directory, package.name, str(version)))
 
 
 def _existing_documentation(packages):
@@ -130,6 +135,22 @@ def _existing_documentation(packages):
 
 
 def _existing_release(packages):
+    """Remove from ``packages`` only if has been released with documentation.
+
+    In other words, ``packages`` may be returned even if it already has
+    documentation.
+
+    Args:
+        packages (list[rez.packages.Package]):
+            The source / installed Rez packages to filter. Usually,
+            these are source Rez packages.
+
+    Returns:
+        list[rez.packages.Package]:
+            Every package from ``packages`` which isn't released with
+            documentation.
+
+    """
     output = []
 
     release_path = config.release_packages_path
@@ -147,7 +168,29 @@ def _existing_release(packages):
         return packages
 
     for package in packages:
-        if not _is_installed(package, release_path):
+        if not _has_documentation(package):
+            # :ref:`rez_sphinx init` would bump :attr:`package.version` to its
+            # next minor version. So if there's not documentation in `package`
+            # then that means we need to check for a release not this package
+            # but its **next** version up!
+            version = package.version
+
+            if version:
+                version = rez_bump_api.bump_version(
+                    package.version,
+                    minor=1,
+                    absolute=False,
+                    normalize=True,
+                )
+
+            if _is_installed(package.name, release_path, version=version):
+                output.append(package)
+        elif not _is_installed(package, release_path):
+            # If ``package`` has documentation then it's assumed that the
+            # package's current version is what **would** be released. This
+            # typically only happens while re-running batch publish. See
+            # :doc:`batch_publish_documentation` for details.
+            #
             output.append(package)
 
     return output

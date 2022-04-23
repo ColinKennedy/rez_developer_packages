@@ -150,7 +150,6 @@ def _build_order(namespace):
     packages = build_orderer.collect_packages(normalized, searcher)
     packages = filterer(packages)
 
-    # TODO : Add allow_cyclic support. Here or wherever makes the most sense
     suggestion_caller = suggestion_mode.get_mode_by_name(namespace.suggestion_mode)
     ordered = suggestion_caller(packages)
 
@@ -568,13 +567,6 @@ def _set_up_suggest(sub_parsers):
             default=config_.packages_path,  # pylint: disable=no-member
             help="The folders to search within for **source** Rez packages.",
             nargs="+",
-        )
-        build_order.add_argument(
-            "--allow-cyclic",
-            action="store_true",
-            default=False,
-            help="If packages recursively depend on each other, "
-            "fail early unless this flag is added.",
         )
         build_order.add_argument(
             "--display-as",

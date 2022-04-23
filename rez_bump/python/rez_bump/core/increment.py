@@ -51,7 +51,7 @@ def _write_package_to_disk(package, version):
             handler.write(graph.get_code())
 
 
-def _bump_version(version, minor, absolute=False, normalize=False):
+def bump_version(version, minor, absolute=False, normalize=False):
     """Bump the Rez package version minor.
 
     Args:
@@ -166,6 +166,6 @@ def bump(package, minor=0, absolute=False, normalize=False):
             "".format(package=package)
         )
 
-    version = _bump_version(version, minor, absolute=absolute, normalize=normalize)
+    version = bump_version(version, minor, absolute=absolute, normalize=normalize)
 
     _write_package_to_disk(package.filepath, version)
