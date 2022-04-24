@@ -1,8 +1,8 @@
 import atexit
 import functools
 import logging
-import re
 import os
+import re
 import shutil
 import tempfile
 
@@ -11,7 +11,6 @@ from rez.vendor.version import version as version_
 
 from ..bases import base
 from ..core import common, schema_type
-
 
 _BRANCH = "branch"
 _INNER_PATH = "inner_path"
@@ -283,7 +282,9 @@ class GenericPublisher(base.Publisher):
             _VIEW_URL: schema_type.NON_EMPTY_STR,  # TODO : Replace with URL parser
             schema.Optional(_BRANCH): schema_type.NON_EMPTY_STR,
             schema.Optional(_INNER_PATH): schema_type.URL_SUBDIRECTORY,
-            schema.Optional(_LATEST_FOLDER, default="latest"): schema_type.NON_EMPTY_STR,
+            schema.Optional(
+                _LATEST_FOLDER, default="latest"
+            ): schema_type.NON_EMPTY_STR,
             schema.Optional(
                 _PUBLISH_PATTERN, default=[schema_type.DEFAULT_PUBLISH_PATTERN]
             ): schema_type.PUBLISH_PATTERNS,
@@ -598,4 +599,6 @@ def _validate_authenticator(method):
     if hasattr(method, "authenticate"):
         return method
 
-    raise ValueError('Object "{method!r}" has no authentication method.'.format(method=method))
+    raise ValueError(
+        'Object "{method!r}" has no authentication method.'.format(method=method)
+    )

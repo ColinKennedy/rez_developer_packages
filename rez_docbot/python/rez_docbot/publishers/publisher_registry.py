@@ -1,6 +1,5 @@
 from ..publishers import github
 
-
 _PUBLISHERS = {
     github.Github.get_name(): github.Github,
 }

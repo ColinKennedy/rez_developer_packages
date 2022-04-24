@@ -5,7 +5,6 @@ import schema
 from ...core import schema_type
 from .internals import accessor
 
-
 _PAYLOAD_KEY = "payload"
 _TYPE_KEY = "type"
 

@@ -1,9 +1,9 @@
 """A collection of functions to make writing schemas in this package easier."""
 
-import json
 import io
-import re
+import json
 import os
+import re
 
 import schema
 import six
