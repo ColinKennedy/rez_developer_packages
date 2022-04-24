@@ -183,7 +183,7 @@ def _existing_release(packages):
                     normalize=True,
                 )
 
-            if _is_installed(package, release_path, version=version):
+            if not _is_installed(package, release_path, version=version):
                 output.append(package)
         elif not _is_installed(package, release_path):
             # If ``package`` has documentation then it's assumed that the
