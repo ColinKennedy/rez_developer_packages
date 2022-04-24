@@ -1,14 +1,12 @@
 """Make sure :ref:`rez_sphinx init` works as expected."""
 
-import io
 import os
 import shutil
 import stat
 import tempfile
-import textwrap
 import unittest
 
-from python_compatibility import wrapping
+from python_compatibility import imports, wrapping
 from rez_utilities import finder
 from six.moves import mock
 
@@ -145,13 +143,11 @@ class OptionsBuildKey(unittest.TestCase):
     def test_default_build_documentation_key(self):
         """Add a "build_documentation" test to the package's `tests`_ attribute."""
         package = self._test()
+        module = imports.import_file("some_unique.namespace_here", package.filepath)
 
         self.assertEqual(
-            {
-                "command": "rez_sphinx build run",
-                "requires": ["rez_sphinx-1+<2"],
-            },
-            package.tests["build_documentation"],
+            "rez_sphinx build run",
+            module.tests["build_documentation"]["command"],
         )
 
     def test_no_build_documentation_key(self):
