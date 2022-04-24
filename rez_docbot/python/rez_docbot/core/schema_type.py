@@ -6,8 +6,10 @@ import os
 import re
 
 import schema
+from git.repo import base
 import six
 from six.moves import urllib_parse
+from rez_utilities import finder
 
 _SSH_EXPRESSION = re.compile(r"^git\@[\w_\.]+:(?P<group>.+)(?:/(?P<repository>.+))")
 _URL_SUBDIRECTORY = re.compile(r"^[\w/]+$")
@@ -18,6 +20,8 @@ ORIGINAL_TEXT = "original"
 _URL_SUBDIRECTORY_SEPARATOR = ""
 GROUP = "group"
 REPOSITORY = "repository"
+
+_GIT_DEFAULT_REMOTE_NAME = "origin"
 
 
 def _validate_callable(item):
@@ -37,6 +41,63 @@ def _validate_callable(item):
         return item
 
     raise ValueError('Item "{item}" isn\'t a callable function.'.format(item=item))
+
+
+def _validate_defer_git_repository(item):
+    """Allow the remote repository to be queried at runtime, using a Rez package.
+
+    Args:
+        item (None):
+            Indicate whether "defer repository evaluation" is enabled.
+
+    Raises:
+        ValueError:
+            If ``item`` is not None, it means "defer repository evaluation" is
+            not enabled.
+
+    Returns:
+        callable[rez.packages.Package] -> str:
+            A function which, given some Rez package, gets the push repository
+            URL where the package is meant to publish to.
+
+    """
+
+    def _get_preferred_remote(repository):
+        remotes = repository.remotes
+
+        if not remotes:
+            raise RuntimeError(
+                'Repository "{repository}" has no remote Git URL.'.format(repository=repository)
+            )
+
+        if len(remotes) == 1:
+            return remotes[0]
+
+        for remote in remotes:
+            if remote.name == _GIT_DEFAULT_REMOTE_NAME:
+                return remote
+
+        return remotes[0]
+
+    def _get_git_push_url(directory):
+        repository = base.Repo(directory)
+        remote = _get_preferred_remote(repository)
+        push_url = repository.git.config("--get", "remote.{remote.name}.url".format(remote=remote))
+
+        if push_url:
+            return push_url
+
+        raise RuntimeError('Directory "{directory}" found no push URL.'.format(directory=directory))
+
+    def _get_repository_url(package):
+        directory = finder.get_package_root(package)
+
+        return _get_git_push_url(directory)
+
+    if item is not None:
+        raise ValueError('Item is not set as deferred.')
+
+    return _get_repository_url
 
 
 def _validate_json_file(item):
@@ -218,4 +279,6 @@ CALLABLE = schema.Use(_validate_callable)
 URL = schema.Use(_validate_url)
 URL_SUBDIRECTORY = schema.Use(_validate_url_subdirectory)
 SSH = schema.Use(_validate_ssh)
+DEFER_REPOSITORY = schema.Use(_validate_defer_git_repository)
+
 JSON_FILE_PATH = schema.Use(_validate_json_file)

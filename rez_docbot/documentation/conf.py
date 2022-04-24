@@ -94,10 +94,11 @@ intersphinx_mapping.update(
 
 rst_epilog = textwrap.dedent(
     """\
-    .. _GitHub: https://github.com
     .. _GitHub Enterprise: https://github.com/enterprise
+    .. _GitHub: https://github.com
     .. _OPSEC: https://en.wikipedia.org/wiki/Operations_security
     .. _SemVer: https://semver.org
+    .. _gh-pages: https://pages.github.com
     .. _rezconfig.py: https://github.com/nerdvegas/rez/blob/fa3fff6f0b7b4b53bbb9baa4357ab42117d06356/src/rez/rezconfig.py
     """
 )

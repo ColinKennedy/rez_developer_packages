@@ -2,6 +2,8 @@
 - Add a "create repository" callback. So users can insert their own requirements
 - Need a unittest when the authenticated user doesn't have permissions to push / create repository etc as another user (ColinKennedy repo mismatch)
 
+- Allow publishing to a relative path, instead of to the root repository location!
+
 
 - Make sure there's a mechanism to force publish (versioned / latest)
 

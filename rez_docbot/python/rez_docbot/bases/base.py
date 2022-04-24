@@ -99,7 +99,7 @@ class Publisher(object):
         """Store the information related to publishing.
 
         The ``data`` is assumed to be already validated. See
-        :meth:`GenericPublisher.validate`.
+        :meth:`GitPublisher.validate`.
 
         Args:
             data (dict[str, object]): Each git / remote data to save.
@@ -118,6 +118,11 @@ class Publisher(object):
         raise NotImplementedError("Implement this in subclasses.")
 
     @abc.abstractmethod
+    def allow_versioned_publishes(self):
+        """bool: If True, this will create unique documentation per-version."""
+        return False
+
+    @abc.abstractmethod
     def is_required(self):
         """bool: Check if this publisher is expected to always have documentation."""
         return True
@@ -131,6 +136,21 @@ class Publisher(object):
     @abc.abstractmethod
     def get_resolved_repository_uri(self):
         """str: Get the URL / URI / etc to a remote git repository."""
+        return ""
+
+    @abc.abstractmethod
+    def get_resolved_view_url(self):
+        """Create a viewable URL where documentation can be seen.
+
+        This differs from the publish URL. For example, the publish URL for
+        GitHub is typically ``"git@github.com:UserName/{package.name}"`` but
+        the documentation is viewed in
+        ``"https://UserName.github.io/{package.name}"``.
+
+        Returns:
+            str: The found website URL.
+
+        """
         return ""
 
     @abc.abstractmethod

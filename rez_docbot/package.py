@@ -14,6 +14,7 @@ requires = [
     "github3.py-2+<3",  # For querying GitHub3 - TODO Make this dynamic
     "python-2+<4",
     "rez_python_compatibility-2.7+<3",
+    "rez_utilities-2.6+<3",
     "schema-0.7+<1",
     "six-1.15+<2",
 ]

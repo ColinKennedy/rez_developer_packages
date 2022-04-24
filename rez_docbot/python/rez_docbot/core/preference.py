@@ -142,7 +142,9 @@ def get_first_versioned_view_url(package, allow_optionals=False):
             if not allow_optionals:
                 continue
 
-        if not publisher.allow_versioned_publishes():
+        if not hasattr(publisher, "allow_versioned_publishes"):
+            continue
+        elif not publisher.allow_versioned_publishes():
             continue
 
         return publisher.get_resolved_view_url()

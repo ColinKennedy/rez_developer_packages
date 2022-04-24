@@ -31,7 +31,7 @@ _CURLIES = re.compile(r"\{(.*?)\}")
 AUTHENICATION = "authentication"
 
 
-class GenericPublisher(base_.Publisher):  # pylint: disable=abstract-method
+class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
     """The wrapper class which interacts with the git repositories.
 
     It also handles cloning and pushing to remote repositories, like `GitHub`_.
@@ -47,7 +47,7 @@ class GenericPublisher(base_.Publisher):  # pylint: disable=abstract-method
         """Store the information related to publishing.
 
         The ``data`` is assumed to be already validated. See
-        :meth:`.base.GenericPublisher.validate`.
+        :meth:`.base.GitPublisher.validate`.
 
         Args:
             data (dict[str, object]):
@@ -61,7 +61,7 @@ class GenericPublisher(base_.Publisher):  # pylint: disable=abstract-method
                 :meth:`.Publisher.quick_publish` can be called.
 
         """
-        super(GenericPublisher, self).__init__(data, package)
+        super(GitPublisher, self).__init__(data, package)
 
         self._handler = handler
 
@@ -253,9 +253,16 @@ class GenericPublisher(base_.Publisher):  # pylint: disable=abstract-method
             str: The generated git "group" name.
 
         """
-        base = self._data[_REPOSITORY_URI][schema_type.GROUP]
+        item = self._data[_REPOSITORY_URI]
 
-        return base.format(package=self._get_package())
+        if not callable(item):
+            base = item[schema_type.GROUP]
+
+            return base.format(package=self._get_package())
+
+        push_url = item(self._get_package())
+
+        return _parse_url_group(push_url)
 
     def _get_resolved_publish_pattern(self):
         """str: Get the version folder name, using :ref:`publish_pattern`."""
@@ -286,6 +293,7 @@ class GenericPublisher(base_.Publisher):  # pylint: disable=abstract-method
             _REPOSITORY_URI: schema.Or(
                 schema_type.URL,
                 schema_type.SSH,
+                schema_type.DEFER_REPOSITORY,  # Get the package's repository, instead
             ),
             _VIEW_URL: schema_type.NON_EMPTY_STR,  # TODO : Replace with URL parser
             schema.Optional(_BRANCH): schema_type.NON_EMPTY_STR,
@@ -493,6 +501,11 @@ class GenericPublisher(base_.Publisher):  # pylint: disable=abstract-method
         branch = self._get_branch_name()
 
         if branch:
+            # TODO : Need to create a branch if it doesn't already exist.
+            # The branch needs to be empty so that it can be filled with documentation.
+            #
+            # Make sure templating (.nojekyll) gets added as expected
+            #
             repository.checkout(branch)
 
         was_copied = self._copy_documentation_if_needed(documentation, root)
@@ -603,7 +616,17 @@ def _make_temporary_directory():
     return directory
 
 
+def _parse_url_group(url):
+    raise ValueError(url)
+
+
 def _validate_authenticator(method):
+    """Ensure ``method`` can be processed by :class:`GitPublisher`.
+
+    Raises:
+        ValueError: If ``method`` is invalid.
+
+    """
     if hasattr(method, "authenticate"):
         return method
 

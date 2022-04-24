@@ -97,7 +97,7 @@ class GitHub(base_.Handler):
             BaseRepository: The retrieved or created `GitHub`_ repository.
 
         """
-        remote = self._get_repository(details, auto_create=auto_create)
+        self._get_repository(details, auto_create=auto_create)
 
         if os.path.isdir(destination) and os.listdir(destination):
             raise RuntimeError(

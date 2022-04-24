@@ -10,7 +10,7 @@ from . import generic
 _NAME = "github"
 
 
-class Github(generic.GenericPublisher):
+class Github(generic.GitPublisher):
     """A full Publisher implementation for `GitHub`_ and `GitHub Enterprise`_."""
 
     @classmethod
