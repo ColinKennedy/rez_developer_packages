@@ -1,6 +1,8 @@
 """A collection of functions to make writing schemas in this package easier."""
 
+import json
 import re
+import os
 
 import schema
 import six
@@ -39,6 +41,29 @@ def _validate_callable(item):
         return item
 
     raise ValueError('Item "{item}" isn\'t a callable function.'.format(item=item))
+
+
+def _validate_json_file(item):
+    """Convert a file path at ``item`` from JSON to a Python object.
+
+    Args:
+        item (str): The absolute or relative path to a JSON file on-disk.
+
+    Raises:
+        ValueError: If ``item`` isn't a readable JSON file.
+
+    Returns:
+        object: The found JSON content. Usually, it's a :obj:`dict`.
+
+    """
+    if not isinstance(item, six.string_types):
+        raise ValueError('Item "{item!r}" is not a path.'.format(item=item))
+
+    if not os.path.isfile(item):
+        raise ValueError('Path "{item}" does not exist on-disk'.format(item=item))
+
+    with open(item, "r") as handler:
+        return json.load(handler)
 
 
 def _validate_non_empty_str(item):
@@ -197,3 +222,4 @@ CALLABLE = schema.Use(_validate_callable)
 URL = schema.Use(_validate_url)
 URL_SUBDIRECTORY = schema.Use(_validate_url_subdirectory)
 SSH = schema.Use(_validate_ssh)
+JSON_FILE_PATH = schema.Use(_validate_json_file)

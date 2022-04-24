@@ -2,18 +2,21 @@
 
 import schema
 
+from ...core import schema_type
 from .internals import accessor
 
 
-def _validate_file_authentication(data):
-    try:
-        type_ = data["type"]
-    except TypeError:
-        raise ValueError('Data "{data!r}" is not a dict.'.format(data=data))
-    except KeyError:
-        raise ValueError('Data "{data!r}" must be a standard type.'.format(data=data))
+_PAYLOAD_KEY = "payload"
+_TYPE_KEY = "type"
 
-    raise NotImplementedError('Need to write this', type_)
+
+def _validate_file_authentication(data):
+    validated = _FROM_JSON_SCHEMA.validate(data)
+
+    authenticators = schema.Schema(_STANDARD_AUTHENTICATORS)
+    payload = validated[_PAYLOAD_KEY]
+
+    return authenticators.validate(payload)
 
 
 def validate(data):
@@ -30,6 +33,12 @@ def validate(data):
     return _AUTHENTICATION_SCHEMA.validate(data)
 
 
+_FROM_JSON_SCHEMA = schema.Schema(
+    {
+        _TYPE_KEY: "from_json_path",
+        _PAYLOAD_KEY: schema_type.JSON_FILE_PATH,
+    }
+)
 _STANDARD_AUTHENTICATORS = schema.Or(
     schema.Use(accessor.UserPassword.validate),
     schema.Use(accessor.AccessToken.validate),

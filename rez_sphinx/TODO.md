@@ -1,9 +1,5 @@
 - do TODO notes / Todo / NotImplementedError
 
-- docbot Allow reading authentication from files
- - make sure this is documented
-- allow users to publish for every new version, not just each major / minor
- - make sure this is documented
 - when building documentation to installed packages locally, `{root}/` needs to
   be replaced with "" so that the paths are relative and `rez-help` can still work!
 

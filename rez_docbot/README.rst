@@ -1,3 +1,9 @@
+- docbot Allow reading authentication from files
+ - make sure this is documented
+- allow users to publish for every new version, not just each major / minor
+ - make sure this is documented
+ - this means supporting str as well as regex
+
 - Needs to be able to support publishing from the current remote URL
  - Imagine someone has a mono-Rez package, as a repository. And they want to
    publish documentation to their own gh-pages
