@@ -28,11 +28,10 @@ def _build(package, install_path, directory, quiet=False):
             This path represents a path that you might add to the
             REZ_PACKAGES_PATH environment variable (for example) so it
             should not contain the package's name or version.
-        packages_path (list[str], optional):
-            The paths that will be used to search for Rez packages while
-            building. This is usually to make it easier to find package
-            dependencies. If `packages_path` is not defined, Rez will
-            use its default paths. Default is None.
+        directory (str):
+            The folder on-disk where you want the build to be called from.
+            Typically, this is the directory where ``package`` lives.
+            See :func:`.get_package_root`.
         quiet (bool, optional):
             If True, Rez won't print anything to the terminal while
             If building. False, print everything. Default is False.

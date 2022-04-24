@@ -4,7 +4,7 @@ import os
 import six
 from rez.config import config
 from rez_utilities import finder
-from rez_bump import api as rez_bump_api
+from rez_bump import rez_bump_api
 
 from ...core import constant, exception, sphinx_helper
 from ...preferences import preference
@@ -183,7 +183,7 @@ def _existing_release(packages):
                     normalize=True,
                 )
 
-            if _is_installed(package.name, release_path, version=version):
+            if _is_installed(package, release_path, version=version):
                 output.append(package)
         elif not _is_installed(package, release_path):
             # If ``package`` has documentation then it's assumed that the

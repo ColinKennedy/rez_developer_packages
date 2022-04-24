@@ -20,7 +20,7 @@ def requires():
         "Sphinx-1.8+<4",
         "python-2.7+<3.8",
         "rez-2.42+<2.106",
-        "rez_bump-1.5+<2",
+        "rez_bump-1.6+<2",
         "rez_industry-3.1+<4",  # TODO : Kill this awful dependency later
         "rez_python_compatibility-2.8+<3",
         "rez_utilities-2.6+<3",
