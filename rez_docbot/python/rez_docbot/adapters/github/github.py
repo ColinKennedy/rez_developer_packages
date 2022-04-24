@@ -44,5 +44,5 @@ _STANDARD_AUTHENTICATORS = schema.Or(
     schema.Use(accessor.AccessToken.validate),
 )
 _AUTHENTICATION_SCHEMA = schema.Schema(
-    schema.Or(_validate_file_authentication, _STANDARD_AUTHENTICATORS),
+    schema.Or(schema.Use(_validate_file_authentication), _STANDARD_AUTHENTICATORS),
 )
