@@ -1,6 +1,6 @@
 - Needs to be able to support publishing from the current remote URL
  - Imagine someone has a mono-Rez package, as a repository. And they want to
-   publish documentation to their gh-pages
+   publish documentation to their own gh-pages
 
 - Go through the configuration. Make sure I'm not being too permissive about the text users may write
 - Add a "create repository" callback. So users can insert their own requirements

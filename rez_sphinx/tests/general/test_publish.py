@@ -5,7 +5,8 @@ import os
 import textwrap
 import unittest
 
-from rez_utilities import creator, finder, rez_configuration
+from rez_utilities import creator, finder
+from rez_sphinx.core import exception
 from python_compatibility import wrapping
 from six.moves import mock
 
@@ -48,7 +49,23 @@ class Run(unittest.TestCase):
 
     def test_not_inited(self):
         """Fail publishing because :ref:`rez_sphinx init` was never ran."""
-        raise ValueError()
+        source_package = _make_package_with_no_tests_attribute()
+        source_directory = finder.get_package_root(source_package)
+        install_path = package_wrap.make_directory("_test_no_build_documentation_key")
+
+        installed_package = creator.build(source_package, install_path, quiet=True)
+
+        with run_test.simulate_resolve(
+            [installed_package]
+        ), wrapping.silence_printing(), run_test.allow_defaults(), mock.patch(
+            "rez_sphinx.commands.publish_run.get_all_publishers"
+        ) as patch:
+            patch.return_value = []  # Prevent actually attempting to publish
+
+            with self.assertRaises(exception.NoDocumentationFound):
+                run_test.test(
+                    ["publish", "run", source_directory, "--packages-path", install_path]
+                )
 
 
 def _disable_tests(directory):
