@@ -95,10 +95,26 @@ class Publisher(object):
 
     """
 
+    def __init__(self, data, package):
+        """Store the information related to publishing.
+
+        The ``data`` is assumed to be already validated. See
+        :meth:`GenericPublisher.validate`.
+
+        Args:
+            data (dict[str, object]): Each git / remote data to save.
+            package (rez.packages.Package): The object to publish.
+
+        """
+        super(Publisher, self).__init__()
+
+        self._data = data
+        self._package = package
+
     @classmethod
     @abc.abstractmethod
     def _get_schema(cls):
-        """dict: The required / optional structure for this instance."""
+        """dict[object, object]: The required / optional structure for this instance."""
         raise NotImplementedError("Implement this in subclasses.")
 
     @abc.abstractmethod
@@ -139,10 +155,8 @@ class Publisher(object):
         """Store the information related to publishing.
 
         Args:
-            data (dict[str, object]):
-                Each git / remote data to save.
-            package (rez.packages.Package):
-                The object to publish.
+            data (dict[str, object]): Each git / remote data to save.
+            package (rez.packages.Package): The object to publish.
 
         """
         return cls(data, package)

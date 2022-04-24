@@ -1,3 +1,5 @@
+"""Make sure :mod:`rez_docbot.api` works as expected."""
+
 import unittest
 
 from rez_docbot.core import preference
@@ -46,6 +48,7 @@ class GetFirstVersionedViewUrl(unittest.TestCase):
     """Make sure :func:`rez_docbot.api.get_firse_versioned_view_url` works."""
 
     def test_allow_optionals(self):
+        """Skip a given publisher if its documentation is considered optional."""
         raise ValueError()
 
     def test_global(self):

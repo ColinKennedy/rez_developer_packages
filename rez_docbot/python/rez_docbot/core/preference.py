@@ -34,6 +34,7 @@ def _override_rez_configuration(package):
 
     config = config_.copy(overrides=overrides)
 
+    # TODO : Finish
     raise ValueError(sorted(dir(config)))
 
 

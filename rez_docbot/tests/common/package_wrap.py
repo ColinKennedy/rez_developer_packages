@@ -1,3 +1,5 @@
+"""Miscellaneous functions for making Rez packages easier."""
+
 import atexit
 import functools
 import io
@@ -10,6 +12,16 @@ from rez import developer_package
 
 
 def make_package_configuration(configuration):
+    """Create a Rez `package.py`_ with the given ``configuration``.
+
+    Args:
+        configuration (dict[str, object]):
+            The override settings to apply to :ref:`rez_sphinx`.
+
+    Returns:
+        rez.developer_package.DeveloperPackage: The generated source Rez package.
+
+    """
     directory = tempfile.mkdtemp(suffix="_make_package_config")
     atexit.register(functools.partial(shutil.rmtree, directory))
 

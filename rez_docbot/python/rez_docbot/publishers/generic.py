@@ -1,3 +1,5 @@
+"""A wrapper class which interacts with the git repositories."""
+
 import atexit
 import functools
 import logging
@@ -9,7 +11,7 @@ import tempfile
 import schema
 from rez.vendor.version import version as version_
 
-from ..bases import base
+from ..bases import base as base_
 from ..core import common, schema_type
 
 _BRANCH = "branch"
@@ -29,10 +31,15 @@ _CURLIES = re.compile(r"\{(.*?)\}")
 AUTHENICATION = "authentication"
 
 
-class GenericPublisher(base.Publisher):
+class GenericPublisher(base_.Publisher):  # pylint: disable=abstract-method
     """The wrapper class which interacts with the git repositories.
 
     It also handles cloning and pushing to remote repositories, like `GitHub`_.
+
+    .. important::
+
+        This class is a boilerplate for other classes to subclass and extend.
+        It is not meant to be used on its own.
 
     """
 
@@ -51,7 +58,7 @@ class GenericPublisher(base.Publisher):
                 This object handles all VCS related operations. Cloning,
                 adding, committing, pushing, etc. It's not required to
                 instantiate this object but must exist before
-                :meth:`.Base.quick_publish` can be called.
+                :meth:`.Publisher.quick_publish` can be called.
 
         """
         super(GenericPublisher, self).__init__(data, package)
@@ -60,15 +67,16 @@ class GenericPublisher(base.Publisher):
 
     @classmethod
     def validate(cls, data, package):
-        # """Ensure ``data`` can be used by this class.
-        #
-        # Args:
-        #     data (dict[str, object]): Each git / remote data to use.
-        #
-        # Returns:
-        #     dict[str, object]: The validated content from ``data``.
-        #
-        # """
+        """Ensure ``data`` can be used by this class.
+
+        Args:
+            data (dict[str, object]): Each git / remote data to save.
+            package (rez.packages.Package): The object to publish.
+
+        Returns:
+            dict[str, object]: The validated content from ``data``.
+
+        """
         validated = schema.Schema(cls._get_schema()).validate(data)
 
         return cls(validated, package=package)
@@ -271,8 +279,8 @@ class GenericPublisher(base.Publisher):
         return base.format(package=self._get_package())
 
     @classmethod
-    def _get_schema(self):
-        """dict: The required / optional structure for this instance."""
+    def _get_schema(cls):
+        """dict[object, object]: The required / optional structure for this instance."""
         return {
             AUTHENICATION: schema.Use(_validate_authenticator),
             _REPOSITORY_URI: schema.Or(

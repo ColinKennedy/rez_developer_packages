@@ -1,3 +1,5 @@
+"""A full Publisher implementation for `GitHub`_ and `GitHub Enterprise`_."""
+
 import functools
 
 import schema as schema_
@@ -9,8 +11,11 @@ _NAME = "github"
 
 
 class Github(generic.GenericPublisher):
+    """A full Publisher implementation for `GitHub`_ and `GitHub Enterprise`_."""
+
     @classmethod
     def _get_schema(cls):
+        """dict[object, object]: The required / optional structure for this instance."""
         schema = super(Github, cls)._get_schema()
         schema[generic.AUTHENICATION] = schema_.Use(
             functools.partial(adapter_registry.validate, _NAME)
