@@ -173,9 +173,9 @@ Default: ``"prefer_generated"``
 
 Options:
 
-- "none": Keep both your original and the auto-generated `help`_ keys.
-- "prefer_generated": Replace original keys with the auto-generated keys.
-- "prefer_original": Replace auto-generated keys with the original keys.
+- **"none"**: Keep both your original and the auto-generated `help`_ keys.
+- **"prefer_generated"**: Replace original keys with the auto-generated keys.
+- **"prefer_original"**: Replace auto-generated keys with the original keys.
 
 
 .. code-block:: python
@@ -203,9 +203,9 @@ Default: ``"alphabetical"``
 
 Options:
 
-- "alphabetical": Mix auto-generated and original `help`_ keys together, in ascending order.
-- "prefer_generated": List the auto-generated `help`_ keys first, then originals.
-- "prefer_original": List the original `help`_ keys first, then auto-generated.
+- **"alphabetical"**: Mix auto-generated and original `help`_ keys together, in ascending order.
+- **"prefer_generated"**: List the auto-generated `help`_ keys first, then originals.
+- **"prefer_original"**: List the original `help`_ keys first, then auto-generated.
 
 .. code-block:: python
 

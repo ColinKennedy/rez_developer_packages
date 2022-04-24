@@ -18,6 +18,7 @@ def keep_config():
         config_.optionvars = dict()
 
         yield config_
+        return
 
     optionvars = copy.deepcopy(config_.optionvars)
 
