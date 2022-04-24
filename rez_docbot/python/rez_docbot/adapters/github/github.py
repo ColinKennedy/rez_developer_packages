@@ -4,12 +4,16 @@ import schema
 
 from .internals import accessor
 
-_AUTHENTICATION_SCHEMA = schema.Schema(
-    schema.Or(
-        schema.Use(accessor.UserPassword.validate),
-        schema.Use(accessor.AccessToken.validate),
-    )
-)
+
+def _validate_file_authentication(data):
+    try:
+        type_ = data["type"]
+    except TypeError:
+        raise ValueError('Data "{data!r}" is not a dict.'.format(data=data))
+    except KeyError:
+        raise ValueError('Data "{data!r}" must be a standard type.'.format(data=data))
+
+    raise NotImplementedError('Need to write this', type_)
 
 
 def validate(data):
@@ -24,3 +28,12 @@ def validate(data):
 
     """
     return _AUTHENTICATION_SCHEMA.validate(data)
+
+
+_STANDARD_AUTHENTICATORS = schema.Or(
+    schema.Use(accessor.UserPassword.validate),
+    schema.Use(accessor.AccessToken.validate),
+)
+_AUTHENTICATION_SCHEMA = schema.Schema(
+    schema.Or(_validate_file_authentication, _STANDARD_AUTHENTICATORS),
+)

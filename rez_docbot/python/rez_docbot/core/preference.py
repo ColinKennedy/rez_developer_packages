@@ -1,6 +1,7 @@
 """A module for describing all :ref:`rez_docbot` settings."""
 
 # TODO : All preferences need to be unittested. global + reading from a package
+import functools
 
 import schema
 from rez.config import config as config_
@@ -9,11 +10,6 @@ from . import publisher_
 
 _MASTER_KEY = "rez_docbot"
 _PUBLISHERS = "publishers"
-
-# TODO : Consider simplifying this schema
-_MASTER_SCHEMA = schema.Schema(
-    {_PUBLISHERS: [schema.Use(publisher_.Publisher.validate)]}
-)
 
 _REZ_OPTIONVARS = "optionvars"
 _PACKAGE_CONFIGURATION_ATTRIBUTE = "rez_docbot_configuration"
@@ -41,11 +37,11 @@ def _override_rez_configuration(package):
     raise ValueError(sorted(dir(config)))
 
 
-def get_base_settings(package=None):
+def get_base_settings(package):
     """Get the parsed classes for publishing documentation.
 
     Args:
-        package (rez.packages.Package, optional):
+        package (rez.packages.Package):
             A package which may contain extra configuration overrides.
             Any override not found will be retrieved globally.
 
@@ -55,7 +51,6 @@ def get_base_settings(package=None):
     """
     if hasattr(package, _PACKAGE_CONFIGURATION_ATTRIBUTE):
         config = _override_rez_configuration(package)
-        raise ValueError(config.optionvars)
     else:
         config = config_
 
@@ -69,15 +64,18 @@ def get_base_settings(package=None):
     if not data:
         return dict()
 
-    output = _MASTER_SCHEMA.validate(data)
+    publisher_schema = schema.Schema(
+        {
+            _PUBLISHERS: [
+                schema.Use(functools.partial(publisher_.validate_publisher, package))
+            ],
+        }
+    )
 
-    for publisher in output[_PUBLISHERS]:
-        publisher.set_package(package)
-
-    return output
+    return publisher_schema.validate(data)
 
 
-def get_all_publishers(package=None):
+def get_all_publishers(package):
     """Get every publish method registered globally and under ``package``.
 
     Important:
@@ -86,7 +84,7 @@ def get_all_publishers(package=None):
         them to a remote repository database (like `GitHub`_).
 
     Args:
-        package (rez.packages.Package, optional):
+        package (rez.packages.Package):
             A package which may contain extra configuration overrides.
             Any override not found will be retrieved globally.
 
@@ -94,7 +92,7 @@ def get_all_publishers(package=None):
         list[Publisher]: Every registered publish method.
 
     """
-    data = get_base_settings(package=package)
+    data = get_base_settings(package)
 
     if not data:
         return []

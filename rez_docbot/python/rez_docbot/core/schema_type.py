@@ -63,6 +63,32 @@ def _validate_non_empty_str(item):
     return item
 
 
+def _validate_publish_string(item):
+    """Check if ``item`` is a standard string.
+
+    If ``item`` is empty, it's assumed that the user wants to publish **every**
+    version of a package, without omission.
+
+    Args:
+        item (str): The object to check.
+
+    Raises:
+        ValueError: If ``item`` isn't a string
+
+    Returns:
+        _sre.SRE_Pattern or str: The converted ``item``.
+
+    """
+    if not isinstance(item, six.string_types):
+        raise ValueError('Item "{item!r}" is not a string.'.format(item=item))
+
+    if not item:
+        # TODO : Need a unittest to ensure this works
+        return re.compile(".+")  # Allow any version, even if it isn't SemVer
+
+    return item
+
+
 def _validate_regex(item):
     """Check if ``item`` is a regular expression.
 
@@ -164,9 +190,7 @@ def _validate_url_subdirectory(item):
 NON_EMPTY_STR = schema.Use(_validate_non_empty_str)
 
 DEFAULT_PUBLISH_PATTERN = "{package.version.major}.{package.version.minor}"
-PUBLISH_PATTERNS = schema.Or(
-    _validate_regex, NON_EMPTY_STR
-)  # TODO : Consider making these more strict in the future
+PUBLISH_PATTERNS = schema.Or(_validate_regex, _validate_publish_string)
 
 CALLABLE = schema.Use(_validate_callable)
 

@@ -69,7 +69,7 @@ def _parse_build_command(command):
     )
     sub_parsers.required = True
 
-    _cli_build.set_up_build(parser)
+    _cli_build.set_up_build(sub_parsers)
 
     return parser.parse_args(command)
 

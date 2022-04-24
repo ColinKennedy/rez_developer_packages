@@ -212,10 +212,13 @@ def _publish_run(namespace):
 
     Raises:
         MissingPlugIn:
-            If :ref:`rez_docbot <rez_docbot>` isn't loaded. See
-            :ref:`loading_rez_docbot` for details.
+            If :ref:`rez_docbot` isn't loaded. See :ref:`loading_rez_docbot`
+            for details.
         UserInputError:
             If the given / found directory isn't in a Rez package.
+        PluginConfigurationError:
+            If :ref:`rez_docbot` is loaded but we lack the publisher
+            information needed in order to actually perform a publish.
 
     """
     if not environment.is_publishing_enabled():
@@ -237,6 +240,11 @@ def _publish_run(namespace):
         )
 
     publishers = publish_run.get_all_publishers(package)
+
+    if not publishers:
+        raise exception.PluginConfigurationError(
+            "No rez_docbot publishers were found. Edit your rezconfig.py and try again."
+        )
 
     built_documentation = publish_run.build_documentation(
         package,

@@ -39,7 +39,7 @@ class Authenticator(object):
 
     @classmethod
     @abc.abstractmethod
-    def validate(cls, data):
+    def validate(cls, data, package):
         """Create an instance of this class, after checking ``data``.
 
         Args:
