@@ -12,17 +12,16 @@ import shlex
 import sys
 
 from python_compatibility import iterbot
-from rez.cli import _complete_util
 from rez.config import config as config_
 from rez_utilities import finder
 
 from .commands import build_orderer, initer, publish_run
 from .commands.builder import inspector
-from .commands.builder import runner as build_run
 from .commands.suggest import build_display, filter_by, search_mode, suggestion_mode
-from .core import api_builder, environment, exception, path_control, print_format
+from .core import cli_helper, environment, exception, path_control, print_format
 from .preferences import preference
 from .preprocess import hook
+from . import _cli_build
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -63,72 +62,6 @@ class _HelpPrinter(argparse.ArgumentParser):
             super(_HelpPrinter, self).error(message)
         finally:
             self.print_help()
-
-
-def _add_directory_argument(parser):
-    """Make ``parser`` include a positional argument pointing to a file path on-disk.
-
-    Args:
-        parser (argparse.ArgumentParser): The instance to modify.
-
-    """
-    parser.add_argument(
-        "directory",
-        nargs="?",
-        default=os.getcwd(),
-        help="The folder to search for a Rez package. "
-        "Defaults to the current working directory.",
-    )
-
-
-def _add_remainder_argument(parser):
-    """Tell ``parser`` to collect all text into a single namespace parameter.
-
-    Args:
-        parser (argparse.ArgumentParser):
-            The parser to extend with the new parameter.
-
-    """
-    remainder = parser.add_argument(
-        "remainder",
-        nargs="*",
-        help=argparse.SUPPRESS,
-    )
-    remainder.completer = _complete_util.SequencedCompleter(
-        "remainder",
-        _complete_util.ExecutablesCompleter,
-        _complete_util.FilesCompleter(),
-    )
-
-
-def _build_runner(namespace):
-    """Build Sphinx documentation, using details from ``namespace``.
-
-    Args:
-        namespace (argparse.Namespace):
-            The parsed user content. It contains all of the necessary
-            attributes to generate Sphinx documentation.
-
-    Raises:
-        UserInputError:
-            If the user passes `sphinx-apidoc`_ arguments but also
-            specified that they don't want to build API documentation.
-
-    """
-    _split_build_arguments(namespace)
-
-    if namespace.no_api_doc and namespace.api_doc_arguments:
-        raise exception.UserInputError(
-            'You cannot specify --apidoc-arguments "{namespace.api_doc_arguments}" '
-            "while also --no-apidoc.".format(namespace=namespace)
-        )
-
-    build_run.build(
-        namespace.directory,
-        api_mode=namespace.api_documentation,
-        api_options=namespace.api_doc_arguments,
-        no_api_doc=namespace.no_api_doc,
-    )
 
 
 def _build_order(namespace):
@@ -332,58 +265,6 @@ def _preprocess_help(namespace):
     print(json.dumps(full_help))
 
 
-def _set_up_build(sub_parsers):
-    """Add :ref:`rez_sphinx build run` CLI parameters.
-
-    Args:
-        sub_parsers (argparse._SubParsersAction):
-            A collection of parsers which the :ref:`rez_sphinx build` will be
-            appended onto.
-
-    """
-
-    def _add_build_run_parser(command):
-        description = "Generates documentation from your .rst files."
-
-        build_runner = command.add_parser(
-            "run",
-            description=description,
-            help=description,
-        )
-        _add_directory_argument(build_runner)
-        choices = sorted(api_builder.MODES, key=operator.attrgetter("label"))
-        build_runner.add_argument(
-            "--no-apidoc",
-            dest="no_api_doc",
-            action="store_true",
-            help="Disable API .rst file generation.",
-        )
-        build_runner.add_argument(
-            "--apidoc-arguments",
-            dest="api_doc_arguments",
-            help='Anything you\'d like to send for sphinx-apidoc. e.g. "--private"',
-        )
-        build_runner.add_argument(
-            "--api-documentation",
-            choices=[mode.label for mode in choices],
-            default=api_builder.FULL_AUTO.label,
-            help="When building, API .rst files can be generated for your Python files."
-            "\n\n"
-            + "\n".join(
-                "{mode.label}: {mode.description}".format(mode=mode) for mode in choices
-            ),
-        )
-        build_runner.set_defaults(execute=_build_runner)
-
-        _add_remainder_argument(build_runner)
-
-    description = "Compile Sphinx documentation from a Rez package."
-    build = sub_parsers.add_parser("build", description=description, help=description)
-    command = build.add_subparsers(dest="command")
-    command.required = True
-    _add_build_run_parser(command)
-
-
 def _set_up_config(sub_parsers):
     """Add :doc:`config_command` CLI parameters.
 
@@ -428,7 +309,7 @@ def _set_up_config(sub_parsers):
             description=description,
             help=description,
         )
-        _add_directory_argument(list_overrides)
+        cli_helper.add_directory_argument(list_overrides)
         _add_format_argument(list_overrides)
         list_overrides.add_argument(
             "--sparse",
@@ -453,7 +334,7 @@ def _set_up_config(sub_parsers):
         description=description,
         help=description,
     )
-    _add_directory_argument(check)
+    cli_helper.add_directory_argument(check)
     check.set_defaults(execute=_check)
 
     description = "Print the value of any configuration attribute."
@@ -469,7 +350,7 @@ def _set_up_config(sub_parsers):
         help="Configuration attributes to check for. Specify inner dicts using "
         '"foo.bar" syntax. Use --list to show all possible values.',
     )
-    _add_directory_argument(show)
+    cli_helper.add_directory_argument(show)
     show.set_defaults(execute=_show)
 
     description = "Print every possible configuration attribute."
@@ -479,7 +360,7 @@ def _set_up_config(sub_parsers):
         description=description,
         help=description,
     )
-    _add_directory_argument(show_all)
+    cli_helper.add_directory_argument(show_all)
     show_all.set_defaults(execute=_show_all)
 
     _set_up_list_default(inner_parser)
@@ -510,8 +391,8 @@ def _set_up_init(sub_parsers):
         help="Do nothing (don't error) if the Rez package has documentation.",
     )
     init.set_defaults(execute=_init)
-    _add_directory_argument(init)
-    _add_remainder_argument(init)
+    cli_helper.add_directory_argument(init)
+    cli_helper.add_remainder_argument(init)
 
 
 def _set_up_publish(sub_parsers):
@@ -533,13 +414,13 @@ def _set_up_publish(sub_parsers):
     inner_parsers = publish.add_subparsers(dest="command")
     inner_parsers.required = True
 
-    description = "Builds + publishs your documentation."
+    description = "Builds + publishes your documentation."
     publish_runner = inner_parsers.add_parser(
         "run",
         description=description,
         help=description,
     )
-    _add_directory_argument(publish_runner)
+    cli_helper.add_directory_argument(publish_runner)
     publish_runner.set_defaults(execute=_publish_run)
 
 
@@ -602,7 +483,10 @@ def _set_up_suggest(sub_parsers):
         build_order.set_defaults(execute=_build_order)
 
     def _set_up_preprocess_help(inner_parsers):
-        description = "Generate an automated Rez help attribute. This command is for internal use."
+        description = (
+            "Generate an automated Rez help attribute. "
+            "This command is for internal use."
+        )
         preprocess_help = inner_parsers.add_parser(
             "preprocess-help",
             description=description,
@@ -660,7 +544,7 @@ def _set_up_view(sub_parsers):
             "If not provided, everything is shown.",
         )
 
-        _add_directory_argument(view_conf)
+        cli_helper.add_directory_argument(view_conf)
 
         view_conf.set_defaults(execute=_view_conf)
 
@@ -676,7 +560,7 @@ def _set_up_view(sub_parsers):
             help=description,
         )
 
-        _add_directory_argument(view_package_help)
+        cli_helper.add_directory_argument(view_package_help)
         view_package_help.set_defaults(execute=_view_package_help)
 
     def _set_up_view_repository_uri(inner_parsers):
@@ -687,7 +571,7 @@ def _set_up_view(sub_parsers):
             help=description,
         )
 
-        _add_directory_argument(repository_uri)
+        cli_helper.add_directory_argument(repository_uri)
         repository_uri.set_defaults(execute=_view_repository_uri)
 
     def _set_up_view_view_url(inner_parsers):
@@ -698,7 +582,7 @@ def _set_up_view(sub_parsers):
             help=description,
         )
 
-        _add_directory_argument(view_publish_url)
+        cli_helper.add_directory_argument(view_publish_url)
         view_publish_url.set_defaults(execute=_view_publish_url)
 
     description = (
@@ -796,26 +680,6 @@ def _show(namespace):
 
     for name, value in values:
         print("{name}:\n    {value}".format(name=name, value=value))
-
-
-def _split_build_arguments(namespace):
-    """Conform ``namespace`` attributes so other functions can use it more easily.
-
-    Warning:
-        This function will modify ``namespace`` in-place.
-
-    Args:
-        namespace (argparse.Namespace):
-            The parsed user content. It contains all of the necessary
-            attributes to generate Sphinx documentation.
-
-    """
-    namespace.api_doc_arguments = shlex.split(namespace.api_doc_arguments or "")
-
-    if not namespace.remainder:
-        return
-
-    namespace.api_doc_arguments.extend(namespace.remainder)
 
 
 def _split_init_arguments(namespace):
@@ -1069,7 +933,7 @@ def parse_arguments(text):
     )
     sub_parsers.required = True
 
-    _set_up_build(sub_parsers)
+    _cli_build.set_up_build(sub_parsers)
     _set_up_config(sub_parsers)
     _set_up_init(sub_parsers)
     _set_up_publish(sub_parsers)

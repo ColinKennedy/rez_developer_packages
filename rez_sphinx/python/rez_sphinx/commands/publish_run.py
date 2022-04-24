@@ -1,11 +1,13 @@
 """The module which handles the :ref:`rez_sphinx publish run` command."""
 
+import argparse
 import logging
 import shlex
 
 import six
 from rez import package_test
 
+from .. import _cli_build
 from ..core import exception
 from ..preferences import preference
 from .builder import runner as runner_
@@ -32,11 +34,8 @@ def _get_documentation_destination(name, package):
     """
 
     def _parse_destination(text):
-        # TODO : Deal with this recursive import, later
-        from .. import cli  # pylint: disable=import-outside-toplevel
-
         command = shlex.split(text)[1:]
-        namespace = cli.parse_arguments(command)
+        namespace = _parse_build_command(command)
 
         _, documentation_source = runner_.get_documentation_source(namespace.directory)
         documentation_build = runner_.get_documentation_build(documentation_source)
@@ -51,6 +50,29 @@ def _get_documentation_destination(name, package):
     return _parse_destination(test[_REZ_TEST_COMMAND_KEY])
 
 
+def _parse_build_command(command):
+    """Parse the given :ref:`build_documentation_key` command.
+
+    Args:
+        command (list[str]):
+            Raw user text to parse, separated by spaces. e.g. ``["build", "run"]``.
+
+    Returns:
+        argparse.Namespace: The parsed ``command``, as arguments.
+
+    """
+    parser = argparse.ArgumentParser()
+    sub_parsers = parser.add_subparsers(
+        dest="command",
+        description="All available rez_sphinx commands. Provide a name here.",
+    )
+    sub_parsers.required = True
+
+    _cli_build.set_up_build(parser)
+
+    return parser.parse_args(command)
+
+
 def _validated_test_keys(runner):
     """Get every :ref:`rez_sphinx`-registered `tests`_ key in ``runner``.
 
@@ -59,11 +81,6 @@ def _validated_test_keys(runner):
 
     Args:
         runner (rez.package_test.PackageTestRunner): The Rez package to query from.
-
-    Raises:
-        BadPackage:
-            If ``runner`` has no tests or the defined tests have nothing in
-            common with :ref:`rez_sphinx.build_documentation_key`.
 
     Returns:
         list[str]:
