@@ -101,8 +101,8 @@ class PackageHelp(unittest.TestCase):
                             "authentication": {
                                 "user": "foo",
                                 "token": "bar",
-                                "type": "github",
                             },
+                            "publisher": "github",
                             "repository_uri": "git@something.com:Foo/Bar",
                             "view_url": "https://Foo.github.io/Bar/{package.name}",
                         },
@@ -167,8 +167,8 @@ class PackageHelp(unittest.TestCase):
                             "authentication": {
                                 "user": "foo",
                                 "token": "bar",
-                                "type": "github",
                             },
+                            "publisher": "github",
                             "repository_uri": "git@something.com:Foo/Bar",
                             "view_url": "https://Foo.github.io/Bar/{package.name}",
                         },
@@ -216,8 +216,8 @@ class PackageHelp(unittest.TestCase):
                             "authentication": {
                                 "user": "foo",
                                 "token": "bar",
-                                "type": "github",
                             },
+                            "publisher": "github",
                             "repository_uri": "git@something.com:Foo/Bar",
                             "view_url": "https://Foo.github.io/Bar/{package.name}",
                         },
@@ -265,8 +265,8 @@ class PackageHelp(unittest.TestCase):
                             "authentication": {
                                 "user": "foo",
                                 "token": "bar",
-                                "type": "github",
                             },
+                            "publisher": "github",
                             "repository_uri": "git@something.com:Foo/Bar",
                             "view_url": "https://Foo.github.io/Bar/{package.name}",
                         },
@@ -308,8 +308,8 @@ class PackageHelp(unittest.TestCase):
                             "authentication": {
                                 "user": "foo",
                                 "token": "bar",
-                                "type": "github",
                             },
+                            "publisher": "github",
                             "repository_uri": "git@something.com:Foo/Bar",
                             "view_url": "https://Foo.github.io/Bar/{package.name}",
                         },
@@ -355,8 +355,8 @@ class PackageHelp(unittest.TestCase):
                             "authentication": {
                                 "user": "foo",
                                 "token": "bar",
-                                "type": "github",
                             },
+                            "publisher": "github",
                             "repository_uri": "git@something.com:Foo/Bar",
                             "view_url": "https://Foo.github.io/Bar/{package.name}",
                         },
@@ -382,8 +382,8 @@ class PublishUrl(unittest.TestCase):
                             "authentication": {
                                 "user": "foo",
                                 "token": "bar",
-                                "type": "github",
                             },
+                            "publisher": "github",
                             "repository_uri": "git@something.com:Foo/Bar",
                             "view_url": "https://Foo.github.io/Bar/{package.name}",
                         },
@@ -416,8 +416,8 @@ class PublishUrl(unittest.TestCase):
                             "authentication": {
                                 "user": "foo",
                                 "token": "bar",
-                                "type": "github",
                             },
+                            "publisher": "github",
                             "repository_uri": "git@something.com:Foo/Bar",
                             "view_url": "https://Foo.github.io/Bar/{package.name}",
                         },

@@ -17,7 +17,7 @@ def requires():
 
     output = [
         "PyYAML-5.4+<7",
-        "Sphinx-1.8+<4",
+        "Sphinx-1.8+<5",
         "python-2.7+<3.8",
         "rez-2.42+<2.106",
         "rez_bump-1.6+<2",
@@ -45,9 +45,21 @@ def requires():
     return output
 
 
+hashed_variants = True
+
 variants = [
     ["python-2", "backports.functools_lru_cache-1.6+<2", "mock-3+<4"],
-    ["python-3.6+<4"],  # `unittest.mock` was added in Python 3.3+
+    [
+        # `unittest.mock` was added in Python 3.3+. So we don't need to add it
+        "python-3.6+<4",
+        "Sphinx-4+",
+        # "html theme: Emit a warning for sphinx_rtd_theme-0.2.4 or older"
+        #
+        # Reference: https://www.sphinx-doc.org/en/master/changes.html
+        #
+        "~sphinx_rtd_theme-0.2.5+",
+    ],
+    ["python-3.6+<4"],  # `unittest.mock` was added in Python 3.3+. So we don't need to add it
 ]
 
 build_command = "python -m rez_build_helper --items bin python"
@@ -112,7 +124,7 @@ tests = {
         "requires": [
             ".rez_sphinx.feature.docbot_plugin==1",
             "python-3",
-            "sphinx_rtd_theme-1+<2",
+            "sphinx_rtd_theme-1+",
         ],
     },
 }
