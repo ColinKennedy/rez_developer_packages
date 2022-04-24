@@ -34,19 +34,21 @@ def _get_adapter_by_name(name):
 
 
 def validate(type_name, authentication_methods):
-    # """Convert ``authentication_methods`` and its contents into adapters.
-    #
-    # Args:
-    #     authentication_methods (list[dict[str, object]] or dict[str, object]):
-    #         A collection of adapter data. Or just a single adapter.
-    #
-    # Raises:
-    #     ValueError: If ``authentication_methods`` is empty.
-    #
-    # Returns:
-    #     list[TODO]: All generated adapters.
-    #
-    # """
+    """Convert ``authentication_methods`` and its contents into adapters.
+
+    Args:
+        type_name (str):
+            A known adapter type. e.g. ``"github"``.
+        authentication_methods (list[dict[str, object]] or dict[str, object]):
+            A collection of adapter data. Or just a single adapter.
+
+    Raises:
+        ValueError: If ``authentication_methods`` is empty.
+
+    Returns:
+        list[TODO]: All generated adapters.
+
+    """
     if not authentication_methods:
         # TODO : Add unittest for this case
         raise ValueError("You must provide at least one authentication method.")

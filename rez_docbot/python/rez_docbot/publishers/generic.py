@@ -55,10 +55,8 @@ class GenericPublisher(base.Publisher):
                 :meth:`.Base.quick_publish` can be called.
 
         """
-        super(GenericPublisher, self).__init__()
+        super(GenericPublisher, self).__init__(data, package)
 
-        self._data = data
-        self._package = package
         self._handler = handler
 
     @classmethod
@@ -275,6 +273,7 @@ class GenericPublisher(base.Publisher):
 
     @classmethod
     def _get_schema(self):
+        """dict: The required / optional structure for this instance."""
         return {
             AUTHENICATION: schema.Use(_validate_authenticator),
             _REPOSITORY_URI: schema.Or(

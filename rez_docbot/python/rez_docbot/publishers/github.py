@@ -20,4 +20,5 @@ class Github(generic.GenericPublisher):
 
     @classmethod
     def get_name(cls):
+        """str: The value used to refer to this class, as a :ref:`publisher type`."""
         return _NAME

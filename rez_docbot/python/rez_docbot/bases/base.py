@@ -86,33 +86,63 @@ class Handler(object):
 
 @six.add_metaclass(abc.ABCMeta)
 class Publisher(object):
+    """A base class for designing a documentation publisher.
+
+    The main responsibilities of this class are
+
+    - Cloning, copying, adding, pushing documentation
+    - Authentication management (which may be delegated to other objects)
+
+    """
+
     @classmethod
     @abc.abstractmethod
-    def _get_schema(self):
+    def _get_schema(cls):
+        """dict: The required / optional structure for this instance."""
         raise NotImplementedError("Implement this in subclasses.")
 
     @abc.abstractmethod
-    def is_required(self, data):
+    def is_required(self):
+        """bool: Check if this publisher is expected to always have documentation."""
         return True
 
     @classmethod
     @abc.abstractmethod
     def get_name(cls):
+        """str: The value used to refer to this class, as a :ref:`publisher type`."""
         return ""
 
     @abc.abstractmethod
     def get_resolved_repository_uri(self):
+        """str: Get the URL / URI / etc to a remote git repository."""
         return ""
 
     @abc.abstractmethod
     def authenticate(self):
+        """Connect this instance to the remote repository."""
         raise NotImplementedError("Implement this in subclasses.")
 
     @abc.abstractmethod
     def quick_publish(self, documentation):
+        """Clone, copy, and push ``documentation`` as required.
+
+        Args:
+            documentation (str):
+                The absolute directory to built documentation on-disk.
+
+        """
         raise NotImplementedError("Implement this in subclasses.")
 
     @classmethod
     @abc.abstractmethod
     def validate(cls, data, package):
-        raise NotImplementedError("Implement this in subclasses.")
+        """Store the information related to publishing.
+
+        Args:
+            data (dict[str, object]):
+                Each git / remote data to save.
+            package (rez.packages.Package):
+                The object to publish.
+
+        """
+        return cls(data, package)

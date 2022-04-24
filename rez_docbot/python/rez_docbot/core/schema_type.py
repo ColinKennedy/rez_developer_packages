@@ -1,6 +1,7 @@
 """A collection of functions to make writing schemas in this package easier."""
 
 import json
+import io
 import re
 import os
 
@@ -57,7 +58,7 @@ def _validate_json_file(item):
     if not os.path.isfile(item):
         raise ValueError('Path "{item}" does not exist on-disk'.format(item=item))
 
-    with open(item, "r") as handler:
+    with io.open(item, "r", encoding="utf-8") as handler:
         return json.load(handler)
 
 
