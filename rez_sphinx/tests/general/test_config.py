@@ -84,7 +84,7 @@ class ListDefault(unittest.TestCase):
                 "sort_order": preference_help.DEFAULT_SORT,
             },
             "api_toctree_line": "API Documentation <api/modules>",
-            "build_documentation_key": "build_documentation",
+            "build_documentation_key": ["build_documentation"],
             "documentation_root": "documentation",
             "extra_requires": [],
             "init_options": {
@@ -133,7 +133,7 @@ class ListDefault(unittest.TestCase):
             "sphinx-apidoc": {},
             "extra_requires": [],
             "sphinx-quickstart": [],
-            "build_documentation_key": "",
+            "build_documentation_key": [],
             "auto_help": {},
             "api_toctree_line": "",
         }

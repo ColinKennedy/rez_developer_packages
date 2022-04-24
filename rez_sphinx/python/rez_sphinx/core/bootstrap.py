@@ -200,7 +200,7 @@ def _get_intersphinx_mappings(package):
         The searched Rez packages by default are
 
         - `requires`_
-        - :ref:`build_documentation_key`
+        - :ref:`build_documentation_key's requires <rez_sphinx.build_documentation_key>`
 
         If you want to search for other requests for your package, like
         `private_build_requires`_ or `build_requires`_, consider

@@ -41,6 +41,8 @@ in :ref:`rez_sphinx view sphinx-conf intersphinx_mapping`. To do that, you
 have two options.
 
 
+.. _adding extra documentation interlinks:
+
 Add To build_documentation
 ==========================
 

@@ -53,17 +53,20 @@ def _add_rez_tests(package):
 
     major = int(str(rez_sphinx_package.version.major))
     minor = int(str(rez_sphinx_package.version.minor))
-    next_ = major + 1
+
+    if minor != 0:
+        next_ = major + 1
+        rez_sphinx_requirement = "rez_sphinx-{major}.{minor}+<{next_}".format(
+            major=major,
+            minor=minor,
+            next_=next_,
+        )
+    else:
+        rez_sphinx_requirement = "rez_sphinx-{major}".format(major=major)
 
     tests[build_key] = {
         "command": "rez_sphinx build run",
-        "requires": [
-            "rez_sphinx-{major}.{minor}+<{next_}".format(
-                major=major,
-                minor=minor,
-                next_=next_,
-            ),
-        ],
+        "requires": [rez_sphinx_requirement],
     }
 
     original = _get_package_text(package)
@@ -137,6 +140,8 @@ def initialize_rez_package(package):
 
     """
     _bump_minor_version(package)
-    _add_rez_tests(package)
+
+    if preference.has_build_documentation_key(package=package):
+        _add_rez_tests(package)
 
     return _re_acquire_package(package)

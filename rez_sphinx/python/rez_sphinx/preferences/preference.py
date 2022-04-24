@@ -26,6 +26,7 @@ from . import (
     preference_environment,
     preference_help,
     preference_init,
+    validator,
 )
 
 _DOCUMENTATION_DEFAULT = "documentation"
@@ -83,8 +84,8 @@ _MASTER_DOC = "master_doc"
 
 _MASTER_SCHEMA = schema.Schema(
     {
-        schema.Optional(_BUILD_KEY, default=_BUILD_KEY_DEFAULT): schema.Or(
-            schema_helper.NON_NULL_STR, [schema_helper.NON_NULL_STR]
+        schema.Optional(_BUILD_KEY, default=[_BUILD_KEY_DEFAULT]): schema.Use(
+            validator.validate_list_of_str_or_str
         ),
         schema.Optional(
             _INIT_KEY,
@@ -402,6 +403,24 @@ def check_default_files(package=None):
     return options[_CHECK_DEFAULT_FILES]
 
 
+def has_build_documentation_key(package=None):
+    """Check if the `rez tests attribute`_ key defines :ref:`rez_sphinx`.
+
+    Args:
+        package (rez.packages.Package, optional):
+            A Rez package which may override the global setting.  If the
+            package doesn't define an opinion, the global setting / default
+            value is used instead.
+
+    Returns:
+        bool:
+            If there's at least one defined test name which provides for
+            :ref:`rez_sphinx`, return True.
+
+    """
+    return bool(get_build_documentation_keys(package=package))
+
+
 def is_api_enabled(package=None):
     """Check if the user will generate `sphinx-apidoc`_ ReST files.
 
@@ -529,15 +548,11 @@ def get_build_documentation_keys(package=None):
 
     """
     rez_sphinx_settings = get_base_settings(package=package)
-    keys = rez_sphinx_settings.get(_BUILD_KEY)
 
-    if not keys:
+    if _BUILD_KEY not in rez_sphinx_settings:
         return [_BUILD_KEY_DEFAULT]
 
-    if isinstance(keys, six.string_types):
-        return [keys]
-
-    return keys
+    return rez_sphinx_settings.get(_BUILD_KEY)
 
 
 def get_build_documentation_key(package=None):

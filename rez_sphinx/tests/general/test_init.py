@@ -130,6 +130,49 @@ class Options(unittest.TestCase):
         self.assertEqual(0, patch.call_count)
 
 
+class OptionsBuildKey(unittest.TestCase):
+    """Make sure :ref:`rez_sphinx.build_documentation_key` works with :ref:`rez_sphinx init`."""
+
+    def _test(self):
+        """rez.packages.Package: Do a quick :ref:`rez_sphinx init` call."""
+        package = package_wrap.make_simple_developer_package()
+        directory = finder.get_package_root(package)
+
+        run_test.test(["init", directory])
+
+        return finder.get_nearest_rez_package(finder.get_package_root(package))
+
+    def test_default_build_documentation_key(self):
+        """Add a "build_documentation" test to the package's `tests`_ attribute."""
+        package = self._test()
+
+        self.assertEqual(
+            {
+                "command": "rez_sphinx build run",
+                "requires": ["rez_sphinx-1+<2"],
+            },
+            package.tests["build_documentation"],
+        )
+
+    def test_no_build_documentation_key(self):
+        """Don't edit the package's `tests`_ attribute if it's disabled.
+
+        See Also:
+            :ref:`disabling build_documentation_key`
+
+        """
+        with run_test.keep_config() as config:
+            config.optionvars = {
+                "rez_sphinx": {
+                    "build_documentation_key": [],
+                },
+            }
+
+            package = self._test()
+
+        self.assertIsNone(package.tests)
+
+
 class QuickStartOptions(unittest.TestCase):
     """Make sure users can source options from the CLI / rez-config / etc."""
 

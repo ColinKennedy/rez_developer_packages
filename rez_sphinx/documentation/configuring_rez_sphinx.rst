@@ -223,13 +223,23 @@ Options:
 build_documentation_key
 =======================
 
-Whenever you run :ref:`rez_sphinx init`, a new key is added to `rez tests
+Whenever you run :ref:`rez_sphinx init`, a new key is added to the `rez tests
 attribute`_, ``build_documentation``. As mentioned in many other documentation
-pages, this key is used to find, build, and even publish documentation. It's a
-very important part of how :ref:`rez_sphinx` works so a good name is important.
+pages, this key is used to find, build, and even publish documentation.
 
-This setting allows you to change the name of the key, if you'd prefer to call
-it something else.
+.. code-block:: python
+
+    name = "some_package"
+    version = "1.0.0"
+    tests = {
+        "build_documentation": {
+             "command": "rez_sphinx build run",
+             "requires": ["rez_sphinx-1"],
+        }
+    }
+
+If you don't like they default key name, you can use this
+``build_documentation_key`` setting to change it to something else.
 
 Default: ``"build_documentation"``
 
@@ -237,7 +247,7 @@ Default: ``"build_documentation"``
 
     optionvars = {
         "rez_sphinx": {
-            "build_documentation": "build_documentation",
+            "build_documentation": "build_documentation",  # Default value
         },
     }
 
@@ -259,6 +269,29 @@ However if you do, you must keep in mind the following details:
   extra package "requires".
 
     - For more information on how this works, see :doc:`adding_extra_interlinking`.
+
+
+.. _disabling build_documentation_key:
+
+Disabling build_documentation_key
+*********************************
+
+Some users may prefer to not touch source Rez package `tests`_ attribute at all.
+To do that, simply define an empty ``"build_documentation_key"``.
+
+
+.. code-block:: python
+
+    optionvars = {
+        "rez_sphinx": {
+            "build_documentation": [],
+        },
+    }
+
+The `tests`_ key in general is there as a convenience to the user and is
+optional. However note that without a valid ``"build_documentation_key"``,
+users won't be able to define documentation-only interlinking. See
+:ref:`adding extra documentation interlinks` for details.
 
 
 .. _rez_sphinx.documentation_root:

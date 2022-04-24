@@ -16,7 +16,7 @@ class Run(unittest.TestCase):
     """Make sure :ref:`rez_sphinx publish run` works as expected."""
 
     def test_no_build_documentation_key(self):
-        """Allow publishing even if there's no :ref:`build_documentation_key`."""
+        """Allow publishing even if there's no :ref:`rez_sphinx.build_documentation_key`."""
         source_package = _make_package_with_no_tests_attribute()
         source_directory = finder.get_package_root(source_package)
         install_path = package_wrap.make_directory("_test_no_build_documentation_key")
