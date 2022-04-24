@@ -9,7 +9,7 @@ from . import generic
 _NAME = "github"
 
 
-class Github(generic.Publisher):
+class Github(generic.GenericPublisher):
 
     @classmethod
     def _get_schema(cls):

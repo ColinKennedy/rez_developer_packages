@@ -1,7 +1,8 @@
 .. _user_documentation:
 
-rez_docbot User Documentation
-=============================
+##################
+User Documentation
+##################
 
 TODO : Add here
 
@@ -10,10 +11,16 @@ TODO Make sure to mention this tool is meant to use git
  - e.g. just loading the requires for github publishing, vs bitbucket
 
 
+
+.. toctree::
+
+    publisher_types
+
+
 .. _rez_docbot:
 
 rez_docbot
-**********
+==========
 
 ..
     rez_sphinx_help:User Documentation
@@ -39,7 +46,7 @@ TODO Finish
 .. _installation:
 
 Installation
-************
+============
 
 TODO
 

@@ -12,11 +12,6 @@ _SSH_EXPRESSION = re.compile(r"^git\@[\w_\.]+:(?P<group>.+)(?:/(?P<repository>.+
 _URL_SUBDIRECTORY = re.compile(r"^[\w/]+$")
 _REGEX_TYPE = type(_URL_SUBDIRECTORY)
 
-# TODO : Make sure I don't need functions for these later. If not, simplify them
-DEFAULT_AUTHENTICATION = "raw"
-RAW = "raw"
-FROM_FILE = "from_file"
-
 ORIGINAL_TEXT = "original"
 
 _URL_SUBDIRECTORY_SEPARATOR = ""

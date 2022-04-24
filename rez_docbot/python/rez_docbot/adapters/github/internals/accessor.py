@@ -15,15 +15,8 @@ _TOKEN = "token"
 _USER = "user"
 
 _PUBLIC_GITHUB = re.compile(r"^www\.github\.com$", re.IGNORECASE)
+_PUBLIC_GITHUB_SSH = "git@github.com:"
 
-_COMMON_TOKEN = {
-    schema.Optional(
-        "authentication_type", default=schema_type.DEFAULT_AUTHENTICATION
-    ): schema.Or(
-        schema_type.RAW,
-        schema_type.FROM_FILE,
-    ),
-}
 _COMMON_USER = {_USER: schema_type.NON_EMPTY_STR}
 
 # TODO : Incorporate 2 factor, somehow
@@ -32,15 +25,13 @@ _TWO_FACTOR = {
 }
 
 _ACCESS_TOKEN = {
-    # TODO : Probably don't allow spaces in access_token
+    # TODO : Probably don't allow spaces in token
     "token": schema_type.NON_EMPTY_STR,
 }
 _ACCESS_TOKEN.update(_COMMON_USER)
-_ACCESS_TOKEN.update(_COMMON_TOKEN)
 _USER_PASSWORD_PAIR = {
     _PASSWORD: schema_type.NON_EMPTY_STR,
 }
-_USER_PASSWORD_PAIR.update(_COMMON_TOKEN)
 
 _ACCESS_TOKEN_SCHEMA = schema.Schema(_ACCESS_TOKEN)
 _USER_PASSWORD_PAIR_SCHEMA = schema.Schema(_USER_PASSWORD_PAIR)
@@ -148,7 +139,7 @@ def _is_public_github(url):
             not, return True.
 
     """
-    if url.startswith("git@github.com:"):
+    if url.startswith(_PUBLIC_GITHUB_SSH):
         # ``url`` is defined via SSH
         return True
 

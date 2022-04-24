@@ -16,7 +16,16 @@ And here's the same page, using `sphinx-rtd-theme`_.
 
 .. image:: images/sphinx_rtd_theme_example_page.png
 
-:ref:`rez_sphinx build run` supports changing your documentation theme on the fly.
+Most prefer the latter, `sphinx-rtd-theme`_.
+
+In ``rez_sphinx``, there's 3 ways to apply `sphinx-rtd-theme`_. All three methods
+apply during :ref:`rez_sphinx build run`.
+
+- globally, for all packages
+- per-user, using rezconfig
+- per-package, using configuration overrides
+- the manual way
+
 
 Modifying Your Sphinx Theme
 ***************************

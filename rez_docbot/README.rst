@@ -1,5 +1,3 @@
-- docbot Allow reading authentication from files
- - make sure this is documented
 - allow users to publish for every new version, not just each major / minor
  - make sure this is documented
  - this means supporting str as well as regex

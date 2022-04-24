@@ -14,3 +14,11 @@ rez_docbot.publishers
 *********************
 
 TODO
+
+
+rez_docbot.publishers.*.publish_pattern
+***************************************
+
+TODO
+
+See :doc:`publishing_per_version` for details

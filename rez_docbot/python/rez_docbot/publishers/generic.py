@@ -9,7 +9,7 @@ import tempfile
 import schema
 from rez.vendor.version import version as version_
 
-from . import base
+from ..bases import base
 from ..core import common, schema_type
 
 
@@ -30,7 +30,7 @@ _CURLIES = re.compile(r"\{(.*?)\}")
 AUTHENICATION = "authentication"
 
 
-class Publisher(base.Base):
+class GenericPublisher(base.Publisher):
     """The wrapper class which interacts with the git repositories.
 
     It also handles cloning and pushing to remote repositories, like `GitHub`_.
@@ -41,7 +41,7 @@ class Publisher(base.Base):
         """Store the information related to publishing.
 
         The ``data`` is assumed to be already validated. See
-        :meth:`Publisher.validate`.
+        :meth:`.base.GenericPublisher.validate`.
 
         Args:
             data (dict[str, object]):
@@ -55,7 +55,7 @@ class Publisher(base.Base):
                 :meth:`.Base.quick_publish` can be called.
 
         """
-        super(Publisher, self).__init__()
+        super(GenericPublisher, self).__init__()
 
         self._data = data
         self._package = package

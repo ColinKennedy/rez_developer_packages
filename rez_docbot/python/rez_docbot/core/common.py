@@ -1,11 +1,4 @@
-"""Anything which could be used by multiple core modules.
-
-Attributes:
-    RepositoryDetails (collections.namedtuple):
-        A description of the repository full URL, the group it's nested under,
-        and any other information that's important for cloning.
-
-"""
+"""Anything which could be used by multiple core modules."""
 
 import collections
 
