@@ -13,6 +13,7 @@ Assuming you use `Sphinx`_ or a similar "wrapper" tool, ask yourself these quest
 - Is setting up documentation for building an automated process?
 - Is publishing the documentation fully automated as well?
 - Is the published documentation safe from `link rot`_?
+- Does your documentation auto-link to each of its dependency's documentation?
 - Do you publish excessively? Or only when new features are introduced in a tool?
 - Do you validate that documentation aren't just templates but real, hand-written pages?
 - Can you customize the build / publish process across all packages and individually?

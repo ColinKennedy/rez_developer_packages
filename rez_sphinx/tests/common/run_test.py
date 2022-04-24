@@ -71,16 +71,14 @@ def simulate_resolve(installed_packages):
 
     for installed_package in installed_packages:
         root = finder.get_package_root(installed_package)
-        directory = os.path.join(root, "python")
-
-        if not os.path.isdir(directory):
-            raise RuntimeError(
-                'Directory "{directory}" does not exist.'.format(directory=directory)
-            )
 
         upper = path_control.to_environment_name(installed_package.name)
         os.environ["REZ_{upper}_ROOT".format(upper=upper)] = root
-        sys.path.append(directory)
+
+        directory = os.path.join(root, "python")
+
+        if os.path.isdir(directory):
+            sys.path.append(directory)
 
     try:
         yield

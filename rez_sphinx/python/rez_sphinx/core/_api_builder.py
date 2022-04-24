@@ -88,6 +88,11 @@ def _generate_api_files(directory, destination, options=tuple()):
         SphinxExecutionError:
             If running `sphinx-apidoc`_ failed midway and could not complete.
 
+    Returns:
+        bool:
+            If there wasn't any Python file to generate API documentation for,
+            return False.
+
     """
     install_package = finder.get_nearest_rez_package(directory)
 
@@ -103,12 +108,13 @@ def _generate_api_files(directory, destination, options=tuple()):
     sources = _get_python_source_roots(install_directory)
 
     if not sources:
-        raise exception.NoPythonFiles(
-            'Install directory "{install_directory}" has no Python files. '
-            "Did your Rez package install Python files correctly?".format(
-                install_directory=install_directory
-            )
+        _LOGGER.warning(
+            'Install directory "%s" has no Python files. '
+            "Did your Rez package install Python files correctly?",
+            install_directory,
         )
+
+        return False
 
     allow_custom_templates = (
         _TEMPLATE_DIR_SHORT_FLAG not in options
@@ -147,6 +153,8 @@ def _generate_api_files(directory, destination, options=tuple()):
                     help_=apidoc.get_parser().format_help()
                 )
             )
+
+    return True
 
 
 def _get_python_source_roots(directory):
@@ -234,5 +242,7 @@ def generate_api_files(directory, options=tuple()):
 
     """
     api_directory = _clear_api_directory(directory)
-    _generate_api_files(directory, api_directory, options=options)
-    _update_master_file(directory)
+    generated = _generate_api_files(directory, api_directory, options=options)
+
+    if generated:
+        _update_master_file(directory)

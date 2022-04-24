@@ -321,68 +321,6 @@ class Invalid(unittest.TestCase):
                     )
                 )
 
-    def test_auto_api_no_python_files(self):
-        """Fail to auto-build API .rst files if there's no Python files."""
-        directory = package_wrap.make_directory("_test_auto_api_no_python_files")
-
-        template = textwrap.dedent(
-            """\
-            name = "foo"
-
-            version = "1.0.0"
-            """
-        )
-
-        with io.open(
-            os.path.join(directory, "package.py"), "w", encoding="utf-8"
-        ) as handler:
-            handler.write(generic.decode(template))
-
-        documentation_root = os.path.join(directory, "documentation")
-        os.makedirs(documentation_root)
-
-        with io.open(
-            os.path.join(documentation_root, "conf.py"), "a", encoding="utf-8"
-        ):
-            pass
-
-        with io.open(
-            os.path.join(documentation_root, "index.rst"), "w", encoding="utf-8"
-        ) as handler:
-            handler.write(
-                generic.decode(
-                    textwrap.dedent(
-                        """\
-                        .. toctree::
-                           :maxdepth: 2
-                           :caption: Contents:
-                        """
-                    )
-                )
-            )
-
-        install_directory = package_wrap.make_directory(
-            "_test_auto_api_no_python_files_install_root"
-        )
-        install_package_root = os.path.join(install_directory, "foo", "1.0.0")
-        os.makedirs(install_package_root)
-
-        with io.open(
-            os.path.join(directory, "package.py"), "w", encoding="utf-8"
-        ) as handler:
-            handler.write(template)
-
-        with io.open(
-            os.path.join(install_package_root, "package.py"), "w", encoding="utf-8"
-        ) as handler:
-            handler.write(template)
-
-        with self.assertRaises(exception.NoPythonFiles), wrapping.keep_os_environment():
-            os.environ["REZ_FOO_ROOT"] = install_package_root
-
-            with wrapping.silence_printing():
-                run_test.test(["build", "run", directory])
-
     def test_bad_permissions(self):
         """Fail building if the user lacks permissions to write to-disk."""
         directory = package_wrap.make_directory(
@@ -426,6 +364,25 @@ class Invalid(unittest.TestCase):
 
 class Miscellaneous(unittest.TestCase):
     """Any test that doesn't make sense in other places."""
+
+    def test_no_python_files(self):
+        """Allow building documentation, even if there are no Python files."""
+        source_package = _make_package_with_no_python_files()
+        source_directory = finder.get_package_root(source_package)
+        install_path = package_wrap.make_directory("_test_no_python_files")
+        installed_package = creator.build(source_package, install_path, quiet=True)
+
+        with run_test.simulate_resolve([installed_package]):
+            run_test.test(["init", source_directory])
+
+            with wrapping.silence_printing(), run_test.allow_defaults():
+                run_test.test(["build", "run", source_directory])
+
+        root = os.path.join(source_directory, "build", "documentation")
+
+        self.assertTrue(os.path.join(root, "index.rst"))
+        self.assertTrue(os.path.join(root, "developer_documentation.rst"))
+        self.assertTrue(os.path.join(root, "user_documentation.rst"))
 
     @unittest.skipIf(
         not pypi_check.is_request_installed(_PYPI_RTD),
@@ -772,6 +729,7 @@ def _make_current_rez_sphinx_context(extra_request=tuple(), package_paths=tuple(
 
 
 def _make_package_with_no_python_files():
+    """rez.packages.Package: A source Rez package with no actual Python source files."""
     directory = package_wrap.make_directory("_no_python_files")
 
     package_text = textwrap.dedent(
@@ -782,19 +740,14 @@ def _make_package_with_no_python_files():
 
         requires = ["python"]
 
-        build_command = "python {root}/rezbuild.py"
-
-        def commands():
-            import os
-
-            env.PYTHONPATH.append(os.path.join(root, "python"))
+        build_command = ""
         """
     )
 
     with io.open(os.path.join(directory, "package.py"), "w", encoding="utf-8") as handler:
         handler.write(package_text)
 
-    return directory
+    return finder.get_nearest_rez_package(directory)
 
 
 def _make_read_only(path):

@@ -1,5 +1,12 @@
 - do TODO notes / Todo / NotImplementedError
 
+- docbot Allow reading authentication from files
+ - make sure this is documented
+- add option to disable editting the tests attribute (no adding build_documentation)
+ - double check that the release hook works even without build_documentation defined
+- allow users to publish for every new version, not just each major / minor
+ - make sure this is documented
+
 
 - post release support
  - check if it can use relative paths without appending to the main PYTHONPATH
