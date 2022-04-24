@@ -40,7 +40,6 @@ TODO :
     - access token
       - raw
       - by-file
-    - two-factor authentication
 
 - Check that I have references for all :ref: tags.
   - Also check the `foo`_ stuff
@@ -65,53 +64,15 @@ TODO :
         }
     }
 
-Possible GitHub APIs
-- https://pygithub.readthedocs.io/en/latest/examples.html
-- https://github3py.readthedocs.io/en/master/examples/github.html
-   - https://github3py.readthedocs.io/en/master/narrative/getting-started.html#using-the-library
-- https://gist.github.com/avullo/b8153522f015a8b908072833b95c3408
-- https://www.thepythoncode.com/article/using-github-api-in-python
-
 - rez_docbot.credentials notes
     - credentials
-        -- can be user + password pair - need to add this into the adapter
-        -- can be access token - need to add this into the adapter
-        - ! both options can be raw OR use a file on-disk
-        -- URI base?
-        -- needs a type specifier (e.g. GitHub) and a matching adapter
-            -- fail if no matching adapter
-        -- required True / False
-            -- So it doesn't have to publish to that location, if not found
-            - log with a warning though, either way
-        -- repository_template
-            -- allow users to use Python {}s to change anything in the URL
-            -- Needs to support documentation (multiple per repo) somehow
+        - repository_template
+            - allow users to use Python {}s to change anything in the URL
+            - Needs to support documentation (multiple per repo) somehow
+            - needs to work with mono repositories
     - publish_scheme
-        -- default: "{package.version.major}.{package.version.minor}"
-        -- Other configurations can be used to bump documentation
         - needs a force mechanism
-        -- If backpatching, don't mess with latest
-        -- latest_name
-            -- default: "latest"
-            -- If unset, don't set a latest
-    -- adapters
-        -- GitHub
-            -- Needs some kind of templater which includes .nojekyll and stuff
+        - latest_name
+         - If unset, don't set a latest
     - master page?
         - Maybe useful?
-    - Somehow this has to hook back into the package.py's `help`_ attribute.
-        - It needs to be able to point to the repository end-point.
-            - And that end-point needs to match the "publish_scheme"
-        - The URL where users interface with the documentation is not necesarily
-          the same that they publish to (GitHub pages for example is different)
-            - https://github.com/ColinKennedy/colinkennedy.github.io is where I push
-            - https://colinkennedy.github.io where the documentation would
-              actually live. And the objects.inv is located in either place.
-              But users would want `help`_ to go where the end-facing docs live
-                - To futher emphasize this point, if there's a split
-                  documentation setup with GitHub and readthedocs.io, then
-                  those would be located in completely different websites
-    - Extra considerations
-        - 2 factor authentication? https://github3py.readthedocs.io/en/master/narrative/getting-started.html#using-the-library
-    - Each adapter should have a place where they can define custom, extra data
-        - e.g. an adapter may actually log into a specific user

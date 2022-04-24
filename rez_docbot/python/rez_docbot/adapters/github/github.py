@@ -11,6 +11,7 @@ _TYPE_KEY = "type"
 
 
 def _validate_file_authentication(data):
+    # TODO : docstring
     validated = _FROM_JSON_SCHEMA.validate(data)
 
     authenticators = schema.Schema(_STANDARD_AUTHENTICATORS)
