@@ -238,7 +238,10 @@ def _publish_run(namespace):
 
     publishers = publish_run.get_all_publishers(package)
 
-    built_documentation = publish_run.build_documentation(package)
+    built_documentation = publish_run.build_documentation(
+        package,
+        packages_path=namespace.packages_path,
+    )
 
     for documentation in built_documentation:
         _LOGGER.info('Publishing "%s" documentation.', documentation)
@@ -420,6 +423,8 @@ def _set_up_publish(sub_parsers):
         description=description,
         help=description,
     )
+
+    cli_helper.add_packages_path_argument(publish_runner)
     cli_helper.add_directory_argument(publish_runner)
     publish_runner.set_defaults(execute=_publish_run)
 

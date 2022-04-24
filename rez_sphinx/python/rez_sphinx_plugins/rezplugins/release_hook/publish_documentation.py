@@ -20,6 +20,9 @@ _DEFAULT_LABEL = "Home Page"
 _LOGGER = logging.getLogger(__name__)
 
 
+# TODO : Make sure this plugin passes gracefully if it is run on a package that
+# has no rez_sphinx documentation created
+
 class PublishDocumentation(release_hook.ReleaseHook):
     """The class which runs pre-release / post-release methods.
 

@@ -5,6 +5,7 @@ import logging
 import shlex
 
 import six
+from rez_utilities import finder
 from rez import package_test
 
 from .. import _cli_build
@@ -92,11 +93,7 @@ def _validated_test_keys(runner):
     tests = runner.get_test_names()
 
     if not tests:
-        raise exception.BadPackage(
-            'Package "{package}" has no ``tests`` attribute.'.format(
-                package=runner.get_package(),
-            )
-        )
+        return []
 
     package = runner.get_package()
 
@@ -108,15 +105,7 @@ def _validated_test_keys(runner):
     build_tests = preference.get_build_documentation_keys(package=package)
     names = [name for name in build_tests if name in tests]
 
-    if names:
-        return names
-
-    name = package.name
-
-    raise exception.BadPackage(
-        'Package "{name}" has no rez_sphinx key for building documentation. '
-        "Run ``rez_sphinx init`` to fix this.".format(name=name)
-    )
+    return names
 
 
 def get_all_publishers(package):
@@ -151,12 +140,17 @@ def get_all_publishers(package):
     return publishers
 
 
-def build_documentation(package):
+def build_documentation(package, packages_path=tuple()):
     """Build all :ref:`rez_sphinx` registered documentation at ``directory``.
 
     Args:
         package (rez.packages.Package):
             The source Rez package to build documentation for.
+        packages_path (list[str], optional):
+            Paths on-disk to search within for an installed Rez package.  This
+            package is assumed to have a defined `tests`_ attribute, containing
+            a :ref:`rez_sphinx build` command. But if it doesn't exist, a
+            default build command is used instead.
 
     Raises:
         NoDocumentationFound:
@@ -179,8 +173,15 @@ def build_documentation(package):
     # TODO : This code assumes build_documentation exists. It may not. Make it optional!
     runner = package_test.PackageTestRunner(
         package_request=_to_exact_request(package),
+        package_paths=packages_path,
     )
     tests = _validated_test_keys(runner)
+
+    if not tests:
+        root = finder.get_package_root(package)
+        built_documentation = runner_.build(root)
+
+        return [built_documentation]
 
     _LOGGER.info('Found "%s" documentation tests.', tests)
 

@@ -4,6 +4,18 @@ import os
 from rez.cli import _complete_util
 
 
+class _SplitPaths(argparse.Action):
+    r"""Parse a user CLI argument which is "path separated".
+
+    e.g. In Linux, it'd split ``"/foo:/bar"`` into ``["/foo", "/bar"]``.
+    e.g. In Windows, it'd split ``"C:\foo;C:\bar"`` into ``["C:\foo", "C:\bar"]``.
+
+    """
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        setattr(namespace, self.dest, [value.strip() for value in values.split(os.pathsep)])
+
+
 def add_directory_argument(parser):
     """Make ``parser`` include a positional argument pointing to a file path on-disk.
 
@@ -18,6 +30,17 @@ def add_directory_argument(parser):
         help="The folder to search for a Rez package. "
         "Defaults to the current working directory.",
     )
+
+
+def add_packages_path_argument(parser):
+    """Allow ``parser`` to specify the folders where installed Rez packages live.
+
+    Args:
+        parser (argparse.ArgumentParser):
+            The parser to extend with the new parameter.
+
+    """
+    parser.add_argument("--packages-path", default=[], action=_SplitPaths)
 
 
 def add_remainder_argument(parser):

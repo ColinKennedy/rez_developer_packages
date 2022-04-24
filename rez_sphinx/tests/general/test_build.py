@@ -771,6 +771,32 @@ def _make_current_rez_sphinx_context(extra_request=tuple(), package_paths=tuple(
     )
 
 
+def _make_package_with_no_python_files():
+    directory = package_wrap.make_directory("_no_python_files")
+
+    package_text = textwrap.dedent(
+        """\
+        name = "some_package"
+
+        version = "1.0.0"
+
+        requires = ["python"]
+
+        build_command = "python {root}/rezbuild.py"
+
+        def commands():
+            import os
+
+            env.PYTHONPATH.append(os.path.join(root, "python"))
+        """
+    )
+
+    with io.open(os.path.join(directory, "package.py"), "w", encoding="utf-8") as handler:
+        handler.write(package_text)
+
+    return directory
+
+
 def _make_read_only(path):
     """Change ``path`` to not allow writing.
 

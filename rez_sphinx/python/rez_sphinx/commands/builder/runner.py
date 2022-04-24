@@ -187,6 +187,9 @@ def build(
         SphinxExecutionError:
             If `sphinx-build`_ failed midway before it could be completed.
 
+    Returns:
+        str: The directory on-disk where the built documentation now lives.
+
     """
     package, source_directory = get_documentation_source(directory)
 
@@ -227,3 +230,5 @@ def build(
                 help_=sphinx_build.get_parser().format_help(),
             )
         )
+
+    return build_directory

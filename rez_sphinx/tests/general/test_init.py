@@ -42,18 +42,6 @@ class Init(unittest.TestCase):
         path = os.path.join(directory, "documentation", "conf.py")
         self.assertTrue(os.path.isfile(path))
 
-    def test_no_python_files(self):
-        """Allow building documentation, even if there are no Python files."""
-        directory = _make_package_with_no_python_files()
-
-        with wrapping.keep_cwd():
-            os.chdir(tempfile.gettempdir())
-
-            run_test.test(["init", directory])
-
-        path = os.path.join(directory, "documentation", "conf.py")
-        self.assertTrue(os.path.isfile(path))
-
 
 class Invalids(unittest.TestCase):
     """Make sure :ref:`rez_sphinx init` fails when it's supposed to fail."""
@@ -197,29 +185,3 @@ class QuickStartOptions(unittest.TestCase):
 
         with self.assertRaises(exception.UserInputError):
             run_test.test("init {directory} -- --project".format(directory=directory))
-
-
-def _make_package_with_no_python_files():
-    directory = package_wrap.make_directory("_no_python_files")
-
-    package_text = textwrap.dedent(
-        """\
-        name = "some_package"
-
-        version = "1.0.0"
-
-        requires = ["python"]
-
-        build_command = "python {root}/rezbuild.py"
-
-        def commands():
-            import os
-
-            env.PYTHONPATH.append(os.path.join(root, "python"))
-        """
-    )
-
-    with io.open(os.path.join(directory, "package.py"), "w", encoding="utf-8") as handler:
-        handler.write(package_text)
-
-    return directory
