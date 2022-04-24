@@ -17,6 +17,8 @@ from .common import run_test
 # - skipping overwriting latest (because the user is back-patching)
 
 # TODO : Add mono publishing support
+ # should be able to publish to the same repository as the current package!
+# TODO : Add any-version-publishing use-case
 
 
 class Publish(unittest.TestCase):
