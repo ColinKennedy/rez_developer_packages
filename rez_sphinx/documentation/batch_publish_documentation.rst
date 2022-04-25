@@ -14,13 +14,27 @@ If you want to add documentation in-batch, the steps are very similar to
 
 
 - cd to the root of some git repository containing **source** Rez packages
+- Make a ``rez-env`` containing these packages
+
+    - rez_sphinx
+    - rez_inspect
+
 - Run this in the terminal:
 
 TODO : double-check that this script works
 
+.. important::
+
+    You'll need to build and include rez-inspect, which is a Rez package
+    located in this repository.
+
+
 .. code-block:: sh
 
     # add_rez_sphinx.sh
+
+    set -e  # Stop execution on the first error. This is optional
+
     export REZ_SPHINX_INIT_OPTIONS_CHECK_DEFAULT_FILES=0
 
     message="Added rez_sphinx documentation"
@@ -35,11 +49,11 @@ TODO : double-check that this script works
     do
         cd $directory
 
-        package_name=`get_package_name`  # TODO : Need this
-        package_version=`get_package_version`  # TODO : Need this
+        package_name=`rez-inspect name --style=pretty`
+        package_version=`rez-inspect version --style=pretty`
 
         rez-build --clean --install
-        rez-env '$package_name==$package_version' rez_sphinx -- rez_sphinx init --skip-existing
+        rez-env "$package_name==$package_version" rez_sphinx -- rez_sphinx init --skip-existing
         git add --all .
         git commit -m $message
         # Uncomment the line below if you're extra cool ;)
