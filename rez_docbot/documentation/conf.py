@@ -105,3 +105,13 @@ rst_epilog = textwrap.dedent(
 
 # TODO : .. _rezconfig.py:
 # TODO : .. _SemVer: https://semver.org
+# - Also check the `foo`_ stuff
+# `.nojekyll`_
+# `GitHub`_
+# `Sphinx`_
+# `git`_
+# `CRUD`_
+# `GitHub enterprise`_
+# `access token`_
+#
+# `GitHub organization`_, or
