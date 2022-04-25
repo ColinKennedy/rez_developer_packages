@@ -5,14 +5,6 @@ Batch-Publish Documentation
 If you want to add documentation in-batch, the steps are very similar to
 :doc:`getting_started`, with some adjustments.
 
-.. important::
-
-   If you want auto-linking, auto-publishing, and the like to work, you must
-   opt-in to those features before following this tutorial.
-
-   Follow the steps in :doc:`rez_sphinx_as_a_release_hook` first before continuing.
-
-
 - cd to the root of some git repository containing **source** Rez packages
 - Make a ``rez-env`` containing these packages
 
@@ -44,7 +36,11 @@ TODO : double-check that this script works
     branch=features/adding_rez_sphinx
 
     cd $root
-    git checkout -b $branch
+
+    if [ "`git branch --show-current`" != "$branch" ]
+    then
+        git checkout -b $branch
+    fi
 
     for directory in $directories
     do
@@ -75,6 +71,14 @@ without prior approval.
 
 When You're Ready To Release
 ****************************
+
+.. important::
+
+   If you want auto-linking, auto-publishing, and the like to work, you must
+   opt-in to those features before following this tutorial.
+
+   Follow the steps in :doc:`rez_sphinx_as_a_release_hook` first before continuing.
+
 
 Assuming you go through PR, everything's merged into master, and you're ready
 to release. This script will automate that.
