@@ -73,7 +73,7 @@ def make_dependent_packages():
         install_path,
         packages_path=[
             install_path,
-            # Remove all `release_packages_path` references, if possible
+            # !!! Remove all `release_packages_path` references, if possible
             config.release_packages_path,  # pylint: disable=no-member
         ],
         quiet=True,
@@ -113,7 +113,7 @@ def make_dependent_packages():
         install_path,
         packages_path=[
             install_path,
-            # Remove all `release_packages_path` references, if possible
+            # !!! Remove all `release_packages_path` references, if possible
             config.release_packages_path,  # pylint: disable=no-member
         ],
         quiet=True,

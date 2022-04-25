@@ -11,7 +11,7 @@ with scope("config") as config:
     config.local_packages_path = os.path.join(root, "installed_packages")
     config.packages_path = [
         os.path.join(root, "installed_packages"),
-        # TODO : Make this better, later. We shouldn't be assuming external python comes from a certain path
+        # !!! Make this better, later. We shouldn't be assuming external python comes from a certain path
         os.path.join(os.path.expanduser("~"), "packages"),  # Contains ``python``
     ]
 
