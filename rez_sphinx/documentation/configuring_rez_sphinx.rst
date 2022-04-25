@@ -619,8 +619,6 @@ Default: ``True``
 sphinx-quickstart
 =================
 
-TODO: Make this consistent with other options
-
 Like :ref:`rez_sphinx.sphinx-apidoc.arguments`, which allows you to pass
 arguments directly to `sphinx-apidoc`_, this setting customizes the arguments
 passed to ``sphinx-quickstart``.

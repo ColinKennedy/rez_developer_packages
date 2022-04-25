@@ -40,7 +40,6 @@ def make_dependent_packages():
     """Create a Rez package with a dependent package - both have documentation."""
     install_path = make_directory("_make_dependent_a_package_install_root")
 
-    # TODO : Add a proper python package or find a way to build without it
     dependency_package = make_simple_developer_package(
         package_text=textwrap.dedent(
             """\
@@ -74,7 +73,7 @@ def make_dependent_packages():
         install_path,
         packages_path=[
             install_path,
-            # TODO : Remove all `release_packages_path` references
+            # Remove all `release_packages_path` references, if possible
             config.release_packages_path,  # pylint: disable=no-member
         ],
         quiet=True,
@@ -114,7 +113,7 @@ def make_dependent_packages():
         install_path,
         packages_path=[
             install_path,
-            # TODO : Remove all `release_packages_path` references
+            # Remove all `release_packages_path` references, if possible
             config.release_packages_path,  # pylint: disable=no-member
         ],
         quiet=True,

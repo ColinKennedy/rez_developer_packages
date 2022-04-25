@@ -5,10 +5,6 @@
 User Documentation
 ##################
 
-TODO : Visit this tutorial once rez_docbot exists. And possibly update it with
-remote information.
-
-
 :ref:`rez_sphinx` is the bridge between `Rez`_ and `Sphinx`_. It takes all of
 the `Sphinx`_'s great documentation-generation features and tightly integrates
 it with `Rez`'s excellent environment management system. As a result, you get
@@ -69,6 +65,7 @@ customization or are administering :ref:`rez_sphinx` at a company / studio.
    adding_extra_interlinking
    configuring_rez_sphinx
    auto_append_help_tags
+   enable_external_website_publishing
    enabling_rez_help_integration
    rez_sphinx_as_a_release_hook
    batch_publish_documentation

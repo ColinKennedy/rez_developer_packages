@@ -223,11 +223,18 @@ def build(
         api_mode.execute(source_directory, options=api_options)
 
     try:
-        sphinx_build.main(parts)
+        failure = sphinx_build.main(parts)
     except SystemExit:
         raise exception.SphinxExecutionError(
-            "sphinx-build failed. See the help, below:\n\n{help_}".format(
+            "sphinx-build failed to parse. See the help, below:\n\n{help_}".format(
                 help_=sphinx_build.get_parser().format_help(),
+            )
+        )
+
+    if failure:
+        raise exception.SphinxExecutionError(
+            'sphinx-build failed with code "{failure}".'.format(
+                failure=failure,
             )
         )
 
