@@ -33,8 +33,8 @@ Write Some Documentation
 :ref:`rez_sphinx` by default adds some template files which you are expected
 to fill out located at:
 
-- ``{root}/documentation/source/developer_documentation.rst``
-- ``{root}/documentation/source/user_documentation.rst``
+- ``{root}/documentation/developer_documentation.rst``
+- ``{root}/documentation/user_documentation.rst``
 
 .. important::
 
@@ -47,8 +47,8 @@ Run this in your terminal to quickly append some edits to those files:
 
 .. code-block:: sh
 
-    echo "Some documentation for users here" >> ./documentation/source/user_documentation.rst
-    echo "Some technical documentation" >> ./documentation/source/developer_documentation.rst
+    echo "Some documentation for users here" >> ./documentation/user_documentation.rst
+    echo "Some technical documentation" >> ./documentation/developer_documentation.rst
 
 
 .. note::
@@ -68,7 +68,7 @@ to build!
     rez-test your_package_name_here build_documentation
 
 Congratulations, your documentation is now waiting for you in
-``{root}/documentation/build/index.html``.
+``{root}/build/documentation/index.html``.
 
 If all you want to do is get some documentation quickly up and running and
 aren't too particular about the details, here's where the tutorial ends.  But

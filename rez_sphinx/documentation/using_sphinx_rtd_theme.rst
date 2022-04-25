@@ -2,8 +2,6 @@
 Using sphinx-rtd-theme
 ######################
 
-TODO make sure the tutorials in this page work
-
 `readthedocs.io`_ has been a huge boon for the Python community. Its website
 front end for hosting documentation is a fantastic resource. It also open
 sourced a `sphinx theme`_ called `sphinx-rtd-theme`_.
@@ -18,13 +16,12 @@ And here's the same page, using `sphinx-rtd-theme`_.
 
 Most prefer the latter, `sphinx-rtd-theme`_.
 
-In ``rez_sphinx``, there's 3 ways to apply `sphinx-rtd-theme`_. All three methods
-apply during :ref:`rez_sphinx build run`.
+In ``rez_sphinx``, there's three ways to apply `sphinx-rtd-theme`_. All three
+methods apply during :ref:`rez_sphinx build run`.
 
-- globally, for all packages
-- per-user, using rezconfig
-- per-package, using configuration overrides
-- the manual way
+- :ref:`globally choosing a sphinx theme`, for all packages
+- :ref:`locally choosing a sphinx theme`, per-user, using rezconfig
+- :ref:`define a scoped package config`, per-package for all users
 
 
 Modifying Your Sphinx Theme
@@ -34,12 +31,10 @@ Themes can be editted globally, across all Rez packages, or modified within
 individual Rez packages. Here's how.
 
 
-.. _globally_choosing_a_sphinx_theme:
+.. _globally choosing a sphinx theme:
 
 Globally Choosing A Sphinx Theme
 ********************************
-
-TODO make sure this tutorial works
 
 Define a `rezconfig.py`_ like you normally would and add this block into it.
 
@@ -47,7 +42,7 @@ Define a `rezconfig.py`_ like you normally would and add this block into it.
 
     optionvars = {
         "rez_sphinx": {
-            "extra_requires": ["sphinx_rtd_theme-1+<2"],
+            "extra_requires": ["sphinx_rtd_theme-1"],
             "sphinx_conf_overrides": {
                 "html_theme": "sphinx_rtd_theme",
             },
@@ -70,10 +65,11 @@ command:
 
    rez-test your_package_name_here build_documentation
 
-Now your documentation should be running the `sphinx-rtd-theme`_.
+This package, ``your_package_name_here``, as well as all other packages that
+you build from now on will build with `sphinx-rtd-theme`_!
 
 
-.. _locally_choosing_a_sphinx_theme:
+.. _locally choosing a sphinx theme:
 
 Locally Choosing A Sphinx Theme
 *******************************
@@ -84,19 +80,17 @@ Use A Local rezconfig.py
 If you want a theme on a specific Rez package and you don't want enforce it
 across all users, you have two options:
 
-- Repeat the same steps in :ref:`globally_choosing_a_sphinx_theme` but, instead
+- Repeat the same steps in :ref:`globally choosing a sphinx theme` but, instead
   of installing `rezconfig.py`_ in a central location, just write the file to
   your local user anywhere. Like ``~/rezconfig.py``.
 - When building, run
   ``REZ_CONFIG_FILE=~/rezconfig.py rez-test your_package_name_here build_documentation``
 
 
-.. _define_a_scoped_package_config:
+.. _define a scoped package config:
 
 Define a scoped package config
 ------------------------------
-
-TODO : Make sure this works!
 
 If you don't like all that typing (I don't blame you) or want something more
 permanent that persists on a Rez package, there's another option. In your
@@ -105,26 +99,41 @@ permanent that persists on a Rez package, there's another option. In your
 
 .. code-block:: python
 
-    with scope("config") as config:
-        config.optionvars.update(
-            {
-                "rez_sphinx": {
-                    "extra_requires": ["sphinx_rtd_theme-1+<2"],
-                    "sphinx_conf_overrides": {
-                        "html_theme": "sphinx_rtd_theme",
-                    },
-                },
-            }
-        )
+    name = "your_package_name_here"
+
+    version = "1.0.0"
+
+    # You can also just add this directly to your ``{root}/documentation/conf.py``.
+    #
+    # ``html_theme = "sphinx_rtd_theme"``.
+    #
+    # In which case, omit ``rez_sphinx_configuration``
+    #
+    rez_sphinx_configuration = {
+        "sphinx_conf_overrides": {
+            "html_theme": "sphinx_rtd_theme",
+        },
+    }
+
+    tests = {
+        "build_documentation": {
+            "command": "rez_sphinx build run",
+            "requires": [
+                "rez_sphinx-1",
+                "sphinx_rtd_theme-1",  # <-- Add this here, manually
+            ],
+        },
+    }
 
 Now you can just run ``rez-test your_package_name_here build_documentation``
-without worry. Even if someone else builds the Rez package, this will still work.
+without worry. No `rezconfig.py`_ necessary. And even if someone else other
+than you builds the Rez package, this will still work.
 
 
 Parting Thoughts
 ================
 
-If you can define the theme globally, :ref:`globally_choosing_a_sphinx_theme`
+If you can define the theme globally, :ref:`globally choosing a sphinx theme`
 is usually the best option. However if you need a local solution, I highly
 recommend :ref:`define_a_scoped_package_config` over
 :ref:`locally_choosing_a_sphinx_theme` because it has the most consistent

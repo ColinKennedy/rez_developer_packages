@@ -78,16 +78,6 @@
 - Allow users to specify multiple potential publish keys
  - Add a configuration for a "try order". e.g. if X, use X, then try Y, etc.
 
-- Add windows bin support
-
-- Allow template headers so people can link back to company websites and what not
-
-readthedocs integration?
-
-- Add a warning message that the user's preprocess function is not set
-
-- Make main documentation as README.rst
-
 - Go through BIG_IDEAS.md
 
 

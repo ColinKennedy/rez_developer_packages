@@ -4,8 +4,7 @@ version = "1.0.0"
 
 description = "Automate the initialization and building of Sphinx documentation."
 
-# TODO : Make sure this goes to a real path
-help = [["README", "README.md"]]
+help = [["README", "README.rst"]]
 
 authors = ["ColinKennedy"]
 
@@ -21,7 +20,7 @@ def requires():
         "python-2.7+<3.8",
         "rez-2.42+<2.106",
         "rez_bump-1.6+<2",
-        "rez_industry-3.1+<4",  # TODO : Kill this awful dependency later
+        "rez_industry-3.1+<4",
         "rez_python_compatibility-2.8+<3",
         "rez_utilities-2.6+<3",
         "schema-0.7+<1",
@@ -77,10 +76,8 @@ tests = {
     "build_documentation": {
         "command": "rez_sphinx build run",
         "requires": [
-            # Add rez_docbot interlinks
-            ".rez_sphinx.feature.docbot_plugin==1",
-            # TODO : Add python-3 back in, later
-            # "python-3+",  # Get the latest Sphinx / python combination
+            ".rez_sphinx.feature.docbot_plugin==1",  # Add rez_docbot interlinks
+            "python-3+",  # Get the latest Sphinx / python combination
             "sphinx_rtd_theme-1+<2",
         ],
     },

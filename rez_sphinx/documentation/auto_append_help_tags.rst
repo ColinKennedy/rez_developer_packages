@@ -19,6 +19,8 @@ you've got two options:
 - Define the paths to the files manually.
 
 
+.. _rez_sphinx_help:
+
 .. _automated_auto_help_appending:
 
 Let :ref:`rez_sphinx` write to ``help``, for you
