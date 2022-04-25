@@ -154,6 +154,7 @@ def _init(namespace):
         package,
         quick_start_options=namespace.quick_start_arguments,
         skip_existing=namespace.skip_existing,
+        verbose=bool(namespace.verbose),
     )
 
 
