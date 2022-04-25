@@ -242,10 +242,7 @@ def _publish_run(namespace):
 
     publishers = publish_run.get_all_publishers(package)
 
-    if not publishers:
-        raise exception.PluginConfigurationError(
-            "No rez_docbot publishers were found. Edit your rezconfig.py and try again."
-        )
+    _validate_publishers(publishers)
 
     built_documentation = publish_run.build_documentation(
         package,
@@ -736,6 +733,16 @@ def _validate_base_settings(package=None):
         )
 
         raise
+
+
+def _validate_publishers(publishers):
+    """Check :ref:`rez_docbot` publishers for any issues."""
+    if publishers:
+        return
+
+    raise exception.PluginConfigurationError(
+        "No rez_docbot publishers were found. Edit your rezconfig.py and try again."
+    )
 
 
 def _validate_readable(path):

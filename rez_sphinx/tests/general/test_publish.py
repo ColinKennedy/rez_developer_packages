@@ -40,12 +40,34 @@ class Run(unittest.TestCase):
             [installed_package]
         ), wrapping.silence_printing(), run_test.allow_defaults(), mock.patch(
             "rez_sphinx.commands.publish_run.get_all_publishers"
-        ) as patch:
+        ) as patch, mock.patch(
+            "rez_sphinx.cli._validate_publishers"
+        ):
             patch.return_value = []  # Prevent actually attempting to publish
 
             run_test.test(
                 ["publish", "run", source_directory, "--packages-path", install_path]
             )
+
+    def test_no_publishers(self):
+        """Fail early if there's no registered publishers to publish to."""
+        source_package = _make_package_with_no_tests_attribute()
+        source_directory = finder.get_package_root(source_package)
+        install_path = package_wrap.make_directory("_test_no_build_documentation_key")
+
+        installed_package = creator.build(source_package, install_path, quiet=True)
+
+        with run_test.simulate_resolve(
+            [installed_package]
+        ), wrapping.silence_printing(), run_test.allow_defaults(), mock.patch(
+            "rez_sphinx.commands.publish_run.get_all_publishers"
+        ) as patch:
+            patch.return_value = []  # Prevent actually attempting to publish
+
+            with self.assertRaises(exception.PluginConfigurationError):
+                run_test.test(
+                    ["publish", "run", source_directory, "--packages-path", install_path]
+                )
 
     def test_not_inited(self):
         """Fail publishing because :ref:`rez_sphinx init` was never ran."""
@@ -59,7 +81,9 @@ class Run(unittest.TestCase):
             [installed_package]
         ), wrapping.silence_printing(), run_test.allow_defaults(), mock.patch(
             "rez_sphinx.commands.publish_run.get_all_publishers"
-        ) as patch:
+        ) as patch, mock.patch(
+            "rez_sphinx.cli._validate_publishers"
+        ):
             patch.return_value = []  # Prevent actually attempting to publish
 
             with self.assertRaises(exception.NoDocumentationFound):

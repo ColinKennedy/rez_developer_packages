@@ -125,7 +125,7 @@ class Options(unittest.TestCase):
         ):
             run_test.test(["init", directory, "--skip-existing"])
 
-        self.assertEqual(0, patch.call_count)
+        self.assertEqual(1, patch.call_count)
 
 
 class OptionsBuildKey(unittest.TestCase):
