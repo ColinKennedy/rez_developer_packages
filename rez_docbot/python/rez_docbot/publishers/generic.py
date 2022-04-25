@@ -10,6 +10,7 @@ import tempfile
 
 import schema
 from rez.vendor.version import version as version_
+import giturlparse
 
 from ..bases import base as base_
 from ..core import common, schema_type
@@ -27,6 +28,8 @@ _VIEW_URL = "view_url"
 _LOGGER = logging.getLogger(__name__)
 # Reference: https://stackoverflow.com/a/40972959/3626104
 _CURLIES = re.compile(r"\{(.*?)\}")
+
+_GIT_HEADLESS_REPOSITORY_SUFFIX = ".git"
 
 AUTHENICATION = "authentication"
 
@@ -236,7 +239,7 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
     def _get_repository_details(self):
         """RepositoryDetails: Get all repository data (URL, group name, etc)."""
         group = self._get_resolved_group()
-        repository = self._get_resolved_repository()
+        repository = self._get_resolved_repository_name()
 
         return common.RepositoryDetails(
             group, repository, self.get_resolved_repository_uri()
@@ -254,15 +257,15 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
 
         """
         item = self._data[_REPOSITORY_URI]
+        package = self._get_package()
 
         if not callable(item):
             base = item[schema_type.GROUP]
+        else:
+            push_url = item(self._get_package())
+            base = _parse_url_owner(push_url)
 
-            return base.format(package=self._get_package())
-
-        push_url = item(self._get_package())
-
-        return _parse_url_group(push_url)
+        return base.format(package=package)
 
     def _get_resolved_publish_pattern(self):
         """str: Get the version folder name, using :ref:`publish_pattern`."""
@@ -271,19 +274,29 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
 
         return pattern.format(package=self._get_package())
 
-    def _get_resolved_repository(self):
+    def _get_resolved_repository_name(self):
         """Get the URL pointing to the documentation repository.
 
         If the URL contains {}s, like ``{package.name}``, expand them using the
         currently-tracked Package.
 
         Returns:
-            str: The final, resolved URL.
+            str:
+                The final, resolved URL. e.g. If the full URL is
+                ``"git@github.com:Foo/bar.git"``, then this function would
+                return ``"bar"``.
 
         """
-        base = self._data[_REPOSITORY_URI].get(schema_type.REPOSITORY, "")
+        item = self._data[_REPOSITORY_URI]
+        package = self._get_package()
 
-        return base.format(package=self._get_package())
+        if not callable(item):
+            base = item.get(schema_type.REPOSITORY, "")
+        else:
+            push_url = item(self._get_package())
+            base = _parse_url_repository(push_url)
+
+        return base.format(package=package)
 
     @classmethod
     def _get_schema(cls):
@@ -532,9 +545,15 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
 
     def get_resolved_repository_uri(self):
         """str: Get the URL / URI / etc to a remote git repository."""
-        base = self._data[_REPOSITORY_URI][schema_type.ORIGINAL_TEXT]
+        item = self._data[_REPOSITORY_URI]
+        package = self._get_package()
 
-        return base.format(package=self._get_package())
+        if not callable(item):
+            base = item[schema_type.ORIGINAL_TEXT]
+        else:
+            base = item(self._get_package())
+
+        return base.format(package=package)
 
     def get_resolved_view_url(self):
         """Create a viewable URL where documentation can be seen.
@@ -616,8 +635,40 @@ def _make_temporary_directory():
     return directory
 
 
-def _parse_url_group(url):
-    raise ValueError(url)
+def _parse_url_repository(url):
+    """Get the git repository from a full URL (HTTPS / SSH / etc).
+
+    Args:
+        url (str): Some remote URL. e.g. ``"git@github.com:Foo/bar.git"``.
+
+    Returns:
+        str: The found repository name. e.g. ``"bar"``.
+
+    """
+    parsed = giturlparse.parse(url)
+    repository = parsed.repo
+
+    if repository.endswith(_GIT_HEADLESS_REPOSITORY_SUFFIX):
+        repository = repository[:-1 * len(_GIT_HEADLESS_REPOSITORY_SUFFIX)]
+
+    return repository
+
+
+def _parse_url_owner(url):
+    """Convert a git URL (HTTPS / SSH) to a owner name.
+
+    Args:
+        url (str):
+            Some remote location, e.g. ``"https://github.com/Foo/bar.git"`` or
+            ``"git@github.com:Foo/bar.git"``
+
+    Returns:
+        str: The found owner name. e.g. ``"Foo"``.
+
+    """
+    parsed = giturlparse.parse(url)
+
+    return parsed.owner
 
 
 def _validate_authenticator(method):

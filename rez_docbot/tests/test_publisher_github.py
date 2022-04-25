@@ -13,6 +13,7 @@ from python_compatibility import website
 from rez_utilities import finder
 from rez_docbot.core import preference
 from six.moves import mock
+from rez_docbot.core import common
 from git.repo import base
 import schema
 
@@ -126,7 +127,13 @@ class Remote(unittest.TestCase):
         ) as publisher:
             details = publisher._get_repository_details()
 
-            raise ValueError(details)
+        expected = common.RepositoryDetails(
+            group="Thing",
+            repository="blah",
+            clone_url="git@foo.com:Thing/blah.git",
+        )
+
+        self.assertEqual(expected, details)
 
     def test_relative_path(self):
         """Allow users to specify a relative path ."""
