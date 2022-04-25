@@ -17,6 +17,7 @@ Removing rez_sphinx/tests/data/
 
 REZ_PACKAGES_PATH=/home/selecaoone/work_area/add_rez_docbot_2:/home/selecaoone/.rez/packages/int rez-env rez_sphinx rez_inspect
 REZ_PACKAGES_PATH=/home/selecaoone/work_area/add_rez_docbot_2:/home/selecaoone/.rez/packages/int /home/selecaoone/temp/add_rez_sphinx.sh
+g reset * && g clean -fd && g co .
 
 - do TODO notes / Todo / NotImplementedError
 
