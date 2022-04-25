@@ -1,4 +1,5 @@
 Features
+
 - Allow publishing to a relative path, instead of to the root repository location!
 
    - rename inner_path to relative_path
