@@ -39,21 +39,26 @@ TODO : double-check that this script works
 
     if [ "`git branch --show-current`" != "$branch" ]
     then
-        git checkout -b $branch
+        if [ `git branch --list $branch` ]
+        then
+            git checkout $branch
+        else
+            git checkout -b $branch
+        fi
     fi
 
     for directory in $directories
     do
         cd $directory
 
+        rez-build --clean --install
         package_name=`rez-inspect name --style=pretty`
         package_version=`rez-inspect version --style=pretty`
-
-        rez-build --clean --install
         rez-env "$package_name==$package_version" rez_sphinx -- rez_sphinx init --skip-existing
         git add --all .
         git commit -m $message
-        # Uncomment the line below if you're extra cool ;)
+
+        # You can uncomment the line below if you already have the release_hook set up
         # git push -u origin $branch && rez-release -m $message
     done
 

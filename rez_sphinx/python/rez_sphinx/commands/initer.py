@@ -150,7 +150,7 @@ def _run_sphinx_quickstart(directory, options=tuple()):
     )
 
 
-def init(package, quick_start_options=tuple(), skip_existing=False):
+def init(package, quick_start_options=tuple(), skip_existing=False, verbose=False):
     """Connect a Rez source ``package`` to :ref:`rez_sphinx`.
 
     Warning:
@@ -168,6 +168,8 @@ def init(package, quick_start_options=tuple(), skip_existing=False):
             If False, check for documentation and error if existing
             documentation is found. If True, instead of erroring, do nothing
             and return early.
+        verbose (bool, optional):
+            If True, show `sphinx-quickstart`_ output.
 
     """
     initial_files = preference.get_initial_files_from_configuration()
@@ -191,11 +193,24 @@ def init(package, quick_start_options=tuple(), skip_existing=False):
     else:
         quickstart_root = documentation_source_root
 
-    if not skip_existing:
+    try:
         _check_for_existing_documentation(os.path.dirname(quickstart_root))
+    except exception.RezSphinxException:
+        if not skip_existing:
+            raise
 
-    with wrapping.silence_printing():
+        _LOGGER.info(
+            'Directory "%s" already has documentation. Skipping.',
+            documentation_source_root,
+        )
+
+        return
+
+    if verbose:
         configuration_path = _run_sphinx_quickstart(quickstart_root, options=options)
+    else:
+        with wrapping.silence_printing():
+            configuration_path = _run_sphinx_quickstart(quickstart_root, options=options)
 
     if preference.SPHINX_SEPARATE_SOURCE_AND_BUILD in options:
         _add_initial_files(documentation_source_root, initial_files)

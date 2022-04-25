@@ -6,10 +6,11 @@ Most of these functions are just thin wraps around `rez-config`_ calls.
 
 import itertools
 import logging
+import os
 import platform
 
 import schema
-import six
+from rez.vendor.version import version
 from rez import exceptions as rez_exceptions
 from rez import plugin_managers
 from rez.config import config as config_
@@ -167,7 +168,24 @@ _PUBLISH_HOOK_CLASS_NAME = "publish_documentation"
 _PACKAGE_CONFIGURATION_ATTRIBUTE = "rez_sphinx_configuration"
 _REZ_OPTIONVARS = "optionvars"
 
+_SPHINX_NO_SEP_VERSION = version.Version("3.3")
+
 _LOGGER = logging.getLogger(__name__)
+
+
+def _supports_no_sep():
+    """Check if `sphinx-quickstart`_ supports the ``--no-sep`` argument.
+
+    ``--no-sep`` is only available on or after 3.3
+
+    References:
+        https://www.sphinx-doc.org/en/master/changes.html#id521
+
+    Returns:
+        bool: If the current `Sphinx`_ version allows ``--no-sep``.
+
+    """
+    return version.Version(os.environ["REZ_SPHINX_VERSION"]) >= _SPHINX_NO_SEP_VERSION
 
 
 def _get_preprocess_import_path():
@@ -240,7 +258,7 @@ def _get_quick_start_overridable_options(overrides=tuple()):
     """
     output = list(overrides)
 
-    if "--sep" not in output:
+    if "--sep" not in output and _supports_no_sep():
         output.append("--no-sep")
 
     if "--language" not in output and "-l" not in output:
