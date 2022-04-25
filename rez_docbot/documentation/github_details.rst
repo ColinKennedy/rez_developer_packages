@@ -1,6 +1,20 @@
-####################
+##############
+GitHub Details
+##############
+
+TODO
+
+
+Branch publishing
+=================
+
+TODO : warn about not using gh-pages
+
+
+.. _github access tokens:
+
 GitHub Access Tokens
-####################
+====================
 
 TODO : Write this
 

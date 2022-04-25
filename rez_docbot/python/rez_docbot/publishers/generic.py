@@ -19,6 +19,7 @@ _BRANCH = "branch"
 _INNER_PATH = "inner_path"
 _LATEST_FOLDER = "latest_folder"
 _PUBLISH_PATTERN = "publish_pattern"
+_RELATIVE_PATH = "relative_path"
 _REPOSITORY_URI = "repository_uri"
 _REQUIRED = "required"
 _SKIP_EXISTING_VERSION = "skip_exsting_version"
@@ -317,6 +318,7 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
             schema.Optional(
                 _PUBLISH_PATTERN, default=[schema_type.DEFAULT_PUBLISH_PATTERN]
             ): schema_type.PUBLISH_PATTERNS,
+            schema.Optional(_RELATIVE_PATH, default="."): schema_type.NON_EMPTY_STR,
             schema.Optional(_REQUIRED, default=True): bool,
             schema.Optional(_SKIP_EXISTING_VERSION, default=False): bool,
             schema.Optional(

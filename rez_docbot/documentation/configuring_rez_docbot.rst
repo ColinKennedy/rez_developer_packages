@@ -5,6 +5,8 @@ Configuring rez_docbot
 rez_docbot allows users to define multiple publish locations for documentation
 as well as
 
+TODO : :ref:`per-package configuration`
+
 TODO Finish
 
 

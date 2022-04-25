@@ -30,9 +30,11 @@ It's important to remember these following types:
 - You do not need to directly write authentication details directly in `rezconfig.py`_
     - See :ref:`authentication indirection`
 
+TODO finish this dsecription below
 
-In general, :ref:`rez_docbot` doesn't put any hard requirements for how publishers
-authenticate. As long as the publisher provides a :meth:`.Publisher.authenticate` method,
+In general, :ref:`rez_docbot` doesn't put any hard requirements for how
+publishers authenticate. As long as the publisher provides a
+:meth:`.Publisher.authenticate` method, publishers can
 
 the methodology for authenticating to a remote service is completely up to th
 
@@ -83,4 +85,4 @@ limited permission sets so even if a bad actor got those log-in details, they
 wouldn't be able to do much with it as long as your token is set correctly.
 
 To see rez_docbot's recommended GitHub permissions settings, see
-:doc:`github_access_tokens`.
+:ref:`github_access_tokens`.

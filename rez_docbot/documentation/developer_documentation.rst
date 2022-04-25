@@ -15,7 +15,8 @@ General Pages
 
    authenticating
    configuring_rez_docbot
-   customizing_rez_docbot
+   mono_vs_multi_package_repositories
+   popular_publish_configurations
    publishing_per_version
 
 
@@ -24,4 +25,4 @@ Publisher-Specific Pages
 
 .. toctree::
 
-   github_access_tokens
+   github_details
