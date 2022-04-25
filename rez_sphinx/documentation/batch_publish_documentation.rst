@@ -32,6 +32,7 @@ TODO : double-check that this script works
 .. code-block:: sh
 
     # add_rez_sphinx.sh
+    #!/usr/bin/env sh
 
     set -e  # Stop execution on the first error. This is optional
 
