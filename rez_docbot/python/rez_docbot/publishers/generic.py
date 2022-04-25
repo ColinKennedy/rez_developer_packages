@@ -641,11 +641,18 @@ def _parse_url_repository(url):
     Args:
         url (str): Some remote URL. e.g. ``"git@github.com:Foo/bar.git"``.
 
+    Raises:
+        ValueError: If ``url`` is not a parsable git repository.
+
     Returns:
         str: The found repository name. e.g. ``"bar"``.
 
     """
     parsed = giturlparse.parse(url)
+
+    if not hasattr(parsed, "repo"):
+        raise ValueError('URL "{url}" could not be parsed.'.format(url=url))
+
     repository = parsed.repo
 
     if repository.endswith(_GIT_HEADLESS_REPOSITORY_SUFFIX):
@@ -662,11 +669,17 @@ def _parse_url_owner(url):
             Some remote location, e.g. ``"https://github.com/Foo/bar.git"`` or
             ``"git@github.com:Foo/bar.git"``
 
+    Raises:
+        ValueError: If ``url`` is not a parsable git repository.
+
     Returns:
         str: The found owner name. e.g. ``"Foo"``.
 
     """
     parsed = giturlparse.parse(url)
+
+    if not hasattr(parsed, "owner"):
+        raise ValueError('URL "{url}" could not be parsed.'.format(url=url))
 
     return parsed.owner
 

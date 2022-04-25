@@ -19,17 +19,6 @@ import schema
 
 from .common import run_test
 
-# TODO : Need test for ...
-#
-# - skipping version generation
-# - publishing over an existing version folder
-# - overwriting latest
-# - skipping overwriting latest (because the user is back-patching)
-
-# TODO : Add mono publishing support
-# should be able to publish to the same repository as the current package!
-# TODO : Add any-version-publishing use-case
-
 
 class Authentication(unittest.TestCase):
     """Make sure :class:`rez_docbot.publishers.github.Github` connects as expected."""
@@ -100,6 +89,8 @@ class Authentication(unittest.TestCase):
 
 
 class Remote(unittest.TestCase):
+    """Make sure different remote configurations work as expected."""
+
     def test_mono_repository(self):
         """Allow users to publish to a branch within its own repository.
 
