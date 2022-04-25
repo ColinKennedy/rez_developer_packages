@@ -1,9 +1,12 @@
 Features
 - Allow publishing to a relative path, instead of to the root repository location!
+
    - rename inner_path to relative_path
    - add unittest to make sure the inner folders are created
+   
 - Make sure there's a mechanism to force publish (versioned / latest)
 - If package doesn't have a version
+
    - if latest is disabled, error
    - don't create a version folder, since there's no version
 
