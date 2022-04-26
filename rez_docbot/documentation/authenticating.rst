@@ -85,4 +85,4 @@ limited permission sets so even if a bad actor got those log-in details, they
 wouldn't be able to do much with it as long as your token is set correctly.
 
 To see rez_docbot's recommended GitHub permissions settings, see
-:ref:`github_access_tokens`.
+:ref:`GitHub access tokens`.

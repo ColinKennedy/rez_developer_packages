@@ -25,6 +25,10 @@ from .common import package_wrap, run_test
 class Authentication(unittest.TestCase):
     """Make sure :class:`rez_docbot.publishers.github.Github` connects as expected."""
 
+    def test_bad_permissions(self):
+        """Fail gracefully if we cannot clone / push to a remote repository."""
+        raise ValueError()
+
     def test_from_file(self):
         """Read authentication details from a file."""
         path = _make_temporary_file(

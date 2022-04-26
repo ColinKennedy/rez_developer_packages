@@ -87,7 +87,6 @@ import textwrap
 html_theme = "sphinx_rtd_theme"
 extensions.extend(("sphinx.ext.napoleon", "sphinx.ext.todo"))
 
-# TODO : Consider moving these to my own packages - or some kind of config
 intersphinx_mapping.update(
     {"https://docs.python.org/3/": None, "https://nerdvegas.github.io/rez": None}
 )

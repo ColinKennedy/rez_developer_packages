@@ -29,9 +29,9 @@ def _copy_with_overrides(overrides, config):
     """
     config = config_.copy(overrides=overrides)
 
-    # TODO : Not sure why I need to this for optionvars to "take" properly.
-    # Possibly it's a config bug? The `_uncache` method, I expected,
-    # should've handled this case
+    # !!! Not sure why I need to this for optionvars to "take" properly.
+    # Possibly it's a config bug? The `_uncache` method, I expected, should've
+    # handled this case
     #
     if _REZ_OPTIONVARS in config.__dict__:
         del config.__dict__[_REZ_OPTIONVARS]

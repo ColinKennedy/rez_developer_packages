@@ -11,7 +11,7 @@ Branch publishing
 TODO : warn about not using gh-pages
 
 
-.. _github access tokens:
+.. _GitHub access tokens:
 
 GitHub Access Tokens
 ====================

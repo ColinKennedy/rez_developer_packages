@@ -1,6 +1,3 @@
-# TODO : Consider making this a "non-Rez" name. Does it really have any Rez
-# components? Maybe not.
-#
 name = "rez_docbot"
 
 version = "1.0.0"
