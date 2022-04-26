@@ -33,6 +33,8 @@ rez_docbot.publishers.*.latest_folder
 TODO if set to an empty string, no latest folder is made
 
 
+.. _publish_pattern:
+
 rez_docbot.publishers.*.publish_pattern
 ***************************************
 
