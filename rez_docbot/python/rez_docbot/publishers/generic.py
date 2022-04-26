@@ -156,7 +156,7 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
             return root
 
         normalized = os.path.normcase(inner_path)
-        normalized = normalized.format(package=self._get_package())
+        normalized = normalized.format(package=self._package)
         directory = os.path.join(root, normalized)
 
         if not os.path.isdir(directory):
@@ -202,25 +202,6 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
 
         return max(versions)
 
-    def _get_package(self):
-        """Get the current Rez package or fail trying.
-
-        This method is called from other methods which require a Rez package to exist.
-
-        Raises:
-            RuntimeError: If this instance doesn't have a Rez package.
-
-        Returns:
-            rez.packages.Package: The tracked package.
-
-        """
-        if self._package:
-            return self._package
-
-        raise RuntimeError(
-            'This instance "{self}" has no package. Cannot continue.'.format(self=self)
-        )
-
     def _get_publish_pattern_searchers(self):
         """Get a callable function used to "find" versioned publish directories.
 
@@ -263,25 +244,24 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
 
         """
         item = self._data[_REPOSITORY_URI]
-        package = self._get_package()
 
         try:
             base = item[schema_type.GROUP]
         except (TypeError, AttributeError):
             if callable(item):
-                push_url = item(self._get_package())
+                push_url = item(self._package)
                 base = _parse_url_owner(push_url)
             else:
                 base = item
 
-        return base.format(package=package)
+        return base.format(package=self._package)
 
     def _get_resolved_publish_pattern(self):
         """str: Get the version folder name, using :ref:`publish_pattern`."""
         # TODO : Explain in documentation that the first publish pattern is always used
         pattern = self._data[_PUBLISH_PATTERN][0]
 
-        return pattern.format(package=self._get_package())
+        return pattern.format(package=self._package)
 
     def _get_resolved_repository_name(self):
         """Get the URL pointing to the documentation repository.
@@ -297,13 +277,12 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
 
         """
         item = self._data[_REPOSITORY_URI]
-        package = self._get_package()
 
         try:
             base = item.get(schema_type.REPOSITORY, "")
         except AttributeError:
             if callable(item):
-                push_url = item(self._get_package())
+                push_url = item(self._package)
                 base = _parse_url_repository(push_url)
             else:
                 base = item
@@ -408,7 +387,7 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
         latest_previous_publish = self._get_latest_version_folder(versioned)
 
         if latest_previous_publish or (
-            latest_previous_publish <= self._get_package().version
+            latest_previous_publish <= self._package.version
         ):
             _copy_into(documentation, latest)
 
@@ -417,7 +396,7 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
         _LOGGER.info(
             'Package "%s" is not the latest version. '
             'There is a more up-to-date version, "%s".',
-            self._get_package(),
+            self._package,
             latest_previous_publish,
         )
         _LOGGER.info('Overwriting latest "%s" will be skipped.', latest)
@@ -438,8 +417,7 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
 
         """
         names = os.listdir(versioned)
-        package = self._get_package()
-        raw_package_version = str(package.version)
+        raw_package_version = str(self._package.version)
 
         if self._skip_existing_version_folder() and self._has_existing_folder(
             raw_package_version, names
@@ -548,27 +526,25 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
         repository.commit(message)
         repository.push()
 
-        package = self._get_package()
         _LOGGER.info(
             'Package "%s / %s" documentation was published.',
-            package.name,
-            package.version,
+            self._package.name,
+            self._package.version,
         )
 
     def get_resolved_repository_uri(self):
         """str: Get the URL / URI / etc to a remote git repository."""
         item = self._data[_REPOSITORY_URI]
-        package = self._get_package()
 
         try:
             base = item[schema_type.ORIGINAL_TEXT]
         except (TypeError, AttributeError):
             if callable(item):
-                base = item(self._get_package())
+                base = item(self._package)
             else:
                 base = item
 
-        return base.format(package=package)
+        return base.format(package=self._package)
 
     def get_resolved_view_url(self):
         """Create a viewable URL where documentation can be seen.
@@ -582,7 +558,7 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
             str: The found website URL.
 
         """
-        base_url = self._data[_VIEW_URL].format(package=self._get_package())
+        base_url = self._data[_VIEW_URL].format(package=self._package)
         version_folder_name = self._data[_VERSION_FOLDER]
         version_folder_number = self._get_resolved_publish_pattern()
 
