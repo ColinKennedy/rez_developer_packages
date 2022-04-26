@@ -12,6 +12,7 @@ class CannotMakeDocumentation(CoreException):
 
     """
 
+
 class MissingDocumentation(CoreException):
     """If the built documentation to publish is missing."""
 

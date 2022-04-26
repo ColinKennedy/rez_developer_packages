@@ -281,7 +281,9 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
         version = self._package.version
 
         if not version:
-            raise RuntimeError('Package "{self._package}" has no version!'.format(self=self))
+            raise RuntimeError(
+                'Package "{self._package}" has no version!'.format(self=self)
+            )
 
         return raw.sub("", str(self._package.version))
 
@@ -419,7 +421,7 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
 
         """
         latest_previous_publish = self._get_latest_version_folder(versioned)
-        version = self._package_version
+        version = self._package.version
 
         if not version or latest_previous_publish <= version:
             _copy_into(documentation, latest)
@@ -585,13 +587,12 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
 
         self._prepare_repository(repository)
 
-        if (
-            not self._package.version
-            and not self._allow_latest_publishes()
-        ):
+        if not self._package.version and not self._allow_latest_publishes():
             raise exception.CannotMakeDocumentation(
                 'Publisher "{self}" disables "latest" folders but Rez package '
-                '"{self._package.name}" has no version. Cannot continue.'.format(self=self)
+                '"{self._package.name}" has no version. Cannot continue.'.format(
+                    self=self
+                )
             )
 
         was_copied = self._copy_documentation_if_needed(documentation, root)
@@ -605,7 +606,7 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
 
         if not repository.is_ready_to_commit():
             raise exception.MissingDocumentation(
-                'Package "{self._package.name}-{self._package_version}" has no '
+                'Package "{self._package.name}-{self._package.version}" has no '
                 "documentaion to publish. Something went wrong.".format(self=self)
             )
 
@@ -755,7 +756,7 @@ def _parse_url_repository(url):
     if not hasattr(parsed, "repo"):
         raise ValueError('URL "{url}" could not be parsed.'.format(url=url))
 
-    repository = parsed.repo
+    repository = parsed.repo  # pylint: disable=no-member
 
     if repository.endswith(_GIT_HEADLESS_REPOSITORY_SUFFIX):
         repository = repository[: -1 * len(_GIT_HEADLESS_REPOSITORY_SUFFIX)]
@@ -783,7 +784,7 @@ def _parse_url_owner(url):
     if not hasattr(parsed, "owner"):
         raise ValueError('URL "{url}" could not be parsed.'.format(url=url))
 
-    return parsed.owner
+    return parsed.owner  # pylint: disable=no-member
 
 
 def _validate_authenticator(method):

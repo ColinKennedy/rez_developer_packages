@@ -334,7 +334,8 @@ def _validate_view_url(item):
 
     Args:
         item (str):
-            A website or similar URI. Like "http://www.foo.bar" or an inner folder to check.
+            A website or similar URI. Like "http://www.foo.bar" or an inner
+            folder to check.
 
     Raises:
         ValueError: If ``item`` isn't a sub-directory.
