@@ -16,6 +16,7 @@ from ..bases import base as base_
 from ..core import common, schema_type
 
 _BRANCH = "branch"
+_COMMIT_MESSAGE = "commit_message"
 _LATEST_FOLDER = "latest_folder"
 _PUBLISH_PATTERN = "publish_pattern"
 _RELATIVE_PATH = "relative_path"
@@ -167,6 +168,10 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
         """str: Get the defined branch name, if any."""
         return self._data.get(_BRANCH, "")
 
+    def _get_commit_message(self):
+        """str: Use this message whenever new documentation is pushed to the remote."""
+        return self._data[_COMMIT_MESSAGE].format(package=self._package)
+
     def _get_latest_version_folder(self, versioned):
         """Find the latest versioned folder within ``versioned``, if any.
 
@@ -303,13 +308,14 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
             else:
                 base = item
 
-        return base.format(package=package)
+        return base.format(package=self._package)
 
     @classmethod
     def _get_schema(cls):
         """dict[object, object]: The required / optional structure for this instance."""
         return {
             AUTHENICATION: schema.Use(_validate_authenticator),
+            schema.Optional(_COMMIT_MESSAGE, default="Updated documentation"): str,
             _REPOSITORY_URI: schema.Or(
                 schema_type.URL,
                 schema_type.SSH,
@@ -538,8 +544,8 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
         # changes were found, exception early so users don't end up with empty
         # documentation
         #
-        # TODO : Add commit message option
-        repository.commit("Updated documentation")
+        message = self._get_commit_message()
+        repository.commit(message)
         repository.push()
 
         package = self._get_package()
