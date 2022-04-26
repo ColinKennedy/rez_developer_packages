@@ -52,7 +52,6 @@ class Authenticator(object):
         raise NotImplementedError("Implement this method in a subclass.")
 
 
-# TODO : Consider making this a function, instead of a class
 @six.add_metaclass(abc.ABCMeta)  # pylint: disable=too-few-public-methods
 class Handler(object):
     """An adapter class to make working with remote git services easier.

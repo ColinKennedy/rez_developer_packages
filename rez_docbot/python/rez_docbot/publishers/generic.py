@@ -458,7 +458,7 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
 
             return
 
-        self._handler.checkout(branch, create=True)
+        repository.checkout(branch, create=True)
         repository_root = repository.get_root()
         _clear_git_directory(repository_root)
 
