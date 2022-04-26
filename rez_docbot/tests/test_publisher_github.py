@@ -38,15 +38,16 @@ class Authentication(unittest.TestCase):
             )
         )
 
-        with _get_quick_publisher(
+        publisher = _get_quick_publisher(
             {
                 "authentication": [{"payload": path, "type": "from_json_path"}],
                 "publisher": "github",
                 "repository_uri": "git@github.com:FakeUser/{package.name}",
                 "view_url": "https://www.some_fake.website",
             }
-        ) as publisher:
-            publisher.authenticate()
+        )
+
+        publisher.authenticate()
 
     def test_from_file_fail(self):
         """Fail to read authentication details from a non-existent file."""
@@ -54,7 +55,7 @@ class Authentication(unittest.TestCase):
         os.remove(path)
 
         with self.assertRaises(schema.SchemaError):
-            with _get_quick_publisher(
+            publisher = _get_quick_publisher(
                 {
                     "authentication": [
                         {"payload": "/does/not/exist.json", "type": "from_json_path"}
@@ -63,12 +64,11 @@ class Authentication(unittest.TestCase):
                     "repository_uri": "git@github.com:FakeUser/{package.name}",
                     "view_url": "https://www.some_fake.website",
                 }
-            ) as publisher:
-                publisher.authenticate()
+            )
 
     def test_normal(self):
         """Make sure :class:`rez_docbot.publishers.github.Github` authenticates."""
-        with _get_quick_publisher(
+        publisher = _get_quick_publisher(
             {
                 "authentication": [
                     {
@@ -80,8 +80,9 @@ class Authentication(unittest.TestCase):
                 "repository_uri": "git@github.com:FakeUser/{package.name}",
                 "view_url": "https://www.some_fake.website",
             }
-        ) as publisher:
-            publisher.authenticate()
+        )
+
+        publisher.authenticate()
 
 
 class Remote(unittest.TestCase):
@@ -98,7 +99,7 @@ class Remote(unittest.TestCase):
         """
         package, push_url = _make_package_with_remote()
 
-        with _get_quick_publisher(
+        publisher = _get_quick_publisher(
             {
                 "authentication": [
                     {
@@ -111,8 +112,9 @@ class Remote(unittest.TestCase):
                 "view_url": "https://www.FakeUser.github.io/{package.name}",
             },
             package=package,
-        ) as publisher:
-            details = publisher._get_repository_details()
+        )
+
+        details = publisher._get_repository_details()
 
         expected = common.RepositoryDetails(
             group="Thing",
@@ -145,7 +147,7 @@ class Remote(unittest.TestCase):
 
         relative_path = "inner/folder/{package.name}"
 
-        with _get_quick_publisher(
+        publisher = _get_quick_publisher(
             {
                 "authentication": [
                     {"token": "fake_access_token", "user": "fake_user"},
@@ -156,7 +158,9 @@ class Remote(unittest.TestCase):
                 "view_url": "https://www.FakeUser.github.io/blah",
             },
             package=package,
-        ) as publisher, mock.patch.object(
+        )
+
+        with mock.patch.object(
             generic.GitPublisher,
             "authenticate",
             new=_authenticate,
@@ -181,7 +185,7 @@ class Publish(unittest.TestCase):
 
     def test_initialization(self):  # pylint: disable=no-self-use
         """Make sure :class:`rez_docbot.publishers.github.Github` instantiates."""
-        with _get_quick_publisher(
+        _get_quick_publisher(
             {
                 "authentication": [
                     {
@@ -193,12 +197,9 @@ class Publish(unittest.TestCase):
                 "repository_uri": "git@github.com:FakeUser/{package.name}",
                 "view_url": "https://www.some_fake.website",
             }
-        ):
-            pass
+        )
 
 
-# TODO : Remove this context if not needed, later
-@contextlib.contextmanager
 def _get_quick_publisher(configuration, package=None):
     """Make a quick Publisher, based on ``configuration``.
 
@@ -224,7 +225,7 @@ def _get_quick_publisher(configuration, package=None):
     with run_test.keep_config() as config:
         config.optionvars["rez_docbot"] = {"publishers": [configuration]}
 
-        yield preference.get_base_settings(package)["publishers"][0]
+        return preference.get_base_settings(package)["publishers"][0]
 
 
 def _make_headless_repository(suffix):
