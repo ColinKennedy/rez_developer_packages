@@ -10,7 +10,19 @@ _TYPE_KEY = "type"
 
 
 def _validate_file_authentication(data):
-    # TODO : docstring
+    """Read the authentication data from a file on-disk.
+
+    Args:
+        data (dict[str, str]):
+            The expected file payload to read.  e.g. ``{"type":
+            "from_json_path", "payload": "/some/path.json"}``.  This payload
+            can have anything inside of it, as long as it's supported by
+            :func:`validate`. And yes, nested payloads are supported.
+
+    Returns:
+        Authenticator: The class meant to connect to the remote, based on ``data``.
+
+    """
     validated = _FROM_JSON_SCHEMA.validate(data)
 
     authenticators = schema.Schema(_STANDARD_AUTHENTICATORS)

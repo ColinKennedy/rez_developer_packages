@@ -20,7 +20,7 @@ def _get_adapter_by_name(name):
         ValueError: If ``name`` doesn't match a known adapter.
 
     Returns:
-        TODO Fix this
+        Authenticator: The appropriate adapter for ``name``.
 
     """
     try:
@@ -46,20 +46,17 @@ def validate(type_name, authentication_methods):
         ValueError: If ``authentication_methods`` is empty.
 
     Returns:
-        list[TODO]: All generated adapters.
+        list[Authenticator]: All generated adapters.
 
     """
     if not authentication_methods:
-        # TODO : Add unittest for this case
         raise ValueError("You must provide at least one authentication method.")
 
     adapter = _get_adapter_by_name(type_name)
 
     if isinstance(authentication_methods, collections_abc.Mapping):
         # If they provide only one authenticator, use that
-        # TODO : Add unittest for this case
         return [adapter(authentication_methods)]
 
     # If there's multiple authentication methods, use those
-    # TODO : Add unittest for this case
     return [adapter(item) for item in authentication_methods]
