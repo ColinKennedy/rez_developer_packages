@@ -3,8 +3,9 @@
 import unittest
 
 from rez.vendor.version import version as version_
-from rez_docbot.core import preference
 from six.moves import mock
+
+from rez_docbot.core import preference
 
 from .common import run_test
 
@@ -80,7 +81,8 @@ class GetFirstVersionedViewUrl(unittest.TestCase):
 
         self.assertEqual(1, len(publishers))
         self.assertEqual(
-            view_url.format(package=package) + "/versions/{version.major}.{version.minor}".format(version=version),
+            view_url.format(package=package)
+            + "/versions/{version.major}.{version.minor}".format(version=version),
             publishers[0].get_resolved_view_url(),
         )
 
@@ -106,6 +108,7 @@ class GetFirstVersionedViewUrl(unittest.TestCase):
 
         self.assertEqual(1, len(publishers))
         self.assertEqual(
-            view_url.format(package=package) + "/versions/{version.major}.{version.minor}".format(version=version),
+            view_url.format(package=package)
+            + "/versions/{version.major}.{version.minor}".format(version=version),
             publishers[0].get_resolved_view_url(),
         )

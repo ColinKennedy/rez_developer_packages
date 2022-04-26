@@ -8,10 +8,10 @@ import re
 import shutil
 import tempfile
 
+import giturlparse
 import schema
 import six
 from rez.vendor.version import version as version_
-import giturlparse
 
 from ..bases import base as base_
 from ..core import common, exception, schema_type
@@ -559,7 +559,7 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
         if not repository.is_ready_to_commit():
             raise exception.MissingDocumentation(
                 'Package "{self._package.name}-{self._package_version}" has no '
-                'documentaion to publish. Something went wrong.'.format(self=self)
+                "documentaion to publish. Something went wrong.".format(self=self)
             )
 
         message = self._get_commit_message()
@@ -711,7 +711,7 @@ def _parse_url_repository(url):
     repository = parsed.repo
 
     if repository.endswith(_GIT_HEADLESS_REPOSITORY_SUFFIX):
-        repository = repository[:-1 * len(_GIT_HEADLESS_REPOSITORY_SUFFIX)]
+        repository = repository[: -1 * len(_GIT_HEADLESS_REPOSITORY_SUFFIX)]
 
     return repository
 

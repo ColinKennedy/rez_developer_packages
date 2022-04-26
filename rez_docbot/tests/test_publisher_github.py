@@ -9,14 +9,15 @@ import tempfile
 import textwrap
 import unittest
 
+import schema
+from git.repo import base
 from python_compatibility import website
 from rez.vendor.version import version
 from rez_utilities import finder
+from six.moves import mock
+
 from rez_docbot.core import common, preference
 from rez_docbot.publishers import generic
-from six.moves import mock
-from git.repo import base
-import schema
 
 from .common import package_wrap, run_test
 
@@ -35,7 +36,7 @@ class Authentication(unittest.TestCase):
                     "user": "fake_user"
                 }
                 """
-            )
+            ),
         )
 
         publisher = _get_quick_publisher(
@@ -139,7 +140,9 @@ class Remote(unittest.TestCase):
             self._handler = _FakeHandler()
 
         fake_remote = _make_headless_repository("_headless_git_repository.git")
-        expected_documentation = package_wrap.make_temporary_directory("_fake_documentation")
+        expected_documentation = package_wrap.make_temporary_directory(
+            "_fake_documentation"
+        )
         clone_path = package_wrap.make_temporary_directory("_clone_path")
         package = mock.MagicMock()
         package.version = version.Version("1.2.3")

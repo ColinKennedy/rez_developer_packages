@@ -6,10 +6,10 @@ import os
 import re
 
 import schema
-from git.repo import base
 import six
-from six.moves import urllib_parse
+from git.repo import base
 from rez_utilities import finder
+from six.moves import urllib_parse
 
 _SSH_EXPRESSION = re.compile(r"^git\@[\w_\.]+:(?P<group>.+)(?:/(?P<repository>.+))")
 _URL_SUBDIRECTORY = re.compile(r"^[\w/{}\.]+$")  # Allow {}s so we can do {package.name}
@@ -73,7 +73,9 @@ def _validate_defer_git_repository(item):
 
         if not remotes:
             raise RuntimeError(
-                'Repository "{repository}" has no remote Git URL.'.format(repository=repository)
+                'Repository "{repository}" has no remote Git URL.'.format(
+                    repository=repository
+                )
             )
 
         if len(remotes) == 1:
@@ -88,12 +90,16 @@ def _validate_defer_git_repository(item):
     def _get_git_push_url(directory):
         repository = base.Repo(directory)
         remote = _get_preferred_remote(repository)
-        push_url = repository.git.config("--get", "remote.{remote.name}.url".format(remote=remote))
+        push_url = repository.git.config(
+            "--get", "remote.{remote.name}.url".format(remote=remote)
+        )
 
         if push_url:
             return push_url
 
-        raise RuntimeError('Directory "{directory}" found no push URL.'.format(directory=directory))
+        raise RuntimeError(
+            'Directory "{directory}" found no push URL.'.format(directory=directory)
+        )
 
     def _get_repository_url(package):
         directory = finder.get_package_root(package)
@@ -101,7 +107,7 @@ def _validate_defer_git_repository(item):
         return _get_git_push_url(directory)
 
     if item is not None:
-        raise ValueError('Item is not set as deferred.')
+        raise ValueError("Item is not set as deferred.")
 
     return _get_repository_url
 
@@ -118,12 +124,16 @@ def _validate_directory(directory):
 
     """
     if not isinstance(directory, six.string_types):
-        raise ValueError('Item "{directory}" is not a string.'.format(directory=directory))
+        raise ValueError(
+            'Item "{directory}" is not a string.'.format(directory=directory)
+        )
 
     if os.path.isdir(directory):
         return directory
 
-    raise RuntimeError('Directory "{directory}" does not exist.'.format(directory=directory))
+    raise RuntimeError(
+        'Directory "{directory}" does not exist.'.format(directory=directory)
+    )
 
 
 def _validate_github_access_token(item):
@@ -143,9 +153,9 @@ def _validate_github_access_token(item):
     if _GITHUB_PERSONAL_ACCESS_TOKEN.match(item):
         return
 
-    raise RuntimeError('Text "{item}" is not a known GitHub access token.'.format(
-        item=item
-    ))
+    raise RuntimeError(
+        'Text "{item}" is not a known GitHub access token.'.format(item=item)
+    )
 
 
 def _validate_json_file(item):
