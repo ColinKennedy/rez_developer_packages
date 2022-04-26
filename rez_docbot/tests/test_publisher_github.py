@@ -10,14 +10,15 @@ import textwrap
 import unittest
 
 from python_compatibility import website
+from rez.vendor.version import version
 from rez_utilities import finder
-from rez_docbot.core import preference
+from rez_docbot.core import common, preference
+from rez_docbot.publishers import generic
 from six.moves import mock
-from rez_docbot.core import common
 from git.repo import base
 import schema
 
-from .common import run_test
+from .common import package_wrap, run_test
 
 
 class Authentication(unittest.TestCase):
@@ -128,20 +129,57 @@ class Remote(unittest.TestCase):
 
     def test_relative_path(self):
         """Allow users to specify a relative path ."""
+        clone_path = package_wrap.make_temporary_directory("_clone_path")
+
+        class _FakeHandler(object):
+            def get_repository(self, *_, **__):
+                mocker = mock.MagicMock()
+                mocker.get_root.return_value = clone_path
+
+                return mocker
+
+        def _authenticate(self):
+            self._handler = _FakeHandler()
+
+        fake_remote = _make_headless_repository("_headless_git_repository.git")
+        expected_documentation = package_wrap.make_temporary_directory("_fake_documentation")
+        clone_path = package_wrap.make_temporary_directory("_clone_path")
+        package = mock.MagicMock()
+        # Reference: https://kristofclaes.github.io/2016/06/24/mocking-properties-in-python
+        type(package).version = mock.PropertyMock(return_value=version.Version("1.2.3"))
+        type(package).name = mock.PropertyMock(return_value="my_package")
+
+        relative_path = "inner/folder/{package.name}"
+
         with _get_quick_publisher(
             {
                 "authentication": [
-                    {
-                        "token": "fake_access_token",
-                        "user": "fake_user",
-                    },
+                    {"token": "fake_access_token", "user": "fake_user"},
                 ],
                 "publisher": "github",
-                "repository_uri": "git@github.com:FakeUser/{package.name}",
-                "view_url": "https://www.FakeUser.github.io/{package.name}",
-            }
-        ) as publisher:
-            raise ValueError(publisher)
+                "relative_path": relative_path,
+                "repository_uri": fake_remote,
+                "view_url": "https://www.FakeUser.github.io/blah",
+            },
+            package=package,
+        ) as publisher, mock.patch.object(
+            generic.GitPublisher,
+            "authenticate",
+            new=_authenticate,
+        ), mock.patch(
+            "rez_docbot.publishers.generic.GitPublisher._copy_documentation_if_needed"
+        ) as copier:
+            publisher.authenticate()
+            publisher.quick_publish(expected_documentation)
+
+        found_documentation, found_root = copier.call_args[0]
+
+        expected_relative_path = relative_path.format(package=package)
+        self.assertEqual(expected_documentation, found_documentation)
+        self.assertEqual(
+            os.path.join(clone_path, expected_relative_path),
+            found_root,
+        )
 
 
 class Publish(unittest.TestCase):
@@ -193,6 +231,26 @@ def _get_quick_publisher(configuration, package=None):
         config.optionvars["rez_docbot"] = {"publishers": [configuration]}
 
         yield preference.get_base_settings(package)["publishers"][0]
+
+
+def _make_headless_repository(suffix):
+    """Create a headless git repository.
+
+    For the sake of unittests, this directory is used in place of an actual
+    remote repository.
+
+    Args:
+        suffix (str): Some phrase used to identify the directory.
+
+    Returns:
+        str: An absolute path to a directory on-disk.
+
+    """
+    directory = package_wrap.make_temporary_directory(suffix)
+
+    base.Repo.init(directory, bare=True)
+
+    return directory
 
 
 def _make_package_with_remote():

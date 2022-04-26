@@ -1,7 +1,4 @@
 Features
-- Allow publishing to a relative path, instead of to the root repository location!
-   - rename inner_path to relative_path
-   - add unittest to make sure the inner folders are created
 - Make sure there's a mechanism to force publish (versioned / latest)
 - If package doesn't have a version
    - if latest is disabled, error
@@ -16,3 +13,5 @@ Documentation
 - Do TODO notes (many of them)
 - Check that I have references for all :ref: tags.
 - :ref:`publish_pattern`.""
+
+- Do regular TODO notes

@@ -19,11 +19,6 @@ _PUBLIC_GITHUB_SSH = "git@github.com:"
 
 _COMMON_USER = {_USER: schema_type.NON_EMPTY_STR}
 
-# TODO : Incorporate 2 factor, somehow
-_TWO_FACTOR = {
-    schema.Optional("two_factor_authentication"): schema_type.CALLABLE,
-}
-
 _ACCESS_TOKEN = {
     # TODO : Probably don't allow spaces in token
     "token": schema_type.NON_EMPTY_STR,
@@ -52,7 +47,6 @@ class AccessToken(base.Authenticator):
             Handler: The authenticated instance.
 
         """
-        # TODO : Allow the user to read the access token from a file on-disk
         if _is_public_github(url):
             raw_handler = github3.login(
                 username=self._data[_USER],
@@ -96,7 +90,6 @@ class UserPassword(base.Authenticator):
             Handler: The authenticated instance.
 
         """
-        # TODO : Allow the user to read the password from a file on-disk
         if _is_public_github(url):
             raw_handler = github3.login(
                 username=self._data[_USER],

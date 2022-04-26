@@ -12,7 +12,7 @@ from six.moves import urllib_parse
 from rez_utilities import finder
 
 _SSH_EXPRESSION = re.compile(r"^git\@[\w_\.]+:(?P<group>.+)(?:/(?P<repository>.+))")
-_URL_SUBDIRECTORY = re.compile(r"^[\w/]+$")
+_URL_SUBDIRECTORY = re.compile(r"^[\w/{}\.]+$")  # Allow {}s so we can do {package.name}
 _REGEX_TYPE = type(_URL_SUBDIRECTORY)
 
 ORIGINAL_TEXT = "original"
@@ -98,6 +98,26 @@ def _validate_defer_git_repository(item):
         raise ValueError('Item is not set as deferred.')
 
     return _get_repository_url
+
+
+def _validate_directory(directory):
+    """Ensure ``directory`` is a folder on-disk.
+
+    Args:
+        directory (str): The absolute path to a folder which must exist on-disk.
+
+    Raises:
+        ValueError: If ``directory`` is some completely unknown type.
+        RuntimeError: If ``directory`` doesn't exist on-disk.
+
+    """
+    if not isinstance(directory, six.string_types):
+        raise ValueError('Item "{directory}" is not a string.'.format(directory=directory))
+
+    if os.path.isdir(directory):
+        return directory
+
+    raise RuntimeError('Directory "{directory}" does not exist.'.format(directory=directory))
 
 
 def _validate_json_file(item):
@@ -276,6 +296,7 @@ PUBLISH_PATTERNS = schema.Or(_validate_regex, _validate_publish_string)
 
 CALLABLE = schema.Use(_validate_callable)
 
+DIRECTORY = schema.Use(_validate_directory)
 URL = schema.Use(_validate_url)
 URL_SUBDIRECTORY = schema.Use(_validate_url_subdirectory)
 SSH = schema.Use(_validate_ssh)

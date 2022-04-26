@@ -16,7 +16,6 @@ from ..bases import base as base_
 from ..core import common, schema_type
 
 _BRANCH = "branch"
-_INNER_PATH = "inner_path"
 _LATEST_FOLDER = "latest_folder"
 _PUBLISH_PATTERN = "publish_pattern"
 _RELATIVE_PATH = "relative_path"
@@ -143,20 +142,21 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
         return it.
 
         Args:
-            repository TODO write this
+            repository (BaseRepository): An interface to work with git.
 
         Returns:
             str: The created folder where all documentation for the package must go.
 
         """
         root = repository.get_root()
-        inner_path = self._data.get(_INNER_PATH, "")
+        inner_path = self._data[_RELATIVE_PATH]
 
         if not inner_path:
             return root
 
-        inner_path = inner_path.format(package=self._get_package())
-        directory = os.path.join(root, inner_path)
+        normalized = os.path.normcase(inner_path)
+        normalized = normalized.format(package=self._get_package())
+        directory = os.path.join(root, normalized)
 
         if not os.path.isdir(directory):
             os.makedirs(directory)
@@ -260,11 +260,14 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
         item = self._data[_REPOSITORY_URI]
         package = self._get_package()
 
-        if not callable(item):
+        try:
             base = item[schema_type.GROUP]
-        else:
-            push_url = item(self._get_package())
-            base = _parse_url_owner(push_url)
+        except (TypeError, AttributeError):
+            if callable(item):
+                push_url = item(self._get_package())
+                base = _parse_url_owner(push_url)
+            else:
+                base = item
 
         return base.format(package=package)
 
@@ -291,11 +294,14 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
         item = self._data[_REPOSITORY_URI]
         package = self._get_package()
 
-        if not callable(item):
+        try:
             base = item.get(schema_type.REPOSITORY, "")
-        else:
-            push_url = item(self._get_package())
-            base = _parse_url_repository(push_url)
+        except AttributeError:
+            if callable(item):
+                push_url = item(self._get_package())
+                base = _parse_url_repository(push_url)
+            else:
+                base = item
 
         return base.format(package=package)
 
@@ -307,18 +313,18 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
             _REPOSITORY_URI: schema.Or(
                 schema_type.URL,
                 schema_type.SSH,
+                schema_type.DIRECTORY,
                 schema_type.DEFER_REPOSITORY,  # Get the package's repository, instead
             ),
             _VIEW_URL: schema_type.NON_EMPTY_STR,  # TODO : Replace with URL parser
             schema.Optional(_BRANCH): schema_type.NON_EMPTY_STR,
-            schema.Optional(_INNER_PATH): schema_type.URL_SUBDIRECTORY,
             schema.Optional(
                 _LATEST_FOLDER, default="latest"
             ): schema_type.NON_EMPTY_STR,
             schema.Optional(
                 _PUBLISH_PATTERN, default=[schema_type.DEFAULT_PUBLISH_PATTERN]
             ): schema_type.PUBLISH_PATTERNS,
-            schema.Optional(_RELATIVE_PATH, default="."): schema_type.NON_EMPTY_STR,
+            schema.Optional(_RELATIVE_PATH, default=""): schema_type.URL_SUBDIRECTORY,
             schema.Optional(_REQUIRED, default=True): bool,
             schema.Optional(_SKIP_EXISTING_VERSION, default=False): bool,
             schema.Optional(
@@ -371,9 +377,6 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
             #
             return False
 
-        # TODO : You need to deal with when ``versioned_allowed`` is False.
-        # Because ``version`` is empty in that case
-        #
         latest_copied = self._copy_into_latest_if_needed(
             documentation, latest, versioned
         )
@@ -535,6 +538,7 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
         # changes were found, exception early so users don't end up with empty
         # documentation
         #
+        # TODO : Add commit message option
         repository.commit("Updated documentation")
         repository.push()
 
@@ -550,10 +554,13 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
         item = self._data[_REPOSITORY_URI]
         package = self._get_package()
 
-        if not callable(item):
+        try:
             base = item[schema_type.ORIGINAL_TEXT]
-        else:
-            base = item(self._get_package())
+        except (TypeError, AttributeError):
+            if callable(item):
+                base = item(self._get_package())
+            else:
+                base = item
 
         return base.format(package=package)
 

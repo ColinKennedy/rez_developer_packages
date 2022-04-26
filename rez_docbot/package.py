@@ -22,6 +22,8 @@ requires = [
 
 build_command = "python -m rez_build_helper --items python"
 
+_unittest_requires = ["rez-2.106+<3"]
+
 tests = {
     "black": {
         "command": "black python tests",
@@ -60,11 +62,11 @@ tests = {
     },
     "unittest_python_2": {
         "command": "python -m unittest discover",
-        "requires": ["mock-3+<4", "python-2"],
+        "requires": _unittest_requires + ["mock-3+<4", "python-2"],
     },
     "unittest_python_3": {
         "command": "python -m unittest discover",
-        "requires": ["python-3.3+"],
+        "requires": _unittest_requires + ["python-3.3+"],
     },
 }
 

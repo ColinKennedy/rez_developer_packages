@@ -43,3 +43,11 @@ def make_package_configuration(configuration):
         handler.write(template.format(configuration=configuration))
 
     return developer_package.DeveloperPackage.from_path(directory)
+
+
+def make_temporary_directory(suffix):
+    """str: Make a folder on-disk using ``suffix``."""
+    directory = tempfile.mkdtemp(suffix=suffix)
+    atexit.register(functools.partial(shutil.rmtree, directory))
+
+    return directory

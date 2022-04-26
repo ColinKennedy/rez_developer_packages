@@ -82,7 +82,6 @@ class Repository(BaseRepository):
             branch (str): The branch to get / create. e.g. ``"gh-pages"``.
 
         """
-        # TODO : Double-check this. It may not work
         if branch in self._clone.branches:
             self._clone.git.checkout(branch)
         else:
