@@ -145,9 +145,8 @@ class Remote(unittest.TestCase):
         expected_documentation = package_wrap.make_temporary_directory("_fake_documentation")
         clone_path = package_wrap.make_temporary_directory("_clone_path")
         package = mock.MagicMock()
-        # Reference: https://kristofclaes.github.io/2016/06/24/mocking-properties-in-python
-        type(package).version = mock.PropertyMock(return_value=version.Version("1.2.3"))
-        type(package).name = mock.PropertyMock(return_value="my_package")
+        package.version = version.Version("1.2.3")
+        package.name = "my_package"
 
         relative_path = "inner/folder/{package.name}"
 

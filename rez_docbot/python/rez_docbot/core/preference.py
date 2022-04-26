@@ -1,6 +1,5 @@
 """A module for describing all :ref:`rez_docbot` settings."""
 
-# TODO : All preferences need to be unittested. global + reading from a package
 import functools
 
 import schema
@@ -15,27 +14,50 @@ _REZ_OPTIONVARS = "optionvars"
 _PACKAGE_CONFIGURATION_ATTRIBUTE = "rez_docbot_configuration"
 
 
-def _override_rez_configuration(package):
-    """Add the configuration using the contents of ``package``.
+def _copy_with_overrides(overrides, config):
+    """Replace ``config`` with the contents of ``overrides``.
 
     Args:
-        package (rez.packages.Package):
-            A source / installed Rez package to query values from.
+        overrides (object):
+            Any object to replace onto ``config``.
+        config (rez.config.Config):
+            A fallback to use for anything not defined in ``overrides``.
+
+    Returns:
+        rez.config.Config: The generated configuration copy.
+
+    """
+    config = config_.copy(overrides=overrides)
+
+    # TODO : Not sure why I need to this for optionvars to "take" properly.
+    # Possibly it's a config bug? The `_uncache` method, I expected,
+    # should've handled this case
+    #
+    if _REZ_OPTIONVARS in config.__dict__:
+        del config.__dict__[_REZ_OPTIONVARS]
+
+    return config
+
+
+def _override_rez_configuration(overrides, config):
+    """Apply ``overrides`` onto ``config``.
+
+    Args:
+        overrides (dict[str, object]):
+            :ref:`rez_docbot` specific configuration settings. See
+            :doc:`configuring_rez_docbot` for details.
+        config (rez.config.Config):
+            A fallback to use for anything not defined in ``overrides``.
 
     Returns:
         rez.config.Config: The copied, overwritten configuration.
 
     """
-    overrides = {
-        _REZ_OPTIONVARS: {
-            _MASTER_KEY: getattr(package, _PACKAGE_CONFIGURATION_ATTRIBUTE)
-        }
-    }
+    overrides = {_REZ_OPTIONVARS: {_MASTER_KEY: overrides}}
 
     config = config_.copy(overrides=overrides)
 
-    # TODO : Finish
-    raise ValueError(sorted(dir(config)))
+    return _copy_with_overrides(overrides, config)
 
 
 def get_base_settings(package):
@@ -51,7 +73,8 @@ def get_base_settings(package):
 
     """
     if hasattr(package, _PACKAGE_CONFIGURATION_ATTRIBUTE):
-        config = _override_rez_configuration(package)
+        overrides = getattr(package, _PACKAGE_CONFIGURATION_ATTRIBUTE)
+        config = _override_rez_configuration(overrides, config_)
     else:
         config = config_
 

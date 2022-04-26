@@ -284,6 +284,18 @@ def _get_quick_start_overridable_options(overrides=tuple()):
 
 
 def _copy_with_overrides(overrides, config):
+    """Replace ``config`` with the contents of ``overrides``.
+
+    Args:
+        overrides (object):
+            Any object to replace onto ``config``.
+        config (rez.config.Config):
+            A fallback to use for anything not defined in ``overrides``.
+
+    Returns:
+        rez.config.Config: The generated configuration copy.
+
+    """
     config = config_.copy(overrides=overrides)
 
     # TODO : Not sure why I need to this for optionvars to "take" properly.

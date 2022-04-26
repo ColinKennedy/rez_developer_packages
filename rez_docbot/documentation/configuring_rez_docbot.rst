@@ -17,10 +17,23 @@ rez_docbot.publishers
 
 TODO
 
+rez_docbot.publishers.*.view_url
+********************************
+
+TODO
+
+.. seealso::
+
+    :func:`.get_first_versioned_view_url`
+
 
 rez_docbot.publishers.*.publish_pattern
 ***************************************
 
 TODO
+
+.. seealso::
+
+    :func:`.get_first_versioned_view_url`
 
 See :doc:`publishing_per_version` for details
