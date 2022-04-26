@@ -94,24 +94,17 @@ intersphinx_mapping.update(
 
 rst_epilog = textwrap.dedent(
     """\
+    .. _.nojekyll: https://github.blog/2009-12-29-bypassing-jekyll-on-github-pages/
+    .. _CRUD: https://en.wikipedia.org/wiki/Create,_read,_update_and_delete
     .. _GitHub Enterprise: https://github.com/enterprise
+    .. _GitHub access token: https://docs.github.com/en/enterprise-server@3.4/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token
+    .. _GitHub organization: https://docs.github.com/en/organizations
     .. _GitHub: https://github.com
     .. _OPSEC: https://en.wikipedia.org/wiki/Operations_security
     .. _SemVer: https://semver.org
+    .. _Sphinx: https://www.sphinx-doc.org/en/master
     .. _gh-pages: https://pages.github.com
+    .. _git: https://git-scm.com/
     .. _rezconfig.py: https://github.com/nerdvegas/rez/blob/fa3fff6f0b7b4b53bbb9baa4357ab42117d06356/src/rez/rezconfig.py
     """
 )
-
-# TODO : .. _rezconfig.py:
-# TODO : .. _SemVer: https://semver.org
-# - Also check the `foo`_ stuff
-# `.nojekyll`_
-# `GitHub`_
-# `Sphinx`_
-# `git`_
-# `CRUD`_
-# `GitHub enterprise`_
-# `access token`_
-#
-# `GitHub organization`_, or

@@ -33,7 +33,7 @@ _USER_PASSWORD_PAIR_SCHEMA = schema.Schema(_USER_PASSWORD_PAIR)
 
 
 class AccessToken(base.Authenticator):
-    """Allow the user to authenticate with a username + `access token`_."""
+    """Allow the user to authenticate with a username + `GitHub access token`_."""
 
     def authenticate(self, url):
         """Get a valid handle to the remote ``url``.
@@ -128,7 +128,7 @@ def _is_public_github(url):
 
     Returns:
         bool:
-            If ``url`` is an `GitHub enterprise`_ website, return False. If
+            If ``url`` is an `GitHub Enterprise`_ website, return False. If
             not, return True.
 
     """
