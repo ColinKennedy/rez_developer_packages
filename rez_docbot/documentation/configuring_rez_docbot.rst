@@ -30,6 +30,8 @@ TODO
 rez_docbot.publishers.*.publish_pattern
 ***************************************
 
+_get_resolved_publish_pattern
+
 TODO
 
 .. seealso::

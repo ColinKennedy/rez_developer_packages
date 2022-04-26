@@ -9,6 +9,7 @@ import shutil
 import tempfile
 
 import schema
+import six
 from rez.vendor.version import version as version_
 import giturlparse
 
@@ -213,10 +214,13 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
 
         temporary_token = "ctavasd"  # Some random string to replace later
 
-        # TODO : Allow _PUBLISH_PATTERN as regex, here
+        for expression_or_pattern in self._data[_PUBLISH_PATTERN]:
+            if hasattr(expression_or_pattern, "match"):
+                output.append(expression_or_pattern)
 
-        for pattern in self._data[_PUBLISH_PATTERN]:
-            temporary_pattern = _CURLIES.sub(temporary_token, pattern)
+                continue
+
+            temporary_pattern = _CURLIES.sub(temporary_token, expression_or_pattern)
             escaped = re.escape(temporary_pattern)
 
             output.append(re.compile(escaped.replace(temporary_token, r"[\d\w]+")))
@@ -258,10 +262,12 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
 
     def _get_resolved_publish_pattern(self):
         """str: Get the version folder name, using :ref:`publish_pattern`."""
-        # TODO : Explain in documentation that the first publish pattern is always used
-        pattern = self._data[_PUBLISH_PATTERN][0]
+        raw = self._data[_PUBLISH_PATTERN][0]
 
-        return pattern.format(package=self._package)
+        if isinstance(raw, six.string_types):
+            return raw.format(package=self._package)
+
+        return raw.sub("", str(self._package.version))
 
     def _get_resolved_repository_name(self):
         """Get the URL pointing to the documentation repository.
@@ -312,9 +318,7 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
             schema.Optional(_RELATIVE_PATH, default=""): schema_type.URL_SUBDIRECTORY,
             schema.Optional(_REQUIRED, default=True): bool,
             schema.Optional(_SKIP_EXISTING_VERSION, default=False): bool,
-            schema.Optional(
-                _VERSION_FOLDER, default="versions"
-            ): str,  # TODO : Empty version_folder == no version folder
+            schema.Optional(_VERSION_FOLDER, default="versions"): str,
         }
 
     def _copy_documentation_if_needed(self, documentation, root):
@@ -351,10 +355,17 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
         versioned = ""
 
         if versions_allowed:
-            versioned = _create_subdirectory(root, self._data[_VERSION_FOLDER])
-            version_copied = self._copy_into_versioned_if_needed(
-                documentation, versioned
-            )
+            version_folder = self._data[_VERSION_FOLDER]
+
+            if version_folder:
+                versioned = _create_subdirectory(root, version_folder)
+                version_copied = self._copy_into_versioned_if_needed(
+                    documentation, versioned
+                )
+            else:
+                _LOGGER.debug(
+                    "Version publishing will be skipped, because it is disabled."
+                )
 
         if versions_allowed and not version_copied:
             # There's no case in which the :ref:`latest folder` would be
