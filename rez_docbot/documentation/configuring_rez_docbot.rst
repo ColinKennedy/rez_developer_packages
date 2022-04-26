@@ -27,6 +27,12 @@ TODO
     :func:`.get_first_versioned_view_url`
 
 
+rez_docbot.publishers.*.latest_folder
+*************************************
+
+TODO if set to an empty string, no latest folder is made
+
+
 rez_docbot.publishers.*.publish_pattern
 ***************************************
 

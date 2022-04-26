@@ -261,11 +261,27 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
         return base.format(package=self._package)
 
     def _get_resolved_publish_pattern(self):
-        """str: Get the version folder name, using :ref:`publish_pattern`."""
+        """Get the version folder name, using :ref:`publish_pattern`.
+
+        Raises:
+            RuntimeError: If the current Rez package has no version.
+
+        Returns:
+            str:
+                A publish pattern for the current package. e.g. the real Rez
+                package version could be ``"1.2.3"`` but the default publish
+                pattern would return ``"1.2"``.
+
+        """
         raw = self._data[_PUBLISH_PATTERN][0]
 
         if isinstance(raw, six.string_types):
             return raw.format(package=self._package)
+
+        version = self._package.version
+
+        if not version:
+            raise RuntimeError('Package "{self._package}" has no version!'.format(self=self))
 
         return raw.sub("", str(self._package.version))
 
@@ -309,9 +325,7 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
             ),
             _VIEW_URL: schema_type.VIEW_URL,
             schema.Optional(_BRANCH): schema_type.NON_EMPTY_STR,
-            schema.Optional(
-                _LATEST_FOLDER, default="latest"
-            ): schema_type.NON_EMPTY_STR,
+            schema.Optional(_LATEST_FOLDER, default="latest"): str,
             schema.Optional(
                 _PUBLISH_PATTERN, default=[schema_type.DEFAULT_PUBLISH_PATTERN]
             ): schema_type.PUBLISH_PATTERNS,
@@ -320,6 +334,10 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
             schema.Optional(_SKIP_EXISTING_VERSION, default=False): bool,
             schema.Optional(_VERSION_FOLDER, default="versions"): str,
         }
+
+    def _allow_latest_publishes(self):
+        """bool: If the publisher can generate a "latest" documentation folder."""
+        return bool(self._data[_LATEST_FOLDER])
 
     def _copy_documentation_if_needed(self, documentation, root):
         """Possibly copy the contents of ``documentation`` into ``root``.
@@ -348,7 +366,12 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
             bool: If any documentation was copied.
 
         """
-        latest = _create_subdirectory(root, self._data[_LATEST_FOLDER])
+        latest_folder_name = self._data[_LATEST_FOLDER]
+
+        if not latest_folder_name:
+            latest = root
+        else:
+            latest = _create_subdirectory(root, latest_folder_name)
 
         version_copied = False
         versions_allowed = self.allow_versioned_publishes()
@@ -396,10 +419,9 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
 
         """
         latest_previous_publish = self._get_latest_version_folder(versioned)
+        version = self._package_version
 
-        if latest_previous_publish or (
-            latest_previous_publish <= self._package.version
-        ):
+        if not version or latest_previous_publish <= version:
             _copy_into(documentation, latest)
 
             return True
@@ -428,7 +450,17 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
 
         """
         names = os.listdir(versioned)
-        raw_package_version = str(self._package.version)
+        version = self._package.version
+
+        if not version:
+            _LOGGER.debug(
+                'Package "%s" has no version. Skipping version documentation creation.',
+                self._package.name,
+            )
+
+            return False
+
+        raw_package_version = str(version)
 
         if self._skip_existing_version_folder() and self._has_existing_folder(
             raw_package_version, names
@@ -531,6 +563,12 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
                 but, for some unknown reason, the git repository cannot commit
                 + push it. (This usually happens because of a messed up
                 `.gitignore`_ file or `.gitignore_global`_).
+            CannotMakeDocumentation:
+                If this instance disables "latest" folder publishes but the
+                given Rez package has no version, then there's literally
+                nothing that can be published. If this occurs, it's to be
+                treated as user / administrator error (not :ref:`rez_docbot`'s
+                fault).
 
         """
         if not self._handler:
@@ -546,6 +584,15 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
         root = self._follow_cloned_repository(repository)
 
         self._prepare_repository(repository)
+
+        if (
+            not self._package.version
+            and not self._allow_latest_publishes()
+        ):
+            raise exception.CannotMakeDocumentation(
+                'Publisher "{self}" disables "latest" folders but Rez package '
+                '"{self._package.name}" has no version. Cannot continue.'.format(self=self)
+            )
 
         was_copied = self._copy_documentation_if_needed(documentation, root)
 

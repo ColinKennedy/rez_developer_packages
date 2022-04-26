@@ -223,7 +223,6 @@ def _validate_publish_string(item):
         raise ValueError('Item "{item!r}" is not a string.'.format(item=item))
 
     if not item:
-        # TODO : Need a unittest to ensure this works
         return re.compile(".+")  # Allow any version, even if it isn't SemVer
 
     return item

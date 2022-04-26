@@ -5,6 +5,13 @@ class CoreException(Exception):
     """The class which all exceptions in this module most inherit from."""
 
 
+class CannotMakeDocumentation(CoreException):
+    """If an issue prevents documentation from being built.
+
+    This is a very general exception.
+
+    """
+
 class MissingDocumentation(CoreException):
     """If the built documentation to publish is missing."""
 
