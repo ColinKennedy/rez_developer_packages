@@ -47,14 +47,10 @@ repository containing all Rez packages, etc etc. Check out
 configurations can be set up.
 
 
-rez_docbot.publishers.*.view_url
-================================
+rez_docbot.publishers.*.commit_message
+======================================
 
 TODO
-
-.. seealso::
-
-    :func:`.get_first_versioned_view_url`
 
 
 rez_docbot.publishers.*.latest_folder
@@ -77,6 +73,69 @@ TODO
     :func:`.get_first_versioned_view_url`
 
 See :doc:`publishing_per_version` for details
+
+
+rez_docbot.publishers.*.relative_path
+=====================================
+
+TODO
+
+
+rez_docbot.publishers.*.repository_uri
+======================================
+
+TODO
+
+
+rez_docbot.publishers.*.required
+================================
+
+TODO
+
+
+rez_docbot.publishers.*.skip_existing_version
+=============================================
+
+TODO
+
+rez_docbot.publishers.*.version_folder
+======================================
+
+TODO
+
+
+rez_docbot.publishers.*.view_url
+================================
+
+``view_url`` is the URL (or directory on-disk) is where documentation is
+expected to be viewed.
+
+.. code-block:: python
+
+    optionvars = {
+        "rez_docbot": {
+            "publishers": [
+                {
+                    # ... more settings ...
+                    "repository_uri": "git@github.com:FakeUser/{package.name}",
+                    "view_url": "https://www.FakeUser.github.io/{package.name}",
+                    # ... more settings ...
+                },
+            ],
+        },
+    }
+
+In a typical documentation set up, you typically would push documentation to a
+remote location, like ``"git@github.com:FakeUser/{package.name}"`` but then
+that documentation is viewable to the average user at
+``https://www.FakeUser.github.io/{package.name}"``.
+
+.. important::
+
+    Tools such as :ref:`rez_sphinx:rez_sphinx` rely on this URL being accurate
+    in order to link Sphinx documentation to Rez. This is done via the
+    :func:`.get_first_versioned_view_url`. In short, absolutely make sure this
+    setting is accurate!
 
 
 .. _per-package configuration:

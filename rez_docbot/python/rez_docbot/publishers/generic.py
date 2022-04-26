@@ -23,7 +23,7 @@ _PUBLISH_PATTERN = "publish_pattern"
 _RELATIVE_PATH = "relative_path"
 _REPOSITORY_URI = "repository_uri"
 _REQUIRED = "required"
-_SKIP_EXISTING_VERSION = "skip_exsting_version"
+_SKIP_EXISTING_VERSION = "skip_existing_version"
 _VERSION_FOLDER = "version_folder"
 _VIEW_URL = "view_url"
 
