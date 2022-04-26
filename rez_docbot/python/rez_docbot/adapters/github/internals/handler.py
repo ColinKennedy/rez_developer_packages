@@ -76,6 +76,15 @@ class GitHub(base_.Handler):
                 )
             )
 
+    def apply_repository_template(self, directory):
+        """Add a `.nojekyll`_ file so GitHub doesn't run CI on the current branch.
+
+        Args:
+            directory (str): The absolute path to a `git`_ repository.
+
+        """
+        _add_nojekyll_file(directory)
+
     def get_repository(self, details, destination, auto_create=True):
         """Get or create a remote + cloned repository.
 
@@ -108,7 +117,7 @@ class GitHub(base_.Handler):
 
         clone = base.Repo.clone_from(details.clone_url, destination)
 
-        _add_nojekyll_file(destination)
+        self.apply_repository_template(destination)
 
         return repository_.Repository(clone)
 

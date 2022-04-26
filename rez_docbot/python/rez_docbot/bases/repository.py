@@ -13,18 +13,32 @@ class BaseRepository(object):
     """The main class responsible for interacting with a cloned git repository."""
 
     @abc.abstractmethod
+    def has_branch(self, branch):
+        """Check if ``branch`` exists in this instance.
+
+        Args:
+            branch (str): The local or remote branch to query.
+
+        Returns:
+            bool: If the branch is found, return True.
+
+        """
+        return False
+
+    @abc.abstractmethod
     def add_all(self):
         """Stage every file for committing."""
         raise NotImplementedError("Implement in subclasses.")
 
     @abc.abstractmethod
-    def checkout(self, branch):
+    def checkout(self, branch, create=False):
         """Change the current branch to ``branch``.
 
         Create ``branch`` if it doesn't already exist.
 
         Args:
             branch (str): The branch to get / create. e.g. ``"gh-pages"``.
+            create (bool, optional): If True, create the ``branch`` as well.
 
         """
         raise NotImplementedError()
@@ -69,23 +83,36 @@ class Repository(BaseRepository):
 
         self._clone = repository
 
+    def has_branch(self, branch):
+        """Check if ``branch`` exists in this instance.
+
+        Args:
+            branch (str): The local or remote branch to query.
+
+        Returns:
+            bool: If the branch is found, return True.
+
+        """
+        return branch in self._clone.branches
+
     def add_all(self):
         """Stage every file for committing."""
         self._clone.git.add(all=True)
 
-    def checkout(self, branch):
+    def checkout(self, branch, create=False):
         """Change the current branch to ``branch``.
-
-        Create ``branch`` if it doesn't already exist.
 
         Args:
             branch (str): The branch to get / create. e.g. ``"gh-pages"``.
+            create (bool, optional): If True, create the ``branch`` as well.
 
         """
-        if branch in self._clone.branches:
-            self._clone.git.checkout(branch)
-        else:
-            self._clone.git.checkout(b=branch)
+        if create and not self.has_branch(branch):
+            self._clone.git.checkout(b=branch)  # Create + checkout
+
+            return
+
+        self._clone.git.checkout(branch)
 
     def commit(self, message):
         """Commit all staged changes with a new commit, containing ``message``.

@@ -440,6 +440,31 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
 
         return True
 
+    def _prepare_repository(self, repository):
+        """Checkout a branch as needed, clear folder(s), and otherwise prep for pushing.
+
+        Args:
+            repository (BaseRepository): A cloned repository wrapper.
+
+        """
+        branch = self._get_branch_name()
+
+        if not branch:
+            # Nothing to do because the user wants to modify the current branch
+            return
+
+        if not repository.has_branch(branch):
+            repository.checkout(branch, create=False)
+
+            return
+
+        self._handler.checkout(branch, create=True)
+        repository_root = repository.get_root()
+        _clear_git_directory(repository_root)
+
+        if hasattr(self._handler, "apply_repository_template"):
+            self._handler.apply_repository_template(repository_root)
+
     def _skip_existing_version_folder(self):
         """bool: If True, documentation is not updated when patching versions."""
         return self._data[_SKIP_EXISTING_VERSION]
@@ -511,15 +536,7 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
         )
         root = self._follow_cloned_repository(repository)
 
-        branch = self._get_branch_name()
-
-        if branch:
-            # TODO : Need to create a branch if it doesn't already exist.
-            # The branch needs to be empty so that it can be filled with documentation.
-            #
-            # Make sure templating (.nojekyll) gets added as expected
-            #
-            repository.checkout(branch)
+        self._prepare_repository(repository)
 
         was_copied = self._copy_documentation_if_needed(documentation, root)
 
@@ -588,6 +605,30 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
             "handler={self._handler!r}"
             ")".format(self=self)
         )
+
+
+def _clear_git_directory(directory):
+    """Delete all contents in ``directory`` but keep hidden + git related files.
+
+    Coincidentally, hidden files and git related files all start with ".", so
+    we just don't delete any ``.git``, ``.gitmodules``, ``.gitignore``, etc files.
+
+    Args:
+        directory (str): An absolute or relative path to a folder on-disk.
+
+    """
+    for name in os.listdir(directory):
+        if name.startswith("."):
+            continue
+
+        full = os.path.join(directory, name)
+
+        if os.path.isfile(full):
+            os.remove(full)
+        elif os.path.isdir(full):
+            shutil.rmtree(full)
+        elif os.path.islink(full):
+            os.unlink(full)
 
 
 def _copy_into(source, destination):
