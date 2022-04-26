@@ -94,6 +94,8 @@ intersphinx_mapping.update(
 
 rst_epilog = textwrap.dedent(
     """\
+    .. _.gitignore: https://git-scm.com/docs/gitignore
+    .. _.gitignore_global: https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
     .. _.nojekyll: https://github.blog/2009-12-29-bypassing-jekyll-on-github-pages/
     .. _CRUD: https://en.wikipedia.org/wiki/Create,_read,_update_and_delete
     .. _GitHub Enterprise: https://github.com/enterprise

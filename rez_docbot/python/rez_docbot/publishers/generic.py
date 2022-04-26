@@ -14,7 +14,7 @@ from rez.vendor.version import version as version_
 import giturlparse
 
 from ..bases import base as base_
-from ..core import common, schema_type
+from ..core import common, exception, schema_type
 
 _BRANCH = "branch"
 _COMMIT_MESSAGE = "commit_message"
@@ -526,6 +526,11 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
         Raises:
             RuntimeError:
                 If this instance hasn't authenticated to a VCS remote, e.g. GitHub.
+            MissingDocumentation:
+                If documentation was expected to be added for commit + push
+                but, for some unknown reason, the git repository cannot commit
+                + push it. (This usually happens because of a messed up
+                `.gitignore`_ file or `.gitignore_global`_).
 
         """
         if not self._handler:
@@ -550,10 +555,13 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
             return
 
         repository.add_all()
-        # TODO : Add a check here to ensure changes are staged. And if no
-        # changes were found, exception early so users don't end up with empty
-        # documentation
-        #
+
+        if not repository.is_ready_to_commit():
+            raise exception.MissingDocumentation(
+                'Package "{self._package.name}-{self._package_version}" has no '
+                'documentaion to publish. Something went wrong.'.format(self=self)
+            )
+
         message = self._get_commit_message()
         repository.commit(message)
         repository.push()

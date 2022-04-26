@@ -26,6 +26,11 @@ class BaseRepository(object):
         return False
 
     @abc.abstractmethod
+    def is_ready_to_commit(self):
+        """bool: Check if this repository should be committed + pushed."""
+        return False
+
+    @abc.abstractmethod
     def add_all(self):
         """Stage every file for committing."""
         raise NotImplementedError("Implement in subclasses.")
@@ -94,6 +99,22 @@ class Repository(BaseRepository):
 
         """
         return branch in self._clone.branches
+
+    def is_ready_to_commit(self):
+        """bool: Check if this repository should be committed + pushed."""
+        # Reference: https://stackoverflow.com/a/40509040/3626104
+        if not self._clone.is_dirty(untracked_files=True):
+            # If there's unstaged changes
+            return False
+
+        # Reference: https://stackoverflow.com/a/4855096/3626104
+        untracked_files = self._clone.ls_files(exclude_standard=True, others=True)
+
+        if untracked_files:
+            # If there are unstaged files, we shouldn't commit yet.
+            return False
+
+        return True
 
     def add_all(self):
         """Stage every file for committing."""
