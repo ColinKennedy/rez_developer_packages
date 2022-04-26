@@ -66,13 +66,8 @@ class Authentication(unittest.TestCase):
             ) as publisher:
                 publisher.authenticate()
 
-    # TODO : Does this actually still connect to the Internet? probably can remove
-    @unittest.skipIf(
-        not website.is_internet_on(), "External Internet is not accessible."
-    )  # pylint: disable=no-self-use
     def test_normal(self):
         """Make sure :class:`rez_docbot.publishers.github.Github` authenticates."""
-        # TODO : Make a burner account so we can use it in this test, if needed
         with _get_quick_publisher(
             {
                 "authentication": [
