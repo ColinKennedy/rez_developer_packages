@@ -19,10 +19,7 @@ _PUBLIC_GITHUB_SSH = "git@github.com:"
 
 _COMMON_USER = {_USER: schema_type.NON_EMPTY_STR}
 
-_ACCESS_TOKEN = {
-    # TODO : Probably don't allow spaces in token
-    "token": schema_type.NON_EMPTY_STR,
-}
+_ACCESS_TOKEN = {"token": schema_type.GITHUB_ACCESS_TOKEN}
 _ACCESS_TOKEN.update(_COMMON_USER)
 _USER_PASSWORD_PAIR = {
     _PASSWORD: schema_type.NON_EMPTY_STR,

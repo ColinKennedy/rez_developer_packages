@@ -23,6 +23,12 @@ REPOSITORY = "repository"
 
 _GIT_DEFAULT_REMOTE_NAME = "origin"
 
+# Reference: https://www.infoq.com/news/2021/04/github-new-token-format/
+#
+# Example "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"
+#
+_GITHUB_PERSONAL_ACCESS_TOKEN = re.compile(r"\w+_[a-zA-Z0-9]")
+
 
 def _validate_callable(item):
     """Check if ``item`` is a callable object (like a function or class).
@@ -118,6 +124,28 @@ def _validate_directory(directory):
         return directory
 
     raise RuntimeError('Directory "{directory}" does not exist.'.format(directory=directory))
+
+
+def _validate_github_access_token(item):
+    """Check if ``item`` is a raw GitHub personal access token string.
+
+    Args:
+        item (str): Example: ``"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"``.
+
+    Raises:
+        ValueError: If ``item`` is not a string.
+        RuntimeError: If ``item`` does not match GitHub's personal access token format.
+
+    """
+    if not isinstance(item, six.string_types):
+        raise ValueError('Item "{item}" is not a string.'.format(item=item))
+
+    if _GITHUB_PERSONAL_ACCESS_TOKEN.match(item):
+        return
+
+    raise RuntimeError('Text "{item}" is not a known GitHub access token.'.format(
+        item=item
+    ))
 
 
 def _validate_json_file(item):
@@ -326,5 +354,7 @@ SSH = schema.Use(_validate_ssh)
 DEFER_REPOSITORY = schema.Use(_validate_defer_git_repository)
 
 JSON_FILE_PATH = schema.Use(_validate_json_file)
+
+GITHUB_ACCESS_TOKEN = schema.Use(_validate_github_access_token)
 
 VIEW_URL = schema.Use(_validate_view_url)
