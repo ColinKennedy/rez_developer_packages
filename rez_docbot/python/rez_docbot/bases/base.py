@@ -122,6 +122,11 @@ class Publisher(object):
         return False
 
     @abc.abstractmethod
+    def is_publishing_enabled(self):
+        """bool: Check if this instance is authenticated and ready to publish."""
+        return True
+
+    @abc.abstractmethod
     def is_required(self):
         """bool: Check if this publisher is expected to always have documentation."""
         return True

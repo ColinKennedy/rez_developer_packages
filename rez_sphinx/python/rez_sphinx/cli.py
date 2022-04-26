@@ -253,7 +253,13 @@ def _publish_run(namespace):
         _LOGGER.info('Publishing "%s" documentation.', documentation)
 
         for publisher in publishers:
+            if not publisher.is_required() and not publisher.is_publishing_enabled():
+                _LOGGER.warning('Skipping publishing with publisher "%s".', publisher)
+
+                continue
+
             _LOGGER.debug('Publishing with publisher "%s".', publisher)
+
             publisher.quick_publish(documentation)
 
 

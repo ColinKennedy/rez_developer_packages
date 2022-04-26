@@ -473,6 +473,10 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
         """bool: If True, this will create unique documentation per-version."""
         return bool(self._data[_VERSION_FOLDER])
 
+    def is_publishing_enabled(self):
+        """bool: Check if this instance is authenticated and ready to publish."""
+        return bool(self._handler)
+
     def is_required(self):
         """bool: Check if this publisher is expected to always have documentation."""
         return self._data[_REQUIRED]
@@ -487,8 +491,12 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
         invalids = set()
 
         uri = self.get_resolved_repository_uri()
+        methods = self._data[AUTHENICATION]
 
-        for method in self._data[AUTHENICATION]:
+        if not methods:
+            raise RuntimeError("No authentication method available to run.")
+
+        for method in methods:
             handler = method.authenticate(uri)
 
             if handler:
@@ -500,11 +508,7 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
                 invalids.add(method)
 
         if not self.is_required():
-            # TODO : Add some functionality here
-            raise NotImplementedError("Need to write this")
-
-        if not invalids:
-            raise RuntimeError("No authentication method was run.")
+            return
 
         raise RuntimeError(
             'These authentication methods "{invalids}" failed.'.format(
