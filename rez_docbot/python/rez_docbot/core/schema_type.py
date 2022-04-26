@@ -289,6 +289,29 @@ def _validate_url_subdirectory(item):
     )
 
 
+def _validate_view_url(item):
+    """Check if ``item`` is a website URL or a directory.
+
+    Either is considered a "valid" documentation view location. Because either
+    are viewable in a website browser.
+
+    Args:
+        item (str):
+            A website or similar URI. Like "http://www.foo.bar" or an inner folder to check.
+
+    Raises:
+        ValueError: If ``item`` isn't a sub-directory.
+
+    """
+    if os.path.isdir(item):
+        # If it's actually a directory on-disk, just use it as-is
+        return item
+
+    _validate_url(item)
+
+    return item
+
+
 NON_EMPTY_STR = schema.Use(_validate_non_empty_str)
 
 DEFAULT_PUBLISH_PATTERN = "{package.version.major}.{package.version.minor}"
@@ -303,3 +326,5 @@ SSH = schema.Use(_validate_ssh)
 DEFER_REPOSITORY = schema.Use(_validate_defer_git_repository)
 
 JSON_FILE_PATH = schema.Use(_validate_json_file)
+
+VIEW_URL = schema.Use(_validate_view_url)

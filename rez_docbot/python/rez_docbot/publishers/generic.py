@@ -301,7 +301,7 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
                 schema_type.DIRECTORY,
                 schema_type.DEFER_REPOSITORY,  # Get the package's repository, instead
             ),
-            _VIEW_URL: schema_type.NON_EMPTY_STR,  # TODO : Replace with URL parser
+            _VIEW_URL: schema_type.VIEW_URL,
             schema.Optional(_BRANCH): schema_type.NON_EMPTY_STR,
             schema.Optional(
                 _LATEST_FOLDER, default="latest"
