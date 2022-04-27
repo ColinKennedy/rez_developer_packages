@@ -13,7 +13,9 @@ class _SplitPaths(argparse.Action):
     """
 
     def __call__(self, parser, namespace, values, option_string=None):
-        setattr(namespace, self.dest, [value.strip() for value in values.split(os.pathsep)])
+        setattr(
+            namespace, self.dest, [value.strip() for value in values.split(os.pathsep)]
+        )
 
 
 def add_directory_argument(parser):

@@ -5,8 +5,8 @@ import logging
 import shlex
 
 import six
-from rez_utilities import finder
 from rez import package_test
+from rez_utilities import finder
 
 from .. import _cli_build
 from ..core import exception

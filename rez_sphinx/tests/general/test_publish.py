@@ -5,10 +5,11 @@ import os
 import textwrap
 import unittest
 
-from rez_utilities import creator, finder
-from rez_sphinx.core import exception
 from python_compatibility import wrapping
+from rez_utilities import creator, finder
 from six.moves import mock
+
+from rez_sphinx.core import exception
 
 from ..common import package_wrap, run_test
 
@@ -66,7 +67,13 @@ class Run(unittest.TestCase):
 
             with self.assertRaises(exception.PluginConfigurationError):
                 run_test.test(
-                    ["publish", "run", source_directory, "--packages-path", install_path]
+                    [
+                        "publish",
+                        "run",
+                        source_directory,
+                        "--packages-path",
+                        install_path,
+                    ]
                 )
 
     def test_not_inited(self):
@@ -88,7 +95,13 @@ class Run(unittest.TestCase):
 
             with self.assertRaises(exception.NoDocumentationFound):
                 run_test.test(
-                    ["publish", "run", source_directory, "--packages-path", install_path]
+                    [
+                        "publish",
+                        "run",
+                        source_directory,
+                        "--packages-path",
+                        install_path,
+                    ]
                 )
 
 

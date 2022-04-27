@@ -14,13 +14,13 @@ from python_compatibility import iterbot
 from rez.config import config as config_
 from rez_utilities import finder
 
+from . import _cli_build
 from .commands import build_orderer, initer, publish_run
 from .commands.builder import inspector
 from .commands.suggest import build_display, filter_by, search_mode, suggestion_mode
 from .core import cli_helper, environment, exception, path_control, print_format
 from .preferences import preference
 from .preprocess import hook
-from . import _cli_build
 
 _LOGGER = logging.getLogger(__name__)
 

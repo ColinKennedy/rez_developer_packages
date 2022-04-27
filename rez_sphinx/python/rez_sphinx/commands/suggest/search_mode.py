@@ -4,10 +4,9 @@ import glob
 import logging
 import os
 
-from rez_utilities import finder
-
 from rez import developer_package
 from rez import exceptions as rez_exceptions
+from rez_utilities import finder
 
 from ...core import exception
 

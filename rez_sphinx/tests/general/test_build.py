@@ -744,7 +744,9 @@ def _make_package_with_no_python_files():
         """
     )
 
-    with io.open(os.path.join(directory, "package.py"), "w", encoding="utf-8") as handler:
+    with io.open(
+        os.path.join(directory, "package.py"), "w", encoding="utf-8"
+    ) as handler:
         handler.write(package_text)
 
     return finder.get_nearest_rez_package(directory)

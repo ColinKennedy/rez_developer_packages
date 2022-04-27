@@ -14,7 +14,6 @@ from rez_sphinx.core import exception
 
 from ..common import doc_test, package_wrap, run_test
 
-
 _DEFAULT_SPHINX_WELCOME_TEXT = "Welcome to "
 
 

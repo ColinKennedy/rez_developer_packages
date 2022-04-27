@@ -77,7 +77,7 @@ def _get_field_attributes(sphinx, fields):
     if count == 1:
         raise exception.SphinxConfError(
             'This conf.py attribute, "{invalids}" could not be found. '
-            'Options were:{options}'.format(
+            "Options were:{options}".format(
                 invalids=", ".join(sorted(invalids)),
                 options="\n".join(sorted(sphinx.get_known_attribute_names())),
             )

@@ -115,4 +115,4 @@ def to_environment_name(name):
     #
     # Reference: https://github.com/nerdvegas/rez/issues/1298
     #
-    return name.upper().replace('.', '_')
+    return name.upper().replace(".", "_")

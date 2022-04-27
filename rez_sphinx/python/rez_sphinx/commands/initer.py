@@ -210,7 +210,9 @@ def init(package, quick_start_options=tuple(), skip_existing=False, verbose=Fals
         configuration_path = _run_sphinx_quickstart(quickstart_root, options=options)
     else:
         with wrapping.silence_printing():
-            configuration_path = _run_sphinx_quickstart(quickstart_root, options=options)
+            configuration_path = _run_sphinx_quickstart(
+                quickstart_root, options=options
+            )
 
     if preference.SPHINX_SEPARATE_SOURCE_AND_BUILD in options:
         _add_initial_files(documentation_source_root, initial_files)

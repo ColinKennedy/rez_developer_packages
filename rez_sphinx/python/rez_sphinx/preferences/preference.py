@@ -10,11 +10,11 @@ import os
 import platform
 
 import schema
-from rez.vendor.version import version
 from rez import exceptions as rez_exceptions
 from rez import plugin_managers
 from rez.config import config as config_
 from rez.utils import execution
+from rez.vendor.version import version
 
 try:
     from functools import lru_cache  # Python 3.2+
