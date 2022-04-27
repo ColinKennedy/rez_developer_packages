@@ -103,11 +103,8 @@ Dedicated user & central repository
 
 This variant is actually the same as :ref:`Dedicated user & separate
 repositories`. The only difference is that, instead of creating new
-repositories per-package, there's a dedicated repository and documentation for
-all Rez packages live within it.
-
-TODO double check if this is correct. Need to make sure relative_path +
-view_url are right.
+repositories per-package, there's a dedicated, single documentation repository
+and the documentation for all Rez packages live within it.
 
 
 .. code-block:: python

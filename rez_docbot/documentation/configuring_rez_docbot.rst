@@ -171,7 +171,8 @@ within a sub-folder.
         },
     }
 
-In the configuration above, :func:`.get_first_versioned_view_url` would return
+In the configuration above, :func:`.preference.get_first_versioned_view_url`
+would return
 ``"https://Foo.github.io/all_documentation/path/to/{package.name}"``, to
 reflect not just the view URL but also relative sub-folder path.
 
@@ -286,11 +287,13 @@ will live.
 
 .. seealso::
 
-    Related API function: :func:`.get_first_versioned_view_url`
+    Related API function: :func:`.preference.get_first_versioned_view_url`
 
 See :doc:`publishing_per_version` for details on controlling how often
 versioned documentation is generated.
 
+
+.. _rez_docbot.publishers.*.view_url:
 
 rez_docbot.publishers.*.view_url
 ================================
@@ -322,8 +325,8 @@ that documentation is viewable to the average user at
 
     Tools such as :ref:`rez_sphinx:rez_sphinx` rely on this URL being accurate
     in order to link Sphinx documentation to Rez. This is done via the
-    :func:`.get_first_versioned_view_url`. In short, absolutely make sure this
-    setting is accurate!
+    :func:`.preference.get_first_versioned_view_url`. In short, absolutely make
+    sure this setting is accurate!
 
 
 .. _per-package configuration:
