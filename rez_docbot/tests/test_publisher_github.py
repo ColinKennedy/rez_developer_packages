@@ -17,7 +17,7 @@ from six.moves import mock
 from rez_docbot.core import common
 from rez_docbot.publishers import generic
 
-from .common import boilerplate, package_wrap, run_test
+from .common import boilerplate, package_wrap
 
 
 class Authentication(unittest.TestCase):
@@ -200,9 +200,6 @@ class Publish(unittest.TestCase):
                 "view_url": "https://www.some_fake.website",
             }
         )
-
-
-from . import run_test
 
 
 def _make_headless_repository(suffix):
