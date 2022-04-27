@@ -11,8 +11,8 @@ as a plug-in for ``rez_sphinx`` (TODO add link).
 See documentation for details: TODO
 
 
-
 Documentation
+- New documentation should be tagged (with package name + version, like Rez does it)
 - Check that I have references for all :ref: tags.
 - Do NotImplementedHere exceptions
 - Do all TODO notes

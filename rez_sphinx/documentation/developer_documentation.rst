@@ -29,3 +29,4 @@ Broadly speaking, the most important parts of any Package / rez_sphinx set up ar
     :maxdepth: 1
 
     how_rez_and_sphinx_are_linked
+    how_interlinking_works
