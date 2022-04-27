@@ -1,5 +1,6 @@
 """Make sure all version / latest logic works as expected."""
 
+import os
 import re
 import unittest
 
@@ -27,14 +28,14 @@ class Publish(unittest.TestCase):
         patch = _make_mock_package("1.1.1")
         any_version = re.compile(".+")
         original_published = _do_version_publish(
-            version_folder,
             documentation,
+            version_folder,
             package,
             any_version,
         )
         patch_published = _do_version_publish(
-            version_folder,
             documentation,
+            version_folder,
             patch,
             any_version,
         )
@@ -57,14 +58,14 @@ class Publish(unittest.TestCase):
         patch = _make_mock_package("1.1.1")
         any_version = ""
         original_published = _do_version_publish(
-            version_folder,
             documentation,
+            version_folder,
             package,
             any_version,
         )
         patch_published = _do_version_publish(
-            version_folder,
             documentation,
+            version_folder,
             patch,
             any_version,
         )
@@ -74,7 +75,40 @@ class Publish(unittest.TestCase):
 
     def test_overwrite_version(self):
         """Overwrite the version folder if the Rez package is a new patch."""
-        raise ValueError()
+        version_folder = package_wrap.make_temporary_directory("_version_folder")
+        documentation = package_wrap.make_temporary_directory("_documentation")
+
+        package = _make_mock_package("1.1.0")
+        patch = _make_mock_package("1.1.1")
+        major_minor = "{package.version.major}.{package.version.minor}"
+        original_published = _do_version_publish(
+            documentation,
+            version_folder,
+            package,
+            major_minor,
+            skip_existing_version=False,
+        )
+
+        inner_file = os.path.join(version_folder, "1.1", "foo.html")
+        before_update = os.path.isfile(inner_file)
+
+        with open(os.path.join(documentation, "foo.html"), "a"):
+            pass
+
+        documentation = package_wrap.make_temporary_directory("_documentation")
+        patch_published = _do_version_publish(
+            documentation,
+            version_folder,
+            patch,
+            major_minor,
+            skip_existing_version=False,
+        )
+        after_update = os.path.isfile(inner_file)
+
+        self.assertTrue(original_published)
+        self.assertTrue(patch_published)
+        self.assertFalse(before_update)
+        self.assertTrue(after_update)
 
     def test_overwrite_latest(self):
         """Overwrite the latest folder if the Rez package is a new version."""
@@ -89,14 +123,14 @@ class Publish(unittest.TestCase):
         patch = _make_mock_package("1.1.0.1")
         only_first_patch = re.compile(r"\d+\.\d+\.\d+")
         original_published = _do_version_publish(
-            version_folder,
             documentation,
+            version_folder,
             package,
             only_first_patch,
         )
         patch_published = _do_version_publish(
-            version_folder,
             documentation,
+            version_folder,
             patch,
             only_first_patch,
         )
@@ -113,14 +147,14 @@ class Publish(unittest.TestCase):
         patch = _make_mock_package("1.1.0.1")
         up_to_second_patch = re.compile(r"\d+\.\d+\.\d+\.\d+")
         original_published = _do_version_publish(
-            version_folder,
             documentation,
+            version_folder,
             package,
             up_to_second_patch,
         )
         patch_published = _do_version_publish(
-            version_folder,
             documentation,
+            version_folder,
             patch,
             up_to_second_patch,
         )
@@ -128,30 +162,69 @@ class Publish(unittest.TestCase):
         self.assertTrue(original_published)
         self.assertTrue(patch_published)
 
-    def test_skip_version(self):
-        """Don't overwrite the version folder if the Rez package is an older patch."""
-        raise ValueError()
-
     def test_skip_latest(self):
         """Don't overwrite the latest folder if the Rez package is an older version."""
-        raise ValueError()
+        latest_folder = package_wrap.make_temporary_directory("_latest_folder")
+        version_folder = package_wrap.make_temporary_directory("_version_folder")
+        documentation = package_wrap.make_temporary_directory("_documentation")
+
+        newer = _make_mock_package("1.2.0")
+        back_patch = _make_mock_package("1.1.1")
+        any_version = ""
+        original_published = _do_latest_publish(
+            documentation,
+            latest_folder,
+            version_folder,
+            newer,
+            any_version,
+        )
+
+        # Fake adding a versioned documentation folder
+        os.makedirs(os.path.join(version_folder, "1.2.0"))
+
+        patch_published = _do_latest_publish(
+            documentation,
+            latest_folder,
+            version_folder,
+            back_patch,
+            any_version,
+        )
+
+        self.assertTrue(original_published)
+        self.assertFalse(patch_published)
 
 
-def _do_version_publish(version_folder, documentation, package, publish_pattern):
+def _make_custom_pattern(
+    publish_pattern,
+    package,
+    skip_existing_version=True,
+):
     # TODO : Docstring
-    publisher = boilerplate.get_quick_publisher(
+    return boilerplate.get_quick_publisher(
         {
             "authentication": [
                 {"token": "fake_access_token", "user": "fake_user"},
             ],
             "publisher": "github",
-            "skip_existing_version": True,
+            "skip_existing_version": skip_existing_version,
             "publish_pattern": publish_pattern,
             "repository_uri": "git@github.com:FakeUser/{package.name}",
             "view_url": "https://www.some_fake.website",
         },
         package=package,
     )
+
+
+def _do_latest_publish(documentation, latest_folder, version_folder, package, publish_pattern, skip_existing_version=True):
+    # TODO : Docstring
+    publisher = _make_custom_pattern(publish_pattern, package, skip_existing_version=skip_existing_version)
+
+    return publisher._copy_into_latest_if_needed(documentation, latest_folder, version_folder)
+
+
+def _do_version_publish(documentation, version_folder, package, publish_pattern, skip_existing_version=True):
+    # TODO : Docstring
+    publisher = _make_custom_pattern(publish_pattern, package, skip_existing_version=skip_existing_version)
 
     return publisher._copy_into_versioned_if_needed(
         documentation, version_folder

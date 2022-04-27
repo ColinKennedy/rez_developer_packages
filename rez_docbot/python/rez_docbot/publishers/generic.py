@@ -432,7 +432,7 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
         latest_previous_publish = self._get_latest_version_folder(versioned)
         version = self._package.version
 
-        if not version or latest_previous_publish <= version:
+        if not latest_previous_publish or latest_previous_publish <= version:
             _copy_into(documentation, latest)
 
             return True
