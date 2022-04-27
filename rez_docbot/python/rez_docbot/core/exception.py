@@ -19,3 +19,7 @@ class MissingDocumentation(CoreException):
 
 class NoRemoteFound(CoreException):
     """If a remote git repository was needed / excepted but none was found."""
+
+
+class RemoteActionFailed(CoreException):
+    """We tried some kind of git edit (clone, push, etc) but it did not work."""

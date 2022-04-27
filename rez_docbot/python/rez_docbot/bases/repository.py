@@ -3,7 +3,11 @@
 import abc
 import logging
 
+from git import exc
 import six
+
+from ..core import exception
+
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -149,7 +153,12 @@ class Repository(BaseRepository):
         return self._clone.working_dir
 
     def push(self):
-        """Push all commits in the current branch to the remote."""
+        """Push all commits in the current branch to the remote.
+
+        Raises:
+            RemoteActionFailed: If we could not push to the remote.
+
+        """
         _LOGGER.info(
             'Pushing from local clone "%s" to remote, "%s".',
             self.get_root(),
@@ -157,4 +166,13 @@ class Repository(BaseRepository):
         )
 
         branch = self._clone.active_branch.name
-        self._clone.remote().push(branch)
+        remote = self._clone.remote()
+
+        try:
+            remote.push(branch)
+        except exc.GitError:
+            _LOGGER.exception("Cannot push")
+
+            raise exception.RemoteActionFailed(
+                'Remote "{remote}" could not be pushed to.'.format(remote=remote)
+            )

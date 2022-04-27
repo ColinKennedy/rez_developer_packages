@@ -4,11 +4,15 @@ import io
 import os
 
 import github3
+from git import exc
 from git.repo import base
 
 from ....bases import base as base_
 from ....bases import repository as repository_
 from ....core import exception
+
+
+_LOGGER = logging.getLogger(__name__)
 
 
 class GitHub(base_.Handler):
@@ -101,6 +105,7 @@ class GitHub(base_.Handler):
 
         Raises:
             RuntimeError: If ``destination`` is not empty.
+            RemoteActionFailed: If ``details`` could not be cloned.
 
         Returns:
             BaseRepository: The retrieved or created `GitHub`_ repository.
@@ -115,7 +120,16 @@ class GitHub(base_.Handler):
                 )
             )
 
-        clone = base.Repo.clone_from(details.clone_url, destination)
+        try:
+            clone = base.Repo.clone_from(details.clone_url, destination)
+        except exc.GitError:
+            _LOGGER.exception("Unabled to clone.")
+
+            raise exception.RemoteActionFailed(
+                'Remote "{details.clone_url}" could not be cloned.'.format(
+                    details=details
+                )
+            )
 
         self.apply_repository_template(destination)
 
