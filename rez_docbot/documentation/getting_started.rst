@@ -16,6 +16,6 @@ Latest Documentation
 
 .. _versioned documentation:
 
-********************
-Latest Documentation
-********************
+***********************
+Versioned Documentation
+***********************

@@ -12,6 +12,7 @@ The user documentation section just describes what ``rez_docbot`` does
 and how to set it up.
 
 .. toctree::
+    :maxdepth: 1
 
     installation
     getting_started

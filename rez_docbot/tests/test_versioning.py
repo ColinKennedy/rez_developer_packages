@@ -96,7 +96,6 @@ class Publish(unittest.TestCase):
         with io.open(os.path.join(documentation, "foo.html"), "a", encoding="utf-8"):
             pass
 
-        documentation = package_wrap.make_temporary_directory("_documentation")
         patch_published = _do_version_publish(
             documentation,
             version_folder,
@@ -113,7 +112,42 @@ class Publish(unittest.TestCase):
 
     def test_overwrite_latest(self):
         """Overwrite the latest folder if the Rez package is a new version."""
-        raise ValueError()
+        latest_folder = package_wrap.make_temporary_directory("_latest_folder")
+        version_folder = package_wrap.make_temporary_directory("_version_folder")
+        documentation = package_wrap.make_temporary_directory("_documentation")
+
+        package = _make_mock_package("1.1.0")
+        patch = _make_mock_package("1.1.1")
+        major_minor = "{package.version.major}.{package.version.minor}"
+        original_published = _do_latest_publish(
+            documentation,
+            latest_folder,
+            version_folder,
+            package,
+            major_minor,
+            skip_existing_version=False,
+        )
+
+        inner_file = os.path.join(latest_folder, "foo.html")
+        before_update = os.path.isfile(inner_file)
+
+        with io.open(os.path.join(documentation, "foo.html"), "a", encoding="utf-8"):
+            pass
+
+        patch_published = _do_latest_publish(
+            documentation,
+            latest_folder,
+            version_folder,
+            patch,
+            major_minor,
+            skip_existing_version=False,
+        )
+        after_update = os.path.isfile(inner_file)
+
+        self.assertTrue(original_published)
+        self.assertTrue(patch_published)
+        self.assertFalse(before_update)
+        self.assertTrue(after_update)
 
     def test_regex_001(self):
         """Allow users to specify a regular expression for finding versions."""

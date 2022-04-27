@@ -28,5 +28,6 @@ Publisher-Specific Pages
 ========================
 
 .. toctree::
+    :maxdepth: 1
 
-   github_details
+    github_details
