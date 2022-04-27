@@ -80,7 +80,8 @@ class GitHub(base_.Handler):
                 )
             )
 
-    def apply_repository_template(self, directory):
+    @staticmethod
+    def apply_repository_template(directory):
         """Add a `.nojekyll`_ file so GitHub doesn't run CI on the current branch.
 
         Args:
@@ -122,7 +123,7 @@ class GitHub(base_.Handler):
 
         try:
             clone = base.Repo.clone_from(details.clone_url, destination)
-        except exc.GitError:
+        except exc.GitError:  # pylint: disable=no-member
             _LOGGER.exception("Unabled to clone.")
 
             raise exception.RemoteActionFailed(

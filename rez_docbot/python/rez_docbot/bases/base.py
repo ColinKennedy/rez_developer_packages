@@ -39,7 +39,7 @@ class Authenticator(object):
 
     @classmethod
     @abc.abstractmethod
-    def validate(cls, data, package):
+    def validate(cls, data):
         """Create an instance of this class, after checking ``data``.
 
         Args:
@@ -180,7 +180,6 @@ class Publisher(object):
 
         Args:
             data (dict[str, object]): Each git / remote data to save.
-            package (rez.packages.Package): The object to publish.
 
         """
         return cls(data, package)

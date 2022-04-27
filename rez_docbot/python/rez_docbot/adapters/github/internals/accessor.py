@@ -32,11 +32,11 @@ _USER_PASSWORD_PAIR_SCHEMA = schema.Schema(_USER_PASSWORD_PAIR)
 class AccessToken(base.Authenticator):
     """Allow the user to authenticate with a username + `GitHub access token`_."""
 
-    def authenticate(self, url):
-        """Get a valid handle to the remote ``url``.
+    def authenticate(self, uri):
+        """Get a valid handle to the remote ``uri``.
 
         Args:
-            url (str):
+            uri (str):
                 An addressable website. e.g. ``"https://www.github.com/Foo/bar"``
                 or ``"git@github.com:Foo/bar"``
 
@@ -44,7 +44,7 @@ class AccessToken(base.Authenticator):
             Handler: The authenticated instance.
 
         """
-        if _is_public_github(url):
+        if _is_public_github(uri):
             raw_handler = github3.login(
                 username=self._data[_USER],
                 token=self._data[_TOKEN],
@@ -53,7 +53,7 @@ class AccessToken(base.Authenticator):
             raw_handler = github3.enterprise_login(
                 username=self._data[_USER],
                 token=self._data[_TOKEN],
-                url=url,
+                url=uri,
             )
 
         return handler.GitHub(raw_handler)
@@ -75,11 +75,11 @@ class AccessToken(base.Authenticator):
 class UserPassword(base.Authenticator):
     """Allow the user to authenticate with a raw username + password."""
 
-    def authenticate(self, url):
-        """Get a valid handle to the remote ``url``.
+    def authenticate(self, uri):
+        """Get a valid handle to the remote ``uri``.
 
         Args:
-            url (str):
+            uri (str):
                 An addressable website. e.g. ``"https://www.github.com/Foo/bar"``
                 or ``"git@github.com:Foo/bar"``
 
@@ -87,7 +87,7 @@ class UserPassword(base.Authenticator):
             Handler: The authenticated instance.
 
         """
-        if _is_public_github(url):
+        if _is_public_github(uri):
             raw_handler = github3.login(
                 username=self._data[_USER],
                 password=self._data[_PASSWORD],
@@ -96,7 +96,7 @@ class UserPassword(base.Authenticator):
             raw_handler = github3.enterprise_login(
                 username=self._data[_USER],
                 password=self._data[_PASSWORD],
-                url=url,
+                url=uri,
             )
 
         return handler.GitHub(raw_handler)

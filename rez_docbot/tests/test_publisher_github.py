@@ -36,7 +36,7 @@ class Authentication(unittest.TestCase):
                     }
                     """
                 )
-            )
+            ),
         )
 
         publisher = boilerplate.get_quick_publisher(
