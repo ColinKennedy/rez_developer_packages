@@ -20,9 +20,9 @@ If you'd like to add publishing on-release, the basic steps are as follows:
                     "authentication": {
                         "user": "YourUserName",
                         "token": "some_access_token",
-                        "type": "github",
                     },
                     "branch": "gh-pages",
+                    "publisher": "github",
                     "repository_uri": "git@github.com:YourUserName/{package.name}",
                     "view_url": "https://YourUserName.github.io/{package.name}",
                 },

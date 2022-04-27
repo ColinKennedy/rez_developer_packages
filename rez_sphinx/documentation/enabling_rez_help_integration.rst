@@ -138,9 +138,9 @@ Add this to your `rezconfig.py`_:
                     "authentication": {
                         "user": "YourUserName",
                         "token": "some_access_token_here",
-                        "type": "github",
                     },
                     "branch": "gh-pages",
+                    "publisher": "github",
                     "repository_uri": "git@github.com:SomeUserOrOrganization/{package.name}",
                     "view_url": "https://SomeUserOrOrganization.github.io/{package.name}",
                 },
