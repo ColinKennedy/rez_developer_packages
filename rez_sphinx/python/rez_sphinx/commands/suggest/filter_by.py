@@ -1,3 +1,5 @@
+"""The functions needed to implement :ref:`build-order --filter`."""
+
 import logging
 import os
 
@@ -210,22 +212,22 @@ def _no_filter(packages):
 
 
 def get_mode_by_name(name):
-    # """Find a callable function matching ``name``.
-    #
-    # Args:
-    #     name (str):
-    #         A registered possibility, e.g. ``"none"``, ``"installed"``, or
-    #         ``"guess"``.
-    #
-    # Raises:
-    #     ValueError: If ``name`` is not a registered command.
-    #
-    # Returns:
-    #     callable[str] -> list[rez.packages.Package]:
-    #         A function that takes an absolute directory path and then finds all
-    #         Rez packages that it can, underneath the directory.
-    #
-    # """
+    """Find a callable function matching ``name``.
+
+    Args:
+        name (str):
+            A registered possibility, e.g. ``"none"``, ``"already_released"``,
+            ``"already_documented"`` etc.
+
+    Raises:
+        ValueError: If ``name`` is not a registered command.
+
+    Returns:
+        callable[str] -> list[rez.packages.Package]:
+            A function that takes an absolute directory path and then finds all
+            Rez packages that it can, underneath the directory.
+
+    """
     try:
         return OPTIONS[name]
     except KeyError:

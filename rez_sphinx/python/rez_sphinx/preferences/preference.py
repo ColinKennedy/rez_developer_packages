@@ -1010,6 +1010,30 @@ def get_quick_start_options(package, options=tuple()):
 
 
 def merge_with_sphinx_overrides(data, package=None, skip=frozenset()):
+    """Combine ``data`` :ref:`rez_sphinx`'s configuration.
+
+    See Also:
+        :func:`.bootstrap`
+
+    Args:
+        data (dict[str, object]):
+            Overrides to apply on top of any existing configuration settings.
+        package (rez.packages.Package, optional):
+            A Rez package which may override the global setting.  If the
+            package doesn't define an opinion, the global setting / default
+            value is used instead.
+        skip (set[str], optional):
+            Any variable which you do not want :ref:`rez_sphinx build run` to
+            set.  This includes both the built-in variables, such as
+            ``"intersphinx_mapping"`` and even dynamic variables set using
+            :ref:`rez_sphinx.sphinx_conf_overrides`
+
+    Returns:
+        dict[str, object]:
+            All found configuration values + all of ``data``, merged as a
+            single definition.
+
+    """
     overrides = {
         key: value
         for key, value in get_sphinx_configuration_overrides(package=package).items()

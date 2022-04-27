@@ -1,3 +1,5 @@
+"""Simple classes / functions which make CLI writing a bit easier."""
+
 import argparse
 import os
 
@@ -13,6 +15,20 @@ class _SplitPaths(argparse.Action):
     """
 
     def __call__(self, parser, namespace, values, option_string=None):
+        """Split the path arguments.
+
+        Args:
+            parser (argparse.ArgumentParser):
+                The top-level parser (not sub-parser).
+            namespace (argparse.Namespace):
+                The parsed user CLI arguments.
+            values (str):
+                Whatever value was passed to this instance action.
+            option_string (str, optional):
+                If this action was used as a position argument, like ``--foo``,
+                then ``"--foo"`` is passed here, for context.
+
+        """
         setattr(
             namespace, self.dest, [value.strip() for value in values.split(os.pathsep)]
         )
