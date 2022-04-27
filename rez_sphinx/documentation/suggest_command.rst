@@ -33,6 +33,21 @@ But if you accidentally build in the opposite order, any links
 ordering process.
 
 
+.. _build-order --filter:
+
+rez_sphinx suggest build-order --filter
+=======================================
+
+``--filter`` is used to exclude a package from being returned by ``build-order``.
+
+It supports:
+
+- **already_documented**: If Sphinx documentation is found (rez_sphinx or otherwise)
+- **already_released**: If the package has already been released, exclude it
+
+    - Worth noting that even packages including documentation will be returned.
+
+
 .. _build-order --search-mode:
 
 rez_sphinx suggest build-order --search-mode
