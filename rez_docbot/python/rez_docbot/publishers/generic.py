@@ -115,7 +115,7 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
 
                 continue
 
-            package_version = package_match.groups()
+            package_version = package_match.group(0)
 
             for name in names:
                 version_folder_match = searcher.match(name)
@@ -129,7 +129,7 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
 
                     continue
 
-                if version_folder_match.groups() == package_version:
+                if version_folder_match.group(0) == package_version:
                     _LOGGER.info('Existing version folder, "%s" was found.')
 
                     return True
@@ -273,10 +273,10 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
                 pattern would return ``"1.2"``.
 
         """
-        raw = self._data[_PUBLISH_PATTERN][0]
+        expression = self._data[_PUBLISH_PATTERN][0]
 
-        if isinstance(raw, six.string_types):
-            return raw.format(package=self._package)
+        if isinstance(expression, six.string_types):
+            return expression.format(package=self._package)
 
         version = self._package.version
 
@@ -285,7 +285,16 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
                 'Package "{self._package}" has no version!'.format(self=self)
             )
 
-        return raw.sub("", str(self._package.version))
+        match = expression.match(str(self._package.version))
+
+        if match:
+            return match.group(0)
+
+        raise RuntimeError(
+            'Version "{version}" did not match pattern, "{expression.pattern}".'.format(
+                version=version, expression=expression
+            )
+        )
 
     def _get_resolved_repository_name(self):
         """Get the URL pointing to the documentation repository.

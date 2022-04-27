@@ -168,6 +168,31 @@ over how packages publish.
         },
     }
 
+You can also specify multiple publish patterns, which :ref:`rez_docbot` will
+try to match against when looking for pre-existing, versioned documentation:
+
+.. code-block:: python
+
+    optionvars = {
+        "rez_docbot": {
+            "publishers": [
+                {
+                    # ... more settings ...
+                    "publish_pattern": [
+                        "{package.version.major}.{package.version.minor}",
+                        "{package.version.major}",
+                    ],
+                    # ... more settings ...
+                },
+            ],
+        },
+    }
+
+.. note::
+
+    publish_patterns can also be regex as well, instead of a raw string.
+
+
 If you never want to publish versioned folders, see
 :ref:`rez_docbot.publishers.*.version_folder`.
 
@@ -256,13 +281,14 @@ rez_docbot.publishers.*.skip_existing_version
 
 :ref:`rez_docbot` publishes for each new major + minor Rez package version, by
 default. Each patched version, if any, will overwrite an existing major + minor
-versioned documentation folder.  If you don't like this behavior, you can
+versioned documentation folder. If you don't like this behavior, you can
 disable it using this setting.  That way, versioned documentation folders are
 immutable and cannot be changed due to later releases. Users must increment the
 minor / major to get new documentation.
 
 Generally, this setting isn't expected to be used by most people.
 
+**Default**: ``False``
 
 .. code-block:: python
 
@@ -271,7 +297,7 @@ Generally, this setting isn't expected to be used by most people.
             "publishers": [
                 {
                     # ... more settings ...
-                    "skip_existing_version": True,
+                    "skip_existing_version": False,
                     # ... more settings ...
                 },
             ],

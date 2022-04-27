@@ -1,7 +1,6 @@
 """Make sure `GitHub`_-related unittests and integration tests work."""
 
 import atexit
-import contextlib
 import functools
 import io
 import os
@@ -11,15 +10,14 @@ import unittest
 
 import schema
 from git.repo import base
-from python_compatibility import website
 from rez.vendor.version import version
 from rez_utilities import finder
 from six.moves import mock
 
-from rez_docbot.core import common, preference
+from rez_docbot.core import common
 from rez_docbot.publishers import generic
 
-from .common import package_wrap, run_test
+from .common import boilerplate, package_wrap, run_test
 
 
 class Authentication(unittest.TestCase):
@@ -43,7 +41,7 @@ class Authentication(unittest.TestCase):
             ),
         )
 
-        publisher = _get_quick_publisher(
+        publisher = boilerplate.get_quick_publisher(
             {
                 "authentication": [{"payload": path, "type": "from_json_path"}],
                 "publisher": "github",
@@ -60,7 +58,7 @@ class Authentication(unittest.TestCase):
         os.remove(path)
 
         with self.assertRaises(schema.SchemaError):
-            _get_quick_publisher(
+            boilerplate.get_quick_publisher(
                 {
                     "authentication": [
                         {"payload": "/does/not/exist.json", "type": "from_json_path"}
@@ -73,13 +71,10 @@ class Authentication(unittest.TestCase):
 
     def test_normal(self):
         """Make sure :class:`rez_docbot.publishers.github.Github` authenticates."""
-        publisher = _get_quick_publisher(
+        publisher = boilerplate.get_quick_publisher(
             {
                 "authentication": [
-                    {
-                        "token": "fake_access_token",
-                        "user": "fake_user",
-                    },
+                    {"token": "fake_access_token", "user": "fake_user"},
                 ],
                 "publisher": "github",
                 "repository_uri": "git@github.com:FakeUser/{package.name}",
@@ -104,7 +99,7 @@ class Remote(unittest.TestCase):
         """
         package, push_url = _make_package_with_remote()
 
-        publisher = _get_quick_publisher(
+        publisher = boilerplate.get_quick_publisher(
             {
                 "authentication": [
                     {
@@ -154,7 +149,7 @@ class Remote(unittest.TestCase):
 
         relative_path = "inner/folder/{package.name}"
 
-        publisher = _get_quick_publisher(
+        publisher = boilerplate.get_quick_publisher(
             {
                 "authentication": [
                     {"token": "fake_access_token", "user": "fake_user"},
@@ -192,7 +187,7 @@ class Publish(unittest.TestCase):
 
     def test_initialization(self):  # pylint: disable=no-self-use
         """Make sure :class:`rez_docbot.publishers.github.Github` instantiates."""
-        _get_quick_publisher(
+        boilerplate.get_quick_publisher(
             {
                 "authentication": [
                     {
@@ -207,32 +202,7 @@ class Publish(unittest.TestCase):
         )
 
 
-def _get_quick_publisher(configuration, package=None):
-    """Make a quick Publisher, based on ``configuration``.
-
-    This function assumes that ``configuration`` only defines a single Publisher.
-
-    Args:
-        configuration (dict[str, object]):
-            The :ref:`rez_docbot` preferences to use in order to create the Publisher.
-        package (rez.packages.Package, optional):
-            The Rez source package to query information from.
-
-    Yields:
-        :class:`rez_docbot.bases.base.Publisher`: The generated instance.
-
-    """
-    package = package or mock.MagicMock()
-
-    try:
-        del package.rez_docbot_configuration
-    except AttributeError:
-        pass
-
-    with run_test.keep_config() as config:
-        config.optionvars["rez_docbot"] = {"publishers": [configuration]}
-
-        return preference.get_base_settings(package)["publishers"][0]
+from . import run_test
 
 
 def _make_headless_repository(suffix):

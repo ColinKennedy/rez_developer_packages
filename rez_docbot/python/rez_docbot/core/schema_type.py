@@ -17,7 +17,7 @@ _REGEX_TYPE = type(_URL_SUBDIRECTORY)
 
 ORIGINAL_TEXT = "original"
 
-_URL_SUBDIRECTORY_SEPARATOR = ""
+_URL_SUBDIRECTORY_SEPARATOR = "/"
 GROUP = "group"
 REPOSITORY = "repository"
 
@@ -203,6 +203,44 @@ def _validate_non_empty_str(item):
     return item
 
 
+def _validate_publish_pattern(item):
+    r"""Check if ``item`` is a known string or regular expression for publishes.
+
+    See Also:
+        :ref:`_publish_pattern`.
+
+    Args:
+        item (str or _sre.SRE_Pattern):
+            A raw expression string or pre-compiled regular expression.  The
+            purpose of this item is to **filter** a Rez package's version.
+            e.g. ``re.compile(r"\d+\.\d+")`` would filter a Rez package
+            ``"1.2.3"`` to ``"1.2"``.  ``re.compile(r".+")`` would capture
+            everything so nothing would be filtered.
+
+    Returns:
+        list[str or _sre.SRE_Pattern]: The converted expressions, if any.
+
+    """
+
+    def _is_iterable(item):
+        try:
+            iter(item)
+        except TypeError:
+            return False
+
+        return True
+
+    validator = _PUBLISH_PATTERN_SCHEMA.validate
+
+    if not _is_iterable(item):
+        return [validator(item)]
+
+    if isinstance(item, six.string_types):
+        return [validator(item)]
+
+    return [validator(pattern) for pattern in item]
+
+
 def _validate_publish_string(item):
     """Check if ``item`` is a standard string.
 
@@ -292,12 +330,22 @@ def _validate_url(item):
     """
     result = urllib_parse.urlparse(item)
 
-    if all((result.scheme, result.netloc)):
-        parts = result.path.split(_URL_SUBDIRECTORY_SEPARATOR)
+    if not all((result.scheme, result.netloc)):
+        raise ValueError('Item "{item}" is not a valid URL.'.format(item=item))
 
-        return {GROUP: parts[1], ORIGINAL_TEXT: item, REPOSITORY: parts[2]}
+    parts = result.path.split(_URL_SUBDIRECTORY_SEPARATOR)
 
-    raise ValueError('Item "{item}" is not a valid URL.'.format(item=item))
+    try:
+        group = parts[1]
+    except IndexError:
+        group = ""
+
+    try:
+        repository = parts[2]
+    except IndexError:
+        repository = ""
+
+    return {GROUP: group, ORIGINAL_TEXT: item, REPOSITORY: repository}
 
 
 def _validate_url_subdirectory(item):
@@ -353,7 +401,9 @@ def _validate_view_url(item):
 NON_EMPTY_STR = schema.Use(_validate_non_empty_str)
 
 DEFAULT_PUBLISH_PATTERN = "{package.version.major}.{package.version.minor}"
-PUBLISH_PATTERNS = schema.Or(_validate_regex, _validate_publish_string)
+_PUBLISH_PATTERN_OPTIONS = schema.Or(schema.Use(_validate_regex), schema.Use(_validate_publish_string))
+_PUBLISH_PATTERN_SCHEMA = schema.Schema(_PUBLISH_PATTERN_OPTIONS)
+PUBLISH_PATTERNS = schema.Use(_validate_publish_pattern)
 
 CALLABLE = schema.Use(_validate_callable)
 
