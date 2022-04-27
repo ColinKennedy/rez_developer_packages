@@ -106,6 +106,7 @@ rst_epilog = textwrap.dedent(
     .. _Sphinx: https://www.sphinx-doc.org/en/master
     .. _gh-pages: https://pages.github.com
     .. _git: https://git-scm.com/
+    .. _package.py: https://github.com/nerdvegas/rez/wiki/Package-Commands
     .. _rezconfig.py: https://github.com/nerdvegas/rez/blob/fa3fff6f0b7b4b53bbb9baa4357ab42117d06356/src/rez/rezconfig.py
     """
 )

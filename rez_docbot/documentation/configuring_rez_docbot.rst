@@ -364,5 +364,39 @@ that documentation is viewable to the average user at
 Per-Package Configuration
 *************************
 
-All settings can be
-TODO Finish
+All settings on this page show how to define these settings globally. However
+they can also be overwritten at the `package.py`_ level.
+
+This is how a setting may look, globally:
+
+.. code-block:: python
+
+    optionvars = {
+        "rez_docbot": {
+            "publishers": [
+                {
+                    # ... more settings ...
+                    "latest_folder": "latest",
+                    # ... more settings ...
+                },
+            ],
+        },
+    }
+
+And here's the same setting, as part of a `package.py`_.
+
+.. code-block:: python
+
+    name = "some_package"
+
+    version "1.2.3"
+
+    rez_docbot_configuration  = {
+        "publishers": [
+            {
+                # ... more settings ...
+                "latest_folder": "latest",
+                # ... more settings ...
+            },
+        ],
+    }

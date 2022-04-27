@@ -1,6 +1,6 @@
 - do TODO notes / Todo / NotImplementedError
 
-- Allow "strict" documentation building - fail on warning
+- Allow "strict" documentation building - fail if Sphinx issues any warning
 
 
 - when building documentation to installed packages locally, `{root}/` needs to
