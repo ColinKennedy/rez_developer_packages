@@ -3,11 +3,10 @@
 import abc
 import logging
 
-from git import exc
 import six
+from git import exc
 
 from ..core import exception
-
 
 _LOGGER = logging.getLogger(__name__)
 

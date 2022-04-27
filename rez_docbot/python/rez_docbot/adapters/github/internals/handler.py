@@ -1,6 +1,7 @@
 """An adapter class for instantiating `GitHub`_ Python classes."""
 
 import io
+import logging
 import os
 
 import github3
@@ -10,7 +11,6 @@ from git.repo import base
 from ....bases import base as base_
 from ....bases import repository as repository_
 from ....core import exception
-
 
 _LOGGER = logging.getLogger(__name__)
 
