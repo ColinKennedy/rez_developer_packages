@@ -1,5 +1,6 @@
 """Make sure all version / latest logic works as expected."""
 
+import io
 import os
 import re
 import unittest
@@ -92,7 +93,7 @@ class Publish(unittest.TestCase):
         inner_file = os.path.join(version_folder, "1.1", "foo.html")
         before_update = os.path.isfile(inner_file)
 
-        with open(os.path.join(documentation, "foo.html"), "a"):
+        with io.open(os.path.join(documentation, "foo.html"), "a", encoding="utf-8"):
             pass
 
         documentation = package_wrap.make_temporary_directory("_documentation")
@@ -215,7 +216,7 @@ def _make_custom_pattern(
     )
 
 
-def _do_latest_publish(
+def _do_latest_publish(  # pylint: disable=too-many-arguments
     documentation,
     latest_folder,
     version_folder,
@@ -228,7 +229,7 @@ def _do_latest_publish(
         publish_pattern, package, skip_existing_version=skip_existing_version
     )
 
-    return publisher._copy_into_latest_if_needed(
+    return publisher._copy_into_latest_if_needed(  # pylint: disable=protected-access
         documentation, latest_folder, version_folder
     )
 
@@ -241,7 +242,10 @@ def _do_version_publish(
         publish_pattern, package, skip_existing_version=skip_existing_version
     )
 
-    return publisher._copy_into_versioned_if_needed(documentation, version_folder)
+    return publisher._copy_into_versioned_if_needed(  # pylint: disable=protected-access
+        documentation,
+        version_folder,
+    )
 
 
 def _make_mock_package(version):

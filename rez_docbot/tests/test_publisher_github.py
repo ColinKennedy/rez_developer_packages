@@ -27,7 +27,7 @@ class Authentication(unittest.TestCase):
         """Fail gracefully if we cannot clone / push to a remote repository."""
         raise ValueError()
 
-    def test_from_file(self):
+    def test_from_file(self):  # pylint: disable=no-self-use
         """Read authentication details from a file."""
         path = _make_temporary_file(
             "_test_from_file.json",
@@ -69,7 +69,7 @@ class Authentication(unittest.TestCase):
                 }
             )
 
-    def test_normal(self):
+    def test_normal(self):  # pylint: disable=no-self-use
         """Make sure :class:`rez_docbot.publishers.github.Github` authenticates."""
         publisher = boilerplate.get_quick_publisher(
             {
@@ -97,7 +97,7 @@ class Remote(unittest.TestCase):
         `gh-pages`_).
 
         """
-        package, push_url = _make_package_with_remote()
+        package, _ = _make_package_with_remote()
 
         publisher = boilerplate.get_quick_publisher(
             {
@@ -114,7 +114,9 @@ class Remote(unittest.TestCase):
             package=package,
         )
 
-        details = publisher._get_repository_details()
+        details = (
+            publisher._get_repository_details()  # pylint: disable=protected-access
+        )
 
         expected = common.RepositoryDetails(
             group="Thing",
@@ -128,8 +130,9 @@ class Remote(unittest.TestCase):
         """Allow users to specify a relative path ."""
         clone_path = package_wrap.make_temporary_directory("_clone_path")
 
-        class _FakeHandler(object):
-            def get_repository(self, *_, **__):
+        class _FakeHandler(object):  # pylint: disable=too-few-public-methods
+            def get_repository(self, *_, **__):  # pylint: disable=no-self-use
+                """mock.MagicMock: A handler which points to a unittest folder."""
                 mocker = mock.MagicMock()
                 mocker.get_root.return_value = clone_path
 
@@ -226,7 +229,9 @@ def _make_package_with_remote():
     """tuple[rez.packages.Package, str]: A source Rez package in some git repository."""
     directory = tempfile.mkdtemp(suffix="_make_package_with_remote")
 
-    with open(os.path.join(directory, "package.py"), "w") as handler:
+    with io.open(
+        os.path.join(directory, "package.py"), "w", encoding="utf-8"
+    ) as handler:
         handler.write(
             textwrap.dedent(
                 """\

@@ -1,3 +1,5 @@
+"""Miscellaneous functions that make writing unittests a bit easier."""
+
 from six.moves import mock
 
 from rez_docbot.core import preference
