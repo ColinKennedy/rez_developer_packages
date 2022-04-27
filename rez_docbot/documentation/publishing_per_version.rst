@@ -17,6 +17,13 @@ authoring a project which doesn't use `SemVer`_.
    rez_docbot's default publishers all support it. See :doc:`publisher_types`
    to confirm that the publisher that you plan to use supports it!
 
+
+.. _publish every version:
+
+*********************
+Publish Every Version
+*********************
+
 You can specify "please build documentation for all package versions" with this
 configuration:
 
@@ -53,6 +60,61 @@ Here's a more complete example of the same idea:
             ],
         },
     }
+
+
+.. _publish every major:
+
+*******************
+Publish Every Major
+*******************
+
+.. code-block:: python
+
+    optionvars = {
+        "rez_docbot": {
+            "publishers": [
+                {
+                    # ... More publisher settings ...
+                    "publish_pattern": "{package.version.major}",
+                    "publisher": "github",
+                    # ... More publisher settings ...
+                },
+            ],
+        },
+    }
+
+
+.. _publish every minor / major:
+
+***************************
+Publish Every Minor / Major
+***************************
+
+.. note::
+
+    This behavior is the default publish pattern. You don't need to set the publish pattern explicitly.
+
+.. code-block:: python
+
+    optionvars = {
+        "rez_docbot": {
+            "publishers": [
+                {
+                    # ... More publisher settings ...
+                    "publish_pattern": "{package.version.major}.{package.version.minor}",
+                    "publisher": "github",
+                    # ... More publisher settings ...
+                },
+            ],
+        },
+    }
+
+See this other page, :ref:`publish_pattern`, for details.
+
+
+**********************
+Custom Publish Version
+**********************
 
 It's also worth noting that ``"publish_pattern"`` can take any regex string or
 compiled regex.

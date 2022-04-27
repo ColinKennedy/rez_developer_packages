@@ -142,7 +142,34 @@ will live.
 rez_docbot.publishers.*.publish_pattern
 =======================================
 
-TODO
+Depending on how a package is set up, you may want to only publish versioned
+documentation:
+
+- :ref:`publish every version`
+- :ref:`publish every minor / major`
+- :ref:`publish every major`
+
+``rez_docbot.publishers.*.publish_pattern`` gives you more granular control
+over how packages publish.
+
+**Default**: ``"{package.version.major}.{package.version.minor}"``
+
+.. code-block:: python
+
+    optionvars = {
+        "rez_docbot": {
+            "publishers": [
+                {
+                    # ... more settings ...
+                    "publish_pattern": "{package.version.major}.{package.version.minor}"
+                    # ... more settings ...
+                },
+            ],
+        },
+    }
+
+If you never want to publish versioned folders, see
+:ref:`rez_docbot.publishers.*.version_folder`.
 
 
 rez_docbot.publishers.*.relative_path
@@ -251,6 +278,8 @@ Generally, this setting isn't expected to be used by most people.
         },
     }
 
+
+.. _rez_docbot.publishers.*.version_folder:
 
 rez_docbot.publishers.*.version_folder
 ======================================
