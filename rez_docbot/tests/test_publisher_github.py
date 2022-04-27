@@ -60,7 +60,7 @@ class Authentication(unittest.TestCase):
         os.remove(path)
 
         with self.assertRaises(schema.SchemaError):
-            publisher = _get_quick_publisher(
+            _get_quick_publisher(
                 {
                     "authentication": [
                         {"payload": "/does/not/exist.json", "type": "from_json_path"}

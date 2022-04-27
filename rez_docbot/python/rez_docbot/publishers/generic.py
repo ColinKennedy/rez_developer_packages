@@ -390,9 +390,7 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
                 documentation, versioned
             )
         else:
-            _LOGGER.debug(
-                "Version publishing will be skipped, because it is disabled."
-            )
+            _LOGGER.debug("Version publishing will be skipped, because it is disabled.")
 
         if versions_allowed and not version_copied:
             # There's no case in which the :ref:`latest folder` would be
