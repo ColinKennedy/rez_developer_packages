@@ -234,7 +234,24 @@ def _make_custom_pattern(
     package,
     skip_existing_version=True,
 ):
-    # TODO : Docstring
+    """Create a quick publisher, for unittesting.
+
+    Args:
+        publish_pattern (str or _sre.Pattern):
+            A description of the version documentation folder to create.
+        package (mock.MagicMock):
+            A fake Rez package to query, for testing. It has an assigned
+            version value but not much else.
+        skip_existing_version (bool, optional):
+            If True and ``package``'s version did not generate a unique version
+            folder name, the documentation is not copied. If False, even if
+            ``package`` has a duplicate version, the documentation is copied
+            anyway.
+
+    Returns:
+        :class:`rez_docbot.bases.base.Publisher`: The generated instance.
+
+    """
     return boilerplate.get_quick_publisher(
         {
             "authentication": [
@@ -258,7 +275,30 @@ def _do_latest_publish(  # pylint: disable=too-many-arguments
     publish_pattern,
     skip_existing_version=True,
 ):
-    # TODO : Docstring
+    """Create a "latest" documentation folder.
+
+    Args:
+        documentation (str):
+            The absolute directory to built documentation on-disk.
+        latest_folder (str):
+            The absolute directory where the latest documentation lives.
+        version_folder (str):
+            The absolute directory where all versioned documentation lives.
+        package (mock.MagicMock):
+            A fake Rez package to query, for testing. It has an assigned
+            version value but not much else.
+        publish_pattern (str or _sre.Pattern):
+            A description of the version documentation folder to create.
+        skip_existing_version (bool, optional):
+            If True and ``package``'s version did not generate a unique version
+            folder name, the documentation is not copied. If False, even if
+            ``package`` has a duplicate version, the documentation is copied
+            anyway.
+
+    Returns:
+        bool: If ``documentation`` was copied into the :ref:`latest folder`.
+
+    """
     publisher = _make_custom_pattern(
         publish_pattern, package, skip_existing_version=skip_existing_version
     )
@@ -271,7 +311,28 @@ def _do_latest_publish(  # pylint: disable=too-many-arguments
 def _do_version_publish(
     documentation, version_folder, package, publish_pattern, skip_existing_version=True
 ):
-    # TODO : Docstring
+    """Create a versioned documentation folder.
+
+    Args:
+        documentation (str):
+            The absolute directory to built documentation on-disk.
+        version_folder (str):
+            The absolute directory where all versioned documentation lives.
+        package (mock.MagicMock):
+            A fake Rez package to query, for testing. It has an assigned
+            version value but not much else.
+        publish_pattern (str or _sre.Pattern):
+            A description of the version documentation folder to create.
+        skip_existing_version (bool, optional):
+            If True and ``package``'s version did not generate a unique version
+            folder name, the documentation is not copied. If False, even if
+            ``package`` has a duplicate version, the documentation is copied
+            anyway.
+
+    Returns:
+        bool: If ``documentation`` was copied into the :ref:`version folder`.
+
+    """
     publisher = _make_custom_pattern(
         publish_pattern, package, skip_existing_version=skip_existing_version
     )
@@ -283,7 +344,15 @@ def _do_version_publish(
 
 
 def _make_mock_package(version):
-    # TODO : Docstring
+    """Make a Rez "package", for unittesting.
+
+    Args:
+        version (str): Some version, SemVer or not, to track. e.g. ``"1.2.3"``.
+
+    Returns:
+        mock.MagicMock: The created "package".
+
+    """
     package = mock.MagicMock()
     package.version = version_.Version(version)
 

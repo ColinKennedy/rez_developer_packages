@@ -18,7 +18,7 @@ def get_quick_publisher(configuration, package=None):
         package (rez.packages.Package, optional):
             The Rez source package to query information from.
 
-    Yields:
+    Returns:
         :class:`rez_docbot.bases.base.Publisher`: The generated instance.
 
     """

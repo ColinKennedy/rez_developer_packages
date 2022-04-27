@@ -169,7 +169,7 @@ class Repository(BaseRepository):
 
         try:
             remote.push(branch)
-        except exc.GitError:
+        except exc.GitError:  # pylint: disable=no-member
             _LOGGER.exception("Cannot push")
 
             raise exception.RemoteActionFailed(
