@@ -27,14 +27,16 @@ class Authentication(unittest.TestCase):
         """Read authentication details from a file."""
         path = _make_temporary_file(
             "_test_from_file.json",
-            textwrap.dedent(
-                """\
-                {
-                    "token": "fake_access_token",
-                    "user": "fake_user"
-                }
-                """
-            ),
+            _decode(
+                textwrap.dedent(
+                    """\
+                    {
+                        "token": "fake_access_token",
+                        "user": "fake_user"
+                    }
+                    """
+                )
+            )
         )
 
         publisher = boilerplate.get_quick_publisher(
@@ -201,6 +203,16 @@ class Publish(unittest.TestCase):
         )
 
 
+def _decode(text, encoding="utf-8"):
+    """str: Convert ``text`` to a utf-8 compatible string, if needed."""
+    if not hasattr(text, "decode"):
+        # Python 3+
+        return text
+
+    # Python 2
+    return text.decode(encoding)
+
+
 def _make_headless_repository(suffix):
     """Create a headless git repository.
 
@@ -229,12 +241,14 @@ def _make_package_with_remote():
         os.path.join(directory, "package.py"), "w", encoding="utf-8"
     ) as handler:
         handler.write(
-            textwrap.dedent(
-                """\
-                name = "some_package"
+            _decode(
+                textwrap.dedent(
+                    """\
+                    name = "some_package"
 
-                version = "1.0.0"
-                """
+                    version = "1.0.0"
+                    """
+                )
             )
         )
 

@@ -7,14 +7,26 @@ authors = ["ColinKennedy"]
 private_build_requires = ["rez_build_helper-1+<2"]
 
 requires = [
-    "GitPython-3.1+<4",  # For cloning and pushing
-    "github3.py-2+<3",
+    "GitPython-2.1+<4",  # For cloning and pushing
     "giturlparse-0.9+<1",
     "python-2+<4",
     "rez_python_compatibility-2.7+<3",
     "rez_utilities-2.6+<3",
     "schema-0.7+<1",
     "six-1.15+<2",
+]
+
+hashed_variants = True
+
+variants = [
+    # github3.py's requirements are incorrect. github3.py-2 states in the
+    # metadata that it is Python 3 only but the setup.py doesn't actually
+    # restrict to Python 3+, so Python 2 was getting picked up.
+    #
+    # We're just going to prevent the problem by fixing it, ourselves.
+    #
+    ["python-2.7", "github3.py-1+<2"],
+    ["python-3+<4", "github3.py-2+<3"],
 ]
 
 build_command = "python -m rez_build_helper --items python"
