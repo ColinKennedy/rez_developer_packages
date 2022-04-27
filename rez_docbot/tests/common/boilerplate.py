@@ -1,5 +1,6 @@
-from rez_docbot.core import preference
 from six.moves import mock
+
+from rez_docbot.core import preference
 
 from . import run_test
 

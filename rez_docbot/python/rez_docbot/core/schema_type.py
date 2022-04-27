@@ -401,7 +401,9 @@ def _validate_view_url(item):
 NON_EMPTY_STR = schema.Use(_validate_non_empty_str)
 
 DEFAULT_PUBLISH_PATTERN = "{package.version.major}.{package.version.minor}"
-_PUBLISH_PATTERN_OPTIONS = schema.Or(schema.Use(_validate_regex), schema.Use(_validate_publish_string))
+_PUBLISH_PATTERN_OPTIONS = schema.Or(
+    schema.Use(_validate_regex), schema.Use(_validate_publish_string)
+)
 _PUBLISH_PATTERN_SCHEMA = schema.Schema(_PUBLISH_PATTERN_OPTIONS)
 PUBLISH_PATTERNS = schema.Use(_validate_publish_pattern)
 

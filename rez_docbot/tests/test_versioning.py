@@ -4,8 +4,8 @@ import os
 import re
 import unittest
 
-from six.moves import mock
 from rez.vendor.version import version as version_
+from six.moves import mock
 
 from .common import boilerplate, package_wrap
 
@@ -215,20 +215,33 @@ def _make_custom_pattern(
     )
 
 
-def _do_latest_publish(documentation, latest_folder, version_folder, package, publish_pattern, skip_existing_version=True):
+def _do_latest_publish(
+    documentation,
+    latest_folder,
+    version_folder,
+    package,
+    publish_pattern,
+    skip_existing_version=True,
+):
     # TODO : Docstring
-    publisher = _make_custom_pattern(publish_pattern, package, skip_existing_version=skip_existing_version)
-
-    return publisher._copy_into_latest_if_needed(documentation, latest_folder, version_folder)
-
-
-def _do_version_publish(documentation, version_folder, package, publish_pattern, skip_existing_version=True):
-    # TODO : Docstring
-    publisher = _make_custom_pattern(publish_pattern, package, skip_existing_version=skip_existing_version)
-
-    return publisher._copy_into_versioned_if_needed(
-        documentation, version_folder
+    publisher = _make_custom_pattern(
+        publish_pattern, package, skip_existing_version=skip_existing_version
     )
+
+    return publisher._copy_into_latest_if_needed(
+        documentation, latest_folder, version_folder
+    )
+
+
+def _do_version_publish(
+    documentation, version_folder, package, publish_pattern, skip_existing_version=True
+):
+    # TODO : Docstring
+    publisher = _make_custom_pattern(
+        publish_pattern, package, skip_existing_version=skip_existing_version
+    )
+
+    return publisher._copy_into_versioned_if_needed(documentation, version_folder)
 
 
 def _make_mock_package(version):
