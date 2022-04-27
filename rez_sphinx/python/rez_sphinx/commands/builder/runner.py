@@ -168,6 +168,7 @@ def build(
     api_mode=api_builder.FULL_AUTO.label,
     api_options=tuple(),
     no_api_doc=False,
+    quiet=True,
 ):
     """Generate .html files from the Sphinx documentation in ``directory``.
 
@@ -183,6 +184,9 @@ def build(
         no_api_doc (bool, optional):
             If True, don't build any API documentation. If False, API .rst
             files will be auto-generated just before `sphinx-build`_ is ran.
+        quiet (bool, optional):
+            If True, don't print the directory where documentation is built to.
+            If False, print it.
 
     Raises:
         SphinxExecutionError:
@@ -236,6 +240,13 @@ def build(
         raise exception.SphinxExecutionError(
             'sphinx-build failed with code "{failure}".'.format(
                 failure=failure,
+            )
+        )
+
+    if not quiet:
+        print(
+            'Documentation: "{build_directory}" is now viewable.'.format(
+                build_directory=build_directory,
             )
         )
 

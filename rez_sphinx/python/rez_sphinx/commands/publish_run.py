@@ -179,7 +179,7 @@ def build_documentation(package, packages_path=tuple()):
 
     if not tests:
         root = finder.get_package_root(package)
-        built_documentation = runner_.build(root)
+        built_documentation = runner_.build(root, quiet=True)
 
         return [built_documentation]
 

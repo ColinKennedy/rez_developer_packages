@@ -29,11 +29,12 @@ def _build_runner(namespace):
             "while also --no-apidoc.".format(namespace=namespace)
         )
 
-    build_run.build(
+    runner.build(
         namespace.directory,
         api_mode=namespace.api_documentation,
         api_options=namespace.api_doc_arguments,
         no_api_doc=namespace.no_api_doc,
+        quiet=False,
     )
 
 
