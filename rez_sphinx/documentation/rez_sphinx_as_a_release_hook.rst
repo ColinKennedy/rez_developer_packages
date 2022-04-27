@@ -59,6 +59,7 @@ locations, you're ready to enable the release hook.
 
 .. _rez_sphinx release hook:
 
+***********************
 rez_sphinx release hook
 ***********************
 

@@ -12,6 +12,7 @@ any of the :ref:`rez_sphinx commands` are running.
 
 .. _rez_sphinx view package-help:
 
+****************************
 rez_sphinx view package-help
 ****************************
 
@@ -32,6 +33,7 @@ The ``rez_sphinx view package-help`` command lets you see what modifications
 
 .. _rez_sphinx view repository-uri:
 
+******************************
 rez_sphinx view repository-uri
 ******************************
 
@@ -70,6 +72,7 @@ to where you expect.
 
 .. _rez_sphinx view view-url:
 
+************************
 rez_sphinx view view-url
 ************************
 
@@ -102,6 +105,7 @@ to where you expect.
 
 .. _rez_sphinx view sphinx-conf:
 
+***************************
 rez_sphinx view sphinx-conf
 ***************************
 
@@ -115,6 +119,7 @@ sometimes unclear your configuration is working the way you expect. This
 
 .. _rez_sphinx view sphinx-conf intersphinx_mapping:
 
+***********************************************
 rez_sphinx view sphinx-conf intersphinx_mapping
 ***********************************************
 

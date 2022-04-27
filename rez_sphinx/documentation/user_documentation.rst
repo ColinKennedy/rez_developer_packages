@@ -20,6 +20,7 @@ through :ref:`rez_sphinx commands`.
 
 .. _beginner topics:
 
+***************
 Beginner Topics
 ***************
 
@@ -34,6 +35,7 @@ Beginner Topics
 
 .. _rez_sphinx commands:
 
+************
 All Commands
 ************
 
@@ -51,6 +53,7 @@ documentation easier.
    view <view_command>
 
 
+***************
 Advanced Topics
 ***************
 

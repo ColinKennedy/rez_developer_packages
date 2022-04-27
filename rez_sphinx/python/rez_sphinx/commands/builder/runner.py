@@ -1,10 +1,11 @@
 """The module which handles the :ref:`rez_sphinx build run` command."""
 
+from __future__ import print_function
+
 import io
 import logging
 import os
 import shutil
-import traceback
 
 from rez.config import config
 from rez_utilities import finder

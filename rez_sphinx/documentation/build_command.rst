@@ -13,6 +13,7 @@ for debugging builds.
 
 .. _rez_sphinx build run:
 
+********************
 rez_sphinx build run
 ********************
 
@@ -37,6 +38,7 @@ default location) or ``{root}/build/documentation`` if you passed you passed
 
 .. _rez_sphinx apidoc templates:
 
+*************************
 A note about Python 2 / 3
 *************************
 

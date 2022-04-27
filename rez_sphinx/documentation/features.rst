@@ -11,6 +11,7 @@ rez_sphinx makes your documentation built to last. Here's a summary of some of
 the features that :ref:`rez_sphinx` has to offer.
 
 
+*************
 Base Features
 *************
 
@@ -34,6 +35,7 @@ Base Features
     - CLI-based :ref:`"actual, resolved values" inspector <rez_sphinx view>`
 
 
+******************
 Intrinsic Features
 ******************
 
@@ -61,6 +63,7 @@ Intrinsic Features
       override rez_sphinx conf.py>` with whatever you'd like
 
 
+***************
 Opt-In Features
 ***************
 

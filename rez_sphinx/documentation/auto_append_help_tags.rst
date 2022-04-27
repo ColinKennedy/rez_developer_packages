@@ -1,7 +1,8 @@
 .. _auto_append_help_tags:
 
+##################################
 Adding Documentation Automatically
-**********************************
+##################################
 
 By default when you :ref:`rez_sphinx init`, the :ref:`default file entries`,
 ``user_documentation`` and ``developer_documentation``, are created and later
@@ -23,8 +24,9 @@ You can add other files to the `help`_ during `rez-build`_ using these two optio
 
 .. _automated auto help appending:
 
+************************************************
 Let :ref:`rez_sphinx` write to ``help``, for you
-================================================
+************************************************
 
 Simply add this snippet into any of your ``.rst`` files:
 
@@ -53,6 +55,7 @@ relative or it is replaced by an external website URL.
     See :doc:`enable_external_website_publishing`.
 
 
+***********
 Label Logic
 ***********
 

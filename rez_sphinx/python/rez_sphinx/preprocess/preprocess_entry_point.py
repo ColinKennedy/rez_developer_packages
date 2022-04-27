@@ -32,7 +32,7 @@ def _already_processed(path):
     This function exists to prevent a cyclic loop which may be a bug. See
     reference for details.
 
-    Reference:
+    References:
         https://github.com/nerdvegas/rez/issues/1239#issuecomment-1061390415
 
     Args:

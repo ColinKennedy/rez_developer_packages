@@ -2,6 +2,7 @@
 Getting Started
 ###############
 
+*******************
 Run rez_sphinx init
 *******************
 
@@ -15,6 +16,7 @@ To link :ref:`rez_sphinx` with your Rez package, here's what you must do:
 That's it. This command only needs to be ran **once**.
 
 
+*************
 Run rez_build
 *************
 
@@ -27,6 +29,7 @@ changes to your `package.py`_ file so before continuing be sure to run
    rez-build --clean --install
 
 
+************************
 Write Some Documentation
 ************************
 
@@ -57,6 +60,7 @@ Run this in your terminal to quickly append some edits to those files:
     :ref:`rez_sphinx.init_options.check_default_files`.
 
 
+********************
 rez_sphinx build run
 ********************
 

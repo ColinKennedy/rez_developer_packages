@@ -74,6 +74,7 @@ master branch too, if you want but exercise common sense and don't do that
 without prior approval.
 
 
+****************************
 When You're Ready To Release
 ****************************
 
@@ -107,6 +108,7 @@ TODO : double-check that this script works
     done
 
 
+*********************
 Why This Script Works
 *********************
 
@@ -124,6 +126,7 @@ documentation, it's added. From there, you have the option to just push /
 release / etc.
 
 
+***************
 After releasing
 ***************
 

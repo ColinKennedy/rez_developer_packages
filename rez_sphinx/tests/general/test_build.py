@@ -753,7 +753,7 @@ def _make_package_with_no_python_files():
 def _make_read_only(path):
     """Change ``path`` to not allow writing.
 
-    Reference:
+    References:
         https://stackoverflow.com/a/51262451/3626104
 
     Args:

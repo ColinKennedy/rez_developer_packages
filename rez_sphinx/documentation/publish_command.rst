@@ -20,6 +20,7 @@ There's a couple interesting things to note about this command:
 
 .. _rez_sphinx publish run:
 
+**********************
 rez_sphinx publish run
 **********************
 

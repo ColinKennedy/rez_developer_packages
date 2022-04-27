@@ -1,7 +1,9 @@
+"""A companion module for :mod:`.cli`, which sets up :ref:`rez_sphinx build`."""
+
 import operator
 import shlex
 
-from .commands.builder import runner as build_run
+from .commands.builder import runner
 from .core import api_builder, cli_helper, exception
 
 

@@ -36,6 +36,7 @@ should be able to run ``rez-test package_name build_documentation`` to create
 .html files from the .rst you just generated.
 
 
+************************************
 The build_documentation rez-test key
 ************************************
 
@@ -60,6 +61,7 @@ If you want to rename the default key from "build_documentation" to something
 else, see :ref:`rez_sphinx.build_documentation_key`.
 
 
+*******************************
 sphinx-quickstart customization
 *******************************
 
@@ -73,6 +75,7 @@ can add those settings to :ref:`sphinx-quickstart customization` so they're
 added automatically.
 
 
+*************
 Parting Notes
 *************
 

@@ -54,6 +54,7 @@ care about `help`_ being correct on-release and want Rez to be as fast as
 possible, :ref:`adding_rez_sphinx_as_a_release_hook` is for you.
 
 
+*****************************
 Configuring auto-help linking
 *****************************
 
@@ -160,5 +161,3 @@ The important details are:
 
 Once you've added that, your rez_docbot configuration should be reading properly.
 You can double-check that by running :ref:`rez_sphinx view view-url`.
-
-

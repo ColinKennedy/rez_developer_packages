@@ -1,5 +1,8 @@
 - do TODO notes / Todo / NotImplementedError
 
+- Allow "strict" documentation building - fail on warning
+
+
 - when building documentation to installed packages locally, `{root}/` needs to
   be replaced with "" so that the paths are relative and `rez-help` can still work!
 

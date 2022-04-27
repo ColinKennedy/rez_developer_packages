@@ -24,6 +24,7 @@ methods apply during :ref:`rez_sphinx build run`.
 - :ref:`define a scoped package config`, per-package for all users
 
 
+***************************
 Modifying Your Sphinx Theme
 ***************************
 
@@ -33,6 +34,7 @@ individual Rez packages. Here's how.
 
 .. _globally choosing a sphinx theme:
 
+********************************
 Globally Choosing A Sphinx Theme
 ********************************
 
@@ -71,11 +73,12 @@ you build from now on will build with `sphinx-rtd-theme`_!
 
 .. _locally choosing a sphinx theme:
 
+*******************************
 Locally Choosing A Sphinx Theme
 *******************************
 
 Use A Local rezconfig.py
-------------------------
+========================
 
 If you want a theme on a specific Rez package and you don't want enforce it
 across all users, you have two options:
@@ -90,7 +93,7 @@ across all users, you have two options:
 .. _define a scoped package config:
 
 Define a scoped package config
-------------------------------
+==============================
 
 If you don't like all that typing (I don't blame you) or want something more
 permanent that persists on a Rez package, there's another option. In your
@@ -130,8 +133,9 @@ without worry. No `rezconfig.py`_ necessary. And even if someone else other
 than you builds the Rez package, this will still work.
 
 
+****************
 Parting Thoughts
-================
+****************
 
 If you can define the theme globally, :ref:`globally choosing a sphinx theme`
 is usually the best option. However if you need a local solution, I highly

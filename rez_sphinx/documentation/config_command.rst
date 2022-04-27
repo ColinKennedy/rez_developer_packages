@@ -11,6 +11,7 @@ several sub-commands. See below for details.
 
 .. _rez_sphinx config check:
 
+***********************
 rez_sphinx config check
 ***********************
 
@@ -21,6 +22,7 @@ values, those details are shown in the terminal.
 
 .. _rez_sphinx config list-overrides:
 
+********************************
 rez_sphinx config list-overrides
 ********************************
 
@@ -34,6 +36,7 @@ There's also a ``--format`` option, for outputting to `yaml`_.
 
 .. _rez_sphinx config list-defaults:
 
+*******************************
 rez_sphinx config list-defaults
 *******************************
 
@@ -47,6 +50,7 @@ As usual, ``--sparse`` and ``--format`` customize the output + display.
 
 .. _rez_sphinx config show:
 
+**********************
 rez_sphinx config show
 **********************
 
@@ -71,6 +75,7 @@ for debugging a specific package.
 
 .. _rez_sphinx config show-all:
 
+**************************
 rez_sphinx config show-all
 **************************
 
@@ -107,6 +112,7 @@ you must, change it at the :ref:`global configuration` level, affecting all
 packages. Do not set this at the :ref:`per-package configuration` level.
 
 
+*********************
 Configuration Options
 *********************
 

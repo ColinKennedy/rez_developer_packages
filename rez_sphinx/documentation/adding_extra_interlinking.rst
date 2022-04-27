@@ -6,6 +6,7 @@ As mentioned in other pages, :ref:`rez_sphinx build` is able to auto-find the
 documentation of dependency Rez packages and links it with the documentation
 you're attempting to build.
 
+************
 How It Works
 ************
 
@@ -25,6 +26,7 @@ the jist.
 
 .. _rez_sphinx build inspect-conf intersphinx_mapping:
 
+************************
 Checking Your Interlinks
 ************************
 
@@ -33,12 +35,16 @@ exactly what :ref:`rez_sphinx build run` sees, just before your documentation
 gets built.
 
 
+******************
 Adding Extra Links
 ******************
 
 Imagine you want to interlink your project with documentation that isn't listed
 in :ref:`rez_sphinx view sphinx-conf intersphinx_mapping`. To do that, you
 have two options.
+
+- :ref:`adding extra documentation interlinks`
+- :ref:`manually adding to intersphinx_mapping`
 
 
 .. _adding extra documentation interlinks:
@@ -78,6 +84,8 @@ Adding a package to ``build_documentation``'s list of requirements means
     with :ref:`rez_sphinx view sphinx-conf intersphinx_mapping` that
     :ref:`rez_sphinx build run` can see it.
 
+
+.. _manually adding to intersphinx_mapping:
 
 Manually Adding to intersphinx_mapping
 ======================================

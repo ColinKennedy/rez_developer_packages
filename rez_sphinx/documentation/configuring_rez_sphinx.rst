@@ -33,6 +33,7 @@ another.
 
 .. _global configuration:
 
+*********************************
 How To Configure All Rez Packages
 *********************************
 
@@ -48,6 +49,7 @@ rolling out any change using `optionvars`_.
 
 .. _per-package configuration:
 
+*************************
 Per-Package Configuration
 *************************
 
@@ -87,6 +89,7 @@ and that's it. All settings in this page can be defined this way.
 
 .. _environment variable configuration:
 
+**********************************
 Environment Variable Configuration
 **********************************
 
@@ -132,6 +135,7 @@ builds. To do that, prefer :ref:`global configuration` or :ref:`per-package
 configuration`.
 
 
+***********
 All Options
 ***********
 
@@ -273,6 +277,7 @@ However if you do, you must keep in mind the following details:
 
 .. _disabling build_documentation_key:
 
+*********************************
 Disabling build_documentation_key
 *********************************
 
