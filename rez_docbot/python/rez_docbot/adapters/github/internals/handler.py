@@ -135,7 +135,7 @@ def _add_nojekyll_file(directory):
 
     Adding `.nojekyll`_ ensures those files are read properly.
 
-    Reference:
+    References:
         https://github.blog/2009-12-29-bypassing-jekyll-on-github-pages
 
     Args:

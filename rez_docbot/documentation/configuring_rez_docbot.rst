@@ -5,7 +5,7 @@ Configuring rez_docbot
 rez_docbot allows users to define multiple publish locations for documentation
 through configuration settings. The exact details of "what settings are allowed
 in each configuration" depends on the publisher. However, everything in this
-page is supported by all publisher types. If you want to read about
+page is supported by all, current publisher types. If you want to read about
 per-publisher details, check out :doc:`publisher_types`.
 
 In general, users can define configuration settings in 1 of 2 ways:
@@ -31,32 +31,110 @@ rez_docbot.publishers
 This setting is where you define all publish destinations for documentation.
 You are free to create 1 or more publishers and each destination will be
 published to. Most of the time, users will only define a single publisher.
-However if you do make more than one publisher, note that the first publisher
-is special and the other publishers are considered fallbacks / redundancy
-publishers.
+However if you do make more than one publisher, note:
 
-In short, if you make more than one publisher, always place the most important
-publisher first.
+- The first publisher is special. All other publishers are considered fallbacks
+  / redundancy publishers.
+- If you make more than one publisher, always place the most important
+  publisher first.
 
-TODO : write configuration here
+Here's an example configuration:
 
-This simple configuration has tons of variety - you can dynamically create and
-generate documentation repositories per Rez package, or a mono-documentation
-repository containing all Rez packages, etc etc. Check out
-:doc:`popular_publish_configurations` to learn the different ways
-configurations can be set up.
+.. code-block:: python
+
+    optionvars = {
+        "rez_docbot": {
+            "publishers": [
+                {
+                    "authentication": {
+                        "token": "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",
+                        "user": "Foo",
+                    },
+                    "branch": "gh-pages",
+                    "publisher": "github",
+                    "repository_uri": "git@github.com:Foo/{package.name}",
+                    "view_url": "https://Foo.github.io/{package.name}",
+                },
+            ],
+        },
+    }
+
+This simple configuration carries the meaning of:
+
+- For every Rez package
+
+    - Create a repository using the package's family name
+    - Set it up for GitHub (`gh-pages`_, `.nojekyll`_, etc)
+    - View the documentation at ``https://Foo.github.io/{package.name}``
+
+This is a really simple example. You can nest multiple packages in the same
+repository, control how and when new documentation is generated, etc.
+
+.. seealso::
+
+    :doc:`popular_publish_configurations`
+
+    :ref:`Control how new documentation is made <publish_pattern>`
 
 
 rez_docbot.publishers.*.commit_message
 ======================================
 
-TODO
+When documentation is committed, this setting defines the message used for the
+git commit.
 
+**Default**: ``'Added "{package.name}" documentation!'``
+
+.. code-block:: python
+
+    optionvars = {
+        "rez_docbot": {
+            "publishers": [
+                {
+                    # ... more settings ...
+                    "commit_message": 'Added "{package.name}-{package.version}" documentation!',
+                    # ... more settings ...
+                },
+            ],
+        },
+    }
+
+
+.. _rez_docbot.publishers.*.latest_folder:
 
 rez_docbot.publishers.*.latest_folder
 =====================================
 
-TODO if set to an empty string, no latest folder is made
+By default, :ref:`rez_docbot` tries to build 2 sets of documentation when
+you publish documentation for a new package version.
+
+- :ref:`latest documentation`
+- :ref:`versioned documentation`
+
+This setting concerns :ref:`latest documentation`. Whatever text is used here
+will be the name of the folder where the most recent package's documentation
+will live.
+
+**Default**: ``"latest"``.
+
+.. code-block:: python
+
+    optionvars = {
+        "rez_docbot": {
+            "publishers": [
+                {
+                    # ... more settings ...
+                    "latest_folder": "latest",
+                    # ... more settings ...
+                },
+            ],
+        },
+    }
+
+
+.. important::
+
+    To **disable** the "latest" folder, simply set ``"latest_folder": ""``.
 
 
 .. _publish_pattern:
@@ -64,50 +142,160 @@ TODO if set to an empty string, no latest folder is made
 rez_docbot.publishers.*.publish_pattern
 =======================================
 
-_get_resolved_publish_pattern
-
 TODO
-
-.. seealso::
-
-    :func:`.get_first_versioned_view_url`
-
-See :doc:`publishing_per_version` for details
 
 
 rez_docbot.publishers.*.relative_path
 =====================================
 
-TODO
+By default when publishing documentation, it's assumed that you want to publish
+to the root of the documentation repository.
+``rez_docbot.publishers.*.relative_path`` allows users to publish documentation
+within a sub-folder.
+
+**Default**: ``""``
+
+.. code-block:: python
+
+    optionvars = {
+        "rez_docbot": {
+            "publishers": [
+                {
+                    # ... more settings ...
+                    "relative_path": "path/to/{package.name}",
+                    "repository_uri": "git@github.com:Foo/all_documentation",
+                    "view_url": "https://Foo.github.io/all_documentation",
+                    # ... more settings ...
+                },
+            ],
+        },
+    }
+
+In the configuration above, :func:`.get_first_versioned_view_url` would return
+``"https://Foo.github.io/all_documentation/path/to/{package.name}"``, to
+reflect not just the view URL but also relative sub-folder path.
 
 
 rez_docbot.publishers.*.repository_uri
 ======================================
 
-TODO
+The remote where documentation will be cloned, committed, and pushed into.
+This is **not** the URL for viewing that documentation. For that, see
+:ref:`rez_docbot.publishers.*.view_url`.
+
+.. code-block:: python
+
+    optionvars = {
+        "rez_docbot": {
+            "publishers": [
+                {
+                    # ... more settings ...
+                    "repository_uri": "git@github.com:FakeUser/{package.name}",
+                    "view_url": "https://www.FakeUser.github.io/{package.name}",
+                    # ... more settings ...
+                },
+            ],
+        },
+    }
 
 
 rez_docbot.publishers.*.required
 ================================
 
-TODO
+A setting which implies "fail execution if for some reason documentation could
+not be pushed / published". Most of the time, you'll probably want this to be
+True.
+
+**Default**: ``True``
+
+.. code-block:: python
+
+    optionvars = {
+        "rez_docbot": {
+            "publishers": [
+                {
+                    # ... more settings ...
+                    "required": True,
+                    # ... more settings ...
+                },
+            ],
+        },
+    }
 
 
 rez_docbot.publishers.*.skip_existing_version
 =============================================
 
-TODO
+:ref:`rez_docbot` publishes for each new major + minor Rez package version, by
+default. Each patched version, if any, will overwrite an existing major + minor
+versioned documentation folder.  If you don't like this behavior, you can
+disable it using this setting.  That way, versioned documentation folders are
+immutable and cannot be changed due to later releases. Users must increment the
+minor / major to get new documentation.
+
+Generally, this setting isn't expected to be used by most people.
+
+
+.. code-block:: python
+
+    optionvars = {
+        "rez_docbot": {
+            "publishers": [
+                {
+                    # ... more settings ...
+                    "skip_existing_version": True,
+                    # ... more settings ...
+                },
+            ],
+        },
+    }
+
 
 rez_docbot.publishers.*.version_folder
 ======================================
 
-TODO
+By default, :ref:`rez_docbot` tries to build 2 sets of documentation when
+you publish documentation for a new package version.
+
+- :ref:`latest documentation`
+- :ref:`versioned documentation`
+
+This setting concerns :ref:`versioned documentation`. Whatever text is used
+here will be the name of the folder where all copied, versioned documentation
+will live.
+
+**Default**: ``"versions"``.
+
+.. code-block:: python
+
+    optionvars = {
+        "rez_docbot": {
+            "publishers": [
+                {
+                    # ... more settings ...
+                    "version_folder": "versions",
+                    # ... more settings ...
+                },
+            ],
+        },
+    }
+
+.. important::
+
+    To **disable** the "versions" folder, simply set ``"version_folder": ""``.
+
+.. seealso::
+
+    Related API function: :func:`.get_first_versioned_view_url`
+
+See :doc:`publishing_per_version` for details on controlling how often
+versioned documentation is generated.
 
 
 rez_docbot.publishers.*.view_url
 ================================
 
-``view_url`` is the URL (or directory on-disk) is where documentation is
+``view_url`` is the URL (or directory on-disk) to wherever documentation is
 expected to be viewed.
 
 .. code-block:: python

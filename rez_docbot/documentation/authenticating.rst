@@ -3,7 +3,7 @@ Authenticating
 ##############
 
 This page explains the different ways you can connect to remote services like
-GitHub. To do this, must must provide :ref:`rez_docbot` with log-in
+GitHub. To do this, you must provide :ref:`rez_docbot` with log-in
 credentials (username and password, access token, etc).
 
 A typical authentication configuration may look like this `rezconfig.py`_:
@@ -28,15 +28,13 @@ A typical authentication configuration may look like this `rezconfig.py`_:
 It's important to remember these following types:
 
 - You do not need to directly write authentication details directly in `rezconfig.py`_
+
     - See :ref:`authentication indirection`
 
-TODO finish this dsecription below
-
-In general, :ref:`rez_docbot` doesn't put any hard requirements for how
-publishers authenticate. As long as the publisher provides a
-:meth:`.Publisher.authenticate` method, publishers can
-
-the methodology for authenticating to a remote service is completely up to th
+- :ref:`rez_docbot` allows publishers to authenticate any way they'd like.  So
+  the configuration above may only be true for publishers of type ``"type":
+  "github"``. Though publisher types will try to be as consistent as possible
+  and point out any differences where applicable.
 
 
 .. _authentication indirection:
@@ -77,12 +75,16 @@ That file, ``~/.github_authentication_test.json``, may look like this:
         "user": "MyUser",
     }
 
-If that file is only available from your local computer or otherwise difficult to access,
-that can provide some additional security.
+Having an extra file that is only available from the computer that builds the
+documentation like that is a simple way to keep your data more secure.
+
+(By the way, I'm no security expert. If you have suggestions, please feel free
+to open feature request!)
 
 That said though, if we're talking about GitHub, access tokens can be given
 limited permission sets so even if a bad actor got those log-in details, they
-wouldn't be able to do much with it as long as your token is set correctly.
+wouldn't be able to do much with it as long as your token's permissions is set
+correctly.
 
 To see rez_docbot's recommended GitHub permissions settings, see
 :ref:`GitHub access tokens`.

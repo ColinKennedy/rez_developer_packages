@@ -318,7 +318,10 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
         """dict[object, object]: The required / optional structure for this instance."""
         return {
             AUTHENICATION: schema.Use(_validate_authenticator),
-            schema.Optional(_COMMIT_MESSAGE, default="Updated documentation"): str,
+            schema.Optional(
+                _COMMIT_MESSAGE,
+                default='Added "{package.name}" documentation!',
+            ): str,
             _REPOSITORY_URI: schema.Or(
                 schema_type.URL,
                 schema_type.SSH,
@@ -382,15 +385,14 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
         if versions_allowed:
             version_folder = self._data[_VERSION_FOLDER]
 
-            if version_folder:
-                versioned = _create_subdirectory(root, version_folder)
-                version_copied = self._copy_into_versioned_if_needed(
-                    documentation, versioned
-                )
-            else:
-                _LOGGER.debug(
-                    "Version publishing will be skipped, because it is disabled."
-                )
+            versioned = _create_subdirectory(root, version_folder)
+            version_copied = self._copy_into_versioned_if_needed(
+                documentation, versioned
+            )
+        else:
+            _LOGGER.debug(
+                "Version publishing will be skipped, because it is disabled."
+            )
 
         if versions_allowed and not version_copied:
             # There's no case in which the :ref:`latest folder` would be
