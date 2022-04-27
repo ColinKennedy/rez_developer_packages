@@ -496,7 +496,7 @@ class GitPublisher(base_.Publisher):  # pylint: disable=abstract-method
             # Nothing to do because the user wants to modify the current branch
             return
 
-        if not repository.has_branch(branch):
+        if repository.has_branch(branch):
             repository.checkout(branch, create=False)
 
             return

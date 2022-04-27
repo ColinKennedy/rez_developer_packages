@@ -7,7 +7,7 @@ import schema
 from six.moves import urllib_parse
 
 from ....bases import base
-from ....core import schema_type
+from ....core import exception, schema_type
 from . import handler
 
 _PASSWORD = "password"
@@ -40,6 +40,10 @@ class AccessToken(base.Authenticator):
                 An addressable website. e.g. ``"https://www.github.com/Foo/bar"``
                 or ``"git@github.com:Foo/bar"``
 
+        Raises:
+            NoRemoteFound:
+                When bad user / token data is given, resulting in some unhandled error.
+
         Returns:
             Handler: The authenticated instance.
 
@@ -55,6 +59,9 @@ class AccessToken(base.Authenticator):
                 token=self._data[_TOKEN],
                 url=uri,
             )
+
+        if not raw_handler:
+            raise exception.NoRemoteFound("No remote handler could be found.")
 
         return handler.GitHub(raw_handler)
 

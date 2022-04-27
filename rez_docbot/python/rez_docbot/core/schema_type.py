@@ -146,12 +146,15 @@ def _validate_github_access_token(item):
         ValueError: If ``item`` is not a string.
         RuntimeError: If ``item`` does not match GitHub's personal access token format.
 
+    Returns:
+        str: The given ``item``, if it's valid.
+
     """
     if not isinstance(item, six.string_types):
         raise ValueError('Item "{item}" is not a string.'.format(item=item))
 
     if _GITHUB_PERSONAL_ACCESS_TOKEN.match(item):
-        return
+        return item
 
     raise RuntimeError(
         'Text "{item}" is not a known GitHub access token.'.format(item=item)

@@ -111,7 +111,7 @@ class Repository(BaseRepository):
             return False
 
         # Reference: https://stackoverflow.com/a/4855096/3626104
-        untracked_files = self._clone.ls_files(exclude_standard=True, others=True)
+        untracked_files = self._clone.git.ls_files(exclude_standard=True, others=True)
 
         if untracked_files:
             # If there are unstaged files, we shouldn't commit yet.
