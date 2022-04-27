@@ -381,6 +381,33 @@ class SphinxApidocEnableApidoc(unittest.TestCase):
         self.assertFalse(preference.is_api_enabled(package=package))
 
 
+class SphinxBuild(unittest.TestCase):
+    """Make sure :ref:`rez_sphinx.sphinx-build` is queried as expected."""
+
+    def test_global(self):
+        """Set :ref:`rez_sphinx.sphinx-build` in a global `rezconfig`_."""
+        expected = ["-W"]
+
+        with run_test.keep_config() as config:
+            config.optionvars = {"rez_sphinx": {"sphinx-build": expected}}
+            run_test.clear_caches()
+            found = preference.get_build_options()
+
+        self.assertEqual(expected, found)
+        run_test.clear_caches()
+        self.assertEqual([], preference.get_build_options())
+
+    def test_package(self):
+        """Set :ref:`rez_sphinx.sphinx-build` in a package."""
+        expected = ["-W"]
+        package = package_wrap.make_package_configuration(
+            {"sphinx-build": expected},
+        )
+
+        run_test.clear_caches()
+        self.assertEqual(expected, preference.get_build_options(package=package))
+
+
 class SphinxQuickStart(unittest.TestCase):
     """Set :ref:`rez_sphinx.sphinx-quickstart` in a Rez source package."""
 

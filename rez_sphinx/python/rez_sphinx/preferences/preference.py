@@ -64,6 +64,8 @@ _EXTRA_REQUIRES = "extra_requires"
 _INTERSPHINX_SETTINGS = "intersphinx_settings"
 _PACKAGE_LINK_MAP = "package_link_map"
 
+_BUILD_OPTIONS = "sphinx-build"
+
 _KNOWN_DYNAMIC_PREFERENCE_KEYS = frozenset(
     (
         _CONFIG_OVERRIDES,
@@ -150,6 +152,7 @@ _MASTER_SCHEMA = schema.Schema(
         schema.Optional(
             _DOCUMENTATION_ROOT_KEY, default=_DOCUMENTATION_DEFAULT
         ): schema_helper.NON_NULL_STR,
+        schema.Optional(_BUILD_OPTIONS, default=[]): [str],
         schema.Optional(_EXTRA_REQUIRES, default=[]): [
             preference_configuration.REQUEST_STR
         ],
@@ -601,6 +604,33 @@ def get_build_documentation_key(package=None):
 
     """
     return get_build_documentation_keys(package=package)[0]
+
+
+def get_build_options(package=None):
+    """Get extra arguments to pass to `sphinx-build`_.
+
+    Args:
+        package (rez.packages.Package, optional):
+            A Rez package which may override the global setting.  If the
+            package doesn't define an opinion, the global setting / default
+            value is used instead.
+
+    Raises:
+        ConfigurationError:
+            If the global or ``package`` overrides provide arguments which
+            would cause :ref:`rez_sphinx build run` to fail.
+
+    Returns:
+        list[str]: The found arguments, if any. e.g. ``["-W"]``.
+
+    """
+    rez_sphinx_settings = get_base_settings(package=package)
+    options = rez_sphinx_settings[_BUILD_OPTIONS]
+
+    if "-b" in options:
+        raise exception.ConfigurationError("Cannot override sphinx-build builder.")
+
+    return options
 
 
 def get_documentation_root_name(package=None):

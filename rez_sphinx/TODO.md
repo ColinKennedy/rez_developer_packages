@@ -1,16 +1,8 @@
-- rez_docbot
- - Do TODO notes
- - Do unittests
-  - Python 3
-  - Python 2
 - rez_sphinx
- - Allow "strict" documentation building - fail if Sphinx issues any warning
+ - add post-release publish support
  - when building documentation to installed packages locally, `{root}/` needs to
    be replaced with "" so that the paths are relative and `rez-help` can still work!
- - add post-release publish support
 - Get a batch-creation / publish example and show it off
-
-- do TODO notes / Todo / NotImplementedError
 
 
 - post release support
@@ -35,11 +27,14 @@
 - Do rez_docbot preferences unittests
 
 
+
+- do TODO notes / Todo / NotImplementedError
+ - rez_sphinx
+ - rez_docbot
+
 # Batch processing TODO
- - make sure the batch processing tutorial works
-	- name
-	- version
-	- push_url (if installed)
+- Get it to work even with installed Rez packages
+- Make sure you can specify multiple paths at once to the suggest command. So we get a good dependency list view
 
 - Consider adding refs to "documentation source root" so people know what I'm talking about
 - Consider adding refs to "documentation build root" so people know what I'm talking about

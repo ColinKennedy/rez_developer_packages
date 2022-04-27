@@ -617,6 +617,24 @@ Default: ``True``
     }
 
 
+.. _rez_sphinx.sphinx-build:
+
+sphinx-build
+============
+
+If you want to pass arguments to `sphinx-build`_, you can use this setting.
+
+Default: ``[]``
+
+.. code-block:: python
+
+    optionvars = {
+        "rez_sphinx": {
+            "sphinx-build": ["-W"],  # Treat warnings as errors
+        },
+    }
+
+
 .. _rez_sphinx.sphinx-quickstart:
 
 .. _sphinx-quickstart customization:

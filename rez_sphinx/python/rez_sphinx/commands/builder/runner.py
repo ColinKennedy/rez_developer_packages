@@ -214,6 +214,8 @@ def build(
         build_directory,
     ]
 
+    parts.extend(preference.get_build_options(package=package))
+
     if not os.path.isdir(build_directory):
         os.makedirs(build_directory)
 
