@@ -29,8 +29,8 @@ def _is_url(text):
     return all((result.scheme, result.netloc))
 
 
-def _get_anything(entry):
-    """bool: Don't filter ``entry``."""
+def _get_anything(_):
+    """bool: Don't filter any input parameters."""
     return True
 
 
@@ -121,7 +121,7 @@ def _get_actions(package, matches=_get_anything):
 
     actions = []
 
-    for index, entry in enumerate(help_):
+    for entry in help_:
         if not matches(entry):
             continue
 
@@ -169,12 +169,15 @@ def _open_as_url(destination):
         destination (str): The absolute path to a .html file.
 
     """
-    if not config.browser:
+    browser = config.browser  # pylint: disable=no-member
+
+    if not browser:
         webbrowser.open_new(destination)
 
         return
 
-    subprocess.Popen([config.browser, destination])
+    with subprocess.Popen([browser, destination]):
+        pass
 
 
 def _open_generic(path):
@@ -197,19 +200,22 @@ def _open_generic(path):
 
     if system == "Windows":
         # Reference: https://stackoverflow.com/a/1585848/3626104
-        subprocess.Popen(["cmd", "/C", "start", path])
+        command = ["cmd", "/C", "start", path]
     elif system == "Linux":
         # Reference: https://stackoverflow.com/a/435631/3626104
-        subprocess.Popen(["xdg-open", path])
+        command = ["xdg-open", path]
     elif system == "Darwin":
         # Reference: https://stackoverflow.com/a/434612/3626104
-        subprocess.Popen(["open", path])
+        command = ["open", path]
     else:
         raise NotImplementedError(
             'System "{system}" is unknown. Please add support for it!'.format(
                 system=system
             )
         )
+
+    with subprocess.Popen(command):
+        pass
 
 
 def _run_command(destination):
@@ -219,11 +225,12 @@ def _run_command(destination):
         This function is a bit unsafe, since it runs with ``shell=True``.
 
     """
-    subprocess.Popen(destination, shell=True)
+    with subprocess.Popen(destination, shell=True):
+        pass
 
 
 def get_current_help_menu(directory="", matches=_get_anything):
-    """Get a Qt menu containing all `help`_ entries for the Rez package in ``directory``.
+    """Get a Qt menu with all `help`_ entries for the Rez package in ``directory``.
 
     Args:
         directory (str, optional):

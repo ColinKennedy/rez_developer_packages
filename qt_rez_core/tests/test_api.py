@@ -2,6 +2,7 @@
 
 import atexit
 import functools
+import io
 import os
 import shutil
 import tempfile
@@ -66,21 +67,26 @@ class GetCurrentMenu(unittest.TestCase):
     def test_action_path_relative(self):
         """Simulate an action opening a file path which is relative to the package."""
         directory = _make_temporary_directory("_test_action_command")
-        package_path = os.path.join(directory, "package.py")
+        os.path.join(directory, "package.py")
         name = "something.py"
         package = mock.MagicMock()
         package.help = name
         package.filepath = name
 
-        with open(os.path.join(directory, name), "a"):
+        with io.open(os.path.join(directory, name), "a", encoding="utf-8"):
             pass
 
         menu = _test(package)
 
-        with mock.patch("qt_rez_core._core.menu_magic._open_generic") as patch:
+        with mock.patch(
+            "qt_rez_core._core.menu_magic._open_generic",
+        ) as patch, mock.patch(
+            "rez_utilities.finder.get_package_root"
+        ) as get_package_root:
+            get_package_root.return_value = directory
             menu.actions()[0].triggered.emit()
 
-        self.assertEqual(1, len(menu.actions()))
+        self.assertEqual(1, patch.call_count)
 
     def test_current_package(self):
         """Get this package's `help`_ attribute."""
@@ -149,6 +155,15 @@ class GetCurrentMenu(unittest.TestCase):
 
 
 def _make_temporary_directory(suffix):
+    """Make a folder on-disk and delete it later.
+
+    Args:
+        suffix (str): The ending + extension of the folder to create.
+
+    Returns:
+        str: The absolute path to a created folder.
+
+    """
     directory = tempfile.mkdtemp(suffix=suffix)
     atexit.register(functools.partial(shutil.rmtree, directory))
 
@@ -156,13 +171,41 @@ def _make_temporary_directory(suffix):
 
 
 def _make_temporary_file(suffix):
-    # TODO : doc
+    """Make a file on-disk and delete it later.
+
+    Args:
+        suffix (str): The ending + extension of the file to create.
+
+    Returns:
+        str: The absolute path to a created file.
+
+    """
     _, path = tempfile.mkstemp(suffix=suffix)
     atexit.register(functools.partial(os.remove, path))
 
     return path
 
 
-def _test(package, matches=menu_magic._get_anything):
-    # TODO : doc
-    return menu_magic._get_menu(package, matches=matches)
+def _test(
+    package,
+    matches=menu_magic._get_anything,  # pylint: disable=protected-access
+):
+    """Get a Qt menu containing all `help`_ entries for the Rez ``package``.
+
+    Args:
+        package (rez.packages.Package):
+            An **installed** Rez package to query `help`_ entries from.
+        matches (callable[tuple[str, str]] or str, optional):
+            Any entry which returns ``True`` from the given function will be
+            returned as actions in the menu. If a string is given, it's
+            retreated as a regular Python ``in`` partial match. If no
+            ``matches`` is given, every `help`_ entry is returned.
+
+    Returns:
+        Qt.QtWidgets.QMenu: The generated menu.
+
+    """
+    return menu_magic._get_menu(  # pylint: disable=protected-access
+        package,
+        matches=matches,
+    )
