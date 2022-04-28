@@ -17,8 +17,13 @@ class GetCurrentMenu(unittest.TestCase):
 
     def test_action_command(self):
         """Simulate an action running some command."""
+        package_path = os.path.join(
+            _make_temporary_directory("_test_action_command"),
+            "package.py",
+        )
         package = mock.MagicMock()
         package.help = "do something.sh"
+        package.filepath = package_path
 
         menu = _test(package)
 
@@ -59,11 +64,22 @@ class GetCurrentMenu(unittest.TestCase):
 
     def test_action_path_relative(self):
         """Simulate an action opening a file path which is relative to the package."""
-        raise ValueError()
+        directory = _make_temporary_directory("_test_action_command")
+        package_path = os.path.join(directory, "package.py")
+        name = "something.py"
         package = mock.MagicMock()
-        package.help = None
+        package.help = name
+        package.filepath = name
+
+        with open(os.path.join(directory, name), "a"):
+            pass
 
         menu = _test(package)
+
+        with mock.patch("qt_rez_core._core.menu_magic._open_generic") as patch:
+            menu.actions()[0].triggered.emit()
+
+        self.assertEqual(1, len(menu.actions()))
 
     def test_current_package(self):
         """Get this package's `help`_ attribute."""
