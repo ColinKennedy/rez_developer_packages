@@ -19,17 +19,20 @@ class GetCurrentMenu(unittest.TestCase):
 
     def test_action_command(self):
         """Simulate an action running some command."""
-        package_path = os.path.join(
-            _make_temporary_directory("_test_action_command"),
-            "package.py",
-        )
+        directory = _make_temporary_directory("_test_action_command")
+        package_path = os.path.join(directory, "package.py")
         package = mock.MagicMock()
         package.help = "do something.sh"
         package.filepath = package_path
 
         menu = _test(package)
 
-        with mock.patch("qt_rez_core._core.menu_magic._run_command") as patch:
+        with mock.patch(
+            "qt_rez_core._core.menu_magic._run_command",
+        ) as patch, mock.patch(
+            "rez_utilities.finder.get_package_root"
+        ) as get_package_root:
+            get_package_root.return_value = directory
             menu.actions()[0].triggered.emit()
 
         self.assertEqual(1, patch.call_count)
@@ -48,10 +51,8 @@ class GetCurrentMenu(unittest.TestCase):
 
     def test_action_path_absolute(self):
         """Simulate an action opening an absolute file path."""
-        package_path = os.path.join(
-            _make_temporary_directory("_test_action_path_absolute"),
-            "package.py",
-        )
+        directory = _make_temporary_directory("_test_action_path_absolute")
+        package_path = os.path.join(directory, "package.py")
         path = _make_temporary_file("_test_find_from_str.py")
         package = mock.MagicMock()
         package.help = path
@@ -59,7 +60,12 @@ class GetCurrentMenu(unittest.TestCase):
 
         menu = _test(package)
 
-        with mock.patch("qt_rez_core._core.menu_magic._open_generic") as patch:
+        with mock.patch(
+            "qt_rez_core._core.menu_magic._open_generic",
+        ) as patch, mock.patch(
+            "rez_utilities.finder.get_package_root"
+        ) as get_package_root:
+            get_package_root.return_value = directory
             menu.actions()[0].triggered.emit()
 
         self.assertEqual(1, patch.call_count)
