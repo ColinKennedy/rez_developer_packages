@@ -14,8 +14,17 @@ from rez_utilities import finder
 from six.moves import urllib_parse
 
 
-def _is_url(url):
-    result = urllib_parse.urlparse(url)
+def _is_url(text):
+    """Check if ``text`` is a URL.
+
+    Args:
+        text (str): Any text, but ``"https://foo.com"`` would return True.
+
+    Returns:
+        bool: If ``text`` is some URL type, return True.
+
+    """
+    result = urllib_parse.urlparse(text)
 
     return all((result.scheme, result.netloc))
 
@@ -26,6 +35,21 @@ def _get_anything(entry):
 
 
 def _get_absolute(sub, root):
+    """Convert ``sub`` into an absolute path, if it isn't already.
+
+    Args:
+        sub (str):
+            An absolute or relative path.
+        root (str):
+            The anchor directory used to convert any relative path into an
+            absolute path.
+
+    Returns:
+        str:
+            The absolute path, if any. This returns ``""`` if the found
+            absolute path doesn't live anywhere on-disk.
+
+    """
     if os.path.isabs(sub):
         return sub
 
@@ -135,16 +159,40 @@ def _get_menu(package, matches=_get_anything):
 
 
 def _open_as_url(destination):
+    """Open ``destination`` in a website browser.
+
+    We prefer the rez `config.browser`_ first, if defined. Otherwise, rely on
+    Python to do the job (which typically looks up the ``$BROWSER`` variable or
+    searches the locally installed software for a valid match).
+
+    Args:
+        destination (str): The absolute path to a .html file.
+
+    """
     if not config.browser:
         webbrowser.open_new(destination)
 
         return
 
-    process = subprocess.Popen([config.browser, destination])
-    process.communicate()
+    subprocess.Popen([config.browser, destination])
 
 
 def _open_generic(path):
+    """Open ``path`` in the user's default file opener.
+
+    The exact tool which opens ``path`` depends on the user's file extension
+    rules and preferences. And it depends by-OS.
+
+    References:
+        https://stackoverflow.com/questions/434597/
+
+    Args:
+        path (str): Some absolute path to a file on-disk to open.
+
+    Raises:
+        NotImplementedError: If the OS is unknown and must be added.
+
+    """
     system = platform.system()
 
     if system == "Windows":
@@ -165,27 +213,36 @@ def _open_generic(path):
 
 
 def _run_command(destination):
+    """Run ``destination`` as a regular shell command.
+
+    Note:
+        This function is a bit unsafe, since it runs with ``shell=True``.
+
+    """
     subprocess.Popen(destination, shell=True)
 
 
 def get_current_help_menu(directory="", matches=_get_anything):
-    # """Get a Qt menu containing all `help`_ entries for the Rez package in ``directory``.
-    #
-    # Args:
-    #     directory (str, optional):
-    #         The absolute folder on-disk to an **installed** Rez package. If no
-    #         folder is given, it is automatically queried by checking the caller
-    #         function's file location.
-    #     matches (callable[tuple[str, str]] or str, optional):
-    #         Any entry which returns ``True`` from the given function will be
-    #         returned as actions in the menu. If a string is given, it's
-    #         retreated as a regular Python ``in`` partial match. If no
-    #         ``matches`` is given, every `help`_ entry is returned.
-    #
-    # Returns:
-    #     Qt.QtWidgets.QMenu: The generated menu.
-    #
-    # """
+    """Get a Qt menu containing all `help`_ entries for the Rez package in ``directory``.
+
+    Args:
+        directory (str, optional):
+            The absolute folder on-disk to an **installed** Rez package. If no
+            folder is given, it is automatically queried by checking the caller
+            function's file location.
+        matches (callable[tuple[str, str]] or str, optional):
+            Any entry which returns ``True`` from the given function will be
+            returned as actions in the menu. If a string is given, it's
+            retreated as a regular Python ``in`` partial match. If no
+            ``matches`` is given, every `help`_ entry is returned.
+
+    Raises:
+        ValueError: If ``directory`` doesn't exist on-disk.
+
+    Returns:
+        Qt.QtWidgets.QMenu: The generated menu.
+
+    """
     if not directory:
         current_frame = inspect.currentframe()
         caller_frame = current_frame.f_back

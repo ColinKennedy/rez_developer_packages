@@ -9,3 +9,5 @@ TODO
 
  - Get CI passing
  - Make sure the help attribute is loadable
+
+`config.browser`_
