@@ -2,16 +2,16 @@
 
 import functools
 import inspect
-import platform
 import os
-from rez.config import config
-import webbrowser
+import platform
 import subprocess
+import webbrowser
 
 import six
-from six.moves import urllib_parse
 from Qt import QtWidgets
+from rez.config import config
 from rez_utilities import finder
+from six.moves import urllib_parse
 
 
 def _is_url(url):

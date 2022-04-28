@@ -2,14 +2,15 @@
 
 import atexit
 import functools
-import tempfile
 import os
 import shutil
+import tempfile
 import unittest
 
-from qt_rez_core._core import menu_magic
-from qt_rez_core import api
 from six.moves import mock
+
+from qt_rez_core import api
+from qt_rez_core._core import menu_magic
 
 
 class GetCurrentMenu(unittest.TestCase):
