@@ -83,7 +83,9 @@ def _get_actions(package, matches=_get_anything):
 
     if not help_:
         raise RuntimeError(
-            'Package "{package}" does not define a help attribute.'.format(package=package)
+            'Package "{package}" does not define a help attribute.'.format(
+                package=package
+            )
         )
 
     if isinstance(help_, six.string_types):
@@ -156,7 +158,9 @@ def _open_generic(path):
         subprocess.Popen(["open", path])
     else:
         raise NotImplementedError(
-            'System "{system}" is unknown. Please add support for it!'.format(system=system)
+            'System "{system}" is unknown. Please add support for it!'.format(
+                system=system
+            )
         )
 
 
@@ -197,6 +201,10 @@ def get_current_help_menu(directory="", matches=_get_anything):
     package = finder.get_nearest_rez_package(directory)
 
     if not package:
-        raise ValueError('Directory "{directory}" is not in a Rez package.'.format(directory=directory))
+        raise ValueError(
+            'Directory "{directory}" is not in a Rez package.'.format(
+                directory=directory
+            )
+        )
 
     return _get_menu(package, matches=matches)
