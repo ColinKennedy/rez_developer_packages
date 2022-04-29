@@ -176,8 +176,7 @@ def _open_as_url(destination):
 
         return
 
-    with subprocess.Popen([browser, destination]):
-        pass
+    subprocess.Popen([browser, destination])  # pylint: disable=consider-using-with
 
 
 def _open_generic(path):
@@ -214,8 +213,7 @@ def _open_generic(path):
             )
         )
 
-    with subprocess.Popen(command):
-        pass
+    subprocess.Popen(command)  # pylint: disable=consider-using-with
 
 
 def _run_command(destination):
@@ -225,14 +223,15 @@ def _run_command(destination):
         This function is a bit unsafe, since it runs with ``shell=True``.
 
     """
-    with subprocess.Popen(destination, shell=True):
-        pass
+    subprocess.Popen(destination, shell=True)  # pylint: disable=consider-using-with
 
 
-def get_current_help_menu(directory="", matches=_get_anything):
+def get_current_help_menu(title="", directory="", matches=_get_anything):
     """Get a Qt menu with all `help`_ entries for the Rez package in ``directory``.
 
     Args:
+        title (str, optional):
+            The display text for the menu, if any.
         directory (str, optional):
             The absolute folder on-disk to an **installed** Rez package. If no
             folder is given, it is automatically queried by checking the caller
@@ -271,4 +270,7 @@ def get_current_help_menu(directory="", matches=_get_anything):
             )
         )
 
-    return _get_menu(package, matches=matches)
+    menu = _get_menu(package, matches=matches)
+    menu.setTitle(title)
+
+    return menu

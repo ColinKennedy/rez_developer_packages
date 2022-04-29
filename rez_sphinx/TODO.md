@@ -1,6 +1,7 @@
 - rez_sphinx
  - add post-release publish support
  - Get a batch-creation / publish example and show it off
+  - show a GUI representation, too
  - Message group
   - Record a video demo
   - Send information about it
