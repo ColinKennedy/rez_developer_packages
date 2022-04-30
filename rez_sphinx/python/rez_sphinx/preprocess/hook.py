@@ -150,7 +150,7 @@ def _resolve_format_text(help_, package):
     Args:
         help_ (list[list[str, str]]):
             The documentation which may contain format strings like
-            ``[["Home Page", "{root}/path.html"]]``.
+            ``[["Home", "{root}/path.html"]]``.
         package (rez.packages.Package):
             The object to query from, for configuration settings.
 

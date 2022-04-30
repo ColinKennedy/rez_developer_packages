@@ -16,12 +16,12 @@ from rez.vendor.schema import schema
 
 _REZ_SPHINX_PACKAGE_FAMILY_NAME = "rez_sphinx"
 
-_DEFAULT_LABEL = "Home Page"
+_DEFAULT_LABEL = "Home"  # This label matches Rez's default label text
 _LOGGER = logging.getLogger(__name__)
 
-
-# TODO : Make sure this plugin passes gracefully if it is run on a package that
-# has no rez_sphinx documentation created
+_BUILD_DOCUMENTATION_KEY = "build_documentation"
+_DOCUMENTATION_FOLDER = "documentation"
+_SPHINX_CONFIGURATION_FILE = "conf.py"
 
 
 class PublishDocumentation(release_hook.ReleaseHook):
@@ -37,6 +37,11 @@ class PublishDocumentation(release_hook.ReleaseHook):
     def name(cls):
         """str: The name to refer to this plug-in class."""
         return "publish_documentation"
+
+    def __init__(self, source_path):
+        super(PublishDocumentation, self).__init__(source_path)
+
+        self._publish_context = None
 
     def pre_release(self, user, install_path, variants=None, **kwargs):
         """Modify the `help`_ attribute, if needed.
@@ -55,22 +60,22 @@ class PublishDocumentation(release_hook.ReleaseHook):
                 Extra options to include in the release, if any.
 
         """
-        # TODO : This code is cursed. Find a better way to do this. Seriously.
-        # Easily the worst code I've ever written.
-        #
-        current_frame = inspect.currentframe()
-        caller_frame = current_frame.f_back
-        filename, lineno, function, code_context, index = inspect.getframeinfo(
-            caller_frame
-        )
+        package = _get_caller_package()
+        directory = os.path.dirname(package.filepath)
 
-        # f_locals is the local namespace seen by the frame
-        caller_instance = caller_frame.f_locals["self"]
+        if not _has_rez_sphinx_documentation(directory):
+            # If there's no ``rez_sphinx`` documentation, there's nothing to do.
+            return
 
-        directory = os.path.dirname(caller_instance.package.filepath)
+        requires = _get_extra_documentation_requires(package)
+        context = _get_sphinx_context(extra_request=[str(request) for request in requires])
 
-        if _has_rez_sphinx_documentation(directory):
-            replace_help(caller_instance.package)
+        if not context:
+            raise RuntimeError("Context could not be resolved. Cannot publish documentation.")
+
+        self._publish_context = context
+
+        replace_help(context, package)
 
     def post_release(self, user, install_path, variants, **kwargs):
         """Send the built documentation to remote server(s), if needed.
@@ -89,8 +94,32 @@ class PublishDocumentation(release_hook.ReleaseHook):
                 Extra options to include in the release, if any.
 
         """
-        # TODO : Make this real
-        print("POST RELEASE")
+        stdout = _run_command(self._publish_context, "rez_sphinx publish run")
+        print("Got publish output")
+        print(stdout)
+
+
+def _has_rez_sphinx_documentation(directory):
+    # TODO : Need a better way to query this that isn't hard-coded
+    configuration = os.path.join(directory, _DOCUMENTATION_FOLDER, _SPHINX_CONFIGURATION_FILE)
+
+    return os.path.isfile(configuration)
+
+
+def _get_caller_package():
+    # TODO : This code is cursed. Find a better way to do this. Seriously.
+    # Easily the worst code I've ever written.
+    #
+    current_frame = inspect.currentframe()
+    caller_frame = current_frame.f_back.f_back
+    filename, lineno, function, code_context, index = inspect.getframeinfo(
+        caller_frame
+    )
+
+    # f_locals is the local namespace seen by the frame
+    caller_instance = caller_frame.f_locals["self"]
+
+    return caller_instance.package
 
 
 def _get_configured_rez_sphinx():
@@ -110,6 +139,25 @@ def _get_configured_rez_sphinx():
             return package
 
     return None
+
+
+def _get_extra_documentation_requires(package):
+    tests = package.tests
+
+    if not tests:
+        return set()
+
+    # TODO : Don't hard code this. Get from configuration, somehow
+    if _BUILD_DOCUMENTATION_KEY not in tests:
+        return set()
+
+    test = tests[_BUILD_DOCUMENTATION_KEY]
+
+    if not hasattr(test, "get"):
+        # Not ``"requires"`` was defined
+        return set()
+
+    return test.get("requires") or []
 
 
 def _get_help_line(text):
@@ -193,38 +241,28 @@ def _get_resolved_help(context, command):
             The context which contains :ref:`rez_sphinx` and :ref:`rez_docbot`.
             (We need :ref:`rez_sphinx` at minimum. But :ref:`rez_docbot` is
             needed for getting network publishing information).
+        command (str):
+            The shell command to call.
 
     Returns:
         list[list[str, str]]: The found `help`_ values, if any.
 
     """
-    parent_environment = dict()
-
-    if "REZ_CONFIG_FILE" in os.environ:
-        parent_environment["REZ_CONFIG_FILE"] = os.environ["REZ_CONFIG_FILE"]
-
-    process = context.execute_command(
-        command,
-        stdout=subprocess.PIPE,
-        universal_newlines=True,
-        parent_environ=parent_environment,
-    )
-    stdout, _ = process.communicate()
-
+    stdout = _run_command(context, command)
     _LOGGER.debug('Got raw `help` attribute, "%s".', stdout)
 
     return json.loads(_get_help_line(stdout))
 
 
-def _get_sphinx_context():
-    """Get a Rez context for ``rez_sphinx``, if possible.
-
-    Returns:
-        rez.packages.Package or None:
-            If the context cannot be found, cannot be solved, or as some other
-            kind of issue, this function returns nothing.
-
-    """
+def _get_sphinx_context(extra_request=frozenset()):
+    # """Get a Rez context for ``rez_sphinx``, if possible.
+    #
+    # Returns:
+    #     rez.packages.Package or None:
+    #         If the context cannot be found, cannot be solved, or as some other
+    #         kind of issue, this function returns nothing.
+    #
+    # """
     # TODO : Prevent this from being called recursively, if possible
     package = _get_configured_rez_sphinx()
 
@@ -247,6 +285,7 @@ def _get_sphinx_context():
         ".rez_sphinx.feature.docbot_plugin==1",
         "{package.name}=={package.version}".format(package=package),
     ]
+    request.extend(extra_request)
 
     context = resolved_context.ResolvedContext(request)
 
@@ -277,7 +316,7 @@ def expand_help(help_):
     return [[_DEFAULT_LABEL, help_]]
 
 
-def replace_help(package):
+def replace_help(context, package):
     """Replace the `package help`_ in ``data`` with auto-found Sphinx documentation.
 
     If no :ref:`rez_sphinx tags <rez_sphinx tag>` are found, this function will
@@ -288,11 +327,6 @@ def replace_help(package):
             The source Rez package whose `help`_ attribute will be queried and changed.
 
     """
-    context = _get_sphinx_context()
-
-    if not context:
-        return
-
     help_ = json.dumps(expand_help(package.help))
 
     package_source_root = os.path.dirname(package.filepath)
@@ -309,8 +343,26 @@ def replace_help(package):
     del package.resource.__dict__["help"]
 
 
-def _has_rez_sphinx_documentation(directory):
-    raise NotImplementedError("Need to write this")
+def _run_command(context, command):
+    parent_environment = dict()
+
+    if "REZ_CONFIG_FILE" in os.environ:
+        parent_environment["REZ_CONFIG_FILE"] = os.environ["REZ_CONFIG_FILE"]
+
+    process = context.execute_command(
+        command,
+        stdout=subprocess.PIPE,
+        universal_newlines=True,
+        parent_environ=parent_environment,
+    )
+    stdout, stderr = process.communicate()
+
+    if process.returncode != 0:
+        raise RuntimeError(
+            'Command "{command}" failed for context "{context}".'.format(command=command, context=context)
+        )
+
+    return stdout
 
 
 def register_plugin():

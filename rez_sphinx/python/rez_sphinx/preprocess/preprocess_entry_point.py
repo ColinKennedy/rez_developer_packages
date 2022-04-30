@@ -22,7 +22,7 @@ _REZ_SPHINX_PACKAGE_FAMILY_NAME = "rez_sphinx"
 _REZ_SPHINX_EPHEMERALS = ".rez_sphinx."
 
 _SEEN = set()
-_DEFAULT_LABEL = "Home Page"
+_DEFAULT_LABEL = "Home"  # This label matches Rez's default label text
 _LOGGER = logging.getLogger(__name__)
 
 

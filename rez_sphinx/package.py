@@ -44,8 +44,6 @@ def requires():
     return output
 
 
-hashed_variants = True
-
 variants = [
     ["python-2", "backports.functools_lru_cache-1.6+<2", "mock-3+<4"],
     [
