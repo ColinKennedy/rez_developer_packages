@@ -18,7 +18,7 @@ def requires():
         "PyYAML-5.4+<7",
         "Sphinx-1.8+<5",
         "python-2.7+<3.8",
-        "rez-2.42+<2.106",
+        "rez-2.42+<2.110",
         "rez_bump-1.6+<2",
         "rez_industry-3.1+<4",
         "rez_python_compatibility-2.8+<3",

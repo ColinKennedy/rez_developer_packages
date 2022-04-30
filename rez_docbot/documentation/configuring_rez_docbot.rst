@@ -77,6 +77,54 @@ repository, control how and when new documentation is generated, etc.
     :ref:`Control how new documentation is made <publish_pattern>`
 
 
+.. _rez_docbot.publishers.*.authentication:
+
+rez_docbot.publishers.*.authentication
+======================================
+
+For cloning and pushing, you must provide some valid access information
+(username / password, access token, etc).
+
+.. code-block:: python
+
+    optionvars = {
+        "rez_docbot": {
+            "publishers": [
+                {
+                    # ... more settings ...
+                    "authentication": {
+                        "token": "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",
+                        "user": "Foo",
+                    },
+                    # ... more settings ...
+                },
+            ],
+        },
+    }
+
+.. code-block:: python
+
+    optionvars = {
+        "rez_docbot": {
+            "publishers": [
+                {
+                    # ... more settings ...
+                    "authentication": {
+                        "password": "Some raw password (not recommended)",
+                        "user": "Foo",
+                    },
+                    # ... more settings ...
+                },
+            ],
+        },
+    }
+
+- ``"authentication"`` accepts a dict as well as a list-of-dicts. So if one
+  authentication method fails, you can provide fallbacks.
+- You can also store credentials in a file and load that instead. See
+  :ref:`authentication indirection` for details.
+
+
 rez_docbot.publishers.*.commit_message
 ======================================
 

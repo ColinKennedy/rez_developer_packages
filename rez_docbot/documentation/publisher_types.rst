@@ -7,8 +7,8 @@ Publisher Types
 Publisher Type
 ==============
 
-TODO explain what these are
-
+Each supported publisher explains any special notes or implementation details
+in this page.
 
 
 .. _github publisher type:
@@ -16,8 +16,12 @@ TODO explain what these are
 GitHub
 ******
 
-TODO write here
+This publisher enables publishing documentation to `GitHub`_.
+
+The following features are supported:
+
+- :ref:`authentication indirection`
+- :ref:`Multiple authenticators <_rez_docbot.publishers.*.authentication>`
 
 
-- Indirection
-- Multiple authenticators
+Code for GitHub support can be found here: :mod:`rez_docbot.adapters.github`.

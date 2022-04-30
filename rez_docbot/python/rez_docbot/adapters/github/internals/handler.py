@@ -13,6 +13,7 @@ from ....bases import repository as repository_
 from ....core import exception
 
 _LOGGER = logging.getLogger(__name__)
+_BAD_CREDENTIALS = 401
 
 
 class GitHub(base_.Handler):
@@ -57,6 +58,9 @@ class GitHub(base_.Handler):
                 is True, make it and return the newly created repository.
 
         Raises:
+            BadPermission:
+                If the authentication method has no read / write access for
+                public repositories.
             NoRemoteFound: If ``auto_create`` is False and no repository exists.
 
         Returns:
@@ -68,6 +72,13 @@ class GitHub(base_.Handler):
 
         try:
             return self._handler.repository(group, repository)
+        except github3.exceptions.AuthenticationFailed as error:
+            if error.code != _BAD_CREDENTIALS:
+                raise
+
+            raise exception.BadPermission(
+                "Got HTTP 401 error. Probably, your access token is invalid or expired."
+            )
         except github3.exceptions.NotFoundError:
             if auto_create:
                 return self._create_repository(repository)

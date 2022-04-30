@@ -2,27 +2,51 @@
 GitHub Details
 ##############
 
-TODO
+Because of how GitHub documentation works, publishing for GitHub has some
+common "idioms" which we'll describe in this page.
 
 
+*****************
 Branch publishing
-=================
+*****************
 
-TODO : warn about not using gh-pages
+GitHub documentation is meant to be published to a "gh-pages" branch. To
+specify that on a configuration, just include ``"branch": "gh-pages"`` in the
+publisher, like so:
+
+.. code-block:: python
+
+    optionvars = {
+        "rez_docbot": {
+            "publishers": [
+                {
+                    # ... more settings ...
+                    "branch": "gh-pages",
+                    "publisher": "github",
+                    # ... more settings ...
+                },
+            ],
+        },
+    }
 
 
 .. _GitHub access tokens:
 
+********************
 GitHub Access Tokens
-====================
+********************
 
-TODO : Write this
+To be able to query, push, and publish documentation, rez_docbot needs an
+access token which at least contains these permissions:
 
-To be able to query, push, and publish documentation, rez_docbot needs the following access:
+- repo
 
-TODO complete
+    - [x] public_repo
 
 .. image: images/github_access_example_settings.png
+
+As long as you give an access token with that enabled, publishing in rez_docbot
+is possible for public git repositories.
 
 To add a personal access token like the one shown above for your org / user, go here:
 

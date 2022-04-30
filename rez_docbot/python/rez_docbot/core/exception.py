@@ -5,6 +5,12 @@ class CoreException(Exception):
     """The class which all exceptions in this module most inherit from."""
 
 
+class BadPermission(CoreException):
+    """When certain permissions were needed but could not be authenticated."""
+
+    pass
+
+
 class CannotMakeDocumentation(CoreException):
     """If an issue prevents documentation from being built.
 

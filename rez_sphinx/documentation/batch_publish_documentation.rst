@@ -11,6 +11,10 @@ If you want to add documentation in-batch, the steps are very similar to
     - rez_sphinx
     - rez_inspect
 
+::
+
+    rez-env rez_sphinx rez_inspect
+
 - Run this in the terminal:
 
 TODO : double-check that this script works
