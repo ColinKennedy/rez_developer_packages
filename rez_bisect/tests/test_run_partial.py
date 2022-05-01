@@ -122,13 +122,14 @@ class Cases(unittest.TestCase):
         self.assertEqual(0, result.last_good)
         self.assertEqual(1, result.first_bad)
 
-        raise ValueError(result.breakdown)
-        self.assertEqual({"newer_packages"}, set(result.breakdown.keys()))
+        bad_version = "1.4.0"  # This version is "bad" because it's less than "1.5.0"
+
+        self.assertEqual({"older_packages"}, set(result.breakdown.keys()))
         self.assertEqual(
-            {("changing_dependencies", bad_version)},
+            {("foo", bad_version)},
             {
                 (package.name, str(package.version))
-                for package in result.breakdown["newer_packages"]
+                for package in result.breakdown["older_packages"]
             },
         )
 

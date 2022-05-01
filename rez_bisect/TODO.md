@@ -3,6 +3,10 @@
 - Allow "nudging" - If the partial bisect fails midway, it should "shift" the
   packages "left / right" to see if it can create a passing resolve
 - Make sure custom --packages-path is supported, all the way down even during diffing
+- Make sure that bisect_2d pays attention to allowed requests
+	- e.g. picking a midpoint package that isn't allowed by the original request should not be possible
+	- e.g. picking a midpoint that is disallowed by the requirements of resolved packages should not be possible
+
 
 ## CLI Functionality
 - When a generic report is generated, Offer for users to re-run with --partial

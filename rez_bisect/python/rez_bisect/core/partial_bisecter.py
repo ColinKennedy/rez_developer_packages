@@ -7,6 +7,7 @@ the user a reasonable guess.
 
 """
 
+import itertools
 import math
 import random
 
@@ -24,9 +25,9 @@ _SUPPORTED_KEYS = frozenset((_ADDED, _NEWER, _OLDER, _REMOVED))
 def _get_approximate_bisect(has_issue, good, diff):
     """Check all Rez packages at once to find a close-ish match, based on ``diff``.
 
-    The objective of this function is do give an approximate bisect.  The
-    result can then be handed off to other, more granular functions can finess
-    and find a more accurate bisect result.
+    The objective of this function is do give an approximate bisect. The result
+    can then be handed off to other, more granular functions can finess and
+    find a more accurate bisect result.
 
     For a more exact bisect, see :func:`_get_required_bad_packages`.
 
@@ -206,12 +207,14 @@ def _get_exact_bisect(has_issue, good, bad):
 
     The general workflow steps are:
 
-    - Choose a package
+    - Test each "change type" to find a likely error
 
-        - Do a bisect with just this package
-        - save the result
+        - Likely scenarios such as:
 
-    - Repeat with all packages
+            - Adding a package causes some problem
+            - Removing a package causes some problem
+
+        - If found, test individual components, to find "the one(s)"
 
     Args:
         has_issue (callable[rez.resolved_context.Context] -> bool):
@@ -231,42 +234,118 @@ def _get_exact_bisect(has_issue, good, bad):
 
     """
 
+    def _get_bad_package_request(diff, key):
+        sequence_diff = diff_mate.get_request_diff(diff.get(key) or [], diff)
+
+        if key not in sequence_diff:
+            return set()
+
+        return {
+            list(packages)[-1]
+            for packages in sequence_diff[key].values()
+        }
+
+    def _get_quick_context(good, bad_request):
+        # raise ValueError(sorted(item for item in dir(good) if "" in item.lower()))
+        bad_request_names = {request.name for request in bad_request}
+        requested_good_packages = []
+
+        for request in good.requested_packages():
+            if request.name not in bad_request_names:
+                requested_good_packages.append(request)
+
+        return resolved_context.ResolvedContext(
+            requested_good_packages + _to_raw_request(bad_request),
+            package_paths=good.package_paths,
+        )
+
+    def _check_by_type_is_bad(good, diff, key):
+        bad_packages = _get_bad_package_request(diff, key)
+
+        if not bad_packages:
+            return []
+
+        if has_issue(_get_quick_context(good, bad_packages)):
+            return bad_packages
+
+        return []
+
     def _choose_one(packages):
         return random.sample(packages, 1)[0]
+
+    def _narrow_candidates(has_issue, good, request):
+        if not request:
+            raise RuntimeError('Request cannot be empty.')
+
+        count = 1
+        length = len(request)
+
+        while count <= length:
+            for packages in itertools.combinations(request, count):
+                context = _get_quick_context(good, packages)
+
+                if has_issue(context):
+                    return packages
+
+            count += 1
+
+        raise RuntimeError('Request "{request}" could not be narrowed.'.format(request=request))
 
     diff = _get_filtered_request_diff(good, bad)
 
     checked = set()
     bads = set()
     bad_packages = set()
-    newer = diff.get(_NEWER) or {}
-    older = diff.get(_OLDER) or {}
 
-    while True:
-        candidates = set(newer.keys()) - checked - bads
+    required_bad = _check_by_type_is_bad(good, diff, _NEWER)
 
-        if not candidates:
-            break
+    if required_bad:
+        required_bad = _narrow_candidates(has_issue, good, required_bad)
 
-        chosen = _choose_one(candidates)
-        chosen_diff = diff_mate.get_request_diff([chosen], diff)
-        context = _get_approximate_bisect(has_issue, good, chosen_diff)
+        return {_NEWER: required_bad}
 
-        if not has_issue(context):
-            checked.add(chosen)
+    required_bad = _check_by_type_is_bad(good, diff, _OLDER)
 
-            continue
+    if required_bad:
+        required_bad = _narrow_candidates(has_issue, good, required_bad)
 
-        bads.add(chosen)
-        bad_packages.add(context.get_resolved_package(chosen))
+        return {_OLDER: required_bad}
 
-    bad_package_map = {package.name: package for package in bad_packages}
+    raise NotImplementedError()
 
-    return diff_mate.filter_by_packages(bad_package_map, diff)
+    # while True:
+    #     candidates = set(newer.keys()) - checked - bads
+    #
+    #     if not candidates:
+    #         break
+    #
+    #     chosen = _choose_one(candidates)
+    #     chosen_diff = diff_mate.get_request_diff([chosen], diff)
+    #     context = _get_approximate_bisect(has_issue, good, chosen_diff)
+    #
+    #     if not has_issue(context):
+    #         checked.add(chosen)
+    #
+    #         continue
+    #
+    #     bads.add(chosen)
+    #     bad_packages.add(context.get_resolved_package(chosen))
+    #
+    # bad_package_map = {package.name: package for package in bad_packages}
+    #
+    # return diff_mate.filter_by_packages(bad_package_map, diff)
 
 
 def bisect_2d(has_issue, good, bad):
     """Find the Rez package(s)/version(s) that cause ``good`` to become bad.
+
+    How it works:
+
+    - For all changes (newer packages, older packaged, added packages, removed packages)
+
+        - Bisect between all changes to get roughly close enough
+
+    - From the approximate bisect, narrow down to individual package(s)
 
     Args:
         has_issue (callable[rez.resolved_context.Context] -> bool):
