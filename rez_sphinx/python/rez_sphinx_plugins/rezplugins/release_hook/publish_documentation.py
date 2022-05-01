@@ -38,18 +38,13 @@ class PublishDocumentation(release_hook.ReleaseHook):
         """str: The name to refer to this plug-in class."""
         return "publish_documentation"
 
-    def __init__(self, source_path):
-        super(PublishDocumentation, self).__init__(source_path)
-
-        self._publish_context = None
-
     def pre_release(self, user, install_path, variants=None, **kwargs):
         """Modify the `help`_ attribute, if needed.
 
         Args:
             user (str):
                 The current user name. e.g. ``$USER``.
-            install_str (str):
+            install_path (str):
                 The directory on-disk where the package and its variants will
                 be released to.
             variants (list[rez.packages.Variant], optional):
@@ -60,20 +55,10 @@ class PublishDocumentation(release_hook.ReleaseHook):
                 Extra options to include in the release, if any.
 
         """
-        package = _get_caller_package()
-        directory = os.path.dirname(package.filepath)
-
-        if not _has_rez_sphinx_documentation(directory):
-            # If there's no ``rez_sphinx`` documentation, there's nothing to do.
-            return
-
-        requires = _get_extra_documentation_requires(package)
-        context = _get_sphinx_context(extra_request=[str(request) for request in requires])
+        context, package = _get_context_including_package()
 
         if not context:
-            raise RuntimeError("Context could not be resolved. Cannot publish documentation.")
-
-        self._publish_context = context
+            return
 
         replace_help(context, package)
 
@@ -83,7 +68,7 @@ class PublishDocumentation(release_hook.ReleaseHook):
         Args:
             user (str):
                 The current user name. e.g. ``$USER``.
-            install_str (str):
+            install_path (str):
                 The directory on-disk where the installed (released) Rez
                 package and its variants were built to.
             variants (list[rez.packages.Variant], optional):
@@ -94,7 +79,12 @@ class PublishDocumentation(release_hook.ReleaseHook):
                 Extra options to include in the release, if any.
 
         """
-        stdout = _run_command(self._publish_context, "rez_sphinx publish run")
+        context, package = _get_context_including_package()
+
+        if not context:
+            return
+
+        stdout = _run_command(context, "rez_sphinx publish run")
         print("Got publish output")
         print(stdout)
 
@@ -106,12 +96,10 @@ def _has_rez_sphinx_documentation(directory):
     return os.path.isfile(configuration)
 
 
-def _get_caller_package():
+def _get_caller_package(caller_frame):
     # TODO : This code is cursed. Find a better way to do this. Seriously.
     # Easily the worst code I've ever written.
     #
-    current_frame = inspect.currentframe()
-    caller_frame = current_frame.f_back.f_back
     filename, lineno, function, code_context, index = inspect.getframeinfo(
         caller_frame
     )
@@ -139,6 +127,27 @@ def _get_configured_rez_sphinx():
             return package
 
     return None
+
+
+def _get_context_including_package():
+    current_frame = inspect.currentframe()
+    caller_frame = current_frame.f_back.f_back
+    package = _get_caller_package(caller_frame)
+    directory = os.path.dirname(package.filepath)
+
+    if not _has_rez_sphinx_documentation(directory):
+        # If there's no ``rez_sphinx`` documentation, there's nothing to do.
+        return None, None
+
+    context = _get_sphinx_context(
+        package,
+        packages_path=package.config.packages_path,
+    )
+
+    if context:
+        return context, package
+
+    raise RuntimeError("Context could not be resolved. Cannot publish documentation.")
 
 
 def _get_extra_documentation_requires(package):
@@ -254,7 +263,7 @@ def _get_resolved_help(context, command):
     return json.loads(_get_help_line(stdout))
 
 
-def _get_sphinx_context(extra_request=frozenset()):
+def _get_sphinx_context(package=None, packages_path=tuple()):
     # """Get a Rez context for ``rez_sphinx``, if possible.
     #
     # Returns:
@@ -264,9 +273,9 @@ def _get_sphinx_context(extra_request=frozenset()):
     #
     # """
     # TODO : Prevent this from being called recursively, if possible
-    package = _get_configured_rez_sphinx()
+    sphinx_package = _get_configured_rez_sphinx()
 
-    if not package:
+    if not sphinx_package:
         # TODO : Consider replacing the log calls in this function with print,
         # since `foo` is called without logger handlers?
         #
@@ -283,11 +292,15 @@ def _get_sphinx_context(extra_request=frozenset()):
     #
     request = [
         ".rez_sphinx.feature.docbot_plugin==1",
+        "rez_sphinx",
         "{package.name}=={package.version}".format(package=package),
     ]
-    request.extend(extra_request)
+    request.extend(str(request) for request in _get_extra_documentation_requires(package))
 
-    context = resolved_context.ResolvedContext(request)
+    context = resolved_context.ResolvedContext(
+        request,
+        package_paths=packages_path,
+    )
 
     if context.success:
         return context
@@ -355,7 +368,7 @@ def _run_command(context, command):
         universal_newlines=True,
         parent_environ=parent_environment,
     )
-    stdout, stderr = process.communicate()
+    stdout, _ = process.communicate()
 
     if process.returncode != 0:
         raise RuntimeError(

@@ -97,18 +97,23 @@ TODO : double-check that this script works
 
 .. code-block:: sh
 
+    #!/usr/bin/env sh
+
+    set -e  # Stop execution on the first error. This is optional
+
     export REZ_SPHINX_INIT_OPTIONS_CHECK_DEFAULT_FILES=0
 
     message="Added rez_sphinx documentation"
     directories=`rez_sphinx suggest build-order . --search-mode source --display-as directories --filter already_released`
-
-    root=`git rev-parse --show-toplevel`
-    cd $root
+    duration=20
 
     for directory in $directories
     do
         cd $directory
-        rez-release -m $message
+        rez-release -m "$message"
+
+        echo "Sleeping $duration seconds to give the remote repository time to make the publish URL"
+        sleep $duration
     done
 
 
