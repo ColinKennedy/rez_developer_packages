@@ -655,9 +655,9 @@ def _build_bad_index_case(bad_index, count):
 
     command = ["run", ""]
     command.extend(requests)
-    command.extend(["--packages-path", directory, "--partial"])
+    command.extend(["--packages-path", directory])
 
-    with utility.patch_run(_is_failure_condition):
+    with utility.patch_run(_is_failure_condition), mock.patch("rez_bisect.cli._validate_requests"):
         result = utility.run_test(command)
 
     return result.first_bad
