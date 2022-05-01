@@ -687,7 +687,7 @@ def get_help_label():
     """str: Get the `help`_ which connects with `intersphinx`_."""
     rez_sphinx_settings = get_base_settings()
 
-    return rez_sphinx_settings.get("help_label") or "rez_sphinx_objects_inv"
+    return rez_sphinx_settings.get("help_label") or constant.REZ_SPHINX_OBJECTS_INV
 
 
 def get_initial_files_from_configuration():

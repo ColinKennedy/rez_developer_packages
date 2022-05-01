@@ -15,6 +15,13 @@ from . import preprocess_entry_point
 _HAS_CURLIES = re.compile("{[^{}]*}")
 _LOGGER = logging.getLogger(__name__)
 _ROOT_FORMAT = "{root}"
+_SPHINX_INVENTORY = "/objects.inv"
+
+# TODO : Try to remove the need for ``_COMMON_DOCUMENTATION_EXTENSIONS`` later
+# It's only necessary because we cannot reliably query the conf.py's
+# source_extension attribute, since it would require the code to be importable.
+#
+_COMMON_DOCUMENTATION_EXTENSIONS = (".md", ".rst")
 
 
 def _has_unresolved_help(help_):
@@ -113,12 +120,9 @@ def _iter_sphinx_source_files(root):
         str: The absolute path to every Sphinx ReST file, if any.
 
     """
-    sphinx = configuration.ConfPy.from_directory(root)
-    extension = sphinx.get_source_extension()
-
     for current_root, _, files in os.walk(root):
         for name in files:
-            if name.endswith(extension):
+            if name.endswith(_COMMON_DOCUMENTATION_EXTENSIONS):
                 yield os.path.join(current_root, name)
 
 
@@ -210,7 +214,9 @@ def preprocess_help(package_source_root, help_):  # pylint: disable=unused-argum
 
     source_root = os.path.dirname(source_path)
     new_labels = _find_help_labels(source_root)
-    new_labels.append([constant.REZ_SPHINX_OBJECTS_INV, constant.ROOT_REPLACEMENT])
+    new_labels.append(
+        [constant.REZ_SPHINX_OBJECTS_INV, constant.ROOT_REPLACEMENT + _SPHINX_INVENTORY],
+    )
 
     package = finder.get_nearest_rez_package(package_source_root)
 

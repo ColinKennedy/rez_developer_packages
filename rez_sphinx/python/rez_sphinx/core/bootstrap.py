@@ -216,12 +216,14 @@ def _get_intersphinx_mappings(package):
     """
     output = {}
 
-    for request in _get_intersphinx_candidates(package):
+    for request in sorted(_get_intersphinx_candidates(package)):
         package = _get_environment_package(request)
         path = _get_package_objects_inv(package)
 
         if not path:
             continue
+
+        output[package.name] = path
 
     return output
 

@@ -362,6 +362,10 @@ def _run_command(context, command):
     if "REZ_CONFIG_FILE" in os.environ:
         parent_environment["REZ_CONFIG_FILE"] = os.environ["REZ_CONFIG_FILE"]
 
+    for key, value in os.environ.items():
+        if key.startswith("REZ_SPHINX_"):
+            parent_environment[key] = value
+
     process = context.execute_command(
         command,
         stdout=subprocess.PIPE,
