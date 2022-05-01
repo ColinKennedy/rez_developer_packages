@@ -1,7 +1,27 @@
+"""A series of functions which extend Rez's diff API.
+
+See Also:
+    :meth:`rez.resolved_context.ResolvedContext.get_resolve_diff`.
+
+"""
+
 import collections
 
 
 def filter_by_packages(packages, diff):
+    """Intersect ``diff`` with ``packages``.
+
+    If ``diff`` contains any Rez package, that package must exist in ``packages``.
+
+    Args:
+        packages (list[rez.packages.Package]): Some source / installed Rez packages.
+        diff (dict[str, dict or list]): The diff content to reduce.
+
+    Returns:
+        dict[str, list[rez.packages.Package]]:
+            All found diff content matching ``packages``.
+
+    """
     output = {}
 
     for key, data in diff.items():
@@ -23,22 +43,22 @@ def filter_by_packages(packages, diff):
 
 
 def get_request_diff(names, diff):
-    # """Filter ``diff`` with the Rez package requests, ``names``.
-    #
-    # Args:
-    #     names (set[str]):
-    #         Each Rez package family name to filter by. Only variants /
-    #         packages in ``diff`` which match a name in this parameter will be
-    #         returned.
-    #     diff (dict[str, dict[str, list] or list]):
-    #         The Rez diff (usually generated using
-    #         :meth:`rez.resolved_context.ResolvedContext.get_resolve_diff`)
-    #         to filter by.
-    #
-    # Returns:
-    #     dict[str, dict[str, list] or list]: The filtered diff.
-    #
-    # """
+    """Filter ``diff`` with the Rez package requests, ``names``.
+
+    Args:
+        names (set[str]):
+            Each Rez package family name to filter by. Only variants /
+            packages in ``diff`` which match a name in this parameter will be
+            returned.
+        diff (dict[str, dict[str, list] or list]):
+            The Rez diff (usually generated using
+            :meth:`rez.resolved_context.ResolvedContext.get_resolve_diff`)
+            to filter by.
+
+    Returns:
+        dict[str, dict[str, list] or list]: The filtered diff.
+
+    """
     output = dict()
 
     for key, data in diff.items():

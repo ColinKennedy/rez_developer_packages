@@ -1,4 +1,3 @@
-- CI checks
 - Make sure custom --packages-path is supported, all the way down even during diffing
 
 - To make bisecting faster, I should try removing package versions from the

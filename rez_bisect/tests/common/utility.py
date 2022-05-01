@@ -1,3 +1,5 @@
+"""Miscellaneous functions to make unittests more concise."""
+
 import contextlib
 import shlex
 

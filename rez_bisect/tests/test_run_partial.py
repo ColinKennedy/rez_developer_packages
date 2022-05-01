@@ -1,3 +1,5 @@
+"""Make sure :ref:`--partial` behavior works as expected."""
+
 import os
 import unittest
 
@@ -8,6 +10,8 @@ _TESTS = os.path.join(os.path.dirname(_CURRENT_DIRECTORY), "_test_data")
 
 
 class Cases(unittest.TestCase):
+    """Known bisect :ref:`--partial` scenarios to always get right."""
+
     def test_newer_package_001(self):
         """Find the first package to include a dependency which causes failure."""
 

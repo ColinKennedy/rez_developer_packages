@@ -1,3 +1,12 @@
+"""A companion for :mod:`.runner` to make bisecting easier.
+
+Most of the functions here are heuristics (guesses) to find the exact Rez
+package(s) that cause some issue. For example, :func:`bisect_2d`. However
+there's no guarantee that the found diff is 100% accurate. It's just to give
+the user a reasonable guess.
+
+"""
+
 import math
 import random
 
