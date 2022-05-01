@@ -3,10 +3,13 @@
 import os
 import unittest
 
+from rez.vendor.version import version
 from .common import utility
 
 _CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 _TESTS = os.path.join(os.path.dirname(_CURRENT_DIRECTORY), "_test_data")
+
+_FOO_LOW_VERSION = version.Version("1.5.0")
 
 
 class Cases(unittest.TestCase):
@@ -96,9 +99,29 @@ class Cases(unittest.TestCase):
             },
         )
 
-    def test_downversion(self):
+    def test_down_version(self):
         """Fail when a package version goes below a certain point."""
-        raise ValueError()
+
+        def _is_failure_condition(context):
+            return context.get_resolved_package("foo").version < _FOO_LOW_VERSION
+
+        directory = os.path.join(_TESTS, "simple_packages")
+
+        command = [
+            "run",
+            "",
+            "foo-1.6 dependency",
+            "foo-1+<1.4 bar-1",
+            "--packages-path",
+            directory,
+            "--partial",
+        ]
+
+        with utility.patch_run(_is_failure_condition):
+            result = utility.run_test(command)
+
+        self.assertEqual(2, result.last_good)
+        self.assertEqual(3, result.first_bad)
 
     def test_removed(self):
         """Fail when some important package was removed from the request."""
