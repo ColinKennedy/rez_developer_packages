@@ -24,9 +24,6 @@ _DOCUMENTATION_FOLDER = "documentation"
 _SPHINX_CONFIGURATION_FILE = "conf.py"
 
 
-# TODO : Add docstrings here and everywhere
-
-
 class PublishDocumentation(release_hook.ReleaseHook):
     """The class which runs pre-release / post-release methods.
 
@@ -64,7 +61,7 @@ class PublishDocumentation(release_hook.ReleaseHook):
             return
 
         context = _get_sphinx_context(
-            extra_request={str(request) for request in _get_extra_documentation_requires(package)},
+            extra_request=_get_extra_documentation_requires(package),
         )
 
         if not context:
@@ -97,7 +94,7 @@ class PublishDocumentation(release_hook.ReleaseHook):
         context = _get_sphinx_context(
             package=package,
             packages_path=package.config.packages_path + [install_path],
-            extra_request={str(request) for request in _get_extra_documentation_requires(package)},
+            extra_request=_get_extra_documentation_requires(package),
         )
 
         if not context:
@@ -109,6 +106,16 @@ class PublishDocumentation(release_hook.ReleaseHook):
 
 
 def _has_source_documentation(package):
+    """Check if ``package`` has `Sphinx`_ documentation.
+
+    Args:
+        package (rez.packages.Package):
+            The source or installed Rez package to query.
+
+    Returns:
+        bool: If documentation is configured, return True.
+
+    """
     directory = os.path.dirname(package.filepath)
 
     # TODO : Need a better way to query this that isn't hard-coded
@@ -118,16 +125,13 @@ def _has_source_documentation(package):
 
 
 def _get_caller_developer_package():
-    current_frame = inspect.currentframe()
-    caller_frame = current_frame.f_back.f_back
-
-    return _get_caller_package(caller_frame)
-
-
-def _get_caller_package(caller_frame):
+    """rez.packages.Package: Find the package which called this plug-in."""
     # TODO : This code is cursed. Find a better way to do this. Seriously.
     # Easily the worst code I've ever written.
     #
+    current_frame = inspect.currentframe()
+    caller_frame = current_frame.f_back.f_back
+
     filename, lineno, function, code_context, index = inspect.getframeinfo(
         caller_frame
     )
@@ -158,6 +162,19 @@ def _get_configured_rez_sphinx():
 
 
 def _get_extra_documentation_requires(package):
+    """Find any extra Rez packages needed to build the documentation.
+
+    Args:
+        package (rez.packages.Package, optional):
+            The source or installed Rez package to query.
+
+    Returns:
+        set[str]:
+            The found requests needed to build the documentation. This function
+            returns empty if the user doesn't define a rez-test which satisfies
+            :ref:`rez_sphinx.build_documentation_key`.
+
+    """
     tests = package.tests
 
     if not tests:
@@ -173,7 +190,7 @@ def _get_extra_documentation_requires(package):
         # Not ``"requires"`` was defined
         return set()
 
-    return test.get("requires") or []
+    return {str(request) for request in test.get("requires") or []}
 
 
 def _get_help_line(text):
@@ -206,7 +223,7 @@ def _get_nearest_rez_package(path):
     """Assuming that `directory` is on or inside a Rez package, find the nearest Rez package.
 
     Args:
-        directory (str):
+        path (str):
             The absolute path to a folder on disk. This folder should be
             a sub-folder inside of a Rez package to the root of the Rez package.
 
@@ -271,15 +288,22 @@ def _get_resolved_help(context, command):
 
 
 def _get_sphinx_context(package=None, packages_path=tuple(), extra_request=frozenset()):
-    # """Get a Rez context for ``rez_sphinx``, if possible.
-    #
-    # Returns:
-    #     rez.packages.Package or None:
-    #         If the context cannot be found, cannot be solved, or as some other
-    #         kind of issue, this function returns nothing.
-    #
-    # """
-    # TODO : Prevent this from being called recursively, if possible
+    """Get a Rez context for ``rez_sphinx``, if possible.
+
+    Args:
+        package (rez.packages.Package, optional):
+            If included, this is included in the returned context.
+        packages_path (list[str], optional):
+            The directories on-disk to look for all of the requested packages.
+        extra_request (iter[str], optional):
+            More requests to add into the returned context.
+
+    Returns:
+        rez.resolved_context.ResolvedContext or None:
+            If the context cannot be found, cannot be solved, or as some other
+            kind of issue, this function returns nothing.
+
+    """
     sphinx_package = _get_configured_rez_sphinx()
 
     if not sphinx_package:
@@ -346,6 +370,10 @@ def replace_help(context, package):
     exit early and do nothing.
 
     Args:
+        context (rez.resolved_context.ResolvedContext):
+            A context containing enough packages to run ``command``.  Usually,
+            this contains ``rez_sphinx`` at minimum and possibly also the
+            package which is meant to be released.
         package (rez.packages.Package):
             The source Rez package whose `help`_ attribute will be queried and changed.
 
@@ -367,6 +395,23 @@ def replace_help(context, package):
 
 
 def _run_command(context, command):
+    """Run ``command`` using ``context``.
+
+    Args:
+        context (rez.resolved_context.ResolvedContext):
+            A context containing enough packages to run ``command``.  Usually,
+            this contains ``rez_sphinx`` at minimum and possibly also the
+            package which is meant to be released.
+        command (str):
+            Some terminal / shell command to run.
+
+    Raises:
+        RuntimeError: If the command failed.
+
+    Returns:
+        std: The stdout result of the command, if any.
+
+    """
     parent_environment = dict()
 
     if "REZ_CONFIG_FILE" in os.environ:
