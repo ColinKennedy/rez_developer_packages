@@ -14,9 +14,11 @@ from rez import resolved_context
 
 from . import diff_mate
 
+_ADDED = "added_packages"
 _NEWER = "newer_packages"
+_OLDER = "older_packages"
 _REMOVED = "removed_packages"
-_SUPPORTED_KEYS = frozenset((_NEWER, _REMOVED))
+_SUPPORTED_KEYS = frozenset((_ADDED, _NEWER, _OLDER, _REMOVED))
 
 
 def _get_approximate_bisect(has_issue, good, diff):

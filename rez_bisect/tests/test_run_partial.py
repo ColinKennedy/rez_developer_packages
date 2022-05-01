@@ -12,6 +12,11 @@ _TESTS = os.path.join(os.path.dirname(_CURRENT_DIRECTORY), "_test_data")
 _FOO_LOW_VERSION = version.Version("1.5.0")
 
 
+# TODO : I think all of these tests need to be modified to be more fluid. Most
+# of the tests version ranges are exact version matches when they should be
+# version ranges. Or they need to mix / match different unrelated packages in
+# the overall request to hide the actual issue.
+#
 class Cases(unittest.TestCase):
     """Known bisect :ref:`--partial` scenarios to always get right."""
 
@@ -24,12 +29,8 @@ class Cases(unittest.TestCase):
         directory = os.path.join(_TESTS, "simple_packages")
 
         bad_version = "1.2.0"
-        request_1 = "changing_dependencies==1.0.0"
-        request_2 = "changing_dependencies==1.1.0"
-        request_3 = "changing_dependencies=={bad_version}".format(
-            bad_version=bad_version
-        )
-        request_4 = "changing_dependencies==1.3.0"
+        request_1 = "changing_dependencies-1+<1.2"
+        request_2 = "changing_dependencies==1.2.0"
 
         with utility.patch_run(_is_failure_condition):
             result = utility.run_test(
@@ -38,16 +39,14 @@ class Cases(unittest.TestCase):
                     "",
                     request_1,
                     request_2,
-                    request_3,
-                    request_4,
                     "--packages-path",
                     directory,
                     "--partial",
                 ]
             )
 
-        self.assertEqual(1, result.last_good)
-        self.assertEqual(2, result.first_bad)
+        self.assertEqual(0, result.last_good)
+        self.assertEqual(1, result.first_bad)
         self.assertEqual({"newer_packages"}, set(result.breakdown.keys()))
         self.assertEqual(
             {("changing_dependencies", bad_version)},
