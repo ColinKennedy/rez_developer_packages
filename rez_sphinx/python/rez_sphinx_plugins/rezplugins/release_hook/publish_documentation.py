@@ -55,7 +55,14 @@ class PublishDocumentation(release_hook.ReleaseHook):
                 Extra options to include in the release, if any.
 
         """
-        context, package = _get_context_including_package()
+        package = _get_caller_developer_package()
+
+        if not _has_source_documentation(package):
+            return
+
+        context = _get_sphinx_context(
+            extra_request={str(request) for request in _get_extra_documentation_requires(package)},
+        )
 
         if not context:
             return
@@ -79,7 +86,16 @@ class PublishDocumentation(release_hook.ReleaseHook):
                 Extra options to include in the release, if any.
 
         """
-        context, package = _get_context_including_package()
+        package = _get_caller_developer_package()
+
+        if not _has_source_documentation(package):
+            return
+
+        context = _get_sphinx_context(
+            package=package,
+            packages_path=package.config.packages_path + [install_path],
+            extra_request={str(request) for request in _get_extra_documentation_requires(package)},
+        )
 
         if not context:
             return
@@ -89,11 +105,20 @@ class PublishDocumentation(release_hook.ReleaseHook):
         print(stdout)
 
 
-def _has_rez_sphinx_documentation(directory):
+def _has_source_documentation(package):
+    directory = os.path.dirname(package.filepath)
+
     # TODO : Need a better way to query this that isn't hard-coded
     configuration = os.path.join(directory, _DOCUMENTATION_FOLDER, _SPHINX_CONFIGURATION_FILE)
 
     return os.path.isfile(configuration)
+
+
+def _get_caller_developer_package():
+    current_frame = inspect.currentframe()
+    caller_frame = current_frame.f_back.f_back
+
+    return _get_caller_package(caller_frame)
 
 
 def _get_caller_package(caller_frame):
@@ -127,27 +152,6 @@ def _get_configured_rez_sphinx():
             return package
 
     return None
-
-
-def _get_context_including_package():
-    current_frame = inspect.currentframe()
-    caller_frame = current_frame.f_back.f_back
-    package = _get_caller_package(caller_frame)
-    directory = os.path.dirname(package.filepath)
-
-    if not _has_rez_sphinx_documentation(directory):
-        # If there's no ``rez_sphinx`` documentation, there's nothing to do.
-        return None, None
-
-    context = _get_sphinx_context(
-        package,
-        packages_path=package.config.packages_path,
-    )
-
-    if context:
-        return context, package
-
-    raise RuntimeError("Context could not be resolved. Cannot publish documentation.")
 
 
 def _get_extra_documentation_requires(package):
@@ -263,7 +267,7 @@ def _get_resolved_help(context, command):
     return json.loads(_get_help_line(stdout))
 
 
-def _get_sphinx_context(package=None, packages_path=tuple()):
+def _get_sphinx_context(package=None, packages_path=tuple(), extra_request=frozenset()):
     # """Get a Rez context for ``rez_sphinx``, if possible.
     #
     # Returns:
@@ -293,9 +297,12 @@ def _get_sphinx_context(package=None, packages_path=tuple()):
     request = [
         ".rez_sphinx.feature.docbot_plugin==1",
         "rez_sphinx",
-        "{package.name}=={package.version}".format(package=package),
     ]
-    request.extend(str(request) for request in _get_extra_documentation_requires(package))
+
+    request.extend(extra_request)
+
+    if package:
+        request.append("{package.name}=={package.version}".format(package=package))
 
     context = resolved_context.ResolvedContext(
         request,

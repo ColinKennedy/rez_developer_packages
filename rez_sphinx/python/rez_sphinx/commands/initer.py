@@ -2,6 +2,7 @@
 
 import logging
 import os
+import shutil
 
 from python_compatibility import wrapping
 from rez_utilities import finder
@@ -76,14 +77,37 @@ def _check_for_existing_documentation(directory):
 
     """
     try:
-        doc_finder.get_source_from_directory(directory)
+        source = doc_finder.get_source_from_directory(directory)
     except RuntimeError:
-        # The package directory doesn't have documentation exists. Just ignore it.
+        # The package directory doesn't have documentation. Just ignore it
+        return
+
+    if not os.path.isfile(os.path.join(source, constant.SPHINX_CONF_NAME)):
+        # The documentation folder exists but needs to be re-generated
+        _clear_documentation_folder(source)
+
         return
 
     raise exception.RezSphinxException(
         'Directory "{directory}" already has documentation.'.format(directory=directory)
     )
+
+
+def _clear_documentation_folder(directory):
+    """Delete the contents of ``directory`` except for system-related files."""
+    for name in os.listdir(directory):
+        if name.startswith("."):
+            # Ignore hidden files / folders
+            continue
+
+        full = os.path.join(directory, name)
+
+        if os.path.islink(full):
+            os.unlink(full)
+        if os.path.isfile(full):
+            os.remove(full)
+        elif os.path.isdir(full):
+            shutil.rmtree(full)
 
 
 def _run_raw_sphinx_quickstart(arguments):
