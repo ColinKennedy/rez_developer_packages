@@ -61,7 +61,7 @@ variants = [
     ["python-3.6+<4"],  # `unittest.mock` was added in Python 3.3+. So we don't need to add it
 ]
 
-build_command = "python -m rez_build_helper --items bin python"
+build_command = "python -m rez_build_helper --items bin python templates"
 
 tests = {
     "black": {
