@@ -292,11 +292,6 @@ def _get_exact_bisect(has_issue, good, bad):
         raise RuntimeError('Request "{request}" could not be narrowed.'.format(request=request))
 
     diff = _get_filtered_request_diff(good, bad)
-
-    checked = set()
-    bads = set()
-    bad_packages = set()
-
     required_bad = _check_by_type_is_bad(good, diff, _NEWER)
 
     if required_bad:
@@ -312,28 +307,6 @@ def _get_exact_bisect(has_issue, good, bad):
         return {_OLDER: required_bad}
 
     raise NotImplementedError()
-
-    # while True:
-    #     candidates = set(newer.keys()) - checked - bads
-    #
-    #     if not candidates:
-    #         break
-    #
-    #     chosen = _choose_one(candidates)
-    #     chosen_diff = diff_mate.get_request_diff([chosen], diff)
-    #     context = _get_approximate_bisect(has_issue, good, chosen_diff)
-    #
-    #     if not has_issue(context):
-    #         checked.add(chosen)
-    #
-    #         continue
-    #
-    #     bads.add(chosen)
-    #     bad_packages.add(context.get_resolved_package(chosen))
-    #
-    # bad_package_map = {package.name: package for package in bad_packages}
-    #
-    # return diff_mate.filter_by_packages(bad_package_map, diff)
 
 
 def bisect_2d(has_issue, good, bad):
