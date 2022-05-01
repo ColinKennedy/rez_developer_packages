@@ -119,8 +119,18 @@ class Cases(unittest.TestCase):
         with utility.patch_run(_is_failure_condition):
             result = utility.run_test(command)
 
-        self.assertEqual(2, result.last_good)
-        self.assertEqual(3, result.first_bad)
+        self.assertEqual(0, result.last_good)
+        self.assertEqual(1, result.first_bad)
+
+        raise ValueError(result.breakdown)
+        self.assertEqual({"newer_packages"}, set(result.breakdown.keys()))
+        self.assertEqual(
+            {("changing_dependencies", bad_version)},
+            {
+                (package.name, str(package.version))
+                for package in result.breakdown["newer_packages"]
+            },
+        )
 
     def test_removed(self):
         """Fail when some important package was removed from the request."""

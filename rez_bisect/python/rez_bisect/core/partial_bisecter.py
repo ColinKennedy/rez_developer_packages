@@ -53,33 +53,38 @@ def _get_approximate_bisect(has_issue, good, diff):
 
     """
 
-    def _newer_indices_to_context(newer_indices):
-        closest_newer = {key: value + 1 for key, value in newer_indices.items()}
-        request = [newer_packages[key][index] for key, index in closest_newer.items()]
+    def _get_from_change_list(sequence, request):
+        output = {}
 
-        return resolved_context.ResolvedContext(
-            _to_raw_request(request),
-            package_paths=good.package_paths,
-        )
+        for packages in sequence:
+            index = math.floor(len(packages) * weight)
+            package = packages[index]
+
+            request.append(package)
+            output[package.name] = index
+
+        return output
+
+    def _get_next_change_request(indices, reference_diff):
+        closest = {key: value + 1 for key, value in indices.items()}
+
+        return [reference_diff[key][index] for key, index in closest.items()]
 
     _validate_keys(diff)
 
     previous_weight = 1
     weight = 0.5
-    newer_packages = diff.get(_NEWER)
+    older_packages = diff.get(_OLDER) or {}
+    newer_packages = diff.get(_NEWER) or {}
+    older = older_packages.values()
     newer = newer_packages.values()
     previous = None
 
     while True:
-        newer_indices = dict()
         request = []
 
-        for packages in newer:
-            index = math.floor(len(packages) * weight)
-            package = packages[index]
-
-            request.append(package)
-            newer_indices[package.name] = index
+        newer_indices = _get_from_change_list(newer, request)
+        older_indices = _get_from_change_list(older, request)
 
         context = resolved_context.ResolvedContext(
             _to_raw_request(request),
@@ -107,7 +112,14 @@ def _get_approximate_bisect(has_issue, good, diff):
         weight += offset
         previous = request
 
-    return _newer_indices_to_context(newer_indices)
+    request = []
+    request.extend(_get_next_change_request(newer_indices, newer_packages))
+    request.extend(_get_next_change_request(older_indices, older_packages))
+
+    return resolved_context.ResolvedContext(
+        _to_raw_request(request),
+        package_paths=good.package_paths,
+    )
 
 
 def _get_required_bad_packages():
@@ -227,7 +239,8 @@ def _get_exact_bisect(has_issue, good, bad):
     checked = set()
     bads = set()
     bad_packages = set()
-    newer = diff.get(_NEWER)
+    newer = diff.get(_NEWER) or {}
+    older = diff.get(_OLDER) or {}
 
     while True:
         candidates = set(newer.keys()) - checked - bads
