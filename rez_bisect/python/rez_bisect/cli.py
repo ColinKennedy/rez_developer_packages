@@ -95,7 +95,7 @@ def _run(namespace):
         # TODO : Add support for this
         print("Is you'd like a more accurate bisect, run `rez_bisect re-run --partial` or `rez_bisect run --partial`.")
 
-        return
+        return results
 
     print('Diff Breakdown:')
 
