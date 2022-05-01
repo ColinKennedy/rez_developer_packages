@@ -211,7 +211,7 @@ def _get_intersphinx_mappings(package):
             A Rez package which the user is attempting to build documentation for.
 
     Returns:
-        dict[str, tuple[str] or str]: A suitable `intersphinx_mapping`_ for `Sphinx`_.
+        dict[str, tuple or str]: A suitable `intersphinx_mapping`_ for `Sphinx`_.
 
     """
     output = {}
@@ -223,7 +223,7 @@ def _get_intersphinx_mappings(package):
         if not path:
             continue
 
-        output[package.name] = path
+        output[package.name] = (path, None)
 
     return output
 

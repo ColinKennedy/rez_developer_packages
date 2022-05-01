@@ -8,14 +8,13 @@ import re
 
 from rez_utilities import finder
 
-from ..core import configuration, constant, environment, sphinx_helper
+from ..core import constant, environment, sphinx_helper
 from ..preferences import preference, preference_init
 from . import preprocess_entry_point
 
 _HAS_CURLIES = re.compile("{[^{}]*}")
 _LOGGER = logging.getLogger(__name__)
 _ROOT_FORMAT = "{root}"
-_SPHINX_INVENTORY = "/objects.inv"
 
 # TODO : Try to remove the need for ``_COMMON_DOCUMENTATION_EXTENSIONS`` later
 # It's only necessary because we cannot reliably query the conf.py's
@@ -214,9 +213,7 @@ def preprocess_help(package_source_root, help_):  # pylint: disable=unused-argum
 
     source_root = os.path.dirname(source_path)
     new_labels = _find_help_labels(source_root)
-    new_labels.append(
-        [constant.REZ_SPHINX_OBJECTS_INV, constant.ROOT_REPLACEMENT + _SPHINX_INVENTORY],
-    )
+    new_labels.append([constant.REZ_SPHINX_OBJECTS_INV, constant.ROOT_REPLACEMENT])
 
     package = finder.get_nearest_rez_package(package_source_root)
 
