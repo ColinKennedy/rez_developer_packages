@@ -10,7 +10,6 @@ _REMOVED = "removed_packages"
 _SUPPORTED_KEYS = frozenset((_NEWER, _REMOVED))
 
 
-# TODO : Simplify these parameters, if possible
 def _get_approximate_bisect(has_issue, good, diff):
     """Check all Rez packages at once to find a close-ish match, based on ``diff``.
 
@@ -25,16 +24,16 @@ def _get_approximate_bisect(has_issue, good, diff):
         requests, not a diff of the resolved Rez packages.
 
     Args:
+        has_issue (callable[rez.resolved_context.Context] -> bool):
+            A function that returns True if the executable ``path`` fails.
+            Otherwise, it returns False, indicating success. It takes a Rez
+            :ref:`context` as input.
         good (rez.resolved_context.ResolvedContext):
             The context which would return False for ``has_issue(good)``.
             It's the last context before some issue begins occurring.
         diff (dict[str, list[rez.utils.formatting.PackageRequest]]):
             Each type of Rez package (added, newer, older, removed, etc) and
             each version found between ``good`` and another failing resolve.
-        has_issue (callable[rez.resolved_context.Context] -> bool):
-            A function that returns True if the executable ``path`` fails.
-            Otherwise, it returns False, indicating success. It takes a Rez
-            :ref:`context` as input.
 
     Returns:
         rez.resolved_context.ResolvedContext:
@@ -151,6 +150,24 @@ def _validate_keys(diff):
 
 
 def _get_filtered_request_diff(good, bad):
+    """Make a diff using only the requested Rez packages.
+
+    Rez's :meth:`rez.resolved_context.ResolvedContext.get_resolve_diff` is good
+    but it returns the diff of every Rez package, even nested dependencies.
+    This function only returns the diff of packages which were included in the
+    user's original package request.
+
+    Args:
+        good (rez.resolved_context.ResolvedContext):
+            The context which would return False for ``has_issue(good)``.
+            It's the last context before some issue begins occurring.
+        bad (rez.resolved_context.Context):
+            The earliest context that fails ``has_issue(bad)``.
+
+    Returns:
+        dict[str, list[rez.packages.Package]]: The simplified diff.
+
+    """
     contexts = [good, bad]
     requests = {package.name for context in contexts for package in context.requested_packages()}
     resolve_diff = good.get_resolve_diff(bad)
@@ -160,16 +177,34 @@ def _get_filtered_request_diff(good, bad):
 
 
 def _get_exact_bisect(has_issue, good, bad):
-    # """Find the Rez package(s)/version(s) that cause ``good`` to become bad.
-    #
-    # The general workflow steps are:
-    #
-    # - Choose a package
-    #     - Do a bisect with just this package
-    #     - save the result
-    # - Repeat with all packages
-    #
-    # """
+    """Find the Rez package(s)/version(s) that cause ``good`` to become bad.
+
+    The general workflow steps are:
+
+    - Choose a package
+
+        - Do a bisect with just this package
+        - save the result
+
+    - Repeat with all packages
+
+    Args:
+        has_issue (callable[rez.resolved_context.Context] -> bool):
+            A function that returns True if the executable ``path`` fails.
+            Otherwise, it returns False, indicating success. It takes a Rez
+            :ref:`context` as input.
+        good (rez.resolved_context.ResolvedContext):
+            The context which would return False for ``has_issue(good)``.
+            It's the last context before some issue begins occurring.
+        bad (rez.resolved_context.Context):
+            The earliest context that fails ``has_issue(bad)``.
+
+    Returns:
+        dict[str, list[rez.packages.Package]]:
+            All found diff content that causes ``good`` to become ``bad`` and
+            each package versions found, in between.
+
+    """
 
     def _choose_one(packages):
         return random.sample(packages, 1)[0]
@@ -205,6 +240,25 @@ def _get_exact_bisect(has_issue, good, bad):
 
 
 def bisect_2d(has_issue, good, bad):
+    """Find the Rez package(s)/version(s) that cause ``good`` to become bad.
+
+    Args:
+        has_issue (callable[rez.resolved_context.Context] -> bool):
+            A function that returns True if the executable ``path`` fails.
+            Otherwise, it returns False, indicating success. It takes a Rez
+            :ref:`context` as input.
+        good (rez.resolved_context.ResolvedContext):
+            The context which would return False for ``has_issue(good)``.
+            It's the last context before some issue begins occurring.
+        bad (rez.resolved_context.Context):
+            The earliest context that fails ``has_issue(bad)``.
+
+    Returns:
+        dict[str, list[rez.packages.Package]]:
+            All found diff content that causes ``good`` to become ``bad`` and
+            each package versions found, in between.
+
+    """
     request_diff = _get_filtered_request_diff(good, bad)
     unfinished_context = _get_approximate_bisect(has_issue, good, request_diff)
 
