@@ -84,7 +84,9 @@ def to_contexts(requests, root, packages_path=None, allow_unresolved=False):
 
     if len(missing) == 1:
         raise exception.BadRequest(
-            'Context file "{missing}" does not exist on-disk.'.format(missing=next(iter(missing)))
+            'Context file "{missing}" does not exist on-disk.'.format(
+                missing=next(iter(missing))
+            )
         )
     elif missing:
         raise exception.BadRequest(

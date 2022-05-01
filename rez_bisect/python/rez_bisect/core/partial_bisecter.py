@@ -169,7 +169,9 @@ def _get_filtered_request_diff(good, bad):
 
     """
     contexts = [good, bad]
-    requests = {package.name for context in contexts for package in context.requested_packages()}
+    requests = {
+        package.name for context in contexts for package in context.requested_packages()
+    }
     resolve_diff = good.get_resolve_diff(bad)
     request_diff = diff_mate.get_request_diff(requests, resolve_diff)
 

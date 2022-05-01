@@ -1,10 +1,11 @@
 import contextlib
 import shlex
 
-from python_compatibility import wrapping
-from rez_bisect import cli
-from six.moves import mock
 import six
+from python_compatibility import wrapping
+from six.moves import mock
+
+from rez_bisect import cli
 
 
 @contextlib.contextmanager

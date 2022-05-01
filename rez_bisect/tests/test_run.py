@@ -6,14 +6,13 @@ import os
 import tempfile
 import unittest
 
-from rez.vendor.version import version
 from rez import resolved_context
+from rez.vendor.version import version
 from six.moves import mock
 
 from rez_bisect.core import exception, rez_helper
 
 from .common import utility
-
 
 _CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 _TESTS = os.path.join(os.path.dirname(_CURRENT_DIRECTORY), "_test_data")
@@ -155,7 +154,9 @@ class ContextInputs(unittest.TestCase):
 
         directory = os.path.join(_TESTS, "simple_packages")
 
-        with utility.patch_run(_is_failure_condition), self.assertRaises(exception.BadRequest):
+        with utility.patch_run(_is_failure_condition), self.assertRaises(
+            exception.BadRequest
+        ):
             utility.run_test(
                 [
                     "run",
@@ -180,7 +181,9 @@ class ContextInputs(unittest.TestCase):
         request_2 = "foo==1.1.0"
         request_3 = "foo==1.2.0 bar==1.0.0"
 
-        with utility.patch_run(_is_failure_condition), mock.patch("rez_bisect.cli._report_context_indices") as patch:
+        with utility.patch_run(_is_failure_condition), mock.patch(
+            "rez_bisect.cli._report_context_indices"
+        ) as patch:
             utility.run_test(
                 [
                     "run",
@@ -289,7 +292,9 @@ class InvalidRequests(unittest.TestCase):
 
         directory = os.path.join(_TESTS, "simple_packages")
 
-        with utility.patch_run(_is_failure_condition), self.assertRaises(exception.BadRequest):
+        with utility.patch_run(_is_failure_condition), self.assertRaises(
+            exception.BadRequest
+        ):
             utility.run_test(
                 [
                     "run",
@@ -332,7 +337,9 @@ class InvalidRequests(unittest.TestCase):
 
         directory = os.path.join(_TESTS, "simple_packages")
 
-        with utility.patch_run(_is_failure_condition), self.assertRaises(exception.BadRequest):
+        with utility.patch_run(_is_failure_condition), self.assertRaises(
+            exception.BadRequest
+        ):
             utility.run_test(
                 [
                     "run",
@@ -474,10 +481,14 @@ class Invalids(unittest.TestCase):
             directory,
         ]
 
-        with utility.patch_run(_is_failure_condition), self.assertRaises(exception.UserInputError):
+        with utility.patch_run(_is_failure_condition), self.assertRaises(
+            exception.UserInputError
+        ):
             utility.run_test(command)
 
-        with utility.patch_run(_is_failure_condition), mock.patch("rez_bisect.core.runner.bisect"):
+        with utility.patch_run(_is_failure_condition), mock.patch(
+            "rez_bisect.core.runner.bisect"
+        ):
             utility.run_test(command + ["--partial"])
 
 
@@ -546,7 +557,9 @@ class Options(unittest.TestCase):
 
         directory = os.path.join(_TESTS, "simple_packages")
 
-        with utility.patch_run(_is_failure_condition), mock.patch("rez_bisect.cli._report_context_indices") as patch:
+        with utility.patch_run(_is_failure_condition), mock.patch(
+            "rez_bisect.cli._report_context_indices"
+        ) as patch:
             utility.run_test(
                 [
                     "run",
@@ -574,7 +587,7 @@ class Reporting(unittest.TestCase):
 
     def test_partial_002(self):
         """Make sure the report is adapted if :ref:`--partial` is included."""
-        raise ValueError('DO THIS ONE')
+        raise ValueError("DO THIS ONE")
 
         def _is_failure_condition(context):
             return context.get_resolved_package("bar") is not None

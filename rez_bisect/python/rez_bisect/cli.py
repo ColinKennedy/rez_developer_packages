@@ -72,10 +72,14 @@ def _report_context_indices(contexts):
     print('Using "{count}" contexts.'.format(count=len(contexts)))
 
     for index, context in enumerate(contexts):
-        print('#{index}: {request}'.format(
-            index=index,
-            request=" ".join(str(request_) for request_ in context.requested_packages()),
-        ))
+        print(
+            "#{index}: {request}".format(
+                index=index,
+                request=" ".join(
+                    str(request_) for request_ in context.requested_packages()
+                ),
+            )
+        )
 
 
 def _run(namespace):
@@ -93,11 +97,13 @@ def _run(namespace):
 
     if not results.breakdown:
         # TODO : Add support for this
-        print("Is you'd like a more accurate bisect, run `rez_bisect re-run --partial` or `rez_bisect run --partial`.")
+        print(
+            "Is you'd like a more accurate bisect, run `rez_bisect re-run --partial` or `rez_bisect run --partial`."
+        )
 
         return results
 
-    print('Diff Breakdown:')
+    print("Diff Breakdown:")
 
     for key, packages in results.breakdown.items():
         print("    {key}:".format(key=key))
@@ -181,7 +187,9 @@ def _validate_contexts(contexts):
     if len(contexts) == 1:
         raise exception.UserInputError(
             "You must provide at least 2 unique Rez requests / contexts. "
-            'We only got "{contexts}".'.format(contexts=[str(context) for context in contexts])
+            'We only got "{contexts}".'.format(
+                contexts=[str(context) for context in contexts]
+            )
         )
 
     if start == end:

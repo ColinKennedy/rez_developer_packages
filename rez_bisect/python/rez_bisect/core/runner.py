@@ -14,7 +14,9 @@ import collections
 
 from . import bisecter, partial_bisecter
 
-_BisectSummary = collections.namedtuple("_BisectSummary", "last_good, first_bad, diff, breakdown")
+_BisectSummary = collections.namedtuple(
+    "_BisectSummary", "last_good, first_bad, diff, breakdown"
+)
 
 
 def _reduce_to_two_contexts(has_issue, contexts):
@@ -80,6 +82,10 @@ def bisect(has_issue, contexts, partial=False):
     breakdown = {}
 
     if partial:
-        breakdown = partial_bisecter.bisect_2d(has_issue, last_good_context, first_bad_context)
+        breakdown = partial_bisecter.bisect_2d(
+            has_issue, last_good_context, first_bad_context
+        )
 
-    return _BisectSummary(last_good=last_good, first_bad=first_bad, diff=diff, breakdown=breakdown)
+    return _BisectSummary(
+        last_good=last_good, first_bad=first_bad, diff=diff, breakdown=breakdown
+    )

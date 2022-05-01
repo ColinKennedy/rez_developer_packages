@@ -43,7 +43,9 @@ def get_request_diff(names, diff):
 
     for key, data in diff.items():
         if isinstance(data, collections.MutableMapping):
-            output[key] = {name: packages for name, packages in data.items() if name in names}
+            output[key] = {
+                name: packages for name, packages in data.items() if name in names
+            }
         else:
             output[key] = [package for package in data if package.name in names]
 
