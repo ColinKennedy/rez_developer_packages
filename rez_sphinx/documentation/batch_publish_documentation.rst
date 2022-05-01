@@ -58,9 +58,15 @@ TODO : double-check that this script works
         rez-build --clean --install
         package_name=`rez-inspect name --style=pretty`
         package_version=`rez-inspect version --style=pretty`
+        echo "Package $package_name-$package_version about to be documented"
+
         rez-env "$package_name==$package_version" rez_sphinx -- rez_sphinx init --skip-existing
+        # Do a test documentation build, just in case there's any issues
+        rez-test "$package_name" build_documentation
+
+        # Add everything
         git add --all .
-        git commit -m $message
+        git commit -m "$message to $package_name"
 
         # You can uncomment the line below if you already have the release_hook set up
         # git push -u origin $branch && rez-release -m $message
@@ -105,7 +111,7 @@ TODO : double-check that this script works
 
     message="Added rez_sphinx documentation"
     directories=`rez_sphinx suggest build-order . --search-mode source --display-as directories --filter already_released`
-    duration=20
+    duration=45
 
     for directory in $directories
     do

@@ -1,10 +1,6 @@
+- already_released needs to check git tags as well as the install folder
+
 - rez_sphinx
- - add post-release publish support
- - Get a batch-creation / publish example and show it off
-  - show a GUI representation, too
- - Message group
-  - Record a video demo
-  - Send information about it
  - when building documentation to installed packages locally, `{root}/` needs to
    be replaced with "" so that the paths are relative and `rez-help` can still work!
 

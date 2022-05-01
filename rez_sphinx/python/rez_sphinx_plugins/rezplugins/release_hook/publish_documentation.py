@@ -24,6 +24,9 @@ _DOCUMENTATION_FOLDER = "documentation"
 _SPHINX_CONFIGURATION_FILE = "conf.py"
 
 
+# TODO : Add docstrings here and everywhere
+
+
 class PublishDocumentation(release_hook.ReleaseHook):
     """The class which runs pre-release / post-release methods.
 
