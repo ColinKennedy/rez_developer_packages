@@ -93,6 +93,11 @@ def _get_approximate_bisect(has_issue, good, diff):
     # if bad_removed and has_issue():
     #     return {_REMOVED: bad_removed}
 
+    bad_added = _check_by_type_is_bad(has_issue, good, diff, _ADDED)
+
+    if bad_added:
+        return {_ADDED: bad_added}
+
     previous_weight = 1
     weight = 0.5
     older = diff.get(_OLDER) or {}
@@ -279,7 +284,15 @@ def _get_exact_bisect(has_issue, good, diff):
     def _choose_one(packages):
         return random.sample(packages, 1)[0]
 
+    required_bad = _check_by_type_is_bad(has_issue, good, diff, _ADDED)
+
+    if required_bad:
+        required_bad = _narrow_candidates(has_issue, good, required_bad)
+
+        return {_ADDED: required_bad}
+
     does_not_has_issue = _invert(has_issue)
+
     required_bad = _check_by_type_is_bad(does_not_has_issue, good, diff, _REMOVED)
 
     if required_bad:
