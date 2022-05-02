@@ -8,40 +8,6 @@ See Also:
 import collections
 
 
-def filter_by_packages(packages, diff):
-    """Intersect ``diff`` with ``packages``.
-
-    If ``diff`` contains any Rez package, that package must exist in ``packages``.
-
-    Args:
-        packages (list[rez.packages.Package]): Some source / installed Rez packages.
-        diff (dict[str, dict or list]): The diff content to reduce.
-
-    Returns:
-        dict[str, list[rez.packages.Package]]:
-            All found diff content matching ``packages``.
-
-    """
-    output = {}
-
-    for key, data in diff.items():
-        if isinstance(data, collections.MutableMapping):
-            sequence = data.keys()
-        else:
-            sequence = data
-
-        new_data = []
-
-        for name in sequence:
-            if name in packages:
-                new_data.append(packages[name])
-
-        if new_data:
-            output[key] = new_data
-
-    return output
-
-
 def get_request_diff(names, diff):
     """Filter ``diff`` with the Rez package requests, ``names``.
 
