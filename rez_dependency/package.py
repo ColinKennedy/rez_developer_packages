@@ -1,6 +1,6 @@
 name = "rez_dependency"
 
-version = "1.0.0"
+version = "1.0.1"
 
 description = "Get all dependencies of a Rez package request."
 
