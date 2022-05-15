@@ -28,7 +28,6 @@ class Cases(unittest.TestCase):
 
         directory = os.path.join(_TESTS, "simple_packages")
 
-        bad_version = "1.2.0"
         request_1 = "changing_dependencies-1+<1.2"
         request_2 = "changing_dependencies==1.2.0"
         request_3 = "changing_dependencies-1.2+ foo"

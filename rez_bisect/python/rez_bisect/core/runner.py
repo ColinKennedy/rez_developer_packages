@@ -36,6 +36,7 @@ def _reduce_to_two_contexts(has_issue, contexts):
             index where ``has_issue`` returns True.
 
     """
+    # print('hash issue', contexts)
     upper_bound = bisecter.bisect_right(has_issue, contexts)
 
     return upper_bound - 1, upper_bound

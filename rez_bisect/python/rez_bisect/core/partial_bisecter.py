@@ -20,6 +20,11 @@ _ADDED = "added_packages"
 _NEWER = "newer_packages"
 _OLDER = "older_packages"
 _REMOVED = "removed_packages"
+
+_ADDED_EPHEMERALS = "added_ephemerals"
+_CHANGED_EPHEMERALS = "changed_ephemerals"
+_REMOVED_EPHEMERALS = "removed_ephemerals"
+
 _SUPPORTED_KEYS = frozenset((_ADDED, _NEWER, _OLDER, _REMOVED))
 
 
@@ -35,37 +40,37 @@ def _check_by_type_is_bad(has_issue, good, diff, key):
     return []
 
 
-def _get_approximate_bisect(has_issue, good, diff):
-    """Check all Rez packages at once to find a close-ish match, based on ``diff``.
-
-    The objective of this function is do give an approximate bisect. The result
-    can then be handed off to other, more granular functions can finess and
-    find a more accurate bisect result.
-
-    For a more exact bisect, see :func:`_get_exact_bisect`.
-
-    Note:
-        This function is more efficient if you use a diff of Rez package
-        requests, not a diff of the resolved Rez packages.
-
-    Args:
-        has_issue (callable[rez.resolved_context.Context] -> bool):
-            A function that returns True if the executable ``path`` fails.
-            Otherwise, it returns False, indicating success. It takes a Rez
-            :ref:`context` as input.
-        good (rez.resolved_context.ResolvedContext):
-            The context which would return False for ``has_issue(good)``.
-            It's the last context before some issue begins occurring.
-        diff (dict[str, list[rez.utils.formatting.PackageRequest]]):
-            Each type of Rez package (added, newer, older, removed, etc) and
-            each version found between ``good`` and another failing resolve.
-
-    Returns:
-        rez.resolved_context.ResolvedContext:
-            The context which determines the an approximate context where
-            ``has_issue`` starts failing.
-
-    """
+def _get_approximate_bisect(has_issue, good, request_diff, ephemeral_diff):
+    # """Check all Rez packages at once to find a close-ish match, based on ``request_diff``.
+    #
+    # The objective of this function is do give an approximate bisect. The result
+    # can then be handed off to other, more granular functions can finess and
+    # find a more accurate bisect result.
+    #
+    # For a more exact bisect, see :func:`_get_exact_bisect`.
+    #
+    # Note:
+    #     This function is more efficient if you use a request_diff of Rez package
+    #     requests, not a request_diff of the resolved Rez packages.
+    #
+    # Args:
+    #     has_issue (callable[rez.resolved_context.Context] -> bool):
+    #         A function that returns True if the executable ``path`` fails.
+    #         Otherwise, it returns False, indicating success. It takes a Rez
+    #         :ref:`context` as input.
+    #     good (rez.resolved_context.ResolvedContext):
+    #         The context which would return False for ``has_issue(good)``.
+    #         It's the last context before some issue begins occurring.
+    #     request_diff (dict[str, list[rez.utils.formatting.PackageRequest]]):
+    #         Each type of Rez package (added, newer, older, removed, etc) and
+    #         each version found between ``good`` and another failing resolve.
+    #
+    # Returns:
+    #     rez.resolved_context.ResolvedContext:
+    #         The context which determines the an approximate context where
+    #         ``has_issue`` starts failing.
+    #
+    # """
 
     def _get_from_change_list(weight, packages, request):
         output = {}
@@ -84,31 +89,32 @@ def _get_approximate_bisect(has_issue, good, diff):
 
         return [reference_diff[key][index] for key, index in closest.items()]
 
-    _validate_keys(diff)
+    _validate_keys(request_diff)
 
     # # TODO : Make this work, later
     # does_not_has_issue = _invert(has_issue)
-    # bad_removed = _check_by_type_is_bad(does_not_has_issue, good, diff, _REMOVED)
+    # bad_removed = _check_by_type_is_bad(does_not_has_issue, good, request_diff, _REMOVED)
     #
     # if bad_removed and has_issue():
     #     return {_REMOVED: bad_removed}
 
-    bad_added = _check_by_type_is_bad(has_issue, good, diff, _ADDED)
+    bad_added = _check_by_type_is_bad(has_issue, good, request_diff, _ADDED)
 
     if bad_added:
         return {_ADDED: bad_added}
 
     previous_weight = 1
     weight = 0.5
-    older = diff.get(_OLDER) or {}
-    newer = diff.get(_NEWER) or {}
+    older_packages = request_diff.get(_OLDER) or {}
+    newer_packages = request_diff.get(_NEWER) or {}
     previous = None
 
     while True:
         request = []
 
-        newer_indices = _get_from_change_list(weight, newer, request)
-        older_indices = _get_from_change_list(weight, older, request)
+        newer_ephemeral_indices = _get_from_change_list(weight, newer_ephemerals, request)
+        newer_indices = _get_from_change_list(weight, newer_packages, request)
+        older_indices = _get_from_change_list(weight, older_packages, request)
 
         context = resolved_context.ResolvedContext(
             _to_raw_request(request),
@@ -119,7 +125,7 @@ def _get_approximate_bisect(has_issue, good, diff):
         offset = abs(average - weight)
 
         if has_issue(context):
-            # We nudge ``weight`` to move away from ``diff`` and closer to
+            # We nudge ``weight`` to move away from ``request_diff`` and closer to
             # ``good`` so the next iteration of ``has_issue(context)``
             # has a greater chance of returning False.
             #
@@ -137,12 +143,12 @@ def _get_approximate_bisect(has_issue, good, diff):
         previous = request
 
     output = {}
-    bad_newer = _get_next_change_request(newer_indices, newer)
+    bad_newer = _get_next_change_request(newer_indices, newer_packages)
 
     if bad_newer:
         output[_NEWER] = bad_newer
 
-    bad_older = _get_next_change_request(older_indices, older)
+    bad_older = _get_next_change_request(older_indices, older_packages)
 
     if bad_older:
         output[_OLDER] = bad_older
@@ -196,6 +202,7 @@ def _validate_keys(diff):
 
 
 def _get_bad_package_request(diff, key):
+    # TODO : Add docstring here and elsewhere
     names = diff.get(key) or []
 
     if not hasattr(names, "values"):
@@ -217,6 +224,41 @@ def _get_bad_package_request(diff, key):
         list(packages)[-1]
         for packages in value.values() or []
     }
+
+
+def _get_ephemeral_diff(left, right):
+    left_families = {requirement.name: requirement for requirement in left.resolved_ephemerals}
+    right_families = {requirement.name: requirement for requirement in right.resolved_ephemerals}
+
+    added = set()
+    changed = set()
+    removed = set()
+
+    for requirement in left.resolved_ephemerals:
+        if requirement.name not in right_families:
+            removed.add(requirement)
+
+            continue
+
+        if requirement.range != right_families[requirement.name].range:
+            changed.add(requirement)
+
+    for requirement in right.resolved_ephemerals:
+        if requirement.name not in left_families:
+            added.add(requirement)
+
+    output = {}
+
+    if added:
+        output[_ADDED_EPHEMERALS] = added
+
+    if changed:
+        output[_CHANGED_EPHEMERALS] = changed
+
+    if removed:
+        output[_REMOVED_EPHEMERALS] = removed
+
+    return output
 
 
 def _get_filtered_request_diff(good, bad):
@@ -388,6 +430,12 @@ def bisect_2d(has_issue, good, bad):
 
     """
     request_diff = _get_filtered_request_diff(good, bad)
-    unfinished_diff = _get_approximate_bisect(has_issue, good, request_diff)
+    ephemeral_diff = _get_ephemeral_diff(good, bad)
+    unfinished_diff = _get_approximate_bisect(
+        has_issue,
+        good,
+        request_diff,
+        ephemeral_diff,
+    )
 
     return _get_exact_bisect(has_issue, good, unfinished_diff)

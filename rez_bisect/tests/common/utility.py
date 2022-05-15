@@ -49,5 +49,7 @@ def run_test(command):
 
     namespace = cli.parse_arguments(command)
 
+    return cli.run(namespace)
+
     with wrapping.silence_printing():
         return cli.run(namespace)
