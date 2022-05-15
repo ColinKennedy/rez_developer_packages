@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+
+if [[ "$REZ_ISORT_MAJOR_VERSION" -ge "5" ]]
+then
+	isort --profile black $@
+else
+	isort --settings-path $REZ_ISORT_BLACK_ROOT/.isort.cfg $@
+fi
