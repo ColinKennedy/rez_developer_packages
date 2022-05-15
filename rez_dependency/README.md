@@ -85,10 +85,10 @@ Prints the full tree, in the order that dependencies are found.
 
 ```
 package_request:
-	a_dependency:
-		another_nested_dependency:
-			python
-	python
+    a_dependency:
+        another_nested_dependency:
+            python
+    python
 ```
 
 
@@ -106,13 +106,13 @@ rez_dependency tree 'package_request-1.2+<3'
 
 ```
 {
-	"package_request": {
-		"a_dependency": {
-			"another_nested_dependency":
-				"python": {}
-			}
-		},
-		"python": {}
-	}
+    "package_request": {
+        "a_dependency": {
+            "another_nested_dependency":
+                "python": {}
+            }
+        },
+        "python": {}
+    }
 }
 ```
