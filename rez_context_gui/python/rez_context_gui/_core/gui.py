@@ -52,3 +52,16 @@ def _add_nodes_to_graph(digraph, graph):
         source = table[from_node]
         destination = table[to_node]
         source.knob(constant.INPUT_NAME).connectTo(destination.knob(constant.OUTPUT_NAME))
+
+
+def _from_graph(digraph, parent=None):
+    graph = qtnodes.NodeGraphWidget(parent=parent)
+    # _add_nodes_to_graph(digraph, graph)
+
+    return graph
+
+
+def from_context(context, parent=None):
+    digraph = context.graph()
+
+    return _from_graph(digraph, parent=parent)

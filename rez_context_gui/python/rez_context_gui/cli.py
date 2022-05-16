@@ -1,6 +1,6 @@
 import argparse
 
-from Qt import QtCore
+from Qt import QtCore, QtWidgets
 
 from ._core import cli_helper, gui
 
@@ -20,7 +20,11 @@ def main(text):
     """Parse the user's arguments and show a GUI."""
     namespace = _parse_arguments(text)
 
-    widget = gui.Widget.from_context(namespace.context)
+    application = QtWidgets.QApplication([])
+
+    widget = gui.from_context(namespace.context)
     widget.setWindowTitle("Rez Context GUI")
     widget.setWindowFlags(QtCore.Qt.Window)
     widget.show()
+
+    application.exec_()

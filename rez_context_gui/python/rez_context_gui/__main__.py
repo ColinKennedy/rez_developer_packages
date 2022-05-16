@@ -1,8 +1,6 @@
 import logging
 import sys
 
-from Qt import QtWidgets
-
 from . import cli
 
 
@@ -14,8 +12,4 @@ _HANDLER.setFormatter(_FORMATTER)
 _LOGGER.addHandler(_HANDLER)
 _LOGGER.setLevel(logging.INFO)
 
-_APPLICATION = QtWidgets.QApplication([])
-
 cli.main(sys.argv[1:])
-
-_APPLICATION.exec_()
