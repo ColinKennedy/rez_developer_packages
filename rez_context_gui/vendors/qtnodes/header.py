@@ -1,12 +1,11 @@
 """Node header."""
 
-from PySide import QtGui
-from PySide import QtCore
+from Qt import QtCore, QtGui, QtWidgets
 
 from .helpers import getTextSize
 
 
-class Header(QtGui.QGraphicsItem):
+class Header(QtWidgets.QGraphicsItem):
     """A Header is a child of a Node and gives it a title.
 
     Its width resizes automatically to match the Node's width.

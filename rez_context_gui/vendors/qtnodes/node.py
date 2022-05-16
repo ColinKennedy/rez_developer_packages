@@ -2,15 +2,14 @@
 
 import uuid
 
-from PySide import QtGui
-from PySide import QtCore
+from Qt import QtCore, QtGui, QtWidgets
 
 from .helpers import getTextSize
 from .knob import Knob, InputKnob, OutputKnob
 from .exceptions import DuplicateKnobNameError
 
 
-class Node(QtGui.QGraphicsItem):
+class Node(QtWidgets.QGraphicsItem):
     """A Node is a container for a header and 0-n Knobs.
 
     It can be created, removed and modified by the user in the UI.
@@ -34,8 +33,8 @@ class Node(QtGui.QGraphicsItem):
         self.fillColor = QtGui.QColor(220, 220, 220)
 
         # General configuration.
-        self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable)
-        self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
+        self.setFlag(QtWidgets.QGraphicsItem.ItemIsSelectable)
+        self.setFlag(QtWidgets.QGraphicsItem.ItemIsMovable)
 
         self.setCursor(QtCore.Qt.SizeAllCursor)
 
@@ -91,7 +90,7 @@ class Node(QtGui.QGraphicsItem):
 
         def adjustWidth():
             """Adjust width as needed for the widest child item."""
-            headerWidth = (self.margin + getTextSize(self.header.text).width())
+            headerWidth = (self.margin + getTextSize(self.header.text or "").width())
 
             knobs = [c for c in self.childItems() if isinstance(c, Knob)]
             knobWidths = [k.w + self.margin + getTextSize(k.displayName).width()

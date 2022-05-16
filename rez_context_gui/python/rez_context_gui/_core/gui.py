@@ -1,39 +1,52 @@
 from Qt import QtWidgets
 
+import qtnodes
+
+from . import constant
 from .schemas import node_schema
+from .qtnodes_extension import gui_node
 
 
 class Widget(QtWidgets.QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, nodes, parent=None):
         super(Widget, self).__init__(parent=parent)
+
+        self._graph = qtnodes.NodeGraphWidget()
+        all_types = {type(node) for node in nodes}
+
+        for class_type in all_types:
+            self._graph.registerNodeClass(gui_node.Node)
+
+        for node in nodes:
+            self._graph.addNode(node)
 
     @classmethod
     def from_context(cls, context, parent=None):
-        graph = context.graph()
+        digraph = context.graph()
 
-        return cls.from_graph(graph, parent=parent)
+        return cls.from_graph(digraph, parent=parent)
 
     @classmethod
-    def from_graph(cls, graph, parent=None):
-        nodes = _to_nodes(graph)
+    def from_graph(cls, digraph, parent=None):
+        nodes = _to_nodes(digraph)
 
         return cls(nodes, parent=parent)
 
 
-def _to_nodes(graph):
+def _to_nodes(digraph):
     nodes = []
     table = dict()
 
-    for node_identifier in graph.nodes():
-        attributes = graph.node_attributes(node_identifier)
+    for node_identifier in digraph.nodes():
+        attributes = digraph.node_attributes(node_identifier)
         node_contents = node_schema.Contents.from_rez_graph_attributes(node_identifier, attributes)
+        node = gui_node.Node.from_contents(node_contents)
+        nodes.append(node)
+        table[node_contents.get_identifier()] = node
 
-        nodes.append(Node.from_digraph_node(node))
-        table[node_contents.get_identifier()] = node_contents
-
-    for from_node, to_node in graph.edges():
+    for from_node, to_node in digraph.edges():
         source = table[from_node]
         destination = table[to_node]
-        raise ValueError(source, destination)
+        source.knob(constant.INPUT_NAME).connectTo(destination.knob(constant.OUTPUT_NAME))
 
     return nodes
