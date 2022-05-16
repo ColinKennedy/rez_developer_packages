@@ -6,7 +6,13 @@ description = "View a Rez context as nodes in a GUI. Like rez-context --graph, b
 
 authors = ["ColinKennedy"]
 
-requires = ["Qt.py-1.3+<2", "python-2.7+<4"]
+requires = [
+    "Qt.py-1.3+<2",
+    "python-2.7+<4",
+    "rez-2.104+<3",
+    "schema-0.7+<1",
+    "six-1.16+<2",
+]
 
 private_build_requires = ["rez_build_helper-1.8+<2"]
 
