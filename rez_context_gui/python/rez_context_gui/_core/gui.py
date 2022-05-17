@@ -1,9 +1,13 @@
 """The main module for generating GUI components for a Rez resolved context."""
 
+import itertools
+
 import qtnodes
 from Qt import QtWidgets
 
-from . import constant
+from six.moves import zip
+
+from . import constant, scene_maker, tree_maker
 from .qtnodes_extension import gui_node
 from .schemas import node_schema
 
@@ -94,6 +98,36 @@ def _from_graph(digraph, parent=None):
     return graph
 
 
+def _make_gui_trees(context):
+    digraph = context.graph()
+
+    # TODO : Update this comment. I think "conflict" might be wrong
+    # 1. Make trees
+    #
+    # - request (all)
+    #     - package_a_request-1.2+<2
+    #     - package_b_request-2+
+    #     - package_c_request<4
+    # - conflict (all)
+    #     - unresolvable_package-1.2
+    #     - another_unresolvable-4+
+    #
+    request = tree_maker.make_request_branch(context, digraph=digraph)
+    conflict = tree_maker.make_conflict_branch(context, digraph=digraph)
+
+    # 2. Now create scenes and views for all tree branches
+    request_children = [request] + request.children()
+    request_views = scene_maker.make_graphics_view(request_children)
+    conflict_children = [conflict] + conflict.children()
+    conflict_views = scene_maker.make_graphics_view(conflict_children)
+
+    # 3. Pair each branch with each created view so we can swap view / display later
+    request_child_view_pairs = zip(request_children, request_views, strict=True)
+    conflict_child_view_pairs = zip(conflict_children, conflict_views, strict=True)
+
+    return list(itertools.chain(request_child_view_pairs, conflict_child_view_pairs))
+
+
 def from_context(context, parent=None):
     """Convert a Rez context into a node graph.
 
@@ -107,6 +141,7 @@ def from_context(context, parent=None):
         Widget: The created widget.
 
     """
-    digraph = context.graph()
+    trees = _make_gui_trees(context)
+    widget = Widget(trees, parent=parent)
 
-    return _from_graph(digraph, parent=parent)
+    return widget
