@@ -71,8 +71,14 @@ tests = {
         # consider-using-f-string:
         #     A Python-3-only feature. Though we should use them wherever
         #     possible once we drop Python 2 support.
+        # super-with-arguments:
+        #     A Python-3-only feature. Though we should use them wherever
+        #     possible once we drop Python 2 support.
+        # useless-object-inheritance:
+        #     A Python-3-only feature. Though we should use them wherever
+        #     possible once we drop Python 2 support.
         #
-        "command": "pylint --disable=bad-continuation,raise-missing-from,consider-using-f-string python/rez_context_gui tests",
+        "command": "pylint --disable=bad-continuation,raise-missing-from,consider-using-f-string,super-with-arguments,useless-object-inheritance python/rez_context_gui tests",
         "requires": ["pylint-2.12+<3"],
     },
     "unittest_python_2": {

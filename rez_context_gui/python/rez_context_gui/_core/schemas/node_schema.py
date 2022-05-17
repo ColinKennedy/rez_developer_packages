@@ -28,7 +28,7 @@ class Contents(object):
 
         .. code-block:: python
 
-            digraph = context.graph()  # context is a rez.resolved_context.ResolvedContext
+            digraph = context.graph()  # ``context`` is a ``ResolvedContext``
 
             for node_identifier in digraph.nodes():
                 attributes = digraph.node_attributes(node_identifier)

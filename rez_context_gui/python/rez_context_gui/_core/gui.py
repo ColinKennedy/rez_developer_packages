@@ -48,7 +48,7 @@ def _add_nodes_to_graph(digraph, graph):
 
     """
     nodes = []
-    table = dict()
+    table = {}
 
     # 1. Create initial nodes
     for node_identifier in digraph.nodes():

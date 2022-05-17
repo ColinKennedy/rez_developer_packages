@@ -7,10 +7,10 @@ from . import gui_knob
 
 
 class Node(qtnodes.Node):
-    def __init__(self, header="", *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super(Node, self).__init__(*args, **kwargs)
 
-        self.addHeader(qtnodes.Header(node=self, text=header))
+        self.addHeader(qtnodes.Header(node=self, text=kwargs.get("header") or ""))
         self.addKnob(gui_knob.InputKnob())
         self.addKnob(gui_knob.OutputKnob())
 
