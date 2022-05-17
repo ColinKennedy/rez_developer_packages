@@ -54,7 +54,9 @@ def _add_nodes_to_graph(digraph, graph):
     # 1. Create initial nodes
     for node_identifier in digraph.nodes():
         attributes = digraph.node_attributes(node_identifier)
-        node_contents = node_schema.Contents.from_rez_graph_attributes(node_identifier, attributes)
+        node_contents = node_schema.Contents.from_rez_graph_attributes(
+            node_identifier, attributes
+        )
         node = gui_node.Node.from_contents(node_contents)
         graph.scene.addItem(node)
         table[node_contents.get_identifier()] = node
@@ -69,7 +71,9 @@ def _add_nodes_to_graph(digraph, graph):
     for from_node, to_node in digraph.edges():
         source = table[from_node]
         destination = table[to_node]
-        source.knob(constant.INPUT_NAME).connectTo(destination.knob(constant.OUTPUT_NAME))
+        source.knob(constant.INPUT_NAME).connectTo(
+            destination.knob(constant.OUTPUT_NAME)
+        )
 
 
 def _from_graph(digraph, parent=None):

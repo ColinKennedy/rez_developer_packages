@@ -94,7 +94,9 @@ def _validate_hex(value):
     value = _validate_label_text(value)
 
     if not value.startswith("#"):
-        raise ValueError('String "{value}" is not a HEX string. e.g. "#111111".'.format(value=value))
+        raise ValueError(
+            'String "{value}" is not a HEX string. e.g. "#111111".'.format(value=value)
+        )
 
     return value
 

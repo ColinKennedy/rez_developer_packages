@@ -68,9 +68,7 @@ def _get_context(path):
 
     if not os.path.isfile(resolved):
         raise exception.ContextNotFound(
-            'Path "{path}" does not point to a Rez context file.'.format(
-                path=path
-            )
+            'Path "{path}" does not point to a Rez context file.'.format(path=path)
         )
 
     return resolved_context.ResolvedContext.load(path)

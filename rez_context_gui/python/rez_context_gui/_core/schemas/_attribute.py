@@ -31,6 +31,7 @@ def get_from_name(name):
     except KeyError:
         raise ValueError(
             'Name "{name}" is unknown. Options were, "{options}".'.format(
-                name=name, options=sorted(_OPTIONS.keys()),
+                name=name,
+                options=sorted(_OPTIONS.keys()),
             )
-         )
+        )

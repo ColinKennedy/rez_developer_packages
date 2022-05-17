@@ -14,6 +14,7 @@ class Base(Exception):
 
 class ContextNotFound(Base):
     """If Rez context is needed but cannot be found."""
+
     code = 10
 
 
