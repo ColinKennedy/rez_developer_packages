@@ -7,26 +7,27 @@ from .schemas import node_schema
 from .qtnodes_extension import gui_node
 
 
-class Widget(QtWidgets.QWidget):
-    def __init__(self, graph, parent=None):
-        super(Widget, self).__init__(parent=parent)
-
-        # TODO : Remove this later, since it appears to be unnecessary
-        self.setLayout(QtWidgets.QVBoxLayout())
-        self.layout().addWidget(graph)
-
-    @classmethod
-    def from_context(cls, context, parent=None):
-        digraph = context.graph()
-
-        return cls.from_graph(digraph, parent=parent)
-
-    @classmethod
-    def from_graph(cls, digraph, parent=None):
-        graph = qtnodes.NodeGraphWidget()
-        _add_nodes_to_graph(digraph, graph)
-
-        return cls(graph, parent=parent)
+# TODO : Remove this class later, maybe
+# class Widget(QtWidgets.QWidget):
+#     def __init__(self, graph, parent=None):
+#         super(Widget, self).__init__(parent=parent)
+#
+#         # TODO : Remove this later, since it appears to be unnecessary
+#         self.setLayout(QtWidgets.QVBoxLayout())
+#         self.layout().addWidget(graph)
+#
+#     @classmethod
+#     def from_context(cls, context, parent=None):
+#         digraph = context.graph()
+#
+#         return cls.from_graph(digraph, parent=parent)
+#
+#     @classmethod
+#     def from_graph(cls, digraph, parent=None):
+#         graph = qtnodes.NodeGraphWidget()
+#         _add_nodes_to_graph(digraph, graph)
+#
+#         return cls(graph, parent=parent)
 
 
 def _add_nodes_to_graph(digraph, graph):
@@ -56,7 +57,7 @@ def _add_nodes_to_graph(digraph, graph):
 
 def _from_graph(digraph, parent=None):
     graph = qtnodes.NodeGraphWidget(parent=parent)
-    # _add_nodes_to_graph(digraph, graph)
+    _add_nodes_to_graph(digraph, graph)
 
     return graph
 

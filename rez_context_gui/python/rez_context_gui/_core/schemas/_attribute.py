@@ -9,7 +9,7 @@ STYLE = "style"
 _OPTIONS = {
     FILL_COLOR: schema_type.HEX,
     FONT_SIZE: schema_type.NON_ZERO,
-    LABEL: str,
+    LABEL: schema_type.LABEL_TEXT,
     STYLE: schema_type.STYLE,
 }
 

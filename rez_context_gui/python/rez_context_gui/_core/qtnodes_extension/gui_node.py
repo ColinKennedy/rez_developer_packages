@@ -17,6 +17,7 @@ class Node(qtnodes.Node):
     def from_contents(cls, contents, *args, **kwargs):
         node = cls(*args, **kwargs)
         node.addHeader(qtnodes.Header(node=node, text=contents.get_label()))
+        node.uuid = contents.get_identifier()
         node.fillColor = QtGui.QColor(contents.get_fill_color())
 
         return node

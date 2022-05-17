@@ -5,16 +5,6 @@ _COMMA_SEPARATOR = ","
 _QUOTES = ('"', "'")
 
 
-def _validate_non_zero(value):
-    if not isinstance(value, int):
-        raise ValueError('Item "{value}" is not an integer!'.format(value=value))
-
-    if value != 0:
-        return value
-
-    raise ValueError('Value "{value}" cannot be 0.'.format(value=value))
-
-
 def _unquote(text):
     if text.startswith(_QUOTES):
         text = text[1:]
@@ -26,19 +16,20 @@ def _unquote(text):
 
 
 def _validate_comma_separated_list(value):
-    if not isinstance(value, six.string_types):
-        raise ValueError('Item "{value!r}" is not a string.'.format(value=value))
-
-    value = _unquote(value)
+    value = _validate_label_text(value)
 
     return value.split(_COMMA_SEPARATOR)
 
 
-def _validate_hex(value):
+def _validate_label_text(value):
     if not isinstance(value, six.string_types):
         raise ValueError('Item "{value!r}" is not a string.'.format(value=value))
 
-    value = _unquote(value)
+    return _unquote(value)
+
+
+def _validate_hex(value):
+    value = _validate_label_text(value)
 
     if not value.startswith("#"):
         raise ValueError('String "{value}" is not a HEX string. e.g. "#111111".'.format(value=value))
@@ -46,6 +37,17 @@ def _validate_hex(value):
     return value
 
 
-NON_ZERO = _validate_non_zero
+def _validate_non_zero(value):
+    if not isinstance(value, int):
+        raise ValueError('Item "{value}" is not an integer!'.format(value=value))
+
+    if value != 0:
+        return value
+
+    raise ValueError('Value "{value}" cannot be 0.'.format(value=value))
+
+
 HEX = _validate_hex
+LABEL_TEXT = _validate_label_text
+NON_ZERO = _validate_non_zero
 STYLE = _validate_comma_separated_list

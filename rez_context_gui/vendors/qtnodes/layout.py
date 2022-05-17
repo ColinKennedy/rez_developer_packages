@@ -80,7 +80,7 @@ def autoLayout(scene):
             #   make sure graphviz does not use it as the node width
             #   when doing its layouting. Right now that would result
             #   in graphs that are very far spaced out.
-            return (node.header.text + self.delim + node.uuid[:4])
+            return node.header.text
 
         def recursiveGrapher(self, tree, level=0):
             self.counter += 1
@@ -96,8 +96,8 @@ def autoLayout(scene):
                 parentName = self.nodeToName(tree.node)
                 edge = pydot.Edge(childName, parentName)
                 self.graph.add_edge(edge)
-                print ("{0} Recursing into {1}".format(
-                       level, childName))
+                # print ("{0} Recursing into {1}".format(
+                #        level, childName))
                 self.recursiveGrapher(childTree, level=level + 1)
 
         def save(self, filePath):
@@ -112,7 +112,7 @@ def autoLayout(scene):
 
         # TODO: Use pydot's pydot_parser.py instead.
         # Extract the node name and its x and y position.
-        pattern = r"(?P<name>[\"]{0,1}[a-zA-Z0-9_-]+[\"]{0,1})\s*\[\w+\=(?:\d+(?:\.\d+){0,1})\,\s*pos\=\"(?P<x>\d+(?:\.\d+){0,1})\,(?P<y>\d+(?:\.\d+){0,1})"  # noqa
+        pattern = r"[\"]{0,1}(?P<name>[a-zA-Z0-9~\|\=\[\]\+\.<_-]+)[\"]{0,1}\s*\[\w+\=(?:\d+(?:\.\d+){0,1})\,\s*pos\=\"(?P<x>\d+(?:\.\d+){0,1})\,(?P<y>\d+(?:\.\d+){0,1})"  # noqa
 
         with open(dotFile) as f:
             text = f.read()
