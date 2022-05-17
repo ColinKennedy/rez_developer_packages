@@ -1,6 +1,9 @@
+"""The module used to execute whenever :ref:`python -m rez_context_gui` is called."""
+
 import logging
 import sys
 
+from ._core import exception
 from . import cli
 
 
@@ -12,4 +15,10 @@ _HANDLER.setFormatter(_FORMATTER)
 _LOGGER.addHandler(_HANDLER)
 _LOGGER.setLevel(logging.INFO)
 
-cli.main(sys.argv[1:])
+
+try:
+    cli.main(sys.argv[1:])
+except exception.Base as error:
+    print("{error.__class__.__name__}: {error}".format(error=error))
+
+    sys.exit(error.code)

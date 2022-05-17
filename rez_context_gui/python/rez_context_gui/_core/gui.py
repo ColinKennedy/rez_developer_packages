@@ -1,3 +1,5 @@
+"""The main module for generating GUI components for a Rez resolved context."""
+
 from Qt import QtWidgets
 
 import qtnodes
@@ -7,30 +9,45 @@ from .schemas import node_schema
 from .qtnodes_extension import gui_node
 
 
-# TODO : Remove this class later, maybe
-# class Widget(QtWidgets.QWidget):
-#     def __init__(self, graph, parent=None):
-#         super(Widget, self).__init__(parent=parent)
-#
-#         # TODO : Remove this later, since it appears to be unnecessary
-#         self.setLayout(QtWidgets.QVBoxLayout())
-#         self.layout().addWidget(graph)
-#
-#     @classmethod
-#     def from_context(cls, context, parent=None):
-#         digraph = context.graph()
-#
-#         return cls.from_graph(digraph, parent=parent)
-#
-#     @classmethod
-#     def from_graph(cls, digraph, parent=None):
-#         graph = qtnodes.NodeGraphWidget()
-#         _add_nodes_to_graph(digraph, graph)
-#
-#         return cls(graph, parent=parent)
+class Widget(QtWidgets.QWidget):
+    """The main widget which shows all of the resolves, as graphs.
+
+    The graphs are split based on requested packages and conflicting packages
+    so that you can debug and troubleshoot the packages you need, faster.
+
+    """
+
+    def __init__(self, graph, parent=None):
+        super(Widget, self).__init__(parent=parent)
+
+        # TODO : Remove this later, since it appears to be unnecessary
+        self.setLayout(QtWidgets.QVBoxLayout())
+        self.layout().addWidget(graph)
+
+    @classmethod
+    def from_context(cls, context, parent=None):
+        digraph = context.graph()
+
+        return cls.from_graph(digraph, parent=parent)
+
+    @classmethod
+    def from_graph(cls, digraph, parent=None):
+        graph = qtnodes.NodeGraphWidget()
+        _add_nodes_to_graph(digraph, graph)
+
+        return cls(graph, parent=parent)
 
 
 def _add_nodes_to_graph(digraph, graph):
+    """Add all nodes and edges within ``digraph`` into a node ``graph``.
+
+    Args:
+        digraph (rez.vendor.pygraph.classes.digraph.digraph):
+            The Res resolve, as a :ref:`digraph`.
+        graph (qtnodes.NodeGraphWidget):
+            The view to create and append nodes into.
+
+    """
     nodes = []
     table = dict()
 
@@ -56,6 +73,18 @@ def _add_nodes_to_graph(digraph, graph):
 
 
 def _from_graph(digraph, parent=None):
+    """Convert a pygraph digraph into a nodal widget.
+
+    Args:
+        digraph (rez.vendor.pygraph.classes.digraph.digraph):
+            The Res resolve, as a :ref:`digraph`.
+        parent (:class:`Qt.QtCore.QObject`, optional):
+            An object which, if provided, holds a reference to this instance.
+
+    Returns:
+        qtnodes.NodeGraphWidget: The generated view of nodes.
+
+    """
     graph = qtnodes.NodeGraphWidget(parent=parent)
     _add_nodes_to_graph(digraph, graph)
 
@@ -63,6 +92,18 @@ def _from_graph(digraph, parent=None):
 
 
 def from_context(context, parent=None):
+    """Convert a Rez context into a node graph.
+
+    Args:
+        context (rez.resolved_context.ResolvedContext):
+            A successful **or** failing Rez resolve to convert into widgets.
+        parent (:class:`Qt.QtCore.QObject`, optional):
+            An object which, if provided, holds a reference to this instance.
+
+    Returns:
+        Widget: The created widget.
+
+    """
     digraph = context.graph()
 
     return _from_graph(digraph, parent=parent)

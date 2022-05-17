@@ -1,3 +1,5 @@
+"""Any class / function that makes writing :mod:`argparse` CLIs a bit easier."""
+
 import argparse
 import os
 
@@ -41,11 +43,23 @@ class ContextFile(argparse.Action):  # pylint: disable=too-few-public-methods
 
 
 def _get_context(path):
-    #
-    # Raises:
-    #     ContextNotFound:
-    #         If ``values`` is a relative path and no actual Rez context file
-    #         can be found.
+    """Convert ``path`` into a Rez context.
+
+    Args:
+        path (str):
+            The relative to absolute path to a context .rxt file on-disk.  If
+            the path is relative, the ``$PWD`` is used to resolve it to an
+            absolute path.
+
+    Raises:
+        ContextNotFound:
+            If ``path`` is a relative path and no actual Rez context file can
+            be found.
+
+    Returns:
+        rez.resolved_context.ResolvedContext: The resolve from ``path``.
+
+    """
     if os.path.isabs(path):
         return resolved_context.ResolvedContext.load(path)
 

@@ -1,3 +1,5 @@
+"""A module for parsing and running some CLI action."""
+
 import argparse
 
 from Qt import QtCore, QtWidgets
@@ -6,6 +8,15 @@ from ._core import cli_helper, gui
 
 
 def _parse_arguments(text):
+    """Convert raw user-provided text into Python objects.
+
+    Args:
+        text (list[str]): The space-separated information to parse.
+
+    Returns:
+        argparse.Namespace: The parsed arguments.
+
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "context",

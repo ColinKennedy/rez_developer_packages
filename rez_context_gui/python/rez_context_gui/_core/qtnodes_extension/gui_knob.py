@@ -1,3 +1,5 @@
+"""Make custom input / output connection knobs for :mod:`rez_context_gui`."""
+
 import qtnodes
 
 from .. import constant

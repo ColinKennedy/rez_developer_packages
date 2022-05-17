@@ -1,3 +1,5 @@
+"""A quick registry for validating Rez :ref:`context` :ref:`digraph` attributes."""
+
 from . import schema_type
 
 
@@ -15,6 +17,15 @@ _OPTIONS = {
 
 
 def get_from_name(name):
+    """Find a validator schema, given some :ref:`digraph` attribute ``name``.
+
+    Args:
+        name (str): The name of some attribute to find a validator for.
+
+    Raises:
+        ValueError: If ``name`` is not a known attribute name.
+
+    """
     try:
         return _OPTIONS[name]
     except KeyError:
