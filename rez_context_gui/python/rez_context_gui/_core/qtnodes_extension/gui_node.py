@@ -1,7 +1,6 @@
 """Make graph nodes for :mod:`rez_context_gui`."""
 
 import qtnodes
-
 from Qt import QtGui
 
 from . import gui_knob

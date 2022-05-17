@@ -2,7 +2,6 @@
 
 from . import schema_type
 
-
 FILL_COLOR = "fillcolor"
 FONT_SIZE = "fontsize"
 LABEL = "label"

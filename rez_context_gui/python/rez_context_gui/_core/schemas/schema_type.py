@@ -9,7 +9,6 @@ those values are correct and transforming them into more useful Python objects.
 
 import six
 
-
 _COMMA_SEPARATOR = ","
 _QUOTES = ('"', "'")
 

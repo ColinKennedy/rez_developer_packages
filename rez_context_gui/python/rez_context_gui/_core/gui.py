@@ -1,12 +1,11 @@
 """The main module for generating GUI components for a Rez resolved context."""
 
+import qtnodes
 from Qt import QtWidgets
 
-import qtnodes
-
 from . import constant
-from .schemas import node_schema
 from .qtnodes_extension import gui_node
+from .schemas import node_schema
 
 
 class Widget(QtWidgets.QWidget):

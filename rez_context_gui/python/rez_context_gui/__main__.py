@@ -3,9 +3,8 @@
 import logging
 import sys
 
-from ._core import exception
 from . import cli
-
+from ._core import exception
 
 _LOGGER = logging.getLogger("rez_context_gui")
 _HANDLER = logging.StreamHandler(sys.stdout)
