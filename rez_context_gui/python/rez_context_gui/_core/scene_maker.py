@@ -1,4 +1,4 @@
-from qtnodes import node as node_
+from qtnodes import edge as edge_, node as node_
 import qtnodes
 
 from . import constant
@@ -54,10 +54,17 @@ def make_graphics_view(request_rows, digraph):
         requests = {str(request) for request in row.get_requests()}
 
         for item in graph.scene.items():
-            if not isinstance(item, node_.Node):
+            if isinstance(item, node_.Node):
+                item.setVisible(item.get_label() in requests)
+
                 continue
 
-            item.setVisible(item.get_label() in requests)
+            if isinstance(item, edge_.Edge):
+                knob = item.target
+                parent_node = knob.node()
+                item.setVisible(parent_node.get_label() in requests)
+
+                continue
 
         graphs.append(graph)
 
