@@ -51,6 +51,10 @@ class Widget(QtWidgets.QWidget):
         self._initialize_interactive_settings()
 
     def _initialize_default_settings(self):
+        """Add all default appearance settings."""
+        self._view.expandAll()
+        self._view.setHeaderHidden(True)
+
         for widget, name in [
             (self._splitter, "_splitter"),
             (self._switcher, "_switcher"),
