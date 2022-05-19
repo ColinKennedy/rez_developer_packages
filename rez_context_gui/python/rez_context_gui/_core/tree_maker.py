@@ -1,22 +1,41 @@
-def _make_request_sub_branch(digraph, families):
-    for node in digraph:
-        if node.get_family_name() not in families:
-            node.hide()
+import operator
+
+from .._generic import graph_node
 
 
-def make_conflict_branch(context, digraph=None):
-    digraph = digraph or context.graph()
-    raise ValueError(context.conflicted_packages())
+class _RequestRow(graph_node.RowNode):
+    def __init__(self, identifier="", parent=None):
+        super(_RequestRow, self).__init__(identifier=identifier, parent=parent)
+
+        self._requests = []
+
+    def get_label(self):
+        return self._identifier
+
+    def get_requests(self):
+        return self._requests
+
+    def set_requests(self, requests):
+        self._requests = requests
 
 
-def make_request_branch(context, digraph=None):
-    digraph = digraph or context.graph()
-    default_visible_families = {request.name for request in context.requested_packages()}
+def _to_label(requests):
+    return " ".join([str(request) for request in requests])
 
-    everything = _make_request_sub_branch(context, default_visible_families)
 
-    for family in default_visible_families:
-        child = _make_request_sub_branch(context, {family})
-        everything.addItem(child)
+def make_conflict_branch(context):
+    # TODO : Add support for this later
+    print(sorted(item for item in dir(context) if "graph" in item.lower()))
+    raise ValueError(context.graph_)
 
-    return everything
+
+def make_request_branch(requests):
+    branch = _RequestRow("All requests")
+    branch.set_requests(requests)
+
+    for request in sorted(requests, key=operator.attrgetter("name")):
+        child = _RequestRow(_to_label([request]))
+        child.set_requests([request])
+        branch.append_child(child)
+
+    return branch

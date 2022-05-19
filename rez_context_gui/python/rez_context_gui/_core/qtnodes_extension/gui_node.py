@@ -7,10 +7,10 @@ from . import gui_knob
 
 
 class Node(qtnodes.Node):
-    def __init__(self, *args, **kwargs):
-        super(Node, self).__init__(*args, **kwargs)
+    def __init__(self, header="", parent=None):
+        super(Node, self).__init__(parent=parent)
 
-        self.addHeader(qtnodes.Header(node=self, text=kwargs.get("header") or ""))
+        self.addHeader(qtnodes.Header(node=self, text=header))
         self.addKnob(gui_knob.InputKnob())
         self.addKnob(gui_knob.OutputKnob())
 
@@ -22,3 +22,14 @@ class Node(qtnodes.Node):
         node.fillColor = QtGui.QColor(contents.get_fill_color())
 
         return node
+
+    def get_label(self):
+        if not self.header:
+            return ""
+
+        return self.header.text
+
+    def __repr__(self):
+        return "{self.__class__.__name__}(header={self.header.text!r}, parent={parent})".format(
+            self=self, parent=self.parent(),
+        )

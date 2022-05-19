@@ -1,3 +1,64 @@
-def make_graphics_view(foo):
-    raise ValueError(foo)
+from qtnodes import node as node_
+import qtnodes
 
+from . import constant
+from .qtnodes_extension import gui_node
+from .schemas import node_schema
+
+
+def _add_nodes_to_graph(digraph, graph):
+    """Add all nodes and edges within ``digraph`` into a node ``graph``.
+
+    Args:
+        digraph (rez.vendor.pygraph.classes.digraph.digraph):
+            The Res resolve, as a :ref:`digraph`.
+        graph (qtnodes.NodeGraphWidget):
+            The view to create and append nodes into.
+
+    """
+    nodes = []
+    table = {}
+
+    # 1. Create initial nodes
+    for node_identifier in digraph.nodes():
+        attributes = digraph.node_attributes(node_identifier)
+        node_contents = node_schema.Contents.from_rez_graph_attributes(
+            node_identifier, attributes
+        )
+        node = gui_node.Node.from_contents(node_contents)
+        graph.scene.addItem(node)
+        table[node_contents.get_identifier()] = node
+
+    # 2. Register node types
+    all_types = {type(node) for node in nodes}
+
+    for class_type in all_types:
+        graph.registerNodeClass(class_type)
+
+    # 3. Assign knob connections for all of the nodes
+    for from_node, to_node in digraph.edges():
+        source = table[from_node]
+        destination = table[to_node]
+        source.knob(constant.INPUT_NAME).connectTo(
+            destination.knob(constant.OUTPUT_NAME)
+        )
+
+
+def make_graphics_view(request_rows, digraph):
+    graphs = []
+
+    for row in request_rows:
+        graph = qtnodes.NodeGraphWidget()
+        _add_nodes_to_graph(digraph, graph)
+
+        requests = {str(request) for request in row.get_requests()}
+
+        for item in graph.scene.items():
+            if not isinstance(item, node_.Node):
+                continue
+
+            item.setVisible(item.get_label() in requests)
+
+        graphs.append(graph)
+
+    return graphs

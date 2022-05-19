@@ -1,15 +1,9 @@
 """The main module for generating GUI components for a Rez resolved context."""
 
-import itertools
-
-import qtnodes
 from Qt import QtWidgets
 
-from six.moves import zip
-
-from . import constant, scene_maker, tree_maker
-from .qtnodes_extension import gui_node
-from .schemas import node_schema
+from .._generic import graph_node, zipper
+from . import extended_model, scene_maker, tree_maker
 
 
 class Widget(QtWidgets.QWidget):
@@ -20,112 +14,108 @@ class Widget(QtWidgets.QWidget):
 
     """
 
-    def __init__(self, graph, parent=None):
+    def __init__(self, tree, graphs, parent=None):
         super(Widget, self).__init__(parent=parent)
 
-        # TODO : Remove this later, since it appears to be unnecessary
         self.setLayout(QtWidgets.QVBoxLayout())
-        self.layout().addWidget(graph)
 
-    @classmethod
-    def from_context(cls, context, parent=None):
-        digraph = context.graph()
+        self._node_to_graph = {}
 
-        return cls.from_graph(digraph, parent=parent)
+        self._view = QtWidgets.QTreeView()
+        self._switcher = QtWidgets.QStackedWidget()
+        self._splitter = QtWidgets.QSplitter()
 
-    @classmethod
-    def from_graph(cls, digraph, parent=None):
-        graph = qtnodes.NodeGraphWidget()
-        _add_nodes_to_graph(digraph, graph)
+        self._splitter.addWidget(self._view)
+        self._splitter.addWidget(self._switcher)
+        self.layout().addWidget(self._splitter)
 
-        return cls(graph, parent=parent)
+        self._populate_side_bar(tree)
+        self._populate_graphs(graphs)
 
+        self._initialize_default_settings()
+        self._initialize_interactive_settings()
 
-def _add_nodes_to_graph(digraph, graph):
-    """Add all nodes and edges within ``digraph`` into a node ``graph``.
+    def _initialize_default_settings(self):
+        for widget, name in [
+            (self._splitter, "_splitter"),
+            (self._switcher, "_switcher"),
+            (self._view, "_view"),
+        ]:
+            widget.setObjectName(name)
 
-    Args:
-        digraph (rez.vendor.pygraph.classes.digraph.digraph):
-            The Res resolve, as a :ref:`digraph`.
-        graph (qtnodes.NodeGraphWidget):
-            The view to create and append nodes into.
+    def _initialize_interactive_settings(self):
+        self._view.clicked.connect(self._switch_current_graph)
 
-    """
-    nodes = []
-    table = {}
+    def _populate_graphs(self, graphs):
+        _clear_stacked(self._switcher)
 
-    # 1. Create initial nodes
-    for node_identifier in digraph.nodes():
-        attributes = digraph.node_attributes(node_identifier)
-        node_contents = node_schema.Contents.from_rez_graph_attributes(
-            node_identifier, attributes
-        )
-        node = gui_node.Node.from_contents(node_contents)
-        graph.scene.addItem(node)
-        table[node_contents.get_identifier()] = node
+        self._node_to_graph = graphs
 
-    # 2. Register node types
-    all_types = {type(node) for node in nodes}
+        for graph in graphs.values():
+            self._switcher.addWidget(graph)
 
-    for class_type in all_types:
-        graph.registerNodeClass(class_type)
+    def _populate_side_bar(self, tree):
+        model = extended_model.Model(tree)
+        self._view.setModel(model)
 
-    # 3. Assign knob connections for all of the nodes
-    for from_node, to_node in digraph.edges():
-        source = table[from_node]
-        destination = table[to_node]
-        source.knob(constant.INPUT_NAME).connectTo(
-            destination.knob(constant.OUTPUT_NAME)
-        )
+    def _switch_current_graph(self, index):
+        model = index.model()
+        request = index.data(model.request_role)
+        graph = self._node_to_graph[_to_hashable(request)]
+
+        self._switcher.setCurrentWidget(graph)
 
 
-def _from_graph(digraph, parent=None):
-    """Convert a pygraph digraph into a nodal widget.
-
-    Args:
-        digraph (rez.vendor.pygraph.classes.digraph.digraph):
-            The Res resolve, as a :ref:`digraph`.
-        parent (:class:`Qt.QtCore.QObject`, optional):
-            An object which, if provided, holds a reference to this instance.
-
-    Returns:
-        qtnodes.NodeGraphWidget: The generated view of nodes.
-
-    """
-    graph = qtnodes.NodeGraphWidget(parent=parent)
-    _add_nodes_to_graph(digraph, graph)
-
-    return graph
+def _clear_stacked(widget):
+    for index in reversed(range(widget.count())):
+        widget.removeWidget(widget.widget(index))
 
 
 def _make_gui_trees(context):
     digraph = context.graph()
 
-    # TODO : Update this comment. I think "conflict" might be wrong
-    # 1. Make trees
+    request = tree_maker.make_request_branch(context.requested_packages())
+    request_children = [request] + request.get_children()
+    request_views = scene_maker.make_graphics_view(request_children, digraph)
+    request_child_view_pairs = zipper.zip_equal(request_children, request_views)
+
+    root = graph_node.RowNode(identifier="root")
+    root.append_child(request)
+
+    request_graph_map = {_to_hashable(node.get_requests()): graph for node, graph in request_child_view_pairs}
+
+    return root, request_graph_map
+
+    # TODO : Finish this later
+    # # TODO : Update this comment. I think "conflict" might be wrong
+    # # 1. Make trees
+    # #
+    # # - request (all)
+    # #     - package_a_request-1.2+<2
+    # #     - package_b_request-2+
+    # #     - package_c_request<4
+    # # - conflict (all)
+    # #     - unresolvable_package-1.2
+    # #     - another_unresolvable-4+
+    # #
+    # request = tree_maker.make_request_branch(context.requested_packages())
+    # conflict = tree_maker.make_conflict_branch(context)
     #
-    # - request (all)
-    #     - package_a_request-1.2+<2
-    #     - package_b_request-2+
-    #     - package_c_request<4
-    # - conflict (all)
-    #     - unresolvable_package-1.2
-    #     - another_unresolvable-4+
+    # # 2. Now create scenes and views for all tree branches
+    # request_children = [request] + request.children()
+    # request_views = scene_maker.make_graphics_view(request_children)
+    # conflict_children = [conflict] + conflict.children()
+    # conflict_views = scene_maker.make_graphics_view(conflict_children)
     #
-    request = tree_maker.make_request_branch(context, digraph=digraph)
-    conflict = tree_maker.make_conflict_branch(context, digraph=digraph)
+    # # 3. Pair each branch with each created view so we can swap view / display later
+    # request_child_view_pairs = zip(request_children, request_views, strict=True)
+    # conflict_child_view_pairs = zip(conflict_children, conflict_views, strict=True)
+    #
+    # return list(itertools.chain(request_child_view_pairs, conflict_child_view_pairs))
 
-    # 2. Now create scenes and views for all tree branches
-    request_children = [request] + request.children()
-    request_views = scene_maker.make_graphics_view(request_children)
-    conflict_children = [conflict] + conflict.children()
-    conflict_views = scene_maker.make_graphics_view(conflict_children)
 
-    # 3. Pair each branch with each created view so we can swap view / display later
-    request_child_view_pairs = zip(request_children, request_views, strict=True)
-    conflict_child_view_pairs = zip(conflict_children, conflict_views, strict=True)
-
-    return list(itertools.chain(request_child_view_pairs, conflict_child_view_pairs))
+def _to_hashable(request):
+    return frozenset(request)
 
 
 def from_context(context, parent=None):
@@ -141,7 +131,7 @@ def from_context(context, parent=None):
         Widget: The created widget.
 
     """
-    trees = _make_gui_trees(context)
-    widget = Widget(trees, parent=parent)
+    tree, graphs = _make_gui_trees(context)
+    widget = Widget(tree, graphs, parent=parent)
 
     return widget

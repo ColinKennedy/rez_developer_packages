@@ -1,4 +1,5 @@
-- CI changes
+- Move _gui/ and _generic/ to different Rez packages
+- Make modules better named
 
 Features
 - Add sidebar

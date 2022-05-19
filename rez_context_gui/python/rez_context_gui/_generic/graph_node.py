@@ -3,7 +3,7 @@ _ROW_NOT_FOUND = -1
 
 class RowNode(object):
     def __init__(self, identifier="", parent=None):
-        super(RowNode).__init__()
+        super(RowNode, self).__init__()
 
         self._children = []
         self._identifier = identifier
@@ -29,6 +29,9 @@ class RowNode(object):
         # TODO : Possible optimization point
         return len(self._children)
 
+    def get_children(self):
+        return self._children
+
     def get_column_count(self):
         # TODO : Add note on why, here
         return 1
@@ -51,3 +54,8 @@ class RowNode(object):
 
     def set_parent(self, node):
         self._parent = node
+
+    def __repr__(self):
+        return "{self.__class__.__name__}(identifier={self._identifier!r}, parent={parent})".format(
+            self=self, parent=self.get_parent(),
+        )
