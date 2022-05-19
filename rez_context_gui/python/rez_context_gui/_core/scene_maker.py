@@ -2,7 +2,7 @@ from qtnodes import edge as edge_, node as node_
 import qtnodes
 
 from . import constant
-from .qtnodes_extension import gui_node
+from .qtnodes_extension import gui_node, gui_widget
 from .schemas import node_schema
 
 
@@ -48,7 +48,7 @@ def make_graphics_view(request_rows, digraph):
     graphs = []
 
     for row in request_rows:
-        graph = qtnodes.NodeGraphWidget()
+        graph = gui_widget.NodeGraphWidget()
         _add_nodes_to_graph(digraph, graph)
 
         requests = {str(request) for request in row.get_requests()}

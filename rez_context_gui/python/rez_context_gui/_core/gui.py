@@ -1,6 +1,6 @@
 """The main module for generating GUI components for a Rez resolved context."""
 
-from Qt import QtWidgets
+from Qt import QtCore, QtWidgets
 
 from .._generic import graph_node, zipper
 from . import extended_model, scene_maker, tree_maker
@@ -45,6 +45,12 @@ class Widget(QtWidgets.QWidget):
 
     def _initialize_interactive_settings(self):
         self._view.clicked.connect(self._switch_current_graph)
+
+        def _test(*args, **kwargs):
+            raise ValueError(args, kwargs)
+
+        self._switcher.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self._switcher.customContextMenuRequested.connect(_test)
 
     def _populate_graphs(self, graphs):
         _clear_stacked(self._switcher)
