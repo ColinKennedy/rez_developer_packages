@@ -6,11 +6,11 @@ description = "Extra classes and functions for making Qt easier to use."
 
 authors = ["ColinKennedy"]
 
-uuid = "utilities.qt.simple"
+uuid = "core.qt.simple"
 
 
 @late()
-def requires();
+def requires():
     output = ["Qt.py-1.3+<2", "python-2.7+<4"]
 
     if not in_context():
@@ -99,4 +99,4 @@ tests = {
 def commands():
     import os
 
-    env.PYTHONPATH.append(os.path.join(root, "python"))
+    env.PYTHONPATH.append(os.path.join(root, "python.egg"))

@@ -1,8 +1,8 @@
 """The main module for generating GUI components for a Rez resolved context."""
 
-from Qt import QtCore, QtWidgets
+from Qt import QtWidgets
 
-from .._generic import graph_node, zipper
+from python_compatibility import graph_node, zipper
 from . import extended_model, scene_maker, tree_maker
 
 
@@ -15,8 +15,23 @@ class Widget(QtWidgets.QWidget):
     """
 
     def __init__(self, tree, graphs, parent=None):
+        """Use ``tree`` to select and view one graph at a time, using ``graphs``.
+
+        Args:
+            tree (python_compatibility.graph_node.RowNode):
+                The top-level root whose **children** will be displayed to the user.
+                This class is exclusive - meaning that the top level node
+                itself is not shown. Just its children.
+            graphs (dict[frozenset[rez.utils.formatting.PackageRequest], NodeGraphWidget]):
+                Each set of nodes to display. For each branch / leaf in ``tree``,
+                there should be a corresponding entry in ``graphs``.
+            parent (:class:`Qt.QtCore.QObject`, optional):
+                An object which, if provided, holds a reference to this instance.
+
+        """
         super(Widget, self).__init__(parent=parent)
 
+        # TODO : Add validation that tree and graphs are compatible
         self.setLayout(QtWidgets.QVBoxLayout())
 
         self._node_to_graph = {}
@@ -44,15 +59,11 @@ class Widget(QtWidgets.QWidget):
             widget.setObjectName(name)
 
     def _initialize_interactive_settings(self):
+        """Change the displayed graph whenever the tree selection changes."""
         self._view.clicked.connect(self._switch_current_graph)
 
-        def _test(*args, **kwargs):
-            raise ValueError(args, kwargs)
-
-        self._switcher.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
-        self._switcher.customContextMenuRequested.connect(_test)
-
     def _populate_graphs(self, graphs):
+        # TODO : Add docstrings
         _clear_stacked(self._switcher)
 
         self._node_to_graph = graphs

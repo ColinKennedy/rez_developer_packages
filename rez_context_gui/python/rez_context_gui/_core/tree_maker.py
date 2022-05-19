@@ -1,6 +1,9 @@
 import operator
 
-from .._generic import graph_node
+from python_compatibility import graph_node
+
+
+_ALL_REQUESTS_LABEL = "All requests"
 
 
 class _RequestRow(graph_node.RowNode):
@@ -30,7 +33,7 @@ def make_conflict_branch(context):
 
 
 def make_request_branch(requests):
-    branch = _RequestRow("All requests")
+    branch = _RequestRow(_ALL_REQUESTS_LABEL)
     branch.set_requests(requests)
 
     for request in sorted(requests, key=operator.attrgetter("name")):

@@ -9,7 +9,9 @@ authors = ["ColinKennedy"]
 requires = [
     "Qt.py-1.3+<2",
     "python-2.7+<4",
+    "qt_core-1+<2",
     "rez-2.104+<3",
+    "rez_python_compatibility-2.8+<3",
     "schema-0.7+<1",
     "six-1.16+<2",
 

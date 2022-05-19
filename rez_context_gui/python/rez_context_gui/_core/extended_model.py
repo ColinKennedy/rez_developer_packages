@@ -1,6 +1,6 @@
 from Qt import QtCore
 
-from .._gui import node_model
+from qt_core import node_model
 
 
 class Model(node_model.SingleRoot):
