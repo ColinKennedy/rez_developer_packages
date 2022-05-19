@@ -1,11 +1,25 @@
+- Add conflict tree + graphs
+ - If no conflict, make sure to still show the tree but with NO children and
+   just display nothing
+- Implement the "Expand To Non-Conflict" action
+- CI changes
+- Change the graph to lay out vertically, not horizontally
+ - Possibly a toggleable option
+- 
+
 - Move _gui/ and _generic/ to different Rez packages
 - Make modules better named
+- Match qtnodes interface (camelCase)
+- Dependency trees need to be sensibly layed out so that when nodes are
+  expanding, the user doesn't have to manually drag them around
+- Fix view margin issue. The graph looks gross
+- Need to refresh display after showing nodes - edges are somehow still hidden.
+  Maybe the dges aren't showing as expected?
+
+- Add LICENSE for whatever GUI that I use
+
 
 Features
-- Add sidebar
- - requested packages
- - conflicted packages
-  - no conflict? Show no conflict page
 - graph
  - only show initial nodes
   - right click expand selection

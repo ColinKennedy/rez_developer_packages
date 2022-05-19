@@ -39,17 +39,6 @@ class NodeGraphWidget(qtnodes.NodeGraphWidget):
                     expanded = True
                     edge.show()
 
-                # raise ValueError(knob.edges)
-                # if not isinstance(knob, qtnodes.OutputKnob):
-                #     continue
-                #
-                # for edge in self._get_edges_from_output_knob(knob):
-                #     hidden_neighbor_node = edge.target
-                #     hidden_neighbor_node.show()
-                #     edge.show()
-                #
-                #     expanded = True
-
         if expanded:
             return
 
@@ -62,18 +51,6 @@ class NodeGraphWidget(qtnodes.NodeGraphWidget):
     def _expand_to_non_conflict(self):
         # TODO : Add support for this method
         raise NotImplementedError("Need to write")
-
-    def _get_edges_from_output_knob(self, knob):
-        for item in self.scene.items():
-            print('ITEM', item)
-            if isinstance(item, edge_.Edge):
-                print('SOURCE', item.source, knob)
-
-        return [
-            item
-            for item in self.scene.items()
-            if isinstance(item, edge_.Edge) and item.source == knob
-        ]
 
     def _get_selected_nodes(self):
         return [

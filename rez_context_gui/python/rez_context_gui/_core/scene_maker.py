@@ -1,5 +1,5 @@
 from qtnodes import edge as edge_, node as node_
-import qtnodes
+from qtnodes import layout
 
 from . import constant
 from .qtnodes_extension import gui_node, gui_widget
