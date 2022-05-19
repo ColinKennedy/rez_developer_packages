@@ -69,7 +69,7 @@ def autoLayout(scene):
         delim = "_"
 
         def __init__(self):
-            self.graph = pydot.Dot(graph_type="digraph", rankdir="LR")
+            self.graph = pydot.Dot(graph_type="digraph", rankdir="TB")
             self.checked = []
             self.counter = 0
 

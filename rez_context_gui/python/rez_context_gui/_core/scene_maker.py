@@ -50,6 +50,10 @@ def make_graphics_view(request_rows, digraph):
     for row in request_rows:
         graph = gui_widget.NodeGraphWidget()
         _add_nodes_to_graph(digraph, graph)
+        # TODO : For some reason when I layout the scene, the "python" request
+        # is just gone. Need to fix this
+        #
+        layout.autoLayout(graph.scene)
 
         requests = {str(request) for request in row.get_requests()}
 
