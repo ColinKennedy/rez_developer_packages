@@ -2,7 +2,6 @@ import operator
 
 from python_compatibility import graph_node
 
-
 _ALL_REQUESTS_LABEL = "All requests"
 
 

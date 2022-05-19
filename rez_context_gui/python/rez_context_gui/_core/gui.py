@@ -1,8 +1,8 @@
 """The main module for generating GUI components for a Rez resolved context."""
 
+from python_compatibility import graph_node, zipper
 from Qt import QtWidgets
 
-from python_compatibility import graph_node, zipper
 from . import extended_model, scene_maker, tree_maker
 
 
@@ -100,10 +100,20 @@ def _make_gui_trees(context):
     request_views = scene_maker.make_graphics_view(request_children, digraph)
     request_child_view_pairs = zipper.zip_equal(request_children, request_views)
 
+    # TODO : Ensure that ``conflict`` only shows a label if there's no actual conflict.
+    conflict = tree_maker.make_conflict_branch(context)
+    conflict_children = [conflict] + conflict.get_children()
+    conflict_views = scene_maker.make_graphics_view(conflict_children, digraph)
+    conflict_child_view_pairs = zipper.zip_equal(conflict_children, conflict_views)
+
     root = graph_node.RowNode(identifier="root")
     root.append_child(request)
+    root.append_child(conflict)
 
-    request_graph_map = {_to_hashable(node.get_requests()): graph for node, graph in request_child_view_pairs}
+    request_graph_map = {
+        _to_hashable(node.get_requests()): graph
+        for node, graph in request_child_view_pairs
+    }
 
     return root, request_graph_map
 

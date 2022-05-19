@@ -1,5 +1,4 @@
 from Qt import QtCore
-
 from qt_core import node_model
 
 

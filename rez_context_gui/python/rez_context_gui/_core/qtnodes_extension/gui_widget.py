@@ -1,7 +1,5 @@
-from Qt import QtWidgets
-
-from qtnodes import edge as edge_
 import qtnodes
+from Qt import QtWidgets
 
 
 class NodeGraphWidget(qtnodes.NodeGraphWidget):
@@ -34,10 +32,14 @@ class NodeGraphWidget(qtnodes.NodeGraphWidget):
             for knob in node.knobs():
                 for edge in knob.edges:
                     knob_of_hidden_node = edge.target
-                    hidden_neighbor_node = knob_of_hidden_node.parentItem()
-                    hidden_neighbor_node.show()
-                    expanded = True
+                    neighbor_node = knob_of_hidden_node.parentItem()
+
+                    if neighbor_node.isVisible():
+                        continue
+
+                    neighbor_node.show()
                     edge.show()
+                    expanded = True
 
         if expanded:
             return
@@ -45,7 +47,7 @@ class NodeGraphWidget(qtnodes.NodeGraphWidget):
         QtWidgets.QMessageBox.information(
             self,
             "Nothing To Expand",
-            "You've reached the end of the graph. There's nothing new to show.",
+            "You've already expanded this node. Try a different node selection!",
         )
 
     def _expand_to_non_conflict(self):

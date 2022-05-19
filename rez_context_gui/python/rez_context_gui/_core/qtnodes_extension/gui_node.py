@@ -31,5 +31,6 @@ class Node(qtnodes.Node):
 
     def __repr__(self):
         return "{self.__class__.__name__}(header={self.header.text!r}, parent={parent})".format(
-            self=self, parent=self.parentItem(),
+            self=self,
+            parent=self.parentItem(),
         )
