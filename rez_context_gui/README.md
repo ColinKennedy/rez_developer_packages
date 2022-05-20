@@ -1,8 +1,16 @@
+- CI changes
+- Maybe only create + link a graph whenever an index is first clicked? That
+  might actually be pretty cool
+- Only layout the nodes on the first click!
 - Add conflict tree + graphs
  - If no conflict, make sure to still show the tree but with NO children and
    just display nothing
+
+- Preferences
+ - Select conflict if available on-start
+  - Allow CLI option for that, too
+
 - Implement the "Expand To Non-Conflict" action
-- CI changes
 - Change the graph to lay out vertically, not horizontally
  - Possibly a toggleable option
 
@@ -13,7 +21,6 @@
  - Allow searching by requests, resolved
 
 - Defer as much as possible
- - Only layout the nodes on the first click!
  - Do an audit through the code, for performance sake
 
 

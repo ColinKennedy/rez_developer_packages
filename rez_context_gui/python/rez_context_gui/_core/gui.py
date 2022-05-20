@@ -69,7 +69,14 @@ class Widget(QtWidgets.QWidget):
         self._view.clicked.connect(self._switch_current_graph)
 
     def _populate_graphs(self, graphs):
-        # TODO : Add docstrings
+        """Make this instance use and display ``graphs``.
+
+        Args:
+            graphs (dict[frozenset[rez.utils.formatting.PackageRequest], NodeGraphWidget]):
+                Each set of nodes to display. For each branch / leaf in ``tree``,
+                there should be a corresponding entry in ``graphs``.
+
+        """
         _clear_stacked(self._switcher)
 
         self._node_to_graph = graphs
@@ -78,10 +85,26 @@ class Widget(QtWidgets.QWidget):
             self._switcher.addWidget(graph)
 
     def _populate_side_bar(self, tree):
+        """Make a side-bar which displays ``tree``.
+
+        Args:
+            tree (python_compatibility.graph_node.RowNode):
+                The top-level root whose **children** will be displayed to the user.
+                This class is exclusive - meaning that the top level node
+                itself is not shown. Just its children.
+
+        """
         model = extended_model.Model(tree)
         self._view.setModel(model)
 
     def _switch_current_graph(self, index):
+        """Make this instance view the graph located at ``index``.
+
+        Args:
+            index (Qt.QtCore.QModelIndex):
+                The row / column / parent Qt location to get some data from.
+
+        """
         model = index.model()
         request = index.data(model.request_role)
         graph = self._node_to_graph[_to_hashable(request)]
@@ -90,11 +113,30 @@ class Widget(QtWidgets.QWidget):
 
 
 def _clear_stacked(widget):
+    """Remove all widgets from a stacked ``widget``.
+
+    Args:
+        widget (Qt.QtWidgets.QStackedWidget): The object to completely clear.
+
+    """
     for index in reversed(range(widget.count())):
         widget.removeWidget(widget.widget(index))
 
 
 def _make_gui_trees(context):
+    """Create all trees and graphs for ``context``.
+
+    Args:
+        context (rez.resolved_context.ResolvedContext):
+            A successful **or** failing Rez resolve to convert into widgets.
+
+    Returns:
+        tuple[python_compatibility.graph_node.RowNode, dict[str, NodeGraphWidget]]:
+            Each node which is meant to be displayed as a tree index and the
+            graph that should be displayed whenever that tree index is later
+            selected.
+
+    """
     digraph = context.graph()
 
     request = tree_maker.make_request_branch(context.requested_packages())
@@ -122,35 +164,9 @@ def _make_gui_trees(context):
 
     return root, request_graph_map
 
-    # TODO : Finish this later
-    # # TODO : Update this comment. I think "conflict" might be wrong
-    # # 1. Make trees
-    # #
-    # # - request (all)
-    # #     - package_a_request-1.2+<2
-    # #     - package_b_request-2+
-    # #     - package_c_request<4
-    # # - conflict (all)
-    # #     - unresolvable_package-1.2
-    # #     - another_unresolvable-4+
-    # #
-    # request = tree_maker.make_request_branch(context.requested_packages())
-    # conflict = tree_maker.make_conflict_branch(context)
-    #
-    # # 2. Now create scenes and views for all tree branches
-    # request_children = [request] + request.children()
-    # request_views = scene_maker.make_graphics_view(request_children)
-    # conflict_children = [conflict] + conflict.children()
-    # conflict_views = scene_maker.make_graphics_view(conflict_children)
-    #
-    # # 3. Pair each branch with each created view so we can swap view / display later
-    # request_child_view_pairs = zip(request_children, request_views, strict=True)
-    # conflict_child_view_pairs = zip(conflict_children, conflict_views, strict=True)
-    #
-    # return list(itertools.chain(request_child_view_pairs, conflict_child_view_pairs))
-
 
 def _to_hashable(request):
+    """frozenset[rez.utils.formatting.PackageRequest]: All Rez package requests."""
     return frozenset(request)
 
 

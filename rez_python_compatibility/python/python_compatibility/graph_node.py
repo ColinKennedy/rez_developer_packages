@@ -3,6 +3,15 @@ _ROW_NOT_FOUND = -1
 
 class RowNode(object):
     def __init__(self, identifier="", parent=None):
+        """Keep track of identifier text + wiget parent.
+
+        Args:
+            identifier (str, optional):
+                Some text used for debugging, to identify this instance.
+            parent (Qt.QtCore.QObject, optional):
+                An object which, if provided, holds a reference to this instance.
+
+        """
         super(RowNode, self).__init__()
 
         self._children = []
