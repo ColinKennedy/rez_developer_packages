@@ -1,7 +1,5 @@
+- Add default view when no tree item is selected
 - CI changes
-- Maybe only create + link a graph whenever an index is first clicked? That
-  might actually be pretty cool
-- Only layout the nodes on the first click!
 - Add conflict tree + graphs
  - If no conflict, make sure to still show the tree but with NO children and
    just display nothing

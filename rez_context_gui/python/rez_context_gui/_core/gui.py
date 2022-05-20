@@ -1,9 +1,7 @@
 """The main module for generating GUI components for a Rez resolved context."""
 
-import itertools
-
-from python_compatibility import graph_node, zipper
-from Qt import QtWidgets
+from python_compatibility import graph_node
+from Qt import QtCore, QtWidgets
 
 from . import extended_model, scene_maker, tree_maker
 
@@ -16,7 +14,7 @@ class Widget(QtWidgets.QWidget):
 
     """
 
-    def __init__(self, tree, graphs, parent=None):
+    def __init__(self, tree, context, parent=None):
         """Use ``tree`` to select and view one graph at a time, using ``graphs``.
 
         Args:
@@ -24,9 +22,8 @@ class Widget(QtWidgets.QWidget):
                 The top-level root whose **children** will be displayed to the user.
                 This class is exclusive - meaning that the top level node
                 itself is not shown. Just its children.
-            graphs (dict[frozenset[rez.utils.formatting.PackageRequest], NodeGraphWidget]):
-                Each set of nodes to display. For each branch / leaf in ``tree``,
-                there should be a corresponding entry in ``graphs``.
+            context (rez.resolved_context.ResolvedContext):
+                A successful **or** failing Rez resolve to convert into widgets.
             parent (:class:`Qt.QtCore.QObject`, optional):
                 An object which, if provided, holds a reference to this instance.
 
@@ -36,7 +33,9 @@ class Widget(QtWidgets.QWidget):
         # TODO : Add validation that tree and graphs are compatible
         self.setLayout(QtWidgets.QVBoxLayout())
 
-        self._node_to_graph = {}
+        self._context = context
+        self._digraph = self._context.graph()
+        self._index_to_graph = {}
 
         self._view = QtWidgets.QTreeView()
         self._switcher = QtWidgets.QStackedWidget()
@@ -47,7 +46,6 @@ class Widget(QtWidgets.QWidget):
         self.layout().addWidget(self._splitter)
 
         self._populate_side_bar(tree)
-        self._populate_graphs(graphs)
 
         self._initialize_default_settings()
         self._initialize_interactive_settings()
@@ -68,21 +66,24 @@ class Widget(QtWidgets.QWidget):
         """Change the displayed graph whenever the tree selection changes."""
         self._view.clicked.connect(self._switch_current_graph)
 
-    def _populate_graphs(self, graphs):
-        """Make this instance use and display ``graphs``.
+    def _populate_index_graph(self, index):
+        if not index.isValid():
+            raise RuntimeError('Cannot create graph for "{index}".'.format(index=index))
 
-        Args:
-            graphs (dict[frozenset[rez.utils.formatting.PackageRequest], NodeGraphWidget]):
-                Each set of nodes to display. For each branch / leaf in ``tree``,
-                there should be a corresponding entry in ``graphs``.
+        try:
+            return self._index_to_graph[index]
+        except KeyError:
+            pass
 
-        """
-        _clear_stacked(self._switcher)
+        model = index.model()
+        row = index.data(model.node_role)
+        # TODO : Simplify make_graphics_view, if able
+        graph = scene_maker.make_graphics_view([row], self._digraph)[0]
+        self._index_to_graph[index] = graph
 
-        self._node_to_graph = graphs
+        self._switcher.addWidget(graph)
 
-        for graph in graphs.values():
-            self._switcher.addWidget(graph)
+        return graph
 
     def _populate_side_bar(self, tree):
         """Make a side-bar which displays ``tree``.
@@ -105,9 +106,7 @@ class Widget(QtWidgets.QWidget):
                 The row / column / parent Qt location to get some data from.
 
         """
-        model = index.model()
-        request = index.data(model.request_role)
-        graph = self._node_to_graph[_to_hashable(request)]
+        graph = self._populate_index_graph(QtCore.QPersistentModelIndex(index))
 
         self._switcher.setCurrentWidget(graph)
 
@@ -140,29 +139,14 @@ def _make_gui_trees(context):
     digraph = context.graph()
 
     request = tree_maker.make_request_branch(context.requested_packages())
-    request_children = [request] + request.get_children()
-    request_views = scene_maker.make_graphics_view(request_children, digraph)
-    request_child_view_pairs = zipper.zip_equal(request_children, request_views)
-
     # TODO : Ensure that ``conflict`` only shows a label if there's no actual conflict.
     conflict = tree_maker.make_conflict_branch(context)
-    conflict_children = [conflict] + conflict.get_children()
-    conflict_views = scene_maker.make_graphics_view(conflict_children, digraph)
-    conflict_child_view_pairs = zipper.zip_equal(conflict_children, conflict_views)
 
     root = graph_node.RowNode(identifier="root")
     root.append_child(request)
     root.append_child(conflict)
 
-    request_graph_map = {
-        _to_hashable(node.get_requests()): graph
-        for node, graph in itertools.chain(
-            request_child_view_pairs,
-            conflict_child_view_pairs,
-        )
-    }
-
-    return root, request_graph_map
+    return root
 
 
 def _to_hashable(request):
@@ -183,7 +167,7 @@ def from_context(context, parent=None):
         Widget: The created widget.
 
     """
-    tree, graphs = _make_gui_trees(context)
-    widget = Widget(tree, graphs, parent=parent)
+    tree = _make_gui_trees(context)
+    widget = Widget(tree, context, parent=parent)
 
     return widget
