@@ -5,10 +5,16 @@
 - CI changes
 - Change the graph to lay out vertically, not horizontally
  - Possibly a toggleable option
-- 
 
 - Add color blindness option
 - Add more styles - request outline, better visuals, etc
+
+- Add search bar
+ - Allow searching by requests, resolved
+
+- Defer as much as possible
+ - Only layout the nodes on the first click!
+ - Do an audit through the code, for performance sake
 
 
 - Move _gui/ and _generic/ to different Rez packages
