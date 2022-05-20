@@ -7,10 +7,14 @@ those values are correct and transforming them into more useful Python objects.
 
 """
 
+import schema
 import six
+
+from . import _color_constant
 
 _COMMA_SEPARATOR = ","
 _QUOTES = ('"', "'")
+_SVG_NAMES = _color_constant.get_svg_colors()
 
 
 def _unquote(text):
@@ -100,6 +104,15 @@ def _validate_hex(value):
     return value
 
 
+def _validate_named_color(value):
+    value = _validate_label_text(value)
+
+    if value not in _SVG_NAMES:
+        raise ValueError('Text "{value}" is not a known SVG name.'.format(value=value))
+
+    return value
+
+
 def _validate_non_zero(value):
     """Ensure ``value`` is a non-zero integer.
 
@@ -122,7 +135,10 @@ def _validate_non_zero(value):
     raise ValueError('Value "{value}" cannot be 0.'.format(value=value))
 
 
-HEX = _validate_hex
-LABEL_TEXT = _validate_label_text
-NON_ZERO = _validate_non_zero
-STYLE = _validate_comma_separated_list
+_HEX = schema.Use(_validate_hex)
+HEX = _HEX.validate
+NAMED_COLOR = schema.Use(_validate_named_color)
+GENERIC_COLOR = schema.Or(HEX, NAMED_COLOR).validate
+LABEL_TEXT = schema.Use(_validate_label_text).validate
+NON_ZERO = schema.Use(_validate_non_zero).validate
+STYLE = schema.Use(_validate_comma_separated_list).validate

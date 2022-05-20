@@ -1,5 +1,7 @@
 """The main module for generating GUI components for a Rez resolved context."""
 
+import itertools
+
 from python_compatibility import graph_node, zipper
 from Qt import QtWidgets
 
@@ -112,7 +114,10 @@ def _make_gui_trees(context):
 
     request_graph_map = {
         _to_hashable(node.get_requests()): graph
-        for node, graph in request_child_view_pairs
+        for node, graph in itertools.chain(
+            request_child_view_pairs,
+            conflict_child_view_pairs,
+        )
     }
 
     return root, request_graph_map

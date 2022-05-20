@@ -2,12 +2,23 @@
 
 from . import schema_type
 
+# Edges
+ARROW_SIZE = "arrowsize"
+FONT_COLOR = "fontcolor"
+
+# Nodes
 FILL_COLOR = "fillcolor"
 FONT_SIZE = "fontsize"
 LABEL = "label"
 STYLE = "style"
 
+
 _OPTIONS = {
+    # Edges
+    ARROW_SIZE: schema_type.NON_ZERO,
+    FONT_COLOR: schema_type.GENERIC_COLOR,
+
+    # Nodes
     FILL_COLOR: schema_type.HEX,
     FONT_SIZE: schema_type.NON_ZERO,
     LABEL: schema_type.LABEL_TEXT,

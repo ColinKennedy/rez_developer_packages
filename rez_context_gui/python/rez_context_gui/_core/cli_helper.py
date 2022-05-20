@@ -31,15 +31,7 @@ class ContextFile(argparse.Action):  # pylint: disable=too-few-public-methods
         path = os.path.normpath(os.path.expanduser(os.path.expanduser(values)))
 
         context = _get_context(path)
-
-        if context.success:
-            setattr(namespace, self.dest, context)
-
-            return
-
-        raise exception.InvalidContext(
-            'Path "{path}" is an invalid context.'.format(path=path)
-        )
+        setattr(namespace, self.dest, context)
 
 
 def _get_context(path):

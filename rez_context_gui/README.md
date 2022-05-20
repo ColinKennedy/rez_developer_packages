@@ -7,6 +7,10 @@
  - Possibly a toggleable option
 - 
 
+- Add color blindness option
+- Add more styles - request outline, better visuals, etc
+
+
 - Move _gui/ and _generic/ to different Rez packages
 - Make modules better named
 - Match qtnodes interface (camelCase)
