@@ -29,15 +29,13 @@ def _parse_arguments(text):
 
 def main(text):
     """Parse the user's arguments and show a GUI."""
-    from python_compatibility import wrapping
     namespace = _parse_arguments(text)
 
     application = QtWidgets.QApplication([])
 
-    with wrapping.profile_and_print():
-        widget = gui.from_context(namespace.context)
+    widget = gui.from_context(namespace.context)
     widget.setWindowTitle("Rez Context GUI")
     widget.setWindowFlags(QtCore.Qt.Window)
-    # widget.show()
-    #
-    # application.exec_()
+    widget.show()
+
+    application.exec_()

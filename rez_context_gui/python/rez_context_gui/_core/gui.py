@@ -91,11 +91,8 @@ class Widget(QtWidgets.QWidget):
             pass
 
         model = index.model()
-        requests = index.data(model.requests_role)
-        graph = scene_maker.make_graphics_view(
-            {str(request) for request in requests},
-            self._digraph,
-        )
+        slices = index.data(model.slices_role)
+        graph = scene_maker.make_graphics_view(slices, self._digraph)
         self._index_to_graph[index] = graph
 
         self._switcher.addWidget(graph)

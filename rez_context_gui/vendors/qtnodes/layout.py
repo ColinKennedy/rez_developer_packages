@@ -55,8 +55,6 @@ def autoLayout(scene):
 
     Code based on this example: https://gist.github.com/dbr/1255776
     """
-    print("auto layout")
-
     nodes = _getNodesFromScene(scene)
     if not nodes:
         return
@@ -96,8 +94,6 @@ def autoLayout(scene):
                 parentName = self.nodeToName(tree.node)
                 edge = pydot.Edge(childName, parentName)
                 self.graph.add_edge(edge)
-                # print ("{0} Recursing into {1}".format(
-                #        level, childName))
                 self.recursiveGrapher(childTree, level=level + 1)
 
         def save(self, filePath):
@@ -134,7 +130,6 @@ def autoLayout(scene):
         if not os.path.isdir(dataDir):
             raise
     dotFile = os.path.join(dataDir, "last_layout.dot")
-    print("writing layout to", dotFile)
 
     dotter = Dotter()
     for tree in trees:

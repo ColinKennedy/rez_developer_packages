@@ -22,11 +22,11 @@ class Row(graph_node.RowNode):
         """str: The text to display in a GUI."""
         return self._identifier
 
-    def get_requests(self):
+    def get_slices(self):
         """list[rez.utils.formatting.PackageRequest]: Each individual Rez package."""
         return self._requests
 
-    def set_requests(self, requests):
+    def set_slices(self, requests):
         """Keep track of Rez :ref:`packages <package>` to graph and display.
 
         Args:

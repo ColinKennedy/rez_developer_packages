@@ -8,7 +8,7 @@ class Model(node_model.SingleRoot):
     """An extended model for :mod:`rez_context_gui` to display Rez requests."""
 
     node_role = QtCore.Qt.UserRole
-    requests_role = QtCore.Qt.UserRole + 1
+    slices_role = QtCore.Qt.UserRole + 1
 
     def data(self, index, role=QtCore.Qt.DisplayRole):
         """Allow querying the Rez requests from any node in the tree.
@@ -27,9 +27,9 @@ class Model(node_model.SingleRoot):
         if role == self.node_role:
             return index.internalPointer()
 
-        if role == self.requests_role:
+        if role == self.slices_role:
             node = index.internalPointer()
 
-            return node.get_requests()
+            return node.get_slices()
 
         return super(Model, self).data(index, role)
