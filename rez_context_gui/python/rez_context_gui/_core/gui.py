@@ -55,6 +55,8 @@ class Widget(QtWidgets.QWidget):
         self._view.expandAll()
         self._view.setHeaderHidden(True)
 
+        self._splitter.setHandleWidth(20)
+
         for widget, name in [
             (self._splitter, "_splitter"),
             (self._switcher, "_switcher"),
