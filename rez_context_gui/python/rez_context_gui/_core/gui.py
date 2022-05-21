@@ -69,6 +69,19 @@ class Widget(QtWidgets.QWidget):
         self._view.clicked.connect(self._switch_current_graph)
 
     def _populate_index_graph(self, index):
+        """Create a graph for ``index`` and cache + connect the two together.
+
+        Args:
+            index (Qt.QtCore.QModelIndex):
+                The row / column / parent Qt location to get graph data from.
+
+        Raises:
+            RuntimeError: If ``index`` is invalid.
+
+        Returns:
+            NodeGraphWidget: The generated or pre-existing graph.
+
+        """
         if not index.isValid():
             raise RuntimeError('Cannot create graph for "{index}".'.format(index=index))
 
@@ -78,9 +91,11 @@ class Widget(QtWidgets.QWidget):
             pass
 
         model = index.model()
-        row = index.data(model.node_role)
-        # TODO : Simplify make_graphics_view, if able
-        graph = scene_maker.make_graphics_view([row], self._digraph)[0]
+        requests = index.data(model.requests_role)
+        graph = scene_maker.make_graphics_view(
+            {str(request) for request in requests},
+            self._digraph,
+        )
         self._index_to_graph[index] = graph
 
         self._switcher.addWidget(graph)
@@ -138,8 +153,6 @@ def _make_gui_trees(context):
             selected.
 
     """
-    digraph = context.graph()
-
     request = tree_maker.make_request_branch(context.requested_packages())
     # TODO : Ensure that ``conflict`` only shows a label if there's no actual conflict.
     conflict = tree_maker.make_conflict_branch(context)

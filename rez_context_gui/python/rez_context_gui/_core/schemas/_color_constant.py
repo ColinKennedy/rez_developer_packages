@@ -1,3 +1,10 @@
+"""Retrieve common color codes from Qt.
+
+References:
+    https://doc.qt.io/qtforpython/PySide6/QtGui/QColorConstants.html
+
+"""
+
 from Qt import QtGui
 
 _SVG_NAMES = frozenset(
@@ -154,7 +161,15 @@ _SVG_NAMES = frozenset(
 
 
 def get_svg_colors():
+    """Get all known SVG color names that Qt supports.
+
+    References:
+        https://doc.qt.io/qtforpython/PySide6/QtGui/QColorConstants.html#svg-colors
+        https://stackoverflow.com/q/67585938/3626104
+
+    """
     try:
+        # Only supported in 5.15.4+
         names = dir(QtGui.QColorConstants.Svg)
     except AttributeError:
         # Reference: https://stackoverflow.com/q/67585938/3626104

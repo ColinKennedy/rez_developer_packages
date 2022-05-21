@@ -6,36 +6,17 @@ class NodeGraphWidget(qtnodes.NodeGraphWidget):
     def contextMenuEvent(self, event):
         """Show a menu to create registered Nodes."""
         menu = QtWidgets.QMenu(self)
-        action = menu.addAction("Expand Selection")
-        action.triggered.connect(self._expand_selection)
-        # TODO : Hide unless it's actually within a conflict
-        action = menu.addAction("Expand To Non-Conflict")
-        action.triggered.connect(self._expand_to_non_conflict)
+        selection_actions = menu.addSeparator()
+        selection_actions.setText("Selection Actions")
+        menu.addAction(selection_actions)
+        action = menu.addAction("Expand Downstream")
+        action.triggered.connect(self._expand_selection_downstream)
+        action = menu.addAction("Expand Upstream")
+        action.triggered.connect(self._expand_selection_upstream)
 
         menu.exec_(event.globalPos())
 
-    def _expand_selection(self):
-        def _get_node_to_show(knob_of_hidden_node):
-            neighbor_node = knob_of_hidden_node.parentItem()
-
-            if neighbor_node.isVisible():
-                return None
-
-            return neighbor_node
-
-        def _show_upstream(knob):
-            shown = False
-
-            for edge in knob.edges:
-                neighbor_node = _get_node_to_show(edge.source)
-
-                if neighbor_node:
-                    neighbor_node.show()
-                    edge.show()
-                    shown = True
-
-            return shown
-
+    def _expand_selection_downstream(self):
         def _show_downstream(knob):
             shown = False
 
@@ -49,6 +30,25 @@ class NodeGraphWidget(qtnodes.NodeGraphWidget):
 
             return shown
 
+        self._expand_selection(_show_downstream)
+
+    def _expand_selection_upstream(self):
+        def _show_upstream(knob):
+            shown = False
+
+            for edge in knob.edges:
+                neighbor_node = _get_node_to_show(edge.source)
+
+                if neighbor_node:
+                    neighbor_node.show()
+                    edge.show()
+                    shown = True
+
+            return shown
+
+        self._expand_selection(_show_upstream)
+
+    def _expand_selection(self, caller):
         selection = self._get_selected_nodes()
 
         if not selection:
@@ -64,14 +64,7 @@ class NodeGraphWidget(qtnodes.NodeGraphWidget):
 
         for node in selection:
             for knob in node.knobs():
-                local_expanded = _show_downstream(knob)
-
-                if local_expanded:
-                    expanded = True
-
-                    continue
-
-                local_expanded = _show_upstream(knob)
+                local_expanded = caller(knob)
 
                 if local_expanded:
                     expanded = True
@@ -85,13 +78,28 @@ class NodeGraphWidget(qtnodes.NodeGraphWidget):
             "You've already expanded this node. Try a different node selection!",
         )
 
-    def _expand_to_non_conflict(self):
-        # TODO : Add support for this method
-        raise NotImplementedError("Need to write")
-
     def _get_selected_nodes(self):
         return [
             item
             for item in self.scene.selectedItems()
             if isinstance(item, qtnodes.Node)
         ]
+
+
+def _get_node_to_show(knob):
+    """Find the hidden node of ``knob``.
+
+    Args:
+        knob (InputKnob or OutputKnob): Some knob to check for.
+
+    Returns:
+        Node or None:
+            The knob's node, if the node is hidden. Otherwise, return nothing.
+
+    """
+    neighbor_node = knob.parentItem()
+
+    if neighbor_node.isVisible():
+        return None
+
+    return neighbor_node

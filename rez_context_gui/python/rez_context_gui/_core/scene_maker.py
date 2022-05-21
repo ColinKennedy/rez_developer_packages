@@ -1,3 +1,10 @@
+"""Create Qt scene + view + widgets.
+
+This module takes a Rez digraph, makes a :class:`Qt.QtWidgets.QGraphicsScene`,
+and populates it with nodes that are shown / hidden by default.
+
+"""
+
 from qtnodes import edge as edge_
 from qtnodes import layout
 from qtnodes import node as node_
@@ -45,32 +52,37 @@ def _add_nodes_to_graph(digraph, graph):
         )
 
 
-def make_graphics_view(request_rows, digraph):
-    graphs = []
+def make_graphics_view(requests, digraph):
+    """Create a Qt node scene + view + widget for ``requests``, using ``digraph``.
 
-    for row in request_rows:
-        graph = gui_widget.NodeGraphWidget()
-        _add_nodes_to_graph(digraph, graph)
-        # TODO : For some reason when I layout the scene, the "python" request
-        # is just gone. Need to fix this
-        #
-        layout.autoLayout(graph.scene)
+    Args:
+        requests (set[str]):
+            Each Rez package request from some context to generate a Qt scene from.
+        digraph (rez.vendor.pygraph.classes.digraph.digraph):
+            The visual representation of the nodes + edges of some Rez resolve.
 
-        requests = {str(request) for request in row.get_requests()}
+    Returns:
+        NodeGraphWidget: The generated scene, pre-populated with nodes.
 
-        for item in graph.scene.items():
-            if isinstance(item, node_.Node):
-                item.setVisible(item.get_label() in requests)
+    """
+    graph = gui_widget.NodeGraphWidget()
+    _add_nodes_to_graph(digraph, graph)
+    # TODO : For some reason when I layout the scene, the "python" request
+    # is just gone. Need to fix this
+    #
+    layout.autoLayout(graph.scene)
 
-                continue
+    for item in graph.scene.items():
+        if isinstance(item, node_.Node):
+            item.setVisible(item.get_label() in requests)
 
-            if isinstance(item, edge_.Edge):
-                knob = item.target
-                parent_node = knob.node()
-                item.setVisible(parent_node.get_label() in requests)
+            continue
 
-                continue
+        if isinstance(item, edge_.Edge):
+            knob = item.target
+            parent_node = knob.node()
+            item.setVisible(parent_node.get_label() in requests)
 
-        graphs.append(graph)
+            continue
 
-    return graphs
+    return graph
