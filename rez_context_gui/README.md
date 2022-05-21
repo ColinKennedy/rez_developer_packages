@@ -1,4 +1,3 @@
-- Add default view when no tree item is selected
 - CI changes
 - Add conflict tree + graphs
  - If no conflict, make sure to still show the tree but with NO children and
@@ -10,7 +9,6 @@
  - Select conflict if available on-start
   - Allow CLI option for that, too
 
-- Implement the "Expand To Non-Conflict" action
 - Change the graph to lay out vertically, not horizontally
  - Possibly a toggleable option
 
