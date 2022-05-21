@@ -4,6 +4,8 @@
  - If no conflict, make sure to still show the tree but with NO children and
    just display nothing
 
+- Add arrow-key expansion
+
 - Preferences
  - Select conflict if available on-start
   - Allow CLI option for that, too

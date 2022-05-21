@@ -3,50 +3,13 @@
 import operator
 
 from rez.utils import formatting
-from python_compatibility import graph_node
 
-from . import rez_digraph
+from . import rez_digraph, tree_row
 from .schemas import node_schema
 
 
 _ALL_REQUESTS_LABEL = "All Requests"
-_ALL_CONFLICTS_LABEL = "All conflicts"
-
-
-class _RequestRow(graph_node.RowNode):
-    """An example tree node, containing a Rez request."""
-
-    def __init__(self, identifier="", parent=None):
-        """Keep track of identifier text + wiget parent.
-
-        Args:
-            identifier (str, optional):
-                Some text used for debugging, to identify this instance.
-            parent (Qt.QtCore.QObject, optional):
-                An object which, if provided, holds a reference to this instance.
-
-        """
-        super(_RequestRow, self).__init__(identifier=identifier, parent=parent)
-
-        self._requests = []
-
-    def get_label(self):
-        """str: The text to display in a GUI."""
-        return self._identifier
-
-    def get_requests(self):
-        """list[rez.utils.formatting.PackageRequest]: Each individual Rez package."""
-        return self._requests
-
-    def set_requests(self, requests):
-        """Keep track of Rez :ref:`packages <package>` to graph and display.
-
-        Args:
-            requests (list[rez.utils.formatting.PackageRequest]):
-                Each individual Rez package to track for this tree node instance.
-
-        """
-        self._requests = requests
+_ALL_CONFLICTS_LABEL = "All Conflicts"
 
 
 def _to_label(requests):
@@ -62,7 +25,7 @@ def make_conflict_branch(context):
             The falied Rez context to convert into a tree of conflict nodes.
 
     Returns:
-        _RequestRow:
+        Row:
             The created node tree and all of its conflict branches.
             It's pretty commont for this tree to only have a single branch / leaf.
 
@@ -99,7 +62,7 @@ def make_conflict_branch(context):
     digraph = context.graph()
 
     nodes, flattened = _get_conflicting_nodes(digraph)
-    branch = _RequestRow(_ALL_CONFLICTS_LABEL)
+    branch = tree_row.AllConflictsRow(_ALL_CONFLICTS_LABEL)
     requests = _to_flattened_requests(flattened, digraph)
     branch.set_requests(requests)
 
@@ -108,7 +71,7 @@ def make_conflict_branch(context):
             _to_request_from_node(source, digraph),
             _to_request_from_node(destination, digraph),
         ]
-        child = _RequestRow(_to_label(requests))
+        child = tree_row.Row(_to_label(requests))
         child.set_requests(requests)
         branch.append_child(child)
 
@@ -123,17 +86,17 @@ def make_request_branch(requests):
             Each individual Rez package to track for this tree node instance.
 
     Returns:
-        _RequestRow:
+        Row:
             The created node tree with each of its requests as individual node
             branches. This tree can end up having a lot of leaves, if you use
             a lot of requests.
 
     """
-    branch = _RequestRow(_ALL_REQUESTS_LABEL)
+    branch = tree_row.AllRequestsRow(_ALL_REQUESTS_LABEL)
     branch.set_requests(requests)
 
     for request in sorted(requests, key=operator.attrgetter("name")):
-        child = _RequestRow(_to_label([request]))
+        child = tree_row.Row(_to_label([request]))
         child.set_requests([request])
         branch.append_child(child)
 

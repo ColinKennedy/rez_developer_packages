@@ -3,7 +3,7 @@
 from python_compatibility import graph_node
 from Qt import QtCore, QtWidgets
 
-from . import extended_model, scene_maker, tree_maker
+from . import extended_model, configuration, scene_maker, tree_maker
 
 
 class Widget(QtWidgets.QWidget):
@@ -127,6 +127,12 @@ class Widget(QtWidgets.QWidget):
 
         self._switcher.setCurrentWidget(graph)
 
+    def set_configuration(self, configuration):
+        model = self._view.model()
+        root = model.index(0, 0, QtCore.QModelIndex())
+        index = configuration.get_default_index(root)
+        self._switch_current_graph(index)
+
 
 def _clear_stacked(widget):
     """Remove all widgets from a stacked ``widget``.
@@ -184,5 +190,6 @@ def from_context(context, parent=None):
     """
     tree = _make_gui_trees(context)
     widget = Widget(tree, context, parent=parent)
+    widget.set_configuration(configuration.Configuration.create_new())
 
     return widget
