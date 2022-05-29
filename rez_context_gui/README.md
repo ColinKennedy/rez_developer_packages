@@ -2,7 +2,7 @@
 - Add conflict tree + graphs
  - If no conflict, make sure to still show the tree but with NO children and
    just display nothing
-
+- Select whatever was just shown
 - Add arrow-key expansion
 
 - Preferences
