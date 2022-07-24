@@ -20,7 +20,7 @@ _FOO_LOW_VERSION = version.Version("1.5.0")
 class Cases(unittest.TestCase):
     """Known bisect :ref:`--partial` scenarios to always get right."""
 
-    def test_added_package(self):
+    def test_added_package_001(self):
         """Find the first index where package causing some issue was introduced."""
 
         def _is_failure_condition(context):
@@ -28,7 +28,6 @@ class Cases(unittest.TestCase):
 
         directory = os.path.join(_TESTS, "simple_packages")
 
-        bad_version = "1.2.0"
         request_1 = "changing_dependencies-1+<1.2"
         request_2 = "changing_dependencies==1.2.0"
         request_3 = "changing_dependencies-1.2+ foo"
@@ -54,6 +53,89 @@ class Cases(unittest.TestCase):
         self.assertEqual({"added_packages"}, set(result.breakdown.keys()))
         self.assertEqual(
             {"foo"},
+            {
+                package.name
+                for package in result.breakdown["added_packages"]
+            },
+        )
+
+    def test_added_package_002(self):
+        """Find the first index where package causing some issue was introduced."""
+
+        def _is_failure_condition(context):
+            return context.get_resolved_package("foo") is not None
+
+        directory = os.path.join(_TESTS, "simple_packages")
+
+        request_1 = "changing_dependencies-1+<1.2"
+        request_2 = "changing_dependencies==1.2.0"
+        request_3 = "changing_dependencies-1.2+ foo bar"
+        request_4 = "changing_dependencies-1.3+ foo bar"
+
+        with utility.patch_run(_is_failure_condition):
+            result = utility.run_test(
+                [
+                    "run",
+                    "",
+                    request_1,
+                    request_2,
+                    request_3,
+                    request_4,
+                    "--packages-path",
+                    directory,
+                    "--partial",
+                ]
+            )
+
+        self.assertEqual(1, result.last_good)
+        self.assertEqual(2, result.first_bad)
+        self.assertEqual({"added_packages"}, set(result.breakdown.keys()))
+        self.assertEqual(
+            {"foo"},
+            {
+                package.name
+                for package in result.breakdown["added_packages"]
+            },
+        )
+
+    def test_added_package_multi(self):
+        """Find the first index where package causing some issue was introduced."""
+
+        def _is_failure_condition(context):
+            return (
+                context.get_resolved_package("foo") is not None
+                and context.get_resolved_package("bar") is not None
+            )
+
+        directory = os.path.join(_TESTS, "simple_packages")
+
+        request_1 = "changing_dependencies-1+<1.2"
+        request_2 = "changing_dependencies==1.2.0"
+        request_3 = "changing_dependencies-1.2+ foo"
+        request_4 = "changing_dependencies-1.3+ foo"
+        request_5 = "changing_dependencies-1.4+ foo bar"
+
+        with utility.patch_run(_is_failure_condition):
+            result = utility.run_test(
+                [
+                    "run",
+                    "",
+                    request_1,
+                    request_2,
+                    request_3,
+                    request_4,
+                    request_5,
+                    "--packages-path",
+                    directory,
+                    "--partial",
+                ]
+            )
+
+        self.assertEqual(3, result.last_good)
+        self.assertEqual(4, result.first_bad)
+        self.assertEqual({"added_packages"}, set(result.breakdown.keys()))
+        self.assertEqual(
+            {"foo", "bar"},
             {
                 package.name
                 for package in result.breakdown["added_packages"]
