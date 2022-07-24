@@ -100,7 +100,12 @@ def _run(namespace):
     contexts = _get_contexts(namespace, current_directory)
     has_issue = _validate_context_bounds(namespace, script, contexts)
 
-    results = runner.bisect(has_issue, contexts, partial=namespace.partial)
+    results = runner.bisect(
+        has_issue,
+        contexts,
+        partial=namespace.partial,
+        matches=namespace.matches,
+    )
 
     print('The last "good" index is "{results.last_good}".'.format(results=results))
     print('The first "bad" index is "{results.first_bad}".'.format(results=results))
@@ -144,6 +149,14 @@ def _set_up_runner(sub_parsers):
         "requests",
         nargs="+",
         help="Rez requests / resolves to check within for issues.",
+    )
+
+    run.add_argument(
+        "--matches",
+        nargs="*",
+        action=cli_helper.GlobList,
+        default=[],
+        help="Only consider bisecting Rez package families matching this glob expression.",
     )
 
     run.add_argument(
@@ -324,21 +337,8 @@ def parse_arguments(text):
     return parser.parse_args(text)
 
 
-def run(namespace):
-    """Execute the default function associated with the sub-parser in ``namespace``.
-
-    Args:
-        namespace (argparse.Namespace): The parsed user text input.
-
-    Returns:
-        object: Whatever the return value of the sub-parser is, if anything.
-
-    """
-    return namespace.execute(namespace)
-
-
 def main(text):
     """Run the main execution of the script."""
     # TODO : Add verbose logger handling
     namespace = parse_arguments(text)
-    run(namespace)
+    namespace.execute(namespace)

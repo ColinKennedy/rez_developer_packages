@@ -14,13 +14,14 @@
 - Allow the bisect to be interactive (right now, you have to provide a script)
 
 ## Cases
-- Multi package issues
- - 2 or more packages at once have some incompatible issue
-- Handle errors due to added or removed **ephemerals**
-
-- Ephemeral - newer range
-- Ephemeral - older range
-- A package with an ephemeral variant that a request picks up
+- Multi-add (2+ packages in a 3+ diff cause the problem. Not just one individual package)
+- Handle errors due to **ephemerals**
+ - Ephemeral - added
+ - Ephemeral - removed
+ - Ephemeral - newer range
+ - Ephemeral - older range
+ - Ephemeral - A package with an ephemeral variant that a request picks up
+- Combination error. A newer package + an added package at the same time causes a problem
 
 - To make bisecting faster, I should try removing package versions from the
   diff which do not satisfy the package requests from the bad context. After

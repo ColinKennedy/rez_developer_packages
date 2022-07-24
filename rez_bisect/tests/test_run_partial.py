@@ -213,3 +213,104 @@ class Cases(unittest.TestCase):
                 for package in result.breakdown["removed_packages"]
             },
         )
+
+
+class Match(unittest.TestCase):
+    """Ensure :ref:`--matches` works as expected with :ref:`--partial`."""
+
+    def test_added_package(self):
+        """Only consider the package(s) set to :ref:`--matches`."""
+
+        def _is_failure_condition(context):
+            return context.get_resolved_package("bar") is not None
+
+        directory = os.path.join(_TESTS, "simple_packages")
+
+        request_1 = "foo==1.0.0"
+        request_2 = "foo==1.1.0 bar-1 dependency-1"  # We ignore ``dependency``
+        request_3 = "foo==1.2.0 bar-1 dependency-1"  # We ignore ``dependency``
+
+        with utility.patch_run(_is_failure_condition):
+            result = utility.run_test(
+                [
+                    "run",
+                    "",
+                    request_1,
+                    request_2,
+                    request_3,
+                    "--packages-path",
+                    directory,
+                    "--matches=bar",
+                    "--partial",
+                ]
+            )
+
+        self.assertEqual(0, result.last_good)
+        self.assertEqual(1, result.first_bad)
+        self.assertEqual({"added_packages"}, set(result.breakdown.keys()))
+        self.assertEqual(
+            {"bar"},
+            {
+                package.name
+                for package in result.breakdown["added_packages"]
+            },
+        )
+
+    # def test_added_package_fail(self):
+    #     """Fail if the user points :ref:`--matches` to an unrelated package."""
+    #
+    #     def _is_failure_condition(context):
+    #         return context.get_resolved_package("bar") is not None
+    #
+    #     directory = os.path.join(_TESTS, "simple_packages")
+    #
+    #     request_1 = "foo==1.0.0"
+    #     request_2 = "foo==1.1.0 bar-1 dependency-1"
+    #     request_3 = "foo==1.2.0 bar-1 dependency-1"
+    #
+    #     with utility.patch_run(_is_failure_condition):
+    #         result = utility.run_test(
+    #             [
+    #                 "run",
+    #                 "",
+    #                 request_1,
+    #                 request_2,
+    #                 request_3,
+    #                 "--packages-path",
+    #                 directory,
+    #                 "--matches=foo",  # We incorrectly check foo, which is not the problem
+    #                 "--partial",
+    #             ]
+    #         )
+    #
+    #     raise ValueError('STOP')
+    #
+    # def test_added_package_fail_002(self):
+    #     """Fail if the user points :ref:`--matches` to an unrelated package."""
+    #
+    #     def _is_failure_condition(context):
+    #         return context.get_resolved_package("bar") is not None
+    #
+    #     directory = os.path.join(_TESTS, "simple_packages")
+    #
+    #     request_1 = "foo==1.0.0"
+    #     request_2 = "foo==1.1.0 bar-1 dependency-1"  # We ignore ``dependency``
+    #     request_3 = "foo==1.2.0 bar-1 dependency-1"  # We ignore ``dependency``
+    #
+    #     with utility.patch_run(_is_failure_condition):
+    #         result = utility.run_test(
+    #             [
+    #                 "run",
+    #                 "",
+    #                 request_1,
+    #                 request_2,
+    #                 request_3,
+    #                 "--packages-path",
+    #                 directory,
+    #                 # We incorrectly check dependency, which is not the problem
+    #                 "--matches=dependency",
+    #                 "--partial",
+    #             ]
+    #         )
+    #
+    #     raise ValueError('STOP')

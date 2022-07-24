@@ -191,6 +191,7 @@ def _get_bad_package_request(diff, key):
     if not hasattr(value, "values"):
         return value
 
+    # TODO : Finish
     raise ValueError(value)
 
     return {
@@ -388,6 +389,27 @@ def _get_exact_bisect(has_issue, good, diff):
     raise NotImplementedError()
 
 
+def _get_filtered_matches(diff, matches):
+    output = {}
+
+    for key, values in diff.items():
+        if isinstance(values, collections.MutableMapping):
+            new = {}
+
+            for name, packages in values.items():
+                inner = [package for package in packages for match in matches if match(package.name)]
+
+                if inner:
+                    new[name] = inner
+        else:
+            new = [item for item in values for match in matches if match(item.name)]
+
+        if new:
+            output[key] = new
+
+    return output
+
+
 def _get_filtered_request_diff(good, bad):
     """Make a diff using only the requested Rez packages.
 
@@ -523,7 +545,7 @@ def _validate_keys(diff):
         )
 
 
-def bisect_2d(has_issue, good, bad):
+def bisect_2d(has_issue, good, bad, matches=None):
     """Find the Rez package(s)/version(s) that cause ``good`` to become bad.
 
     How it works:
@@ -552,6 +574,10 @@ def bisect_2d(has_issue, good, bad):
 
     """
     request_diff = _get_filtered_request_diff(good, bad)
+
+    if matches:
+        request_diff = _get_filtered_matches(request_diff, matches)
+
     unfinished_diff = _get_approximate_bisect(has_issue, good, request_diff)
 
     return _get_exact_bisect(has_issue, good, unfinished_diff)

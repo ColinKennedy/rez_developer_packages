@@ -41,7 +41,7 @@ def _reduce_to_two_contexts(has_issue, contexts):
     return upper_bound - 1, upper_bound
 
 
-def bisect(has_issue, contexts, partial=False):
+def bisect(has_issue, contexts, partial=False, matches=None):
     """Find the indices where ``has_issue`` returns True / False.
 
     Args:
@@ -83,7 +83,7 @@ def bisect(has_issue, contexts, partial=False):
 
     if partial:
         breakdown = partial_bisecter.bisect_2d(
-            has_issue, last_good_context, first_bad_context
+            has_issue, last_good_context, first_bad_context, matches=matches
         )
 
     return _BisectSummary(

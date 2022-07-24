@@ -1,7 +1,19 @@
 """Any classes / functions to make using :mod:`argparse` easier."""
 
 import argparse
+import fnmatch
+import functools
 import os
+
+
+class GlobList(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        output = []
+
+        for value in values:
+            output.append(functools.partial(_glob_match, value))
+
+        setattr(namespace, self.dest, output)
 
 
 class SplitPaths(argparse.Action):
@@ -25,3 +37,7 @@ class SplitPaths(argparse.Action):
         setattr(
             namespace, self.dest, [value.strip() for value in values.split(os.pathsep)]
         )
+
+
+def _glob_match(pattern, text):
+    return fnmatch.fnmatch(text, pattern)

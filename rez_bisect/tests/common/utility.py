@@ -50,4 +50,4 @@ def run_test(command):
     namespace = cli.parse_arguments(command)
 
     with wrapping.silence_printing():
-        return cli.run(namespace)
+        return cli._run(namespace)
