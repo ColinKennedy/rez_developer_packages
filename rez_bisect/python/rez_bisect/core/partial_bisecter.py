@@ -7,8 +7,10 @@ the user a reasonable guess.
 
 """
 
+import collections
 import functools
 import itertools
+import logging
 import math
 import random
 
@@ -22,14 +24,54 @@ _OLDER = "older_packages"
 _REMOVED = "removed_packages"
 _SUPPORTED_KEYS = frozenset((_ADDED, _NEWER, _OLDER, _REMOVED))
 
+_NudgeResults = collections.namedtuple(
+    "_NudgeResults",
+    [
+        "older",
+        "newer",
+        "removed",
+        "older_indices",
+        "newer_indices",
+        "removed_packages",
+    ],
+)
 
-def _check_by_type_is_bad(has_issue, good, diff, key):
+_LOGGER = logging.getLogger(__name__)
+
+
+def _check_by_type_is_bad(has_issue, good, diff, key, exclude=False):
     bad_packages = _get_bad_package_request(diff, key)
 
     if not bad_packages:
         return []
 
-    if has_issue(_get_quick_context(good, bad_packages)):
+    context = _get_quick_context(good, bad_packages, exclude=exclude)
+
+    if has_issue(context):
+        return bad_packages
+
+    return []
+
+
+def _check_removed_is_bad(has_issue, good, diff, key):
+    bad_packages = _get_bad_package_request(diff, key)
+
+    if not bad_packages:
+        return []
+
+    bad_request_names = {request.name for request in bad_packages}
+    requested_good_packages = []
+
+    for request in good.requested_packages():
+        if request.name not in bad_request_names:
+            requested_good_packages.append(request)
+
+    context = resolved_context.ResolvedContext(
+        requested_good_packages,
+        package_paths=good.package_paths,
+    )
+
+    if has_issue(context):
         return bad_packages
 
     return []
@@ -67,25 +109,33 @@ def _get_approximate_bisect(has_issue, good, diff):
 
     """
 
-    def _get_from_change_list(weight, packages, request):
-        output = {}
+    def _get_next_change_request(indices, reference_diff):
+        output = []
 
-        for name, versions in packages.items():
-            index = math.floor(len(versions) * weight)
-            package = versions[index]
+        for key, index in indices.items():
+            next_index = index + 1
+            candidates = reference_diff[key]
 
-            request.append(package)
-            output[package.name] = index
+            if next_index >= len(candidates):
+                # This usually occurs whenever ``indices`` represents some diff
+                # which actually **doesn't** contribute to ``has_issue``. That
+                # means we can safely ignore it.
+                #
+                # TODO : Add lots of unittests to ensure this assumption is okay.
+                #
+                _LOGGER.debug('Skipping "%s" candidates.', candidates)
+
+                continue
+
+            output.append(candidates[next_index])
 
         return output
 
-    def _get_next_change_request(indices, reference_diff):
-        closest = {key: value + 1 for key, value in indices.items()}
-
-        return [reference_diff[key][index] for key, index in closest.items()]
-
     _validate_keys(diff)
 
+    # 1. Check to see if only the added packages cause something bad to occur
+    # 1a. Check if removed packages cause the issue.
+    #
     # # TODO : Make this work, later
     # does_not_has_issue = _invert(has_issue)
     # bad_removed = _check_by_type_is_bad(does_not_has_issue, good, diff, _REMOVED)
@@ -93,106 +143,36 @@ def _get_approximate_bisect(has_issue, good, diff):
     # if bad_removed and has_issue():
     #     return {_REMOVED: bad_removed}
 
+    # 1c. Check if added packages cause the issue.
     bad_added = _check_by_type_is_bad(has_issue, good, diff, _ADDED)
 
     if bad_added:
         return {_ADDED: bad_added}
 
-    previous_weight = 1
-    weight = 0.5
-    older = diff.get(_OLDER) or {}
-    newer = diff.get(_NEWER) or {}
-    previous = None
-
-    while True:
-        request = []
-
-        newer_indices = _get_from_change_list(weight, newer, request)
-        older_indices = _get_from_change_list(weight, older, request)
-
-        context = resolved_context.ResolvedContext(
-            _to_raw_request(request),
-            package_paths=good.package_paths,
-        )
-
-        average = (weight + previous_weight) / 2
-        offset = abs(average - weight)
-
-        if has_issue(context):
-            # We nudge ``weight`` to move away from ``diff`` and closer to
-            # ``good`` so the next iteration of ``has_issue(context)``
-            # has a greater chance of returning False.
-            #
-            previous_weight = weight
-            weight = weight - offset
-
-            continue
-
-        # TODO : Check why this is producing a redundant check. Make it more efficient
-        if request == previous:
-            break
-
-        previous_weight = weight
-        weight += offset
-        previous = request
+    # 2. If we got this far, it's because a combination of packages is likely
+    # the problem. We now "nudge" the packages to get as close to the problem
+    # as possible and return it.
+    #
+    results = _get_nudged_packages(has_issue, good, diff)
 
     output = {}
-    bad_newer = _get_next_change_request(newer_indices, newer)
+
+    bad_newer = _get_next_change_request(results.newer_indices, results.newer)
 
     if bad_newer:
         output[_NEWER] = bad_newer
 
-    bad_older = _get_next_change_request(older_indices, older)
+    bad_older = _get_next_change_request(results.older_indices, results.older)
 
     if bad_older:
         output[_OLDER] = bad_older
 
+    bad_removed = results.removed_packages
+
+    if bad_removed:
+        output[_REMOVED] = bad_removed
+
     return output
-
-
-def _to_raw_request(request):
-    """Convert Rez packages / variants into something Rez contexts can use.
-
-    Todo:
-        Check if this is needed.
-
-    Args:
-        request (iter[:class:`rez.packages.Package` or :class:`rez.packages.Variant`]):
-            The installed package name-version to convert.
-
-    Returns:
-        list[str]: A request which can be sent to a Rez context.
-
-    """
-    return [
-        "{package.name}=={package.version}".format(package=package)
-        for package in request
-    ]
-
-
-# TODO : Remove this function later once everything is supported
-def _validate_keys(diff):
-    """Make sure `diff` can be processed by functions in this module.
-
-    Todo:
-        Check if this function is actually needed
-
-    Args:
-        diff (dict[str, object]): The Rez diff to check.
-
-    Raises:
-        RuntimeError: If `diff` has any keys which we do not know how to process.
-
-    """
-    keys = set(diff.keys())
-    unsupported = keys - _SUPPORTED_KEYS
-
-    if unsupported:
-        raise RuntimeError(
-            'Unknown keys "{unsupported}" were found. Expected "{_SUPPORTED_KEYS}".'.format(
-                unsupported=unsupported, _SUPPORTED_KEYS=_SUPPORTED_KEYS
-            )
-        )
 
 
 def _get_bad_package_request(diff, key):
@@ -219,33 +199,126 @@ def _get_bad_package_request(diff, key):
     }
 
 
-def _get_filtered_request_diff(good, bad):
-    """Make a diff using only the requested Rez packages.
+def _get_nudged_packages(has_issue, good, diff):
 
-    Rez's :meth:`rez.resolved_context.ResolvedContext.get_resolve_diff` is good
-    but it returns the diff of every Rez package, even nested dependencies.
-    This function only returns the diff of packages which were included in the
-    user's original package request.
+    def _get_from_change_dict(weight, packages):
+        request = []
+        output = {}
 
-    Args:
-        good (rez.resolved_context.ResolvedContext):
-            The context which would return False for ``has_issue(good)``.
-            It's the last context before some issue begins occurring.
-        bad (rez.resolved_context.Context):
-            The earliest context that fails ``has_issue(bad)``.
+        for name, versions in packages.items():
+            index = math.floor(len(versions) * weight)
+            package = versions[index]
 
-    Returns:
-        dict[str, list[rez.packages.Package]]: The simplified diff.
+            request.append(package)
+            output[package.name] = index
 
-    """
-    contexts = [good, bad]
-    requests = {
-        package.name for context in contexts for package in context.requested_packages()
-    }
-    resolve_diff = good.get_resolve_diff(bad)
-    request_diff = diff_mate.get_request_diff(requests, resolve_diff)
+        return output, request
 
-    return {key: value for key, value in request_diff.items() if value}
+    def _get_from_change_list(weight, packages, good):
+        request = []
+        output = {}
+
+        max_index = math.floor(len(packages) * weight)
+
+        for package in packages[:max_index]:
+            output.add(package.name)
+
+        requested = good.requested_packages()
+
+        for package in packages[max_index:]:
+            found = [package_ for package_ in requested if package_.name == package.name]
+            request.extend(found)
+
+        return output, request
+
+    previous_weight = 1
+    weight = 0.5
+    older = diff.get(_OLDER) or {}
+    newer = diff.get(_NEWER) or {}
+    removed = diff.get(_REMOVED) or []
+    previous = None
+
+    while True:
+        request = []
+
+        newer_indices, extra = _get_from_change_dict(weight, newer)
+        request.extend(extra)
+        older_indices, extra = _get_from_change_dict(weight, older)
+        request.extend(extra)
+        removed_packages, remaining_requests = _get_from_change_list(weight, removed, good)
+        raw_request = _to_raw_request(request)
+        raw_request.extend(remaining_requests)
+
+        context = resolved_context.ResolvedContext(
+            raw_request,
+            package_paths=good.package_paths,
+        )
+
+        average = (weight + previous_weight) / 2
+        offset = abs(average - weight)
+
+        if has_issue(context):
+            # Since ``context`` still has an issue, we nudge ``weight`` to move
+            # away from the bad ``diff`` and closer to ``good`` so the next
+            # iteration of ``has_issue(context)`` has a greater chance of
+            # returning False.
+            #
+            previous_weight = weight
+            weight = weight - offset
+
+            continue
+
+        # TODO : Check why this is producing a redundant check. Make it more efficient
+        if request == previous:
+            break
+
+        previous_weight = weight
+        weight += offset
+        previous = request
+
+    return _NudgeResults(
+        older,
+        newer,
+        removed,
+        older_indices,
+        newer_indices,
+        remaining_requests,
+    )
+
+
+# def _get_ephemeral_diff(left, right):
+#     left_families = {requirement.name: requirement for requirement in left.resolved_ephemerals}
+#     right_families = {requirement.name: requirement for requirement in right.resolved_ephemerals}
+#
+#     added = set()
+#     changed = set()
+#     removed = set()
+#
+#     for requirement in left.resolved_ephemerals:
+#         if requirement.name not in right_families:
+#             removed.add(requirement)
+#
+#             continue
+#
+#         if requirement.range != right_families[requirement.name].range:
+#             changed.add(requirement)
+#
+#     for requirement in right.resolved_ephemerals:
+#         if requirement.name not in left_families:
+#             added.add(requirement)
+#
+#     output = {}
+#
+#     if added:
+#         output[_ADDED_EPHEMERALS] = added
+#
+#     if changed:
+#         output[_CHANGED_EPHEMERALS] = changed
+#
+#     if removed:
+#         output[_REMOVED_EPHEMERALS] = removed
+#
+#     return output
 
 
 # TODO : Consider removing this function, `_get_exact_bisect`. If it becomes too simple
@@ -261,7 +334,7 @@ def _get_exact_bisect(has_issue, good, diff):
     #         - Adding a package causes some problem
     #         - Removing a package causes some problem
     #
-    #     - If found, test individual components, to find "the one(s)"
+    #     - If found, test individual components, to find "the bad one(s)"
     #
     # Args:
     #     has_issue (callable[rez.resolved_context.Context] -> bool):
@@ -291,12 +364,10 @@ def _get_exact_bisect(has_issue, good, diff):
 
         return {_ADDED: required_bad}
 
-    does_not_has_issue = _invert(has_issue)
-
-    required_bad = _check_by_type_is_bad(does_not_has_issue, good, diff, _REMOVED)
+    required_bad = _check_by_type_is_bad(has_issue, good, diff, _REMOVED, exclude=True)
 
     if required_bad:
-        required_bad = _narrow_candidates(does_not_has_issue, good, required_bad)
+        required_bad = _narrow_candidates(has_issue, good, required_bad, exclude=True)
 
         return {_REMOVED: required_bad}
 
@@ -317,8 +388,37 @@ def _get_exact_bisect(has_issue, good, diff):
     raise NotImplementedError()
 
 
-def _get_quick_context(good, bad_request):
-    # raise ValueError(sorted(item for item in dir(good) if "" in item.lower()))
+def _get_filtered_request_diff(good, bad):
+    """Make a diff using only the requested Rez packages.
+
+    Rez's :meth:`rez.resolved_context.ResolvedContext.get_resolve_diff` is good
+    but it returns the diff of every Rez package, even nested dependencies.
+    This function only returns the diff of packages which were included in the
+    user's original package request.
+
+    Args:
+        good (rez.resolved_context.ResolvedContext):
+            The context which would return False for ``has_issue(good)``.
+            It's the last context before some issue begins occurring.
+        bad (rez.resolved_context.ResolvedContext):
+            The earliest context that fails ``has_issue(bad)``.
+
+    Returns:
+        dict[str, list[rez.packages.Package]]: The simplified diff.
+
+    """
+    contexts = [good, bad]
+    requests = {
+        package.name for context in contexts for package in context.requested_packages()
+    }
+    resolve_diff = good.get_resolve_diff(bad)
+    request_diff = diff_mate.get_request_diff(requests, resolve_diff)
+
+    return {key: value for key, value in request_diff.items() if value}
+
+
+def _get_quick_context(good, bad_request, exclude=False):
+    # bad_request list[PackageRequest]
     bad_request_names = {request.name for request in bad_request}
     requested_good_packages = []
 
@@ -326,10 +426,12 @@ def _get_quick_context(good, bad_request):
         if request.name not in bad_request_names:
             requested_good_packages.append(request)
 
-    return resolved_context.ResolvedContext(
-        requested_good_packages + _to_raw_request(bad_request),
-        package_paths=good.package_paths,
-    )
+    request = requested_good_packages
+
+    if not exclude:
+        request += _to_raw_request(bad_request)
+
+    return resolved_context.ResolvedContext(request, package_paths=good.package_paths)
 
 
 def _invert(caller):
@@ -340,7 +442,7 @@ def _invert(caller):
     return wrapped
 
 
-def _narrow_candidates(has_issue, good, request):
+def _narrow_candidates(has_issue, good, request, exclude=False):
     if not request:
         raise RuntimeError('Request cannot be empty.')
 
@@ -349,7 +451,7 @@ def _narrow_candidates(has_issue, good, request):
 
     while count <= length:
         for packages in itertools.combinations(request, count):
-            context = _get_quick_context(good, packages)
+            context = _get_quick_context(good, packages, exclude=exclude)
 
             if has_issue(context):
                 return packages
@@ -357,6 +459,68 @@ def _narrow_candidates(has_issue, good, request):
         count += 1
 
     raise RuntimeError('Request "{request}" could not be narrowed.'.format(request=request))
+
+
+def _to_raw_request(request):
+    """Convert Rez packages / variants into something Rez contexts can use.
+
+    Todo:
+        Check if this is needed.
+
+    Args:
+        request (
+            iter[
+                rez.packages.Package
+                or rez.packages.Variant
+                or rez.utils.formatting.PackageRequest
+            ]
+        ):
+            The installed package name-version to convert.
+
+    Raises:
+        NotImplementedError:
+            If ``request`` contains something that this function cannot process.
+
+    Returns:
+        list[str]: A request which can be sent to a Rez context.
+
+    """
+    output = []
+
+    for item in request:
+        if hasattr(item, "version"):
+            output.append("{item.name}=={item.version}".format(item=item))
+        elif hasattr(item, "range"):
+            output.append(str(item))
+        else:
+            raise NotImplementedError('Item "{item}" cannot be processed.'.format(item=item))
+
+    return output
+
+
+# TODO : Remove this function later once everything is supported
+def _validate_keys(diff):
+    """Make sure `diff` can be processed by functions in this module.
+
+    Todo:
+        Check if this function is actually needed
+
+    Args:
+        diff (dict[str, object]): The Rez diff to check.
+
+    Raises:
+        RuntimeError: If `diff` has any keys which we do not know how to process.
+
+    """
+    keys = set(diff.keys())
+    unsupported = keys - _SUPPORTED_KEYS
+
+    if unsupported:
+        raise RuntimeError(
+            'Unknown keys "{unsupported}" were found. Expected "{_SUPPORTED_KEYS}".'.format(
+                unsupported=unsupported, _SUPPORTED_KEYS=_SUPPORTED_KEYS
+            )
+        )
 
 
 def bisect_2d(has_issue, good, bad):

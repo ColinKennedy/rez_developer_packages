@@ -61,6 +61,16 @@ def _get_contexts(namespace, root):
     return contexts
 
 
+def _get_line(item):
+    if hasattr(item, "version"):
+        return "{item.name}-{item.version}".format(item=item)
+
+    if hasattr(item, "range"):
+        return str(item)
+
+    raise NotImplementedError('Not sure how to stringify "{item}" type.'.format(item=item))
+
+
 def _report_context_indices(contexts):
     """Print the given ``contexts``.
 
@@ -105,11 +115,11 @@ def _run(namespace):
 
     print("Diff Breakdown:")
 
-    for key, packages in results.breakdown.items():
+    for key, items in results.breakdown.items():
         print("    {key}:".format(key=key))
 
-        for package in sorted(packages, key=operator.attrgetter("name")):
-            print("        {package.name}-{package.version}".format(package=package))
+        for item in sorted(items, key=operator.attrgetter("name")):
+            print("        {line}".format(line=_get_line(item)))
 
     return results
 

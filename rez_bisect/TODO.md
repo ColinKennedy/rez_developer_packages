@@ -18,6 +18,9 @@
  - 2 or more packages at once have some incompatible issue
 - Handle errors due to added or removed **ephemerals**
 
+- Ephemeral - newer range
+- Ephemeral - older range
+- A package with an ephemeral variant that a request picks up
 
 - To make bisecting faster, I should try removing package versions from the
   diff which do not satisfy the package requests from the bad context. After

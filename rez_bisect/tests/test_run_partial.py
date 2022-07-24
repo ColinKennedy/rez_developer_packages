@@ -60,6 +60,42 @@ class Cases(unittest.TestCase):
             },
         )
 
+    def test_older_version(self):
+        """Fail when a package version goes below a certain point."""
+
+        def _is_failure_condition(context):
+            print('CHECKING FOR BAD THING', context, context.get_resolved_package("foo").version < _FOO_LOW_VERSION)
+            return context.get_resolved_package("foo").version < _FOO_LOW_VERSION
+
+        directory = os.path.join(_TESTS, "simple_packages")
+
+        command = [
+            "run",
+            "",
+            "foo-1.6 dependency",
+            "foo-1+<1.4 bar-1",
+            "--packages-path",
+            directory,
+            "--partial",
+        ]
+
+        with utility.patch_run(_is_failure_condition):
+            result = utility.run_test(command)
+
+        self.assertEqual(0, result.last_good)
+        self.assertEqual(1, result.first_bad)
+
+        bad_version = "1.4.0"  # This version is "bad" because it's less than "1.5.0"
+
+        self.assertEqual({"older_packages"}, set(result.breakdown.keys()))
+        self.assertEqual(
+            {("foo", bad_version)},
+            {
+                (package.name, str(package.version))
+                for package in result.breakdown["older_packages"]
+            },
+        )
+
     def test_newer_package_001(self):
         """Find the first package to include a dependency which causes failure."""
 
@@ -138,77 +174,42 @@ class Cases(unittest.TestCase):
             },
         )
 
-    def test_down_version(self):
-        """Fail when a package version goes below a certain point."""
+    def test_removed(self):
+        """Fail when some important package was removed from the request."""
 
         def _is_failure_condition(context):
-            return context.get_resolved_package("foo").version < _FOO_LOW_VERSION
+            return context.get_resolved_package("foo") is None
 
         directory = os.path.join(_TESTS, "simple_packages")
 
-        command = [
-            "run",
-            "",
-            "foo-1.6 dependency",
-            "foo-1+<1.4 bar-1",
-            "--packages-path",
-            directory,
-            "--partial",
-        ]
+        request_1 = "changing_dependencies-1.4 foo-1.1+<2"
+        request_2 = "changing_dependencies==1.5.0 foo-1.1+<2"
+        request_3 = "changing_dependencies-1.5+<2"
+        request_4 = "changing_dependencies-1.5+<2"
 
         with utility.patch_run(_is_failure_condition):
-            result = utility.run_test(command)
+            result = utility.run_test(
+                [
+                    "run",
+                    "",
+                    request_1,
+                    request_2,
+                    request_3,
+                    request_4,
+                    "--packages-path",
+                    directory,
+                    "--partial",
+                ]
+            )
 
-        self.assertEqual(0, result.last_good)
-        self.assertEqual(1, result.first_bad)
+        self.assertEqual(1, result.last_good)
+        self.assertEqual(2, result.first_bad)
+        self.assertEqual({"removed_packages"}, set(result.breakdown.keys()))
 
-        bad_version = "1.4.0"  # This version is "bad" because it's less than "1.5.0"
-
-        self.assertEqual({"older_packages"}, set(result.breakdown.keys()))
         self.assertEqual(
-            {("foo", bad_version)},
+            {("foo-1.1+<2")},
             {
-                (package.name, str(package.version))
-                for package in result.breakdown["older_packages"]
+                str(package)
+                for package in result.breakdown["removed_packages"]
             },
         )
-
-    # TODO : Enable this test again
-    # def test_removed(self):
-    #     """Fail when some important package was removed from the request."""
-    #
-    #     def _is_failure_condition(context):
-    #         return context.get_resolved_package("foo") is None
-    #
-    #     directory = os.path.join(_TESTS, "simple_packages")
-    #
-    #     request_1 = "changing_dependencies-1.4 foo-1.1+<2"
-    #     request_2 = "changing_dependencies==1.5.0 foo-1.1+<2"
-    #     request_3 = "changing_dependencies-1.5+<2"
-    #     request_4 = "changing_dependencies-1.5+<2"
-    #
-    #     with utility.patch_run(_is_failure_condition):
-    #         result = utility.run_test(
-    #             [
-    #                 "run",
-    #                 "",
-    #                 request_1,
-    #                 request_2,
-    #                 request_3,
-    #                 request_4,
-    #                 "--packages-path",
-    #                 directory,
-    #                 "--partial",
-    #             ]
-    #         )
-    #
-    #     self.assertEqual(1, result.last_good)
-    #     self.assertEqual(2, result.first_bad)
-    #     self.assertEqual({"removed_packages"}, set(result.breakdown.keys()))
-    #     self.assertEqual(
-    #         {("foo", "1.20.0")},
-    #         {
-    #             (package.name, str(package.version))
-    #             for package in result.breakdown["removed_packages"]
-    #         },
-    #     )
