@@ -48,7 +48,26 @@ def _extract_all(path, destination):
     # Note: When using Python 3, use `shutil.unpack_archive`: https://stackoverflow.com/a/56182972
     with tarfile.open(path, "r:gz") as handler:
         members = handler.getmembers()
-        handler.extractall(path=destination)
+        def is_within_directory(directory, target):
+            
+            abs_directory = os.path.abspath(directory)
+            abs_target = os.path.abspath(target)
+        
+            prefix = os.path.commonprefix([abs_directory, abs_target])
+            
+            return prefix == abs_directory
+        
+        def safe_extract(tar, path=".", members=None, *, numeric_owner=False):
+        
+            for member in tar.getmembers():
+                member_path = os.path.join(path, member.name)
+                if not is_within_directory(path, member_path):
+                    raise Exception("Attempted Path Traversal in Tar File")
+        
+            tar.extractall(path, members, numeric_owner=numeric_owner) 
+            
+        
+        safe_extract(handler, path=destination)
 
     return {
         os.path.join(destination, member.path)
