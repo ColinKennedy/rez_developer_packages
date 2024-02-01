@@ -1,7 +1,3 @@
-- Add a clean-on-exit context
-- Make sure the EGG has as much data as possible
-- Make sure python version is not forced
-
 A basic wrapper around Rez's
 [build_command](https://github.com/nerdvegas/rez/wiki/Package-Definition-Guide#build_command).
 
@@ -64,9 +60,9 @@ folder structure should look like this:
 ```
 - some_folder_name (usually, just "hdas")
     - some_hda_name
-	    - houdini.hdalibrary
-		- other
-		- files
+        - houdini.hdalibrary
+        - other
+        - files
 ```
 
 And then rez_build_helper looks like this:
@@ -108,7 +104,7 @@ from rez_build_helper import filer
 
 
 def build(source_path, build_path, install_path, targets):
-	# `build_path` here doesn't do anything. But can be used if you need it for anything
+    # `build_path` here doesn't do anything. But can be used if you need it for anything
     filer.build(source_path, install_path, targets)
 
 if __name__ == "__main__":
