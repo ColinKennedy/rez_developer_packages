@@ -17,6 +17,9 @@ uuid = "168c5114-a951-4834-a744-dae1331e375e"
 
 requires = ["rez-2.71+<3", "six-1.11+<2", "whichcraft-0.6+<1"]
 
+# Added hashed_variants so this package builds in Windows
+hashed_variants = True
+
 variants = [
     ["python-2.7", "setuptools-44+<45"],
     ["python-3.6", "setuptools-51+<52"],
