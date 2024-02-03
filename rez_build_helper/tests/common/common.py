@@ -28,7 +28,7 @@ class Common(unittest.TestCase):
         can be made to pass.
 
         """
-        for key, value in os.environ.items():
+        for key, value in sorted(os.environ.items()):
             if "rez" in key.lower():
                 print(key, value)
         build_package = finder.get_nearest_rez_package(
