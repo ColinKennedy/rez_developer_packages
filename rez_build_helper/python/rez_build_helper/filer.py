@@ -65,6 +65,8 @@ def _find_api_documentation(entries):
 
 def _get_hotl_executable():
     """str: Find the path to a hotl executable, if any."""
+    print("PATH")
+    print(os.environ["PATH"])
     return os.path.normcase(whichcraft.which("hotl") or "")
 
 
