@@ -31,11 +31,9 @@ class Common(unittest.TestCase):
         for key, value in sorted(os.environ.items()):
             if "rez" in key.lower():
                 print(key, value)
-        build_package = finder.get_nearest_rez_package(
-            os.environ["REZ_REZ_BUILD_HELPER_ROOT"]
-        )
+
         build_path = os.path.dirname(
-            os.path.dirname(finder.get_package_root(build_package))
+            os.path.dirname(os.environ["REZ_REZ_BUILD_HELPER_BASE"])
         )
         directory = tempfile.mkdtemp(suffix="_test_egg_Egg_folder")
         atexit.register(functools.partial(shutil.rmtree, directory))
