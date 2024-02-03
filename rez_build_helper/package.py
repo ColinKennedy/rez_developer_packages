@@ -37,33 +37,33 @@ variants = [
 # TODO: Check if windows and, if so, don't include wurlitzer
 _common_requires = ["rez_python_compatibility-2.6+<3", "wurlitzer-2+<3"]
 _common_run_on = ["default", "pre_release"]
+_common_python_3_variant = {
+    "type": "requires",
+    "value": ["python-3"],
+}
 
 tests = {
     "black_diff": {
         "command": "black --diff --check package.py python tests",
-        "on_variants": {
-            "type": "requires",
-            "value": ["python-3"],
-        },
+        "on_variants": _common_python_3_variant,
         "requires": ["black-23+<24"],
         "run_on": _common_run_on,
     },
     "black": {
         "command": "black package.py python tests",
-        "on_variants": {
-            "type": "requires",
-            "value": ["python-3"],
-        },
+        "on_variants": _common_python_3_variant,
         "requires": ["black-23+<24"],
         "run_on": "explicit",
     },
     "isort": {
         "command": "isort --profile black package.py python tests",
+        "on_variants": _common_python_3_variant,
         "requires": ["isort-5.11+<6"],
         "run_on": "explicit",
     },
     "isort_check": {
         "command": "isort --profile black --check-only --diff package.py python tests",
+        "on_variants": _common_python_3_variant,
         "requires": ["isort-5.11+<6"],
         "run_on": _common_run_on,
     },
@@ -72,26 +72,34 @@ tests = {
         # Reference: https://github.com/psf/black/issues/1159
         #
         "command": "pydocstyle --ignore=D213,D202,D203,D406,D407 python tests/*",
+        "on_variants": _common_python_3_variant,
         "requires": ["pydocstyle-6+<7"],
         "run_on": _common_run_on,
     },
     "pylint_source": {
         "command": "pylint --disable=consider-using-f-string python/rez_build_helper",
+        "on_variants": _common_python_3_variant,
         "requires": _common_requires + ["pylint-2.17+<3"],
         "run_on": _common_run_on,
     },
     "pylint_tests": {
         "command": "pylint --disable=consider-using-f-string,duplicate-code tests",
+        "on_variants": _common_python_3_variant,
         "requires": _common_requires + ["pylint-2.17+<3"],
         "run_on": _common_run_on,
     },
     "unittest_python_2": {
         "command": "python -m unittest discover",
+        "on_variants": {
+            "type": "requires",
+            "value": ["python-2"],
+        },
         "requires": _common_requires + [".add_fake_hotl-1", "python-2.7"],
         "run_on": _common_run_on,
     },
     "unittest_python_3": {
         "command": "python -m unittest discover",
+        "on_variants": _common_python_3_variant,
         "requires": _common_requires + [".add_fake_hotl-1", "python-3.6+<3.8"],
         "run_on": _common_run_on,
     },
