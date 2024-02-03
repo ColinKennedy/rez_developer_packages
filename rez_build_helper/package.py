@@ -15,6 +15,13 @@ build_command = "python {root}/rezbuild.py {install}"
 
 uuid = "168c5114-a951-4834-a744-dae1331e375e"
 
+# requires = [
+#     "python-2.7+<3.8",
+#     "rez-2.71+<3",
+#     "setuptools-44+<52",
+#     "six-1.11+<2",
+#     "whichcraft-0.6+<1",
+# ]
 requires = ["rez-2.71+<3", "six-1.11+<2", "whichcraft-0.6+<1"]
 
 # ``hashed_variants`` is required if you want this to build on Windows, which
@@ -34,11 +41,19 @@ _common_run_on = ["default", "pre_release"]
 tests = {
     "black_diff": {
         "command": "black --diff --check package.py python tests",
+        "on_variants": {
+            "type": "requires",
+            "value": ["python-3"],
+        },
         "requires": ["black-23+<24"],
         "run_on": _common_run_on,
     },
     "black": {
         "command": "black package.py python tests",
+        "on_variants": {
+            "type": "requires",
+            "value": ["python-3"],
+        },
         "requires": ["black-23+<24"],
         "run_on": "explicit",
     },
