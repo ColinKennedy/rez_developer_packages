@@ -28,6 +28,7 @@ class Common(unittest.TestCase):
         can be made to pass.
 
         """
+        raise ValueError((os.environ["REZ_BUILD_INSTALL_PATH"], os.environ["REZ_REZ_BUILD_HELPER_ROOT"]))
         build_package = finder.get_nearest_rez_package(
             os.environ["REZ_REZ_BUILD_HELPER_ROOT"]
         )
