@@ -3,15 +3,18 @@
 
 """Make sure :mod:`rez_build_helper` works as expected."""
 
+from __future__ import unicode_literals
+
 import atexit
 import functools
+import io
 import os
 import shutil
 import tempfile
 import textwrap
 import unittest
 
-from .common import common, creator, finder
+from .common import common, creator, finder, pymix
 
 
 class Cli(unittest.TestCase):
@@ -22,7 +25,9 @@ class Cli(unittest.TestCase):
         directory = tempfile.mkdtemp(prefix="rez_build_helper_Cli_test_empty_")
         atexit.register(functools.partial(shutil.rmtree, directory))
 
-        with open(os.path.join(directory, "package.py"), "w") as handler:
+        with io.open(
+            os.path.join(directory, "package.py"), "w", encoding="utf-8"
+        ) as handler:
             handler.write(
                 textwrap.dedent(
                     """\
@@ -60,14 +65,19 @@ class Cli(unittest.TestCase):
                     "some_thing": {
                         "__init__.py": None,
                         "some_module.py": None,
-                        "inner_folder": {"__init__.py": None, "inner_module.py": None,},
+                        "inner_folder": {
+                            "__init__.py": None,
+                            "inner_module.py": None,
+                        },
                     }
                 }
             },
             directory,
         )
 
-        with open(os.path.join(directory, "package.py"), "w") as handler:
+        with io.open(
+            os.path.join(directory, "package.py"), "w", encoding="utf-8"
+        ) as handler:
             handler.write(
                 textwrap.dedent(
                     """\
@@ -95,7 +105,10 @@ class Cli(unittest.TestCase):
         install_location = os.path.join(destination, "some_package", "1.0.0")
 
         self.assertTrue(os.path.isdir(os.path.join(install_location, "python")))
-        self.assertFalse(os.path.islink(os.path.join(install_location, "python")))
+
+        if pymix.can_check_links():
+            self.assertFalse(os.path.islink(os.path.join(install_location, "python")))
+
         self.assertTrue(
             os.path.isdir(os.path.join(install_location, "python", "some_thing"))
         )
@@ -144,7 +157,7 @@ class Symlink(unittest.TestCase):
     def test_files(self):
         """Symlink only files and not folders."""
         directory = tempfile.mkdtemp(
-            prefix="rez_build_helper_Symlink_test_files_directory_",
+            prefix="rez_build_helper_Symlink_test_files_directory_source_",
         )
         atexit.register(functools.partial(shutil.rmtree, directory))
 
@@ -155,14 +168,19 @@ class Symlink(unittest.TestCase):
                     "some_thing": {
                         "__init__.py": None,
                         "some_module.py": None,
-                        "inner_folder": {"__init__.py": None, "inner_module.py": None,},
+                        "inner_folder": {
+                            "__init__.py": None,
+                            "inner_module.py": None,
+                        },
                     }
                 },
             },
             directory,
         )
 
-        with open(os.path.join(directory, "package.py"), "w") as handler:
+        with io.open(
+            os.path.join(directory, "package.py"), "w", encoding="utf-8"
+        ) as handler:
             handler.write(
                 textwrap.dedent(
                     """\
@@ -192,7 +210,10 @@ class Symlink(unittest.TestCase):
         install_location = os.path.join(destination, "some_package", "1.0.0")
 
         file_path = os.path.join(install_location, "some_file.txt")
-        self.assertTrue(os.path.islink(file_path))
+
+        if pymix.can_check_links():
+            self.assertTrue(os.path.islink(file_path))
+
         self.assertTrue(os.path.isfile(file_path))
         self.assertTrue(os.path.isdir(os.path.join(install_location, "python")))
         self.assertTrue(
@@ -213,14 +234,19 @@ class Symlink(unittest.TestCase):
                     "some_thing": {
                         "__init__.py": None,
                         "some_module.py": None,
-                        "inner_folder": {"__init__.py": None, "inner_module.py": None,},
+                        "inner_folder": {
+                            "__init__.py": None,
+                            "inner_module.py": None,
+                        },
                     }
                 },
             },
             directory,
         )
 
-        with open(os.path.join(directory, "package.py"), "w") as handler:
+        with io.open(
+            os.path.join(directory, "package.py"), "w", encoding="utf-8"
+        ) as handler:
             handler.write(
                 textwrap.dedent(
                     """\
@@ -250,10 +276,16 @@ class Symlink(unittest.TestCase):
         install_location = os.path.join(destination, "some_package", "1.0.0")
 
         file_path = os.path.join(install_location, "some_file.txt")
-        self.assertFalse(os.path.islink(file_path))
+
+        if pymix.can_check_links():
+            self.assertFalse(os.path.islink(file_path))
+
         self.assertTrue(os.path.isfile(file_path))
         folder = os.path.join(install_location, "python")
-        self.assertTrue(os.path.islink(folder))
+
+        if pymix.can_check_links():
+            self.assertTrue(os.path.islink(folder))
+
         self.assertTrue(os.path.isdir(folder))
         self.assertTrue(
             os.path.isdir(os.path.join(install_location, "python", "some_thing"))
@@ -270,14 +302,19 @@ class Symlink(unittest.TestCase):
                     "some_thing": {
                         "__init__.py": None,
                         "some_module.py": None,
-                        "inner_folder": {"__init__.py": None, "inner_module.py": None,},
+                        "inner_folder": {
+                            "__init__.py": None,
+                            "inner_module.py": None,
+                        },
                     }
                 }
             },
             directory,
         )
 
-        with open(os.path.join(directory, "package.py"), "w") as handler:
+        with io.open(
+            os.path.join(directory, "package.py"), "w", encoding="utf-8"
+        ) as handler:
             handler.write(
                 textwrap.dedent(
                     """\
@@ -305,7 +342,10 @@ class Symlink(unittest.TestCase):
         install_location = os.path.join(destination, "some_package", "1.0.0")
 
         self.assertTrue(os.path.isdir(os.path.join(install_location, "python")))
-        self.assertTrue(os.path.islink(os.path.join(install_location, "python")))
+
+        if pymix.can_check_links():
+            self.assertTrue(os.path.islink(os.path.join(install_location, "python")))
+
         self.assertTrue(
             os.path.isdir(os.path.join(install_location, "python", "some_thing"))
         )
@@ -349,7 +389,9 @@ class Symlink(unittest.TestCase):
 
     def test_multiple(self):
         """Create symlinks to represent egg files for Python folders."""
-        directory = tempfile.mkdtemp(prefix="rez_build_helper_Symlink_test_multiple_")
+        directory = tempfile.mkdtemp(
+            prefix="rez_build_helper_Symlink_test_multiple_source_",
+        )
         atexit.register(functools.partial(shutil.rmtree, directory))
 
         common.make_files(
@@ -358,21 +400,29 @@ class Symlink(unittest.TestCase):
                     "some_thing": {
                         "__init__.py": None,
                         "some_module.py": None,
-                        "inner_folder": {"__init__.py": None, "inner_module.py": None,},
+                        "inner_folder": {
+                            "__init__.py": None,
+                            "inner_module.py": None,
+                        },
                     }
                 },
                 "another": {
                     "stuff": {
                         "__init__.py": None,
                         "some_module.py": None,
-                        "inner_folder": {"__init__.py": None, "inner_module.py": None,},
+                        "inner_folder": {
+                            "__init__.py": None,
+                            "inner_module.py": None,
+                        },
                     }
                 },
             },
             directory,
         )
 
-        with open(os.path.join(directory, "package.py"), "w") as handler:
+        with io.open(
+            os.path.join(directory, "package.py"), "w", encoding="utf-8"
+        ) as handler:
             handler.write(
                 textwrap.dedent(
                     """\
@@ -393,13 +443,19 @@ class Symlink(unittest.TestCase):
             )
 
         package = finder.get_nearest_rez_package(directory)
-        destination = tempfile.mkdtemp(prefix="rez_build_helper_Symlink_test_multiple_")
+        destination = tempfile.mkdtemp(
+            prefix="rez_build_helper_Symlink_test_multiple_destination_",
+        )
         atexit.register(functools.partial(shutil.rmtree, destination))
 
         creator.build(package, destination, quiet=True)
         install_location = os.path.join(destination, "some_package", "1.0.0")
 
-        self.assertTrue(os.path.islink(os.path.join(install_location, "python.egg")))
+        if pymix.can_check_links():
+            self.assertTrue(
+                os.path.islink(os.path.join(install_location, "python.egg"))
+            )
+
         self.assertFalse(os.path.isfile(os.path.join(install_location, "python.egg")))
         self.assertFalse(os.path.isdir(os.path.join(install_location, "python")))
         self.assertFalse(
@@ -443,7 +499,11 @@ class Symlink(unittest.TestCase):
             )
         )
 
-        self.assertTrue(os.path.islink(os.path.join(install_location, "another.egg")))
+        if pymix.can_check_links():
+            self.assertTrue(
+                os.path.islink(os.path.join(install_location, "another.egg"))
+            )
+
         self.assertFalse(os.path.isfile(os.path.join(install_location, "another.egg")))
         self.assertFalse(os.path.isdir(os.path.join(install_location, "another")))
         self.assertFalse(
@@ -486,7 +546,7 @@ class Symlink(unittest.TestCase):
     def test_single(self):
         """Create a symlink for (what would have normally been) an .egg file."""
         directory = tempfile.mkdtemp(
-            prefix="rez_build_helper_Symlink_test_single_directory_"
+            prefix="rez_build_helper_Symlink_test_single_directory_source_"
         )
         atexit.register(functools.partial(shutil.rmtree, directory))
 
@@ -496,14 +556,19 @@ class Symlink(unittest.TestCase):
                     "some_thing": {
                         "__init__.py": None,
                         "some_module.py": None,
-                        "inner_folder": {"__init__.py": None, "inner_module.py": None,},
+                        "inner_folder": {
+                            "__init__.py": None,
+                            "inner_module.py": None,
+                        },
                     }
                 }
             },
             directory,
         )
 
-        with open(os.path.join(directory, "package.py"), "w") as handler:
+        with io.open(
+            os.path.join(directory, "package.py"), "w", encoding="utf-8"
+        ) as handler:
             handler.write(
                 textwrap.dedent(
                     """\
@@ -532,7 +597,11 @@ class Symlink(unittest.TestCase):
         creator.build(package, destination, quiet=True)
         install_location = os.path.join(destination, "some_package", "1.0.0")
 
-        self.assertTrue(os.path.islink(os.path.join(install_location, "python.egg")))
+        if pymix.can_check_links():
+            self.assertTrue(
+                os.path.islink(os.path.join(install_location, "python.egg"))
+            )
+
         self.assertFalse(os.path.isfile(os.path.join(install_location, "python.egg")))
         self.assertFalse(os.path.isdir(os.path.join(install_location, "python")))
         self.assertFalse(

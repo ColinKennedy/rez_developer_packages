@@ -5,6 +5,7 @@
 
 import atexit
 import functools
+import io
 import os
 import shutil
 import tempfile
@@ -49,7 +50,7 @@ class Common(unittest.TestCase):
             package = finder.get_nearest_rez_package(
                 os.environ["REZ_{name}_ROOT".format(name=name.upper())]
             )
-            root = os.path.dirname(finder.get_package_root(package))
+            root = finder.get_package_root(package)
             path = os.path.dirname(root)
             destination = os.path.join(directory, os.path.relpath(root, path))
 
@@ -90,6 +91,17 @@ def _copytree(source, destination, symlinks=False, ignore=None):
             shutil.copy2(source_, destination_)
 
 
+def _make_file(path):
+    """Create ``path`` on disk if it doesn't already exist.
+
+    Args:
+        path (str): An absolute path that may or may not exist on-disk.
+
+    """
+    with io.open(path, "a", encoding="utf-8"):
+        pass
+
+
 # Note : This was copied from :mod:`python_compatibility` to avoid a cyclic depemdendency
 def make_files(file_structure, root):
     """Create a file and folder structure, starting a `root` directory.
@@ -117,6 +129,6 @@ def make_files(file_structure, root):
 
         if items is None:
             if not os.path.isfile(item_path):
-                open(item_path, "a").close()
+                _make_file(item_path)
         elif not os.path.isdir(item_path):
             os.makedirs(item_path)

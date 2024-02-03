@@ -3,8 +3,11 @@
 
 """All tests related to generating Python .egg files."""
 
+from __future__ import unicode_literals
+
 import atexit
 import functools
+import io
 import os
 import shutil
 import sys
@@ -14,9 +17,16 @@ import zipfile
 
 import pkg_resources
 from python_compatibility import wrapping
+
 from rez_build_helper import exceptions, filer
 
-from .common import common, creator, finder
+from .common import common, creator, finder, pymix, rez_configuration
+
+_IS_PYTHON_2 = sys.version_info.major == 2
+_INFO = sys.version_info
+_REZ_PLATFORM = rez_configuration.get_current_platform_as_rez_name()
+_REZ_PYTHON_VERSION = os.environ["REZ_PYTHON_VERSION"]
+_VERSION = "{_INFO.major}.{_INFO.minor}.{_INFO.micro}".format(_INFO=_INFO)
 
 
 class Egg(common.Common):
@@ -24,6 +34,8 @@ class Egg(common.Common):
 
     def setUp(self):
         """Keep track of the users loadable Python paths so it can be reverted."""
+        super(Egg, self).setUp()  # pylint: disable=super-with-arguments
+
         self._paths = list(sys.path)
 
     def tearDown(self):
@@ -43,40 +55,45 @@ class Egg(common.Common):
                     "some_thing": {
                         "__init__.py": None,
                         "some_module.py": None,
-                        "inner_folder": {"__init__.py": None, "inner_module.py": None,},
+                        "inner_folder": {
+                            "__init__.py": None,
+                            "inner_module.py": None,
+                        },
                     }
                 }
             },
             directory,
         )
 
-        with open(os.path.join(directory, "package.py"), "w") as handler:
-            handler.write(
-                textwrap.dedent(
-                    """\
-                    name = "some_package"
+        template = textwrap.dedent(
+            """\
+            name = "some_package"
 
-                    version = "1.0.0"
+            version = "1.0.0"
 
-                    description = "A test packages for rez_build_helper"
+            description = "A test packages for rez_build_helper"
 
-                    help = "http://www.some_home_page.com"
+            help = "http://www.some_home_page.com"
 
-                    authors = ["ColinKennedy"]
+            authors = ["ColinKennedy"]
 
-                    requires = ["platform-linux", "python-3.6+<3.8"]
+            requires = ["platform-%s", "python-%s"]
 
-                    private_build_requires = ["rez_build_helper"]
+            private_build_requires = ["rez_build_helper"]
 
-                    build_command = "python -m rez_build_helper --eggs python"
+            build_command = "python -m rez_build_helper --eggs python"
 
-                    def commands():
-                        import os
+            def commands():
+                import os
 
-                        env.PYTHONPATH.append(os.path.join("{root}", "python.egg"))
-                    """
-                )
-            )
+                env.PYTHONPATH.append(os.path.join("{root}", "python.egg"))
+            """
+        )
+
+        with io.open(
+            os.path.join(directory, "package.py"), "w", encoding="ascii"
+        ) as handler:
+            handler.write(template % (_REZ_PLATFORM, _REZ_PYTHON_VERSION))
 
         package = finder.get_nearest_rez_package(directory)
         destination = tempfile.mkdtemp(
@@ -90,7 +107,12 @@ class Egg(common.Common):
         install_location = os.path.join(destination, "some_package", "1.0.0")
 
         self.assertTrue(os.path.isfile(os.path.join(install_location, "python.egg")))
-        self.assertFalse(os.path.islink(os.path.join(install_location, "python.egg")))
+
+        if pymix.can_check_links():
+            self.assertFalse(
+                os.path.islink(os.path.join(install_location, "python.egg"))
+            )
+
         self.assertFalse(os.path.isdir(os.path.join(install_location, "python")))
         self.assertFalse(
             os.path.isdir(os.path.join(install_location, "python", "some_thing"))
@@ -133,42 +155,63 @@ class Egg(common.Common):
             )
         )
 
-        egg = zipfile.ZipFile(os.path.join(install_location, "python.egg"), "r")
-        self.assertEqual(
-            {
+        with zipfile.ZipFile(os.path.join(install_location, "python.egg"), "r") as egg:
+            found_package_information = _get_package_information(egg)
+
+        _py = functools.partial(
+            _format_version,
+            "{sys.version_info.major}{sys.version_info.minor}".format(sys=sys),
+        )
+
+        expected = {
+            "EGG-INFO/PKG-INFO",
+            "EGG-INFO/SOURCES.txt",
+            "EGG-INFO/dependency_links.txt",
+            "EGG-INFO/top_level.txt",
+            "EGG-INFO/zip-safe",
+            "some_thing/__init__.py",
+            "some_thing/inner_folder/__init__.py",
+            "some_thing/inner_folder/inner_module.py",
+            "some_thing/some_module.py",
+            _py("some_thing/__pycache__/__init__.cpython-{}.pyc"),
+            _py("some_thing/__pycache__/some_module.cpython-{}.pyc"),
+            _py("some_thing/inner_folder/__pycache__/__init__.cpython-{}.pyc"),
+            _py("some_thing/inner_folder/__pycache__/inner_module.cpython-{}.pyc"),
+        }
+
+        if _IS_PYTHON_2:
+            expected = {
                 "EGG-INFO/PKG-INFO",
                 "EGG-INFO/SOURCES.txt",
                 "EGG-INFO/dependency_links.txt",
-                "EGG-INFO/zip-safe",
                 "EGG-INFO/top_level.txt",
+                "EGG-INFO/zip-safe",
                 "some_thing/__init__.py",
-                "some_thing/__pycache__/__init__.cpython-36.pyc",
-                "some_thing/__pycache__/some_module.cpython-36.pyc",
                 "some_thing/inner_folder/__init__.py",
-                "some_thing/inner_folder/__pycache__/__init__.cpython-36.pyc",
-                "some_thing/inner_folder/__pycache__/inner_module.cpython-36.pyc",
                 "some_thing/inner_folder/inner_module.py",
                 "some_thing/some_module.py",
-            },
-            {item.filename for item in egg.filelist},
-        )
-        package_information = textwrap.dedent(
-            """\
-            Metadata-Version: 1.2
-            Name: some-package
-            Version: 1.0.0
-            Summary: A test packages for rez_build_helper
-            Home-page: http://www.some_home_page.com
-            Author: ColinKennedy
-            License: UNKNOWN
-            Description: UNKNOWN
-            Platform: linux
-            Requires-Python: 3.6+<3.8
-            """
-        )
-        self.assertEqual(
-            package_information, egg.open("EGG-INFO/PKG-INFO").read().decode("utf-8"),
-        )
+                "some_thing/__init__.pyc",
+                "some_thing/inner_folder/__init__.pyc",
+                "some_thing/inner_folder/inner_module.pyc",
+                "some_thing/some_module.pyc",
+            }
+
+        self.assertEqual(expected, {item.filename for item in egg.filelist})
+
+        expected_package_information = [
+            "Metadata-Version: 1.2",
+            "Name: some-package",
+            "Version: 1.0.0",
+            "Summary: A test packages for rez_build_helper",
+            "Home-page: http://www.some_home_page.com",
+            "Author: ColinKennedy",
+            "License: UNKNOWN",
+            "Description: UNKNOWN",
+            "Platform: {_REZ_PLATFORM}".format(_REZ_PLATFORM=_REZ_PLATFORM),
+            "Requires-Python: =={_VERSION}".format(_VERSION=_VERSION),
+        ]
+
+        self.assertEqual(expected_package_information, found_package_information)
 
     def test_import_pkg_resources(self):
         """Make sure a generated .egg file can be imported via pkg_resources."""
@@ -184,14 +227,19 @@ class Egg(common.Common):
                         "__init__.py": None,
                         "another_file.dat": None,
                         "some_module.py": None,
-                        "inner_folder": {"__init__.py": None, "inner_module.py": None,},
+                        "inner_folder": {
+                            "__init__.py": None,
+                            "inner_module.py": None,
+                        },
                     }
                 }
             },
             directory,
         )
 
-        with open(os.path.join(directory, "package.py"), "w") as handler:
+        with io.open(
+            os.path.join(directory, "package.py"), "w", encoding="ascii"
+        ) as handler:
             handler.write(
                 textwrap.dedent(
                     """\
@@ -203,6 +251,8 @@ class Egg(common.Common):
 
                     help = "http://www.some_home_page.com"
 
+                    requires = ["platform-%s", "python-%s"]
+
                     private_build_requires = ["rez_build_helper"]
 
                     build_command = "python -m rez_build_helper --eggs python"
@@ -213,6 +263,7 @@ class Egg(common.Common):
                         env.PYTHONPATH.append(os.path.join("{root}", "python.egg"))
                     """
                 )
+                % (_REZ_PLATFORM, _REZ_PYTHON_VERSION)
             )
 
         package = finder.get_nearest_rez_package(directory)
@@ -226,10 +277,12 @@ class Egg(common.Common):
 
         with wrapping.keep_sys_path():
             sys.path.append(os.path.join(install_location, "python.egg"))
-            egg = zipfile.ZipFile(os.path.join(install_location, "python.egg"), "r")
-            pkg_resources.resource_filename("some_thing", "another_file.dat")
 
-        egg = zipfile.ZipFile(os.path.join(install_location, "python.egg"), "r")
+            with zipfile.ZipFile(
+                os.path.join(install_location, "python.egg"), "r"
+            ) as egg:
+                pkg_resources.resource_filename("some_thing", "another_file.dat")
+
         self.assertIn(
             "some_thing/another_file.dat", {item.filename for item in egg.filelist}
         )
@@ -247,14 +300,19 @@ class Egg(common.Common):
                     "some_thing": {
                         "__init__.py": None,
                         "some_module.py": None,
-                        "inner_folder": {"__init__.py": None, "inner_module.py": None,},
+                        "inner_folder": {
+                            "__init__.py": None,
+                            "inner_module.py": None,
+                        },
                     }
                 }
             },
             directory,
         )
 
-        with open(os.path.join(directory, "package.py"), "w") as handler:
+        with io.open(
+            os.path.join(directory, "package.py"), "w", encoding="ascii"
+        ) as handler:
             handler.write(
                 textwrap.dedent(
                     """\
@@ -264,7 +322,11 @@ class Egg(common.Common):
 
                     description = "A test packages for rez_build_helper"
 
+                    authors = ["ColinKennedy"]
+
                     help = "http://www.some_home_page.com"
+
+                    requires = ["platform-%s", "python-%s"]
 
                     private_build_requires = ["rez_build_helper"]
 
@@ -276,6 +338,7 @@ class Egg(common.Common):
                         env.PYTHONPATH.append(os.path.join("{root}", "python.egg"))
                     """
                 )
+                % (_REZ_PLATFORM, _REZ_PYTHON_VERSION)
             )
 
         package = finder.get_nearest_rez_package(directory)
@@ -290,7 +353,12 @@ class Egg(common.Common):
         install_location = os.path.join(destination, "some_package", "1.0.0")
 
         self.assertTrue(os.path.isfile(os.path.join(install_location, "python.egg")))
-        self.assertFalse(os.path.islink(os.path.join(install_location, "python.egg")))
+
+        if pymix.can_check_links():
+            self.assertFalse(
+                os.path.islink(os.path.join(install_location, "python.egg"))
+            )
+
         self.assertFalse(os.path.isdir(os.path.join(install_location, "python")))
         self.assertFalse(
             os.path.isdir(os.path.join(install_location, "python", "some_thing"))
@@ -333,45 +401,80 @@ class Egg(common.Common):
             )
         )
 
-        egg = zipfile.ZipFile(os.path.join(install_location, "python.egg"), "r")
-        self.assertEqual(
-            {
+        _py = functools.partial(
+            _format_version,
+            "{sys.version_info.major}{sys.version_info.minor}".format(sys=sys),
+        )
+
+        with zipfile.ZipFile(os.path.join(install_location, "python.egg"), "r") as egg:
+            found_package_information = _get_package_information(egg)
+
+            with egg.open("EGG-INFO/top_level.txt") as handler:
+                found_top_level = handler.read().decode("ascii")
+
+        expected = {
+            "EGG-INFO/PKG-INFO",
+            "EGG-INFO/SOURCES.txt",
+            "EGG-INFO/dependency_links.txt",
+            "EGG-INFO/top_level.txt",
+            "EGG-INFO/zip-safe",
+            "some_thing/__init__.py",
+            "some_thing/inner_folder/__init__.py",
+            "some_thing/inner_folder/inner_module.py",
+            "some_thing/some_module.py",
+            _py("some_thing/__pycache__/__init__.cpython-{}.pyc"),
+            _py("some_thing/__pycache__/some_module.cpython-{}.pyc"),
+            _py("some_thing/inner_folder/__pycache__/__init__.cpython-{}.pyc"),
+            _py("some_thing/inner_folder/__pycache__/inner_module.cpython-{}.pyc"),
+        }
+
+        if _IS_PYTHON_2:
+            expected = {
                 "EGG-INFO/PKG-INFO",
                 "EGG-INFO/SOURCES.txt",
                 "EGG-INFO/dependency_links.txt",
-                "EGG-INFO/zip-safe",
                 "EGG-INFO/top_level.txt",
+                "EGG-INFO/zip-safe",
                 "some_thing/__init__.py",
-                "some_thing/__pycache__/__init__.cpython-36.pyc",
-                "some_thing/__pycache__/some_module.cpython-36.pyc",
+                "some_thing/__init__.pyc",
                 "some_thing/inner_folder/__init__.py",
-                "some_thing/inner_folder/__pycache__/__init__.cpython-36.pyc",
-                "some_thing/inner_folder/__pycache__/inner_module.cpython-36.pyc",
+                "some_thing/inner_folder/__init__.pyc",
                 "some_thing/inner_folder/inner_module.py",
+                "some_thing/inner_folder/inner_module.pyc",
                 "some_thing/some_module.py",
-            },
-            {item.filename for item in egg.filelist},
-        )
-        package_information = textwrap.dedent(
-            """\
-            Metadata-Version: 1.0
-            Name: some-package
-            Version: 1.0.0
-            Summary: A test packages for rez_build_helper
-            Home-page: http://www.some_home_page.com
-            Author: UNKNOWN
-            Author-email: UNKNOWN
-            License: UNKNOWN
-            Description: UNKNOWN
-            Platform: any
-            """
-        )
-        self.assertEqual(
-            package_information, egg.open("EGG-INFO/PKG-INFO").read().decode("utf-8"),
-        )
-        self.assertEqual(
-            "some_thing\n", egg.open("EGG-INFO/top_level.txt").read().decode("utf-8")
-        )
+                "some_thing/some_module.pyc",
+            }
+
+        self.assertEqual(expected, {item.filename for item in egg.filelist})
+        expected_package_information = [
+            "Metadata-Version: 1.2",
+            "Name: some-package",
+            "Version: 1.0.0",
+            "Summary: A test packages for rez_build_helper",
+            "Home-page: http://www.some_home_page.com",
+            "Author: ColinKennedy",
+            "License: UNKNOWN",
+            "Description: UNKNOWN",
+            "Platform: windows",
+            "Requires-Python: =={_VERSION}".format(_VERSION=_VERSION),
+        ]
+
+        if _IS_PYTHON_2:
+            expected_package_information = [
+                "Metadata-Version: 1.2",
+                "Name: some-package",
+                "Version: 1.0.0",
+                "Summary: A test packages for rez_build_helper",
+                "Home-page: http://www.some_home_page.com",
+                "Author: ColinKennedy",
+                "License: UNKNOWN",
+                "Description: UNKNOWN",
+                "Platform: windows",
+                "Requires-Python: =={_VERSION}".format(_VERSION=_VERSION),
+            ]
+
+        self.assertEqual(expected_package_information, found_package_information)
+        self.assertEqual("some_thing\n", found_top_level)
 
     def test_multiple(self):
         """Create more than one collapsed egg files for a Python folder."""
@@ -384,27 +487,37 @@ class Egg(common.Common):
                     "some_thing": {
                         "__init__.py": None,
                         "some_module.py": None,
-                        "inner_folder": {"__init__.py": None, "inner_module.py": None,},
+                        "inner_folder": {
+                            "__init__.py": None,
+                            "inner_module.py": None,
+                        },
                     }
                 },
                 "another": {
                     "stuff": {
                         "__init__.py": None,
                         "some_module.py": None,
-                        "inner_folder": {"__init__.py": None, "inner_module.py": None,},
+                        "inner_folder": {
+                            "__init__.py": None,
+                            "inner_module.py": None,
+                        },
                     }
                 },
             },
             directory,
         )
 
-        with open(os.path.join(directory, "package.py"), "w") as handler:
+        with io.open(
+            os.path.join(directory, "package.py"), "w", encoding="ascii"
+        ) as handler:
             handler.write(
                 textwrap.dedent(
                     """\
                     name = "some_package"
 
                     version = "1.0.0"
+
+                    requires = ["platform-%s", "python-%s"]
 
                     private_build_requires = ["rez_build_helper"]
 
@@ -416,6 +529,7 @@ class Egg(common.Common):
                         env.PYTHONPATH.append(os.path.join("{root}", "python.egg"))
                     """
                 )
+                % (_REZ_PLATFORM, _REZ_PYTHON_VERSION)
             )
 
         package = finder.get_nearest_rez_package(directory)
@@ -425,7 +539,11 @@ class Egg(common.Common):
         creator.build(package, destination, quiet=True)
         install_location = os.path.join(destination, "some_package", "1.0.0")
 
-        self.assertFalse(os.path.islink(os.path.join(install_location, "python.egg")))
+        if pymix.can_check_links():
+            self.assertFalse(
+                os.path.islink(os.path.join(install_location, "python.egg"))
+            )
+
         self.assertTrue(os.path.isfile(os.path.join(install_location, "python.egg")))
         self.assertFalse(os.path.isdir(os.path.join(install_location, "python")))
         self.assertFalse(
@@ -469,7 +587,11 @@ class Egg(common.Common):
             )
         )
 
-        self.assertFalse(os.path.islink(os.path.join(install_location, "another.egg")))
+        if pymix.can_check_links():
+            self.assertFalse(
+                os.path.islink(os.path.join(install_location, "another.egg"))
+            )
+
         self.assertTrue(os.path.isfile(os.path.join(install_location, "another.egg")))
         self.assertFalse(os.path.isdir(os.path.join(install_location, "another")))
         self.assertFalse(
@@ -525,7 +647,7 @@ class Egg(common.Common):
 
     def test_loadable(self):
         """Create a Python package .egg file and make sure it'source_ importable."""
-        directory = tempfile.mkdtemp(prefix="rez_build_helper_Cli_test_loadable_")
+        directory = tempfile.mkdtemp(prefix="rez_build_helper_Egg_test_loadable_")
         atexit.register(functools.partial(shutil.rmtree, directory))
 
         common.make_files(
@@ -534,20 +656,29 @@ class Egg(common.Common):
                     "some_package": {
                         "__init__.py": None,
                         "some_module.py": None,
-                        "inner_folder": {"__init__.py": None, "inner_module.py": None,},
+                        "inner_folder": {
+                            "__init__.py": None,
+                            "inner_module.py": None,
+                        },
                     }
                 }
             },
             directory,
         )
 
-        with open(os.path.join(directory, "package.py"), "w") as handler:
+        with io.open(
+            os.path.join(directory, "package.py"), "w", encoding="ascii"
+        ) as handler:
             handler.write(
                 textwrap.dedent(
                     """\
                     name = "some_package"
 
                     version = "1.0.0"
+
+                    description = "A test packages for rez_build_helper"
+
+                    requires = ["platform-%s", "python-%s"]
 
                     private_build_requires = ["rez_build_helper"]
 
@@ -559,6 +690,7 @@ class Egg(common.Common):
                         env.PYTHONPATH.append(os.path.join("{root}", "python"))
                     """
                 )
+                % (_REZ_PLATFORM, _REZ_PYTHON_VERSION)
             )
 
         package = finder.get_nearest_rez_package(directory)
@@ -574,11 +706,54 @@ class Egg(common.Common):
         # Make the python.egg importable
         sys.path.append(egg_file)
 
-        from some_package import some_module  # pylint: disable=import-error
-
-        self.assertEqual(
-            os.path.join(
-                install_location, "python.egg", "some_package", "some_module.py"
-            ),
-            os.path.realpath(some_module.__file__),
+        from some_package import (  # pylint: disable=import-outside-toplevel,import-error
+            some_module,
         )
+
+        some_module_path = os.path.join(
+            install_location, "python.egg", "some_package", "some_module.py"
+        )
+
+        self.assertIn(
+            os.path.realpath(some_module.__file__),
+            {
+                some_module_path,
+                some_module_path + "c",  # some_module.pyc
+            },
+        )
+
+
+def _format_version(version, text):
+    """Add ``version`` to ``text``.
+
+    Args:
+        version (str): A Python version. e.g. ``"36"``.
+        text (str): Some text to replace. e.g. ``"Foo {}"``.
+
+    Returns:
+        str: The formatted text, ``"Foo 36"``.
+
+    """
+    return text.format(version)
+
+
+def _get_package_information(egg):
+    """Read ``egg`` for file contents.
+
+    Args:
+        egg (handler): An open, read-mode file to check for contents.
+
+    Returns:
+        list[str]: The found file paths, if any.
+
+    """
+    text = egg.open("EGG-INFO/PKG-INFO").read().decode("ascii")
+    output = []
+
+    for line in text.split("\n"):
+        line = line.strip()
+
+        if line:
+            output.append(line)
+
+    return output

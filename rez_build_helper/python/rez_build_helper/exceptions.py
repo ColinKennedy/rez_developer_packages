@@ -6,5 +6,3 @@
 
 class NonRootItemFound(Exception):
     """Only root file(s)/folder(s) may be converted into .egg files."""
-
-    pass

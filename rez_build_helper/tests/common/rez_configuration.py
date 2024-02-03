@@ -5,8 +5,8 @@
 
 import contextlib
 import itertools
+import platform
 
-import wurlitzer
 from rez import serialise
 from rez.config import config
 
@@ -20,19 +20,28 @@ REZ_PACKAGE_NAMES = frozenset(
 )
 
 
-@contextlib.contextmanager
-def get_context():
-    """:class:`contextlib.GeneratorContextManager`: Silence all C-level stdout messages."""
-    with wurlitzer.pipes() as (stdout, stderr):
-        yield (stdout, stderr)
+def get_current_platform_as_rez_name():
+    """Grab the current environment's platform, but as a Rez-friendly name.
 
-    # We need to close the pipes or we get warnings in Python 3+ unittests
-    # Warnings like this:
-    # /usr/lib64/python3.6/contextlib.py:88:
-    # ResourceWarning: unclosed file <_io.TextIOWrapper name=5 mode='r' encoding='ANSI_X3.4-1968'>
-    #
-    stdout.close()
-    stderr.close()
+    Raises:
+        EnvironmentError: If no platform name could be found.
+
+    Returns:
+        str: The found platform name.
+
+    """
+    name = platform.system()
+    choices = {"Linux": "linux", "Windows": "windows"}
+
+    if name in choices:
+        return choices[name]
+
+    raise EnvironmentError(
+        'Platform "{name}" is unknown. Options were "{choices}".'.format(
+            name=name,
+            choices=choices.keys(),
+        )
+    )
 
 
 @contextlib.contextmanager

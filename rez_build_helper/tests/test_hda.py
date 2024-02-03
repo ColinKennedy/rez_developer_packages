@@ -3,16 +3,20 @@
 
 """All tests related to building, collapsing, and symlinking HDAs."""
 
+from __future__ import unicode_literals
+
 import atexit
 import functools
+import io
 import os
+import platform
 import shutil
 import tempfile
 import textwrap
 
 from rez_build_helper import filer
 
-from .common import common, creator, finder
+from .common import common, creator, finder, pymix
 
 
 class Hda(common.Common):
@@ -25,8 +29,17 @@ class Hda(common.Common):
         point to a Houdini ``hotl`` binary file.
 
         """
+        expected = os.path.join(
+            os.environ["REZ_REZ_BUILD_HELPER_ROOT"],
+            "fake_bin",
+            "hotl",
+        )
+
+        if platform.system() == "Windows":
+            expected = expected + ".bat"
+
         self.assertEqual(
-            os.path.join(os.environ["REZ_REZ_BUILD_HELPER_ROOT"], "fake_bin", "hotl"),
+            expected,
             filer._get_hotl_executable(),  # pylint: disable=protected-access
         )
 
@@ -43,10 +56,13 @@ class Hda(common.Common):
         atexit.register(functools.partial(shutil.rmtree, directory))
 
         common.make_files(
-            {"hda": {"blah": {"houdini.hdalibrary": None,}},}, directory,
+            {"hda": {"blah": {"houdini.hdalibrary": None}}},
+            directory,
         )
 
-        with open(os.path.join(directory, "package.py"), "w") as handler:
+        with io.open(
+            os.path.join(directory, "package.py"), "w", encoding="ascii"
+        ) as handler:
             handler.write(
                 textwrap.dedent(
                     """\
@@ -76,7 +92,11 @@ class Hda(common.Common):
             os.path.isfile(os.path.join(install_location, "hda", "blah", "hotl.txt"))
         )
         self.assertTrue(os.path.isdir(os.path.join(install_location, "hda", "blah")))
-        self.assertFalse(os.path.islink(os.path.join(install_location, "hda", "blah")))
+
+        if pymix.can_check_links():
+            self.assertFalse(
+                os.path.islink(os.path.join(install_location, "hda", "blah"))
+            )
 
     def test_symlink(self):
         """Build symlinks, instead of collapsing the OTL."""
@@ -86,10 +106,19 @@ class Hda(common.Common):
         atexit.register(functools.partial(shutil.rmtree, directory))
 
         common.make_files(
-            {"hda": {"blah": {"houdini.hdalibrary": None,}},}, directory,
+            {
+                "hda": {
+                    "blah": {
+                        "houdini.hdalibrary": None,
+                    }
+                },
+            },
+            directory,
         )
 
-        with open(os.path.join(directory, "package.py"), "w") as handler:
+        with io.open(
+            os.path.join(directory, "package.py"), "w", encoding="ascii"
+        ) as handler:
             handler.write(
                 textwrap.dedent(
                     """\
@@ -122,6 +151,7 @@ class Hda(common.Common):
         for item in files:
             path = os.path.join(hda, item)
 
-            self.assertTrue(os.path.islink(path))
+            if pymix.can_check_links():
+                self.assertTrue(os.path.islink(path))
 
         self.assertEqual(["blah"], files)

@@ -65,7 +65,7 @@ def _find_api_documentation(entries):
 
 def _get_hotl_executable():
     """str: Find the path to a hotl executable, if any."""
-    return whichcraft.which("hotl") or ""
+    return os.path.normcase(whichcraft.which("hotl") or "")
 
 
 def _get_python_requires():
@@ -73,12 +73,12 @@ def _get_python_requires():
     for text in os.environ["REZ_USED_REQUEST"].split(" "):
         request = requirement.Requirement(text)
 
-        if request.name == "python" and not request.weak:
-            # rez/utils/py_dist.py has convert_version, which apparently
-            # shows that any Rez version syntax will work with dist. So
-            # we'll do the same.
-            #
-            return str(request.range)
+        if (
+            request.name == "python"
+            and not request.weak
+            and "REZ_PYTHON_VERSION" in os.environ
+        ):
+            return "=={os.environ[REZ_PYTHON_VERSION]}".format(os=os)
 
     return ""
 
@@ -160,7 +160,7 @@ def _build_eggs(source, destination, name, setuptools_data, data_patterns=None):
     if data_patterns:
         package_data = {"": data_patterns}
     else:
-        package_data = dict()
+        package_data = {}
 
     python_modules = sorted(
         (
@@ -201,7 +201,12 @@ def _build_eggs(source, destination, name, setuptools_data, data_patterns=None):
 
 
 def _run_command(  # pylint: disable=too-many-arguments
-    command, source, destination, symlink, symlink_folders, symlink_files,
+    command,
+    source,
+    destination,
+    symlink,
+    symlink_folders,
+    symlink_files,
 ):
     """Run a commany or symlink instead, depending on the given input.
 
@@ -283,10 +288,15 @@ def _run_hotl(root, hda, symlink=linker.must_symlink()):
         return
 
     _LOGGER.info('Collapsing "%s" HDA to "%s".', root, hda)
-    process = subprocess.Popen([executable, "-l", root, hda], stderr=subprocess.PIPE)
+    # Note: Remove the disable= once Python 2 support is dropped
+
+    process = subprocess.Popen(  # pylint: disable=consider-using-with
+        [executable, "-l", root, hda],
+        stderr=subprocess.PIPE,
+    )
     _, stderr = process.communicate()
 
-    if stderr:
+    if process.returncode:
         _LOGGER.error('HDA "%s" failed to generate.', root)
 
         raise RuntimeError(stderr)
@@ -365,7 +375,10 @@ def build(  # pylint: disable=too-many-arguments
 
         if hdas:
             build_hdas(
-                source, destination, hdas, symlink=symlink,
+                source,
+                destination,
+                hdas,
+                symlink=symlink,
             )
 
         if items:
@@ -417,6 +430,11 @@ def build_eggs(  # pylint: disable=too-many-arguments
             If True and ``source`` is a file, make a symlink from
             ``destination`` which points back to ``source``. If False,
             run ``command`` instead.
+        data_patterns (list[str], optional):
+            Any file extensions to include as data in the .egg. For
+            example, if you have a .txt file within `source/name`, use
+            `data_patterns=["*.txt"]` to include them in the .egg.
+            Default is None.
 
     """
     _validate_egg_names(eggs)
@@ -438,7 +456,7 @@ def build_eggs(  # pylint: disable=too-many-arguments
     setuptools_data = _SetuptoolsData(
         package_name=os.environ["REZ_BUILD_PROJECT_NAME"],
         version=os.environ["REZ_BUILD_PROJECT_VERSION"],
-        description=os.environ["REZ_BUILD_PROJECT_DESCRIPTION"],
+        description=os.getenv("REZ_BUILD_PROJECT_DESCRIPTION", ""),
         author=", ".join(package.authors or []),
         url=_find_api_documentation(package.help or []),
         python_requires=_get_python_requires(),
@@ -462,7 +480,10 @@ def build_eggs(  # pylint: disable=too-many-arguments
 
 
 def build_hdas(
-    source, destination, hdas, symlink=linker.must_symlink(),
+    source,
+    destination,
+    hdas,
+    symlink=linker.must_symlink(),
 ):
     """Symlink or collapse VCS-style HDA folders to an installed Rez package.
 
@@ -508,7 +529,7 @@ def build_hdas(
         hda_root = os.path.dirname(library)  # The root of the current HDA library
         library_root = os.path.dirname(hda_root)  # The folder containing all HDAs
 
-        hda_destination = os.path.join(destination, os.path.basename(library_root),)
+        hda_destination = os.path.join(destination, os.path.basename(library_root))
 
         if os.path.isdir(hda_destination):
             shutil.rmtree(hda_destination)
