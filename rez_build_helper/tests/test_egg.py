@@ -347,9 +347,7 @@ class Egg(common.Common):
         )
         atexit.register(functools.partial(shutil.rmtree, destination))
 
-        creator.build(
-            package, destination, quiet=True, packages_path=self._packages_path
-        )
+        creator.build(package, destination, quiet=True)
         install_location = os.path.join(destination, "some_package", "1.0.0")
 
         self.assertTrue(os.path.isfile(os.path.join(install_location, "python.egg")))

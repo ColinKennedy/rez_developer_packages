@@ -11,6 +11,8 @@ import shutil
 import tempfile
 import unittest
 
+from rez.config import config
+
 from . import finder
 
 
@@ -28,11 +30,8 @@ class Common(unittest.TestCase):
         can be made to pass.
 
         """
-        build_package = finder.get_nearest_rez_package(
-            os.environ["REZ_REZ_BUILD_HELPER_ROOT"]
-        )
         build_path = os.path.dirname(
-            os.path.dirname(finder.get_package_root(build_package))
+            os.path.dirname(os.environ["REZ_REZ_BUILD_HELPER_BASE"])
         )
         directory = tempfile.mkdtemp(suffix="_test_egg_Egg_folder")
         atexit.register(functools.partial(shutil.rmtree, directory))
@@ -58,7 +57,7 @@ class Common(unittest.TestCase):
                 os.makedirs(destination)
                 _copytree(root, destination)
 
-        cls._packages_path = [build_path, directory]
+        cls._packages_path = [config.local_packages_path, build_path, directory]
 
 
 def _copytree(source, destination, symlinks=False, ignore=None):
