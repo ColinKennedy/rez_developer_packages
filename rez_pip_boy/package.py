@@ -1,6 +1,6 @@
 name = "rez_pip_boy"
 
-version = "2.3.0"
+version = "2.4.0"
 
 description = "Convert an installed pip package back into a source package"
 
@@ -40,12 +40,12 @@ tests = {
         "run_on": "explicit",
     },
     "isort": {
-        "command": "isort package.py python tests",
+        "command": "isort --profile black package.py python tests",
         "requires": ["isort-5.11+<6"],
         "run_on": "explicit",
     },
     "isort_check": {
-        "command": "isort --check-only --diff package.py python tests",
+        "command": "isort --profile black --check-only --diff package.py python tests",
         "requires": ["isort-5.11+<6"],
         "run_on": _common_run_on,
     },

@@ -6,6 +6,7 @@
 import atexit
 import copy
 import functools
+import glob
 import inspect
 import io
 import os
@@ -27,6 +28,7 @@ except ImportError:
     from rez import packages  # Newer (2.51+-ish) versions
 
 
+_IS_WINDOWS = platform.system() == "Windows"
 _BUILD_COMMAND_CODE = inspect.getsource(_build_command)
 
 
@@ -77,8 +79,7 @@ class Integrations(unittest.TestCase):
         self.assertEqual(_BUILD_COMMAND_CODE, rezbuild_code)
 
         package_variants = [
-            [str(element) for element in variant]
-            for variant in package.variants or []
+            [str(element) for element in variant] for variant in package.variants or []
         ]
 
         self.assertEqual(variants, package_variants)
@@ -153,8 +154,8 @@ class Integrations(unittest.TestCase):
     @unittest.skipIf(_is_missing_python_version("2.7"), "Rez is missing Python 2.7")
     def test_partial_install(self):
         """Install a package, delete one of its depedencies, and then install it again."""
-        directory = tempfile.mkdtemp(
-            prefix="rez_pip_boy_", suffix="_test_partial_install"
+        directory = pather.normalize(
+            tempfile.mkdtemp(prefix="rez_pip_boy_", suffix="_test_partial_install")
         )
         atexit.register(functools.partial(shutil.rmtree, directory))
 
@@ -165,7 +166,25 @@ class Integrations(unittest.TestCase):
         )
 
         source_directory = os.path.join(directory, "rsa", "4.0")
-        dependency = os.path.join(directory, "pyasn1", "0.4.8")
+        dependency_glob = os.path.join(directory, "pyasn1", "*")
+        versioned_dependency = list(glob.glob(dependency_glob))
+        count = len(versioned_dependency)
+
+        if not count:
+            raise EnvironmentError(
+                'Dependency "{dependency_glob}" could not be found.'.format(
+                    dependency_glob=dependency_glob,
+                )
+            )
+
+        if count > 1:
+            raise EnvironmentError(
+                'Dependency "{dependency_glob}" got more than one path.'.format(
+                    dependency_glob=dependency_glob,
+                )
+            )
+
+        dependency = versioned_dependency[0]
         self.assertTrue(os.path.isfile(os.path.join(dependency, "package.py")))
         shutil.rmtree(dependency)
         self.assertFalse(os.path.isfile(os.path.join(dependency, "package.py")))
@@ -178,7 +197,14 @@ class Integrations(unittest.TestCase):
         self.assertTrue(os.path.isfile(os.path.join(dependency, "package.py")))
 
         self._verify_source_package(dependency, [["python-2.7"]])
-        self._verify_source_package(source_directory, [["python-2.7"]])
+
+        if _IS_WINDOWS:
+            self._verify_source_package(
+                source_directory,
+                [["platform-windows", "arch-AMD64", "python-2.7"]],
+            )
+        else:
+            self._verify_source_package(source_directory, [["python-2.7"]])
 
     @staticmethod
     @unittest.skipIf(_is_missing_python_version("2.7"), "Rez is missing Python 2.7")
@@ -217,7 +243,9 @@ class Integrations(unittest.TestCase):
         import_to_mock = "rez.package_maker.PackageMaker._get_data"
 
         try:
-            from rez import package_maker as _  # pylint: disable=import-outside-toplevel
+            from rez import (  # pylint: disable=import-outside-toplevel
+                package_maker as _,
+            )
         except ImportError:
             import_to_mock = "rez.package_maker__.PackageMaker._get_data"
 

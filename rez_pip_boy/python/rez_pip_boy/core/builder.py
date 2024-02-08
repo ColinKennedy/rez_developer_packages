@@ -8,6 +8,8 @@ go. This module keeps build processes and those files in-sync.
 
 """
 
+from __future__ import unicode_literals
+
 import inspect
 import io
 import os
@@ -38,6 +40,12 @@ def add_build_file(package, name):
 
     """
     root = finder.get_package_root(package)
+    encoding = "ascii"
+    data = _get_build_command()
 
-    with io.open(os.path.join(root, name), "w", encoding="ascii") as handler:
-        handler.write(_get_build_command())
+    if hasattr(data, "decode"):
+        # Needed for Python 2. Python 3+ deprecates this method
+        data = data.decode(encoding)
+
+    with io.open(os.path.join(root, name), "w", encoding=encoding) as handler:
+        handler.write(data)

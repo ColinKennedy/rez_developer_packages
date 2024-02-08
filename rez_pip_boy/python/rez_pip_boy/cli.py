@@ -165,7 +165,7 @@ def _get_install_context(arguments):
 
 
 @contextlib.contextmanager
-def _get_verbosity_context(quiet):
+def _get_verbosity_context(_):
     """Get a Python context used for controlling printed text.
 
     Args:
@@ -179,7 +179,7 @@ def _get_verbosity_context(quiet):
     """
     with hashed_variant.do_nothing():
         yield
-    # TODO: Handle this somehow
+    # Note: Handle this somehow, on Windows
     # if not quiet:
     #     with hashed_variant.do_nothing():
     #         yield

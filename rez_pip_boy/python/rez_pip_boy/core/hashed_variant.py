@@ -57,16 +57,13 @@ def do_nothing():
 @contextlib.contextmanager
 def force_unhashed_variants():
     """Force ``rez-pip`` API calls to **not** use hashed variants."""
-    old_method = (
-        package_maker.PackageMaker._get_data  # pylint: disable=protected-access
-    )
-    package_maker.PackageMaker._get_data = _modified_get_data(  # pylint: disable=protected-access
-        old_method
-    )
+    maker = package_maker.PackageMaker
+    old_method = maker._get_data  # pylint: disable=protected-access
+    maker._get_data = _modified_get_data(old_method)  # pylint: disable=protected-access
 
     try:
         yield
     finally:
-        package_maker.PackageMaker._get_data = (  # pylint: disable=protected-access,redefined-variable-type
+        maker._get_data = (  # pylint: disable=protected-access,redefined-variable-type
             old_method
         )
