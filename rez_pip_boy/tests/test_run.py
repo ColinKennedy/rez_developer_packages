@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# pylint: disable=import-outside-toplevel
+
 """Check to make sure ``rez_pip_boy`` makes "source" Rez pip packages as we expect."""
 
 import atexit
@@ -243,9 +245,7 @@ class Integrations(unittest.TestCase):
         import_to_mock = "rez.package_maker.PackageMaker._get_data"
 
         try:
-            from rez import (  # pylint: disable=import-outside-toplevel
-                package_maker as _,
-            )
+            from rez import package_maker as _
         except ImportError:
             import_to_mock = "rez.package_maker__.PackageMaker._get_data"
 
