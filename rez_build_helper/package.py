@@ -3,7 +3,7 @@
 
 name = "rez_build_helper"
 
-version = "1.11.1"
+version = "1.11.2"
 
 description = "Build Rez packages using Python"
 

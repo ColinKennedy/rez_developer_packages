@@ -17,6 +17,26 @@ import unittest
 from .common import common, creator, finder, pymix
 
 
+def _allowed_to_symlink():
+    """bool: Check if symlinking works on the current machine."""
+    if not hasattr(os, "symlink"):
+        return False
+
+    source = os.path.realpath(tempfile.mkdtemp(suffix="_symlink_source"))
+    destination = os.path.realpath(tempfile.mkdtemp(suffix="_symlink_destination"))
+    shutil.rmtree(destination)
+
+    try:
+        os.symlink(source, destination)
+    except OSError:
+        # Occurs on Windows when not in a developer mode. Usually errors with
+        # "A required privilege is not held by the client"
+        #
+        return False
+
+    return True
+
+
 class Cli(unittest.TestCase):
     """Make sure the basic CLI functions work as-expected."""
 
@@ -151,6 +171,7 @@ class Cli(unittest.TestCase):
         )
 
 
+@unittest.skipIf(not _allowed_to_symlink(), "No symlinking enabled")
 class Symlink(unittest.TestCase):
     """Make sure symlinks generate as expected."""
 

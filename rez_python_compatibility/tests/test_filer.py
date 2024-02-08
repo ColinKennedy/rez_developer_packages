@@ -11,7 +11,25 @@ import unittest
 from python_compatibility import filer
 from python_compatibility.testing import common
 
-_HAS_NO_SYMLINKS = not hasattr(os, "symlink")
+
+def _allowed_to_symlink():
+    """bool: Check if symlinking works on the current machine."""
+    if not hasattr(os, "symlink"):
+        return False
+
+    source = os.path.realpath(tempfile.mkdtemp(suffix="_symlink_source"))
+    destination = os.path.realpath(tempfile.mkdtemp(suffix="_symlink_destination"))
+    shutil.rmtree(destination)
+
+    try:
+        os.symlink(source, destination)
+    except OSError:
+        # Occurs on Windows when not in a developer mode. Usually errors with
+        # "A required privilege is not held by the client"
+        #
+        return False
+
+    return True
 
 
 class Invalids(unittest.TestCase):
@@ -97,7 +115,7 @@ class Permutations(unittest.TestCase):
         )
 
 
-@unittest.skipIf(_HAS_NO_SYMLINKS, "Symlink support is disabled.")
+@unittest.skipIf(not _allowed_to_symlink(), "Symlink support is disabled.")
 class Symlinks(common.Common):
     """Tests related to symlinks, which sometimes cause issues in UNIX systems."""
 
