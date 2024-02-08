@@ -14,15 +14,15 @@ class IterIsLast(unittest.TestCase):
     def test_empty(self):
         """Loop over nothing."""
         items = []
-        generator = (item for item in [])
+        generator = (item for item in tuple())
 
         self.assertEqual([], list(iterbot.iter_is_last(items)))
         self.assertEqual([], list(iterbot.iter_is_last(generator)))
 
     def test_iterate(self):
         """Loop over some iterable objects."""
-        items = ["foo", "bar"]
-        generator = (item for item in ["foo", "bar"])
+        items = ("foo", "bar")
+        generator = (item for item in ("foo", "bar"))
         iter_tuple = iter(("foo", "bar"))
 
         self.assertEqual(
@@ -42,11 +42,14 @@ class IterIsLast(unittest.TestCase):
 
     def test_multiple(self):
         """Process big lists."""
-        items = range(100)
-        generator = (item for item in range(100))
+        count = 100
+        items = range(count)
+        generator = (item for item in range(count))
+        count_minus_1 = count - 1
 
         expected = [
-            (False, index) if index < 99 else (True, index) for index in range(100)
+            (False, index) if index < count_minus_1 else (True, index)
+            for index in range(count)
         ]
 
         self.assertEqual(expected, list(iterbot.iter_is_last(items)))
@@ -78,7 +81,12 @@ class IterSubFinder(unittest.TestCase):
         """Find one multiple, matching indices."""
         self.assertEqual(
             [4, 14],
-            list(iterbot.iter_sub_finder([4, 5], list(range(10)) + list(range(10)),)),
+            list(
+                iterbot.iter_sub_finder(
+                    [4, 5],
+                    list(range(10)) + list(range(10)),
+                )
+            ),
         )
 
 
@@ -88,7 +96,8 @@ class MakeChains(unittest.TestCase):
     def test_custom(self):
         """Get a custom size output."""
         self.assertEqual(
-            [range(0, 4), range(1, 5)], list(iterbot.make_chains(range(5), size=4)),
+            [range(0, 4), range(1, 5)],
+            list(iterbot.make_chains(range(5), size=4)),
         )
 
     def test_default(self):
@@ -101,7 +110,8 @@ class MakeChains(unittest.TestCase):
     def test_empty(self):
         """Get no chains."""
         self.assertEqual(
-            [], list(iterbot.make_chains([], size=4)),
+            [],
+            list(iterbot.make_chains([], size=4)),
         )
 
     def test_invalid(self):
@@ -115,7 +125,8 @@ class MakeChains(unittest.TestCase):
     def test_one(self):
         """Get one chain."""
         self.assertEqual(
-            [range(0, 1)], list(iterbot.make_chains(range(1), size=1)),
+            [range(0, 1)],
+            list(iterbot.make_chains(range(1), size=1)),
         )
 
     def test_string(self):
@@ -129,7 +140,8 @@ class MakeChains(unittest.TestCase):
         """Get no list back because the minimum size is too high."""
         length = 5
         self.assertEqual(
-            [], list(iterbot.make_chains(range(length), size=length + 1)),
+            [],
+            list(iterbot.make_chains(range(length), size=length + 1)),
         )
 
 
@@ -155,5 +167,6 @@ class MakePairs(unittest.TestCase):
     def test_odd(self):
         """Get the pairs of an odd container."""
         self.assertEqual(
-            [(0, 1), (2, 3), (4, 5), (6, 7)], list(iterbot.make_pairs(range(9))),
+            [(0, 1), (2, 3), (4, 5), (6, 7)],
+            list(iterbot.make_pairs(range(9))),
         )

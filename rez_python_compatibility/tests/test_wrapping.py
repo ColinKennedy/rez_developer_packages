@@ -43,7 +43,7 @@ class WatchCallable(unittest.TestCase):
             caller("thing")
 
         self.assertEqual(
-            [(("thing",), dict(), 8)], [record.get_all() for record in container]
+            [(("thing",), {}, 8)], [record.get_all() for record in container]
         )
 
     def test_class_init(self):
@@ -54,7 +54,7 @@ class WatchCallable(unittest.TestCase):
             dependency_analyzer._FakeModule("text")  # pylint: disable=protected-access
 
         self.assertEqual(
-            [(("text",), dict(), None)], [record.get_all() for record in container]
+            [(("text",), {}, None)], [record.get_all() for record in container]
         )
 
     def test_instance_dunder(self):
@@ -69,7 +69,7 @@ class WatchCallable(unittest.TestCase):
             repr(item)
 
         self.assertEqual(
-            [(tuple(), dict(), "_FakeModule('text')")],
+            [(tuple(), {}, "_FakeModule('text')")],
             [record.get_all() for record in container],
         )
 
@@ -85,7 +85,7 @@ class WatchCallable(unittest.TestCase):
             item.get_path()
 
         self.assertEqual(
-            [(tuple(), dict(), "text")], [record.get_all() for record in container]
+            [(tuple(), {}, "text")], [record.get_all() for record in container]
         )
 
     def test_instance_method_002(self):
@@ -101,7 +101,7 @@ class WatchCallable(unittest.TestCase):
             item.get_path()
 
         self.assertEqual(
-            [((item,), dict(), "text")], [record.get_all() for record in container]
+            [((item,), {}, "text")], [record.get_all() for record in container]
         )
 
     def test_instance_method_003(self):
@@ -114,7 +114,7 @@ class WatchCallable(unittest.TestCase):
             item.get_path()
 
         self.assertEqual(
-            [(tuple(), dict(), "text")], [record.get_all() for record in container]
+            [(tuple(), {}, "text")], [record.get_all() for record in container]
         )
 
     def test_function(self):
@@ -123,7 +123,7 @@ class WatchCallable(unittest.TestCase):
             imports.import_nearest_module("sys")
 
         self.assertEqual(
-            [(("sys",), dict(), sys)], [record.get_all() for record in container]
+            [(("sys",), {}, sys)], [record.get_all() for record in container]
         )
 
     def test_static_function(self):
@@ -134,7 +134,7 @@ class WatchCallable(unittest.TestCase):
             _Callable.do_static("thing")
 
         self.assertEqual(
-            [(("thing",), dict(), 9)], [record.get_all() for record in container]
+            [(("thing",), {}, 9)], [record.get_all() for record in container]
         )
 
 

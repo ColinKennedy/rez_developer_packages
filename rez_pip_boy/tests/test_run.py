@@ -7,6 +7,7 @@ import atexit
 import copy
 import functools
 import inspect
+import io
 import os
 import platform
 import shlex
@@ -14,10 +15,11 @@ import shutil
 import tempfile
 import unittest
 
-from rez_pip_boy import cli
-from rez_pip_boy.core import _build_command, exceptions
 from rez_utilities import creator, finder
 from six.moves import mock
+
+from rez_pip_boy import cli
+from rez_pip_boy.core import _build_command, exceptions, pather
 
 try:
     from rez import packages_ as packages  # Old Rez versions
@@ -66,16 +68,19 @@ class Integrations(unittest.TestCase):
             directory, cli._BUILD_FILE_NAME  # pylint: disable=protected-access
         )
 
-        with open(rezbuild, "r") as handler:
+        with io.open(rezbuild, "r", encoding="ascii") as handler:
             rezbuild_code = handler.read()
 
         package = finder.get_nearest_rez_package(directory)
         self.assertIsNotNone(package)
 
         self.assertEqual(_BUILD_COMMAND_CODE, rezbuild_code)
+
         package_variants = [
-            list(map(str, variant)) for variant in package.variants or []
+            [str(element) for element in variant]
+            for variant in package.variants or []
         ]
+
         self.assertEqual(variants, package_variants)
         self.assertEqual("python {root}/rezbuild.py", package.build_command)
 
@@ -109,11 +114,13 @@ class Integrations(unittest.TestCase):
     @unittest.skipIf(_is_missing_python_version("2.7"), "Rez is missing Python 2.7")
     def test_simple(self):
         """Install a really simple pip package (a package with no dependencies)."""
-        directory = tempfile.mkdtemp(prefix="rez_pip_boy_", suffix="_test_simple")
+        directory = pather.normalize(
+            tempfile.mkdtemp(prefix="rez_pip_boy_", suffix="_test_simple")
+        )
         atexit.register(functools.partial(shutil.rmtree, directory))
 
         _run_command(
-            "rez_pip_boy --install six==1.14.0 --python-version=2.7 -- {directory}".format(
+            'rez_pip_boy --install six==1.14.0 --python-version=2.7 -- "{directory}"'.format(
                 directory=directory
             )
         )
@@ -129,12 +136,12 @@ class Integrations(unittest.TestCase):
         atexit.register(functools.partial(shutil.rmtree, directory))
 
         _run_command(
-            "rez_pip_boy --install six==1.14.0 --python-version=2.7 -- {directory}".format(
+            'rez_pip_boy --install six==1.14.0 --python-version=2.7 -- "{directory}"'.format(
                 directory=directory
             )
         )
         _run_command(
-            "rez_pip_boy --install six==1.14.0 --python-version=2.7 -- {directory}".format(
+            'rez_pip_boy --install six==1.14.0 --python-version=2.7 -- "{directory}"'.format(
                 directory=directory
             )
         )
@@ -152,7 +159,7 @@ class Integrations(unittest.TestCase):
         atexit.register(functools.partial(shutil.rmtree, directory))
 
         _run_command(
-            "rez_pip_boy --install rsa==4.0 --python-version=2.7 -- {directory}".format(  # pylint: disable=line-too-long
+            'rez_pip_boy --install rsa==4.0 --python-version=2.7 -- "{directory}"'.format(  # pylint: disable=line-too-long
                 directory=directory
             )
         )
@@ -164,7 +171,7 @@ class Integrations(unittest.TestCase):
         self.assertFalse(os.path.isfile(os.path.join(dependency, "package.py")))
 
         _run_command(
-            "rez_pip_boy --install rsa==4.0 --python-version=2.7 -- {directory}".format(  # pylint: disable=line-too-long
+            'rez_pip_boy --install rsa==4.0 --python-version=2.7 -- "{directory}"'.format(  # pylint: disable=line-too-long
                 directory=directory
             )
         )
@@ -181,7 +188,7 @@ class Integrations(unittest.TestCase):
         shutil.rmtree(directory)
 
         _run_command(
-            "rez_pip_boy --install six==1.14.0 --python-version=2.7 -- {directory}".format(
+            'rez_pip_boy --install six==1.14.0 --python-version=2.7 -- "{directory}"'.format(
                 directory=directory
             )
         )
@@ -192,16 +199,16 @@ class Integrations(unittest.TestCase):
         # Simulate a call to rez-pip where the user had written hashed_variants = False
         normal_rez_pip_arguments = {
             "commands": "env.PYTHONPATH.append('{root}/python')",
-            "help": [["Home Page", u"https://github.com/jaraco/zipp"]],
+            "help": [["Home Page", "https://github.com/jaraco/zipp"]],
             "hashed_variants": True,
-            "description": u"Backport of pathlib-compatible object wrapper for zip files",
+            "description": "Backport of pathlib-compatible object wrapper for zip files",
             "is_pure_python": True,
             "from_pip": True,
             "version": "1.2.0",
-            "authors": [u"Jason R. Coombs (jaraco@jaraco.com)"],
+            "authors": ["Jason R. Coombs (jaraco@jaraco.com)"],
             "variants": [["python-2.7", "contextlib2"]],
-            "pip_name": u"zipp (1.2.0)",
-            "name": u"zipp",
+            "pip_name": "zipp (1.2.0)",
+            "name": "zipp",
         }
 
         mocked_rez_pip_arguments = copy.copy(normal_rez_pip_arguments)
@@ -210,7 +217,7 @@ class Integrations(unittest.TestCase):
         import_to_mock = "rez.package_maker.PackageMaker._get_data"
 
         try:
-            from rez import package_maker as _
+            from rez import package_maker as _  # pylint: disable=import-outside-toplevel
         except ImportError:
             import_to_mock = "rez.package_maker__.PackageMaker._get_data"
 
@@ -223,7 +230,7 @@ class Integrations(unittest.TestCase):
             atexit.register(functools.partial(shutil.rmtree, directory))
 
             _run_command(
-                "rez_pip_boy --install zipp==1.2.0 --python-version=2.7 -- {directory}".format(
+                'rez_pip_boy --install zipp==1.2.0 --python-version=2.7 -- "{directory}"'.format(
                     directory=directory
                 )
             )
@@ -243,7 +250,7 @@ class Integrations(unittest.TestCase):
         atexit.register(functools.partial(shutil.rmtree, directory))
 
         _run_command(
-            "rez_pip_boy --install six==1.14.0 --python-version=3.6 -- {directory}".format(
+            'rez_pip_boy --install six==1.14.0 --python-version=3.6 -- "{directory}"'.format(
                 directory=directory
             )
         )
@@ -252,7 +259,7 @@ class Integrations(unittest.TestCase):
         self._verify_source_package(source_directory, [["python-3.6"]])
 
         _run_command(
-            "rez_pip_boy --install six==1.14.0 --python-version=2.7 -- {directory}".format(
+            'rez_pip_boy --install six==1.14.0 --python-version=2.7 -- "{directory}"'.format(
                 directory=directory
             )
         )
@@ -276,7 +283,7 @@ class Integrations(unittest.TestCase):
         atexit.register(functools.partial(shutil.rmtree, os.path.expanduser(directory)))
 
         _run_command(
-            "rez_pip_boy --install six==1.14.0 --python-version=2.7 -- {directory}".format(
+            'rez_pip_boy --install six==1.14.0 --python-version=2.7 -- "{directory}"'.format(
                 directory=directory
             )
         )
@@ -300,7 +307,7 @@ class Integrations(unittest.TestCase):
             directory = "$STUFF" + directory
 
         _run_command(
-            "rez_pip_boy --install six==1.14.0 --python-version=2.7 -- {directory}".format(
+            'rez_pip_boy --install six==1.14.0 --python-version=2.7 -- "{directory}"'.format(
                 directory=directory
             )
         )
@@ -330,7 +337,7 @@ class Integrations(unittest.TestCase):
         )
 
         _run_command(
-            "rez_pip_boy --install six==1.14.0 --python-version=2.7 -- {directory} --hashed-variants".format(  # pylint: disable=line-too-long
+            'rez_pip_boy --install six==1.14.0 --python-version=2.7 -- "{directory}" --hashed-variants'.format(  # pylint: disable=line-too-long
                 directory=directory
             )
         )
@@ -367,7 +374,7 @@ class Integrations(unittest.TestCase):
         )
 
         _run_command(
-            "rez_pip_boy --install six==1.14.0 --python-version=2.7 -- {directory}".format(
+            'rez_pip_boy --install six==1.14.0 --python-version=2.7 -- "{directory}"'.format(
                 directory=directory
             )
         )
@@ -397,7 +404,7 @@ class Invalid(unittest.TestCase):
 
         with self.assertRaises(exceptions.MissingDestination):
             _run_command(
-                "rez_pip_boy --install six==1.14.0 --python-version=2.7 -- {directory} --no-make-folders".format(  # pylint: disable=line-too-long
+                'rez_pip_boy --install six==1.14.0 --python-version=2.7 -- "{directory}" --no-make-folders'.format(  # pylint: disable=line-too-long
                     directory=directory
                 )
             )
@@ -411,7 +418,7 @@ class Invalid(unittest.TestCase):
 
         with self.assertRaises(exceptions.MissingDoubleDash):
             _run_command(
-                "rez_pip_boy --install six==1.14.0 --python-version=2.7 {directory} --no-make-folders".format(  # pylint: disable=line-too-long
+                'rez_pip_boy --install six==1.14.0 --python-version=2.7 "{directory}" --no-make-folders'.format(  # pylint: disable=line-too-long
                     directory=directory,
                 )
             )
@@ -425,7 +432,7 @@ class Invalid(unittest.TestCase):
 
         with self.assertRaises(exceptions.DuplicateDoubleDash):
             _run_command(
-                "rez_pip_boy --install six==1.14.0 -- --python-version=2.7 -- {directory} --no-make-folders".format(  # pylint: disable=line-too-long
+                'rez_pip_boy --install six==1.14.0 -- --python-version=2.7 -- "{directory}" --no-make-folders'.format(  # pylint: disable=line-too-long
                     directory=directory,
                 )
             )
@@ -439,7 +446,7 @@ class Invalid(unittest.TestCase):
 
         with self.assertRaises(exceptions.SwappedArguments):
             _run_command(
-                "rez_pip_boy {directory} --no-make-folders -- --install six==1.14.0 --python-version=2.7".format(  # pylint: disable=line-too-long
+                'rez_pip_boy "{directory}" --no-make-folders -- --install six==1.14.0 --python-version=2.7'.format(  # pylint: disable=line-too-long
                     directory=directory,
                 )
             )

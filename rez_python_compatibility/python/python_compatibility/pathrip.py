@@ -139,7 +139,7 @@ def get_subfolder_root(path, subfolders, method="tail"):
             The path to get the root of.
         subfolders (list[str]):
             The folders to search for in the path.
-        method (:obj:`callable[str, list[str]] or str`, optional):
+        method (callable[str, list[str]] or str, optional):
             The strategy used to get the root subfolders. A function is
             acceptable or a preset string can be used.
 

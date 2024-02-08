@@ -6,5 +6,3 @@
 
 class SphinxFileBroken(Exception):
     """Any time an expected, required Sphinx-related file exists but is missing data."""
-
-    pass

@@ -12,7 +12,8 @@ from rez.vendor.schema import schema
 _LOGGER = logging.getLogger(__name__)
 
 
-def get_package_root(package):
+# Note: Pylint's missing-raises-doc is bugged. Remove the disable= once it's fixed
+def get_package_root(package):  # pylint: disable=missing-raises-doc
     """Find the directory that contains the gizen Rez package.
 
     Depending on if the Rez package is a regular package or a developer
@@ -45,7 +46,7 @@ def get_package_root(package):
             "".format(package=package, path=path)
         )
 
-    return path
+    return os.path.normcase(os.path.realpath(path))
 
 
 def get_nearest_rez_package(directory):

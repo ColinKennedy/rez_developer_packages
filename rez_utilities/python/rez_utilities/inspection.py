@@ -171,7 +171,7 @@ def is_built_package(package):
     return version == os.path.basename(parent_folder)
 
 
-def has_python_package(  # pylint: disable=too-many-branches,too-many-locals
+def has_python_package(  # pylint: disable=too-many-branches,too-many-locals,too-complex
     package, paths=None, allow_build=True, allow_current_context=False
 ):
     """Check if the given Rez package has at least one Python package inside of it.
@@ -201,6 +201,10 @@ def has_python_package(  # pylint: disable=too-many-branches,too-many-locals
             a Python module. If False though, this function will simply
             return False without building the Rez source package.
             Default is True.
+        allow_current_context (bool, optional):
+            If ``True``, use this current environment's ``$PYTHONPATH``. If
+            ``False``, create a brand new Rez context and get its resolved
+            ``$PYTHONPATH`` instead.
 
     Raises:
         ValueError: If `package` is not a Rez package.
@@ -209,7 +213,8 @@ def has_python_package(  # pylint: disable=too-many-branches,too-many-locals
         bool: If a Python package is detected.
 
     """
-    from . import creator  # Avoiding a cyclic import
+    # Avoiding a cyclic import
+    from . import creator  # pylint: disable=import-outside-toplevel
 
     if not hasattr(package, "name") or not hasattr(package, "version"):
         raise ValueError(
@@ -235,14 +240,14 @@ def has_python_package(  # pylint: disable=too-many-branches,too-many-locals
 
         environment = context.get_environ().get("PYTHONPATH", "").split(os.pathsep)
 
-    paths = get_package_python_paths(package, environment)
+    python_files = get_package_python_paths(package, environment)
 
     # All zipped .egg files as valid Python "packages"
-    for path in paths:
+    for path in python_files:
         if path.endswith(".egg") and os.path.isfile(path):
             return True
 
-    for root_path in paths:
+    for root_path in python_files:
         for _, _, files in os.walk(root_path):
             for file_path in files:
                 if file_path == "__init__.py":
@@ -307,7 +312,7 @@ def get_package_python_paths(package, paths):
     #
     # Once that work is merged, replace `get_package_python_paths` with it.
     #
-    root = finder.get_package_root(package)
+    root = os.path.normcase(os.path.realpath(finder.get_package_root(package)))
 
     if is_built_package(package):
         return {path for path in paths if filer.in_directory(path, root, follow=False)}

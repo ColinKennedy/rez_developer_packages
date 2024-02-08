@@ -29,7 +29,8 @@ def _get_transfer_path(variant):
         variant._non_shortlinked_subpath,  # pylint: disable=protected-access
     )
     tar_name = "{variant.name}-{variant.version}-{sub_path}.tar.gz".format(
-        variant=variant, sub_path=sub_path,
+        variant=variant,
+        sub_path=sub_path,
     )
 
     return os.path.join(root, variant.name, tar_name)

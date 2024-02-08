@@ -3,8 +3,13 @@
 
 """A series of tests for building/installing Rez packages."""
 
+from __future__ import unicode_literals
+
 import atexit
+import contextlib
+import copy
 import functools
+import io
 import logging
 import os
 import shutil
@@ -12,11 +17,14 @@ import tempfile
 import textwrap
 
 import git
-import wurlitzer
 from python_compatibility.testing import common
 from rez import exceptions, packages_
-from rez_utilities import creator, finder
+from rez.config import config
 from six.moves import mock
+
+from rez_utilities import creator, finder, silencer
+
+from .common import pather
 
 _CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 _LOGGER = logging.getLogger(__name__)
@@ -56,7 +64,11 @@ class Build(common.Common):
         """Fail to build a Rez package if it has no declared way to build the package."""
         package_root = tempfile.mkdtemp("_fake_source_package_with_no_build_method")
 
-        with open(os.path.join(package_root, "package.py"), "w") as handler:
+        with io.open(
+            os.path.join(package_root, "package.py"),
+            "w",
+            encoding="ascii",
+        ) as handler:
             handler.write(
                 textwrap.dedent(
                     """\
@@ -77,9 +89,12 @@ class Build(common.Common):
         """Make sure packages_path isn't accidentally modified."""
         root = tempfile.mkdtemp("_fake_source_package_with_build_method")
         paths = ["/stuff"]
-        build_package, build_root = _build_source_that_has_build_method(
-            root, packages_path=paths
-        )
+
+        with _clear_implicit_packages():
+            build_package, build_root = _build_source_that_has_build_method(
+                root, packages_path=paths
+            )
+
         atexit.register(functools.partial(shutil.rmtree, root))
         atexit.register(functools.partial(shutil.rmtree, build_root))
 
@@ -98,9 +113,10 @@ class Release(common.Common):
             repository.index.commit("initial commit")
 
         source_path = tempfile.mkdtemp(suffix="_rez_package_source_path")
-        self.delete_item_later(source_path)
 
-        with open(os.path.join(source_path, "package.py"), "w") as handler:
+        with io.open(
+            os.path.join(source_path, "package.py"), "w", encoding="ascii"
+        ) as handler:
             handler.write(
                 textwrap.dedent(
                     """\
@@ -127,10 +143,11 @@ class Release(common.Common):
         parser = mock.MagicMock()
         parser.prog = "rez release"
 
-        release_path = tempfile.mkdtemp(suffix="_rez_package_release_path")
-        self.delete_item_later(release_path)
+        release_path = pather.normalize(
+            tempfile.mkdtemp(suffix="_rez_package_release_path")
+        )
 
-        with wurlitzer.pipes():
+        with silencer.get_context(), _clear_implicit_packages(), _clear_hooks():
             creator.release(
                 finder.get_package_root(package), options, parser, release_path
             )
@@ -144,7 +161,7 @@ class Release(common.Common):
 
 def _build_source_that_has_build_method(root, packages_path=None):
     """Create a source Rez package and then build it to some temporary location."""
-    with open(os.path.join(root, "package.py"), "w") as handler:
+    with io.open(os.path.join(root, "package.py"), "w", encoding="ascii") as handler:
         handler.write(
             textwrap.dedent(
                 """\
@@ -162,3 +179,46 @@ def _build_source_that_has_build_method(root, packages_path=None):
         creator.build(package, build_root, packages_path=packages_path, quiet=True),
         build_root,
     )
+
+
+@contextlib.contextmanager
+def _clear_hooks():
+    """Prevent any user-defined release hooks from interfering with unittests.
+
+    See Also:
+        :obj:`rez.config.config`
+
+    Yields:
+        A context with no release hooks.
+
+    """
+    original_hooks = copy.copy(config.release_hooks)  # pylint: disable=no-member
+    original_plugin_path = copy.copy(config.plugin_path)  # pylint: disable=no-member
+    config.release_hooks[:] = []  # pylint: disable=no-member
+    config.plugin_path[:] = []  # pylint: disable=no-member
+
+    try:
+        yield
+    finally:
+        config.release_hooks[:] = original_hooks  # pylint: disable=no-member
+        config.plugin_path[:] = original_plugin_path  # pylint: disable=no-member
+
+
+@contextlib.contextmanager
+def _clear_implicit_packages():
+    """Prevent any user-defined implicit packages from interfering with unittests.
+
+    See Also:
+        :obj:`rez.config.config`
+
+    Yields:
+        A context with no implicit_packages.
+
+    """
+    original = copy.copy(config.implicit_packages)  # pylint: disable=no-member
+    config.implicit_packages[:] = []  # pylint: disable=no-member
+
+    try:
+        yield
+    finally:
+        config.implicit_packages[:] = original  # pylint: disable=no-member

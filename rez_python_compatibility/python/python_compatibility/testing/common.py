@@ -3,6 +3,7 @@
 
 """A basic class that makes writing unittests a little easier."""
 
+import io
 import os
 import shutil
 import sys
@@ -75,6 +76,7 @@ def make_files(file_structure, root):
 
         if items is None:
             if not os.path.isfile(item_path):
-                open(item_path, "a").close()
+                with io.open(item_path, "a", encoding="ascii"):
+                    pass
         elif not os.path.isdir(item_path):
             os.makedirs(item_path)

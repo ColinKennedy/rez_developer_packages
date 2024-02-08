@@ -9,6 +9,7 @@ go. This module keeps build processes and those files in-sync.
 """
 
 import inspect
+import io
 import os
 
 from rez import serialise
@@ -38,5 +39,5 @@ def add_build_file(package, name):
     """
     root = finder.get_package_root(package)
 
-    with open(os.path.join(root, name), "w") as handler:
+    with io.open(os.path.join(root, name), "w", encoding="ascii") as handler:
         handler.write(_get_build_command())

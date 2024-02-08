@@ -27,6 +27,7 @@ from . import exceptions
 
 _LOGGER = logging.getLogger(__name__)
 SETTINGS_FILE = "conf.py"
+_SPHINX_CONF_MODULE = "conf"
 
 
 def _is_sphinx_configuration_file(path):
@@ -82,10 +83,10 @@ def _guess_conf_file(directory):
 
             if _is_sphinx_configuration_file(conf_file):
                 return conf_file
-            else:
-                _LOGGER.debug(
-                    'File "%s" was found but it is not a valid Sphinx file.', conf_file
-                )
+
+            _LOGGER.debug(
+                'File "%s" was found but it is not a valid Sphinx file.', conf_file
+            )
 
     return ""
 
@@ -100,7 +101,7 @@ def get_conf_file(directory):
 
 
     Raises:
-        :class:`.SphinxFileBroken`:
+        SphinxFileBroken:
             If there is a found documentation file but it is invalid.
 
     Returns:
@@ -141,14 +142,12 @@ def import_conf_file(path):
 
     """
     try:
-        return imports.import_file("conf", path)
-    except Exception:  # pylint: disable=broad-except
-        raise
+        return imports.import_file(_SPHINX_CONF_MODULE, path)
     finally:
         # Import the Python module but remove "conf" from the global
         # module namespace. Otherwise, if this functions if called
         # repeatedly with different `path` values, it'll cause
         # unexpected results.
         #
-        if "conf" in sys.modules:
-            del sys.modules["conf"]
+        if _SPHINX_CONF_MODULE in sys.modules:
+            del sys.modules[_SPHINX_CONF_MODULE]

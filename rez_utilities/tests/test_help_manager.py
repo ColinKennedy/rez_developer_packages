@@ -3,9 +3,12 @@
 
 """Make sure :mod:`rez_utilities.help_manager` works as expected."""
 
+from __future__ import unicode_literals
+
 import atexit
 import contextlib
 import functools
+import io
 import json
 import os
 import shutil
@@ -16,8 +19,9 @@ import textwrap
 import unittest
 
 from python_compatibility.testing import contextual
-from rez_utilities import help_manager
 from six.moves import mock
+
+from rez_utilities import help_manager
 
 try:
     from rez import package_maker
@@ -28,6 +32,8 @@ try:
     from rez import packages as packages_
 except ImportError:
     from rez import packages_
+
+from .common import pather
 
 
 class GetHelpData(unittest.TestCase):
@@ -100,7 +106,8 @@ class GetHelpData(unittest.TestCase):
         help_ = [["Blah", "some/non/existent/path"]]
         package = _make_package(help_=help_)
         items = help_manager.get_data(
-            os.path.dirname(package.filepath), matches=_matches,
+            os.path.dirname(package.filepath),
+            matches=_matches,
         )
 
         self.assertEqual(help_, items)
@@ -110,7 +117,8 @@ class GetHelpData(unittest.TestCase):
         help_ = [["Blah", "some/non/existent/path"]]
         package = _make_package(help_=help_)
         items = help_manager.get_data(
-            os.path.dirname(package.filepath), matches="*Thing*",
+            os.path.dirname(package.filepath),
+            matches="*Thing*",
         )
 
         self.assertEqual([], items)
@@ -123,7 +131,8 @@ class GetHelpData(unittest.TestCase):
         ]
         package = _make_package(help_=help_)
         items = help_manager.get_data(
-            os.path.dirname(package.filepath), matches="*Documentation",
+            os.path.dirname(package.filepath),
+            matches="*Documentation",
         )
 
         self.assertEqual([["Some Documentation", "foo/bar"]], items)
@@ -135,7 +144,10 @@ class GetHelpData(unittest.TestCase):
             ["Some Documentation", "foo/bar"],
         ]
         package = _make_package(help_=help_)
-        items = help_manager.get_data(os.path.dirname(package.filepath), matches="*",)
+        items = help_manager.get_data(
+            os.path.dirname(package.filepath),
+            matches="*",
+        )
 
         self.assertEqual(help_, items)
 
@@ -152,7 +164,11 @@ class GetHelpData(unittest.TestCase):
         directory = tempfile.mkdtemp(suffix="_GetHelpData_test_non_existent_path_002")
         os.makedirs(os.path.join(directory, "inner_folder"))
 
-        with open(os.path.join(directory, "package.py"), "w") as handler:
+        with io.open(
+            os.path.join(directory, "package.py"),
+            "w",
+            encoding="ascii",
+        ) as handler:
             handler.write(
                 textwrap.dedent(
                     """\
@@ -165,11 +181,12 @@ class GetHelpData(unittest.TestCase):
                 )
             )
 
-        path = os.path.join(directory, "inner_folder", "README.md")
-        open(path, "a").close()
+        path = os.path.normcase(os.path.join(directory, "inner_folder", "README.md"))
+        _touch(path)
 
         self.assertEqual(
-            [["README", path]], help_manager.get_data(directory),
+            [["README", path]],
+            help_manager.get_data(directory),
         )
         self.assertEqual(
             [["README", "inner_folder/README.md"]],
@@ -178,9 +195,12 @@ class GetHelpData(unittest.TestCase):
 
     def test_string_001(self):
         """Get help path data from a string."""
-        help_ = tempfile.mkstemp(suffix="_test_string_001")[1]
+        help_ = pather.normalize(tempfile.mkstemp(suffix="_test_string_001")[1])
         package = _make_package(help_=help_)
-        items = help_manager.get_data(os.path.dirname(package.filepath))
+        items = [
+            [key, pather.normalize(value)]
+            for key, value in help_manager.get_data(os.path.dirname(package.filepath))
+        ]
 
         self.assertEqual([["Home Page", help_]], items)
 
@@ -217,7 +237,7 @@ def _get_package_help(directory):
     """
     path = os.path.join(directory, "some_file.py")
 
-    with open(path, "w") as handler:
+    with io.open(path, "w", encoding="ascii") as handler:
         handler.write(
             textwrap.dedent(
                 """\
@@ -228,7 +248,10 @@ def _get_package_help(directory):
             )
         )
 
-    process = subprocess.Popen(["python", path], stdout=subprocess.PIPE)
+    process = subprocess.Popen(  # pylint: disable=consider-using-with
+        ["python", path],
+        stdout=subprocess.PIPE,
+    )
     stdout, _ = process.communicate()
     output = stdout.decode("utf-8").strip()
     cleaned = output.replace("u'", "'").replace("'", '"')
@@ -246,7 +269,11 @@ class GetHelpDataDirectory(unittest.TestCase):
         fake_directory = os.path.join(root, "some_rez_package", "1.0.0", "and", "stuff")
         os.makedirs(fake_directory)
 
-        with open(os.path.join(fake_directory, "package.py"), "w") as handler:
+        with io.open(
+            os.path.join(fake_directory, "package.py"),
+            "w",
+            encoding="ascii",
+        ) as handler:
             handler.write(
                 textwrap.dedent(
                     """
@@ -304,3 +331,14 @@ def _make_package(help_=tuple()):
         maker.help = help_
 
     return packages_.get_developer_package(os.path.join(directory, name, version))
+
+
+def _touch(path):
+    """Make a file at ``path``.
+
+    Args:
+        path (str): Absolute path to a file to add on-disk (if it doesn't exist).
+
+    """
+    with io.open(path, "a", encoding="ascii"):
+        pass

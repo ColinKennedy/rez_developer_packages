@@ -30,11 +30,12 @@ def is_internet_on(timeout=2):
         urllib.error.URLError,
     )
 
-    try:
-        urllib.request.urlopen(
+    try:  # pylint: disable=too-many-try-statements
+        with urllib.request.urlopen(
             "http://216.58.192.142",  # This is the IP address to google
             timeout=timeout,
-        )
+        ):
+            pass
     except known_exceptions:
         return False
 

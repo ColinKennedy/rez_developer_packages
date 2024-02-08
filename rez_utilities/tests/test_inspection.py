@@ -3,8 +3,11 @@
 
 """Test all functions in the :mod:`rez_utilities.inspection` module."""
 
+from __future__ import unicode_literals
+
 import collections
 import functools
+import io
 import os
 import sys
 import tempfile
@@ -14,14 +17,16 @@ import unittest
 from python_compatibility.testing import common
 from rez import resolved_context
 from rez.config import config
-from rez_utilities import creator, finder, inspection
 from rezplugins.build_process import local
+
+from rez_utilities import creator, finder, inspection
 
 try:
     from rez import packages_  # pylint: disable=ungrouped-imports
 except ImportError:
     from rez import packages as packages_  # pylint: disable=ungrouped-imports
 
+from .common import pather
 
 _CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 
@@ -108,7 +113,11 @@ class HasPythonPackage(common.Common):
         root = os.path.join(root, "some_package")
         os.makedirs(root)
 
-        with open(os.path.join(root, "package.py"), "w") as handler:
+        with io.open(
+            os.path.join(root, "package.py"),
+            "w",
+            encoding="ascii",
+        ) as handler:
             handler.write(
                 textwrap.dedent(
                     """\
@@ -126,8 +135,8 @@ class HasPythonPackage(common.Common):
         python_root = os.path.join(root, "python", "some_package")
         os.makedirs(python_root)
 
-        open(os.path.join(python_root, "__init__.py"), "a").close()
-        open(os.path.join(python_root, "some_module.py"), "a").close()
+        _touch(os.path.join(python_root, "__init__.py"))
+        _touch(os.path.join(python_root, "some_module.py"))
 
         local.LocalBuildProcess.build = _check_called(local.LocalBuildProcess.build)
 
@@ -140,18 +149,26 @@ class HasPythonPackage(common.Common):
             )
         )
 
-        self.assertFalse(local.LocalBuildProcess.build.was_run)
+        self.assertFalse(
+            local.LocalBuildProcess.build.was_run,  # pylint: disable=no-member
+        )
 
     def test_source_build(self):
         """Return True if a Rez package creates a Python module after build."""
-        root = tempfile.mkdtemp(
-            suffix="_a_rez_source_package_with_no_python_modules_until_build"
+        root = pather.normalize(
+            tempfile.mkdtemp(
+                suffix="_a_rez_source_package_with_no_python_modules_until_build"
+            )
         )
         self.delete_item_later(root)
         root = os.path.join(root, "some_package")
         os.makedirs(root)
 
-        with open(os.path.join(root, "package.py"), "w") as handler:
+        with io.open(
+            os.path.join(root, "package.py"),
+            "w",
+            encoding="ascii",
+        ) as handler:
             template = textwrap.dedent(
                 """\
                 name = "some_package"
@@ -168,13 +185,17 @@ class HasPythonPackage(common.Common):
 
             handler.write(template.format(sys=sys))
 
-        with open(os.path.join(root, "rezbuild.py"), "w") as handler:
+        with io.open(
+            os.path.join(root, "rezbuild.py"),
+            "w",
+            encoding="ascii",
+        ) as handler:
             handler.write(_get_rezbuild_text())
 
         python_root = os.path.join(root, "python", "some_package")
         os.makedirs(python_root)
 
-        open(os.path.join(python_root, "__init__.py"), "a").close()
+        _touch(os.path.join(python_root, "__init__.py"))
 
         local.LocalBuildProcess.build = _check_called(local.LocalBuildProcess.build)
 
@@ -187,7 +208,9 @@ class HasPythonPackage(common.Common):
             )
         )
 
-        self.assertTrue(local.LocalBuildProcess.build.was_run)
+        self.assertTrue(
+            local.LocalBuildProcess.build.was_run,  # pylint: disable=no-member
+        )
 
     def test_source_with_variants(self):
         """A Rez source package that contains a Python package should return true.
@@ -196,12 +219,18 @@ class HasPythonPackage(common.Common):
         a Python module, it shouldn't need to be built and still return True.
 
         """
-        root = tempfile.mkdtemp(suffix="_a_rez_source_package_with_a_variant")
+        root = pather.normalize(
+            tempfile.mkdtemp(suffix="_a_rez_source_package_with_a_variant")
+        )
         self.delete_item_later(root)
         root = os.path.join(root, "some_package")
         os.makedirs(root)
 
-        with open(os.path.join(root, "package.py"), "w") as handler:
+        with io.open(
+            os.path.join(root, "package.py"),
+            "w",
+            encoding="ascii",
+        ) as handler:
             handler.write(
                 textwrap.dedent(
                     """\
@@ -220,8 +249,8 @@ class HasPythonPackage(common.Common):
         python_root = os.path.join(root, "python", "some_package")
         os.makedirs(python_root)
 
-        open(os.path.join(python_root, "__init__.py"), "a").close()
-        open(os.path.join(python_root, "some_module.py"), "a").close()
+        _touch(os.path.join(python_root, "__init__.py"))
+        _touch(os.path.join(python_root, "some_module.py"))
 
         local.LocalBuildProcess.build = _check_called(local.LocalBuildProcess.build)
 
@@ -234,18 +263,26 @@ class HasPythonPackage(common.Common):
             )
         )
 
-        self.assertFalse(local.LocalBuildProcess.build.was_run)
+        self.assertFalse(
+            local.LocalBuildProcess.build.was_run,  # pylint: disable=no-member
+        )
 
     def test_build(self):
         """A build Rez package should return True if it has a Python module inside of it."""
-        root = tempfile.mkdtemp(
-            suffix="_a_rez_source_package_with_no_python_modules_until_build"
+        root = pather.normalize(
+            tempfile.mkdtemp(
+                suffix="_a_rez_source_package_with_no_python_modules_until_build"
+            )
         )
         self.delete_item_later(root)
         root = os.path.join(root, "some_package")
         os.makedirs(root)
 
-        with open(os.path.join(root, "package.py"), "w") as handler:
+        with io.open(
+            os.path.join(root, "package.py"),
+            "w",
+            encoding="ascii",
+        ) as handler:
             template = textwrap.dedent(
                 """\
                 name = "some_package"
@@ -261,13 +298,17 @@ class HasPythonPackage(common.Common):
             )
             handler.write(template.format(sys=sys))
 
-        with open(os.path.join(root, "rezbuild.py"), "w") as handler:
+        with io.open(
+            os.path.join(root, "rezbuild.py"),
+            "w",
+            encoding="ascii",
+        ) as handler:
             handler.write(_get_rezbuild_text())
 
         python_root = os.path.join(root, "python", "some_package")
         os.makedirs(python_root)
 
-        open(os.path.join(python_root, "__init__.py"), "a").close()
+        _touch(os.path.join(python_root, "__init__.py"))
 
         package = finder.get_nearest_rez_package(root)
 
@@ -302,11 +343,15 @@ class HasPythonPackage(common.Common):
         self.assertTrue(
             inspection.has_python_package(package, allow_current_context=False)
         )
-        self.assertFalse(inspection.in_valid_context.was_run)
+        self.assertFalse(
+            inspection.in_valid_context.was_run,  # pylint: disable=no-member
+        )
         self.assertTrue(
             inspection.has_python_package(package, allow_current_context=True)
         )
-        self.assertTrue(inspection.in_valid_context.was_run)
+        self.assertTrue(
+            inspection.in_valid_context.was_run,  # pylint: disable=no-member
+        )
 
 
 class GetPackagePythonFiles(common.Common):
@@ -340,13 +385,17 @@ class GetPackagePythonFiles(common.Common):
         python_root = os.path.join(directory, "python")
         os.makedirs(python_root)
 
-        open(os.path.join(python_root, "thing.py"), "w").close()
-        open(os.path.join(python_root, "another.py"), "w").close()
+        _touch(os.path.join(python_root, "thing.py"))
+        _touch(os.path.join(python_root, "another.py"))
 
-        with open(os.path.join(directory, "package.py"), "w") as handler:
+        with io.open(
+            os.path.join(directory, "package.py"),
+            "w",
+            encoding="ascii",
+        ) as handler:
             handler.write(text)
 
-        return packages_.get_developer_package(directory), root
+        return packages_.get_developer_package(directory), pather.normalize(root)
 
     def _make_fake_rez_source_package(self, name, text):
         """Create a source (non-installed) Rez package.
@@ -364,7 +413,11 @@ class GetPackagePythonFiles(common.Common):
         os.makedirs(directory)
         self.delete_item_later(root)
 
-        with open(os.path.join(directory, "package.py"), "w") as handler:
+        with io.open(
+            os.path.join(directory, "package.py"),
+            "w",
+            encoding="ascii",
+        ) as handler:
             handler.write(text)
 
         return packages_.get_developer_package(directory)
@@ -405,8 +458,11 @@ class GetPackagePythonFiles(common.Common):
         python_root = os.path.join(root, "python")
         os.makedirs(python_root)
 
-        open(os.path.join(python_root, "thing.py"), "w").close()
-        open(os.path.join(python_root, "another.py"), "w").close()
+        with io.open(os.path.join(python_root, "thing.py"), "w", encoding="ascii"):
+            pass
+
+        with io.open(os.path.join(python_root, "another.py"), "w", encoding="ascii"):
+            pass
 
         context = resolved_context.ResolvedContext(
             ["{package.name}==".format(package=package)],
@@ -418,8 +474,9 @@ class GetPackagePythonFiles(common.Common):
         paths = inspection.get_package_python_paths(
             package, context.get_environ().get("PYTHONPATH", "").split(os.pathsep)
         )
+        paths = {pather.normalize(path) for path in paths}
 
-        return paths, root
+        return paths, pather.normalize(root)
 
     def _make_test_dependencies(self):
         """Create a couple of generic, installed Rez packages to use for unittesting."""
@@ -513,7 +570,8 @@ class GetPackagePythonFiles(common.Common):
             ),
         )
 
-        self.assertEqual({os.path.join(root, "python")}, python_files)
+        expected = os.path.join(root, "python")
+        self.assertEqual({expected}, python_files)
 
     def test_source_package_with_variants(self):
         """Create a source Rez package with variants and get the folders affecting PYTHONPATH."""
@@ -524,7 +582,7 @@ class GetPackagePythonFiles(common.Common):
                 """\
                 name = "some_fake_package"
                 version = "1.0.0"
-                variants = [["some_dependency-1", "another_one-2.3"], ["another_one-2.3"]]
+                variants = [["some_dependency-1", "another_one-2.3"]]
 
                 def commands():
                     import os
@@ -590,7 +648,7 @@ class GetPackagePythonFiles(common.Common):
                 """
             ),
         )
-        install_path = tempfile.mkdtemp(suffix="_install_path")
+        install_path = pather.normalize(tempfile.mkdtemp(suffix="_install_path"))
         self.delete_item_later(install_path)
 
         build_package = creator.build(
@@ -634,8 +692,6 @@ def _check_called(function):
         """Add the `was_run` attribute to this function call."""
         try:
             result = function(*args, **kwargs)
-        except Exception:
-            raise
         finally:
             wrapper.was_run = True
 
@@ -676,3 +732,14 @@ def _get_rezbuild_text():
             )
         """
     )
+
+
+def _touch(path):
+    """Make a file at ``path``.
+
+    Args:
+        path (str): Absolute path to a file to add on-disk (if it doesn't exist).
+
+    """
+    with io.open(path, "a", encoding="ascii"):
+        pass

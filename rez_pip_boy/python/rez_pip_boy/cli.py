@@ -13,12 +13,11 @@ import shlex
 import shutil
 import tempfile
 
-import wurlitzer
 from rez import pip
 from rez.cli import pip as cli_pip
 from rez_utilities import rez_configuration
 
-from .core import builder, exceptions, filer, hashed_variant
+from .core import builder, exceptions, filer, hashed_variant, pather
 
 ARGUMENTS_SEPARATOR = " -- "
 _BUILD_FILE_NAME = "rezbuild.py"
@@ -36,7 +35,8 @@ def _parse_arguments(text):
 
     Returns:
         tuple[str, :class:`argparse.Namespace`]:
-            The raw text to parse with `rez-pip` and the parsed arguments needed by `rez_pip_boy`.
+            The raw text to parse with `rez-pip` and the parsed arguments
+            needed by `rez_pip_boy`.
 
     """
     separator = ARGUMENTS_SEPARATOR.strip()
@@ -177,15 +177,18 @@ def _get_verbosity_context(quiet):
         The found Python context.
 
     """
-    if not quiet:
-        with hashed_variant.do_nothing():
-            yield
-    else:
-        with wurlitzer.pipes() as (stdout, stderr):
-            yield
-
-        stdout.close()
-        stderr.close()
+    with hashed_variant.do_nothing():
+        yield
+    # TODO: Handle this somehow
+    # if not quiet:
+    #     with hashed_variant.do_nothing():
+    #         yield
+    # else:
+    #     with wurlitzer.pipes() as (stdout, stderr):
+    #         yield
+    #
+    #     stdout.close()
+    #     stderr.close()
 
 
 def _pip_install(arguments, prefix):
@@ -243,7 +246,7 @@ def main(text):
             e.g. '"--install black --python-version=3.7" --destination /tmp/foo'.
 
     Raises:
-        :class:`.MissingDestination`: If the given directory doesn't exist.
+        MissingDestination: If the given directory doesn't exist.
 
     """
     rez_pip_command, rez_pip_boy_arguments = _parse_arguments(text)
@@ -260,7 +263,9 @@ def main(text):
 
         os.makedirs(destination)
 
-    prefix = tempfile.mkdtemp(prefix="rez_pip_boy_", suffix="_temporary_build_folder")
+    prefix = pather.normalize(
+        tempfile.mkdtemp(prefix="rez_pip_boy_", suffix="_temporary_build_folder")
+    )
 
     if not rez_pip_boy_arguments.keep_temporary_files:
         atexit.register(functools.partial(shutil.rmtree, prefix))
@@ -292,7 +297,8 @@ def main(text):
             _BUILD_FILE_NAME=_BUILD_FILE_NAME
         )
         destination_package = installed_variant.install(
-            destination, overrides={"build_command": build_command},
+            destination,
+            overrides={"build_command": build_command},
         )
         filer.transfer(installed_variant)
         builder.add_build_file(destination_package, _BUILD_FILE_NAME)

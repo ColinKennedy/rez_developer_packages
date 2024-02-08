@@ -1,6 +1,6 @@
 name = "rez_pip_boy"
 
-version = "2.2.0"
+version = "2.3.0"
 
 description = "Convert an installed pip package back into a source package"
 
@@ -14,21 +14,19 @@ private_build_requires = ["rez_build_helper-1+<2"]
 
 build_command = "python -m rez_build_helper --items bin python"
 
-requires = [
-    "python-2.7+<3.8",
-    "rez-2.47+<3",
-    "rez_utilities-2+<3",
-    "wurlitzer-2+<3",
-]
+requires = ["python-2.7+<3.10", "rez-2.47+<3", "rez_utilities-3+<4", "wurlitzer-2+<4"]
+
+_common_run_on = ["default", "pre_release"]
 
 tests = {
     "black_diff": {
-        "command": "black --diff --check package.py python tests",
-        "requires": ["black-19.10+<20"],
+        "command": "black --diff --check python tests",
+        "requires": ["black-23+<25"],
+        "run_on": _common_run_on,
     },
     "black": {
-        "command": "black package.py python tests",
-        "requires": ["black-19.10+<20"],
+        "command": "black python tests",
+        "requires": ["black-23+<25"],
         "run_on": "explicit",
     },
     "coverage": {
@@ -42,31 +40,40 @@ tests = {
         "run_on": "explicit",
     },
     "isort": {
-        "command": "isort --recursive package.py python tests",
-        "requires": ["isort-4.3+<5"],
+        "command": "isort package.py python tests",
+        "requires": ["isort-5.11+<6"],
         "run_on": "explicit",
     },
     "isort_check": {
-        "command": "isort --check-only --diff --recursive package.py python tests",
-        "requires": ["isort-4.3+<5"],
+        "command": "isort --check-only --diff package.py python tests",
+        "requires": ["isort-5.11+<6"],
+        "run_on": _common_run_on,
     },
     "pydocstyle": {
         # Need to disable D202 for now, until a new pydocstyle version is released
         # Reference: https://github.com/psf/black/issues/1159
         #
-        "command": "rez-env pydocstyle -- pydocstyle --ignore=D202,D203,D213,D406,D407 python tests/*"
+        "command": "pydocstyle --ignore=D213,D202,D203,D406,D407 python tests/*",
+        "requires": ["pydocstyle-6+<7"],
+        "run_on": _common_run_on,
     },
     "pylint": {
-        "command": "pylint --disable=bad-continuation python/rez_pip_boy tests",
-        "requires": ["pylint-1.9+<2"],
+        # TODO: These --disable flags require deprecating Python 2. Once Python
+        # 2 is deprecated, add the flags back in.
+        #
+        "command": "pylint --disable=super-with-arguments,useless-object-inheritance,consider-using-f-string,raise-missing-from,consider-using-assignment-expr python/rez_pip_boy tests",
+        "requires": ["pylint-2.17+<4"],
+        "run_on": _common_run_on,
     },
     "unittest_python_2": {
         "command": "python -m unittest discover",
         "requires": ["mock-3+<5", "python-2", "six-1.14+<2",],
+        "run_on": _common_run_on,
     },
-    "unittest_python_3": {
+    "unittest_python_3.9": {
         "command": "python -m unittest discover",
-        "requires": ["python-3.6", "six-1.14+<2",],
+        "requires": ["python-3.9", "six-1.14+<2",],
+        "run_on": _common_run_on,
     },
 }
 

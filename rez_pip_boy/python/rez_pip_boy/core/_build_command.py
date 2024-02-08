@@ -22,7 +22,10 @@ def _get_tar_path():
     """
     package_name = os.environ["REZ_BUILD_PROJECT_NAME"]
 
-    tar_directory = os.path.join(os.environ["PIP_BOY_TAR_LOCATION"], package_name,)
+    tar_directory = os.path.join(
+        os.environ["PIP_BOY_TAR_LOCATION"],
+        package_name,
+    )
     sub_path = convert_variant_sub_path(os.environ["REZ_BUILD_VARIANT_SUBPATH"])
 
     tar_name = "{package_name}-{version}-{sub_path}.tar.gz".format(
@@ -93,7 +96,8 @@ def convert_variant_sub_path(text):
     return text.replace("/", "_").replace("\\", "_").replace(" ", "_")
 
 
-def main(build, install):
+# Note: pylint's disable=missing-raises-doc is bugged. Add it back in once it's fixed
+def main(build, install):  # pylint: disable=missing-raises-doc
     """Unpack a tar archive of some pip package and install it as a Rez package.
 
     Args:
@@ -120,5 +124,6 @@ def main(build, install):
 
 if __name__ == "__main__":
     main(
-        os.environ["REZ_BUILD_PATH"], os.environ["REZ_BUILD_INSTALL_PATH"],
+        os.environ["REZ_BUILD_PATH"],
+        os.environ["REZ_BUILD_INSTALL_PATH"],
     )

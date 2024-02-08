@@ -12,22 +12,14 @@ MISSING_DOUBLE_DASH_EXIT_CODE = 3
 class DuplicateDoubleDash(Exception):
     """If the user adds more than one " -- " separator."""
 
-    pass
-
 
 class MissingDoubleDash(Exception):
     """If the user tries to call `rez_pip_boy` without a " -- " separator."""
-
-    pass
 
 
 class MissingDestination(Exception):
     """Whenever the user gives a folder on-disk which doesn't exist."""
 
-    pass
-
 
 class SwappedArguments(Exception):
     """When the user adds `rez-pip` arguments to the right of the " -- " instead of the left."""
-
-    pass

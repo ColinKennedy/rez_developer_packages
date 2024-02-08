@@ -169,7 +169,13 @@ def _resolve_rez_path(path):
     return ""
 
 
-def get_data(directory="", matches="", resolve=True, excludes=frozenset()):
+# Note: Remove missing-param-doc,missing-type-doc once pylint fixes its bug
+def get_data(  # pylint: disable=too-complex,missing-param-doc,missing-type-doc
+    directory="",
+    matches="",
+    resolve=True,
+    excludes=frozenset(),
+):
     """Get a Rez package's help information.
 
     Args:
@@ -208,16 +214,17 @@ def get_data(directory="", matches="", resolve=True, excludes=frozenset()):
                     directory=directory
                 )
             )
-        elif directory:
+
+        if directory:
             raise RuntimeError(
                 'Directory "{directory}" does not exist and could not get a Rez package.'.format(
                     directory=directory
                 )
             )
-        else:
-            raise ValueError(
-                "No directory was given and no automatic Rez package could be found."
-            )
+
+        raise ValueError(
+            "No directory was given and no automatic Rez package could be found."
+        )
 
     matches = _resolve_matches(matches)
 
@@ -247,17 +254,19 @@ def get_data(directory="", matches="", resolve=True, excludes=frozenset()):
         if not matches(key):
             continue
 
+        path_ = path
+
         if resolve:
             # Rez package `help` attributes are usually relative paths
             # or website URLs. If it's a file path, we need to make it
             # absolute again.
             #
-            resolved_path = os.path.join(package_directory, path)
+            resolved_path = os.path.normcase(os.path.join(package_directory, path))
 
             if os.path.exists(resolved_path):
-                path = resolved_path
+                path_ = resolved_path
 
-        output.append([key, path])
+        output.append([key, path_])
 
     return output
 

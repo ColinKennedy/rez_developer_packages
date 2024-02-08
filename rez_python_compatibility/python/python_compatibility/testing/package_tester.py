@@ -3,6 +3,7 @@
 
 """Python project objects."""
 
+import io
 import os
 import tempfile
 
@@ -31,6 +32,7 @@ def make_fake_python_project():
         if not os.path.isdir(parent):
             os.makedirs(parent)
 
-        open(path, "a").close()
+        with io.open(path, "a", encoding="ascii"):
+            pass
 
     return directory, end

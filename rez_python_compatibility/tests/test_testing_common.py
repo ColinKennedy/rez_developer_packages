@@ -46,7 +46,10 @@ class FileMaker(common.Common):
             {"another.py", "thing"}, set(os.listdir(os.path.join(root, "foo")))
         )
         self.assertEqual(
-            {"blah.py",}, set(os.listdir(os.path.join(root, "foo", "thing"))),
+            {
+                "blah.py",
+            },
+            set(os.listdir(os.path.join(root, "foo", "thing"))),
         )
 
         self.assertTrue(all({os.path.isdir(os.path.join(root, "foo"))}))

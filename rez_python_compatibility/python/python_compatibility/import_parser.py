@@ -11,6 +11,7 @@ directly.
 
 import ast
 import copy
+import io
 import logging
 import os
 import re
@@ -412,9 +413,9 @@ def _resolve_to_absolute(modules, path):
             continue
 
         absolute_namespace = _make_absolute(namespace, path)
-        module = copy.deepcopy(module)
-        module.set_from_namespace(absolute_namespace)
-        output.append(module)
+        module_ = copy.deepcopy(module)
+        module_.set_from_namespace(absolute_namespace)
+        output.append(module_)
 
     return output
 
@@ -435,7 +436,7 @@ def get_namespaces_from_file(path, absolute=True):
         list[:class:`.Module`]: The found Python imports.
 
     """
-    modules = parse_python_source_file(path)
+    modules = list(parse_python_source_file(path))
 
     if absolute:
         modules = _resolve_to_absolute(modules, path)
@@ -454,10 +455,10 @@ def parse_python_source_file(path):
 
     """
     if _PYTHON_2:
-        with open(path, "rU") as handler:
+        with io.open(path, "rU", encoding="ascii") as handler:
             contents = handler.read()
     else:
-        with open(path, "r", newline="\n") as handler:
+        with io.open(path, "r", newline="\n", encoding="ascii") as handler:
             contents = handler.read()
 
     return parse_python_source_code(contents)

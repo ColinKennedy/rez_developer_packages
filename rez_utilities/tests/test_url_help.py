@@ -3,8 +3,11 @@
 
 """Test that querying rez help URLs works as expected."""
 
+from __future__ import unicode_literals
+
 import atexit
 import functools
+import io
 import os
 import shutil
 import tempfile
@@ -13,6 +16,7 @@ import unittest
 
 from python_compatibility.testing import common
 from rez import packages_
+
 from rez_utilities import url_help
 
 _DEFAULT_HELP = object()
@@ -29,7 +33,11 @@ class InsertHelpEntry(unittest.TestCase):
         ]
 
         self.assertEqual(
-            [["aaa", "zzz"], ["another", "thing"], ["blah", "something"],],
+            [
+                ["aaa", "zzz"],
+                ["another", "thing"],
+                ["blah", "something"],
+            ],
             url_help.insert_help_entry(help_, "aaa", "zzz"),
         )
 
@@ -50,7 +58,11 @@ class InsertHelpEntry(unittest.TestCase):
         ]
 
         self.assertEqual(
-            [["another", "thing"], ["blah", "something"], ["foo", "bar"],],
+            [
+                ["another", "thing"],
+                ["blah", "something"],
+                ["foo", "bar"],
+            ],
             url_help.insert_help_entry(help_, "foo", "bar"),
         )
 
@@ -68,7 +80,8 @@ class InsertHelpEntry(unittest.TestCase):
         help_ = []
 
         self.assertEqual(
-            [["foo", "bar"]], url_help.insert_help_entry(help_, "foo", "bar"),
+            [["foo", "bar"]],
+            url_help.insert_help_entry(help_, "foo", "bar"),
         )
 
     def test_empty_002(self):
@@ -76,7 +89,8 @@ class InsertHelpEntry(unittest.TestCase):
         help_ = ""
 
         self.assertEqual(
-            [["foo", "bar"]], url_help.insert_help_entry(help_, "foo", "bar"),
+            [["foo", "bar"]],
+            url_help.insert_help_entry(help_, "foo", "bar"),
         )
 
     def test_middle_list(self):
@@ -87,7 +101,11 @@ class InsertHelpEntry(unittest.TestCase):
         ]
 
         self.assertEqual(
-            [["another", "thing"], ["azz", "zzz"], ["blah", "something"],],
+            [
+                ["another", "thing"],
+                ["azz", "zzz"],
+                ["blah", "something"],
+            ],
             url_help.insert_help_entry(help_, "azz", "zzz"),
         )
 
@@ -96,13 +114,18 @@ class InsertHelpEntry(unittest.TestCase):
         folder = tempfile.mkdtemp(suffix="_InsertHelpEntry_test_undefined")
         atexit.register(functools.partial(shutil.rmtree, folder))
 
-        with open(os.path.join(folder, "package.py"), "w") as handler:
+        with io.open(
+            os.path.join(folder, "package.py"),
+            "w",
+            encoding="ascii",
+        ) as handler:
             handler.write('name = "some_package"')
 
         package = packages_.get_developer_package(folder)
 
         self.assertEqual(
-            [["foo", "bar"]], url_help.insert_help_entry(package.help, "foo", "bar"),
+            [["foo", "bar"]],
+            url_help.insert_help_entry(package.help, "foo", "bar"),
         )
 
 
@@ -123,7 +146,11 @@ class CheckUrl(common.Common):
         """
         folder = tempfile.mkdtemp()
 
-        with open(os.path.join(folder, "package.py"), "w") as handler:
+        with io.open(
+            os.path.join(folder, "package.py"),
+            "w",
+            encoding="ascii",
+        ) as handler:
             handler.write(code)
 
         self.delete_item_later(folder)
@@ -254,7 +281,11 @@ class FindUrl(common.Common):
         """
         folder = tempfile.mkdtemp()
 
-        with open(os.path.join(folder, "package.py"), "w") as handler:
+        with io.open(
+            os.path.join(folder, "package.py"),
+            "w",
+            encoding="ascii",
+        ) as handler:
             handler.write(code)
 
         self.delete_item_later(folder)

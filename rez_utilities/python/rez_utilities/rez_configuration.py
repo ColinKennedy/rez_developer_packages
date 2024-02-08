@@ -6,7 +6,6 @@
 import contextlib
 import itertools
 
-import wurlitzer
 from rez import serialise
 from rez.config import config
 
@@ -19,16 +18,6 @@ REZ_PACKAGE_NAMES = frozenset(
     )
     for extension in format_.value
 )
-
-
-@contextlib.contextmanager
-def get_context():
-    """:class:`contextlib.GeneratorContextManager`: Silence all C-level stdout messages."""
-    with wurlitzer.pipes() as (stdout, stderr):
-        yield (stdout, stderr)
-
-    stdout.close()
-    stderr.close()
 
 
 @contextlib.contextmanager

@@ -3,6 +3,9 @@
 
 """Test that import namespaces are found correctly."""
 
+from __future__ import unicode_literals
+
+import io
 import sys
 import textwrap
 
@@ -47,7 +50,7 @@ class _TestCase(common.Common):
         self.delete_item_later(root)
         sys.path.append(root)
 
-        with open(path, "w") as handler:
+        with io.open(path, "w", encoding="ascii") as handler:
             handler.write(code)
 
         return [

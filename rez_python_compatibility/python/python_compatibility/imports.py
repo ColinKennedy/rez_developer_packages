@@ -191,7 +191,9 @@ def get_namespace(object_):
             class_name = class_.__class__.__name__
 
         return "{module}.{class_name}.{name}".format(
-            module=module, class_name=class_name, name=name,
+            module=module,
+            class_name=class_name,
+            name=name,
         )
 
     raise NotImplementedError(
@@ -309,7 +311,7 @@ def import_file(namespace, path):
     module = None
 
     try:
-        import importlib.util as _util
+        import importlib.util as _util  # pylint: disable=import-outside-toplevel
     except ImportError:
         pass
     else:
@@ -321,6 +323,6 @@ def import_file(namespace, path):
 
         return module
 
-    import imp
+    import imp  # pylint: disable=deprecated-module,import-outside-toplevel
 
     return imp.load_source(namespace, path)

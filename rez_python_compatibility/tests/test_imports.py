@@ -3,8 +3,11 @@
 
 """Basic import/module related unittests."""
 
+from __future__ import unicode_literals
+
 import atexit
 import functools
+import io
 import logging
 import os
 import shutil
@@ -98,7 +101,8 @@ class ImportDetection(common.Common):
             path = os.path.join(root, key)
 
             if value is None:
-                open(path, "a").close()
+                with io.open(path, "a", encoding="ascii"):
+                    pass
             else:
                 os.makedirs(path)
                 cls._build_file_tree(value, root=path)
@@ -224,7 +228,11 @@ class ImportNearest(unittest.TestCase):
         directory = tempfile.mkdtemp(suffix="_ImportNearest_test_undefined_name")
         atexit.register(functools.partial(shutil.rmtree, directory))
 
-        with open(os.path.join(directory, "some_name_mangled_file.py"), "w") as handler:
+        with io.open(
+            os.path.join(directory, "some_name_mangled_file.py"),
+            "w",
+            encoding="ascii",
+        ) as handler:
             handler.write(code)
 
         with wrapping.keep_sys_path():
@@ -277,7 +285,7 @@ class Module(unittest.TestCase):
         )
         path = os.path.join(tempfile.mkdtemp(), "fake_module.py")
 
-        with open(path, "w") as handler:
+        with io.open(path, "w", encoding="ascii") as handler:
             handler.write(code)
 
         with wrapping.keep_sys_path():

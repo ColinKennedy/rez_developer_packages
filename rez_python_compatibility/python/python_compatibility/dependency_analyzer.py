@@ -241,10 +241,12 @@ def _parse_arguments(text):
     current_directory = os.getcwd()
 
     for path in set(parser.parse_args(text).directories):
-        if not os.path.isabs(path):
-            path = os.path.normpath(os.path.join(current_directory, path))
+        path_ = path
 
-        directories.add(path)
+        if not os.path.isabs(path_):
+            path_ = os.path.normpath(os.path.join(current_directory, path_))
+
+        directories.add(path_)
 
     return directories
 
@@ -305,19 +307,24 @@ def get_imported_namespaces(directories, convert_relative_imports=True):
     for directory in directories:
         for path in packaging.iter_python_files(directory):
             try:
-                for namespace in import_parser.get_namespaces_from_file(
-                    path, absolute=convert_relative_imports,
-                ):
-                    namespace_text = namespace.get_namespace()
-
-                    if not convert_relative_imports and namespace_text.startswith("."):
-                        continue
-
-                    if namespace_text not in names:
-                        names.add(namespace_text)
-                        namespaces.add(namespace)
+                namespaces = import_parser.get_namespaces_from_file(
+                    path,
+                    absolute=convert_relative_imports,
+                )
             except SyntaxError:
                 _LOGGER.exception('Could not load "%s" due to a syntax error', path)
+
+                continue
+
+            for namespace in namespaces:
+                namespace_text = namespace.get_namespace()
+
+                if not convert_relative_imports and namespace_text.startswith("."):
+                    continue
+
+                if namespace_text not in names:
+                    names.add(namespace_text)
+                    namespaces.add(namespace)
 
     return namespaces
 

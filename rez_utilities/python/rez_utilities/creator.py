@@ -12,7 +12,7 @@ from rez import build_process_, build_system, developer_package, packages_
 from rez.cli import build as build_
 from rez.cli import release as release_
 
-from . import finder, rez_configuration
+from . import finder, rez_configuration, silencer
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -51,13 +51,14 @@ def _build(package, install_path, directory, quiet=False):
         "local",  # See :func:`rez.build_process_.get_build_process_types` for possible values
         directory,
         build_system=system,
-        verbose=True,
+        verbose=not quiet,
+        quiet=quiet,
     )
 
     _LOGGER.info('Now building package "%s".', package)
 
     if quiet:
-        context = rez_configuration.get_context()
+        context = silencer.get_context()
     else:
         context = _null_context()
 
@@ -221,7 +222,7 @@ def release(  # pylint: disable=too-many-arguments
     current_directory = os.getcwd()
 
     if quiet:
-        context = rez_configuration.get_context
+        context = silencer.get_context
     else:
         context = _null_context
 
@@ -232,8 +233,6 @@ def release(  # pylint: disable=too-many-arguments
             with context():
                 try:
                     release_.command(options, parser)
-                except Exception:
-                    raise
                 finally:
                     os.chdir(current_directory)
 

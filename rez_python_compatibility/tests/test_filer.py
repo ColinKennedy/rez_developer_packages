@@ -4,12 +4,14 @@
 """Test that file-system related functions work as expected."""
 
 import os
+import shutil
 import tempfile
 import unittest
 
-from backports import tempfile as tempfile_
 from python_compatibility import filer
 from python_compatibility.testing import common
+
+_HAS_NO_SYMLINKS = not hasattr(os, "symlink")
 
 
 class Invalids(unittest.TestCase):
@@ -95,6 +97,7 @@ class Permutations(unittest.TestCase):
         )
 
 
+@unittest.skipIf(_HAS_NO_SYMLINKS, "Symlink support is disabled.")
 class Symlinks(common.Common):
     """Tests related to symlinks, which sometimes cause issues in UNIX systems."""
 
@@ -102,12 +105,16 @@ class Symlinks(common.Common):
         """Create a symlinked directory for the tests in this class."""
         super(Symlinks, self).setUp()
 
-        with tempfile_.TemporaryDirectory() as directory:
-            # We just want the directory name, not for it to exist
-            pass
+        directory = os.path.realpath(tempfile.mkdtemp(suffix="_Symlinks_setup_source"))
 
         self._source = os.path.join(directory, "inner_part")
-        self._destination = os.path.join(tempfile.mkdtemp(), "folder")
+        self._destination = os.path.join(
+            os.path.realpath(tempfile.mkdtemp(suffix="_Symlinks_setup_destination")),
+            "folder",
+        )
+
+        # We just want the directory name, not for it to exist
+        shutil.rmtree(directory)
         os.symlink(directory, self._destination)
 
         self.delete_item_later(self._source)

@@ -66,9 +66,7 @@ def force_unhashed_variants():
 
     try:
         yield
-    except Exception:
-        raise
     finally:
-        package_maker.PackageMaker._get_data = (  # pylint: disable=protected-access
+        package_maker.PackageMaker._get_data = (  # pylint: disable=protected-access,redefined-variable-type
             old_method
         )

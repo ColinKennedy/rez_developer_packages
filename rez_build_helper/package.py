@@ -3,7 +3,7 @@
 
 name = "rez_build_helper"
 
-version = "1.9.0"
+version = "1.11.0"
 
 description = "Build Rez packages using Python"
 
@@ -15,48 +15,36 @@ build_command = "python {root}/rezbuild.py {install}"
 
 uuid = "168c5114-a951-4834-a744-dae1331e375e"
 
-requires = ["rez-2.71+<3", "six-1.11+<2", "whichcraft-0.6+<1"]
-
-# ``hashed_variants`` is required if you want this to build on Windows, which
-# doesn't support < in folder names
-#
-hashed_variants = True
-
-variants = [
-    ["python-2.7", "setuptools-44+<45"],
-    ["python-3.7", "setuptools-51+<52"],
+requires = [
+    "python-2.7+<3.10",
+    "rez-2.71+<3",
+    "setuptools-41+",
+    "six-1.11+<2",
+    "whichcraft-0.6+<1",
 ]
 
 # TODO: Check if windows and, if so, don't include wurlitzer
-_common_requires = ["rez_python_compatibility-2.6+<3", "wurlitzer-2+<3"]
+_common_requires = ["rez_python_compatibility-2.6+<3", "wurlitzer-2+<4"]
 _common_run_on = ["default", "pre_release"]
-_common_python_3_variant = {
-    "type": "requires",
-    "value": ["python-3"],
-}
 
 tests = {
     "black_diff": {
         "command": "black --diff --check package.py python tests",
-        "on_variants": _common_python_3_variant,
-        "requires": ["black-23+<24"],
+        "requires": ["black-23+<25"],
         "run_on": _common_run_on,
     },
     "black": {
         "command": "black package.py python tests",
-        "on_variants": _common_python_3_variant,
-        "requires": ["black-23+<24"],
+        "requires": ["black-23+<25"],
         "run_on": "explicit",
     },
     "isort": {
         "command": "isort --profile black package.py python tests",
-        "on_variants": _common_python_3_variant,
         "requires": ["isort-5.11+<6"],
         "run_on": "explicit",
     },
     "isort_check": {
         "command": "isort --profile black --check-only --diff package.py python tests",
-        "on_variants": _common_python_3_variant,
         "requires": ["isort-5.11+<6"],
         "run_on": _common_run_on,
     },
@@ -65,20 +53,17 @@ tests = {
         # Reference: https://github.com/psf/black/issues/1159
         #
         "command": "pydocstyle --ignore=D213,D202,D203,D406,D407 python tests/*",
-        "on_variants": _common_python_3_variant,
         "requires": ["pydocstyle-6+<7"],
         "run_on": _common_run_on,
     },
     "pylint_source": {
         "command": "pylint --disable=consider-using-f-string python/rez_build_helper",
-        "on_variants": _common_python_3_variant,
-        "requires": _common_requires + ["pylint-2.17+<3"],
+        "requires": _common_requires + ["pylint-2.17+<4"],
         "run_on": _common_run_on,
     },
     "pylint_tests": {
         "command": "pylint --disable=consider-using-f-string,duplicate-code tests",
-        "on_variants": _common_python_3_variant,
-        "requires": _common_requires + ["pylint-2.17+<3"],
+        "requires": _common_requires + ["pylint-2.17+<4"],
         "run_on": _common_run_on,
     },
     "unittest_python_2": {
@@ -90,10 +75,14 @@ tests = {
         "requires": _common_requires + [".add_fake_hotl-1", "python-2.7"],
         "run_on": _common_run_on,
     },
-    "unittest_python_3": {
+    "unittest_python_3.7": {
         "command": "python -m unittest discover",
-        "on_variants": _common_python_3_variant,
-        "requires": _common_requires + [".add_fake_hotl-1", "python-3.6+<3.8"],
+        "requires": _common_requires + [".add_fake_hotl-1", "python-3.7+<3.8"],
+        "run_on": _common_run_on,
+    },
+    "unittest_python_3.9": {
+        "command": "python -m unittest discover",
+        "requires": _common_requires + [".add_fake_hotl-1", "python-3.9+<3.10"],
         "run_on": _common_run_on,
     },
 }

@@ -21,8 +21,6 @@ except ImportError:
     import profile
 
 
-
-
 class _Content(object):
     """A thin wrapper to store args, kwargs, and results of called Python objects."""
 
@@ -131,11 +129,10 @@ def capture_pipes():
 
     """
     oldout, olderr = sys.stdout, sys.stderr
+    out = [io.StringIO(), io.StringIO()]
+    sys.stdout, sys.stderr = out
 
     try:
-        out = [io.StringIO(), io.StringIO()]
-        sys.stdout, sys.stderr = out
-
         yield out
     finally:
         sys.stdout, sys.stderr = oldout, olderr
@@ -296,7 +293,11 @@ def run_once(function):
 
 
 @contextlib.contextmanager
-def watch_namespace(original, namespace="", implicits=False):
+def watch_namespace(  # pylint: disable=too-complex
+    original,
+    namespace="",
+    implicits=False,
+):
     """Check the inputs and outputs of `original`, any time it is called.
 
     Reference:
