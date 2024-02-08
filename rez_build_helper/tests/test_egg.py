@@ -22,8 +22,9 @@ from rez_build_helper import exceptions, filer
 
 from .common import common, creator, finder, pymix, rez_configuration
 
-_IS_PYTHON_2 = sys.version_info.major == 2
 _INFO = sys.version_info
+_IS_OLDER_METADATA = _INFO.major <= 3 and _INFO.minor < 8
+_IS_PYTHON_2 = _INFO.major == 2
 _REZ_PLATFORM = rez_configuration.get_current_platform_as_rez_name()
 _REZ_PYTHON_VERSION = os.environ["REZ_PYTHON_VERSION"]
 _VERSION = "{_INFO.major}.{_INFO.minor}.{_INFO.micro}".format(_INFO=_INFO)
@@ -199,17 +200,29 @@ class Egg(common.Common):
         self.assertEqual(expected, {item.filename for item in egg.filelist})
 
         expected_package_information = [
-            "Metadata-Version: 1.2",
-            "Name: some-package",
+            "Metadata-Version: 2.1",
+            "Name: some_package",
             "Version: 1.0.0",
             "Summary: A test packages for rez_build_helper",
             "Home-page: http://www.some_home_page.com",
             "Author: ColinKennedy",
-            "License: UNKNOWN",
-            "Description: UNKNOWN",
             "Platform: {_REZ_PLATFORM}".format(_REZ_PLATFORM=_REZ_PLATFORM),
             "Requires-Python: =={_VERSION}".format(_VERSION=_VERSION),
         ]
+
+        if _IS_OLDER_METADATA:
+            expected_package_information = [
+                "Metadata-Version: 1.2",
+                "Name: some-package",
+                "Version: 1.0.0",
+                "Summary: A test packages for rez_build_helper",
+                "Home-page: http://www.some_home_page.com",
+                "Author: ColinKennedy",
+                "License: UNKNOWN",
+                "Description: UNKNOWN",
+                "Platform: {_REZ_PLATFORM}".format(_REZ_PLATFORM=_REZ_PLATFORM),
+                "Requires-Python: =={_VERSION}".format(_VERSION=_VERSION),
+            ]
 
         self.assertEqual(expected_package_information, found_package_information)
 
@@ -444,20 +457,19 @@ class Egg(common.Common):
             }
 
         self.assertEqual(expected, {item.filename for item in egg.filelist})
+
         expected_package_information = [
-            "Metadata-Version: 1.2",
-            "Name: some-package",
+            "Metadata-Version: 2.1",
+            "Name: some_package",
             "Version: 1.0.0",
             "Summary: A test packages for rez_build_helper",
             "Home-page: http://www.some_home_page.com",
             "Author: ColinKennedy",
-            "License: UNKNOWN",
-            "Description: UNKNOWN",
             "Platform: windows",
             "Requires-Python: =={_VERSION}".format(_VERSION=_VERSION),
         ]
 
-        if _IS_PYTHON_2:
+        if _IS_OLDER_METADATA:
             expected_package_information = [
                 "Metadata-Version: 1.2",
                 "Name: some-package",
