@@ -2,7 +2,7 @@
 
 name = "rez_python_compatibility"
 
-version = "2.9.0"
+version = "2.9.1"
 
 description = "Miscellaneous, core Python 2 + 3 functions."
 
@@ -18,10 +18,13 @@ private_build_requires = ["python-2", "rez_build_helper-1.1+<2"]
 
 build_command = "python -m rez_build_helper --items python"
 
+_common_run_on = ["default", "pre_release"]
+
 tests = {
     "black_diff": {
         "command": "black --diff --check python tests",
         "requires": ["black-23+<25"],
+        "run_on": _common_run_on,
     },
     "black": {
         "command": "black python tests",
@@ -46,6 +49,7 @@ tests = {
     "isort_check": {
         "command": "isort --profile black --check-only --diff python tests",
         "requires": ["isort-5.11+<6"],
+        "run_on": _common_run_on,
     },
     "pydocstyle": {
         # Need to disable D202 for now, until a new pydocstyle version is released
@@ -53,6 +57,7 @@ tests = {
         #
         "command": "pydocstyle --ignore=D213,D202,D203,D406,D407 python tests",
         "requires": ["pydocstyle-6+<7"],
+        "run_on": _common_run_on,
     },
     "pylint": {
         # TODO: These --disable flags require deprecating Python 2. Once Python
@@ -60,14 +65,17 @@ tests = {
         #
         "command": "pylint --disable=super-with-arguments,useless-object-inheritance,consider-using-f-string,raise-missing-from,consider-using-assignment-expr python/python_compatibility tests",
         "requires": ["pylint-2.17+<4"],
+        "run_on": _common_run_on,
     },
     "unittest_python_2": {
         "command": "python -m unittest discover",
         "requires": ["python-2.7"],
+        "run_on": _common_run_on,
     },
     "unittest_python_3.9": {
         "command": "python -m unittest discover",
         "requires": ["python-3.9"],
+        "run_on": _common_run_on,
     },
 }
 
