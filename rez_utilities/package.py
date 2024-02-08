@@ -51,12 +51,12 @@ tests = {
         "run_on": "explicit",
     },
     "isort": {
-        "command": "isort python tests",
+        "command": "isort --profile black python tests",
         "requires": ["isort-5.11+<6"],
         "run_on": "explicit",
     },
     "isort_check": {
-        "command": "isort --check-only --diff python tests",
+        "command": "isort --profile black --check-only --diff python tests",
         "requires": ["isort-5.11+<6"],
         "run_on": _common_run_on,
     },
