@@ -6,6 +6,7 @@
 from __future__ import unicode_literals
 
 import atexit
+import contextlib
 import functools
 import io
 import os
@@ -16,7 +17,6 @@ import textwrap
 import zipfile
 
 import pkg_resources
-from python_compatibility import wrapping
 
 from rez_build_helper import exceptions, filer
 
@@ -275,7 +275,7 @@ class Egg(common.Common):
         creator.build(package, destination, quiet=True)
         install_location = os.path.join(destination, "some_package", "1.0.0")
 
-        with wrapping.keep_sys_path():
+        with _keep_sys_path():
             sys.path.append(os.path.join(install_location, "python.egg"))
 
             with zipfile.ZipFile(
@@ -755,3 +755,15 @@ def _get_package_information(egg):
             output.append(line)
 
     return output
+
+
+# Note : This was copied from :mod:`python_compatibility` to avoid a cyclic depemdendency
+@contextlib.contextmanager
+def _keep_sys_path():
+    """Save the current :attr:`sys.path` and restore it later."""
+    paths = list(sys.path)
+
+    try:
+        yield
+    finally:
+        sys.path[:] = paths

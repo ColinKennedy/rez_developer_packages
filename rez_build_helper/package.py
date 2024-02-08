@@ -3,7 +3,7 @@
 
 name = "rez_build_helper"
 
-version = "1.11.0"
+version = "1.11.1"
 
 description = "Build Rez packages using Python"
 
@@ -24,7 +24,7 @@ requires = [
 ]
 
 # TODO: Check if windows and, if so, don't include wurlitzer
-_common_requires = ["rez_python_compatibility-2.6+<3", "wurlitzer-2+<4"]
+_common_requires = ["wurlitzer-2+<4"]
 _common_run_on = ["default", "pre_release"]
 
 tests = {
