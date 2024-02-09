@@ -91,6 +91,6 @@ def commands():
 
     if not tar_location:
         if any(platform.win32_ver()):
-            env.PIP_BOY_TAR_LOCATION.set(r"C:\tarred_rez_packages")
+            env.PIP_BOY_TAR_LOCATION.set(r"\\stmnassamba01.stmn.mpc.local\software\tools\mill_windows\sources\rez_pip_boy_tar_location")
         else:
             env.PIP_BOY_TAR_LOCATION.set(os.path.join("/tmp", "tarred_rez_packages"))
