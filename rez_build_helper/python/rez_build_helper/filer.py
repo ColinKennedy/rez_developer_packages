@@ -169,6 +169,9 @@ def _build_eggs(source, destination, name, setuptools_data, data_patterns=None):
         )
     )
 
+    _LOGGER.debug('Found "%s" Python package data for the egg.', package_data)
+    _LOGGER.debug('Found "%s" Python modules for the egg.', python_modules)
+
     with _keep_cwd():
         os.chdir(source)
 
@@ -247,7 +250,7 @@ def _run_command(  # pylint: disable=too-many-arguments
         _LOGGER.info('Creating "%s" symlink.', destination)
         os.symlink(source, destination)
     else:
-        _LOGGER.info('Running command on "%s".', destination)
+        _LOGGER.info('Running command "%s" on "%s".', command, destination)
         command(source, destination)
 
 
@@ -464,6 +467,15 @@ def build_eggs(  # pylint: disable=too-many-arguments
     )
 
     for name in eggs:
+        source_path = os.path.join(source, name)
+        destination_egg = os.path.join(destination, name + ".egg")
+
+        _LOGGER.info(
+            'Compiling "%s" Python source to "%s" egg destination.',
+            source_path,
+            destination_egg,
+        )
+
         _run_command(
             functools.partial(
                 _build_eggs,
@@ -471,8 +483,8 @@ def build_eggs(  # pylint: disable=too-many-arguments
                 setuptools_data=setuptools_data,
                 data_patterns=data_patterns,
             ),
-            os.path.join(source, name),
-            os.path.join(destination, name + ".egg"),
+            source_path,
+            destination_egg,
             symlink,
             symlink_folders,
             symlink_files,
@@ -530,13 +542,18 @@ def build_hdas(
         library_root = os.path.dirname(hda_root)  # The folder containing all HDAs
 
         hda_destination = os.path.join(destination, os.path.basename(library_root))
+        hda = os.path.join(hda_destination, os.path.basename(hda_root))
+
+        _LOGGER.info(
+            'Clearing and rebuilding "%s" HDA to "%s" destination',
+            hda,
+            hda_destination,
+        )
 
         if os.path.isdir(hda_destination):
             shutil.rmtree(hda_destination)
 
         os.makedirs(hda_destination)
-
-        hda = os.path.join(hda_destination, os.path.basename(hda_root))
 
         _run_hotl(hda_root, hda, symlink=symlink)
 
@@ -585,6 +602,12 @@ def build_items(  # pylint: disable=too-many-arguments
         source_path = os.path.join(source, item)
         destination_path = os.path.join(destination, item)
 
+        _LOGGER.info(
+            'Copying "%s" source to "%s" destination',
+            source_path,
+            destination_path,
+        )
+
         _run_command(
             _copy_file_or_folder,
             source_path,
@@ -597,6 +620,8 @@ def build_items(  # pylint: disable=too-many-arguments
 
 def clean(path):
     """Delete and re-make the ``path`` folder."""
+    _LOGGER.info('Deleting "%s" path and remaking it.', path)
+
     remove(path)  # Clean any old build folder
     os.makedirs(path)
 

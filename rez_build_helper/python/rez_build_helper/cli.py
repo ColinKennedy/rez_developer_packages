@@ -1,9 +1,12 @@
 """The main module that implements the :ref:`rez_build_helper` CLI."""
 
 import argparse
+import logging
 import os
 
 from . import filer, linker
+
+_LOGGER = logging.getLogger(__name__)
 
 
 def _parse_arguments(text):
@@ -63,6 +66,10 @@ def _parse_arguments(text):
         help="If True, symlink folders back to the source Rez package.",
     )
 
+    parser.add_argument(
+        "--verbose", action="store_true", help="If included, more logs will be shown."
+    )
+
     known, _ = parser.parse_known_args(text)
 
     return known
@@ -77,8 +84,19 @@ def main(text):
     """
     arguments = _parse_arguments(text)
 
+    if arguments.verbose:
+        logger = logging.getLogger("rez_build_helper")
+        level = logging.DEBUG
+        logger.setLevel(level)
+
+        for handler in logger.handlers:
+            handler.setLevel(level)
+
     source = os.environ["REZ_BUILD_SOURCE_PATH"]
     destination = os.environ["REZ_BUILD_INSTALL_PATH"]
+
+    _LOGGER.debug('Build Source: "%s" directory.', source)
+    _LOGGER.debug('Build Install: "%s" directory.', destination)
 
     filer.clean(destination)
 

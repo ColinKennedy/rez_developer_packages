@@ -5,9 +5,18 @@
 
 from __future__ import print_function
 
+import logging
 import sys
 
 from . import cli, exceptions
+
+_LOGGER = logging.getLogger("rez_build_helper")
+_HANDLER = logging.StreamHandler(sys.stdout)
+_HANDLER.setLevel(logging.WARNING)
+_FORMATTER = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+_HANDLER.setFormatter(_FORMATTER)
+_LOGGER.addHandler(_HANDLER)
+_LOGGER.setLevel(logging.WARNING)
 
 try:
     cli.main(sys.argv[1:])
