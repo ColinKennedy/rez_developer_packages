@@ -16,7 +16,8 @@ fill the gap.
 ## How To Run
 
 ```sh
-rez_pip_boy "--install six" /tmp/output_location
+export PIP_BOY_TAR_LOCATION=/somewhere/to/save/any/generated/tar_files
+python -m rez_pip_boy install six==1.14.0 --install-directory "/tmp/some_packages_path" --python-version=2.7 --no-dependencies --verbose
 ```
 
 The stuff in ""s is anything you'd normally write to rez-pip.

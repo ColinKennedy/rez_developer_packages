@@ -11,11 +11,14 @@ from rez_utilities import finder
 from . import _build_command
 
 
-def _get_transfer_path(variant):
+def _get_transfer_path(root, variant):
     """Get the recommended file path to the archived .tar.gz file.
 
     Args:
-        variant (:class:`rez.packages.Variant`):
+        root (str):
+            An absolute path to the top-level directory where tars will be copied to.
+            Usually this is just ``$PIP_BOY_TAR_LOCATION``.
+        variant (rez.packages.Variant):
             The specification of a Rez package which will be archived
             and later unpacked.
 
@@ -23,8 +26,6 @@ def _get_transfer_path(variant):
         str: The generated path to the .tar.gz.
 
     """
-    root = os.environ["PIP_BOY_TAR_LOCATION"]
-
     sub_path = _build_command.convert_variant_sub_path(
         variant._non_shortlinked_subpath,  # pylint: disable=protected-access
     )
@@ -36,13 +37,16 @@ def _get_transfer_path(variant):
     return os.path.join(root, variant.name, tar_name)
 
 
-def transfer(variant):
+def transfer(root, variant):
     """Archive a Rez variant into a .tar.gz file.
 
     The .tar.gz file later is used to unpack and install the Rez package.
 
     Args:
-        variant (:class:`rez.packages.Variant`):
+        root (str):
+            An absolute path to the top-level directory where tars will be copied to.
+            Usually this is just ``$PIP_BOY_TAR_LOCATION``.
+        variant (rez.packages.Variant):
             The specification of a Rez package which will be archived
             and later unpacked.
 
@@ -53,7 +57,7 @@ def transfer(variant):
         source_root,
         variant._non_shortlinked_subpath,  # pylint: disable=protected-access
     )
-    destination = _get_transfer_path(variant)
+    destination = _get_transfer_path(root, variant)
     destination_directory = os.path.dirname(destination)
 
     if not os.path.isdir(destination_directory):  # pragma: no cover
