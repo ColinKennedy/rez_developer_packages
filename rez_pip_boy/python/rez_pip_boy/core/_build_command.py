@@ -30,11 +30,38 @@ def _get_tar_path():
 
     tar_name = "{package_name}-{version}-{sub_path}.tar.gz".format(
         package_name=package_name,
-        version=os.environ["REZ_BUILD_PROJECT_VERSION"],
+        version=_get_expected_tar_version(),
         sub_path=sub_path,
     )
 
     return os.path.join(tar_directory, tar_name)
+
+
+def _get_expected_tar_version():
+    """Find the most appropriate version to set for the current package.
+
+    Sometimes a Rez package version differs from the expected version where we
+    need to search for a .tar.gz. For example if you make a package but then
+    realize later that you need to patch the package because something was
+    wrong. The Rez version may be 1.2.3-1, to indicate a ``-1`` patch. But the
+    real Python version might actually be 1.2.3.
+
+    If no version was found, it's expected that Rez should provide a fallback
+    version to use.
+
+    Note:
+        This function needs tests.
+
+    Returns:
+        str: The version needed to search for a .tar.gz file.
+
+    """
+    version = os.getenv("REZ_PIP_BOY_PROJECT_VERSION")
+
+    if version:
+        return version
+
+    return os.environ["REZ_BUILD_PROJECT_VERSION"]
 
 
 def _extract_all(path, destination):

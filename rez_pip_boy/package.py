@@ -1,6 +1,6 @@
 name = "rez_pip_boy"
 
-version = "3.0.0"
+version = "3.1.0"
 
 description = "Convert an installed pip package back into a source package"
 
