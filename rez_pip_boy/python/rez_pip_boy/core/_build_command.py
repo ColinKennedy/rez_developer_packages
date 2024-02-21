@@ -75,7 +75,12 @@ def _extract_all(path, destination):
         set[str]: All of the top-level files and folders of the unpacked tar file.
 
     """
-    # Note: When using Python 3, use `shutil.unpack_archive`: https://stackoverflow.com/a/56182972
+    if hasattr(shutil, "unpack_archive"):
+        # Note: Python 3+
+        shutil.unpack_archive(path, destination)
+
+        return [os.path.join(destination, item) for item in os.listdir(destination)]
+
     with tarfile.open(path, "r:gz") as handler:
         members = handler.getmembers()
         handler.extractall(path=destination)
