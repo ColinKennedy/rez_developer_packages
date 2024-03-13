@@ -3,7 +3,7 @@
 
 name = "rez_build_helper"
 
-version = "1.12.0"
+version = "2.0.0"
 
 description = "Build Rez packages using Python"
 
@@ -23,8 +23,13 @@ requires = [
     "whichcraft-0.6+<1",
 ]
 
-# TODO: Check if windows and, if so, don't include wurlitzer
-_common_requires = ["wurlitzer-2+<4"]
+import platform
+
+if platform.system() == "Windows":
+    _common_requires = []
+else:
+    _common_requires = ["wurlitzer-2+<4"]
+
 _common_run_on = ["default", "pre_release"]
 
 tests = {
@@ -57,12 +62,12 @@ tests = {
         "run_on": _common_run_on,
     },
     "pylint_source": {
-        "command": "pylint --disable=consider-using-f-string python/rez_build_helper",
+        "command": "pylint python/rez_build_helper",
         "requires": _common_requires + ["pylint-2.17+<4"],
         "run_on": _common_run_on,
     },
     "pylint_tests": {
-        "command": "pylint --disable=consider-using-f-string,duplicate-code tests",
+        "command": "pylint --disable=duplicate-code tests",
         "requires": _common_requires + ["pylint-2.17+<4"],
         "run_on": _common_run_on,
     },
@@ -73,11 +78,6 @@ tests = {
             "value": ["python-2"],
         },
         "requires": _common_requires + [".add_fake_hotl-1", "python-2.7"],
-        "run_on": _common_run_on,
-    },
-    "unittest_python_3.7": {
-        "command": "python -m unittest discover",
-        "requires": _common_requires + [".add_fake_hotl-1", "python-3.7+<3.8"],
         "run_on": _common_run_on,
     },
     "unittest_python_3.9": {

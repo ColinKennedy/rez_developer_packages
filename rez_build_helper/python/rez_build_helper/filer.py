@@ -7,10 +7,12 @@ import collections
 import contextlib
 import functools
 import glob
+import io
 import logging
 import os
 import shutil
 import subprocess
+import textwrap
 
 import setuptools
 import six
@@ -203,6 +205,70 @@ def _build_eggs(source, destination, name, setuptools_data, data_patterns=None):
         shutil.copy2(egg, destination_path)
 
 
+def _copy_file_or_folder(source, destination):
+    """Copy ``source`` to ``destination`` regardless if it's a file, folder, etc.
+
+    Args:
+        source (str): An absolute path to a file, folder, etc.
+        destination (str): The absolute path on-disk where ``source`` is copied to.
+
+    """
+    if os.path.isdir(source):
+        _LOGGER.info('Copying "%s" folder.', source)
+        shutil.copytree(source, destination, dirs_exist_ok=True)
+    elif os.path.isfile(source):
+        _LOGGER.info('Copying "%s" file.', source)
+        shutil.copy2(source, destination)
+
+
+def _make_shared_namespace(namespaces, root):
+    """Recursively create shared namespaces for ``namespaces``, starting at ``root``.
+
+    Args:
+        namespaces (list[str]): Each Python folder to create. e.g. ``["top", "other"]``.
+        root (str): An absolute directory to begin a Python shared namespace.
+
+    Returns:
+        str: The inner-most sub-directory of ``namespaces``.
+
+    """
+    directories = [
+        os.path.join(root, *namespaces[:index])
+        for index in range(1, len(namespaces) + 1)
+    ]
+
+    parent = directories[-1]
+
+    if not os.path.isdir(parent):
+        os.makedirs(parent)
+
+    for directory in directories:
+        _make_shared_python_init(directory)
+
+    return parent
+
+
+def _make_shared_python_init(directory):
+    """Register ``directory`` as a Python shared namespace.
+
+    Args:
+        directory (str): An absolute path on-disk to add a ``__init__.py`` file.
+
+    """
+    path = os.path.join(directory, "__init__.py")
+
+    template = textwrap.dedent(
+        """\
+        import pkg_resources as __pkg_resources
+
+        __pkg_resources.declare_namespace(__name__)
+        """
+    )
+
+    with io.open(path, "w", encoding="ascii") as handler:
+        handler.write(template)
+
+
 def _run_command(  # pylint: disable=too-many-arguments
     command,
     source,
@@ -322,9 +388,10 @@ def _validate_egg_names(items):
 def build(  # pylint: disable=too-many-arguments
     source,
     destination,
-    hdas=None,
-    items=None,
-    eggs=None,
+    hdas=(),
+    items=(),
+    eggs=(),
+    shared_python_packages=(),
     symlink=linker.must_symlink(),
     symlink_folders=linker.must_symlink_folders(),
     symlink_files=linker.must_symlink_files(),
@@ -342,6 +409,8 @@ def build(  # pylint: disable=too-many-arguments
             The local paths to every item in `source` to copy / symlink. Default is None.
         eggs (iter[str], optional):
             The local paths which will be compressed into .egg (zip) files. Default is None.
+        shared_python_packages (iter[PythonPackageItem], optional):
+            The local paths to every item in `source` to copy / symlink. Default is None.
         symlink (bool, optional):
             If True, symlinking will always happen. It implies
             If ``symlink_folders`` and ``symlink_files`` are both True.
@@ -356,15 +425,6 @@ def build(  # pylint: disable=too-many-arguments
             run ``command`` instead.
 
     """
-    if not hdas:
-        hdas = []
-
-    if not items:
-        items = []
-
-    if not eggs:
-        eggs = []
-
     try:
         if eggs:
             build_eggs(
@@ -389,6 +449,16 @@ def build(  # pylint: disable=too-many-arguments
                 source,
                 destination,
                 items,
+                symlink=symlink,
+                symlink_folders=symlink_folders,
+                symlink_files=symlink_files,
+            )
+
+        if shared_python_packages:
+            build_shared_python_packages(
+                source,
+                destination,
+                shared_python_packages,
                 symlink=symlink,
                 symlink_folders=symlink_folders,
                 symlink_files=symlink_files,
@@ -589,21 +659,69 @@ def build_items(  # pylint: disable=too-many-arguments
             run ``command`` instead.
 
     """
-
-    def _copy_file_or_folder(source, destination):
-        if os.path.isdir(source):
-            _LOGGER.info('Copying "%s" folder.', source)
-            shutil.copytree(source, destination)
-        elif os.path.isfile(source):
-            _LOGGER.info('Copying "%s" file.', source)
-            shutil.copy2(source, destination)
-
     for item in items:
         source_path = os.path.join(source, item)
         destination_path = os.path.join(destination, item)
 
         _LOGGER.info(
             'Copying "%s" source to "%s" destination',
+            source_path,
+            destination_path,
+        )
+
+        _run_command(
+            _copy_file_or_folder,
+            source_path,
+            destination_path,
+            symlink,
+            symlink_folders,
+            symlink_files,
+        )
+
+
+def build_shared_python_packages(  # pylint: disable=too-many-arguments
+    source,
+    destination,
+    items,
+    symlink=linker.must_symlink(),
+    symlink_folders=linker.must_symlink_folders(),
+    symlink_files=linker.must_symlink_files(),
+):
+    """Copy or symlink all items in ``source`` to ``destination``.
+
+    Args:
+        source (str):
+            The absolute path to the root directory of the Rez package.
+        destination (str):
+            The location where the built files will be copied or symlinked from.
+        items (iter[PythonPackageItem], optional):
+            The local paths to every item in `source` to copy / symlink. Default is None.
+        symlink (bool, optional):
+            If True, symlinking will always happen. It implies
+            If ``symlink_folders`` and ``symlink_files`` are both True.
+            If False, symlinking is not guaranteed to always happen.
+        symlink_folders (bool, optional):
+            If True and ``source`` is a folder, make a symlink from
+            ``destination`` which points back to ``source``. If False,
+            run ``command`` instead.
+        symlink_files (bool, optional):
+            If True and ``source`` is a file, make a symlink from
+            ``destination`` which points back to ``source``. If False,
+            run ``command`` instead.
+
+    """
+    for entry in items:
+        namespace = entry.namespace_parts
+        name = entry.relative_path
+
+        source_path = os.path.join(source, name)
+        destination_path = os.path.join(destination, name)
+
+        if namespace:
+            destination_path = _make_shared_namespace(namespace, destination_path)
+
+        _LOGGER.info(
+            'Copying Python package "%s" source to "%s" destination',
             source_path,
             destination_path,
         )

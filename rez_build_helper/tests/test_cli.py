@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# pylint: disable=too-many-lines
+
 """Make sure :mod:`rez_build_helper` works as expected."""
 
 from __future__ import unicode_literals
@@ -13,6 +15,8 @@ import shutil
 import tempfile
 import textwrap
 import unittest
+
+from rez import exceptions as rez_exceptions
 
 from .common import common, creator, finder, pymix
 
@@ -163,6 +167,346 @@ class Cli(unittest.TestCase):
                 os.path.join(
                     install_location,
                     "python",
+                    "some_thing",
+                    "inner_folder",
+                    "inner_module.py",
+                )
+            )
+        )
+
+
+class SharedPythonPackages(unittest.TestCase):
+    """Make sure :ref:`--shared-python-packages` works as expected."""
+
+    def test_single_file(self):
+        """Create a shared Python namespace for a single Python file."""
+        directory = tempfile.mkdtemp(
+            prefix="SharedPythonPackages_test_single_file_directory_",
+        )
+        atexit.register(functools.partial(shutil.rmtree, directory))
+
+        common.make_files(
+            {"python": {"some_thing.py": None}},
+            directory,
+        )
+
+        with io.open(
+            os.path.join(directory, "package.py"), "w", encoding="utf-8"
+        ) as handler:
+            handler.write(
+                textwrap.dedent(
+                    """\
+                    name = "some_package"
+
+                    version = "1.0.0"
+
+                    private_build_requires = ["rez_build_helper"]
+
+                    build_command = (
+                        "python -m rez_build_helper "
+                        "--shared-python-packages root:python"
+                    )
+
+                    def commands():
+                        import os
+
+                        env.PYTHONPATH.append(os.path.join("{root}", "python"))
+                    """
+                )
+            )
+
+        package = finder.get_nearest_rez_package(directory)
+        destination = tempfile.mkdtemp(
+            prefix="SharedPythonPackages_test_single_file_destination_",
+        )
+        atexit.register(functools.partial(shutil.rmtree, destination))
+
+        creator.build(package, destination, quiet=True)
+        install_location = os.path.join(destination, "some_package", "1.0.0")
+
+        self.assertTrue(os.path.isdir(os.path.join(install_location, "python")))
+
+        if pymix.can_check_links():
+            self.assertFalse(os.path.islink(os.path.join(install_location, "python")))
+
+        self.assertTrue(os.path.isdir(os.path.join(install_location, "python", "root")))
+        self.assertTrue(
+            os.path.isfile(
+                os.path.join(install_location, "python", "root", "some_thing.py")
+            )
+        )
+
+    def test_invalid_001_missing_namespace(self):
+        """Fail to build with :ref:`--shared-python-packages` if no namespace exists."""
+        directory = tempfile.mkdtemp(
+            prefix="SharedPythonPackages_test_invalid_001_missing_namespace_source_",
+        )
+        atexit.register(functools.partial(shutil.rmtree, directory))
+
+        common.make_files(
+            {"python": {"some_thing.py": None}},
+            directory,
+        )
+
+        with io.open(
+            os.path.join(directory, "package.py"), "w", encoding="utf-8"
+        ) as handler:
+            handler.write(
+                textwrap.dedent(
+                    """\
+                    name = "some_package"
+
+                    version = "1.0.0"
+
+                    private_build_requires = ["rez_build_helper"]
+
+                    build_command = (
+                        "python -m rez_build_helper "
+                        "--shared-python-packages :python"
+                    )
+
+                    def commands():
+                        import os
+
+                        env.PYTHONPATH.append(os.path.join("{root}", "python"))
+                    """
+                )
+            )
+
+        package = finder.get_nearest_rez_package(directory)
+        destination = tempfile.mkdtemp(
+            prefix="SharedPythonPackages_test_invalid_001_missing_namespace_destination_",
+        )
+        atexit.register(functools.partial(shutil.rmtree, destination))
+
+        with self.assertRaises(rez_exceptions.BuildError):
+            creator.build(package, destination, quiet=True)
+
+    def test_invalid_002_no_namespace(self):
+        """Fail to build with :ref:`--shared-python-packages` if there's no : value."""
+        directory = tempfile.mkdtemp(
+            prefix="SharedPythonPackages_test_invalid_002_no_namespace_directory_",
+        )
+        atexit.register(functools.partial(shutil.rmtree, directory))
+
+        with io.open(
+            os.path.join(directory, "package.py"), "w", encoding="utf-8"
+        ) as handler:
+            handler.write(
+                textwrap.dedent(
+                    """\
+                    name = "some_package"
+
+                    version = "1.0.0"
+
+                    private_build_requires = ["rez_build_helper"]
+
+                    build_command = (
+                        "python -m rez_build_helper "
+                        "--shared-python-packages python"
+                    )
+
+                    def commands():
+                        import os
+
+                        env.PYTHONPATH.append(os.path.join("{root}", "python"))
+                    """
+                )
+            )
+
+        package = finder.get_nearest_rez_package(directory)
+        destination = tempfile.mkdtemp(
+            prefix="SharedPythonPackages_test_invalid_002_no_namespace_destination_",
+        )
+        atexit.register(functools.partial(shutil.rmtree, destination))
+
+        with self.assertRaises(rez_exceptions.BuildError):
+            creator.build(package, destination, quiet=True)
+
+    def test_invalid_003_missing_path(self):
+        """Fail to build with :ref:`--shared-python-packages` if there's no : value."""
+        directory = tempfile.mkdtemp(
+            prefix="SharedPythonPackages_test_invalid_003_missing_path_directory_",
+        )
+        atexit.register(functools.partial(shutil.rmtree, directory))
+
+        with io.open(
+            os.path.join(directory, "package.py"), "w", encoding="utf-8"
+        ) as handler:
+            handler.write(
+                textwrap.dedent(
+                    """\
+                    name = "some_package"
+
+                    version = "1.0.0"
+
+                    private_build_requires = ["rez_build_helper"]
+
+                    build_command = (
+                        "python -m rez_build_helper "
+                        "--shared-python-packages root:python"
+                    )
+
+                    def commands():
+                        import os
+
+                        env.PYTHONPATH.append(os.path.join("{root}", "python"))
+                    """
+                )
+            )
+
+        package = finder.get_nearest_rez_package(directory)
+        destination = tempfile.mkdtemp(
+            prefix="SharedPythonPackages_test_invalid_003_missing_path_destination_",
+        )
+        atexit.register(functools.partial(shutil.rmtree, destination))
+
+        with self.assertRaises(rez_exceptions.BuildError):
+            creator.build(package, destination, quiet=True)
+
+    def test_single_shared_namespace(self):
+        """Create a shared Python namespace for a Python package."""
+        directory = tempfile.mkdtemp(
+            prefix="SharedPythonPackages_test_simple_package_directory_",
+        )
+        atexit.register(functools.partial(shutil.rmtree, directory))
+
+        common.make_files(
+            {
+                "python": {
+                    "some_thing": {
+                        "__init__.py": None,
+                        "some_module.py": None,
+                        "inner_folder": {
+                            "__init__.py": None,
+                            "inner_module.py": None,
+                        },
+                    }
+                }
+            },
+            directory,
+        )
+
+        with io.open(
+            os.path.join(directory, "package.py"), "w", encoding="utf-8"
+        ) as handler:
+            handler.write(
+                textwrap.dedent(
+                    """\
+                    name = "some_package"
+
+                    version = "1.0.0"
+
+                    private_build_requires = ["rez_build_helper"]
+
+                    build_command = (
+                        "python -m rez_build_helper "
+                        "--shared-python-packages root.inner:python"
+                    )
+
+                    def commands():
+                        import os
+
+                        env.PYTHONPATH.append(os.path.join("{root}", "python"))
+                    """
+                )
+            )
+
+        package = finder.get_nearest_rez_package(directory)
+        destination = tempfile.mkdtemp(
+            prefix="SharedPythonPackages_test_simple_package_destination_",
+        )
+        atexit.register(functools.partial(shutil.rmtree, destination))
+
+        creator.build(package, destination, quiet=True)
+        install_location = os.path.join(destination, "some_package", "1.0.0")
+
+        self.assertTrue(os.path.isdir(os.path.join(install_location, "python")))
+
+        if pymix.can_check_links():
+            self.assertFalse(os.path.islink(os.path.join(install_location, "python")))
+
+        self.assertTrue(
+            os.path.isdir(
+                os.path.join(
+                    install_location,
+                    "python",
+                    "root",
+                    "inner",
+                    "some_thing",
+                    "inner_folder",
+                )
+            )
+        )
+
+        self.assertTrue(
+            os.path.isfile(
+                os.path.join(install_location, "python", "root", "__init__.py")
+            )
+        )
+        self.assertTrue(
+            os.path.isfile(
+                os.path.join(install_location, "python", "root", "inner", "__init__.py")
+            )
+        )
+
+        self.assertTrue(
+            os.path.isfile(
+                os.path.join(
+                    install_location,
+                    "python",
+                    "root",
+                    "inner",
+                    "some_thing",
+                    "__init__.py",
+                )
+            )
+        )
+
+        self.assertTrue(
+            os.path.isfile(
+                os.path.join(
+                    install_location,
+                    "python",
+                    "root",
+                    "inner",
+                    "some_thing",
+                    "__init__.py",
+                )
+            )
+        )
+        self.assertTrue(
+            os.path.isfile(
+                os.path.join(
+                    install_location,
+                    "python",
+                    "root",
+                    "inner",
+                    "some_thing",
+                    "some_module.py",
+                )
+            )
+        )
+        self.assertTrue(
+            os.path.isfile(
+                os.path.join(
+                    install_location,
+                    "python",
+                    "root",
+                    "inner",
+                    "some_thing",
+                    "inner_folder",
+                    "__init__.py",
+                )
+            )
+        )
+        self.assertTrue(
+            os.path.isfile(
+                os.path.join(
+                    install_location,
+                    "python",
+                    "root",
+                    "inner",
                     "some_thing",
                     "inner_folder",
                     "inner_module.py",

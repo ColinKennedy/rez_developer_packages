@@ -1,0 +1,5 @@
+[MAIN]
+
+disable=
+    consider-using-f-string,
+    format-string-without-interpolation,

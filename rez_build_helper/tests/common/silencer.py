@@ -18,7 +18,7 @@ if _can_use_wurlizer():
     @contextlib.contextmanager
     def get_context():
         """:class:`contextlib.GeneratorContextManager`: Silence all C-level stdout messages."""
-        import wurlitzer  # pylint: disable=import-outside-toplevel
+        import wurlitzer  # pylint: disable=import-outside-toplevel,import-error
 
         with wurlitzer.pipes() as (stdout, stderr):
             yield (stdout, stderr)

@@ -4,7 +4,7 @@ import argparse
 import logging
 import os
 
-from . import filer, linker
+from . import argparse_action, filer, linker
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -27,20 +27,28 @@ def _parse_arguments(text):
 
     parser.add_argument(
         "--hdas",
+        action=argparse_action.Path,
         nargs="+",
         help="The relative paths to each folder containing VCS-style Houdini HDAs.",
     )
 
     parser.add_argument(
-        "-i",
         "--items",
         nargs="+",
         help="The relative paths to each file/folder to copy / install.",
     )
 
     parser.add_argument(
-        "-e",
+        "--shared-python-packages",
+        action=argparse_action.NamespacePathPair,
+        nargs="+",
+        help="Each namespace + relative paths for a shared Python namespace + package. "
+        "e.g. prefix.namespace:python/".format(separator=os.pathsep),
+    )
+
+    parser.add_argument(
         "--eggs",
+        action=argparse_action.Path,
         nargs="+",
         help="The relative paths to each file/folder to make into a .egg file.",
     )
@@ -106,6 +114,7 @@ def main(text):
         hdas=arguments.hdas,
         items=arguments.items,
         eggs=arguments.eggs,
+        shared_python_packages=arguments.shared_python_packages,
         symlink=arguments.symlink,
         symlink_folders=arguments.symlink_folders,
         symlink_files=arguments.symlink_files,
