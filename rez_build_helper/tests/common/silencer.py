@@ -1,9 +1,10 @@
 """Control and quiet as much stdout / stderr prints as possible."""
 
 import contextlib
+import typing
 
 
-def _can_use_wurlizer():
+def _can_use_wurlizer() -> bool:
     try:
         import wurlitzer as _  # pylint: disable=import-outside-toplevel
     except ImportError:
@@ -16,7 +17,7 @@ if _can_use_wurlizer():
     # This branch is basically for Linux, which can use wurlitzer
 
     @contextlib.contextmanager
-    def get_context():
+    def get_context() -> typing.Generator[tuple[str, str], None, None]:
         """:class:`contextlib.GeneratorContextManager`: Silence all C-level stdout messages."""
         import wurlitzer  # pylint: disable=import-outside-toplevel,import-error
 
@@ -55,19 +56,19 @@ else:
             libc = ctypes.CDLL("api-ms-win-crt-stdio-l1-1-0")
 
     # c_stdout = ctypes.c_void_p.in_dll(libc, 'stdout')
-    kernel32 = ctypes.WinDLL("kernel32")
+    kernel32 = ctypes.WinDLL("kernel32")  # type: ignore
     STD_OUTPUT_HANDLE = -11
     c_stdout = kernel32.GetStdHandle(STD_OUTPUT_HANDLE)
     ##############################################################
 
     @contextlib.contextmanager
-    def get_context():
+    def get_context() -> typing.Generator[tuple[str, str], None, None]:
         """Silence all writes to stdout."""
         stream = io.BytesIO()
         # The original fd stdout points to. Usually 1 on POSIX systems.
         original_stdout_fd = sys.stdout.fileno()
 
-        def _redirect_stdout(to_fd):
+        def _redirect_stdout(to_fd: int) -> None:
             """Redirect stdout to the given file descriptor."""
             # Flush the C-level buffer stdout
             libc.fflush(None)  #### CHANGED THIS ARG TO NONE #############
@@ -86,7 +87,7 @@ else:
             tfile = tempfile.TemporaryFile(mode="w+b")
             _redirect_stdout(tfile.fileno())
             # Yield to caller, then redirect stdout back to the saved fd
-            yield
+            yield ("", "")
             _redirect_stdout(saved_stdout_fd)
             # Copy contents of temporary file to the given stream
             tfile.flush()

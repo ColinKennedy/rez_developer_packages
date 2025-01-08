@@ -3,22 +3,36 @@
 import argparse
 import logging
 import os
+import typing
 
-from . import argparse_action, filer, linker
+from . import argparse_action, filer, linker, namespacer
 
 _LOGGER = logging.getLogger(__name__)
 
 
-def _parse_arguments(text):
+class _Arguments(typing.NamedTuple):
+    """The parsed user input."""
+
+    eggs: list[str]
+    hdas: list[str]
+    items: list[str]
+    shared_python_packages: list[namespacer.PythonPackageItem]
+    symlink: bool
+    symlink_files: bool
+    symlink_folders: bool
+    verbose: bool
+
+
+def _parse_arguments(text: list[str]) -> _Arguments:
     """Create arguments for building file(s)/folder(s) of a Rez package.
 
     Args:
-        text (list[str]):
+        text:
             The user-provided text from command-line. This is usually
             space-separated text.
 
     Returns:
-        :class:`argparse.Namespace`: The parsed user-provided text.
+        The parsed user-provided text.
 
     """
     parser = argparse.ArgumentParser(
@@ -43,7 +57,7 @@ def _parse_arguments(text):
         action=argparse_action.NamespacePathPair,
         nargs="+",
         help="Each namespace + relative paths for a shared Python namespace + package. "
-        "e.g. prefix.namespace:python/".format(separator=os.pathsep),
+        "e.g. prefix.namespace:python{separator}".format(separator=os.pathsep),
     )
 
     parser.add_argument(
@@ -80,14 +94,14 @@ def _parse_arguments(text):
 
     known, _ = parser.parse_known_args(text)
 
-    return known
+    return typing.cast(_Arguments, known)
 
 
-def main(text):
+def main(text: list[str]) -> None:
     """Parse the user input and run the :ref:`rez_build_helper` terminal command.
 
     Args:
-        text (list[str]): Unparsed user input to use.
+        text: Unparsed user input to use.
 
     """
     arguments = _parse_arguments(text)

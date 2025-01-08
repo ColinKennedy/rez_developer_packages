@@ -16,8 +16,8 @@ build_command = "python {root}/rezbuild.py {install}"
 uuid = "168c5114-a951-4834-a744-dae1331e375e"
 
 requires = [
-    "python-2.7+<3.10",
-    "rez-2.71+<3",
+    "python-2.7+<3.12",
+    "rez-2.71+<4",
     "setuptools-41+<70",
     "six-1.11+<2",
     "whichcraft-0.6+<1",
@@ -53,6 +53,10 @@ tests = {
         "requires": ["isort-5.11+<6"],
         "run_on": _common_run_on,
     },
+    "mypy": {
+        "command": "python -m mypy --strict python tests",
+        "requires": ["mypy-1.14+<2", "types_setuptools-41+<70", "types_six-1.17+<2"],
+    },
     "pydocstyle": {
         # Need to disable D202 for now, until a new pydocstyle version is released
         # Reference: https://github.com/psf/black/issues/1159
@@ -71,18 +75,14 @@ tests = {
         "requires": _common_requires + ["pylint-2.17+<4"],
         "run_on": _common_run_on,
     },
-    "unittest_python_2": {
-        "command": "python -m unittest discover",
-        "on_variants": {
-            "type": "requires",
-            "value": ["python-2"],
-        },
-        "requires": _common_requires + [".add_fake_hotl-1", "python-2.7"],
-        "run_on": _common_run_on,
-    },
     "unittest_python_3.9": {
         "command": "python -m unittest discover",
         "requires": _common_requires + [".add_fake_hotl-1", "python-3.9+<3.10"],
+        "run_on": _common_run_on,
+    },
+    "unittest_python_3.11": {
+        "command": "python -m unittest discover",
+        "requires": _common_requires + [".add_fake_hotl-1", "python-3.11+<3.12"],
         "run_on": _common_run_on,
     },
 }

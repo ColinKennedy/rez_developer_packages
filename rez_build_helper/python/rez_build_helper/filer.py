@@ -13,13 +13,13 @@ import os
 import shutil
 import subprocess
 import textwrap
+import typing
 
 import setuptools
-import six
 import whichcraft
-from rez.vendor.version import requirement
+from rez.version import _requirement as requirement
 
-from . import exceptions, linker
+from . import exceptions, linker, namespacer
 
 try:
     from rez import packages  # Newer Rez versions, 2.51+-ish
@@ -35,20 +35,20 @@ _LOGGER = logging.getLogger(__name__)
 _PYTHON_EXTENSIONS = frozenset((".py", ".pyc", ".pyd"))
 
 
-def _find_api_documentation(entries):
+def _find_api_documentation(entries: typing.Union[list[tuple[str, str]], str]) -> str:
     """Find the home page URL, given some entries.
 
     Args:
-        entries (list[str] or str):
+        entries:
             If a string is given, assume it's the home page and return
             it. Otherwise, search each key/value pair for a home page
             and return it, if found.
 
     Returns:
-        str: The found home page URL, if any.
+        The found home page URL, if any.
 
     """
-    if isinstance(entries, six.string_types):
+    if isinstance(entries, str):
         return entries
 
     for token in ("Home Page", "Source Code"):
@@ -65,12 +65,12 @@ def _find_api_documentation(entries):
     return ""
 
 
-def _get_hotl_executable():
+def _get_hotl_executable() -> str:
     """str: Find the path to a hotl executable, if any."""
     return os.path.normcase(whichcraft.which("hotl") or "")
 
 
-def _get_python_requires():
+def _get_python_requires() -> str:
     """str: Get the required Python version, if any."""
     for text in os.environ["REZ_USED_REQUEST"].split(" "):
         request = requirement.Requirement(text)
@@ -80,12 +80,14 @@ def _get_python_requires():
             and not request.weak
             and "REZ_PYTHON_VERSION" in os.environ
         ):
-            return "=={os.environ[REZ_PYTHON_VERSION]}".format(os=os)
+            version = os.environ["REZ_PYTHON_VERSION"]
+
+            return "=={version}".format(version=version)
 
     return ""
 
 
-def _get_platform():
+def _get_platform() -> str:
     """str: Get the required platform name, if any."""
     for text in os.environ["REZ_USED_REQUEST"].split(" "):
         request = requirement.Requirement(text)
@@ -96,14 +98,14 @@ def _get_platform():
     return ""
 
 
-def _iter_data_extensions(directory):
+def _iter_data_extensions(directory: str) -> typing.Generator[str, None, None]:
     """Get every non-Python extension within `directory`.
 
     Args:
-        directory (str): Some absolute path to a directory on-disk.
+        directory: Some absolute path to a directory on-disk.
 
     Yields:
-        str: Each found extension, as a glob pattern. e.g. "*.txt".
+        Each found extension, as a glob pattern. e.g. "*.txt".
 
     """
     for _, _, files in os.walk(directory):
@@ -114,8 +116,8 @@ def _iter_data_extensions(directory):
                 yield "*" + extension
 
 
-def _iter_python_modules(directory):
-    """str: Find  very child Python file (no extension) within `directory`."""
+def _iter_python_modules(directory: str) -> typing.Generator[str, None, None]:
+    """Find every child Python file (no extension) within `directory`."""
     for item in os.listdir(directory):
         base, extension = os.path.splitext(item)
 
@@ -124,7 +126,7 @@ def _iter_python_modules(directory):
 
 
 @contextlib.contextmanager
-def _keep_cwd():
+def _keep_cwd() -> typing.Generator[None, None, None]:
     """Save and store the user's current working directory."""
     original = os.getcwd()
 
@@ -134,19 +136,25 @@ def _keep_cwd():
         os.chdir(original)
 
 
-def _build_eggs(source, destination, name, setuptools_data, data_patterns=None):
+def _build_eggs(
+    source: str,
+    destination: str,
+    name: str,
+    setuptools_data: _SetuptoolsData,
+    data_patterns: typing.Optional[list[str]] = None,
+) -> None:
     """Create a .egg file for some Python directory.
 
     Args:
-        source (str):
+        source:
             The absolute path to the user's developer Rez package.
-        destination (str):
+        destination:
             The absolute path to the installed Rez package path.
-        name (str):
+        name:
             The directory which contains Python modules which will be made into a .egg file.
-        setuptools_data (:attr:`._SetuptoolsData`):
+        setuptools_data:
             The metadata which will be added to the .egg's EGG-INFO folder.
-        data_patterns (list[str], optional):
+        data_patterns:
             Any file extensions to include as data in the .egg. For
             example, if you have a .txt file within `source/name`, use
             `data_patterns=["*.txt"]` to include them in the .egg.
@@ -205,12 +213,12 @@ def _build_eggs(source, destination, name, setuptools_data, data_patterns=None):
         shutil.copy2(egg, destination_path)
 
 
-def _copy_file_or_folder(source, destination):
+def _copy_file_or_folder(source: str, destination: str) -> None:
     """Copy ``source`` to ``destination`` regardless if it's a file, folder, etc.
 
     Args:
-        source (str): An absolute path to a file, folder, etc.
-        destination (str): The absolute path on-disk where ``source`` is copied to.
+        source: An absolute path to a file, folder, etc.
+        destination: The absolute path on-disk where ``source`` is copied to.
 
     """
     if os.path.isdir(source):
@@ -221,15 +229,15 @@ def _copy_file_or_folder(source, destination):
         shutil.copy2(source, destination)
 
 
-def _make_shared_namespace(namespaces, root):
+def _make_shared_namespace(namespaces: list[str], root: str) -> str:
     """Recursively create shared namespaces for ``namespaces``, starting at ``root``.
 
     Args:
-        namespaces (list[str]): Each Python folder to create. e.g. ``["top", "other"]``.
-        root (str): An absolute directory to begin a Python shared namespace.
+        namespaces: Each Python folder to create. e.g. ``["top", "other"]``.
+        root: An absolute directory to begin a Python shared namespace.
 
     Returns:
-        str: The inner-most sub-directory of ``namespaces``.
+        The inner-most sub-directory of ``namespaces``.
 
     """
     directories = [
@@ -248,11 +256,11 @@ def _make_shared_namespace(namespaces, root):
     return parent
 
 
-def _make_shared_python_init(directory):
+def _make_shared_python_init(directory: str) -> None:
     """Register ``directory`` as a Python shared namespace.
 
     Args:
-        directory (str): An absolute path on-disk to add a ``__init__.py`` file.
+        directory: An absolute path on-disk to add a ``__init__.py`` file.
 
     """
     path = os.path.join(directory, "__init__.py")
@@ -269,32 +277,32 @@ def _make_shared_python_init(directory):
         handler.write(template)
 
 
-def _run_command(  # pylint: disable=too-many-arguments
-    command,
-    source,
-    destination,
-    symlink,
-    symlink_folders,
-    symlink_files,
-):
+def _run_command(  # pylint: disable=too-many-arguments,too-many-positional-arguments
+    command: typing.Callable[[str, str], None],
+    source: str,
+    destination: str,
+    symlink: bool = linker.must_symlink(),
+    symlink_folders: bool = linker.must_symlink_folders(),
+    symlink_files: bool = linker.must_symlink_files(),
+) -> None:
     """Run a commany or symlink instead, depending on the given input.
 
     Args:
-        command (callable[str, str]):
+        command:
             Some function to run if it's determined to not do a symlink.
-        source (str):
+        source:
             Some absolute path to a file or folder on-disk.
-        destination (str):
+        destination:
             The absolute path to where generated content will go.
-        symlink (bool):
+        symlink:
             If True, symlinking will always happen. It implies
             If ``symlink_folders`` and ``symlink_files`` are both True.
             If False, symlinking is not guaranteed to always happen.
-        symlink_folders (bool):
+        symlink_folders:
             If True and ``source`` is a folder, make a symlink from
             ``destination`` which points back to ``source``. If False,
             run ``command`` instead.
-        symlink_files (bool):
+        symlink_files:
             If True and ``source`` is a file, make a symlink from
             ``destination`` which points back to ``source``. If False,
             run ``command`` instead.
@@ -314,24 +322,25 @@ def _run_command(  # pylint: disable=too-many-arguments
         or (symlink_files and os.path.isfile(source))
     ):
         _LOGGER.info('Creating "%s" symlink.', destination)
+        remove(destination)
         os.symlink(source, destination)
     else:
         _LOGGER.info('Running command "%s" on "%s".', command, destination)
         command(source, destination)
 
 
-def _run_hotl(root, hda, symlink=linker.must_symlink()):
+def _run_hotl(root: str, hda: str, symlink: bool = linker.must_symlink()) -> None:
     """Collapse or symlink Houdini HDA VCS folders.
 
     This function assumes that you're using expanded HDAs (HDAs which
     are folders, not single-files).
 
     Args:
-        root (str):
+        root:
             The absolute directory to folder where a houdini.hdalibrary file lives.
-        hda (str):
+        hda:
             The absolute directory where the HDA will be built to.
-        symlink (bool, optional):
+        symlink:
             If True, symlink ``root`` to ``hda``. If False, collapse the
             HDA in ``root`` into a single file and copy it into ``hda``.
 
@@ -371,8 +380,13 @@ def _run_hotl(root, hda, symlink=linker.must_symlink()):
         raise RuntimeError(stderr)
 
 
-def _validate_egg_names(items):
-    """Check to ensure no item is in a sub-folder."""
+def _validate_egg_names(items: typing.Iterable[str]) -> None:
+    """Check to ensure no item is in a sub-folder.
+
+    Raises:
+        NonRootItemFound: If ``items`` contains subfolder data.
+
+    """
     invalids = set()
 
     for item in items:
@@ -385,41 +399,41 @@ def _validate_egg_names(items):
         )
 
 
-def build(  # pylint: disable=too-many-arguments
-    source,
-    destination,
-    hdas=(),
-    items=(),
-    eggs=(),
-    shared_python_packages=(),
-    symlink=linker.must_symlink(),
-    symlink_folders=linker.must_symlink_folders(),
-    symlink_files=linker.must_symlink_files(),
-):
+def build(  # pylint: disable=too-many-arguments,too-many-positional-arguments
+    source: str,
+    destination: str,
+    hdas: typing.Iterable[str] = (),
+    items: typing.Iterable[str] = (),
+    eggs: typing.Iterable[str] = (),
+    shared_python_packages: typing.Iterable[namespacer.PythonPackageItem] = (),
+    symlink: bool = linker.must_symlink(),
+    symlink_folders: bool = linker.must_symlink_folders(),
+    symlink_files: bool = linker.must_symlink_files(),
+) -> None:
     """Copy or symlink all items in ``source`` to ``destination``.
 
     Args:
-        source (str):
+        source:
             The absolute path to the root directory of the Rez package.
-        destination (str):
+        destination:
             The location where the built files will be copied or symlinked from.
-        hdas (iter[str], optional):
+        hdas:
             The local paths to each folder containing HDAs. Default is None.
-        items (iter[str], optional):
+        items:
             The local paths to every item in `source` to copy / symlink. Default is None.
-        eggs (iter[str], optional):
+        eggs:
             The local paths which will be compressed into .egg (zip) files. Default is None.
-        shared_python_packages (iter[PythonPackageItem], optional):
+        shared_python_packages:
             The local paths to every item in `source` to copy / symlink. Default is None.
-        symlink (bool, optional):
+        symlink:
             If True, symlinking will always happen. It implies
             If ``symlink_folders`` and ``symlink_files`` are both True.
             If False, symlinking is not guaranteed to always happen.
-        symlink_folders (bool, optional):
+        symlink_folders:
             If True and ``source`` is a folder, make a symlink from
             ``destination`` which points back to ``source``. If False,
             run ``command`` instead.
-        symlink_files (bool, optional):
+        symlink_files:
             If True and ``source`` is a file, make a symlink from
             ``destination`` which points back to ``source``. If False,
             run ``command`` instead.
@@ -473,15 +487,15 @@ def build(  # pylint: disable=too-many-arguments
         raise
 
 
-def build_eggs(  # pylint: disable=too-many-arguments
-    source,
-    destination,
-    eggs,
-    symlink=linker.must_symlink(),
-    symlink_folders=linker.must_symlink_folders(),
-    symlink_files=linker.must_symlink_files(),
-    data_patterns=None,
-):
+def build_eggs(  # pylint: disable=too-many-arguments,too-many-positional-arguments
+    source: str,
+    destination: str,
+    eggs: typing.Iterable[str],
+    symlink: bool = linker.must_symlink(),
+    symlink_folders: bool = linker.must_symlink_folders(),
+    symlink_files: bool = linker.must_symlink_files(),
+    data_patterns: typing.Optional[list[str]] = None,
+) -> None:
     """Copy or symlink all items in ``source`` to ``destination``.
 
     Args:
@@ -513,7 +527,7 @@ def build_eggs(  # pylint: disable=too-many-arguments
     _validate_egg_names(eggs)
 
     if not data_patterns:
-        data_patterns = set()
+        data_patterns = []
 
     package = packages.get_developer_package(
         os.path.dirname(os.environ["REZ_BUILD_PROJECT_FILE"])
@@ -562,21 +576,21 @@ def build_eggs(  # pylint: disable=too-many-arguments
 
 
 def build_hdas(
-    source,
-    destination,
-    hdas,
-    symlink=linker.must_symlink(),
-):
+    source: str,
+    destination: str,
+    hdas: typing.Iterable[str],
+    symlink: bool = linker.must_symlink(),
+) -> None:
     """Symlink or collapse VCS-style HDA folders to an installed Rez package.
 
     Args:
-        source (str):
+        source:
             The absolute path to the root directory of the Rez package.
-        destination (str):
+        destination:
             The location where the built files will be copied or symlinked from.
-        hdas (iter[str]):
+        hdas:
             The name of each local folder which contains HDAs to build.
-        symlink (bool, optional):
+        symlink:
             If True, symlinking will always happen. It implies
             If ``symlink_folders`` and ``symlink_files`` are both True.
             If False, symlinking is not guaranteed to always happen.
@@ -602,12 +616,10 @@ def build_hdas(
 
         libraries.update(folder_libraries)
 
-    libraries = sorted(libraries)
-
     if not os.path.isdir(destination):
         os.makedirs(destination)
 
-    for library in libraries:
+    for library in sorted(libraries):
         hda_root = os.path.dirname(library)  # The root of the current HDA library
         library_root = os.path.dirname(hda_root)  # The folder containing all HDAs
 
@@ -628,32 +640,32 @@ def build_hdas(
         _run_hotl(hda_root, hda, symlink=symlink)
 
 
-def build_items(  # pylint: disable=too-many-arguments
-    source,
-    destination,
-    items,
-    symlink=linker.must_symlink(),
-    symlink_folders=linker.must_symlink_folders(),
-    symlink_files=linker.must_symlink_files(),
-):
+def build_items(  # pylint: disable=too-many-arguments,too-many-positional-arguments
+    source: str,
+    destination: str,
+    items: typing.Iterable[str],
+    symlink: bool = linker.must_symlink(),
+    symlink_folders: bool = linker.must_symlink_folders(),
+    symlink_files: bool = linker.must_symlink_files(),
+) -> None:
     """Copy or symlink all items in ``source`` to ``destination``.
 
     Args:
-        source (str):
+        source:
             The absolute path to the root directory of the Rez package.
-        destination (str):
+        destination:
             The location where the built files will be copied or symlinked from.
-        items (iter[str], optional):
+        items:
             The local paths to every item in `source` to copy / symlink. Default is None.
-        symlink (bool, optional):
+        symlink:
             If True, symlinking will always happen. It implies
             If ``symlink_folders`` and ``symlink_files`` are both True.
             If False, symlinking is not guaranteed to always happen.
-        symlink_folders (bool, optional):
+        symlink_folders:
             If True and ``source`` is a folder, make a symlink from
             ``destination`` which points back to ``source``. If False,
             run ``command`` instead.
-        symlink_files (bool, optional):
+        symlink_files:
             If True and ``source`` is a file, make a symlink from
             ``destination`` which points back to ``source``. If False,
             run ``command`` instead.
@@ -679,32 +691,32 @@ def build_items(  # pylint: disable=too-many-arguments
         )
 
 
-def build_shared_python_packages(  # pylint: disable=too-many-arguments
-    source,
-    destination,
-    items,
-    symlink=linker.must_symlink(),
-    symlink_folders=linker.must_symlink_folders(),
-    symlink_files=linker.must_symlink_files(),
-):
+def build_shared_python_packages(  # pylint: disable=too-many-arguments,too-many-positional-arguments
+    source: str,
+    destination: str,
+    items: typing.Iterable[namespacer.PythonPackageItem],
+    symlink: bool = linker.must_symlink(),
+    symlink_folders: bool = linker.must_symlink_folders(),
+    symlink_files: bool = linker.must_symlink_files(),
+) -> None:
     """Copy or symlink all items in ``source`` to ``destination``.
 
     Args:
-        source (str):
+        source:
             The absolute path to the root directory of the Rez package.
-        destination (str):
+        destination:
             The location where the built files will be copied or symlinked from.
-        items (iter[PythonPackageItem], optional):
+        items:
             The local paths to every item in `source` to copy / symlink. Default is None.
-        symlink (bool, optional):
+        symlink:
             If True, symlinking will always happen. It implies
             If ``symlink_folders`` and ``symlink_files`` are both True.
             If False, symlinking is not guaranteed to always happen.
-        symlink_folders (bool, optional):
+        symlink_folders:
             If True and ``source`` is a folder, make a symlink from
             ``destination`` which points back to ``source``. If False,
             run ``command`` instead.
-        symlink_files (bool, optional):
+        symlink_files:
             If True and ``source`` is a file, make a symlink from
             ``destination`` which points back to ``source``. If False,
             run ``command`` instead.
@@ -736,7 +748,7 @@ def build_shared_python_packages(  # pylint: disable=too-many-arguments
         )
 
 
-def clean(path):
+def clean(path: str) -> None:
     """Delete and re-make the ``path`` folder."""
     _LOGGER.info('Deleting "%s" path and remaking it.', path)
 
@@ -744,11 +756,11 @@ def clean(path):
     os.makedirs(path)
 
 
-def remove(path):
+def remove(path: str) -> None:
     """Delete whatever `path` is.
 
     Args:
-        path (str): A directory or file or symlink.
+        path: A directory or file or symlink.
 
     """
     if os.path.islink(path) or os.path.isfile(path):

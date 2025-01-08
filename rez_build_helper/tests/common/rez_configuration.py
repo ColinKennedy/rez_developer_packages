@@ -6,6 +6,7 @@
 import contextlib
 import itertools
 import platform
+import typing
 
 from rez import serialise
 from rez.config import config
@@ -20,14 +21,14 @@ REZ_PACKAGE_NAMES = frozenset(
 )
 
 
-def get_current_platform_as_rez_name():
+def get_current_platform_as_rez_name() -> str:
     """Grab the current environment's platform, but as a Rez-friendly name.
 
     Raises:
         EnvironmentError: If no platform name could be found.
 
     Returns:
-        str: The found platform name.
+        The found platform name.
 
     """
     name = platform.system()
@@ -45,7 +46,7 @@ def get_current_platform_as_rez_name():
 
 
 @contextlib.contextmanager
-def patch_local_packages_path(paths):
+def patch_local_packages_path(paths: list[str]) -> typing.Generator[None, None, None]:
     """Replace the paths that Rez uses to search for packages with `paths`.
 
     Example:
@@ -53,7 +54,7 @@ def patch_local_packages_path(paths):
         ...     print('The path is different now')
 
     Args:
-        paths (list[str]): Directories on-disk to where to look for Rez package.
+        paths: Directories on-disk to where to look for Rez package.
 
     """
     original = config.local_packages_path  # pylint: disable=no-member
@@ -66,7 +67,7 @@ def patch_local_packages_path(paths):
 
 
 @contextlib.contextmanager
-def patch_packages_path(paths):
+def patch_packages_path(paths: list[str]) -> typing.Generator[None, None, None]:
     """Replace the paths that Rez uses to search for packages with `paths`.
 
     Example:
@@ -74,7 +75,7 @@ def patch_packages_path(paths):
         ...     print('The paths are different now')
 
     Args:
-        paths (list[str]): Directories on-disk to where to look for Rez package.
+        paths: Directories on-disk to where to look for Rez package.
 
     """
     original = list(config.packages_path)  # pylint: disable=no-member
@@ -87,7 +88,7 @@ def patch_packages_path(paths):
 
 
 @contextlib.contextmanager
-def patch_release_packages_path(path):
+def patch_release_packages_path(path: str) -> typing.Generator[None, None, None]:
     """Replace the paths that Rez uses to search for released packages with `path`.
 
     Example:
@@ -95,7 +96,7 @@ def patch_release_packages_path(path):
         ...     print('The paths are different now')
 
     Args:
-        path (str): The directory on-disk to where to look for Rez package.
+        path: The directory on-disk to where to look for Rez package.
 
     """
     original = list(config.release_packages_path)

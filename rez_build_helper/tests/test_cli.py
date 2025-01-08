@@ -21,7 +21,7 @@ from rez import exceptions as rez_exceptions
 from .common import common, creator, finder, pymix
 
 
-def _allowed_to_symlink():
+def _allowed_to_symlink() -> bool:
     """bool: Check if symlinking works on the current machine."""
     if not hasattr(os, "symlink"):
         return False
@@ -44,7 +44,7 @@ def _allowed_to_symlink():
 class Cli(unittest.TestCase):
     """Make sure the basic CLI functions work as-expected."""
 
-    def test_empty(self):
+    def test_empty(self) -> None:
         """Build even if the package just contains just a package.py file."""
         directory = tempfile.mkdtemp(prefix="rez_build_helper_Cli_test_empty_")
         atexit.register(functools.partial(shutil.rmtree, directory))
@@ -78,7 +78,7 @@ class Cli(unittest.TestCase):
 
         self.assertTrue(os.path.isfile(os.path.join(install_location, "package.py")))
 
-    def test_copy(self):
+    def test_copy(self) -> None:
         """Copy folder(s) for the build Rez package."""
         directory = tempfile.mkdtemp(prefix="rez_build_helper_Cli_test_copy_")
         atexit.register(functools.partial(shutil.rmtree, directory))
@@ -178,7 +178,7 @@ class Cli(unittest.TestCase):
 class SharedPythonPackages(unittest.TestCase):
     """Make sure :ref:`--shared-python-packages` works as expected."""
 
-    def test_single_file(self):
+    def test_single_file(self) -> None:
         """Create a shared Python namespace for a single Python file."""
         directory = tempfile.mkdtemp(
             prefix="SharedPythonPackages_test_single_file_directory_",
@@ -236,7 +236,7 @@ class SharedPythonPackages(unittest.TestCase):
             )
         )
 
-    def test_invalid_001_missing_namespace(self):
+    def test_invalid_001_missing_namespace(self) -> None:
         """Fail to build with :ref:`--shared-python-packages` if no namespace exists."""
         directory = tempfile.mkdtemp(
             prefix="SharedPythonPackages_test_invalid_001_missing_namespace_source_",
@@ -282,7 +282,7 @@ class SharedPythonPackages(unittest.TestCase):
         with self.assertRaises(rez_exceptions.BuildError):
             creator.build(package, destination, quiet=True)
 
-    def test_invalid_002_no_namespace(self):
+    def test_invalid_002_no_namespace(self) -> None:
         """Fail to build with :ref:`--shared-python-packages` if there's no : value."""
         directory = tempfile.mkdtemp(
             prefix="SharedPythonPackages_test_invalid_002_no_namespace_directory_",
@@ -323,7 +323,7 @@ class SharedPythonPackages(unittest.TestCase):
         with self.assertRaises(rez_exceptions.BuildError):
             creator.build(package, destination, quiet=True)
 
-    def test_invalid_003_missing_path(self):
+    def test_invalid_003_missing_path(self) -> None:
         """Fail to build with :ref:`--shared-python-packages` if there's no : value."""
         directory = tempfile.mkdtemp(
             prefix="SharedPythonPackages_test_invalid_003_missing_path_directory_",
@@ -364,7 +364,7 @@ class SharedPythonPackages(unittest.TestCase):
         with self.assertRaises(rez_exceptions.BuildError):
             creator.build(package, destination, quiet=True)
 
-    def test_single_shared_namespace(self):
+    def test_single_shared_namespace(self) -> None:
         """Create a shared Python namespace for a Python package."""
         directory = tempfile.mkdtemp(
             prefix="SharedPythonPackages_test_simple_package_directory_",
@@ -519,7 +519,7 @@ class SharedPythonPackages(unittest.TestCase):
 class Symlink(unittest.TestCase):
     """Make sure symlinks generate as expected."""
 
-    def test_files(self):
+    def test_files(self) -> None:
         """Symlink only files and not folders."""
         directory = tempfile.mkdtemp(
             prefix="rez_build_helper_Symlink_test_files_directory_source_",
@@ -585,7 +585,7 @@ class Symlink(unittest.TestCase):
             os.path.isdir(os.path.join(install_location, "python", "some_thing"))
         )
 
-    def test_folders(self):
+    def test_folders(self) -> None:
         """Symlink only folders and not files."""
         directory = tempfile.mkdtemp(
             prefix="rez_build_helper_Symlink_test_folders_directory_",
@@ -656,7 +656,7 @@ class Symlink(unittest.TestCase):
             os.path.isdir(os.path.join(install_location, "python", "some_thing"))
         )
 
-    def test_basic(self):
+    def test_basic(self) -> None:
         """Create symlinks for each specified folder."""
         directory = tempfile.mkdtemp(prefix="rez_build_helper_Symlink_test_basic_")
         atexit.register(functools.partial(shutil.rmtree, directory))
@@ -752,7 +752,7 @@ class Symlink(unittest.TestCase):
             )
         )
 
-    def test_multiple(self):
+    def test_multiple(self) -> None:
         """Create symlinks to represent egg files for Python folders."""
         directory = tempfile.mkdtemp(
             prefix="rez_build_helper_Symlink_test_multiple_source_",
@@ -908,7 +908,7 @@ class Symlink(unittest.TestCase):
             )
         )
 
-    def test_single(self):
+    def test_single(self) -> None:
         """Create a symlink for (what would have normally been) an .egg file."""
         directory = tempfile.mkdtemp(
             prefix="rez_build_helper_Symlink_test_single_directory_source_"

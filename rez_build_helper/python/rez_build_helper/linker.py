@@ -6,16 +6,16 @@
 import sys
 
 
-def must_symlink():
+def must_symlink() -> bool:
     """bool: Check if the user wants symlinks, not copy files."""
     return "--symlink" in sys.argv[1:]
 
 
-def must_symlink_files():
+def must_symlink_files() -> bool:
     """bool: Check if the user wants symlinked files."""
     return "--symlink-files" in sys.argv[1:]
 
 
-def must_symlink_folders():
+def must_symlink_folders() -> bool:
     """bool: Check if the user wants symlinked folders."""
     return "--symlink-folders" in sys.argv[1:]

@@ -2,6 +2,7 @@
 
 import argparse
 import os
+import typing
 
 from . import exceptions, namespacer
 
@@ -12,27 +13,33 @@ _PYTHON_NAMESPACE_SEPARATOR = "."
 class NamespacePathPair(argparse.Action):
     """A parser for namespace:directory/ arguments in :mod:`rez_build_helper`."""
 
-    def __call__(self, parser, namespace, values, option_string=None):
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: typing.Optional[typing.Union[str, typing.Sequence[str]]],
+        option_string: typing.Optional[str] = None,
+    ) -> None:
         """Make sure ``values`` specifies a namespace and a relative path.
 
         Args:
-            parser (argparse.ArgumentParser):
+            parser:
                 The current parser that this instance is applied onto.
-            namespace (argparse.Namespace):
+            namespace:
                 The destination where parsed values are placed onto.
-            values (list[str]):
+            values:
                 Raw user input content to split and add to the parser.
-            option_string (str, optional):
+            option_string:
                 The flag from the CLI.
 
         Raises:
             UserInputError: If the user provided a malformed namespace:directory/ input.
 
         """
-        output = []
+        output: list[namespacer.PythonPackageItem] = []
         root = os.environ["REZ_BUILD_SOURCE_PATH"]
 
-        for text in values:
+        for text in values or []:
             item = _validate_text(text)
 
             _validate_relative_path(item.relative_path, root=root)
@@ -45,17 +52,23 @@ class NamespacePathPair(argparse.Action):
 class Path(argparse.Action):
     """A file/directory path validator :mod:`rez_build_helper`."""
 
-    def __call__(self, parser, namespace, values, option_string=None):
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: typing.Optional[typing.Union[str, typing.Sequence[str]]],
+        option_string: typing.Optional[str] = None,
+    ) -> None:
         """Make sure ``values`` specifies a namespace and a relative path.
 
         Args:
-            parser (argparse.ArgumentParser):
+            parser:
                 The current parser that this instance is applied onto.
-            namespace (argparse.Namespace):
+            namespace:
                 The destination where parsed values are placed onto.
-            values (list[str]):
+            values:
                 Raw user input content to split and add to the parser.
-            option_string (str, optional):
+            option_string:
                 The flag from the CLI.
 
         Raises:
@@ -65,19 +78,19 @@ class Path(argparse.Action):
         output = []
         root = os.environ["REZ_BUILD_SOURCE_PATH"]
 
-        for path in values:
+        for path in values or []:
             _validate_relative_path(path, root=root)
             output.append(path)
 
         setattr(namespace, self.dest, output)
 
 
-def _validate_relative_path(path, root=""):
+def _validate_relative_path(path: str, root: typing.Optional[str] = "") -> None:
     """Make sure ``path`` corresponds to some file or directory on-disk.
 
     Args:
-        text (str): A relative path to somewhere on-disk.
-        root (str, optional): An absolute path to the Rez package's source directory.
+        text: A relative path to somewhere on-disk.
+        root: An absolute path to the Rez package's source directory.
 
     Raises:
         UserInputError: If ``text`` is misspelled or points to nothing on-disk.
@@ -98,17 +111,17 @@ def _validate_relative_path(path, root=""):
         )
 
 
-def _validate_text(text):
+def _validate_text(text: str) -> namespacer.PythonPackageItem:
     """Make sure ``text`` matches ``"namespace:folder/"`` or ``"namespace:folder"``.
 
     Args:
-        text (str): Raw user input to parse for parts.
+        text: Raw user input to parse for parts.
 
     Raises:
         UserInputError: If ``text`` is malformed.
 
     Returns:
-        PythonPackageItem: The parsed output.
+        The parsed output.
 
     """
     parts = []

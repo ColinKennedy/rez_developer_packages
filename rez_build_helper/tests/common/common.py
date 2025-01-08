@@ -9,6 +9,7 @@ import io
 import os
 import shutil
 import tempfile
+import typing
 import unittest
 
 from rez.config import config
@@ -19,8 +20,10 @@ from . import finder
 class Common(unittest.TestCase):
     """A basic unittest class for creating a fake ``rez_build_helper`` install."""
 
+    _packages_path: list[str]
+
     @classmethod
-    def setUpClass(cls):
+    def setUpClass(cls) -> None:
         """Copy over dependent packages so rez_build_helper resolves to the latest version.
 
         If a user sets their REZ_PACKAGES_PATH in their shell start-up
@@ -60,7 +63,7 @@ class Common(unittest.TestCase):
         cls._packages_path = [config.local_packages_path, build_path, directory]
 
 
-def _copytree(source, destination, symlinks=False, ignore=None):
+def _copytree(source: str, destination: str, symlinks: bool = False) -> None:
     """Copy `source` into `destination`.
 
     Why is this not just default behavior. Guido, explain yourself!
@@ -69,15 +72,13 @@ def _copytree(source, destination, symlinks=False, ignore=None):
         https://stackoverflow.com/a/12514470/3626104
 
     Args:
-        source (str):
+        source:
             The folder to copy from.
-        destination (str):
+        destination:
             The folder to copy into.
-        symlinks (bool, optional):
+        symlinks:
             If True, copy through symlinks. If False, copy just the
             symlink. Default is False.
-        ignore (set[str], optional):
-            The names of the files/folders to ignore during copy.
 
     """
     for item in os.listdir(source):
@@ -85,33 +86,37 @@ def _copytree(source, destination, symlinks=False, ignore=None):
         destination_ = os.path.join(destination, item)
 
         if os.path.isdir(source_):
-            shutil.copytree(source_, destination_, symlinks, ignore)
+            shutil.copytree(source_, destination_, symlinks=symlinks)
         else:
             shutil.copy2(source_, destination_)
 
 
-def _make_file(path):
+def _make_file(path: str) -> None:
     """Create ``path`` on disk if it doesn't already exist.
 
     Args:
-        path (str): An absolute path that may or may not exist on-disk.
+        path: An absolute path that may or may not exist on-disk.
 
     """
     with io.open(path, "a", encoding="utf-8"):
         pass
 
 
-# Note : This was copied from :mod:`python_compatibility` to avoid a cyclic depemdendency
-def make_files(file_structure, root):
+_StrDict = dict[str, typing.Optional["_StrDict"]]
+
+
+# NOTE: This was copied from :mod:`python_compatibility` to avoid a cyclic depemdendency
+def make_files(file_structure: _StrDict, root: str) -> None:
     """Create a file and folder structure, starting a `root` directory.
 
     Args:
-        file_structure (dict[str, dict[str] or None]): Every key represents a file or folder.
+        file_structure:
+            Every key represents a file or folder.
             If the value of that key is None, it is created as a file.
             If the key's value is an empty dict, an empty folder is
             created instead.
-        root (str): The starting directory that is used to recursively build
-            files and folders.
+        root:
+            The starting directory that is used to recursively build files and folders.
 
     """
     for key, items in file_structure.items():

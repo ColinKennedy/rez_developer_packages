@@ -4,8 +4,8 @@ import platform
 import sys
 
 
-def can_check_links():
-    """bool: Check if this environment is allowed to check for symlinks."""
+def can_check_links() -> bool:
+    """Check if this environment is allowed to check for symlinks."""
     # Python 2 + Windows fails to call os.path.symlink but it's fixed in other
     # operating systems / later Python versions.
     #

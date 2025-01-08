@@ -5,21 +5,23 @@
 
 import logging
 import os
+import typing
 
-from rez import exceptions, packages_
+from rez import developer_package, exceptions
+from rez import packages as packages_
 from rez.vendor.schema import schema
 
 _LOGGER = logging.getLogger(__name__)
 
 
-def get_package_root(package):
+def get_package_root(package: packages_.Package) -> str:
     """Find the directory that contains the gizen Rez package.
 
     Depending on if the Rez package is a regular package or a developer
     package, the logic is slightly different.
 
     Args:
-        package (:class:`rez.packages_.Package`):
+        package:
             The built or source Rez package to get a valid path from.
 
     Raises:
@@ -29,13 +31,13 @@ def get_package_root(package):
             somehow.
 
     Returns:
-        str: The found folder. A Rez package should always have a root folder.
+        The found folder. A Rez package should always have a root folder.
 
     """
     path_to_package = package.resource.location
 
     if not os.path.isdir(path_to_package) and hasattr(package, "filepath"):
-        return os.path.dirname(package.filepath)
+        return typing.cast(str, os.path.dirname(package.filepath))
 
     path = os.path.join(path_to_package, package.name, str(package.version))
 
@@ -48,16 +50,18 @@ def get_package_root(package):
     return path
 
 
-def get_nearest_rez_package(directory):
+def get_nearest_rez_package(
+    directory: str,
+) -> typing.Optional[developer_package.DeveloperPackage]:
     """Assuming that `directory` is on or inside a Rez package, find the nearest Rez package.
 
     Args:
-        directory (str):
+        directory:
             The absolute path to a folder on disk. This folder should be
             a sub-folder inside of a Rez package to the root of the Rez package.
 
     Returns:
-        :class:`rez.developer_package.DeveloperPackage` or NoneType: The found package.
+        The found package, if any.
 
     """
     previous = None

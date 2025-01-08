@@ -10,10 +10,12 @@ import contextlib
 import functools
 import io
 import os
+import platform
 import shutil
 import sys
 import tempfile
 import textwrap
+import typing
 import zipfile
 
 import pkg_resources
@@ -33,17 +35,17 @@ _VERSION = "{_INFO.major}.{_INFO.minor}.{_INFO.micro}".format(_INFO=_INFO)
 class Egg(common.Common):
     """Make sure .egg generation works as expected."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Keep track of the users loadable Python paths so it can be reverted."""
         super(Egg, self).setUp()  # pylint: disable=super-with-arguments
 
         self._paths = list(sys.path)
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         """Restore the old set of loadable Python paths."""
         sys.path[:] = self._paths
 
-    def test_extra_metadata(self):
+    def test_extra_metadata(self) -> None:
         """Make sure platform data is recorded, if it is included in requires."""
         directory = tempfile.mkdtemp(
             prefix="rez_build_helper_Egg_test_extra_metadata_directory_"
@@ -159,10 +161,7 @@ class Egg(common.Common):
         with zipfile.ZipFile(os.path.join(install_location, "python.egg"), "r") as egg:
             found_package_information = _get_package_information(egg)
 
-        _py = functools.partial(
-            _format_version,
-            "{sys.version_info.major}{sys.version_info.minor}".format(sys=sys),
-        )
+        _py = functools.partial(_format_version, _get_python_version())
 
         expected = {
             "EGG-INFO/PKG-INFO",
@@ -201,7 +200,7 @@ class Egg(common.Common):
 
         expected_package_information = [
             "Metadata-Version: 2.1",
-            "Name: some_package",
+            "Name: some-package",
             "Version: 1.0.0",
             "Summary: A test packages for rez_build_helper",
             "Home-page: http://www.some_home_page.com",
@@ -226,7 +225,7 @@ class Egg(common.Common):
 
         self.assertEqual(expected_package_information, found_package_information)
 
-    def test_import_pkg_resources(self):
+    def test_import_pkg_resources(self) -> None:
         """Make sure a generated .egg file can be imported via pkg_resources."""
         directory = tempfile.mkdtemp(
             prefix="rez_build_helper_Egg_test_import_pkg_resources_directory_"
@@ -300,7 +299,7 @@ class Egg(common.Common):
             "some_thing/another_file.dat", {item.filename for item in egg.filelist}
         )
 
-    def test_single(self):
+    def test_single(self) -> None:
         """Create a collapsed .egg file for a Python folder."""
         directory = tempfile.mkdtemp(
             prefix="rez_build_helper_Egg_test_single_directory_",
@@ -412,10 +411,7 @@ class Egg(common.Common):
             )
         )
 
-        _py = functools.partial(
-            _format_version,
-            "{sys.version_info.major}{sys.version_info.minor}".format(sys=sys),
-        )
+        _py = functools.partial(_format_version, _get_python_version())
 
         with zipfile.ZipFile(os.path.join(install_location, "python.egg"), "r") as egg:
             found_package_information = _get_package_information(egg)
@@ -458,14 +454,16 @@ class Egg(common.Common):
 
         self.assertEqual(expected, {item.filename for item in egg.filelist})
 
+        system = platform.system().lower()
+
         expected_package_information = [
             "Metadata-Version: 2.1",
-            "Name: some_package",
+            "Name: some-package",
             "Version: 1.0.0",
             "Summary: A test packages for rez_build_helper",
             "Home-page: http://www.some_home_page.com",
             "Author: ColinKennedy",
-            "Platform: windows",
+            "Platform: {}".format(system),
             "Requires-Python: =={_VERSION}".format(_VERSION=_VERSION),
         ]
 
@@ -479,14 +477,14 @@ class Egg(common.Common):
                 "Author: ColinKennedy",
                 "License: UNKNOWN",
                 "Description: UNKNOWN",
-                "Platform: windows",
+                "Platform: {}".format(system),
                 "Requires-Python: =={_VERSION}".format(_VERSION=_VERSION),
             ]
 
         self.assertEqual(expected_package_information, found_package_information)
         self.assertEqual("some_thing\n", found_top_level)
 
-    def test_multiple(self):
+    def test_multiple(self) -> None:
         """Create more than one collapsed egg files for a Python folder."""
         directory = tempfile.mkdtemp(prefix="rez_build_helper_Egg_test_multiple_")
         atexit.register(functools.partial(shutil.rmtree, directory))
@@ -641,7 +639,7 @@ class Egg(common.Common):
             )
         )
 
-    def test_invalid(self):
+    def test_invalid(self) -> None:
         """Disallow non-root folders for .egg generation."""
         directory = tempfile.mkdtemp(
             prefix="rez_build_helper_Egg_test_invalid_directory_"
@@ -655,7 +653,7 @@ class Egg(common.Common):
         with self.assertRaises(exceptions.NonRootItemFound):
             filer.build(directory, destination, ["/asdf/asdf"], eggs=["foo/bar"])
 
-    def test_loadable(self):
+    def test_loadable(self) -> None:
         """Create a Python package .egg file and make sure it'source_ importable."""
         directory = tempfile.mkdtemp(prefix="rez_build_helper_Egg_test_loadable_")
         atexit.register(functools.partial(shutil.rmtree, directory))
@@ -716,7 +714,7 @@ class Egg(common.Common):
         # Make the python.egg importable
         sys.path.append(egg_file)
 
-        from some_package import (  # pylint: disable=import-outside-toplevel,import-error
+        from some_package import (  # type: ignore  # pylint: disable=import-error,import-outside-toplevel
             some_module,
         )
 
@@ -733,28 +731,28 @@ class Egg(common.Common):
         )
 
 
-def _format_version(version, text):
+def _format_version(version: str, text: str) -> str:
     """Add ``version`` to ``text``.
 
     Args:
-        version (str): A Python version. e.g. ``"36"``.
-        text (str): Some text to replace. e.g. ``"Foo {}"``.
+        version: A Python version. e.g. ``"36"``.
+        text: Some text to replace. e.g. ``"Foo {}"``.
 
     Returns:
-        str: The formatted text, ``"Foo 36"``.
+        The formatted text, ``"Foo 36"``.
 
     """
     return text.format(version)
 
 
-def _get_package_information(egg):
+def _get_package_information(egg: zipfile.ZipFile) -> list[str]:
     """Read ``egg`` for file contents.
 
     Args:
-        egg (handler): An open, read-mode file to check for contents.
+        egg: An open, read-mode file to check for contents.
 
     Returns:
-        list[str]: The found file paths, if any.
+        The found file paths, if any.
 
     """
     text = egg.open("EGG-INFO/PKG-INFO").read().decode("ascii")
@@ -769,9 +767,16 @@ def _get_package_information(egg):
     return output
 
 
+def _get_python_version() -> str:
+    """Get the current Python environment's major and minor version."""
+    version = sys.version_info
+
+    return "{version.major}{version.minor}".format(version=version)
+
+
 # Note : This was copied from :mod:`python_compatibility` to avoid a cyclic depemdendency
 @contextlib.contextmanager
-def _keep_sys_path():
+def _keep_sys_path() -> typing.Generator[None, None, None]:
     """Save the current :attr:`sys.path` and restore it later."""
     paths = list(sys.path)
 

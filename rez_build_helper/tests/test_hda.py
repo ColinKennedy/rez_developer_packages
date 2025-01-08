@@ -22,7 +22,7 @@ from .common import common, creator, finder, pymix
 class Hda(common.Common):
     """All tests related to building Houdini HDAs."""
 
-    def test_which(self):
+    def test_which(self) -> None:
         """Make sure the we get the hotl correctly.
 
         This path is only used for testing. In production, this should
@@ -43,7 +43,7 @@ class Hda(common.Common):
             filer._get_hotl_executable(),  # pylint: disable=protected-access
         )
 
-    def test_collapse(self):
+    def test_collapse(self) -> None:
         """Collapse a HDA VCS folder into a single HDA file.
 
         This test doesn't actually do the collapse. But it tests the
@@ -96,7 +96,7 @@ class Hda(common.Common):
                 os.path.islink(os.path.join(install_location, "hda", "blah"))
             )
 
-    def test_symlink(self):
+    def test_symlink(self) -> None:
         """Build symlinks, instead of collapsing the OTL."""
         directory = tempfile.mkdtemp(
             prefix="rez_build_helper_Hda_test_symlink_source_directory_",
