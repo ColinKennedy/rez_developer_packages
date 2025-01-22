@@ -17,7 +17,11 @@ import typing
 
 import setuptools
 import whichcraft
-from rez.version import _requirement as requirement
+
+try:
+    from rez.version import _requirement as requirement  # Rez 3.X+
+except ImportError:
+    from rez.vendor.version import requirement  # Rez 2.109-ish
 
 from . import exceptions, linker, namespacer
 

@@ -75,9 +75,14 @@ tests = {
         "requires": _common_requires + ["pylint-2.17+<4"],
         "run_on": _common_run_on,
     },
-    "unittest_python_3.9": {
+    "unittest_python_3.9_rez_2": {
         "command": "python -m unittest discover",
-        "requires": _common_requires + [".add_fake_hotl-1", "python-3.9+<3.10"],
+        "requires": _common_requires + [".add_fake_hotl-1", "python-3.9+<3.10", "rez-2"],
+        "run_on": _common_run_on,
+    },
+    "unittest_python_3.9_rez_3": {
+        "command": "python -m unittest discover",
+        "requires": _common_requires + [".add_fake_hotl-1", "python-3.9+<3.10", "rez-3"],
         "run_on": _common_run_on,
     },
     "unittest_python_3.11": {
