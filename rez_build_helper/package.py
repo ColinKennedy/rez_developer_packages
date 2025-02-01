@@ -3,7 +3,7 @@
 
 name = "rez_build_helper"
 
-version = "3.0.1"
+version = "3.0.2"
 
 description = "Build Rez packages using Python"
 
@@ -16,7 +16,7 @@ build_command = "python {root}/rezbuild.py {install}"
 uuid = "168c5114-a951-4834-a744-dae1331e375e"
 
 requires = [
-    "python-2.7+<3.12",
+    "python-3.7+<3.12",
     "rez-2.71+<4",
     "setuptools-41+<70",
     "six-1.11+<2",
