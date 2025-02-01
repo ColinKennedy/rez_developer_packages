@@ -20,7 +20,7 @@ from . import finder
 class Common(unittest.TestCase):
     """A basic unittest class for creating a fake ``rez_build_helper`` install."""
 
-    _packages_path: list[str]
+    _packages_path: typing.List[str]
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -102,7 +102,7 @@ def _make_file(path: str) -> None:
         pass
 
 
-_StrDict = dict[str, typing.Optional["_StrDict"]]
+_StrDict = typing.Dict[str, typing.Optional["_StrDict"]]
 
 
 # NOTE: This was copied from :mod:`python_compatibility` to avoid a cyclic depemdendency

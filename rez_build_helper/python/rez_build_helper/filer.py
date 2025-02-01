@@ -12,6 +12,7 @@ import logging
 import os
 import shutil
 import subprocess
+import sys
 import textwrap
 import typing
 
@@ -39,7 +40,9 @@ _LOGGER = logging.getLogger(__name__)
 _PYTHON_EXTENSIONS = frozenset((".py", ".pyc", ".pyd"))
 
 
-def _find_api_documentation(entries: typing.Union[list[tuple[str, str]], str]) -> str:
+def _find_api_documentation(
+    entries: typing.Union[typing.List[typing.Tuple[str, str]], str]
+) -> str:
     """Find the home page URL, given some entries.
 
     Args:
@@ -145,7 +148,7 @@ def _build_eggs(
     destination: str,
     name: str,
     setuptools_data: _SetuptoolsData,
-    data_patterns: typing.Optional[list[str]] = None,
+    data_patterns: typing.Optional[typing.List[str]] = None,
 ) -> None:
     """Create a .egg file for some Python directory.
 
@@ -227,13 +230,16 @@ def _copy_file_or_folder(source: str, destination: str) -> None:
     """
     if os.path.isdir(source):
         _LOGGER.info('Copying "%s" folder.', source)
-        shutil.copytree(source, destination, dirs_exist_ok=True)
+        if sys.version_info >= (3, 8):
+            shutil.copytree(source, destination, dirs_exist_ok=True)
+        else:
+            shutil.copytree(source, destination)
     elif os.path.isfile(source):
         _LOGGER.info('Copying "%s" file.', source)
         shutil.copy2(source, destination)
 
 
-def _make_shared_namespace(namespaces: list[str], root: str) -> str:
+def _make_shared_namespace(namespaces: typing.List[str], root: str) -> str:
     """Recursively create shared namespaces for ``namespaces``, starting at ``root``.
 
     Args:
@@ -498,7 +504,7 @@ def build_eggs(  # pylint: disable=too-many-arguments,too-many-positional-argume
     symlink: bool = linker.must_symlink(),
     symlink_folders: bool = linker.must_symlink_folders(),
     symlink_files: bool = linker.must_symlink_files(),
-    data_patterns: typing.Optional[list[str]] = None,
+    data_patterns: typing.Optional[typing.List[str]] = None,
 ) -> None:
     """Copy or symlink all items in ``source`` to ``destination``.
 

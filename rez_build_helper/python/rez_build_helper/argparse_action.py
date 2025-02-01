@@ -36,7 +36,7 @@ class NamespacePathPair(argparse.Action):
             UserInputError: If the user provided a malformed namespace:directory/ input.
 
         """
-        output: list[namespacer.PythonPackageItem] = []
+        output: typing.List[namespacer.PythonPackageItem] = []
         root = os.environ["REZ_BUILD_SOURCE_PATH"]
 
         for text in values or []:

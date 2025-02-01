@@ -17,7 +17,7 @@ if _can_use_wurlizer():
     # This branch is basically for Linux, which can use wurlitzer
 
     @contextlib.contextmanager
-    def get_context() -> typing.Generator[tuple[str, str], None, None]:
+    def get_context() -> typing.Generator[typing.Tuple[str, str], None, None]:
         """:class:`contextlib.GeneratorContextManager`: Silence all C-level stdout messages."""
         import wurlitzer  # pylint: disable=import-outside-toplevel,import-error
 
@@ -62,7 +62,7 @@ else:
     ##############################################################
 
     @contextlib.contextmanager
-    def get_context() -> typing.Generator[tuple[str, str], None, None]:
+    def get_context() -> typing.Generator[typing.Tuple[str, str], None, None]:
         """Silence all writes to stdout."""
         stream = io.BytesIO()
         # The original fd stdout points to. Usually 1 on POSIX systems.

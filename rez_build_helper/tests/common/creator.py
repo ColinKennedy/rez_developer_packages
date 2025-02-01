@@ -118,7 +118,7 @@ def _null_context() -> typing.Generator[None, None, None]:
 def build(
     package: developer_package.DeveloperPackage,
     install_path: str,
-    packages_path: typing.Optional[list[str]] = None,
+    packages_path: typing.Optional[typing.List[str]] = None,
     quiet: bool = False,
 ) -> None:
     """Build the given Rez `package` to the given `install_path`.
@@ -175,7 +175,7 @@ def release(  # pylint: disable=too-many-arguments,too-many-positional-arguments
     options: argparse.Namespace,
     parser: argparse.ArgumentParser,
     new_release_path: str,
-    search_paths: typing.Optional[list[str]] = None,
+    search_paths: typing.Optional[typing.List[str]] = None,
     quiet: bool = False,
 ) -> str:
     """Release a package located at `directory` to the `new_release_path` folder.

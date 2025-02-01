@@ -13,17 +13,17 @@ _LOGGER = logging.getLogger(__name__)
 class _Arguments(typing.NamedTuple):
     """The parsed user input."""
 
-    eggs: list[str]
-    hdas: list[str]
-    items: list[str]
-    shared_python_packages: list[namespacer.PythonPackageItem]
+    eggs: typing.List[str]
+    hdas: typing.List[str]
+    items: typing.List[str]
+    shared_python_packages: typing.List[namespacer.PythonPackageItem]
     symlink: bool
     symlink_files: bool
     symlink_folders: bool
     verbose: bool
 
 
-def _parse_arguments(text: list[str]) -> _Arguments:
+def _parse_arguments(text: typing.List[str]) -> _Arguments:
     """Create arguments for building file(s)/folder(s) of a Rez package.
 
     Args:
@@ -97,7 +97,7 @@ def _parse_arguments(text: list[str]) -> _Arguments:
     return typing.cast(_Arguments, known)
 
 
-def main(text: list[str]) -> None:
+def main(text: typing.List[str]) -> None:
     """Parse the user input and run the :ref:`rez_build_helper` terminal command.
 
     Args:

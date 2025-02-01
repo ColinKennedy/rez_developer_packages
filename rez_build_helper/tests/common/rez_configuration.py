@@ -46,7 +46,9 @@ def get_current_platform_as_rez_name() -> str:
 
 
 @contextlib.contextmanager
-def patch_local_packages_path(paths: list[str]) -> typing.Generator[None, None, None]:
+def patch_local_packages_path(
+    paths: typing.List[str],
+) -> typing.Generator[None, None, None]:
     """Replace the paths that Rez uses to search for packages with `paths`.
 
     Example:
@@ -67,7 +69,7 @@ def patch_local_packages_path(paths: list[str]) -> typing.Generator[None, None, 
 
 
 @contextlib.contextmanager
-def patch_packages_path(paths: list[str]) -> typing.Generator[None, None, None]:
+def patch_packages_path(paths: typing.List[str]) -> typing.Generator[None, None, None]:
     """Replace the paths that Rez uses to search for packages with `paths`.
 
     Example:

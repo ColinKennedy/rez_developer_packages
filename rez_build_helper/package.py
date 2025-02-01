@@ -75,6 +75,11 @@ tests = {
         "requires": _common_requires + ["pylint-2.17+<4"],
         "run_on": _common_run_on,
     },
+    "unittest_python_3.7": {
+        "command": "python -m unittest discover",
+        "requires": _common_requires + [".add_fake_hotl-1", "python-3.7+<3.8", "rez-3"],
+        "run_on": _common_run_on,
+    },
     "unittest_python_3.9_rez_2": {
         "command": "python -m unittest discover",
         "requires": _common_requires
