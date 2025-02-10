@@ -18,7 +18,7 @@ uuid = "168c5114-a951-4834-a744-dae1331e375e"
 requires = [
     "python-3.7+<3.12",
     "rez-2.71+<4",
-    "setuptools-41+<70",
+    "setuptools-41+<76",
     "six-1.11+<2",
     "whichcraft-0.6+<1",
 ]

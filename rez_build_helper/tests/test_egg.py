@@ -45,7 +45,13 @@ class Egg(common.Common):
         sys.path[:] = self._paths
 
     def test_extra_metadata(self) -> None:
-        """Make sure platform data is recorded, if it is included in requires."""
+        """Make sure platform data is recorded, if it is included in requires.
+
+        Raises:
+            NotImplementedError:
+                If we get setuptools metadata that we don't know how to parse.
+
+        """
         directory = tempfile.mkdtemp(
             prefix="rez_build_helper_Egg_test_extra_metadata_directory_"
         )
@@ -197,16 +203,37 @@ class Egg(common.Common):
 
         self.assertEqual(expected, {item.filename for item in egg.filelist})
 
-        expected_package_information = [
-            "Metadata-Version: 2.1",
-            "Name: some-package",
-            "Version: 1.0.0",
-            "Summary: A test packages for rez_build_helper",
-            "Home-page: http://www.some_home_page.com",
-            "Author: ColinKennedy",
-            "Platform: {_REZ_PLATFORM}".format(_REZ_PLATFORM=_REZ_PLATFORM),
-            "Requires-Python: =={_VERSION}".format(_VERSION=_VERSION),
-        ]
+        if found_package_information[0] == "Metadata-Version: 2.1":
+            expected_package_information = [
+                "Metadata-Version: 2.1",
+                "Name: some-package",
+                "Version: 1.0.0",
+                "Summary: A test packages for rez_build_helper",
+                "Home-page: http://www.some_home_page.com",
+                "Author: ColinKennedy",
+                "Platform: {_REZ_PLATFORM}".format(_REZ_PLATFORM=_REZ_PLATFORM),
+                "Requires-Python: =={_VERSION}".format(_VERSION=_VERSION),
+            ]
+        elif found_package_information[0] == "Metadata-Version: 2.2":
+            expected_package_information = [
+                "Metadata-Version: 2.2",
+                "Name: some_package",
+                "Version: 1.0.0",
+                "Summary: A test packages for rez_build_helper",
+                "Home-page: http://www.some_home_page.com",
+                "Author: ColinKennedy",
+                "Platform: {_REZ_PLATFORM}".format(_REZ_PLATFORM=_REZ_PLATFORM),
+                "Requires-Python: =={_VERSION}".format(_VERSION=_VERSION),
+                "Dynamic: author",
+                "Dynamic: home-page",
+                "Dynamic: platform",
+                "Dynamic: requires-python",
+                "Dynamic: summary",
+            ]
+        else:
+            raise NotImplementedError(
+                f'Got unexpected "{found_package_information}" metadata.'
+            )
 
         self.assertEqual(expected_package_information, found_package_information)
 
@@ -285,7 +312,13 @@ class Egg(common.Common):
         )
 
     def test_single(self) -> None:
-        """Create a collapsed .egg file for a Python folder."""
+        """Create a collapsed .egg file for a Python folder.
+
+        Raises:
+            NotImplementedError:
+                If we get setuptools metadata that we don't know how to parse.
+
+        """
         directory = tempfile.mkdtemp(
             prefix="rez_build_helper_Egg_test_single_directory_",
         )
@@ -441,16 +474,37 @@ class Egg(common.Common):
 
         system = platform.system().lower()
 
-        expected_package_information = [
-            "Metadata-Version: 2.1",
-            "Name: some-package",
-            "Version: 1.0.0",
-            "Summary: A test packages for rez_build_helper",
-            "Home-page: http://www.some_home_page.com",
-            "Author: ColinKennedy",
-            "Platform: {}".format(system),
-            "Requires-Python: =={_VERSION}".format(_VERSION=_VERSION),
-        ]
+        if found_package_information[0] == "Metadata-Version: 2.1":
+            expected_package_information = [
+                "Metadata-Version: 2.1",
+                "Name: some-package",
+                "Version: 1.0.0",
+                "Summary: A test packages for rez_build_helper",
+                "Home-page: http://www.some_home_page.com",
+                "Author: ColinKennedy",
+                "Platform: {}".format(system),
+                "Requires-Python: =={_VERSION}".format(_VERSION=_VERSION),
+            ]
+        elif found_package_information[0] == "Metadata-Version: 2.2":
+            expected_package_information = [
+                "Metadata-Version: 2.2",
+                "Name: some_package",
+                "Version: 1.0.0",
+                "Summary: A test packages for rez_build_helper",
+                "Home-page: http://www.some_home_page.com",
+                "Author: ColinKennedy",
+                "Platform: {}".format(system),
+                "Requires-Python: =={_VERSION}".format(_VERSION=_VERSION),
+                "Dynamic: author",
+                "Dynamic: home-page",
+                "Dynamic: platform",
+                "Dynamic: requires-python",
+                "Dynamic: summary",
+            ]
+        else:
+            raise NotImplementedError(
+                f'Got unexpected "{found_package_information}" metadata.'
+            )
 
         self.assertEqual(expected_package_information, found_package_information)
         self.assertEqual("some_thing\n", found_top_level)
